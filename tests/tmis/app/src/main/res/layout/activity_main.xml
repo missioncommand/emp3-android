@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/ToggleRequestParamsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ToggleRequestParamsBtn" />
+        <Button
+            android:id="@+id/MakeRequestBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MakeRequestBtn" />
+        <Button
+            android:id="@+id/GetCapabilitiesBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/GetCapabilitiesBtn" />
+        <Button
+            android:id="@+id/MapLauncherBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MapLauncerBtn" />
+        <Button
+            android:id="@+id/ToggleServiceBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/StartServiceBtn" />
+        <Button
+            android:id="@+id/Google"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Google" />
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/WmsParametersLayout"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <Spinner
+                    android:id="@+id/PresetRequests"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/ServiceText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ServiceDefault"
+                    android:hint="Service" />
+                <EditText
+                    android:id="@+id/VersionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/VersionDefault"
+                    android:hint="Version" />
+                <EditText
+                    android:id="@+id/RequestText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/RequestDefault"
+                    android:hint="Request" />
+                <EditText
+                    android:id="@+id/LayersText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/LayersDefault"
+                    android:hint="Layers" />
+                <EditText
+                    android:id="@+id/TransparentText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/TransparentDefault"
+                    android:hint="Transparent" />
+                <EditText
+                    android:id="@+id/StylesText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/StylesDefault"
+                    android:hint="Styles" />
+                <EditText
+                    android:id="@+id/FormatText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/FormatDefault"
+                    android:hint="Format (mime type)" />
+                <RadioGroup
+                    android:id="@+id/ReferenceSystemRadioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <RadioButton
+                        android:id="@+id/SRSRadioBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SRS"
+                        android:checked="true" />
+                    <RadioButton
+                        android:id="@+id/CRSRadioBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CRS" />
+                </RadioGroup>
+                <EditText
+                    android:id="@+id/ReferenceSystemText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ReferenceSystemDefault"
+                    android:hint="SRS" />
+                <EditText
+                    android:id="@+id/ProjectionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ProjectionDefault"
+                    android:hint="Projection" />
+                <EditText
+                    android:id="@+id/BoundingBoxText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/BBOXDefault"
+                    android:hint="BBOX: minx,miny,maxx,maxy" />
+                <EditText
+                    android:id="@+id/WidthText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/WidthDefault"
+                    android:hint="Width" />
+                <EditText
+                    android:id="@+id/HeightText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/HeightDefault"
+                    android:hint="Height" />
+            </LinearLayout>
+        </ScrollView>
+        <WebView
+            android:id="@+id/ResponseViewer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+</LinearLayout>

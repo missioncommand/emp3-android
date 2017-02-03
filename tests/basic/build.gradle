@@ -1,0 +1,19 @@
+apply plugin: 'emp3AndroidApp'
+
+dependencies {
+    compile project (":sdk:emp3-android-sdk")
+    compile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
+    compile project (":sdk:emp3-android-sdk-view")
+    compile project (":mapengine:worldwind:mapengine-worldwind-aar")
+    compile project (":mapengine:openstreet:mapengine-openstreet-aar")
+
+    compile         ("com.android.support:appcompat-v7")
+    compile         ("com.android.support:design")
+    compile         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
+
+    provided        ("org.cmapi.primitives:common-map-geospatial-notation")
+
+    testCompile     ("junit:junit")
+}
+
+android.defaultConfig.applicationId "mil.emp3.dev_test_sdk"

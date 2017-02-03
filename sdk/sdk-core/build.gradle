@@ -1,0 +1,62 @@
+apply plugin: 'java'
+apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.provided-base'
+
+dependencies {
+    provided project (":sdk:emp3-android-sdk")
+    provided         ("org.cmapi.primitives:common-map-geospatial-notation")
+
+    provided         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
+    provided         ("android:android")
+}
+
+publishing.publications {
+    nebula(MavenPublication) {
+        groupId    = project.ext.group
+        artifactId = "emp3-android-sdk-core"
+        version    = project.version
+
+        artifacts = [
+            "$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar",
+            "$buildDir/../apk/build/outputs/apk/emp3-android-sdk-core-apk-debug.apk"
+        ]
+
+        pom.withXml {
+            configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+                asNode().dependencies[0].dependency.each {
+
+                    if (it.artifactId[0].text() == dep.moduleName &&
+                        it.groupId[0].text() == dep.moduleGroup &&
+                        it.scope[0].text() != "provided") {
+
+                        it.scope[0].value = "compile"
+                    }
+                }
+            }
+        }
+    }
+}
+publishing.repositories {
+    maven {
+        //url "$rootProject.buildDir/_repo1"
+        url = nexusPublishUrl
+
+        credentials {
+            username project.di2eNexusUsername
+            password project.di2eNexusPassword
+        }
+    }
+}
+if (project.hasProperty('di2eNexusReleaseUrl')) {
+    publishing.repositories {
+        maven {
+            //url "$rootProject.buildDir/_repo2"
+            url = project.property('di2eNexusReleaseUrl')
+
+            credentials {
+                username project.di2eNexusUsername
+                password project.di2eNexusPassword
+            }
+        }
+    }
+}

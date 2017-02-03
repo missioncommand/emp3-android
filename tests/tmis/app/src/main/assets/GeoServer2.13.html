@@ -1,0 +1,432 @@
+<html>
+	<head>
+		<title>OpenLayers WMS Client</title>
+		<script src="OpenLayers.js"></script>
+	</head>
+	<body>
+		<div id="map" style="width:70%; height:100%; position:absolute; left:0; top:0; margin: 0; padding: 0;"></div>
+		<div id="map_info" style="z-index:1000; width:70%; height:20px; position:absolute; left:0; bottom:0; color: #FF0000; background: rgba(255, 255, 255, 0.5);"></div>
+		<div style="width:30%; height:100%; overflow-y:auto; position:absolute; right:0; top:0; background-color:#808080; border: 1px solid #000000;">
+<!-- -->
+			<div id="tools" style="padding:3px; position:relative; left:0; top:0; z-index: 1; background-color:#808080;">
+				<form>
+					<b>Coordinates/Zoom Level</b><br />
+					Lat:
+					<input type="number" id="lat" value="" maxlength="10" size="8" />
+					<br />
+					Lon:
+					<input type="number" id="lon" value="" maxlength="10" size="8" />
+					<br />
+					Zoom:
+					<input type="number" id="zoom" value="" maxlength="2" size="2" />
+					<br />
+					<b>Line of Sight Parameters</b><br />
+					Height (m):
+					<input type="number" id="LOS_height" value="2" maxlength="5" size="3" />
+					Radius (m):
+					<input type="number" id="LOS_radius" value="" maxlength="5" size="4" />
+					<br />
+					Opacity % (0-100):
+					<input type="number" id="LOS_opacity" value="50" maxlength="3" size="3" />
+					<br />
+					<b>Actions</b><br />
+					Coords/Zoom:
+					<input type="button" id="go_to" value="Go To" onclick="reCenterMap(lon.value, lat.value, zoom.value)">
+					<input type="button" id="get_coords_zoom" value="Get" onclick="getCoordsAndZoom()">
+					<input type="button" id="clear_coords_zoom" value="Clear" onclick="clearCoordsAndZoom()">
+					<br />
+					Circular Line of Sight:
+					<input type="checkbox" id="toggle_LOS" onclick="toggleLOS(toggle_LOS.checked, lon.value, lat.value, LOS_height.value, LOS_radius.value, LOS_opacity.value)">
+					<input type="button" id="update_LOS" value="Update" style="display:none" onclick="createOrUpdateLOS(lon.value, lat.value, LOS_height.value, LOS_radius.value, LOS_opacity.value)">
+					<br />
+					Tile Borders:
+					<input type="checkbox" id="toggle_tile_borders" onclick="toggleTileBorders(toggle_tile_borders.checked)">
+					<br />
+					Use Single WMS Layer:
+					&nbsp;&nbsp;
+					<input type="checkbox" id="useSingleWmsLayer" value="false" />
+				</form>
+			</div>
+ <!-- -->
+			<div id="map_layers" style="padding:3px; height:40%; overflow-y:auto; position:relative; left:0; bottom:0; z-index: 0; background-color:#808080; border-top: 1px solid #000000;">
+				<b>Available Layers:</b><br />
+				<ul id="available_layers"></ul>
+				<b>Base Layer Options:</b><br />
+				<ul id="base_layer_options"></ul>
+			</div>
+		</div>
+		<script defer="defer" type="text/javascript">
+			var options = {
+				numZoomLevels: 25, controls: [
+					new OpenLayers.Control.TouchNavigation(),
+					new OpenLayers.Control.PanZoomBar(),
+					new OpenLayers.Control.KeyboardDefaults(),
+					new OpenLayers.Control.ArgParser(),
+					new OpenLayers.Control.Attribution()
+			]};
+			var map = new OpenLayers.Map('map', options);
+			var baseWMSLayer = new OpenLayers.Layer.WMS(
+				"OpenLayers WMS",
+				"http://10.0.2.2:8080/geoserver/wms",
+				{ layers: 'topp:states' });
+			var losWMSLayer = createOrUpdateLOS(-80, 40, 2, "", 50);
+			map.addLayer(baseWMSLayer);
+			map.events.on({
+				"moveend": mapUpdated,
+				"zoomend": mapUpdated
+			});
+			// Zoom in on Afghanistan
+			//map.setCenter([65, 33], 5, false, true);
+			// Zoom in on the Middle East
+			map.setCenter([54, 30], 4, false, true);
+
+			OpenLayers.Request.GET({
+				url: "http://10.0.2.2:8080/geoserver/wms",
+				params: {
+					service: "WMS",
+					request: "GetCapabilities",
+					version: "1.1.1"
+				},
+				headers: {},
+				callback: getCapabilitesResponse
+			});
+
+			function mapUpdated()
+			{
+				var lat = Math.round(map.getCenter().lat * 10000) / 10000;
+				var lon = Math.round(map.getCenter().lon * 10000) / 10000;
+				var mapInfoDiv = window.document.getElementById("map_info");
+				mapInfoDiv.innerText = "Lat: " + lat + " Lon: " + lon + " Zoom: " + map.getZoom();
+				// make sure new tiles are updated accordingly
+				var tileBordersChkBox = window.document.getElementById("toggle_tile_borders");
+				toggleTileBorders(tileBordersChkBox.checked);
+			}
+
+			function getCapabilitesResponse(response)
+			{
+				try
+				{
+				    var xmlFormat = new OpenLayers.Format.XML();
+					var xml = xmlFormat.read(response.responseText);
+					var overlaysList = window.document.getElementById("available_layers");
+					var baseLayersList = window.document.getElementById("base_layer_options");
+					var layerNodes = xmlFormat.getElementsByTagNameNS(xml, "*", "Layer");
+					for (var i = 0; i < layerNodes.length; ++i)
+					{
+					    var layer = parseLayerNode(xmlFormat, layerNodes[i]);
+						if (layer.name == "")
+							continue;
+						console.log(layer.name);
+
+						var li = createLayerListItem(layer)
+						if (layer.isBaseLayer)
+							baseLayersList.appendChild(li);
+						else
+							overlaysList.appendChild(li);
+
+						if (layer.name == "topp:states")
+							li.onclick();
+					}
+					var topoSVGLayer = { title: "TopoLayerSVG", name: "", transparent: false, isBaseLayer: false, visible: false };
+					var topoSVGLi = createTopoLayerListItem(topoSVGLayer, true);
+					overlaysList.appendChild(topoSVGLi);
+					var topoRasterLayer = { title: "TopoLayerRaster", name: "", transparent: false, isBaseLayer: false, visible: false };
+					var topoRasterLi = createTopoLayerListItem(topoRasterLayer, false);
+					overlaysList.appendChild(topoRasterLi);
+				}
+				catch (ex)
+				{
+					console.log("Exception while reading WMS Capabilities: " + ex);
+				}
+			}
+
+			function parseLayerNode(xmlFormat, layerNode)
+			{
+			    var layer = { name: "", title: "", transparent: true, isBaseLayer: false, visible: false, llbbox: {minx: -180, miny: -90, maxx: 180, maxy: 90}};
+				var child = xmlFormat.getChildEl(layerNode);
+				while (child != null)
+				{
+					if (child.nodeName == "Name") layer.name = child.textContent;
+					if (child.nodeName == "Title") layer.title = child.textContent;
+
+					if (child.nodeName == "LatLonBoundingBox") {
+					    layer.llbbox.minx = child.attributes["minx"].value;
+					    layer.llbbox.miny = child.attributes["miny"].value;
+					    layer.llbbox.maxx = child.attributes["maxx"].value;
+					    layer.llbbox.maxy = child.attributes["maxy"].value;
+					}
+					child = xmlFormat.getNextEl(child);
+				}
+				if (layer.name == "topp:states")
+				{
+					layer.isBaseLayer = true;
+					layer.transparent = false;
+				}
+				return layer;
+			}
+
+			function createLayerListItem(layer)
+			{
+				var wmsLayer = new OpenLayers.Layer.WMS(
+					layer.title,
+					"http://10.0.2.2:8080/geoserver/wms",
+					{ layers: layer.name, transparent: layer.transparent },
+					{ isBaseLayer: layer.isBaseLayer });
+
+				var li = document.createElement("li");
+				var extent = calculateExtent(layer);
+				li.innerText = layer.title;
+				li.style.padding = "5px";
+				li.onclick = function ()
+				{
+				    if (layer.visible)
+					{
+				        removeLayer(wmsLayer);
+						li.style.color = "#000000";
+					}
+					else
+					{
+				        addLayer(wmsLayer);
+				        li.style.color = "#00CC00";
+				        if (extent != null)
+				            map.zoomToExtent(extent, false);
+				    }
+					layer.visible = !layer.visible;
+				};
+				return li;
+			}
+
+			function createTopoLayerListItem(layer, useSVG)
+			{
+				var style = "Step=100,TopoLineColor=#494949,SVG=" + useSVG + ",ZoomLevel=";
+				var wmsLayer = new OpenLayers.Layer.WMS(
+					layer.title,
+					"http://10.0.2.2:8080/geoserver/wms",
+					{
+						layers: layer.name,
+						transparent: layer.transparent,
+						REQUEST: 'GetTopo',
+						STYLES: style + map.getZoom(),
+						format: (useSVG ? 'image/svg+xml' : 'image/png'),
+						projection: "EPSG:4326"
+					},
+					{ isBaseLayer: layer.isBaseLayer });
+				map.events.on({
+					"zoomend": function ()
+					{
+						wmsLayer.mergeNewParams({ STYLES: style + map.getZoom() });
+					}
+				});
+
+				var li = document.createElement("li");
+				li.innerText = layer.title;
+				li.style.padding = "5px";
+				li.onclick = function ()
+				{
+					if (layer.visible)
+					{
+						map.removeLayer(wmsLayer);
+						li.style.color = "#000000";
+					}
+					else
+					{
+						map.addLayer(wmsLayer);
+						li.style.color = "#FF0000";
+					}
+					layer.visible = !layer.visible;
+				};
+				return li;
+			}
+
+			function toggleLOS(show, lon, lat, heightM, radiusM, opacityPercentage)
+			{
+				if (show)
+				{
+					var updateBtn = window.document.getElementById("update_LOS");
+					updateBtn.style.display = "inline";
+					createOrUpdateLOS(lon, lat, heightM, radiusM, opacityPercentage);
+					map.addLayer(losWMSLayer);
+				}
+				else
+				{
+					var updateBtn = window.document.getElementById("update_LOS");
+					updateBtn.style.display = "none";
+					map.removeLayer(losWMSLayer);
+				}
+			}
+
+			function createOrUpdateLOS(lon, lat, heightM, radiusM, opacityPercentage)
+			{
+				lon = (lon != "") ? lon : map.getCenter().lon;
+				lat = (lat != "") ? lat : map.getCenter().lat;
+				heightM = (lat != "") ? heightM : 2;
+				var radiusM= (radiusM != "") ? radiusM : 99999;
+				opacityPercentage = (opacityPercentage != "") ? opacityPercentage : 50;
+				console.log("Updating Line of Sight: " + lat + ", " + lon + ", " + heightM + ", " + opacityPercentage);
+
+				var circles = [[lat.toString(), lon.toString(), radiusM.toString(), heightM.toString()]];
+				var jsonString = JSON.stringify(circles).replace(/,/g, "##comma");
+
+				var style =
+					"ObserverLon=" + lon +
+					",ObserverLat=" + lat +
+					",ObserverHeightM=" + heightM +
+					",IntervisOpacity=" + opacityPercentage +
+					",IntervisCircles=" + jsonString;
+				var params = {
+					layers: "Intervisibility",
+					transparent: true,
+					REQUEST: 'GetMap',
+					STYLES: style,
+					projection: "EPSG:4326"
+				};
+
+				if (losWMSLayer)
+				{
+					losWMSLayer.mergeNewParams(params);
+				}
+				else
+				{
+					return new OpenLayers.Layer.WMS(
+						"Intervisibility",
+						"http://10.0.2.2:8080/geoserver/wms",
+						params,
+						{ isBaseLayer: false });
+				}
+			}
+
+			function reCenterMap(lon, lat, zoom)
+			{
+				//assuming x and y are in map projection
+				console.log("Panning to " + lat + ", " + lon);
+				map.panTo(new OpenLayers.LonLat(lon, lat));
+				if (zoom)
+				{
+					console.log("Zooming to " + zoom);
+					map.zoomTo(zoom);
+				}
+			}
+
+			function getCoordsAndZoom()
+			{
+				window.document.getElementById("lat").value = Math.round(map.getCenter().lat * 10000) / 10000;
+				window.document.getElementById("lon").value = Math.round(map.getCenter().lon * 10000) / 10000;
+				window.document.getElementById("zoom").value = map.getZoom();
+			}
+
+			function clearCoordsAndZoom()
+			{
+				window.document.getElementById("lat").value = "";
+				window.document.getElementById("lon").value = "";
+				window.document.getElementById("zoom").value = "";
+			}
+
+			function toggleTileBorders(showBorders)
+			{
+				var borderValue = showBorders ? "1px solid #FB00FE" : "";
+				var tiles = window.document.getElementsByClassName("olTileImage");
+				for (var i = 0; i < tiles.length; ++i)
+				{
+					tiles[i].style.border = borderValue;
+				}
+			}
+
+			function addLayer(wmsLayer) {
+			    var wmsLayerName = wmsLayer.params['LAYERS'];
+			    console.log('\n' + 'addLayer() ' + wmsLayerName);
+			    var g_useSingleWmsLayer = document.getElementById("useSingleWmsLayer");
+			    console.log('g_useSingleWmsLayer: ' + g_useSingleWmsLayer.checked);
+			    if (!g_useSingleWmsLayer.checked)
+			    {
+			        var isVector = false;
+			        if (wmsLayerName.indexOf("GridLines") == 0)
+			            isVector = true;
+			        map.addLayer(wmsLayer);
+			        // move the vector layers on top
+			        if (!isVector) {
+			            var delta = map.layers.length;
+			            var vectors = [];
+			            for (var i = 0; i < delta - 1; i++) {
+			                var _layer = map.layers[i].params['LAYERS'];
+			                if (_layer == "Intervisibility" ||
+                                _layer == "ImageryBounds" ||
+                                _layer == "TigrImageryCoverage" ||
+                                _layer == "MapSearch" ||
+                                _layer == "PliHistory" ||
+                                _layer == "TopoLines" ||
+                                _layer.indexOf(".tigrindex") != -1) {
+			                    vectors.push(map.layers[i])
+			                }
+			            }
+			            for (var j = 0; j < vectors.length; j++) {
+			                map.raiseLayer(vectors[j], delta);
+			            }
+			            // the grid will be the topmost
+			            // Object GridLines has no method 'setZIndex (at east in openLayers2.23, so setLayerIndex() and raiseLayer() do not work
+			            for (var i = 0; i < delta; i++) {
+			                var _layer = map.layers[i].params['LAYERS'];
+			                if (_layer.indexOf("GridLines") == 0 && i < delta) {
+			                    var layer_on_top = map.layers[i];
+			                    map.removeLayer(map.layers[i]);
+			                    map.addLayer(layer_on_top);
+			                    break;
+			                }
+			            }
+			        }
+			    }
+			    else
+			    {
+			        var baseLayer = map.baseLayer;
+			        var layers = map.baseLayer.params['LAYERS'];
+			        if (layers.indexOf(wmsLayerName) == -1) {
+			            map.baseLayer.params['LAYERS'] = layers + ',' + wmsLayerName;
+			            map.baseLayer.redraw(true);
+			        }
+			    }
+			}
+
+			function removeLayer(wmsLayer) {
+			    var wmsLayerName = wmsLayer.params['LAYERS'];
+			    console.log('\n' + 'removeLayer() ' + wmsLayerName);
+			    var g_useSingleWmsLayer = document.getElementById("useSingleWmsLayer");
+			    console.log('g_useSingleWmsLayer: ' + g_useSingleWmsLayer.checked);
+			    if (!g_useSingleWmsLayer.checked)
+			    {
+			        map.removeLayer(wmsLayer);
+			    }
+			    else
+			    {
+			        var layers = map.baseLayer.params['LAYERS'];
+			        var array = layers.split(",");
+			        var a = array.indexOf(wmsLayerName);
+			        if (a != -1)
+			        {
+	                    array.splice(a, 1)
+			            map.baseLayer.params['LAYERS'] = array.join();
+			            map.baseLayer.redraw(true);
+			        }
+			    }
+			}
+
+				function calculateExtent(layer) {
+
+	            if (layer.name == "topp:states")
+			        return null;
+
+	            if (!(layer.name.indexOf('.tif') > -1 || layer.name.indexOf('.jpg') > -1 || layer.name.indexOf('.tigrindex') > -1 || layer.name.indexOf('.jp2') > -1))
+			        return null;
+
+			    if ((layer.llbbox.minx == -180) || (layer.llbbox.miny == -90) || (layer.llbbox.maxx == 180) || (layer.llbbox.maxy == 90))
+			        return null;
+
+			    var layerExtent = new OpenLayers.Bounds(layer.llbbox.minx, layer.llbbox.miny, layer.llbbox.maxx, layer.llbbox.maxy);
+
+			    return layerExtent;
+			}
+
+
+
+		</script>
+	</body>
+</html>
+

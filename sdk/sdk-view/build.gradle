@@ -1,0 +1,98 @@
+apply plugin: 'emp3AndroidLib'
+apply plugin: 'maven-publish'
+
+dependencies {
+    compile project     (":sdk:emp3-android-sdk")
+    compile project     (":service:mirrorcache:service-mirrorcache-api")
+    compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
+    compile             ("com.android.support:appcompat-v7")
+    compile             ("sec.web.renderer:mil-sym-android-renderer")
+
+    provided            ("org.cmapi.primitives:common-map-geospatial-notation")
+    
+    testCompile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
+    testCompile         ("junit:junit")
+    //testCompile         ("org.mockito:mockito-core")
+    testCompile         ("org.powermock:powermock-api-mockito") { // PowerMockito is required to mock static methods like Logger.log
+        exclude module: 'hamcrest-core'
+        exclude module: 'objenesis'
+    }
+    testCompile         ("org.powermock:powermock-module-junit4") {
+        exclude module: 'hamcrest-core'
+        exclude module: 'objenesis'
+    }
+}
+
+
+publishing {
+    publications {
+        stuff(MavenPublication) {
+
+            groupId    = project.ext.group
+            artifactId = project.name
+            version    = project.version
+
+            artifact "$buildDir/outputs/aar/${project.name}-release.aar"
+
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+
+                // inject the compile-time dependencies
+                // TODO: this handles basic case;
+                //       need to find existing plugin and/or add more robustness
+                configurations.compile.allDependencies.each {
+                    if (it.name != 'unspecified') {
+
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group == 'emp3-android-sdk-Main' ? project.ext.group : it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        if (it.version != null) {
+                            //def depVer = project.dependencyManagement.dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"]
+                            dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            //url "$rootProject.buildDir/_repo"
+            url = nexusPublishUrl
+
+            credentials {
+                username project.di2eNexusUsername
+                password project.di2eNexusPassword
+            }
+        }
+    }
+    if (project.hasProperty('di2eNexusReleaseUrl')) {
+        repositories {
+            maven {
+                //url "$rootProject.buildDir/_repo2"
+                url = project.property('di2eNexusReleaseUrl')
+
+                credentials {
+                    username project.di2eNexusUsername
+                    password project.di2eNexusPassword
+                }
+            }
+        }
+    }
+}
+
+
+android {
+    def version_sec_renderer = dependencyManagement.importedProperties['version_renderer']
+    def version_sec_cmapi = dependencyManagement.importedProperties['version_cmapi']
+
+    // Add sec renderer id and version information to BuildConfig to be retrieved by About class.
+    buildTypes.each {
+        it.buildConfigField "String", "Implementation_Sec_Renderer_Id", "\"sec.web.renderer:mil-sym-android-renderer ${version_sec_renderer}\""
+        it.buildConfigField "String", "Implementation_Sec_Cmapi_Id", "\"org.cmapi.primitives:common-map-geospatial-notation ${version_sec_cmapi}\""
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}

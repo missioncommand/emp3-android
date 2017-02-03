@@ -1,0 +1,64 @@
+apply plugin: 'java'
+apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.provided-base'
+
+repositories {
+    maven {
+        url 'https://esri.bintray.com/arcgis'
+    }
+    maven {
+        url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
+        credentials {
+            username project.empUsername
+            password project.empPassword
+        }
+    }
+}
+
+dependencies {
+    compile          ("com.android.support:support-annotations")
+    provided         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
+    provided project (":sdk:emp3-android-sdk")
+    compile          (group: 'com.esri.arcgis.android', name:'arcgis-android', version: '10.2.7') { transitive = true }
+}
+
+publishing.publications {
+    nebula(MavenPublication) {
+        groupId = project.ext.group
+        artifactId ="emp3-android-arcgis"
+        version = project.version
+        artifacts = [
+                "$buildDir/../aar/build/outputs/aar/mapengine-arcgis-aar-release.aar",
+                "$buildDir/../apk/build/outputs/apk/mapengine-arcgis-apk-debug.apk"
+        ]
+
+        pom.withXml {
+            configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+                asNode().dependencies[0].dependency.each {
+
+                    if (it.artifactId[0].text() == dep.moduleName &&
+                            it.groupId[0].text() == dep.moduleGroup &&
+                            it.scope[0].text() != "provided") {
+
+                        it.scope[0].value = "compile"
+                    }
+                }
+            }
+        }
+    }
+}
+
+publishing.repositories {
+    maven {
+        url =  nexusPublishUrl
+
+        credentials {
+            username project.di2eNexusUsername
+            password project.di2eNexusPassword
+        }
+    }
+}
+
+
+
+

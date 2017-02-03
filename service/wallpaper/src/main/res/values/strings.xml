@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EMP3 Wallpaper Service</string>
+    <string name="ftdValue">900000000</string>
+    <string name="mtdValue">900000000</string>
+</resources>

@@ -1,0 +1,40 @@
+apply plugin: 'emp3AndroidLib'
+
+repositories {
+    maven {
+        url 'https://esri.bintray.com/arcgis'
+    }
+    maven {
+        url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
+        credentials {
+            username project.empUsername
+            password project.empPassword
+        }
+    }
+}
+
+dependencies {
+    compile          ("com.android.support:appcompat-v7")
+    provided project (":sdk:emp3-android-sdk")
+    provided ("org.cmapi.primitives:common-map-geospatial-notation")
+    compile          ("com.esri.arcgis.android:arcgis-android:10.2.7") { transitive = true }
+}
+
+android {
+    def engine_version = "10.2.7"
+
+    packagingOptions {
+        exclude 'META-INF/LGPL2.1'
+        exclude 'META-INF/LICENSE'
+       exclude 'META-INF/NOTICE' 
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes.each {
+        it.buildConfigField "String", "Implementation_Map_Engine_Id", "\"com.esri.arcgis.android:arcgis-android ${engine_version}\""
+    }
+}
+

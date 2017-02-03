@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ParamNames">
+        <item>SERVICE</item>
+        <item>VERSION</item>
+        <item>REQUEST</item>
+        <item>LAYERS</item>
+        <item>TRANSPARENT</item>
+        <item>STYLES</item>
+        <item>FORMAT</item>
+        <item></item>
+        <item>PROJECTION</item>
+        <item>BBOX</item>
+        <item>WIDTH</item>
+        <item>HEIGHT</item>
+    </string-array>
+    <array name="ParamViewIds">
+        <item>@id/ServiceText</item>
+        <item>@id/VersionText</item>
+        <item>@id/RequestText</item>
+        <item>@id/LayersText</item>
+        <item>@id/TransparentText</item>
+        <item>@id/StylesText</item>
+        <item>@id/FormatText</item>
+        <item>@id/ReferenceSystemText</item>
+        <item>@id/ProjectionText</item>
+        <item>@id/BoundingBoxText</item>
+        <item>@id/WidthText</item>
+        <item>@id/HeightText</item>
+    </array>
+
+    <!-- GeoPackage Imagery -->
+    <string-array name="GeoPkg_Caribean_Imagery">
+        <item>WMS</item>
+        <item>1.1.1</item>
+        <item>GetMap</item>
+        <item>Auto_BestQuality</item>
+        <item>FALSE</item>
+        <item></item>
+        <item>image/png</item>
+        <item>EPSG:4326</item>
+        <item>EPSG:4326</item>
+        <item>-84,22,-76,30</item>
+        <item>256</item>
+        <item>256</item>
+    </string-array>
+
+    <!--string-array name="GeoServer_Test">
+        <item>WMS</item>
+        <item>1.1.1</item>
+        <item>GetMap</item>
+        <item>topp:states</item>
+        <item>FALSE</item>
+        <item>population</item>
+        <item>image/png</item>
+        <item>EPSG:4326</item>
+        <item>EPSG:4326</item>
+        <item>-145.15104058007,21.731919794922,-57.154894212888,58.961058642578</item>
+        <item>780</item>
+        <item>330</item>
+    </string-array-->
+
+    <!-- Aden GDAL TIFF Imagery -->
+    <string-array name="Aden_GDAL_TIFF_Imagery">
+        <item>WMS</item>
+        <item>1.1.1</item>
+        <item>GetMap</item>
+        <item>Auto_BestQuality</item>
+        <item>FALSE</item>
+        <item></item>
+        <item>image/png</item>
+        <item>EPSG:4326</item>
+        <item>EPSG:4326</item>
+        <item>44.96,12.76,45.10,12.89</item>
+        <item>256</item>
+        <item>256</item>
+    </string-array>
+
+    <!-- Afghanistan Topology -->
+    <string-array name="AF_DTED1_Topo">
+        <item>WMS</item>
+        <item>1.1.1</item>
+        <item>GetTopo</item>
+        <item></item>
+        <item>FALSE</item>
+        <item>Step=60,TopoLineColor=#FF0000,SVG=true,ZoomLevel=12</item>
+        <item>image/svg+xml</item>
+        <item>EPSG:4326</item>
+        <item>EPSG:4326</item>
+        <item>70.6875,36.0625,70.75,36.125</item>
+        <item>256</item>
+        <item>256</item>
+    </string-array>
+
+    <string-array name="PresetRequests">
+        <item>GeoPkg_Caribean_Imagery</item>
+        <item>GeoServer_Test</item>
+        <item>Aden_GDAL_TIFF_Imagery</item>
+        <item>AF_DTED0_Topo</item>
+        <item>Custom</item>
+    </string-array>
+    <string-array name="PresetRequestIds">
+        <item>@array/GeoPkg_Caribean_Imagery</item>
+        <!--item>@array/GeoServer_Test</item-->
+        <item>@array/Aden_GDAL_TIFF_Imagery</item>
+        <item>@array/AF_DTED1_Topo</item>
+        <item>Custom</item>
+    </string-array>
+</resources>

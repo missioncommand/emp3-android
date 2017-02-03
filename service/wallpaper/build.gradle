@@ -1,0 +1,9 @@
+apply plugin: 'emp3AndroidApp'
+
+dependencies {
+    compile project (":sdk:emp3-android-sdk-view")
+    compile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
+    compile project (":mapengine:worldwind:mapengine-worldwind-aar")
+}
+
+android.defaultConfig.applicationId "mil.emp3.wallpaper"

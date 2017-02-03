@@ -1,0 +1,11 @@
+apply plugin: 'emp3AndroidApp'
+
+dependencies {
+    compile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
+}
+
+android {
+    defaultConfig {
+        applicationId "mil.emp3.emp3_android_sdk_core_apk"
+    }
+}

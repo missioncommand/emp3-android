@@ -1,0 +1,18 @@
+apply plugin: 'emp3AndroidApp'
+
+android {
+    defaultConfig {
+        applicationId "mil.emp3.hello"
+    }
+}
+
+dependencies {
+    compile project (":sdk:emp3-android-sdk")
+    compile project (":sdk:emp3-android-sdk-view")
+
+    compile project (":service:mirrorcache:service-mirrorcache-api")
+    compile project (":service:mirrorcache:service-mirrorcache-mirrorables")
+    compile         ("com.android.support:appcompat-v7")
+
+    testCompile     ("junit:junit")
+}

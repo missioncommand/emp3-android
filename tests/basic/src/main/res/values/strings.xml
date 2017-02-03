@@ -1,0 +1,121 @@
+<resources>
+    <string name="app_name">EMP V3 - Test App</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_exit">Exit</string>
+    <string name="action_test">Test</string>
+
+    <string name="action_drawMenu">Draw Menu</string>
+    <string name="action_drawText">Draw Text</string>
+    <string name="action_drawLine">Draw Line</string>
+    <string name="action_drawPolygon">Draw Polygon</string>
+    <string name="action_drawMilStd">Draw MilStd</string>
+    <string name="action_drawMilStdIcon">Draw MilStd Icon</string>
+    <string name="action_drawTG">Draw Tactical Graphic</string>
+
+    <string name="action_plotPoint">Plot Default Point</string>
+    <string name="action_plotUrlPoint">Plot URL Point</string>
+    <string name="action_plot2units2525B">Many Units</string>
+    <string name="action_plotunits2525B">2525B Units</string>
+    <string name="action_plotunits2525C">2525C Units</string>
+    <string name="action_plotTG2525C">2525C TG</string>
+    <string name="action_removeAll">Remove All</string>
+    <string name="action_addWMS">Add WMS</string>
+    <string name="action_removeWMS">Remove WMS</string>
+    <string name="action_plotsymbol">Plot Symbol</string>
+    <string name="action_performanceTest">Performance Test</string>
+    <string name="action_stopTest">Stop Test</string>
+
+    <string name="action_iconsize">Icon Size</string>
+    <string name="action_iconsizetiny">Tiny</string>
+    <string name="action_iconsizesmall">Small</string>
+    <string name="action_iconsizemedium">Medium</string>
+    <string name="action_iconsizelarge">Large</string>
+
+    <string name="action_iconStyle">Icon Style</string>
+    <string name="action_iconStyleFill">Fill Style</string>
+    <string name="action_iconStyleFillColor">Color</string>
+    <string name="action_iconStyleFillColorDefault">Default</string>
+    <string name="action_iconStyleFillColorRed">Red</string>
+    <string name="action_iconStyleFillColorGreen">Green</string>
+    <string name="action_iconStyleFillColorBlue">Blue</string>
+    <string name="action_iconStyleFillPattern">Pattern</string>
+    <string name="action_iconStyleFillPatternDefault">Default</string>
+    <string name="action_iconStyleFillPatternSolid">Solid</string>
+    <string name="action_iconStyleFillPatternHatched">Hatched</string>
+    <string name="action_iconStyleFillPatternCrossHatched">CrossHatched</string>
+    <string name="action_iconStyleStroke">Stroke Style</string>
+    <string name="action_iconStyleStrokeColor">Color</string>
+    <string name="action_iconStyleStrokeColorDefault">Default</string>
+    <string name="action_iconStyleStrokeColorRed">Red</string>
+    <string name="action_iconStyleStrokeColorGreen">Green</string>
+    <string name="action_iconStyleStrokeColorBlue">Blue</string>
+    <string name="action_iconStyleStrokePattern">Pattern</string>
+    <string name="action_iconStyleStrokePatternDefault">Default</string>
+    <string name="action_iconStyleStrokePatternSolid">Solid</string>
+    <string name="action_iconStyleStrokePatternDashed">Dashed</string>
+    <string name="action_iconStyleStrokePatternDotted">Dotted</string>
+    <string name="action_iconStyleLabel">Label Style</string>
+    <string name="action_iconStyleLabelColor">Color</string>
+    <string name="action_iconStyleLabelColorDefault">Default</string>
+    <string name="action_iconStyleLabelColorRed">Red</string>
+    <string name="action_iconStyleLabelColorGreen">Green</string>
+    <string name="action_iconStyleLabelColorBlue">Blue</string>
+    <string name="action_iconStyleLabelJustification">Justification</string>
+    <string name="action_iconStyleLabelJustificationDefault">Default</string>
+    <string name="action_iconStyleLabelJustificationLeft">Left</string>
+    <string name="action_iconStyleLabelJustificationCenter">Center</string>
+    <string name="action_iconStyleLabelJustificationRight">Right</string>
+
+    <string name="action_labelsetting">Label Setting</string>
+    <string name="action_requiredLabels">Required</string>
+    <string name="action_commonLabels">Common</string>
+    <string name="action_allLabels">All</string>
+
+    <string name="cancelBtn">Cancel</string>
+    <string name="saveBtn">Continue</string>
+
+    <!-- Feature Properties Dialog -->
+    <string name="FPD_title">Feature Properties</string>
+    <string name="FPD_featurename">Feature Name</string>
+
+    <string name="FPD_symbolcodetextLabel">Symbol Code:</string>
+
+    <string name="FPD_milstdversion">MilStd:</string>
+    <string name="FPD_2525B">2525B</string>
+    <string name="FPD_2525C">2525C</string>
+    
+    <string name="FPD_affiliationLabel">Affiliation:</string>
+
+    <string name="FPD_echelonModifierLabel">Modifier:</string>
+    <string name="FPD_echelonLabel">Echelon:</string>
+
+    <string name="FPD_symbolcodeLabel">Symbol:</string>
+
+    <string name="FPD_symbolLatLabel">Lat:</string>
+    <string name="FPD_symbolLonLabel">Lon:</string>
+    <string name="FPD_symbolAltLabel">Alt:</string>
+
+    <string name="action_farThresholdLabel">FDT:</string>
+    <string name="action_midThresholdLabel">MDT:</string>
+
+    <string name="PRF_CountLabel">No Of Tracks:</string>
+
+    <string name="action_freehandDraw">Freehand Draw</string>
+    <string name="action_clearselected">Clear Selected</string>
+    <string name="action_freehandDrawExit">Exit Freehand</string>
+    <string name="action_getMapState">Get Map State</string>
+    <string name="action_swapMap">Swap Map</string>
+
+    <string name="ZoomOut">Zoom -</string>
+    <string name="ZoomIn">Zoom +</string>
+    <string name="PanLeft">Left</string>
+    <string name="PanRight">Right</string>
+    <string name="TiltUp">Up</string>
+    <string name="TiltDown">Down</string>
+    <string name="rollCCW">Roll CCW</string>
+    <string name="rollCW">Roll CW</string>
+
+    <string name="action_toggleCrossHairs">Toggle Cross Hair</string>
+
+    <string name="action_plotText">Plot Text</string>
+</resources>

@@ -1,0 +1,117 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenLocal()
+
+        maven {
+            url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
+            credentials {
+                username project.empUsername
+                password project.empPassword
+            }
+        }
+        maven {
+            url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
+            credentials {
+                username project.empUsername
+                password project.empPassword
+            }
+        }
+    }
+    dependencies {
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.4.4'
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
+    }
+}
+
+apply plugin: 'java'
+
+apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.source-jar'
+apply plugin: 'nebula.javadoc-jar'
+apply plugin: 'nebula.provided-base'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+    //compile project (":mirrorcache:mirrorcache-api");
+    compile         ("org.cmapi.primitives:common-map-geospatial-notation")
+
+    provided        (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
+    provided        ("android:android")
+}
+
+tasks.withType(Test) {
+    scanForTestClasses = false
+    include "**/*Test.class" // whatever Ant pattern matches your test class files
+}
+
+javadoc {
+    options {
+        failOnError = true
+
+        encoding "UTF-8" 
+        docEncoding "UTF-8"
+        charSet "UTF-8"
+        linkSource true
+
+        memberLevel = JavadocMemberLevel.PROTECTED
+
+        logging.captureStandardError LogLevel.INFO
+        logging.captureStandardOutput LogLevel.INFO
+
+        exclude '**/core/**/*.java'
+        exclude '**/api/abstracts/*.java'
+
+        title = "EMP V3 Android SDK $project.version"
+    }
+}
+
+publishing.publications {
+    nebula(MavenPublication) {
+
+        groupId    = project.ext.group
+        artifactId = project.name
+        version    = project.version
+
+        pom.withXml {
+            configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+                asNode().dependencies[0].dependency.each {
+
+                    if (it.artifactId[0].text() == dep.moduleName &&
+                        it.groupId[0].text() == dep.moduleGroup &&
+                        it.scope[0].text() != "provided") {
+
+                        it.scope[0].value = "compile"
+                    }
+                }
+            }
+        }
+    }
+}
+
+publishing.repositories {
+    maven {
+        //url "$rootProject.buildDir/_repo"
+        url = nexusPublishUrl
+
+        credentials {
+            username project.di2eNexusUsername
+            password project.di2eNexusPassword
+        }
+    }
+}
+if (project.hasProperty('di2eNexusReleaseUrl')) {
+    publishing.repositories {
+        maven {
+            //url "$rootProject.buildDir/_repo2"
+            url = project.property('di2eNexusReleaseUrl')
+
+            credentials {
+                username project.di2eNexusUsername
+                password project.di2eNexusPassword
+            }
+        }
+    }
+}

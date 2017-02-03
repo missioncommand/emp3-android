@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">EMP3 Validator</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string-array name="altitude_mode_array">
+        <item>CLAMP_TO_GROUND</item>
+        <item>REALTIVE_TO_GROUND</item>
+        <item>ABSOLUTE</item>
+    </string-array>
+
+    <string-array name="wms_version_array">
+        <item>VERSION_1_1</item>
+        <item>VERSION_1_1_1</item>
+        <item>VERSION_1_3</item>
+    </string-array>
+</resources>

@@ -1,0 +1,73 @@
+rootProject.name = 'emp3-android'
+
+//
+// SDK
+//
+include ':sdk:sdk-api'
+project(':sdk:sdk-api').name = 'emp3-android-sdk'
+
+include ':sdk:sdk-view'
+project(':sdk:sdk-view').name = 'emp3-android-sdk-view'
+
+include ':sdk:sdk-apk'
+project(':sdk:sdk-apk').name = 'emp3-android-sdk-apk'
+
+include ':sdk:sdk-core:aar'
+project(':sdk:sdk-core:aar').name = 'emp3-android-sdk-core-aar'
+include ':sdk:sdk-core:apk'
+project(':sdk:sdk-core:apk').name = 'emp3-android-sdk-core-apk'
+
+//
+// MAPENGINE
+//
+include ':mapengine:worldwind:aar'
+project(':mapengine:worldwind:aar').name = 'mapengine-worldwind-aar'
+include ':mapengine:worldwind:apk'
+project(':mapengine:worldwind:apk').name = 'mapengine-worldwind-apk'
+
+include ':mapengine:arcgis:aar'
+project(':mapengine:arcgis:aar').name = 'mapengine-arcgis-aar'
+include ':mapengine:arcgis:apk'
+project(':mapengine:arcgis:apk').name = 'mapengine-arcgis-apk'
+
+include ':mapengine:openstreet:aar'
+project(':mapengine:openstreet:aar').name = 'mapengine-openstreet-aar'
+include ':mapengine:openstreet:apk'
+project(':mapengine:openstreet:apk').name = 'mapengine-openstreet-apk'
+
+//
+// SERVICE
+//
+include ':service:mirrorcache:api'
+project(':service:mirrorcache:api').name = 'service-mirrorcache-api'
+
+include ':service:mirrorcache:mirrorables'
+project(':service:mirrorcache:mirrorables').name = 'service-mirrorcache-mirrorables'
+
+include ':service:mirrorcache:service'
+project(':service:mirrorcache:service').name = 'service-mirrorcache-service'
+
+include ':service:wallpaper'
+project(':service:wallpaper').name = 'service-wallpaper'
+
+//
+// TESTS
+//
+include ':tests:basic'
+project(':tests:basic').name = 'test-basic'
+
+include ':tests:mirrorcache-echo'
+project(':tests:mirrorcache-echo').name = 'test-mirrorcache-echo'
+include ':tests:mirrorcache-standout'
+project(':tests:mirrorcache-standout').name = 'test-mirrorcache-standout'
+include ':tests:mirrorcache-joystick'
+project(':tests:mirrorcache-joystick').name = 'test-mirrorcache-joystick'
+
+include ':tests:validator'
+project(':tests:validator').name = 'test-validator'
+
+//include ':tests:tmis:app'
+//include ':tests:tmis:wmsworldwind'
+//include ':tests:tmis:wwzoom'
+
+

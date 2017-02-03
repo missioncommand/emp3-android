@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">WMS WorldWind</string>
+    <string name="CustomWMS">Custom Configure WMS</string>
+    <string name="TMIS">TMIS</string>
+    <string name="NASANeoWMS">NASA Neo WMS</string>
+    <string name="LandSat">LandSat</string>
+    <string name="OpenStreetMap">OpenStreetMap</string>
+    <string name="TIGRwms">TIGR WMS</string>
+    <string name="TIGRelevation">TIGR Elevation</string>
+    <string name="action_about">About</string>
+    <string name="CancelButton">Cancel</string>
+    <string name="OKButton">OK</string>
+    <string name="ZoomOut">Zoom -</string>
+    <string name="ZoomIn">Zoom +</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    // Defaults are set for locally running TIGR map service
+    // The local host address must be changed by the user
+    <string name="UrlDefault">http://irs.gis-lab.info/</string>
+    <string name="VersionDefault">1.1.1</string>
+    <string name="TileFormatDefault">null</string>
+    <string name="TransparentDefault">false</string>
+    <string name="LayersDefault">landsat</string>
+
+</resources>

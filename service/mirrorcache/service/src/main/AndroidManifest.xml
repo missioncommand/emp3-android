@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="mil.emp3.mirrorcache.service">
+
+    <uses-sdk
+        android:minSdkVersion="19"
+        android:targetSdkVersion="19" />
+
+    <application>
+        <activity
+            android:name=".MirrorCacheServiceActivity"
+            android:label="MirrorCacheService"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".MirrorCacheService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="mil.emp3.mirrorcache.service.MirrorCacheService" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

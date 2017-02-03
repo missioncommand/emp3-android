@@ -1,0 +1,74 @@
+apply plugin: 'emp3AndroidLib'
+apply plugin: 'maven-publish'
+
+dependencies {
+    compile project (":service:mirrorcache:service-mirrorcache-api")
+    compile project (":sdk:emp3-android-sdk")
+    compile         ("org.cmapi.primitives:common-map-geospatial-notation")
+
+    testCompile     ("junit:junit")
+}
+
+android {
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+publishing {
+    publications {
+        stuff(MavenPublication) {
+
+            groupId    = project.ext.group
+            artifactId = project.name
+            version    = project.version
+
+            artifact "$buildDir/outputs/aar/${project.name}-release.aar"
+
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+
+                // inject the compile-time dependencies
+                // TODO: this handles basic case;
+                //       need to find existing plugin and/or add more robustness
+                configurations.compile.allDependencies.each {
+                    if (it.name != 'unspecified') {
+
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group == 'emp3-android' ? project.ext.group : it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        if (it.version != null) {
+                            //def depVer = project.dependencyManagement.dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"]
+                            dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            //url "$rootProject.buildDir/_repo"
+            url = nexusPublishUrl
+
+            credentials {
+                username project.di2eNexusUsername
+                password project.di2eNexusPassword
+            }
+        }
+    }
+    if (project.hasProperty('di2eNexusReleaseUrl')) {
+        repositories {
+            maven {
+                //url "$rootProject.buildDir/_repo2"
+                url = project.property('di2eNexusReleaseUrl')
+
+                credentials {
+                    username project.di2eNexusUsername
+                    password project.di2eNexusPassword
+                }
+            }
+        }
+    }
+}

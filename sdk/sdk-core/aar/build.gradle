@@ -1,0 +1,9 @@
+apply plugin: 'emp3AndroidLib'
+
+dependencies {
+    provided project (":sdk:emp3-android-sdk")
+    provided         ("org.cmapi.primitives:common-map-geospatial-notation")
+
+    provided         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
+    provided         ("android:android")
+}

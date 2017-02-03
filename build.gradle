@@ -1,0 +1,62 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
+            credentials {
+                username project.empUsername
+                password project.empPassword
+            }
+        }
+        maven {
+            url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
+            credentials {
+                username project.empUsername
+                password project.empPassword
+            }
+        }
+        maven {
+            url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
+            credentials {
+                username project.empUsername
+                password project.empPassword
+            }
+        }
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.4.4'
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
+        classpath 'mil.army.sec.smartClient:emp3-android-gradle-plugin:1.3.5'
+        classpath 'org.ajoberstar:grgit:1.1.0'
+    }
+}
+
+ext {
+    // Open the Git repository in the current directory.
+    git = org.ajoberstar.grgit.Grgit.open(file('.'))
+
+    // Get commit id of HEAD.
+    revision = git.head().id
+    // Alternative is using abbreviatedId of head() method.
+    // revision = git.head().abbreviatedId
+}
+allprojects { project ->
+    apply plugin: 'emp3AndroidCommon'
+
+    repositories {
+        maven {
+            url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
+            credentials {
+                username project.empUsername
+                password project.empPassword
+            }
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

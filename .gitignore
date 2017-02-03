@@ -1,0 +1,18 @@
+# GRADLE
+build/
+.gradle/
+
+
+#IDE
+.project
+.classpath
+.settings/
+
+*.iml
+.idea/
+
+.nb-gradle/
+
+local.properties
+
+/.nb-gradle-properties

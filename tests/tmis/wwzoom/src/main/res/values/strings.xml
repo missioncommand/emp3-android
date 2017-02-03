@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">WWZoom</string>
+    // Defaults are set for locally running TIGR map service
+    // The local host address must be changed by the user
+    <string name="UrlDefault">http://127.0.0.1:8080/WmsServer.ashx</string>
+    <string name="VersionDefault">1.1.1</string>
+    <string name="TileFormatDefault">null</string>
+    <string name="TransparentDefault">false</string>
+    <string name="LayersDefault">Auto_BestQuality</string>
+    <string name="CancelButton">Cancel</string>
+    <string name="OKButton">OK</string>
+    <string name="ZoomOut">Zoom -</string>
+    <string name="ZoomIn">Zoom +</string>
+    <string name="PanLeft">Left</string>
+    <string name="PanRight">Right</string>
+    <string name="TiltUp">Up</string>
+    <string name="TiltDown">Down</string>
+</resources>

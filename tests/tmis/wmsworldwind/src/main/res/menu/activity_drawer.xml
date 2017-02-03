@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2016 United States Government as represented by the Administrator of the
+  ~ National Aeronautics and Space Administration. All Rights Reserved.
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <!--TODO: define better icons for the navigation menu items-->
+        <item
+            android:id="@+id/TMIS_WMS"
+            android:title="@string/TMIS"/>
+        <item
+            android:id="@+id/NASANeoWMS_WMS"
+            android:title="@string/NASANeoWMS"/>
+        <item
+            android:id="@+id/LandSat_WMS"
+            android:title="@string/LandSat"/>
+        <item
+            android:id="@+id/OpenStreetMap_WMS"
+            android:title="@string/OpenStreetMap"/>
+        <item
+            android:id="@+id/TIGRwms_WMS"
+            android:title="@string/TIGRwms"/>
+        <item
+            android:id="@+id/TIGRelevation_WMS"
+            android:title="@string/TIGRelevation"/>
+    </group>
+
+</menu>

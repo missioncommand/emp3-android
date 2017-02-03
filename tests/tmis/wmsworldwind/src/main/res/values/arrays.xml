@@ -1,0 +1,51 @@
+<resources>
+    <string-array name="ParamNames">
+        <item>URL</item>
+        <item>VERSION</item>
+        <item>FORMAT</item>
+        <item>TRANSPARENT</item>
+        <item>LAYERS</item>
+    </string-array>
+    <string-array name="TMIS">
+        <item>http://127.0.0.1:8080/WmsServer.ashx</item>
+        <item>1.1.1</item>
+        <item>null</item>
+        <item>false</item>
+        <item>Auto_BestQuality</item>
+    </string-array>
+    <string-array name="NASANeoWMS">
+        <item>"http://neowms.sci.gsfc.nasa.gov/wms/wms"</item>
+        <item>1.1.1</item>
+        <item>null</item>
+        <item>false</item>
+        <item>MYD28M</item>
+    </string-array>
+    <string-array name="LandSat">
+        <item>"http://irs.gis-lab.info/"</item>
+        <item>1.1.1</item>
+        <item>null</item>
+        <item>false</item>
+        <item>landsat</item>
+    </string-array>
+    <string-array name="OpenStreetMap">
+        <item>"http://irs.gis-lab.info/"</item>
+        <item>1.1.1</item>
+        <item>null</item>
+        <item>false</item>
+        <item>osm</item>
+    </string-array>
+    <string-array name="TIGRWms">
+        <item>"http://172.16.20.11/tigr/WmsServer.ashx"</item>
+        <item>1.1.1</item>
+        <item>null</item>
+        <item>false</item>
+        <item>"Auto_BestQuality"</item>
+    </string-array>
+    <string-array name="TIGRelevation">
+        <item>"http://172.16.20.11/tigr/ElevationServer.ashx"</item>
+        <item>1.1.1</item>
+        <item>null</item>
+        <item>false</item>
+        <item>"Auto_BestQuality"</item>
+    </string-array>
+</resources>

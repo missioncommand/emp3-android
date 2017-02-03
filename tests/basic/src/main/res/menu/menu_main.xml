@@ -1,0 +1,359 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+    <item android:id="@+id/action_addWMS"
+          android:title="@string/action_addWMS"
+          android:orderInCategory="100"
+          app:showAsAction="never" />
+    <item android:id="@+id/action_removeWMS"
+          android:title="@string/action_removeWMS"
+          android:enabled="false"
+          android:orderInCategory="100"
+          app:showAsAction="never" />
+    <item android:id="@+id/action_tests"
+          android:title="@string/action_test"
+          android:orderInCategory="100"
+          app:showAsAction="never" >
+        <menu>
+            <item android:id="@+id/action_drawMenu"
+                  android:title="@string/action_drawMenu"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" >
+                <menu>
+                    <item android:id="@+id/action_drawText"
+                          android:title="@string/action_drawText"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_drawLine"
+                          android:title="@string/action_drawLine"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_drawPolygon"
+                          android:title="@string/action_drawPolygon"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_drawMilStd"
+                          android:title="@string/action_drawMilStd"
+                          android:orderInCategory="100"
+                          app:showAsAction="never">
+                        <menu>
+                            <item android:id="@+id/action_drawMilStdIcon"
+                                  android:title="@string/action_drawMilStdIcon"
+                                  android:orderInCategory="100"
+                                  app:showAsAction="never" />
+                            <item android:id="@+id/action_drawTG"
+                                  android:title="@string/action_drawTG"
+                                  android:orderInCategory="100"
+                                  app:showAsAction="never" />
+                        </menu>
+                    </item>
+                </menu>
+            </item>
+            <item android:id="@+id/action_plotText"
+                  android:title="@string/action_plotText"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" />
+            <item android:id="@+id/action_plotPoint"
+                  android:title="@string/action_plotPoint"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" />
+            <item android:id="@+id/action_plotUrlPoint"
+                  android:title="@string/action_plotUrlPoint"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" />
+            <item android:id="@+id/action_performanceTest"
+                  android:title="@string/action_performanceTest"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" />
+            <!-- item android:id="@+id/action_plotsymbol"
+                android:title="@string/action_plotsymbol"
+                android:orderInCategory="100"
+                android:icon="@android:drawable/ic_menu_edit"
+                app:showAsAction="never" / -->
+            <item android:id="@+id/action_plot2units2525B"
+                android:title="@string/action_plot2units2525B"
+                android:orderInCategory="100"
+                android:icon="@android:drawable/ic_dialog_dialer"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_plotunits2525B"
+                android:title="@string/action_plotunits2525B"
+                android:orderInCategory="100"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_plotunits2525C"
+                android:title="@string/action_plotunits2525C"
+                android:orderInCategory="100"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_plotTG2525C"
+                  android:title="@string/action_plotTG2525C"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" />
+            <item android:id="@+id/action_removeAll"
+                android:title="@string/action_removeAll"
+                android:orderInCategory="100"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_freehandDraw"
+                  android:title="@string/action_freehandDraw"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" />
+            <item android:id="@+id/action_getMapState"
+                  android:title="@string/action_getMapState"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" />
+        </menu>
+    </item>
+    <item android:id="@+id/action_freehandDrawExit"
+          android:title="@string/action_freehandDrawExit"
+          android:enabled="false"
+          android:orderInCategory="100"
+          app:showAsAction="never" />
+    <item android:id="@+id/action_swapMap"
+        android:title="@string/action_swapMap"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        app:showAsAction="never" >
+        <menu>
+            <item android:id="@+id/action_iconsize"
+                  android:title="@string/action_iconsize"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" >
+                <menu>
+                    <item android:id="@+id/action_iconsizetiny"
+                          android:title="@string/action_iconsizetiny"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_iconsizesmall"
+                          android:title="@string/action_iconsizesmall"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_iconsizemedium"
+                          android:title="@string/action_iconsizemedium"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_iconsizelarge"
+                          android:title="@string/action_iconsizelarge"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                </menu>
+            </item>
+            <item android:id="@+id/action_iconStyle"
+                android:title="@string/action_iconStyle"
+                android:orderInCategory="100"
+                app:showAsAction="never" >
+                <menu>
+                    <item android:id="@+id/action_iconStyleFill"
+                        android:title="@string/action_iconStyleFill"
+                        android:orderInCategory="100"
+                        app:showAsAction="never">
+                        <menu>
+                            <item android:id="@+id/action_iconStyleFillColor"
+                                android:title="@string/action_iconStyleFillColor"
+                                android:orderInCategory="100"
+                                app:showAsAction="never">
+                                <menu>
+                                    <group android:id="@+id/action_iconStyleFillColorGroup"
+                                        android:checkableBehavior="single">
+                                        <item android:id="@+id/action_iconStyleFillColorDefault"
+                                            android:title="@string/action_iconStyleFillColorDefault"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleFillColorRed"
+                                            android:title="@string/action_iconStyleFillColorRed"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleFillColorGreen"
+                                            android:title="@string/action_iconStyleFillColorGreen"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                        <item android:id="@+id/action_iconStyleFillColorBlue"
+                                            android:title="@string/action_iconStyleFillColorBlue"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                    </group>
+                                </menu>
+                            </item>
+                            <item android:id="@+id/action_iconStyleFillPattern"
+                                android:title="@string/action_iconStyleFillPattern"
+                                android:orderInCategory="100"
+                                app:showAsAction="never">
+                                <menu>
+                                    <group android:id="@+id/action_iconStyleFillPatternGroup"
+                                        android:checkableBehavior="single">
+                                        <item android:id="@+id/action_iconStyleFillPatternDefault"
+                                            android:title="@string/action_iconStyleFillPatternDefault"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleFillPatternSolid"
+                                            android:title="@string/action_iconStyleFillPatternSolid"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleFillPatternHatched"
+                                            android:title="@string/action_iconStyleFillPatternHatched"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                        <item android:id="@+id/action_iconStyleFillPatternCrossHatched"
+                                            android:title="@string/action_iconStyleFillPatternCrossHatched"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                    </group>
+                                </menu>
+                            </item>
+                        </menu>
+                    </item>
+                    <item android:id="@+id/action_iconStyleStroke"
+                        android:title="@string/action_iconStyleStroke"
+                        android:orderInCategory="100"
+                        app:showAsAction="never">
+                        <menu>
+                            <item android:id="@+id/action_iconStyleStrokeColor"
+                                android:title="@string/action_iconStyleStrokeColor"
+                                android:orderInCategory="100"
+                                app:showAsAction="never">
+                                <menu>
+                                    <group android:id="@+id/action_iconStyleStrokeColorGroup"
+                                        android:checkableBehavior="single">
+                                        <item android:id="@+id/action_iconStyleStrokeColorDefault"
+                                            android:title="@string/action_iconStyleStrokeColorDefault"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleStrokeColorRed"
+                                            android:title="@string/action_iconStyleStrokeColorRed"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleStrokeColorGreen"
+                                            android:title="@string/action_iconStyleStrokeColorGreen"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                        <item android:id="@+id/action_iconStyleStrokeColorBlue"
+                                            android:title="@string/action_iconStyleStrokeColorBlue"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                    </group>
+                                </menu>
+                            </item>
+                            <item android:id="@+id/action_iconStyleStrokePattern"
+                                android:title="@string/action_iconStyleStrokePattern"
+                                android:orderInCategory="100"
+                                app:showAsAction="never">
+                                <menu>
+                                    <group android:id="@+id/action_iconStyleStrokePatternGroup"
+                                        android:checkableBehavior="single">
+                                        <item android:id="@+id/action_iconStyleStrokePatternDefault"
+                                            android:title="@string/action_iconStyleStrokePatternDefault"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleStrokePatternSolid"
+                                            android:title="@string/action_iconStyleStrokePatternSolid"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleStrokePatternDashed"
+                                            android:title="@string/action_iconStyleStrokePatternDashed"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                        <item android:id="@+id/action_iconStyleStrokePatternDotted"
+                                            android:title="@string/action_iconStyleStrokePatternDotted"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                    </group>
+                                </menu>
+                            </item>
+                        </menu>
+                    </item>
+                    <item android:id="@+id/action_iconStyleLabel"
+                        android:title="@string/action_iconStyleLabel"
+                        android:orderInCategory="100"
+                        app:showAsAction="never">
+                        <menu>
+                            <item android:id="@+id/action_iconStyleLabelColor"
+                                android:title="@string/action_iconStyleLabelColor"
+                                android:orderInCategory="100"
+                                app:showAsAction="never">
+                                <menu>
+                                    <group android:id="@+id/action_iconStyleLabelColorGroup"
+                                        android:checkableBehavior="single">
+                                        <item android:id="@+id/action_iconStyleLabelColorDefault"
+                                            android:title="@string/action_iconStyleLabelColorDefault"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleLabelColorRed"
+                                            android:title="@string/action_iconStyleLabelColorRed"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleLabelColorGreen"
+                                            android:title="@string/action_iconStyleLabelColorGreen"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                        <item android:id="@+id/action_iconStyleLabelColorBlue"
+                                            android:title="@string/action_iconStyleLabelColorBlue"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                    </group>
+                                </menu>
+                            </item>
+                            <item android:id="@+id/action_iconStyleLabelJustification"
+                                android:title="@string/action_iconStyleLabelJustification"
+                                android:orderInCategory="100"
+                                app:showAsAction="never">
+                                <menu>
+                                    <group android:id="@+id/action_iconStyleLabelJustificationGroup"
+                                        android:checkableBehavior="single">
+                                        <item android:id="@+id/action_iconStyleLabelJustificationDefault"
+                                            android:title="@string/action_iconStyleLabelJustificationDefault"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleLabelJustificationLeft"
+                                            android:title="@string/action_iconStyleLabelJustificationLeft"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never"/>
+                                        <item android:id="@+id/action_iconStyleLabelJustificationCenter"
+                                            android:title="@string/action_iconStyleLabelJustificationCenter"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                        <item android:id="@+id/action_iconStyleLabelJustificationRight"
+                                            android:title="@string/action_iconStyleLabelJustificationRight"
+                                            android:orderInCategory="100"
+                                            app:showAsAction="never" />
+                                    </group>
+                                </menu>
+                            </item>
+                        </menu>
+                    </item>
+                </menu>
+            </item>
+            <item android:id="@+id/action_labelsetting"
+                  android:title="@string/action_labelsetting"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" >
+                <menu>
+                    <item android:id="@+id/action_requiredLabels"
+                          android:title="@string/action_requiredLabels"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_commonLabels"
+                          android:title="@string/action_commonLabels"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_allLabels"
+                          android:title="@string/action_allLabels"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                </menu>
+            </item>
+            <item android:id="@+id/action_toggleCrossHairs"
+                  android:title="@string/action_toggleCrossHairs"
+                  android:orderInCategory="100"
+                  app:showAsAction="never" />
+        </menu>
+    </item>
+    <item android:id="@+id/action_clearselected"
+          android:title="@string/action_clearselected"
+          android:orderInCategory="100"
+          app:showAsAction="never" />
+    <item android:id="@+id/action_exit"
+        android:title="@string/action_exit"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+</menu>

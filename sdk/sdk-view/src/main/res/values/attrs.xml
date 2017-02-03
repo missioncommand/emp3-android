@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="EMP3Fragment">
+        <attr name="map_name" format="string"/>              <!-- Used to restore map after activity start Look at Emp3LifeCycleManager -->
+        <attr name="map_engine_name" format="string"/>       <!-- class name of map engine, mil.emp3.worldwind.MapInstance -->
+        <attr name="map_engine_apk_name" format="string"/>   <!-- APK that contains map engine, mil.emp3.worldwind -->
+        <attr name="mirrorCache_mode" format="string"/>      <!-- mirror cache egress mode on or off -->
+    </declare-styleable>
+</resources>
