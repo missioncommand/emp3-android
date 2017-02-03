@@ -1,5 +1,7 @@
 package mil.emp3.core.editors;
 
+import android.util.Log;
+
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoPositionGroup;
 import org.cmapi.primitives.GeoStrokeStyle;
@@ -8,6 +10,8 @@ import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
+
+import java.util.List;
 
 import mil.emp3.api.Path;
 import mil.emp3.api.enums.EditorMode;
@@ -39,9 +43,9 @@ import mil.emp3.mapengine.events.MapInstanceUserInteractionEvent;
  * 7) When the complete is received, the editor exits freehand draw mode.
  */
 public class FreehandDrawEditor extends AbstractEditor {
+    private final static String TAG = FreehandDrawEditor.class.getSimpleName();
 
     private final double    DEFAULT_STROKE_WIDTH    = 4.0;
-    private final IGeoStrokeStyle.StrokePattern DEFAULT_STOKE_PATTERN = IGeoStrokeStyle.StrokePattern.solid;
     private final double    DEFAULT_ALPHA           = 1.0;
     private final int       DEFAULT_RED             = 255;
     private final int       DEFAULT_GREEN           = 255;
@@ -56,7 +60,7 @@ public class FreehandDrawEditor extends AbstractEditor {
     private final IGeoPositionGroup positionGroup   = new GeoPositionGroup();
     // The Path that will be used to draw.
     private final Path lineDrawObject;
-    private final java.util.List<IGeoPosition> positionList = this.positionGroup.getPositions();
+    private final List<IGeoPosition> positionList = this.positionGroup.getPositions();
     private MapStatus mapStatus;
 
     // This is set to true on cancel, complete or exit of the editor.
@@ -69,7 +73,8 @@ public class FreehandDrawEditor extends AbstractEditor {
 
         this.lineDrawObject = (Path) this.oFeature;
         this.lineDrawObject.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-        this.lineDrawObject.setPositions(this.positionGroup.getPositions());
+        this.lineDrawObject.getPositions().clear();
+        this.lineDrawObject.getPositions().addAll(this.positionGroup.getPositions());
         this.clientEventListener = listener;
         this.drawStrokeStyle.setStrokeColor(this.drawColor);
         this.positionGroup.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
@@ -77,7 +82,6 @@ public class FreehandDrawEditor extends AbstractEditor {
         // If the initial style is not provided we use the default values, else we copy the values.
         if (initialStyle == null) {
             this.drawStrokeStyle.setStrokeWidth(DEFAULT_STROKE_WIDTH);
-            this.drawStrokeStyle.setStrokePattern(DEFAULT_STOKE_PATTERN);
         } else {
             this.copyStyle(initialStyle);
         }
@@ -98,11 +102,9 @@ public class FreehandDrawEditor extends AbstractEditor {
             } else {
                 this.drawStrokeStyle.setStrokeWidth(DEFAULT_STROKE_WIDTH);
             }
-            if (style.getStrokePattern() != null) {
-                this.drawStrokeStyle.setStrokePattern(style.getStrokePattern());
-            } else {
-                this.drawStrokeStyle.setStrokePattern(DEFAULT_STOKE_PATTERN);
-            }
+
+            this.drawStrokeStyle.setStipplingFactor(style.getStipplingFactor());
+            this.drawStrokeStyle.setStipplingPattern(style.getStipplingPattern());
 
             if (style.getStrokeColor() != null) {
                 if (style.getStrokeColor().getAlpha() != Double.NaN) {
@@ -146,7 +148,14 @@ public class FreehandDrawEditor extends AbstractEditor {
             case DOUBLE_CLICKED:
             case LONG_PRESS:
                 break;
-            case DRAG: {
+
+            case DRAG:
+                if(null == eventPosition) {
+                    // If Camera is tilted and user reaches the horizon during free draw then eventPosition will be null.
+                    // We should ignore this event but treat it as if it was handled.
+                    bRet = true;
+                    break;
+                }
                 newPos = new GeoPosition();
 
                 newPos.setLatitude(eventPosition.getLatitude());
@@ -168,15 +177,17 @@ public class FreehandDrawEditor extends AbstractEditor {
                     this.issueDrawEvent(eFreehandEvent);
                 }
                 break;
-            }
-            case DRAG_COMPLETE: {
+
+            case DRAG_COMPLETE:
                 if (this.positionList.size() > 1) {
                     this.issueDrawEvent(MapFreehandEventEnum.MAP_FREEHAND_LINE_DRAW_END);
                 }
                 this.positionList.clear();
                 bRet = true;
                 break;
-            }
+
+            default:
+                Log.e(TAG, "handleEvent received unsupported event " + eEvent);
         }
         return bRet;
     }
@@ -217,6 +228,9 @@ public class FreehandDrawEditor extends AbstractEditor {
             case MAP_FREEHAND_LINE_DRAW_UPDATE:
                 // The map does not render lines yet but it will soon.
                 // Here we add/update the line feature on the map.
+                this.lineDrawObject.getPositions().clear();
+                this.lineDrawObject.getPositions().addAll(positionList);
+
                 oList = new FeatureVisibilityList();
                 oItem = new FeatureVisibility(this.lineDrawObject, true);
                 oList.add(oItem);
@@ -234,22 +248,26 @@ public class FreehandDrawEditor extends AbstractEditor {
         }
 
         if (this.clientEventListener != null) {
-            switch (eEvent) {
-                case MAP_ENTERED_FREEHAND_DRAW_MODE:
-                    this.clientEventListener.onEnterFreeHandDrawMode(this.oClientMap);
-                    break;
-                case MAP_FREEHAND_LINE_DRAW_START:
-                    this.clientEventListener.onFreeHandLineDrawStart(this.oClientMap, this.positionGroup);
-                    break;
-                case MAP_FREEHAND_LINE_DRAW_UPDATE:
-                    this.clientEventListener.onFreeHandLineDrawUpdate(this.oClientMap, this.positionGroup);
-                    break;
-                case MAP_FREEHAND_LINE_DRAW_END:
-                    this.clientEventListener.onFreeHandLineDrawEnd(this.oClientMap, this.drawStrokeStyle, this.positionGroup);
-                    break;
-                case MAP_EXIT_FREEHAND_DRAW_MODE:
-                    this.clientEventListener.onExitFreeHandDrawMode(this.oClientMap);
-                    break;
+            try {
+                switch (eEvent) {
+                    case MAP_ENTERED_FREEHAND_DRAW_MODE:
+                        this.clientEventListener.onEnterFreeHandDrawMode(this.oClientMap);
+                        break;
+                    case MAP_FREEHAND_LINE_DRAW_START:
+                        this.clientEventListener.onFreeHandLineDrawStart(this.oClientMap, this.positionGroup);
+                        break;
+                    case MAP_FREEHAND_LINE_DRAW_UPDATE:
+                        this.clientEventListener.onFreeHandLineDrawUpdate(this.oClientMap, this.positionGroup);
+                        break;
+                    case MAP_FREEHAND_LINE_DRAW_END:
+                        this.clientEventListener.onFreeHandLineDrawEnd(this.oClientMap, this.drawStrokeStyle, this.positionGroup);
+                        break;
+                    case MAP_EXIT_FREEHAND_DRAW_MODE:
+                        this.clientEventListener.onExitFreeHandDrawMode(this.oClientMap);
+                        break;
+                }
+            } catch(Exception ex) {
+                Log.e(TAG, "issueDrawEvent", ex);
             }
         }
 

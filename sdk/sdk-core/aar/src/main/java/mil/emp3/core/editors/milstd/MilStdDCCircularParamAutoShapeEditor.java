@@ -4,6 +4,9 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -65,7 +68,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *                      Kill Box Purple Circular
  */
 public class MilStdDCCircularParamAutoShapeEditor extends AbstractMilStdMultiPointEditor {
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
 
     public MilStdDCCircularParamAutoShapeEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, symDef);
@@ -78,15 +80,15 @@ public class MilStdDCCircularParamAutoShapeEditor extends AbstractMilStdMultiPoi
     }
 
     private float getRadius() {
-        return this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0);
+        return this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0);
     }
 
     private void setRadius(double value) {
         if (!Float.isNaN(this.getRadius())) {
             // If there is a radius, delete it first.
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
         }
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, (float) Math.rint(value));
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, (float) Math.rint(value));
     }
 
     private void checkRadiusModifier() {
@@ -105,23 +107,23 @@ public class MilStdDCCircularParamAutoShapeEditor extends AbstractMilStdMultiPoi
         }
 
         // Remove any additional AM values.
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 1))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 1))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, Float.NaN);
         }
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
 
         // For drawing we remove all positions and start from scratch.
         posList.clear();
 
         // Remove all AM values.
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
         }
 
         this.checkRadiusModifier();
@@ -142,7 +144,7 @@ public class MilStdDCCircularParamAutoShapeEditor extends AbstractMilStdMultiPoi
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
         ControlPoint controlPoint;
 
@@ -161,7 +163,8 @@ public class MilStdDCCircularParamAutoShapeEditor extends AbstractMilStdMultiPoi
     }
 
     @Override
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
+        boolean moved = false;
         switch (oCP.getCPType()) {
             case POSITION_CP: {
                 // The center was moved.
@@ -174,8 +177,7 @@ public class MilStdDCCircularParamAutoShapeEditor extends AbstractMilStdMultiPoi
                 // Move the radius CP.
                 GeoLibrary.computePositionAt(90.0, this.getRadius(), centerPos, radiusCP.getPosition());
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0});
-                this.cpList.add(oCP);
-                this.cpList.add(radiusCP);
+                moved = true;
                 break;
             }
             case RADIUS_CP: {
@@ -189,12 +191,12 @@ public class MilStdDCCircularParamAutoShapeEditor extends AbstractMilStdMultiPoi
                 // Set the modifier.
                 this.setRadius(newRadius);
 
-                this.cpList.add(oCP);
+                moved = true;
                 this.addUpdateEventData(IGeoMilSymbol.Modifier.DISTANCE);
                 break;
             }
         }
 
-        return this.cpList;
+        return moved;
     }
 }

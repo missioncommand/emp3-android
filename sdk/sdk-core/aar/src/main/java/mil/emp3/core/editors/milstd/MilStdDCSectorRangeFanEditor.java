@@ -4,6 +4,9 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -28,9 +31,8 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *
  */
 public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor {
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
-    private final java.util.List<Float> rangeList = new java.util.ArrayList<>();
-    private final java.util.List<Float> azimuthList = new java.util.ArrayList<>();
+    private final List<Float> rangeList = new ArrayList<>();
+    private final List<Float> azimuthList = new ArrayList<>();
     private boolean hasMinimumRange = false;
 
     public MilStdDCSectorRangeFanEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
@@ -44,8 +46,8 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
     }
 
     private void checkAMModifier() {
-        for (int index = 0; !Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index)); index++) {
-            this.rangeList.add(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index));
+        for (int index = 0; !Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index)); index++) {
+            this.rangeList.add(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index));
         }
 
         if (this.rangeList.isEmpty()) {
@@ -61,8 +63,8 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
     }
 
     private void checkANModifier() {
-        for (int index = 0; !Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, index)); index++) {
-            this.azimuthList.add(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, index));
+        for (int index = 0; !Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, index)); index++) {
+            this.azimuthList.add(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, index));
         }
 
         if (this.azimuthList.isEmpty()) {
@@ -116,17 +118,17 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
 
         posList.clear();
 
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
         }
 
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, Float.NaN);
         }
 
         this.checkAMModifier();
@@ -182,12 +184,12 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         float prevRange = 0;
         float distanceAzimuthCP;
         int azimuthIndex = this.getAzimuthIndexForRange(index);
-        float range = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
+        float range = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
         IGeoPosition centerPos = this.getPositions().get(0);
 
         // Get the left and right azimuth value.
-        leftAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex);
-        rightAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 1);
+        leftAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex);
+        rightAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 1);
 
         // Get range CP.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.RANGE_CP, index, -1);
@@ -199,7 +201,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         }
 
         if (index > 0) {
-            prevRange = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
+            prevRange = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
         }
 
         distanceAzimuthCP = (range + prevRange) / 2;
@@ -220,12 +222,12 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         float prevRange = 0;
         float distanceAzimuthCP;
         int azimuthIndex = this.getAzimuthIndexForRange(index);
-        float range = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
+        float range = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
         IGeoPosition centerPos = this.getPositions().get(0);
 
         // Get the left and right azimuth value.
-        leftAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex);
-        rightAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 1);
+        leftAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex);
+        rightAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 1);
 
         // Create range CP.
         pos = new GeoPosition();
@@ -233,7 +235,6 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         controlPoint.setPosition(pos);
         this.positionRangeControlPoint(controlPoint, range, leftAzimuth, rightAzimuth);
         this.addControlPoint(controlPoint);
-        this.cpList.add(controlPoint);
 
         if (this.hasMinimumRange && (index == 0)) {
             // It is a minimum range, so we do not add azimuth CPs.
@@ -241,7 +242,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         }
 
         if (index > 0) {
-            prevRange = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
+            prevRange = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
         }
 
         distanceAzimuthCP = (range + prevRange) / 2;
@@ -251,7 +252,6 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         GeoLibrary.computePositionAt(leftAzimuth, distanceAzimuthCP, centerPos, pos);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
-        this.cpList.add(controlPoint);
 
         // Create right azimuth CP.
         pos = new GeoPosition();
@@ -259,12 +259,11 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         GeoLibrary.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, pos);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
-        this.cpList.add(controlPoint);
     }
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         ControlPoint controlPoint;
 
         // Add the center control point.
@@ -280,7 +279,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
     private float getPreviousRangeValue(int index) {
         float prevRange = 0;
-        float tempRange = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
+        float tempRange = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
 
         // Get the previous range value if there is one.
         if ((index > 0) && (!Float.isNaN(tempRange))) {
@@ -292,7 +291,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
     private float getNextRangeValue(int index) {
         float nextRange = Float.MAX_VALUE;
-        float tempRange = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index + 1);
+        float tempRange = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index + 1);
 
         // Get the next range value if there is one.
         if (!Float.isNaN(tempRange)) {
@@ -304,42 +303,41 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
     private void setRangeValue(int index, float value) {
         this.rangeList.set(index, value);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, Float.NaN);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, Float.NaN);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, value);
     }
 
     private void setAzimuthValue(int index, float value) {
         this.azimuthList.set(index, value);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, index, Float.NaN);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, index, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, index, Float.NaN);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, index, value);
     }
 
     private void insertRangeValue(int index, float value) {
         this.rangeList.add(index, value);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, value);
     }
 
     private void insertAzimuthValue(int index, float value) {
         this.azimuthList.add(index, value);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, index, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, index, value);
     }
 
     private void removeRangeValue(int index) {
         this.rangeList.remove(index);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, Float.NaN);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, Float.NaN);
     }
 
     private void removeAzimuthValue(int index) {
         this.azimuthList.remove(index);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, index, Float.NaN);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, index, Float.NaN);
     }
 
     @Override
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition dragPosition) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition dragPosition) {
         int cpIndex = oCP.getCPIndex();
         int cpSubIndex = oCP.getCPSubIndex();
 
-        this.cpList.clear();
         switch (oCP.getCPType()) {
             case POSITION_CP: {
                 // The center was moved.
@@ -383,8 +381,8 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                 this.setRangeValue(cpIndex, newRange);
 
                 // Get the left and right azimuth value.
-                leftAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex);
-                rightAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 1);
+                leftAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex);
+                rightAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 1);
 
                 this.positionRangeControlPoint(oCP, newRange, leftAzimuth, rightAzimuth);
                 this.addUpdateEventData(IGeoMilSymbol.Modifier.DISTANCE);
@@ -411,7 +409,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
                 // Now reposition the azimuth CP of the next range if they exits.
                 // Get the left azimuth value of the next range.
-                leftAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 2);
+                leftAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 2);
                 if (!Float.isNaN(leftAzimuth)) {
                     float avgRange = (newRange + nextRange) / 2;
                     // Reposition the left azimuth CP.
@@ -422,7 +420,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
                     // Now reposition the right azimuth CP.
                     // Get the right azimuth value of the next range.
-                    rightAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 3);
+                    rightAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 3);
                     if (!Float.isNaN(rightAzimuth)) {
                         // Reposition the right azimuth CP.
                         azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, cpIndex + 1, azimuthIndex + 3);
@@ -441,7 +439,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                 ControlPoint rangeCP = this.findControlPoint(ControlPoint.CPTypeEnum.RANGE_CP, cpIndex, -1);
                 IGeoPosition centerPos = this.getPositions().get(0);
                 float newAzimuth = (float) GeoLibrary.computeBearing(centerPos, dragPosition);
-                float range = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, cpIndex);
+                float range = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, cpIndex);
                 float prevRange = this.getPreviousRangeValue(cpIndex);
                 float avgRange = (range + prevRange) / 2;
 
@@ -449,8 +447,8 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                 GeoLibrary.computePositionAt(newAzimuth, avgRange, centerPos, oCP.getPosition());
                 this.setAzimuthValue(cpSubIndex, newAzimuth);
 
-                float leftAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, leftAzimuthIndex);
-                float rightAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, leftAzimuthIndex + 1);
+                float leftAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, leftAzimuthIndex);
+                float rightAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, leftAzimuthIndex + 1);
 
                 // Reposition the range CP.
                 this.positionRangeControlPoint(rangeCP, range, leftAzimuth, rightAzimuth);
@@ -459,9 +457,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                 break;
             }
         }
-        cpList.add(oCP);
-
-        return this.cpList;
+        return true;
     }
 
     private int getIndexForNewRange(float newRange) {
@@ -476,17 +472,17 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         return index;
     }
 
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition newPosition) {
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition newPosition) {
         IGeoPosition centerPos = this.getPositions().get(0);
         float newRange = (float) GeoLibrary.computeDistanceBetween(centerPos, newPosition);
         int newRangeIndex = this.getIndexForNewRange(newRange);
         int azimuthIndex = this.getAzimuthIndexForRange(newRangeIndex);
 
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         if (this.hasMinimumRange && (newRangeIndex == 0)) {
             // We cant add a range inside the minimum range.
-            return this.cpList;
+            return cpList;
         }
 
         // Shift the range indexes for the ranges
@@ -519,7 +515,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
             this.updateControlPointsForRange(newRangeIndex + 1);
         }
 
-        return this.cpList;
+        return cpList;
     }
 
     /**
@@ -533,12 +529,12 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         float prevRange = 0;
         float distanceAzimuthCP;
         int azimuthIndex = this.getAzimuthIndexForRange(index);
-        float range = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
+        float range = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
         IGeoPosition centerPos = this.getPositions().get(0);
 
         // Get the left and right azimuth value.
-        leftAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex);
-        rightAzimuth = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 1);
+        leftAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex);
+        rightAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, azimuthIndex + 1);
 
         // Update Range CP
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.RANGE_CP, index, -1);
@@ -550,7 +546,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         }
 
         if (index > 0) {
-            prevRange = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
+            prevRange = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
         }
 
         distanceAzimuthCP = (range + prevRange) / 2;
@@ -569,10 +565,10 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         }
     }
 
-    protected java.util.List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
+    protected List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
         int cpIndex = oCP.getCPIndex();
 
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         switch (oCP.getCPType()) {
             case RANGE_CP: {
@@ -589,7 +585,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
                 this.removeRangeValue(cpIndex);
                 this.changeControlPointIndexes(ControlPoint.CPTypeEnum.RANGE_CP, cpIndex, -1);
-                this.cpList.add(oCP);
+                cpList.add(oCP);
 
                 if (this.hasMinimumRange) {
                     // It has a minimum range.
@@ -600,14 +596,14 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                         // The right one first.
                         ControlPoint azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, cpIndex, azimuthIndex + 1);
                         if (null != azimuthCP) {
-                            this.cpList.add(azimuthCP);
+                            cpList.add(azimuthCP);
                         }
                         this.removeAzimuthValue(azimuthIndex + 1);
 
                         // Now the left one.
                         azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, cpIndex, azimuthIndex);
                         if (null != azimuthCP) {
-                            this.cpList.add(azimuthCP);
+                            cpList.add(azimuthCP);
                         }
                         this.removeAzimuthValue(azimuthIndex);
 
@@ -631,14 +627,14 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                     // The right one first.
                     ControlPoint azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, cpIndex, azimuthIndex + 1);
                     if (null != azimuthCP) {
-                        this.cpList.add(azimuthCP);
+                        cpList.add(azimuthCP);
                     }
                     this.removeAzimuthValue(azimuthIndex + 1);
 
                     // Now the left one.
                     azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, cpIndex, azimuthIndex);
                     if (null != azimuthCP) {
-                        this.cpList.add(azimuthCP);
+                        cpList.add(azimuthCP);
                     }
                     this.removeAzimuthValue(azimuthIndex);
 
@@ -678,14 +674,14 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                 // Remove the right first.
                 ControlPoint azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, cpIndex, azimuthIndex + 1);
                 if (null != azimuthCP) {
-                    this.cpList.add(azimuthCP);
+                    cpList.add(azimuthCP);
                 }
                 this.removeAzimuthValue(azimuthIndex + 1);
 
                 // Now the left one..
                 azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, cpIndex, azimuthIndex);
                 if (null != azimuthCP) {
-                    this.cpList.add(azimuthCP);
+                    cpList.add(azimuthCP);
                 }
                 this.removeAzimuthValue(azimuthIndex);
                 // Update sub indexes of the remaining azimuth.
@@ -697,6 +693,6 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                 break;
             }
         }
-        return this.cpList;
+        return cpList;
     }
 }

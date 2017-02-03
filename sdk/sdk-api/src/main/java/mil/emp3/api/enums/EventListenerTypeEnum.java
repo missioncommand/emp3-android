@@ -1,64 +1,64 @@
 package mil.emp3.api.enums;
 
 /**
- * This class enumerates the different types of event listeners.
+ * Type of {@link mil.emp3.api.listeners.IEventListener}.
  */
 public enum EventListenerTypeEnum {
     /**
-     * This value identifies a container event listener.
+     * Listener for {@link ContainerEventEnum}
      */
     CONTAINER_EVENT_LISTENER,
     /**
-     * This value identifies a feature event listener.
+     * Listener for {@link FeatureEditEventEnum}
      */
     FEATURE_EVENT_LISTENER,
     /**
-     * This value identifies a feature interaction event listener.
+     * Listener for {@link UserInteractionEventEnum}.
      */
     FEATURE_INTERACTION_EVENT_LISTENER,
     /**
-     * This value identifies a map state change event listener.
+     * Listener for {@link MapStateEnum}.
      */
     MAP_STATE_CHANGE_EVENT_LISTENER,
     /**
-     * This value identifies a map interaction event listener.
+     * Listener for {@link UserInteractionEventEnum}
      */
     MAP_INTERACTION_EVENT_LISTENER,
     /**
-     * This value identifies a map view change event listener.
+     * Listener for {@link MapViewEventEnum}
      */
     MAP_VIEW_CHANGE_EVENT_LISTENER,
 
     /**
-     * This value identifies a map feature added event listener.
+     * Listener for {@link MapFeatureEventEnum}
      */
     MAP_FEATURE_ADDED_EVENT_LISTENER,
     /**
-     * This value identifies a map feature removed event listener.
+     * Listener for {@link MapFeatureEventEnum}
      */
     MAP_FEATURE_REMOVED_EVENT_LISTENER,
     /**
-     * This value identifies a visibility event listener.
+     * Listener for {@link VisibilityActionEnum}
      */
     VISIBILITY_EVENT_LISTENER,
     /**
-     * This value identifies a camera event listener.
+     * Listener for {@link CameraEventEnum}
      */
     CAMERA_EVENT_LISTENER,
     /**
-     * This value identifies a lookAt event listener.
+     * Listener for {@link LookAtEventEnum}
      */
     LOOKAT_EVENT_LISTENER,
     /**
-     * This value identifies a feature edit event listener.
+     * Listener for {@link FeatureEditEventEnum}
      */
     FEATURE_EDIT_EVENT_LISTENER,
     /**
-     * This value identifies a feature draw event listener.
+     * Listener for {@link FeatureDrawEventEnum}
      */
     FEATURE_DRAW_EVENT_LISTENER,
     /**
-     * This value identifies a freehand draw event listener.
+     * Listener for {@link MapFreehandEventEnum}
      */
     FREEHAND_DRAW_EVENT_LISTENER
 }

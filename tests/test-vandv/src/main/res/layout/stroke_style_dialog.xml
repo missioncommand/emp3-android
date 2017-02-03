@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Color"/>
+    <include layout="@layout/color_components" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stippling Pattern"/>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/stroke_stippling_pattern" android:orientation="horizontal" android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <CheckBox android:tag="sp15" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp14" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp13" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp12" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp11" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp10" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp9" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp8" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp7" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp6" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp5" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp4" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp3" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp2" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp1" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <CheckBox android:tag="sp0" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stippling Factor"/>
+    <include android:id="@+id/stroke_style_stippling_factor" layout="@layout/increment_decrement" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Width"/>
+    <include android:id="@+id/stroke_style_width" layout="@layout/increment_decrement" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="horizontal"  >
+        <Button
+            android:id="@+id/apply"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Apply" />
+        <Button
+            android:id="@+id/done"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Done" />
+    </LinearLayout>
+</LinearLayout>

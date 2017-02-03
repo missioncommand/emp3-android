@@ -28,6 +28,11 @@ public abstract class LookAtEvent extends Event<LookAtEventEnum, ILookAt>{
      */
     public abstract ILookAt getLookAt();
 
+
+    /**
+     * Returns the setting of animation. True means LookAt move will be animated.
+     * @return boolean value of animate.
+     */
     public boolean isAnimate() {
         return animate;
     }

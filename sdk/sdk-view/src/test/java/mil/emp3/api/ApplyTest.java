@@ -66,6 +66,7 @@ public class ApplyTest extends TestBaseMultiMap {
 
         updateMilStdSymbolPosition(p1, latitude + .01, longitude + .01);
         p1.apply();
+        Thread.sleep(1000, 0);
         Assert.assertTrue("Feature p1 should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
 
         remoteMap[0].setIconSize(IconSizeEnum.TINY);

@@ -3,6 +3,7 @@ package mil.emp3.api.events;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import mil.emp3.api.enums.UserInteractionKeyEnum;
 import mil.emp3.api.enums.UserInteractionMouseButtonEnum;
@@ -15,7 +16,7 @@ import mil.emp3.api.enums.UserInteractionEventEnum;
  * To register for this event you must instantiate an object that implements the IFeatureInteractionEventListener
  * interface and register for the event on an IMap, IOverlay or IFeature.
  */
-public abstract class FeatureUserInteractionEvent extends Event<UserInteractionEventEnum, java.util.List<IFeature>> {
+public abstract class FeatureUserInteractionEvent extends Event<UserInteractionEventEnum, List<IFeature>> {
     private final android.graphics.Point oPoint;
     private final IGeoPosition oCoordinate;
     private final IGeoPosition oStartCoordinate;
@@ -32,7 +33,7 @@ public abstract class FeatureUserInteractionEvent extends Event<UserInteractionE
     protected FeatureUserInteractionEvent(UserInteractionEventEnum eEvent,
             EnumSet<UserInteractionKeyEnum> keys,
             UserInteractionMouseButtonEnum button,
-            java.util.List<IFeature> oFeatureList,
+            List<IFeature> oFeatureList,
             android.graphics.Point oPoint,
             IGeoPosition oPosition) {
         super(eEvent, oFeatureList);
@@ -54,7 +55,7 @@ public abstract class FeatureUserInteractionEvent extends Event<UserInteractionE
     protected FeatureUserInteractionEvent(UserInteractionEventEnum eEvent,
             EnumSet<UserInteractionKeyEnum> keys,
             UserInteractionMouseButtonEnum button,
-            java.util.List<IFeature> oFeatureList,
+            List<IFeature> oFeatureList,
             android.graphics.Point oPoint,
             IGeoPosition oPosition,
             IGeoPosition oStartPosition) {
@@ -106,7 +107,7 @@ public abstract class FeatureUserInteractionEvent extends Event<UserInteractionE
     /**
      * This method returns the mouse button if pressed.
      * Values are left, right, middle or none.
-     * @return
+     * @return enumerated keys
      */
     public UserInteractionMouseButtonEnum getButton() {
         return this.oButton;
@@ -115,7 +116,7 @@ public abstract class FeatureUserInteractionEvent extends Event<UserInteractionE
     /**
      * This method returns any keys if pressed
      * Values are Shift, Ctrl and Alt
-     * @return
+     * @return enumerated keys
      */
 
     public EnumSet<UserInteractionKeyEnum> getKeys() {

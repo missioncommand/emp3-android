@@ -5,7 +5,6 @@ dependencies {
     compile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
     compile project (":sdk:emp3-android-sdk-view")
     compile project (":mapengine:worldwind:mapengine-worldwind-aar")
-    compile project (":mapengine:openstreet:mapengine-openstreet-aar")
 
     compile         ("com.android.support:appcompat-v7")
     compile         ("com.android.support:design")

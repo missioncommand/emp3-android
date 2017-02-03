@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Color"/>
+    <include android:id="@+id/label_style_color" layout="@layout/color_components" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Outline Color"/>
+    <include android:id="@+id/label_style_outline_color" layout="@layout/color_components" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Size"/>
+    <include android:id="@+id/label_style_size" layout="@layout/increment_decrement" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+    <include android:id="@+id/label_style_justification" layout="@layout/enumeration_selection" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+    <include android:id="@+id/label_style_typeface" layout="@layout/enumeration_selection" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+    <include android:id="@+id/label_style_font_family" layout="@layout/enumeration_selection" />
+
+    <include android:id="@+id/label_style_apply_done" layout="@layout/apply_done" />
+
+</LinearLayout>

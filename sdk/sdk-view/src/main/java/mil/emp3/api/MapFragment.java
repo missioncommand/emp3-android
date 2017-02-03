@@ -21,10 +21,10 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import mil.emp3.api.abstracts.MapViewFragmentBase;
 import mil.emp3.api.enums.EventListenerTypeEnum;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.MapMotionLockEnum;
@@ -46,6 +46,7 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.IUUIDSet;
+import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
@@ -70,7 +71,7 @@ import mil.emp3.api.listeners.IVisibilityEventListener;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.api.view.utils.TypeArrayParser;
-import mil.emp3.mapengine.CoreMapInstance;
+import mil.emp3.mapengine.abstracts.CoreMapInstance;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.view.R;
 
@@ -222,8 +223,8 @@ public class MapFragment extends Fragment implements IMap {
     }
 
     @Override
-    public ICapture getScreenCapture() {
-        return this.oClientMap.getScreenCapture();
+    public void getScreenCapture(IScreenCaptureCallback callback) {
+        this.oClientMap.getScreenCapture(callback);
     }
 
     @Override
@@ -597,7 +598,7 @@ public class MapFragment extends Fragment implements IMap {
     }
 
     @Override
-    public HashMap<String, Object> getProperties() {
+    public HashMap<String, String> getProperties() {
         return this.oClientMap.getProperties();
     }
 
@@ -754,6 +755,37 @@ public class MapFragment extends Fragment implements IMap {
     }
 
     @Override
+    public FontSizeModifierEnum getFontSizeModifier() {
+        return this.oClientMap.getFontSizeModifier();
+    }
+
+    @Override
+    public void setFontSizeModifier(FontSizeModifierEnum value)
+            throws EMP_Exception {
+        this.oClientMap.setFontSizeModifier(value);
+    }
+
+    @Override
+    public void setBackgroundBrightness(int setting) {
+        this.oClientMap.setBackgroundBrightness(setting);
+    }
+
+    @Override
+    public int getBackgroundBrightness() {
+        return this.oClientMap.getBackgroundBrightness();
+    }
+    
+    @Override
+    public View showMiniMap() {
+        return this.oClientMap.showMiniMap();
+    }
+
+    @Override
+    public void hideMiniMap() {
+        this.oClientMap.hideMiniMap();
+    }
+
+    @Override
     public Point geoToScreen(IGeoPosition pos)  throws EMP_Exception {
         return this.oClientMap.geoToScreen(pos);
     }
@@ -786,5 +818,45 @@ public class MapFragment extends Fragment implements IMap {
     @Override
     public void drawFreehand(IGeoStrokeStyle initialStyle, IFreehandEventListener listener) throws EMP_Exception {
         this.oClientMap.drawFreehand(initialStyle, listener);
+    }
+
+    @Override
+    public boolean containsProperty(String propertyName) {
+        return this.oClientMap.containsProperty(propertyName);
+    }
+
+    @Override
+    public String getProperty(String propertyName) {
+        return this.oClientMap.getProperty(propertyName);
+    }
+
+    @Override
+    public void setProperty(String propertyName, String propertyValue) {
+        this.oClientMap.setProperty(propertyName, propertyValue);
+    }
+
+    @Override
+    public void removeProperty(String propertyName) {
+        this.oClientMap.removeProperty(propertyName);
+    }
+
+    @Override
+    public boolean getBooleanProperty(String propertyName) {
+        return this.oClientMap.getBooleanProperty(propertyName);
+    }
+
+    @Override
+    public int getIntegerProperty(String propertyName) {
+        return this.oClientMap.getIntegerProperty(propertyName);
+    }
+
+    @Override
+    public float getFloatProperty(String propertyName) {
+        return this.oClientMap.getFloatProperty(propertyName);
+    }
+
+    @Override
+    public double getDoubleProperty(String propertyName) {
+        return this.oClientMap.getDoubleProperty(propertyName);
     }
 }

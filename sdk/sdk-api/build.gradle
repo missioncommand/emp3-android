@@ -19,7 +19,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.4.4'
+        classpath 'com.netflix.nebula:nebula-publishing-plugin:4.9.1'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
     }
 }
@@ -27,16 +27,27 @@ buildscript {
 apply plugin: 'java'
 
 apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.maven-nebula-publish'
 apply plugin: 'nebula.source-jar'
 apply plugin: 'nebula.javadoc-jar'
 apply plugin: 'nebula.provided-base'
+apply plugin: 'nebula.compile-api'
 
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
+configurations {
+    doc {
+        transitive false
+    }
+}
+
 dependencies {
-    //compile project (":mirrorcache:mirrorcache-api");
-    compile         ("org.cmapi.primitives:common-map-geospatial-notation")
+    compileApi      ("org.cmapi.primitives:common-map-geospatial-notation")
+    compileApi      ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
+    compile project (":3rdpartylibrary:google-maps-android-cmgn")
+
+    doc             (group: 'org.cmapi.primitives', name: 'common-map-geospatial-notation', classifier: 'sources')
 
     provided        (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
     provided        ("android:android")
@@ -51,7 +62,7 @@ javadoc {
     options {
         failOnError = true
 
-        encoding "UTF-8" 
+        encoding "UTF-8"
         docEncoding "UTF-8"
         charSet "UTF-8"
         linkSource true
@@ -62,32 +73,19 @@ javadoc {
         logging.captureStandardOutput LogLevel.INFO
 
         exclude '**/core/**/*.java'
-        exclude '**/api/abstracts/*.java'
+        exclude '**/*.MF'
+        exclude 'com/**/*.java'
 
         title = "EMP V3 Android SDK $project.version"
+        source configurations.doc.collect { zipTree(it) }
     }
 }
 
 publishing.publications {
     nebula(MavenPublication) {
-
         groupId    = project.ext.group
         artifactId = project.name
         version    = project.version
-
-        pom.withXml {
-            configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
-                asNode().dependencies[0].dependency.each {
-
-                    if (it.artifactId[0].text() == dep.moduleName &&
-                        it.groupId[0].text() == dep.moduleGroup &&
-                        it.scope[0].text() != "provided") {
-
-                        it.scope[0].value = "compile"
-                    }
-                }
-            }
-        }
     }
 }
 

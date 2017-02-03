@@ -12,6 +12,7 @@ import org.cmapi.primitives.IGeoPoint;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MirrorCacheModeEnum;
 import mil.emp3.api.events.CameraEvent;
+import mil.emp3.api.events.FeatureEvent;
 import mil.emp3.api.events.MapFeatureAddedEvent;
 import mil.emp3.api.events.MapFeatureRemovedEvent;
 import mil.emp3.api.events.MapStateChangeEvent;
@@ -22,6 +23,7 @@ import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ICameraEventListener;
+import mil.emp3.api.listeners.IFeatureEventListener;
 import mil.emp3.api.listeners.IMapFeatureAddedEventListener;
 import mil.emp3.api.listeners.IMapFeatureRemovedEventListener;
 import mil.emp3.api.listeners.IMapStateChangeEventListener;
@@ -55,6 +57,7 @@ public class MirroredMap extends Map {
     private EventListenerHandle mapFeatureAddedEventHandle;
     private EventListenerHandle mapFeatureRemovedEventHandle;
     private EventListenerHandle mapStateChangeEventHandle;
+    private EventListenerHandle mapFeatureInteractionEventHandle;
 
     private InitializeCameraTask initCameraTask;
 
@@ -112,6 +115,10 @@ public class MirroredMap extends Map {
                 this.removeEventListener(mapFeatureRemovedEventHandle);
                 mapFeatureRemovedEventHandle = null;
             }
+            if (mapFeatureInteractionEventHandle != null) {
+                this.removeEventListener(mapFeatureInteractionEventHandle);
+                mapFeatureInteractionEventHandle = null;
+            }
         }
     }
 /*
@@ -159,10 +166,11 @@ public class MirroredMap extends Map {
 
             if (globalCamera == null) { // create camera and send to MC as the globalCamera
                 globalCamera = new MirrorableCamera();
+                globalCamera.setMirrorKey(GLOBAL_CAMERA);
                 globalCamera.setAltitude(1e7);
 
                 if (!isCancelled()) {
-                    MirrorCache.getInstance().update(globalCamera, null, GLOBAL_CAMERA);
+                    MirrorCache.getInstance().update(globalCamera, null);
                 }
             }
 
@@ -221,7 +229,7 @@ public class MirroredMap extends Map {
             Log.d(TAG, "doInBackground");
 
             for (IdentifiedMirrorable feature : features) {
-                MirrorCache.getInstance().update(feature.mirrorable, null, feature.geoId);
+                MirrorCache.getInstance().update(feature.mirrorable, null);
             }
             return null;
         }
@@ -269,22 +277,32 @@ public class MirroredMap extends Map {
      * Upon receipt of a supported feature type, an UpdateMirrorCacheTask or
      * DeleteMirrorCacheTask will be spawned.
      */
-    static private class MapFeatureHandler {
-        static private String TAG = MapFeatureHandler.class.getSimpleName();
+    static private class MapEventHandler {
+        static private String TAG = MapEventHandler.class.getSimpleName();
+
+        final private IMap map;
+
+        private MapEventHandler(IMap map) {
+            this.map = map;
+        }
 
         public void onEvent(MapFeatureAddedEvent event) {
             ensureOnUiThread();
             try {
                 if (event.getFeature() instanceof IGeoMilSymbol) {
                     final MirrorableMilStdSymbol feature = new MirrorableMilStdSymbol((IGeoMilSymbol) event.getFeature());
+                    feature.setMirrorKey(event.getFeature().getGeoId().toString());
+
                     new UpdateMirrorCacheTask().execute(new IdentifiedMirrorable(feature, feature.getGeoId().toString()));
 
                 } else if (event.getFeature() instanceof IGeoPoint) {
                     final MirrorablePoint feature = new MirrorablePoint((IGeoPoint) event.getFeature());
+                    feature.setMirrorKey(event.getFeature().getGeoId().toString());
+
                     new UpdateMirrorCacheTask().execute(new IdentifiedMirrorable(feature, feature.getGeoId().toString()));
 
                 } else {
-                    Log.w(TAG, "Unsupported MirrorCache feature type added: " + event.getFeature());
+                    Log.w(TAG, "Unsupported MirrorCache feature type: " + event.getFeature());
                 }
 
             } catch (EMP_Exception e) {
@@ -297,14 +315,53 @@ public class MirroredMap extends Map {
             try {
                 if (event.getFeature() instanceof IGeoMilSymbol) {
                     final MirrorableMilStdSymbol feature = new MirrorableMilStdSymbol((IGeoMilSymbol) event.getFeature());
+                    feature.setMirrorKey(event.getFeature().getGeoId().toString());
+
                     new DeleteMirrorCacheTask().execute(new IdentifiedMirrorable(feature, feature.getGeoId().toString()));
 
                 } else if (event.getFeature() instanceof IGeoPoint) {
                     final MirrorablePoint feature = new MirrorablePoint((IGeoPoint) event.getFeature());
+                    feature.setMirrorKey(event.getFeature().getGeoId().toString());
+
                     new DeleteMirrorCacheTask().execute(new IdentifiedMirrorable(feature, feature.getGeoId().toString()));
 
                 } else {
-                    Log.w(TAG, "Unsupported MirrorCache feature type added: " + event.getFeature());
+                    Log.w(TAG, "Unsupported MirrorCache feature type: " + event.getFeature());
+                }
+
+            } catch (EMP_Exception e) {
+                Log.e(TAG, "ERROR: " + e.getMessage(), e);
+            }
+        }
+
+        public void onEvent(FeatureEvent event) {
+            ensureOnUiThread();
+            try {
+                switch (event.getEvent()) {
+                    case FEATURE_SELECTED:
+                    case FEATURE_DESELECTED: {
+                        if (event.getTarget() instanceof IGeoMilSymbol) {
+                            final MirrorableMilStdSymbol feature = new MirrorableMilStdSymbol((IGeoMilSymbol) event.getTarget());
+                            feature.setMirrorKey(event.getTarget().getGeoId().toString());
+                            feature.setIsSelected(map.isSelected(feature));
+
+                            new UpdateMirrorCacheTask().execute(new IdentifiedMirrorable(feature, feature.getGeoId().toString()));
+
+                        } else if (event.getTarget() instanceof IGeoPoint) {
+                            final MirrorablePoint feature = new MirrorablePoint((IGeoPoint) event.getTarget());
+                            feature.setMirrorKey(event.getTarget().getGeoId().toString());
+                            feature.setIsSelected(map.isSelected(feature));
+
+                            new UpdateMirrorCacheTask().execute(new IdentifiedMirrorable(feature, feature.getGeoId().toString()));
+
+                        } else {
+                            Log.w(TAG, "Unsupported MirrorCache feature type: " + event.getTarget());
+                        }
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
                 }
 
             } catch (EMP_Exception e) {
@@ -346,18 +403,36 @@ public class MirroredMap extends Map {
                         }
 
                     } else if (o instanceof MirrorableMilStdSymbol) {
+                        final MirrorableMilStdSymbol feature = (MirrorableMilStdSymbol) o;
+
                         final FeatureVisibilityList features = new FeatureVisibilityList();
-                        features.add(new FeatureVisibility((MirrorableMilStdSymbol) o, true));
+                        features.add(new FeatureVisibility(feature, true));
 
                         final IMapInstance engine = storageManager.getMapInstance(map);
                         engine.addFeatures(features);
+
+                        // retain selection state
+                        if (feature.isSelected()) {
+                            map.selectFeature(feature);
+                        } else {
+                            map.deselectFeature(feature);
+                        }
 
                     } else if (o instanceof MirrorablePoint) {
+                        final MirrorablePoint feature = ((MirrorablePoint) o);
+
                         final FeatureVisibilityList features = new FeatureVisibilityList();
-                        features.add(new FeatureVisibility((MirrorablePoint) o, true));
+                        features.add(new FeatureVisibility(feature, true));
 
                         final IMapInstance engine = storageManager.getMapInstance(map);
                         engine.addFeatures(features);
+
+                        // retain selection state
+                        if (feature.isSelected()) {
+                            map.selectFeature(feature);
+                        } else {
+                            map.deselectFeature(feature);
+                        }
                     }
                 }
             });
@@ -419,25 +494,31 @@ public class MirroredMap extends Map {
                 map.initCameraTask.execute(); // get and set the globalCamera; register camera listener
 
                 if (map.isEgressEnabled()) {
-                    Log.d(TAG, "Registering for mapFeature events..");
+                    Log.d(TAG, "Registering for map events..");
                     try {
-                        final MapFeatureHandler mapFeatureLHandler = new MapFeatureHandler();
+                        final MapEventHandler mapEventHandler = new MapEventHandler(map);
 
                         map.mapFeatureAddedEventHandle = map.addMapFeatureAddedEventListener(new IMapFeatureAddedEventListener() {
                             @Override
                             public void onEvent(MapFeatureAddedEvent event) {
-                                mapFeatureLHandler.onEvent(event);
+                                mapEventHandler.onEvent(event);
                             }
                         });
                         map.mapFeatureRemovedEventHandle = map.addMapFeatureRemovedEventListener(new IMapFeatureRemovedEventListener() {
                             @Override
                             public void onEvent(MapFeatureRemovedEvent event) {
-                                mapFeatureLHandler.onEvent(event);
+                                mapEventHandler.onEvent(event);
+                            }
+                        });
+                        map.addFeatureEventListener(new IFeatureEventListener() {
+                            @Override
+                            public void onEvent(FeatureEvent event) {
+                                mapEventHandler.onEvent(event);
                             }
                         });
 
                     } catch (EMP_Exception ex) {
-                        Log.e(TAG, "addMapFeatureAddedEventListener.", ex);
+                        Log.e(TAG, "ERROR while registering map events: " + ex.getMessage(), ex);
                     }
                 }
 

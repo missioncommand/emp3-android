@@ -21,6 +21,10 @@ import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.listeners.IFreehandEventListener;
 
+/*
+ * This is an internal interface class.  The app developer must not implement this interface.
+ */
+
 public interface ICoreManager {
     void setStorageManager(IStorageManager storageManager);
     void setEventManager(IEventManager eventManager);

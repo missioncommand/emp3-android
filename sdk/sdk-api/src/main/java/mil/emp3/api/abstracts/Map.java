@@ -2,19 +2,20 @@ package mil.emp3.api.abstracts;
 
 import android.graphics.Point;
 import android.util.Log;
+import android.view.View;
 
 import org.cmapi.primitives.GeoContainer;
-import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoBounds;
-import org.cmapi.primitives.IGeoContainer;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.EventListenerTypeEnum;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
@@ -35,9 +36,8 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.IUUIDSet;
+import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.interfaces.core.ICoreManager;
-import mil.emp3.api.interfaces.core.IEventManager;
-import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ICameraEventListener;
 import mil.emp3.api.listeners.IDrawEventListener;
@@ -54,18 +54,27 @@ import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.api.utils.UUIDSet;
 
 /**
- * This class implements the IMap interface.
- * Map is used inside MapFragment, MapView, and RemoteMap.
+ * Map represents the container that encapsulates the map displayed on the users screen. All overlays and Features are
+ * contained within the Map. Map is responsible for starting and displaying a map engine of users choice. An application
+ * can display multiple maps on the screen. Applications use either MapView or MapFragment to build and display a map.
  */
 public abstract class Map extends Container implements IMap {
     private String TAG = Map.class.getSimpleName();
-
-    final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
-    final private IEventManager eventManager     = ManagerFactory.getInstance().getEventManager();
     final private ICoreManager coreManager       = ManagerFactory.getInstance().getCoreManager();
 
+    // Each application on Android has its own private Map. Mirror Cache is a mechanism used to shared map objects
+    // among applications. This is work in progress.
     private MirrorCacheModeEnum mode = MirrorCacheModeEnum.DISABLED;
+
+    // Map encapsulates map engines supplied by various vendors. Currently only supported engine is NASA WorldWind.
+    /**
+     * Class that implements IMapInstance and encapsulates a map engine
+     */
     protected String engineClassName;
+
+    /**
+     * Android Application that has the implementation of engineClassName (optional)
+     */
     protected String engineAPKName;
 
     private void processProperties(IEmpPropertyList properties) {
@@ -106,6 +115,14 @@ public abstract class Map extends Container implements IMap {
         return mode == MirrorCacheModeEnum.INGRESS || mode == MirrorCacheModeEnum.BIDIRECTIONAL;
     }
 
+    /**
+     * Swap the map engine associated with this map.
+     * @param properties The property key value pair needed to support map swapping. The required properties
+     *                   are {@link mil.emp3.api.enums.Property#ENGINE_CLASSNAME} and {@link mil.emp3.api.enums.Property#ENGINE_APKNAME} if
+     *                   the map is implemented in an APK.
+     * @return
+     * @throws EMP_Exception
+     */
     @Override
     public IMap swapMapEngine(IEmpPropertyList properties) throws EMP_Exception {
         Log.e(TAG, "Must override this method");
@@ -119,8 +136,11 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
-    public ICapture getScreenCapture() {
-        return storageManager.getMapInstance(this).getCapture();
+    public void getScreenCapture(IScreenCaptureCallback callback) {
+        if (null == callback) {
+            throw new InvalidParameterException("The callback can not be null.");
+        }
+        storageManager.getMapInstance(this).getCapture(callback);
     }
 
     @Override
@@ -144,12 +164,12 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
-    public java.util.List<IFeature> getAllFeatures() {
+    public List<IFeature> getAllFeatures() {
         return storageManager.getChildFeatures(this);
     }
 
     @Override
-    public java.util.List<IOverlay> getAllOverlays() {
+    public List<IOverlay> getAllOverlays() {
         return storageManager.getChildOverlays(this);
     }
 
@@ -160,13 +180,13 @@ public abstract class Map extends Container implements IMap {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.addOverlay can not be null.");
         }
         
-        java.util.ArrayList<IOverlay> oList = new java.util.ArrayList<>();
+        ArrayList<IOverlay> oList = new ArrayList<>();
         oList.add(overlay);
         this.addOverlays(oList, visible);
     }
 
     @Override
-    public void addOverlays(java.util.List<IOverlay> overlays, boolean visible)
+    public void addOverlays(List<IOverlay> overlays, boolean visible)
             throws EMP_Exception {
         if (overlays == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.addOverlays can not be null.");
@@ -182,13 +202,13 @@ public abstract class Map extends Container implements IMap {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.removeOverlay can not be null.");
         }
         
-        java.util.ArrayList<IOverlay> oList = new java.util.ArrayList<>();
+        ArrayList<IOverlay> oList = new ArrayList<>();
         oList.add(overlay);
         this.removeOverlays(oList);
     }
 
     @Override
-    public void removeOverlays(java.util.List<IOverlay> overlays)
+    public void removeOverlays(List<IOverlay> overlays)
             throws EMP_Exception {
         if (overlays == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.removeOverlays can not be null.");
@@ -210,7 +230,7 @@ public abstract class Map extends Container implements IMap {
     }
     
     @Override
-    public java.util.List<IMapService> getMapServices()
+    public List<IMapService> getMapServices()
     {
         return storageManager.getMapServices(this);
     }
@@ -322,7 +342,7 @@ public abstract class Map extends Container implements IMap {
 
     @Override
     public EventListenerHandle addCameraEventListener(ICameraEventListener listener) throws EMP_Exception {
-        return eventManager.addEventHandler(EventListenerTypeEnum.MAP_INTERACTION_EVENT_LISTENER, this, listener);
+        return eventManager.addEventHandler(EventListenerTypeEnum.CAMERA_EVENT_LISTENER, this, listener);
     }
 
     @Override
@@ -551,13 +571,13 @@ public abstract class Map extends Container implements IMap {
         if (feature == null) {
             return;
         }
-        java.util.List<IFeature> list = new java.util.ArrayList<>();
+        List<IFeature> list = new ArrayList<>();
         list.add(feature);
         storageManager.selectFeatures(this, list);
     }
 
     @Override
-    public void selectFeatures(java.util.List<IFeature> features) {
+    public void selectFeatures(List<IFeature> features) {
         if (features == null) {
             return;
         }
@@ -569,13 +589,13 @@ public abstract class Map extends Container implements IMap {
         if (feature == null) {
             return;
         }
-        java.util.List<IFeature> list = new java.util.ArrayList<>();
+        List<IFeature> list = new ArrayList<>();
         list.add(feature);
         storageManager.deselectFeatures(this, list);
     }
 
     @Override
-    public void deselectFeatures(java.util.List<IFeature> features) {
+    public void deselectFeatures(List<IFeature> features) {
         if (features == null) {
             return;
         }
@@ -583,7 +603,7 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
-    public java.util.List<IFeature> getSelected() {
+    public List<IFeature> getSelected() {
         return storageManager.getSelected(this);
     }
 
@@ -595,5 +615,35 @@ public abstract class Map extends Container implements IMap {
     @Override
     public boolean isSelected(IFeature feature) {
         return storageManager.isSelected(this, feature);
+    }
+
+    @Override
+    public FontSizeModifierEnum getFontSizeModifier() {
+        return storageManager.getFontSizeModifier(this);
+    }
+
+    @Override
+    public void setFontSizeModifier(FontSizeModifierEnum value) throws EMP_Exception {
+        storageManager.setFontSizeModifier(this, value);
+    }
+
+    @Override
+    public View showMiniMap() {
+        return storageManager.getMapInstance(this).showMiniMap();
+    }
+
+    @Override
+    public void hideMiniMap() {
+        storageManager.getMapInstance(this).hideMiniMap();
+    }
+    
+    @Override
+    public void setBackgroundBrightness(int setting) {
+        storageManager.getMapInstance(this).setBackgroundBrightness(setting);
+    }
+
+    @Override
+    public int getBackgroundBrightness() {
+        return storageManager.getMapInstance(this).getBackgroundBrightness();
     }
 }

@@ -28,7 +28,7 @@ public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventE
     // use this member.
     private boolean eventConsumed;
     /**
-     * This constructor must be called by the map engines to creates a MapInstanceUserInteractionEvent event
+     * This constructor must be called by the map engines to create a MapInstanceUserInteractionEvent event
      * @param oMapInstance The actual map instance. The this property of the object that implements the IMapInstance interface.
      * @param eEvent The enumerated value of the event that occurred. See {@link UserInteractionEventEnum}.
      * @param oPointCoordinate The geographic coordinate of the location the event occurred.
@@ -51,7 +51,7 @@ public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventE
     }
 
     /**
-     * This constructor must be called by the map engines to creates a MapInstanceUserInteractionEvent event
+     * This constructor must be called by the map engines to create a MapInstanceUserInteractionEvent event
      * @param oMapInstance The actual map instance. The this property of the object that implements the IMapInstance interface.
      * @param eEvent The enumerated value of the event that occurred. See {@link UserInteractionEventEnum}.
      * @param oPointCoordinate The geographic coordinate of the location the event occurred.
@@ -74,21 +74,44 @@ public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventE
         this.oKeys = keys;
     }
 
+    /**
+     * The geographic coordinate of the location the event occurred.
+     * @return location
+     */
+
     public android.graphics.Point getLocation() {
         return this.oPoint;
     }
 
+    /**
+     * Returns geo-position of the location of the event.
+     * @return coordinates
+     */
     public IGeoPosition getCoordinate() {
         return this.oCoordinate;
     }
 
+    /**
+     * Returns geo-position of the location where DRAG started
+     * @return coordinates
+     */
     public IGeoPosition getStartCoordinate() {
         return this.oCoordinate;
     }
 
+    /**
+     * Returns mouse button, left, right or middle
+     * @return button
+     */
+
     public UserInteractionMouseButtonEnum getButton() {
         return this.oButton;
     }
+
+    /**
+     * Returns keyboard keys, shift, ctrl and/or alt
+     * @return enumeration of keys
+     */
 
     public EnumSet<UserInteractionKeyEnum> getKeys() {
         return this.oKeys;

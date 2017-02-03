@@ -1,47 +1,55 @@
 package mil.emp3.api.enums;
 
 /**
- * This class enumerates the different type of features.
+ * Types of features supported by EMP, there is a concrete class for each of the types.
  */
 public enum FeatureTypeEnum {
     /**
-     * This value indicates a circular feature.
+     * Circular feature. {@link mil.emp3.api.Circle}
      */
     GEO_CIRCLE,
     /**
-     * This value indicates an ellipse feature
+     * Ellipse feature {@link mil.emp3.api.Ellipse}
      */
     GEO_ELLIPSE,
     /**
-     * This value indicates a path (aka. multi segment line) feature.
+     * Path (aka. multi segment line) feature. {@link mil.emp3.api.Path}
      */
     GEO_PATH,
     /**
-     * This value indicates a single point icon feature.
+     * Single point icon feature. {@link mil.emp3.api.Point}
      */
     GEO_POINT,
     /**
-     * This value indicates a polygon feature.
+     * Polygon feature.{@link mil.emp3.api.Polygon}
      */
     GEO_POLYGON,
     /**
-     * This value indicates a rectangular feature.
+     * Rectangular feature. {@link mil.emp3.api.Rectangle}
      */
     GEO_RECTANGLE,
     /**
-     * This value indicates a square feature.
+     * Square feature. {@link mil.emp3.api.Square}
      */
     GEO_SQUARE,
     /**
-     * This value indicates a MilStd feature.
+     * MilStd feature. {@link mil.emp3.api.MilStdSymbol
      */
     GEO_MIL_SYMBOL,
     /**
-     * This value indicates an air control measure (aka 3D airspace) feature.
+     * Air control measure (aka 3D airspace) feature. {@link mil.emp3.api.mil.emp3.api.AirControlMeasure}
      */
     GEO_ACM,
     /**
-     * This enumerated value indicates a geo positioned text.
+     * Geo positioned text.{@link mil.emp3.api.Text}
      */
-    GEO_TEXT
+    GEO_TEXT,
+    /**
+     * KML
+     */
+    KML,
+    /**
+     * GeoJSON
+     */
+    GEOJSON
 }

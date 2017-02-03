@@ -9,13 +9,12 @@ interface IMirrorCache {
     void unregister(int pid);
 
     void mirror(int pid, IMirrorCacheListener listener);
-    long genKey();
 
     void nuke();
 
-    void update(int pid, in MirrorCacheParcelable o, long parentKey, in String guid);
-    void delete(int pid, long key);
-    void noop(int pid);
-    void map(int pid, long parentKey, long childKey);
-    void unmap(int pid, long parentKey, long childKey);
+    void update(int pid, in MirrorCacheParcelable o, String parentKey);
+    void delete(int pid, String key);
+
+    void map(int pid, String parentKey, String childKey);
+    void unmap(int pid, String parentKey, String childKey);
 }

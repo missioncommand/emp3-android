@@ -14,19 +14,31 @@ public class UUIDSet extends java.util.HashSet<java.util.UUID> implements IUUIDS
     public void add(IGeoBase geoObject) {
         this.add(geoObject.getGeoId());
     }
-    
+
+    /**
+     * This method adds the UUID of the feature to the set, eliminates duplicates
+     * @param geoObject
+     */
     public void addFeature(IGeoBase geoObject) {
         if (geoObject instanceof IFeature) {
             this.add(geoObject.getGeoId());
         }
     }
 
+    /**
+     * This method adds the UUID of the overlay to the set, eliminates duplicates
+     * @param geoObject
+     */
     public void addOverlay(IGeoBase geoObject) {
         if (geoObject instanceof IOverlay) {
             this.add(geoObject.getGeoId());
         }
     }
 
+    /**
+     * This method adds the UUID of the container to the set, eliminates duplicates
+     * @param geoObject
+     */
     public void addContainer(IGeoBase geoObject) {
         if (geoObject instanceof IContainer) {
             this.add(geoObject.getGeoId());

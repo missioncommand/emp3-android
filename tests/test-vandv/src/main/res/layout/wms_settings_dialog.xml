@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/WmsParametersLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/NameText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Name(required)"/>
+
+            <EditText
+                android:id="@+id/UrlText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Service"
+                android:text="@string/UrlDefault" />
+
+            <Spinner
+                android:id="@+id/VersionText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="WMS Version"
+                android:spinnerMode="dropdown"
+                style="@style/Widget.AppCompat.Spinner.Underlined" />
+
+            <Spinner
+                android:id="@+id/TileFormatText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tile Format"
+                android:spinnerMode="dropdown"
+                style="@style/Widget.AppCompat.Spinner.Underlined" />
+
+            <Spinner
+                android:id="@+id/TransparentText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Transparent"
+                android:spinnerMode="dropdown"
+                style="@style/Widget.AppCompat.Spinner.Underlined" />
+
+            <EditText
+                android:id="@+id/Layer1Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Layer"
+                android:text="@string/Layer1Default" />
+
+            <EditText
+                android:id="@+id/Layer2Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Layer"
+                android:text="@string/Layer2Default" />
+
+            <EditText
+                android:id="@+id/Layer3Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Layer"
+                android:text="@string/Layer3Default" />
+
+
+            <EditText
+                android:id="@+id/ResolutionText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Meters per pixel"
+                android:inputType="numberDecimal"
+                android:text="@string/ResolutionDefault" />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:layout_gravity="center" android:orientation="horizontal"  >
+
+                <Button
+                    android:id="@+id/apply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Apply" />
+
+
+                <Button
+                    android:id="@+id/done"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Done" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

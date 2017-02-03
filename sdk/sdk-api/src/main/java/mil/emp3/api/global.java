@@ -16,6 +16,28 @@ import mil.emp3.api.utils.ManagerFactory;
 public class global {
     static final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
 
+    public static final double LATITUDE_MINIMUM = -90.0;
+    public static final double LATITUDE_MAXIMUM = 90.0;
+
+    public static final double LONGITUDE_MINIMUM = -180.0;
+    public static final double LONGITUDE_MAXIMUM = 180.0;
+
+    public static final double HEADING_MINIMUM = -180.0;
+    public static final double HEADING_MAXIMUM = 360.0;
+
+
+    public static final double CAMERA_TILT_MINIMUM = 0.0;
+    public static final double CAMERA_TILT_MAXIMUM = 180.0;
+    public static final double CAMERA_TILT_TO_GROUND = CAMERA_TILT_MINIMUM;
+    public static final double CAMERA_TILT_TO_HORIZON = 90.0;
+    public static final double CAMERA_TILT_TO_SKY = CAMERA_TILT_MAXIMUM;
+
+    public static final double CAMERA_ROLL_MINIMUM = -180.0;
+    public static final double CAMERA_ROLL_MAXIMUM = 180.0;
+    public static final double CAMERA_ROLL_LEVEL = 0.0;
+
+
+
     /**
      * This method finds a container with the specified ID.
      * @param uuid The unique identifier of the container.

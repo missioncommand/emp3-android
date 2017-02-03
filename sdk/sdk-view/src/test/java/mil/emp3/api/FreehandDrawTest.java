@@ -22,12 +22,14 @@ import java.util.UUID;
 import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
+import mil.emp3.api.events.MapFreehandEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.listeners.IFreehandEventListener;
+import mil.emp3.api.listeners.IMapFreehandEventListener;
 import mil.emp3.api.utils.BasicUtilities;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.FeatureUtils;
@@ -60,6 +62,12 @@ public class FreehandDrawTest extends TestBaseMultiMap {
         private int iPosCnt = 0;
 
         List<String> eventReceived = new ArrayList<>();
+        boolean testingExceptions = false;
+
+        FreehandDrawListener() { }
+        FreehandDrawListener(boolean testingExceptions) {
+            this.testingExceptions = testingExceptions;
+        }
 
         String getNextEventReceived() {
 
@@ -82,6 +90,9 @@ public class FreehandDrawTest extends TestBaseMultiMap {
         public void onEnterFreeHandDrawMode(IMap map) {
             Log.d(TAG, "Enter Freehand Draw Mode.");
             eventReceived.add("onEnterFreeHandDrawMode");
+            if(testingExceptions) {
+                throw new IllegalStateException("onEnterFreeHandDrawMode");
+            }
         }
 
         @Override
@@ -100,6 +111,9 @@ public class FreehandDrawTest extends TestBaseMultiMap {
 
             iPosCnt = iCurrentSize;
             eventReceived.add("onFreeHandLineDrawStart." + iPosCnt);
+            if(testingExceptions) {
+                throw new IllegalStateException("onFreeHandLineDrawStart");
+            }
         }
 
         @Override
@@ -117,6 +131,9 @@ public class FreehandDrawTest extends TestBaseMultiMap {
 
             iPosCnt = iCurrentSize;
             eventReceived.add("onFreeHandLineDrawUpdate." + iPosCnt);
+            if(testingExceptions) {
+                throw new IllegalStateException("onFreeHandLineDrawUpdate");
+            }
         }
 
         @Override
@@ -134,18 +151,27 @@ public class FreehandDrawTest extends TestBaseMultiMap {
 
             iPosCnt = iCurrentSize;
             eventReceived.add("onFreeHandLineDrawEnd." + iPosCnt);
+            if(testingExceptions) {
+                throw new IllegalStateException("onFreeHandLineDrawEnd");
+            }
         }
 
         @Override
         public void onExitFreeHandDrawMode(IMap map) {
             Log.d(TAG, "Exit Freehand Draw mode.");
             eventReceived.add("onExitFreeHandDrawMode");
+            if(testingExceptions) {
+                throw new IllegalStateException("onExitFreeHandDrawMode");
+            }
         }
 
         @Override
         public void onDrawError(IMap map, String errorMessage) {
             Log.d(TAG, "Error Freehand Draw..");
             eventReceived.add("onDrawError");
+            if(testingExceptions) {
+                throw new IllegalStateException("onDrawError");
+            }
         }
     }
 
@@ -388,5 +414,46 @@ public class FreehandDrawTest extends TestBaseMultiMap {
         Assert.assertEquals("Expecting onFreeHandLineDrawEnd after DRAG_COMPLETE", "onFreeHandLineDrawEnd." + 3, fdl.getNextEventReceived());
 
         endFreehandDraw(fdl);
+    }
+
+    class MapFreehandEventListener implements IMapFreehandEventListener {
+        int mapFreehandEventListener = 0;
+        @Override
+        public void onEvent(MapFreehandEvent event) {
+            mapFreehandEventListener++;
+            throw new IllegalStateException("IMapFreehandEventListener onEvent");
+        }
+    }
+    /**
+     * This is a copy of addMultipleLineSegments but it tests a scenario where application throws an exception in th eevent handler.
+     * It also verifies that IMapFreehandEventListener is fired.
+     * @throws Exception
+     */
+
+    @Test
+    public void addMultipleLineSegmentsWithExceptions() throws Exception {
+        FreehandDrawListener fdl = new FreehandDrawListener(true);
+        MapFreehandEventListener mfel = new MapFreehandEventListener();
+        remoteMap[0].addMapFreehandEventListener(mfel);
+
+        startFreehandDraw(fdl);
+
+        firstTwoPointsOfLine(fdl);
+
+        mapInstance[0].simulateUserInteractionEvent(UserInteractionEventEnum.DRAG_COMPLETE, 100, 100, 40.0, -40.0, 0.0);
+        Assert.assertEquals("Expecting one event after DRAG_COMPLETE", 1, fdl.getEventReceivedCount());
+        Assert.assertEquals("Expecting onFreeHandLineDrawEnd after DRAG_COMPLETE", "onFreeHandLineDrawEnd." + 2, fdl.getNextEventReceived());
+
+        firstTwoPointsOfLine(fdl);
+        beyondFirstTwoPointsOfLine(fdl, 160, 170, 40.2, -40.3, 0);
+
+        mapInstance[0].simulateUserInteractionEvent(UserInteractionEventEnum.DRAG_COMPLETE, 100, 100, 40.0, -40.0, 0.0);
+        Assert.assertEquals("Expecting one event after DRAG_COMPLETE", 1, fdl.getEventReceivedCount());
+        Assert.assertEquals("Expecting onFreeHandLineDrawEnd after DRAG_COMPLETE", "onFreeHandLineDrawEnd." + 3, fdl.getNextEventReceived());
+
+        endFreehandDraw(fdl);
+
+        Log.d(TAG, "IMapFreehandEventListener invoked " + mfel.mapFreehandEventListener);
+        Assert.assertEquals("IMapFreehandEventListener invoked", 7, mfel.mapFreehandEventListener);
     }
 }

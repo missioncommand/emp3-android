@@ -19,8 +19,16 @@ public abstract class MapViewChangeEvent extends Event<MapViewEventEnum, IMap> {
      * @return @See ICamera
      */
     public abstract ICamera getCamera();
-    
+
+    /**
+     * Gets the map bounds after the event. Returned value could be null based on current camera settings.
+     * @return bounds
+     */
     public abstract IGeoBounds getBounds();
 
+    /**
+     * Gets the updated lookAt object after the event.
+     * @return @See ILookAt
+     */
     public abstract ILookAt getLookAt();
 }

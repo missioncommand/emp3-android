@@ -14,36 +14,33 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 /**
  * This class is the base class for the MilStd Multi Point tactical graphic editors.
  */
-public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEditor {
+public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEditor<MilStdSymbol> {
     protected final armyc2.c2sd.renderer.utilities.SymbolDef symbolDefinition;
     protected final String basicSymbolCode;
     protected final int milstdVersion;
-    protected final MilStdSymbol symbol;
-    private final java.util.HashMap<IGeoMilSymbol.Modifier, String> orgiginalModifiers = new java.util.HashMap<>();
+    private final java.util.HashMap<IGeoMilSymbol.Modifier, String> originalModifiers = new java.util.HashMap<>();
 
     protected AbstractMilStdMultiPointEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, true);
 
-        this.symbol = feature;
-        this.milstdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(this.symbol.getSymbolStandard());
-        this.basicSymbolCode = this.symbol.getBasicSymbol();
+        this.milstdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(this.oFeature.getSymbolStandard());
+        this.basicSymbolCode = this.oFeature.getBasicSymbol();
         this.symbolDefinition = symDef;
 
         // Copy the modifiers if there are any.
-        for (IGeoMilSymbol.Modifier modifier: symbol.getModifiers().keySet()) {
-            this.orgiginalModifiers.put(modifier, new String(symbol.getStringModifier(modifier)));
+        for (IGeoMilSymbol.Modifier modifier: oFeature.getModifiers().keySet()) {
+            this.originalModifiers.put(modifier, new String(oFeature.getStringModifier(modifier)));
         }
     }
 
     protected AbstractMilStdMultiPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, true);
 
-        this.symbol = feature;
-        if (this.symbol.getAltitudeMode() == null) {
-            this.symbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+        if (this.oFeature.getAltitudeMode() == null) {
+            this.oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
         }
-        this.milstdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(symbol.getSymbolStandard());
-        this.basicSymbolCode = symbol.getBasicSymbol();
+        this.milstdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(oFeature.getSymbolStandard());
+        this.basicSymbolCode = oFeature.getBasicSymbol();
         this.symbolDefinition = symDef;
     }
 
@@ -51,10 +48,10 @@ public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEdi
     public void Cancel() {
         if (this.inEditMode()) {
             // Restore the modifiers.
-            java.util.HashMap<IGeoMilSymbol.Modifier, String> symbolModifiers = symbol.getModifiers();
+            java.util.HashMap<IGeoMilSymbol.Modifier, String> symbolModifiers = oFeature.getModifiers();
             symbolModifiers.clear();
-            for (IGeoMilSymbol.Modifier modifier: this.orgiginalModifiers.keySet()) {
-                symbolModifiers.put(modifier, this.orgiginalModifiers.get(modifier));
+            for (IGeoMilSymbol.Modifier modifier: this.originalModifiers.keySet()) {
+                symbolModifiers.put(modifier, this.originalModifiers.get(modifier));
             }
         }
         super.Cancel();

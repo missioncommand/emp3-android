@@ -5,6 +5,7 @@ import android.graphics.Point;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import mil.emp3.api.enums.UserInteractionKeyEnum;
 import mil.emp3.api.enums.UserInteractionMouseButtonEnum;
@@ -19,14 +20,14 @@ public class FeatureUserInteractionEvent extends mil.emp3.api.events.FeatureUser
     private final IMap oEventOnMap;
 
     public FeatureUserInteractionEvent(UserInteractionEventEnum eEvent, EnumSet<UserInteractionKeyEnum> keys,
-                                       UserInteractionMouseButtonEnum button, java.util.List<IFeature> featureList,
+                                       UserInteractionMouseButtonEnum button, List<IFeature> featureList,
                                        IMap oMap, Point oPoint, IGeoPosition oPosition) {
         super(eEvent, keys, button, featureList, oPoint, oPosition);
         this.oEventOnMap = oMap;
     }
 
     public FeatureUserInteractionEvent(UserInteractionEventEnum eEvent, EnumSet<UserInteractionKeyEnum> keys,
-                                       UserInteractionMouseButtonEnum button, java.util.List<IFeature> featureList,
+                                       UserInteractionMouseButtonEnum button, List<IFeature> featureList,
                                        IMap oMap, Point oPoint, IGeoPosition oPosition, IGeoPosition oStartPosition) {
         super(eEvent, keys, button, featureList, oPoint, oPosition, oStartPosition);
         this.oEventOnMap = oMap;

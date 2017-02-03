@@ -6,9 +6,11 @@ import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.util.List;
 import java.util.Map;
 
 import mil.emp3.api.MilStdSymbol;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.enums.VisibilityActionEnum;
@@ -19,6 +21,9 @@ import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
+/*
+ * This is an internal interface class.  The app developer must not implement this interface.
+ */
 public interface IStorageManager {
     void setEventManager(IEventManager eventManager);
 
@@ -38,6 +43,9 @@ public interface IStorageManager {
 
     IClientMapToMapInstance getMapMapping(IMap clientMap);
 
+    List<IClientMapToMapInstance> getMappings(ICamera camera);
+    List<IClientMapToMapInstance> getMappings(ILookAt lookAt);
+
     void swapMapInstance(IMap clientMap, IMapInstance newMapInstance) throws EMP_Exception;
 
     IContainerSet getParentsOf(IGeoBase oObject);
@@ -52,35 +60,35 @@ public interface IStorageManager {
 
     VisibilityStateEnum getVisibilityOnMap(IMap map, IContainer target, IContainer parent);
 
-    void addOverlays(IMap map, java.util.List<IOverlay> overlays, boolean visible) throws EMP_Exception;
+    void addOverlays(IMap map, List<IOverlay> overlays, boolean visible) throws EMP_Exception;
 
-    void apply(IFeature feature) throws EMP_Exception;
+    void apply(IFeature feature, boolean batch) throws EMP_Exception;
 
-    java.util.List<IFeature> getChildFeatures(IContainer parent);
+    List<IFeature> getChildFeatures(IContainer parent);
 
-    java.util.List<IOverlay> getChildOverlays(IContainer parent);
+    List<IOverlay> getChildOverlays(IContainer parent);
 
-    java.util.List<IGeoBase> getImmediateChildren(IContainer container);
+    List<IGeoBase> getImmediateChildren(IContainer container);
 
-    java.util.List<IContainer> getParents(IContainer childContainer);
+    List<IContainer> getParents(IContainer childContainer);
 
-    java.util.List<IOverlay> getParentOverlays(IFeature childFeature);
+    List<IOverlay> getParentOverlays(IFeature childFeature);
 
-    java.util.List<IFeature> getParentFeatures(IFeature childFeature);
+    List<IFeature> getParentFeatures(IFeature childFeature);
 
-    void addOverlays(IOverlay parentOverlay, java.util.List<IOverlay> overlays, boolean visible) throws EMP_Exception;
+    void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible) throws EMP_Exception;
 
-    void addFeatures(IOverlay parentOverlay, java.util.List<IFeature> featureList, boolean visible) throws EMP_Exception;
+    void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible) throws EMP_Exception;
 
-    void addFeatures(IFeature parentFeature, java.util.List<IFeature> featureList, boolean visible) throws EMP_Exception;
+    void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible) throws EMP_Exception;
 
-    void removeFeatures(IFeature parentFeature, java.util.List<IFeature> features) throws EMP_Exception;
+    void removeFeatures(IFeature parentFeature, List<IFeature> features) throws EMP_Exception;
 
-    void removeFeatures(IOverlay parentOverlay, java.util.List<IFeature> features) throws EMP_Exception;
+    void removeFeatures(IOverlay parentOverlay, List<IFeature> features) throws EMP_Exception;
 
-    void removeOverlays(IMap clientMap, java.util.List<IOverlay> overlays) throws EMP_Exception;
+    void removeOverlays(IMap clientMap, List<IOverlay> overlays) throws EMP_Exception;
 
-    void removeOverlays(IOverlay parentOverlay, java.util.List<IOverlay> overlays) throws EMP_Exception;
+    void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays) throws EMP_Exception;
 
     void removeChildren(IContainer parentContainer) throws EMP_Exception;
 
@@ -90,7 +98,7 @@ public interface IStorageManager {
 
     void removeMapService(IMap map, IMapService mapService) throws EMP_Exception;
 
-    java.util.List<IMapService> getMapServices(IMap map);
+    List<IMapService> getMapServices(IMap map);
 
     void MapServiceUpdated(IMapService mapService) throws EMP_Exception;
 
@@ -161,7 +169,7 @@ public interface IStorageManager {
      * @param map The map the selection it to be applied.
      * @param features The list of features to select.
      */
-    public void selectFeatures(IMap map, java.util.List<IFeature> features);
+    void selectFeatures(IMap map, List<IFeature> features);
 
     /**
      * This method marks the feature as NOT selected on the map. If the feature is not mark selected
@@ -169,20 +177,20 @@ public interface IStorageManager {
      * @param map The map the deselection it to be applied.
      * @param features The list of feature to deselected.
      */
-    public void deselectFeatures(IMap map, java.util.List<IFeature> features);
+    void deselectFeatures(IMap map, List<IFeature> features);
 
     /**
      * This method retrieves the list of feature that are marked selected on the map.
      * @param map The map to retrieve the list from.
      * @return A list of IFeatures. If there are no features selected the list is empty.
      */
-    public java.util.List<IFeature> getSelected(IMap map);
+    List<IFeature> getSelected(IMap map);
 
     /**
      * This method clears the map selected list.
      * @param map The map the selection list to clear.
      */
-    public void clearSelected(IMap map);
+    void clearSelected(IMap map);
 
     /**
      * This method check if the feature is selected on the map.
@@ -190,32 +198,52 @@ public interface IStorageManager {
      * @param feature
      * @return True if it is selected false otherwise.
      */
-    public boolean isSelected(IMap map, IFeature feature);
+    boolean isSelected(IMap map, IFeature feature);
 
     /**
      * This method returns the select stroke style for the map instance.
      * @param mapInstance
      * @return
      */
-    public IGeoStrokeStyle getSelectedStrokeStyle(IMapInstance mapInstance);
+    IGeoStrokeStyle getSelectedStrokeStyle(IMapInstance mapInstance);
 
     /**
      * This method returns the select label style for the map instance.
      * @param mapInstance
      * @return
      */
-    public IGeoLabelStyle getSelectedLabelStyle(IMapInstance mapInstance);
+    IGeoLabelStyle getSelectedLabelStyle(IMapInstance mapInstance);
 
     /**
      * This method returns the select icon scale for the map instance.
      * @param mapInstance
      * @return
      */
-    public double getSelectedIconScale(IMapInstance mapInstance);
+    double getSelectedIconScale(IMapInstance mapInstance);
 
+    /**
+     * Returns fill style used for the buffer drawn around a basic shape
+     * @param mapInstance
+     * @return
+     */
+    IGeoFillStyle getBufferFillStyle(IMapInstance mapInstance);
     /**
      * This method set the default altitude mode if the feature's altitude mode is not set.
      * @param feature
      */
     void setDefaultAltitudeMode(IFeature feature);
+
+    /**
+     * This method retrieves the font size modifier setting for the map.
+     * @param map
+     * @return {@link FontSizeModifierEnum}
+     */
+    FontSizeModifierEnum getFontSizeModifier(IMap map);
+
+    /**
+     * This method sets the font size modifier for the map.
+     * @param map
+     * @param value {@link FontSizeModifierEnum}
+     */
+    void setFontSizeModifier(IMap map, FontSizeModifierEnum value) throws EMP_Exception;
 }

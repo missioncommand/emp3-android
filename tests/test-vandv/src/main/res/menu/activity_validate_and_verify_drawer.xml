@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/nav_launch_map"
+            android:title="Launch Map" />
+    </group>
+
+    <item android:title="Basic">
+        <menu>
+            <item android:id="@+id/nav_add_remove_get"
+                android:title="Add Remove Get" />
+            <item android:id="@+id/nav_select_feature"
+                android:title="Select Feature" />
+            <item android:id="@+id/nav_zoom_bounds"
+                android:title="Zoom and Bounds" />
+            <item android:id="@+id/nav_camera_look_at"
+                android:title="Camera and Look At" />
+            <item android:id="@+id/nav_basic_shape_test"
+                android:title="Basic Shape" />
+        </menu>
+    </item>
+
+    <item android:title="Editors">
+        <menu>
+            <item android:id="@+id/nav_freehand_draw"
+                android:title="Freehand Draw" />
+            <item android:id="@+id/nav_basic_shapes_editors"
+                android:title="Basic Shapes Editors" />
+        </menu>
+    </item>
+
+    <item android:title="Miscellaneous">
+        <menu>
+            <item android:id="@+id/nav_performance"
+                android:title="Performance" />
+        </menu>
+    </item>
+</menu>

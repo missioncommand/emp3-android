@@ -67,7 +67,24 @@ public class About {
         for(String bc: buildConfigClasses) {
             builder.append("\n");
             try {
-                Class<?> clazz = About.class.getClassLoader().loadClass(bc);
+                Class<?> clazz = null;
+
+                /**
+                 * Adjusted for PluggableMap and WorldWindPlugin (a plugin for PluggableMap) loading
+                 */
+                try {
+                    clazz = About.class.getClassLoader().loadClass(bc);
+                } catch (ClassNotFoundException e) {
+                    Log.e(TAG, "getVersionInformation " + bc + " not available via About class loader");
+                }
+
+                if(null == clazz) {
+                    if(null == clientmap) {
+                        throw new ClassNotFoundException("bc");
+                    }
+                    clazz = clientmap.getClass().getClassLoader().loadClass(bc);
+                }
+
                 Field[] declaredFields = clazz.getDeclaredFields();
                 for (Field field : declaredFields) {
                     if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {

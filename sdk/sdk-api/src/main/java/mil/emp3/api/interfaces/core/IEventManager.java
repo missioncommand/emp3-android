@@ -7,6 +7,7 @@ import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import mil.emp3.api.enums.CameraEventEnum;
 import mil.emp3.api.enums.ContainerEventEnum;
@@ -32,6 +33,9 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.IEventListener;
 
+/*
+ * This is an internal interface class.  The app developer must not implement this interface.
+ */
 public interface IEventManager {
     void setStorageManager(IStorageManager storageManager);
 
@@ -45,14 +49,14 @@ public interface IEventManager {
 
     void generateContainerEvent(ContainerEventEnum eEvent,
                                 IContainer oEventedObject,
-                                java.util.List<? extends IGeoBase> oList);
+                                List<? extends IGeoBase> oList);
 
     void generateFeatureEvent(FeatureEventEnum eEvent, IFeature oTarget, boolean bSelected);
 
     void  generateFeatureInteractionEvent(UserInteractionEventEnum eEvent,
                                           EnumSet<UserInteractionKeyEnum> keys,
                                           UserInteractionMouseButtonEnum button,
-                                          java.util.List<IFeature> oTargetList,
+                                          List<IFeature> oTargetList,
                                           IMap oMap,
                                           Point oPoint,
                                           IGeoPosition oPosition,
@@ -74,6 +78,8 @@ public interface IEventManager {
     void generateMapFeatureAddedEvent(MapFeatureEventEnum eventEnum, IMap map, IFeature feature);
 
     void generateMapFeatureRemovedEvent(MapFeatureEventEnum eventEnum, IMap map, IFeature feature);
+
+    void generateMapCameraEvent(CameraEventEnum eventEnum, IMap map, ICamera camera, boolean animate);
 
     void generateVisibilityEvent(VisibilityActionEnum eEvent, IContainer oTarget, IContainer oParent, IMap oOnMap);
 

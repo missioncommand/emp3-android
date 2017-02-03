@@ -1,5 +1,7 @@
 package mil.emp3.api.events;
 
+import java.util.List;
+
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
@@ -23,5 +25,5 @@ public abstract class FeatureEditEvent extends Event<FeatureEditEventEnum, IFeat
      * This method retrieves a list of object that identifies what was updated in the feature. It only applies to EDIT_UPDATE events.
      * @return A list of {@link IEditUpdateData} object for EDIT_UPDATE events or null otherwise.
      */
-    public abstract java.util.List<IEditUpdateData> getUpdateData();
+    public abstract List<IEditUpdateData> getUpdateData();
 }

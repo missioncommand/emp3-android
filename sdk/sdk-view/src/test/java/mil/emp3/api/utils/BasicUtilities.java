@@ -32,7 +32,8 @@ public class BasicUtilities {
             e.printStackTrace();
         }
 
-        oSPSymbol.setPositions(oPositionList);
+        oSPSymbol.getPositions().clear();
+        oSPSymbol.getPositions().addAll(oPositionList);
         oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, "My First Icon");
         oSPSymbol.setName(description);
         oSPSymbol.setDescription(description);

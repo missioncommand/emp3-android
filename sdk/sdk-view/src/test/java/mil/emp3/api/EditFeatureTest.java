@@ -19,12 +19,14 @@ import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
+import mil.emp3.api.events.FeatureEditEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.listeners.IFeatureEditEventListener;
 import mil.emp3.api.utils.BasicUtilities;
 import mil.emp3.api.utils.FeatureUtils;
 
@@ -58,9 +60,14 @@ public class EditFeatureTest extends TestBaseMultiMap {
 
         IFeature feature;
         List<String> eventReceived = new ArrayList<>();
+        boolean testingExceptions = false;
 
         public FeatureEditorListener(IFeature feature) {
             this.feature = feature;
+        }
+        public FeatureEditorListener(IFeature feature, boolean testingExceptions) {
+            this.feature = feature;
+            this.testingExceptions = testingExceptions;
         }
 
         String getNextEventReceived() {
@@ -85,6 +92,9 @@ public class EditFeatureTest extends TestBaseMultiMap {
         public void onEditStart(IMap map) {
             Log.d(TAG, "Edit Start.");
             eventReceived.add("onEditStart");
+            if(testingExceptions) {
+                throw new IllegalStateException("onEditStart");
+            }
         }
 
         @Override
@@ -118,6 +128,9 @@ public class EditFeatureTest extends TestBaseMultiMap {
                         break;
                 }
             }
+            if(testingExceptions) {
+                throw new IllegalStateException("onEditUpdate");
+            }
         }
 
         @Override
@@ -125,6 +138,9 @@ public class EditFeatureTest extends TestBaseMultiMap {
             Log.d(TAG, "Edit Complete.");
             eventReceived.add("onEditComplete");
 //            updaterThread.interrupt();
+            if(testingExceptions) {
+                throw new IllegalStateException("onEditComplete");
+            }
 
         }
 
@@ -132,12 +148,18 @@ public class EditFeatureTest extends TestBaseMultiMap {
         public void onEditCancel(IMap map, IFeature originalFeature) {
             Log.d(TAG, "Edit Canceled.");
             eventReceived.add("onEditCancel");
+            if(testingExceptions) {
+                throw new IllegalStateException("onEditCancel");
+            }
         }
 
         @Override
         public void onEditError(IMap map, String errorMessage) {
             Log.d(TAG, "Edit Error.");
             eventReceived.add("onEditError");
+            if(testingExceptions) {
+                throw new IllegalStateException("onEditError");
+            }
         }
     }
 
@@ -278,6 +300,7 @@ public class EditFeatureTest extends TestBaseMultiMap {
         mapInstance[0].simulateFeatureDrag(UserInteractionEventEnum.DRAG, p1, latitude, longitude, 0, latitude+.1, longitude-.1, 0);
         Log.d(TAG, "done simulateFeatureDrag");
 
+        Thread.sleep(1000,0);
         Assert.assertTrue("Feature feature should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
         Assert.assertEquals("Expecting one event after DRAG FEATURE", 1, fel.getEventReceivedCount());
         Assert.assertEquals("Expecting onEditUpdate after DRAG FEATURE", "onEditUpdate." + FeatureEditUpdateTypeEnum.COORDINATE_MOVED, fel.getNextEventReceived());
@@ -312,6 +335,7 @@ public class EditFeatureTest extends TestBaseMultiMap {
         mapInstance[0].simulateFeatureDrag(UserInteractionEventEnum.DRAG, p1, latitude, longitude, 0, latitude+.1, longitude-.1, 0);
         Log.d(TAG, "done simulateFeatureDrag");
 
+        Thread.sleep(1000,0);
         Assert.assertTrue("Feature feature should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
         Assert.assertEquals("Expecting one event after DRAG FEATURE", 1, fel.getEventReceivedCount());
         Assert.assertEquals("Expecting onEditUpdate after DRAG FEATURE", "onEditUpdate." + FeatureEditUpdateTypeEnum.COORDINATE_MOVED, fel.getNextEventReceived());
@@ -324,6 +348,7 @@ public class EditFeatureTest extends TestBaseMultiMap {
         Assert.assertEquals("Expecting one event after completeEdit", 1, fel.getEventReceivedCount());
         Assert.assertEquals("Expecting onEditCancel after cancelEdit", "onEditCancel", fel.getNextEventReceived());
 
+        Thread.sleep(1000,0);
         Assert.assertTrue("Feature feature should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
 
         Assert.assertEquals("Map should be UNLOCKED", MapMotionLockEnum.UNLOCKED, remoteMap[0].getMotionLockMode());
@@ -348,6 +373,7 @@ public class EditFeatureTest extends TestBaseMultiMap {
         mapInstance[0].simulateUserInteractionEvent(UserInteractionEventEnum.CLICKED, null, latitude+1.0, longitude-1.0,0);
         Log.d(TAG, "done simulate CLICK on Map");
 
+        Thread.sleep(1000,0);
         Assert.assertTrue("Feature feature should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
 
         Assert.assertEquals("Expecting one event after CLICK on Map", 1, fel.getEventReceivedCount());
@@ -363,5 +389,98 @@ public class EditFeatureTest extends TestBaseMultiMap {
 
         Assert.assertEquals("Expected Altitude ", latitude+1.0, p1.getPosition().getLatitude(), delta);
         Assert.assertEquals("Expected Longitude ", longitude-1.0, p1.getPosition().getLongitude(), delta);
+    }
+
+    /**
+     * This is a copy of userDragsFeatureAndCompletes but aplication trows exceptions within the callbacks.
+     * @throws Exception
+     */
+    @Test
+    public void applicationThrowsException() throws Exception {
+        p1 = BasicUtilities.generateMilStdSymbol("TRUCK" + 0, new UUID(1, 1), latitude + (0 * .001), longitude + (0 * .001));
+        FeatureEditorListener fel = new FeatureEditorListener(p1, true);
+
+        addFeatureToMap(p1);
+
+        remoteMap[0].editFeature(p1, fel);
+        Thread.sleep(10);
+        postEditFeature(fel);
+
+        Log.d(TAG, "simulateFeatureDrag");
+        mapInstance[0].simulateFeatureDrag(UserInteractionEventEnum.DRAG, p1, latitude, longitude, 0, latitude+.1, longitude-.1, 0);
+        Log.d(TAG, "done simulateFeatureDrag");
+
+        Thread.sleep(1000,0);
+        Assert.assertTrue("Feature feature should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
+        Assert.assertEquals("Expecting one event after DRAG FEATURE", 1, fel.getEventReceivedCount());
+        Assert.assertEquals("Expecting onEditUpdate after DRAG FEATURE", "onEditUpdate." + FeatureEditUpdateTypeEnum.COORDINATE_MOVED, fel.getNextEventReceived());
+
+        mapInstance[0].simulateFeatureDrag(UserInteractionEventEnum.DRAG_COMPLETE, p1, 40.1, -40.1, 0, 40.2, -40.2, 0);
+        Assert.assertEquals("Expecting one event after dragFeature", 0, fel.getEventReceivedCount());
+
+        remoteMap[0].completeEdit();
+
+        Assert.assertEquals("Expecting one event after completeEdit", 1, fel.getEventReceivedCount());
+        Assert.assertEquals("Expecting onEditComplete after completeEdit", "onEditComplete", fel.getNextEventReceived());
+
+        Assert.assertEquals("Map should be UNLOCKED", MapMotionLockEnum.UNLOCKED, remoteMap[0].getMotionLockMode());
+        Assert.assertEquals("Editor Mode should be INACTIVE", EditorMode.INACTIVE, remoteMap[0].getEditorMode());
+
+        Assert.assertEquals("Expected Altitude ", latitude+.1, p1.getPosition().getLatitude(), delta);
+        Assert.assertEquals("Expected Longitude ", longitude-.1, p1.getPosition().getLongitude(), delta);
+    }
+
+    class FeatureEditEventListener implements IFeatureEditEventListener {
+        int featureEditEventListener = 0;
+        @Override
+        public void onEvent(FeatureEditEvent event) {
+            featureEditEventListener++;
+            throw new IllegalStateException("IFeatureEditEventListener onEvent");
+        }
+    }
+
+    /**
+     * This is a copy of userDragsFeatureAndCompletes, but IFeatureEditEventListener is also invoked.
+     * Listener also throws an exception, which should be simply caught and logged.
+     * @throws Exception
+     */
+    @Test
+    public void testFeatureEditEventListener() throws Exception {
+        p1 = BasicUtilities.generateMilStdSymbol("TRUCK" + 0, new UUID(1, 1), latitude + (0 * .001), longitude + (0 * .001));
+        FeatureEditorListener fel = new FeatureEditorListener(p1);
+        FeatureEditEventListener feel = new FeatureEditEventListener();
+        remoteMap[0].addFeatureEditEventListener(feel);
+
+        addFeatureToMap(p1);
+
+        remoteMap[0].editFeature(p1, fel);
+        Thread.sleep(10);
+        postEditFeature(fel);
+
+        Log.d(TAG, "simulateFeatureDrag");
+        mapInstance[0].simulateFeatureDrag(UserInteractionEventEnum.DRAG, p1, latitude, longitude, 0, latitude+.1, longitude-.1, 0);
+        Log.d(TAG, "done simulateFeatureDrag");
+
+        Thread.sleep(1000,0);
+        Assert.assertTrue("Feature feature should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
+        Assert.assertEquals("Expecting one event after DRAG FEATURE", 1, fel.getEventReceivedCount());
+        Assert.assertEquals("Expecting onEditUpdate after DRAG FEATURE", "onEditUpdate." + FeatureEditUpdateTypeEnum.COORDINATE_MOVED, fel.getNextEventReceived());
+
+        mapInstance[0].simulateFeatureDrag(UserInteractionEventEnum.DRAG_COMPLETE, p1, 40.1, -40.1, 0, 40.2, -40.2, 0);
+        Assert.assertEquals("Expecting one event after dragFeature", 0, fel.getEventReceivedCount());
+
+        remoteMap[0].completeEdit();
+
+        Assert.assertEquals("Expecting one event after completeEdit", 1, fel.getEventReceivedCount());
+        Assert.assertEquals("Expecting onEditComplete after completeEdit", "onEditComplete", fel.getNextEventReceived());
+
+        Assert.assertEquals("Map should be UNLOCKED", MapMotionLockEnum.UNLOCKED, remoteMap[0].getMotionLockMode());
+        Assert.assertEquals("Editor Mode should be INACTIVE", EditorMode.INACTIVE, remoteMap[0].getEditorMode());
+
+        Assert.assertEquals("Expected Altitude ", latitude+.1, p1.getPosition().getLatitude(), delta);
+        Assert.assertEquals("Expected Longitude ", longitude-.1, p1.getPosition().getLongitude(), delta);
+
+        Log.d(TAG, "FeatureEditEventListener invoked " + feel.featureEditEventListener);
+        Assert.assertEquals("FeatureEditEventListener invoked", 3, feel.featureEditEventListener );
     }
 }

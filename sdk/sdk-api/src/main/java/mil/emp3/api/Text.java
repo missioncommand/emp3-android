@@ -9,21 +9,7 @@ import org.cmapi.primitives.IGeoText;
 /**
  * This class positions text on the map at a specific coordinate.
  */
-public class Text extends Feature implements IGeoText {
-    // This type must be removed when it is supported by the IGeoLabelStyle
-    public enum TypeFaceStyle {
-        NORMAL,
-        BOLD,
-        ITALIC,
-        BOLD_ITALIC
-    }
-
-    // This type must be removed when it is supported by the IGeoLabelStyle
-    private String fontFamily = "Arial";
-    // This type must be removed when it is supported by the IGeoLabelStyle
-    private int fontSize = 20;
-    // This type must be removed when it is supported by the IGeoLabelStyle
-    private TypeFaceStyle typeFaceStyle = TypeFaceStyle.NORMAL;
+public class Text extends Feature<IGeoText> implements IGeoText {
 
     /**
      * This constructor creates a Text feature with all default values.
@@ -83,54 +69,6 @@ public class Text extends Feature implements IGeoText {
      */
     public void setRotationAngle(double value) {
         this.setAzimuth(value);
-    }
-
-    /**
-     * This method return the font family the text is rendered with.
-     * @return String
-     */
-    public String getFontFamily() {
-        return this.fontFamily;
-    }
-
-    /**
-     * This method set the font family the text is to be rendered with. The map will use the closest font available.
-     * @param fFamily String
-     */
-    public void setFontFamily(String fFamily) {
-        this.fontFamily = fFamily;
-    }
-
-    /**
-     * This method retrieves the font size used to render the text.
-     * @return Integer
-     */
-    public int getFontSize() {
-        return this.fontSize;
-    }
-
-    /**
-     * This method set the size of the font the map is to render the text in.
-     * @param size
-     */
-    public void setFontSize(int size) {
-        this.fontSize = size;
-    }
-
-    /**
-     * This methos returns the type face style of the lable.
-     * @return Text.TypeFaceStyle
-     */
-    public Text.TypeFaceStyle getTypeFaceStyle() {
-        return this.typeFaceStyle;
-    }
-
-    /**
-     * This methos set the type face style the text is to be rendered in.
-     * @param tfs
-     */
-    public void setTypeFaceStyle(Text.TypeFaceStyle tfs) {
-        this.typeFaceStyle = tfs;
     }
 }
 

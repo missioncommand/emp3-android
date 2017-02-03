@@ -198,10 +198,12 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         eventManager.generateMapViewChangeEvent(event.getEvent(), mapCamera, mapLookAt, oBounds, clientMap);
         switch (event.getEvent()) {
             case VIEW_IN_MOTION:
+                eventManager.generateMapCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, clientMap, mapCamera, false);
                 eventManager.generateCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, mapCamera, false);  // TODO This needs to be addressed
                 eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_IN_MOTION, mapLookAt, false);
                 break;
             case VIEW_MOTION_STOPPED:
+                eventManager.generateMapCameraEvent(CameraEventEnum.CAMERA_MOTION_STOPPED, clientMap, mapCamera, false);
                 eventManager.generateCameraEvent(CameraEventEnum.CAMERA_MOTION_STOPPED, mapCamera, false);  // TODO This needs to be addressed.
                 eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_MOTION_STOPPED, mapLookAt, false);
                 break;

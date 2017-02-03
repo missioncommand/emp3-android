@@ -14,12 +14,14 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import java.util.concurrent.locks.ReentrantLock;
 
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
@@ -27,6 +29,8 @@ import mil.emp3.api.Camera;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Point;
 import mil.emp3.api.enums.ContainerEventEnum;
+import mil.emp3.api.enums.FeatureEventEnum;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.enums.VisibilityActionEnum;
@@ -36,6 +40,7 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IContainerSet;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IOverlay;
@@ -90,6 +95,14 @@ public class StorageManager implements IStorageManager {
     private final java.util.concurrent.ConcurrentHashMap<MilStdSymbol.Affiliation, IGeoStrokeStyle> defaultIconStrokeStyleCache = new java.util.concurrent.ConcurrentHashMap<>();
     // We store the default fill style for MilStd Icons keyed by the affiliation.
     private final java.util.concurrent.ConcurrentHashMap<MilStdSymbol.Affiliation, IGeoFillStyle> defaultIconFillStyleCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    // This object stores the bulk update feature apply list.
+    private final java.util.HashMap<java.util.UUID, FeatureVisibilityList> bulkFeatureApplyList = new java.util.HashMap<>();
+    private int bulkFeatureApplyListCount = 0;
+    private static final int MAX_BULK_FEATURE_APPLY_COUNT = 500;
+
+    private Thread bulkFeatureApplyThread = null;
+
 
     @Override
     public void setEventManager(IEventManager eventManager) {
@@ -372,6 +385,39 @@ public class StorageManager implements IStorageManager {
             IClientMapToMapInstance newMapping = getMapMapping(clientMap);
             newMapping.copy(mapping);
         }
+    }
+
+    /**
+     * Give a camera get all the maps that use this camera. This is used to proces changes to the camera and apply them to
+     * appropriate maps.
+     * @param camera
+     * @return
+     */
+    public  List<IClientMapToMapInstance> getMappings(ICamera camera) {
+        List<IClientMapToMapInstance> list = new ArrayList<>();
+
+        if((null != camera) && (null != camera.getGeoId())) {
+            for(Map.Entry<IMap, ClientMapToMapInstance> cm2mi: oClientMapToMapInstanceMapping.entrySet()) {
+                if((null != cm2mi.getValue().getCamera()) && (0 == camera.getGeoId().compareTo(cm2mi.getValue().getCamera().getGeoId()))) {
+                    list.add(cm2mi.getValue());
+                }
+            }
+        }
+        return list;
+    }
+
+    @Override
+    public List<IClientMapToMapInstance> getMappings(ILookAt lookAt) {
+        List<IClientMapToMapInstance> list = new ArrayList<>();
+
+        if((null != lookAt) && (null != lookAt.getGeoId())) {
+            for(Map.Entry<IMap, ClientMapToMapInstance> cm2mi: oClientMapToMapInstanceMapping.entrySet()) {
+                if((null != cm2mi.getValue().getLookAt()) && (0 == lookAt.getGeoId().compareTo(cm2mi.getValue().getLookAt().getGeoId()))) {
+                    list.add(cm2mi.getValue());
+                }
+            }
+        }
+        return list;
     }
 
     @Override
@@ -659,14 +705,19 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public VisibilityStateEnum getVisibilityOnMap(IMap map, IContainer target) {
+        VisibilityStateEnum eRet = VisibilityStateEnum.HIDDEN;
         try {
             lock.lock();
             StorageObjectWrapper targetWrapper = this.oObjectHash.get(target.getGeoId());
 
-            return targetWrapper.getVisibilityOnMap(map.getGeoId());
+            if (null != targetWrapper) {
+                eRet = targetWrapper.getVisibilityOnMap(map.getGeoId());
+            }
         } finally {
             lock.unlock();
         }
+
+        return eRet;
     }
 
     @Override
@@ -695,29 +746,29 @@ public class StorageManager implements IStorageManager {
         boolean bHasParents = containerWrapper.hasParents();
         java.util.Set<java.util.UUID> childIdList = new java.util.HashSet<>(containerWrapper.getChildIdList());
 
-        Log.d(TAG, "containerWrapper " + containerWrapper.getGeoId() + " bHasParents " + bHasParents + " children " + childIdList.size() );
+        //Log.d(TAG, "containerWrapper " + containerWrapper.getGeoId() + " bHasParents " + bHasParents + " children " + childIdList.size() );
         for (java.util.UUID uuId: childIdList) {
 
             childWrapper = this.oObjectHash.get(uuId);
-            Log.d(TAG, "containerWrapper " + containerWrapper.getGeoId() + " childWrapper " + childWrapper.getGeoId() +
-                    " Name " + childWrapper.getObject().getName());
+            //Log.d(TAG, "containerWrapper " + containerWrapper.getGeoId() + " childWrapper " + childWrapper.getGeoId() +
+            //        " Name " + childWrapper.getObject().getName());
 
             if (!bHasParents) {
                 // The container has no more parents so we need to remove all the children.
-                Log.d(TAG, "containerWrapper " + containerWrapper.getGeoId() + " remove childWrapper " + childWrapper.getGeoId() +
-                        " Name " + childWrapper.getObject().getName());
+                //Log.d(TAG, "containerWrapper " + containerWrapper.getGeoId() + " remove childWrapper " + childWrapper.getGeoId() +
+                //        " Name " + childWrapper.getObject().getName());
                 containerWrapper.removeChild(uuId);
             } else {
                 // childWrapper ParentRelationShip mapVisibility needs to be cleaned up.
                 // childWrapper cannot reach the 'mapId' via this containerWrapper.
-                Log.d(TAG, "containerWrapper " + containerWrapper.getGeoId() + " clearVisibilityOnMap childWrapper " + childWrapper.getGeoId() +
-                        " Name " + childWrapper.getObject().getName());
+                //Log.d(TAG, "containerWrapper " + containerWrapper.getGeoId() + " clearVisibilityOnMap childWrapper " + childWrapper.getGeoId() +
+                //        " Name " + childWrapper.getObject().getName());
                 childWrapper.clearMapVisibility(containerWrapper, mapId);
             }
 
 
             if (!childWrapper.isOnMap(mapId)) {
-                Log.d(TAG, "childWrapper " + childWrapper.getGeoId() + " is not on map ");
+                //Log.d(TAG, "childWrapper " + childWrapper.getGeoId() + " is not on map ");
                 // The child is no longer on the map.
                 if (childWrapper.hasChildren()) {
                     this.proessChildrenRemoves(transactionList, mapId, childWrapper);
@@ -814,7 +865,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception 
      */
     @Override
-    public void addOverlays(IMap map, java.util.List<IOverlay> overlays, boolean visible) throws EMP_Exception {
+    public void addOverlays(IMap map, List<IOverlay> overlays, boolean visible) throws EMP_Exception {
         try {
             lock.lock();
             java.util.UUID childId;
@@ -847,19 +898,67 @@ public class StorageManager implements IStorageManager {
     }
 
     /**
+     * This method send the features in the bulkFeatureApplyList to the map engines.
+     */
+    private void processBulkFeatureApplyList() {
+        if (this.bulkFeatureApplyList.isEmpty()) {
+            return;
+        }
+
+        // Loop thru the bulk Feature Apply List.
+        for (java.util.UUID uuid: this.bulkFeatureApplyList.keySet()) {
+            StorageObjectWrapper sowMap = this.oObjectHash.get(uuid);
+
+            if (null != sowMap) {
+                // Get the IMap.
+                IMap clientMap = (IMap) sowMap.getObject();
+                IClientMapToMapInstance mapMapping = this.getMapMapping(clientMap);
+
+                if (null != mapMapping) {
+                    FeatureVisibilityList fvList = this.bulkFeatureApplyList.get(uuid);
+                    VisibilityStateEnum visibility;
+                    FeatureVisibility featureVisibility;
+                    Iterator<FeatureVisibility> iterator = fvList.iterator();
+
+                    // Go thru all the feature and get their latest visibility.
+                    while (iterator.hasNext()) {
+                        featureVisibility = iterator.next();
+                        if (this.oObjectHash.containsKey(featureVisibility.feature.getGeoId())) {
+                            visibility = getVisibilityOnMap(clientMap, featureVisibility.feature);
+                            featureVisibility.visible = (visibility == VisibilityStateEnum.VISIBLE);
+                        } else {
+                            // The feature was removed from the system.
+                            iterator.remove();
+                        }
+                    }
+
+                    if (!fvList.isEmpty()) {
+                        // Send the list to the map engine.
+                        mapMapping.getMapInstance().addFeatures(fvList);
+                    }
+                }
+            }
+        }
+        this.bulkFeatureApplyListCount = 0;
+        this.bulkFeatureApplyList.clear();
+        //Log.d(TAG, "Processed List.");
+    }
+
+    /**
      * Find all MapInstances and invoke apply method on each.
      * @param feature
+     * @param batch If set to true the request is queued and processed in batch mode. If false the request is triggered immediately along with all others in the queue.
      * @throws mil.emp3.api.exceptions.EMP_Exception
      */
     @Override
-    public void apply(IFeature feature) throws EMP_Exception {
+    public void apply(IFeature feature, boolean batch) throws EMP_Exception {
         // Ensure the feature has an altitude mode.
         this.setDefaultAltitudeMode(feature);
         try {
             lock.lock();
             StorageObjectWrapper sow = this.oObjectHash.get(feature.getGeoId());
             IUUIDSet oMapList = null;
-            IMapInstance mapInstance = null;
+            FeatureVisibilityList fvList = null;
 
             if (null != sow) {
                 oMapList = sow.getMapList(); // This is the list of IMap on which the feature was added
@@ -867,17 +966,18 @@ public class StorageManager implements IStorageManager {
                     for (java.util.UUID uuid : oMapList) {
                         StorageObjectWrapper sowMap = this.oObjectHash.get(uuid);
                         VisibilityStateEnum visibility = getVisibilityOnMap((IMap) sowMap.getObject(), sow.getObject());
-                        if (VisibilityStateEnum.VISIBLE == visibility) {
-                            mapInstance = getMapInstance((IMap) sowMap.getObject());
-                            if (null != mapInstance) {
-                                FeatureVisibility fv = new FeatureVisibility(feature, true);
-                                FeatureVisibilityList fvList = new FeatureVisibilityList();
-                                fvList.add(fv);
-                                mapInstance.addFeatures(fvList);
-                                // mapInstance.apply(feature);
+                        IClientMapToMapInstance mapMapping = this.getMapMapping((IMap) sowMap.getObject());
+                        if ((null != mapMapping) && mapMapping.canPlot(feature)) {
+                            FeatureVisibility fv = new FeatureVisibility(feature, (VisibilityStateEnum.VISIBLE == visibility));
+
+                            if (this.bulkFeatureApplyList.containsKey(uuid)) {
+                                fvList = this.bulkFeatureApplyList.get(uuid);
+                            } else {
+                                fvList = new FeatureVisibilityList();
+                                this.bulkFeatureApplyList.put(uuid, fvList);
                             }
-                        } else {
-                            Log.d(TAG, "feature is not visible " + feature.getClass().getSimpleName() + " " + feature.getGeoId());
+                            fvList.add(fv);
+                            this.bulkFeatureApplyListCount++;
                         }
                     }
                 }
@@ -887,10 +987,56 @@ public class StorageManager implements IStorageManager {
                 throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "Feature is not on map " + feature.getClass().getSimpleName() +
                         " " + feature.getGeoId());
             }
+
+            if ((null != fvList) && !fvList.isEmpty()) {
+                if (!batch || (this.bulkFeatureApplyListCount >= StorageManager.MAX_BULK_FEATURE_APPLY_COUNT)) {
+                    //Log.d(TAG, "Non Batch Apply processing :" + this.bulkFeatureApplyListCount);
+                    this.processBulkFeatureApplyList();
+                } else {
+                    //Log.d(TAG, "Batch Apply processing :" + this.bulkFeatureApplyListCount);
+                    this.startFeatureApplyThread();
+                }
+            }
         } finally {
             lock.unlock();
         }
     }
+
+    private void startFeatureApplyThread() {
+        if (null == this.bulkFeatureApplyThread) {
+            this.bulkFeatureApplyThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean bContinue = true;
+
+                    while (bContinue) {
+                        try {
+                            Thread.sleep(100);
+
+                            if (StorageManager.this.bulkFeatureApplyListCount > 0) {
+                                try {
+                                    lock.lock();
+                                    //Log.d(TAG, "Thread processing list:" + StorageManager.this.bulkFeatureApplyListCount);
+                                    StorageManager.this.processBulkFeatureApplyList();
+                                } finally {
+                                    lock.unlock();
+                                }
+                            } else {
+                                bContinue = false;
+                            }
+                        } catch (InterruptedException ex) {
+                            bContinue = false;
+                        }
+                    }
+                    StorageManager.this.bulkFeatureApplyThread = null;
+                    //Log.d(TAG, "Thread exiting.");
+                }
+            }, "Bulk Feature Apply Thread");
+            this.bulkFeatureApplyThread.start();
+            //Log.d(TAG, "Starting Thread.");
+        }
+    }
+
     private void executeTransaction(TransactionList transactionList) {
         StorageObjectWrapper wrapper;
         IMap map;
@@ -909,30 +1055,44 @@ public class StorageManager implements IStorageManager {
             mapInstance = cm2mInstance.getMapInstance();
             removeFeatureList = mapRemoveFeatures.get(mapId);
 
-            // checks if a feature being removed is being edited, and cancels it
-            // We will stopEditing only if we are not already in the finishing state of the editor.
-            if (cm2mInstance.isEditing() && !cm2mInstance.getEditor().isFinishing()) {
-                for (Iterator<UUID> iter = removeFeatureList.iterator(); iter.hasNext(); ) {
-                    if (cm2mInstance.getEditor().getFeatureGeoId().equals(iter.next())) {
+            for (Iterator<UUID> iter = removeFeatureList.iterator(); iter.hasNext(); ) {
+                UUID featureId = iter.next();
+
+                // If feature was selected using IMap.selectFeature interface then remove feature from selected list
+                cm2mInstance.deselectFeature(featureId);
+
+                // checks if a feature being removed is being edited, and cancels it
+                // We will stopEditing only if we are not already in the finishing state of the editor.
+                if (cm2mInstance.isEditing() && !cm2mInstance.getEditor().isFinishing()) {
+                    if (cm2mInstance.getEditor().getFeatureGeoId().equals(featureId)) {
                         try {
                             cm2mInstance.stopEditing();
-                            break; // we only edit one feature at a time
                         } catch (Exception e) {
                             Log.e(TAG, "ERROR attempting to cancel edit: " + e.getMessage(), e);
                         }
                     }
                 }
             }
+
             mapInstance.removeFeatures(removeFeatureList);
         }
         
         mapAddFeatures = transactionList.getFeatureAdds();
         for (java.util.UUID mapId: mapAddFeatures.keySet()) {
-            wrapper = this.oObjectHash.get(mapId);
-            map = (IMap) wrapper.getObject();
-            mapInstance = this.oClientMapToMapInstanceMapping.get(map).getMapInstance();
             addFeatureList = mapAddFeatures.get(mapId);
-            mapInstance.addFeatures(addFeatureList);
+
+            //Log.d(TAG, "Execute Transaction added " + addFeatureList.size());
+            if (this.bulkFeatureApplyList.containsKey(mapId)) {
+                FeatureVisibilityList fvList = this.bulkFeatureApplyList.get(mapId);
+                fvList.addAll(addFeatureList);
+            } else {
+                this.bulkFeatureApplyList.put(mapId, addFeatureList);
+            }
+            this.bulkFeatureApplyListCount += addFeatureList.size();
+        }
+
+        if (mapAddFeatures.size() > 0) {
+            this.processBulkFeatureApplyList();
         }
     }
 
@@ -945,7 +1105,7 @@ public class StorageManager implements IStorageManager {
                                        StorageObjectWrapper parentWrapper) {
         if(null == parentWrapper) return;
 
-        Log.d(TAG, "getChildren " + parentWrapper.getObject().getName());
+        //Log.d(TAG, "getChildren " + parentWrapper.getObject().getName());
         java.util.Set<java.util.UUID> childIdList = new java.util.HashSet<>(parentWrapper.getChildIdList());
         if(null == childIdList) return;
 
@@ -967,9 +1127,9 @@ public class StorageManager implements IStorageManager {
      * @param parent
      */
     @Override
-    public java.util.List<IFeature> getChildFeatures(IContainer parent) {
+    public List<IFeature> getChildFeatures(IContainer parent) {
 
-        java.util.List<IFeature> features = new java.util.ArrayList<>();
+        List<IFeature> features = new ArrayList<>();
         try {
             lock.lock();
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(parent.getGeoId());
@@ -994,9 +1154,9 @@ public class StorageManager implements IStorageManager {
      * @param parent
      */
     @Override
-    public java.util.List<IOverlay> getChildOverlays(IContainer parent) {
+    public List<IOverlay> getChildOverlays(IContainer parent) {
 
-        java.util.List<IOverlay> overlays = new java.util.ArrayList<>();
+        List<IOverlay> overlays = new ArrayList<>();
         try {
             lock.lock();
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(parent.getGeoId());
@@ -1021,9 +1181,9 @@ public class StorageManager implements IStorageManager {
      * @return
      */
     @Override
-    public java.util.List<IGeoBase> getImmediateChildren(IContainer container) {
+    public List<IGeoBase> getImmediateChildren(IContainer container) {
 
-        java.util.List<IGeoBase> children = new java.util.ArrayList<>();
+        List<IGeoBase> children = new ArrayList<>();
         try {
             lock.lock();
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(container.getGeoId());
@@ -1046,7 +1206,7 @@ public class StorageManager implements IStorageManager {
      * @param childWrapper
      * @param parents
      */
-    private void getParents(StorageObjectWrapper childWrapper, java.util.List<IContainer> parents) {
+    private void getParents(StorageObjectWrapper childWrapper, List<IContainer> parents) {
         if(null == childWrapper) return;
 
         Map<UUID, IParentRelationship> parentList = childWrapper.getParentList();
@@ -1061,8 +1221,8 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public java.util.List<IContainer> getParents(IContainer childContainer) {
-        java.util.List<IContainer> parents = new java.util.ArrayList<>();
+    public List<IContainer> getParents(IContainer childContainer) {
+        List<IContainer> parents = new ArrayList<>();
         try {
             lock.lock();
             StorageObjectWrapper childContainerWrapper;
@@ -1080,13 +1240,13 @@ public class StorageManager implements IStorageManager {
      * @return
      */
     @Override
-    public java.util.List<IOverlay> getParentOverlays(IFeature childFeature) {
+    public List<IOverlay> getParentOverlays(IFeature childFeature) {
         StorageObjectWrapper childFeatureWrapper;
-        java.util.List<IOverlay> parentOverlays = new java.util.ArrayList<>();
+        List<IOverlay> parentOverlays = new ArrayList<>();
         try {
             lock.lock();
             if ((null != childFeature) && (null != (childFeatureWrapper = this.oObjectHash.get(childFeature.getGeoId())))) {
-                java.util.List<IContainer> parents = new java.util.ArrayList<>();
+                List<IContainer> parents = new ArrayList<>();
                 getParents(childFeatureWrapper, parents);
                 for (IContainer container : parents) {
                     if (container instanceof IOverlay) {
@@ -1106,13 +1266,13 @@ public class StorageManager implements IStorageManager {
      * @return
      */
     @Override
-    public java.util.List<IFeature> getParentFeatures(IFeature childFeature) {
+    public List<IFeature> getParentFeatures(IFeature childFeature) {
         StorageObjectWrapper childFeatureWrapper;
-        java.util.List<IFeature> parentFeatures = new java.util.ArrayList<>();
+        List<IFeature> parentFeatures = new ArrayList<>();
         try {
             lock.lock();
             if ((null != childFeature) && (null != (childFeatureWrapper = this.oObjectHash.get(childFeature.getGeoId())))) {
-                java.util.List<IContainer> parents = new java.util.ArrayList<>();
+                List<IContainer> parents = new ArrayList<>();
                 getParents(childFeatureWrapper, parents);
                 for (IContainer container : parents) {
                     if (container instanceof IFeature) {
@@ -1127,7 +1287,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void addOverlays(IOverlay parentOverlay, java.util.List<IOverlay> overlays, boolean visible)
+    public void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible)
              throws EMP_Exception {
         try {
             lock.lock();
@@ -1164,7 +1324,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void addFeatures(IOverlay parentOverlay, java.util.List<IFeature> featureList, boolean visible)
+    public void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible)
              throws EMP_Exception {
         try {
             lock.lock();
@@ -1203,7 +1363,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void addFeatures(IFeature parentFeature, java.util.List<IFeature> featureList, boolean visible)
+    public void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible)
              throws EMP_Exception {
         java.util.UUID childId;
         java.util.UUID parentId = parentFeature.getGeoId();
@@ -1253,8 +1413,8 @@ public class StorageManager implements IStorageManager {
         IUUIDSet preMapList;
         IUUIDSet postMapList;
 
-        Log.d(TAG, "removeChildren childId " + childWrapper.getGeoId() + " parentId " + parentWrapper.getGeoId() + " hasChild " +
-                parentWrapper.hasChild(childWrapper.getGeoId()));
+        //Log.d(TAG, "removeChildren childId " + childWrapper.getGeoId() + " parentId " + parentWrapper.getGeoId() + " hasChild " +
+        //        parentWrapper.hasChild(childWrapper.getGeoId()));
 
         // Remove from parent if it is a child.
         if (parentWrapper.hasChild(childWrapper.getGeoId())) {
@@ -1276,16 +1436,16 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeFeatures(IFeature parentFeature, java.util.List<IFeature> features)
+    public void removeFeatures(IFeature parentFeature, List<IFeature> features)
             throws EMP_Exception {
         if((null == parentFeature) || (null == features)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentFeature or features list is NULL");
         }
 
-        Log.d(TAG, "removeFeatures from Feature " + parentFeature.getName());
+        //Log.d(TAG, "removeFeatures from Feature " + parentFeature.getName());
         try {
             lock.lock();
-            Log.v(TAG, "b4remove removeFeatures(IFeature parentFeature oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "b4remove removeFeatures(IFeature parentFeature oObjectHash.size() " + oObjectHash.size());
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentFeature.getGeoId());
 
             if (null == parentWrapper) {
@@ -1294,7 +1454,7 @@ public class StorageManager implements IStorageManager {
             }
 
             for (IFeature aFeature : features) {
-                Log.d(TAG, "removeFeatures from parentFeature " + aFeature.getName());
+                //Log.d(TAG, "removeFeatures from parentFeature " + aFeature.getName());
                 if (!parentWrapper.getChildIdList().contains(aFeature.getGeoId())) {
                     Log.e(TAG, "removeFeatures from parentFeature " + aFeature.getGeoId() + " is not a child of " + parentFeature.getGeoId());
                     throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_CHILD, "removeFeatures feature " + aFeature.getGeoId() +
@@ -1313,7 +1473,7 @@ public class StorageManager implements IStorageManager {
             }
             executeTransaction(transactionList);
         } finally {
-            Log.v(TAG, "after removeFeatures(IFeature parentFeature oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "after removeFeatures(IFeature parentFeature oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
             eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentFeature, features);
         }
@@ -1327,16 +1487,16 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeFeatures(IOverlay parentOverlay, java.util.List<IFeature> features)
+    public void removeFeatures(IOverlay parentOverlay, List<IFeature> features)
             throws EMP_Exception {
         if((null == parentOverlay) || (null == features)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentOverlay or features list is NULL");
         }
 
-        Log.d(TAG, "removeFeatures from Overlay " + parentOverlay.getName());
+        //Log.d(TAG, "removeFeatures from Overlay " + parentOverlay.getName());
         try {
             lock.lock();
-            Log.v(TAG, "b4remove removeFeatures(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "b4remove removeFeatures(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentOverlay.getGeoId());
 
             if (null == parentWrapper) {
@@ -1345,7 +1505,7 @@ public class StorageManager implements IStorageManager {
             }
 
             for (IFeature aFeature : features) {
-                Log.d(TAG, "removeFeatures from parentOverlay " + aFeature.getName());
+                //Log.d(TAG, "removeFeatures from parentOverlay " + aFeature.getName());
                 if (!parentWrapper.getChildIdList().contains(aFeature.getGeoId())) {
                     Log.e(TAG, "removeFeatures from parentOverlay " + aFeature.getGeoId() + " is not a child of " + parentOverlay.getGeoId());
                     throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_CHILD, "removeFeatures feature " + aFeature.getGeoId() +
@@ -1364,22 +1524,22 @@ public class StorageManager implements IStorageManager {
             }
             executeTransaction(transactionList);
         } finally {
-            Log.v(TAG, "after removeFeatures(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "after removeFeatures(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
             eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, features);
         }
     }
 
     @Override
-    public void removeOverlays(IMap clientMap, java.util.List<IOverlay> overlays) throws EMP_Exception {
+    public void removeOverlays(IMap clientMap, List<IOverlay> overlays) throws EMP_Exception {
         // validate the overlay list to ensure that each of the overlays is a direct child of clientMap
-        Log.d(TAG, "removeOverlays from IMap");
+        //Log.d(TAG, "removeOverlays from IMap");
         if((null == clientMap) || (null == overlays)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentOverlay or features list is NULL");
         }
         try {
             lock.lock();
-            Log.v(TAG, "b4remove removeOverlays(IMap clientMap oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "b4remove removeOverlays(IMap clientMap oObjectHash.size() " + oObjectHash.size());
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(clientMap.getGeoId());
             if (null == parentWrapper) {
                 throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARENT, "Map Name " + clientMap.getName() +
@@ -1387,7 +1547,7 @@ public class StorageManager implements IStorageManager {
             }
 
             for (IOverlay anOverlay : overlays) {
-                Log.d(TAG, "removeOverlays from IMap " + anOverlay.getName());
+                //Log.d(TAG, "removeOverlays from IMap " + anOverlay.getName());
                 if (!parentWrapper.getChildIdList().contains(anOverlay.getGeoId())) {
                     Log.e(TAG, "removeOverlays from clientMap overlay " + anOverlay.getGeoId() + " is not a child of " + clientMap.getGeoId());
                     throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_CHILD, "removeOverlays overlay " + anOverlay.getGeoId() +
@@ -1402,7 +1562,7 @@ public class StorageManager implements IStorageManager {
             }
             executeTransaction(transactionList);
         } finally {
-            Log.v(TAG, "after removeOverlays(IMap clientMap oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "after removeOverlays(IMap clientMap oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
             eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, clientMap, overlays);
         }
@@ -1417,13 +1577,13 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeOverlays(IOverlay parentOverlay, java.util.List<IOverlay> overlays) throws EMP_Exception {
+    public void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays) throws EMP_Exception {
         if((null == parentOverlay) || (null == overlays)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentOverlay or overlays list is NULL");
         }
         try {
             lock.lock();
-            Log.v(TAG, "b4remove removeOverlays(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "b4remove removeOverlays(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
             // Validate the overlay list to make sure that each overlay is a child of the specified parentOverlay
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentOverlay.getGeoId());
             if (null == parentWrapper) {
@@ -1446,7 +1606,7 @@ public class StorageManager implements IStorageManager {
             }
             executeTransaction(transactionList);
         } finally {
-            Log.v(TAG, "after removeOverlays(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "after removeOverlays(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
             eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, overlays);
         }
@@ -1462,7 +1622,7 @@ public class StorageManager implements IStorageManager {
         StorageObjectWrapper parentContainerWrapper;
         try {
             lock.lock();
-            Log.v(TAG, "b4remove removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "b4remove removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
             if ((null == parentContainer) || (null == (parentContainerWrapper = this.oObjectHash.get(parentContainer.getGeoId())))) {
                 throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "removeChildren invalid parentContainer ");
             }
@@ -1470,7 +1630,7 @@ public class StorageManager implements IStorageManager {
             Map<UUID, StorageObjectWrapper> childrenList = parentContainerWrapper.getChildrenList();
             if (null != childrenList) {
                 TransactionList transactionList = new TransactionList();
-                java.util.Collection<StorageObjectWrapper> childList = new java.util.ArrayList<>();
+                java.util.Collection<StorageObjectWrapper> childList = new ArrayList<>();
                 childList.addAll(childrenList.values()); // To avoid ConcurrentModification issue
                 for (StorageObjectWrapper childWrapper : childList) {
                     removeChild(transactionList, parentContainerWrapper, childWrapper);
@@ -1478,7 +1638,7 @@ public class StorageManager implements IStorageManager {
                 executeTransaction(transactionList);
             }
         } finally {
-            Log.v(TAG, "after removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
+            //Log.v(TAG, "after removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
         }
     }
@@ -1487,7 +1647,7 @@ public class StorageManager implements IStorageManager {
     public void redrawAllFeatures(IMap clientMap) {
         IMapInstance mapInstance = getMapInstance(clientMap);
         if (null == mapInstance) {
-            Log.i(TAG, "redrawAllFeatures: mapInstance is null, skip");
+            //Log.i(TAG, "redrawAllFeatures: mapInstance is null, skip");
             return;
         }
 
@@ -1495,7 +1655,7 @@ public class StorageManager implements IStorageManager {
             lock.lock();
             List<IFeature> features = getChildFeatures(clientMap);
             if ((null == features) || (0 == features.size())) {
-                Log.i(TAG, "redrawAllfeatures: there are no features.");
+                //Log.i(TAG, "redrawAllfeatures: there are no features.");
                 return;
             }
 
@@ -1504,14 +1664,14 @@ public class StorageManager implements IStorageManager {
                 if (VisibilityStateEnum.VISIBLE == getVisibilityOnMap(clientMap, feature)) {
                     fvList.add(new FeatureVisibility(feature, true));
                 } else {
-                    Log.d(TAG, "feature is not visible " + feature.getClass().getSimpleName() + " " + feature.getGeoId());
+                    //Log.d(TAG, "feature is not visible " + feature.getClass().getSimpleName() + " " + feature.getGeoId());
                 }
             }
             if (fvList.size() > 0) {
                 mapInstance.addFeatures(fvList);
                 mapInstance.selectFeatures(this.getSelected(clientMap));
             } else {
-                Log.i(TAG, "redrawAllFeatures: There are no visible faetures");
+                //Log.i(TAG, "redrawAllFeatures: There are no visible faetures");
             }
         } finally {
             lock.unlock();
@@ -1564,8 +1724,8 @@ public class StorageManager implements IStorageManager {
     }
     
     @Override
-    public java.util.List<IMapService> getMapServices(IMap map) {
-        java.util.List<IMapService> oList;
+    public List<IMapService> getMapServices(IMap map) {
+        List<IMapService> oList;
         
         ClientMapToMapInstance mapMapping;
         
@@ -1573,7 +1733,7 @@ public class StorageManager implements IStorageManager {
             mapMapping = this.oClientMapToMapInstanceMapping.get(map);
             oList = mapMapping.getMapServices();
         } else {
-            oList = new java.util.ArrayList<>();
+            oList = new ArrayList<>();
         }
         return oList;
     }
@@ -1620,7 +1780,7 @@ public class StorageManager implements IStorageManager {
                         if (VisibilityStateEnum.VISIBLE == getVisibilityOnMap(map, oSymbol)) {
                             fvList.add(new FeatureVisibility(oSymbol, true));
                         } else {
-                            Log.d(TAG, "feature is not visible " + oSymbol.getClass().getSimpleName() + " " + oSymbol.getGeoId());
+                            //Log.d(TAG, "feature is not visible " + oSymbol.getClass().getSimpleName() + " " + oSymbol.getGeoId());
                         }
                     }
                 }
@@ -1751,7 +1911,7 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public void addDrawFeature(IMap oMap, IFeature oFeature) throws EMP_Exception {
-        Log.d(TAG, "addDrawFeature to map.");
+        //Log.d(TAG, "addDrawFeature to map.");
 
         try {
             lock.lock();
@@ -1786,7 +1946,7 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public void removeDrawFeature(IMap oMap, IFeature oFeature) throws EMP_Exception {
-        Log.d(TAG, "removeDrawFeatures from map.");
+        //Log.d(TAG, "removeDrawFeatures from map.");
 
         try {
             lock.lock();
@@ -2040,63 +2200,88 @@ public class StorageManager implements IStorageManager {
 
     /**
      * This method marks the feature as selected on the map. If the feature is already mark selected
-     * no action is taken.
+     * no action is taken. map engine is updated with the selection and FeatureEvent is fired.
      *
      * @param clientMap The map the selection it to be applied.
      * @param features The list of features to select.
      */
     @Override
-    public void selectFeatures(IMap clientMap, java.util.List<IFeature> features) {
-        if (features != null) {
-            IClientMapToMapInstance mapping = this.getMapMapping(clientMap);
-            StorageObjectWrapper wrapper;
-            java.util.List<IFeature> featureList = new java.util.ArrayList<>();
+    public void selectFeatures(IMap clientMap, List<IFeature> features) {
+        IClientMapToMapInstance mapping;
+        if ((features != null) && (null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))){
+            List<IFeature> featureList = new ArrayList<>();
+            try {
+                lock.lock();
+                StorageObjectWrapper wrapper;
 
-            for (IFeature feature : features) {
-                if (feature != null) {
-                    wrapper = this.oObjectHash.get(feature.getGeoId());
-                    if ((wrapper != null) && wrapper.isOnMap(clientMap.getGeoId())) {
-                        // We want to call the selectFeature with the feature object we have.
-                        if (mapping.selectFeature((IFeature) wrapper.getObject())) {
-                            featureList.add((IFeature) wrapper.getObject());
+                for (IFeature feature : features) {
+                    if(null != feature) {
+                        wrapper = this.oObjectHash.get(feature.getGeoId());
+                        if ((wrapper != null) && wrapper.isOnMap(clientMap.getGeoId())) {
+                            if (mapping.selectFeature((IFeature) wrapper.getObject())) {
+                                featureList.add((IFeature) wrapper.getObject());
+                            }
                         }
                     }
                 }
+
+                if ((!featureList.isEmpty() && (null != mapping.getMapInstance()))) {
+                    mapping.getMapInstance().selectFeatures(featureList);
+                }
+            } finally {
+                lock.unlock();
             }
 
+            // Don't invoke application code within the lock
             if (!featureList.isEmpty()) {
-                mapping.getMapInstance().selectFeatures(featureList);
+                for (IFeature selected : featureList) {
+                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_SELECTED, selected, true);
+                }
             }
         }
     }
 
     /**
-     * This method marks the feature as NOT selected on the map. If the feature is not mark selected
-     * no action is taken.
+     * This method marks the feature as NOT selected on the map. If the feature is not marked selected
+     * no action is taken. map engine is updated and FeatureEvent is fired.
      *
      * @param clientMap The map the deselection it to be applied.
      * @param features The feature to deselected.
      */
     @Override
-    public void deselectFeatures(IMap clientMap, java.util.List<IFeature> features) {
-        IClientMapToMapInstance mapping = this.getMapMapping(clientMap);
-        StorageObjectWrapper wrapper;
-        java.util.List<IFeature> featureList = new java.util.ArrayList<>();
+    public void deselectFeatures(IMap clientMap, List<IFeature> features) {
+        IClientMapToMapInstance mapping;
+        if ((features != null) && (null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
+            List<IFeature> featureList = new ArrayList<>();
 
-        for (IFeature feature: features) {
-            if (feature != null) {
-                wrapper = this.oObjectHash.get(feature.getGeoId());
-                if ((wrapper != null) && wrapper.isOnMap(clientMap.getGeoId())) {
-                    // The feature is not null and it is on the map.
-                    if (mapping.deselectFeature(wrapper.getGeoId())) {
-                        featureList.add((IFeature) wrapper.getObject());
+            try {
+                lock.lock();
+                StorageObjectWrapper wrapper;
+
+                for (IFeature feature : features) {
+                    if ((null != feature) && (mapping.isSelected(feature))) {
+                        wrapper = this.oObjectHash.get(feature.getGeoId());
+                        if ((wrapper != null) && wrapper.isOnMap(clientMap.getGeoId())) {
+                            if (mapping.deselectFeature(wrapper.getGeoId())) {
+                                featureList.add((IFeature) wrapper.getObject());
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        if (!featureList.isEmpty()) {
-            mapping.getMapInstance().deselectFeatures(featureList);
+                if (!featureList.isEmpty() && (null != mapping.getMapInstance())) {
+                    mapping.getMapInstance().deselectFeatures(featureList);
+                }
+            } finally {
+                lock.unlock();
+            }
+
+            // Don't invoke application code within a lock
+            if (!featureList.isEmpty()) {
+                for (IFeature selected : featureList) {
+                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_DESELECTED, selected, false);
+                }
+            }
         }
     }
 
@@ -2108,9 +2293,19 @@ public class StorageManager implements IStorageManager {
      */
     @Override
     public List<IFeature> getSelected(IMap clientMap) {
-        IClientMapToMapInstance mapping = this.getMapMapping(clientMap);
+        IClientMapToMapInstance mapping;
+        List<IFeature> list = new ArrayList<>();
 
-        return mapping.getSelected();
+        if ((null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
+            try {
+                lock.lock();
+                list.addAll(mapping.getSelected());
+                return list;
+            } finally {
+                lock.unlock();
+            }
+        }
+        return list;
     }
 
     /**
@@ -2120,44 +2315,60 @@ public class StorageManager implements IStorageManager {
      */
     @Override
     public void clearSelected(IMap clientMap) {
-        StorageObjectWrapper wrapper;
-        IClientMapToMapInstance mapping = this.getMapMapping(clientMap);
-        // Get the list of selected feature on the map.
-        java.util.List<IFeature> featureList = mapping.getSelected();
-        java.util.List<IFeature> deselectList = new java.util.ArrayList<>();
+        IClientMapToMapInstance mapping;
+        if ((null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
+            List<IFeature> deselectList = new ArrayList<>();
 
-        if (featureList != null) {
-            for (IFeature feature : featureList) {
-                if (feature != null) {
-                    wrapper = this.oObjectHash.get(feature.getGeoId());
-                    if ((wrapper != null) && wrapper.isOnMap(clientMap.getGeoId())) {
-                        // The feature is not null and it is on the map.
-                        deselectList.add((IFeature) wrapper.getObject());
+            try {
+                lock.lock();
+                StorageObjectWrapper wrapper;
+                // Get the list of selected feature on the map.
+                List<IFeature> featureList = mapping.getSelected();
+
+                if (featureList != null) {
+                    for (IFeature feature : featureList) {
+                        if(null != feature) {
+                            wrapper = this.oObjectHash.get(feature.getGeoId());
+                            if ((wrapper != null) && wrapper.isOnMap(clientMap.getGeoId())) {
+                                deselectList.add((IFeature) wrapper.getObject());
+                            }
+                        }
                     }
+
+                    if (!deselectList.isEmpty() && (null != mapping.getMapInstance())) {
+                        mapping.getMapInstance().deselectFeatures(deselectList);
+                    }
+                    mapping.clearSelected();
+                }
+            } finally {
+                lock.unlock();
+            }
+
+            // Don't invoke application code within a lock
+            if (!deselectList.isEmpty()) {
+                for (IFeature selected : deselectList) {
+                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_DESELECTED, selected, false);
                 }
             }
-
-            if (!deselectList.isEmpty()) {
-                mapping.getMapInstance().deselectFeatures(deselectList);
-            }
         }
-
-        mapping.clearSelected();
     }
 
     @Override
     public boolean isSelected(IMap clientMap, IFeature feature) {
-        IClientMapToMapInstance mapping = this.getMapMapping(clientMap);
-        StorageObjectWrapper wrapper;
+        IClientMapToMapInstance mapping;
+        if ((null != feature) && (null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
+            try {
+                lock.lock();
+                StorageObjectWrapper wrapper;
 
-        if (feature != null) {
-            wrapper = this.oObjectHash.get(feature.getGeoId());
-            if ((wrapper != null) && wrapper.isOnMap(clientMap.getGeoId())) {
-                // The feature is not null and it is on the map.
-                return mapping.isSelected(feature);
+                wrapper = this.oObjectHash.get(feature.getGeoId());
+                if ((wrapper != null) && wrapper.isOnMap(clientMap.getGeoId())) {
+                    return mapping.isSelected(feature);
+                }
+            } finally {
+                lock.unlock();
             }
         }
-
         return false;
     }
 
@@ -2165,6 +2376,12 @@ public class StorageManager implements IStorageManager {
     public IGeoStrokeStyle getSelectedStrokeStyle(IMapInstance mapInstance) {
         IClientMapToMapInstance mapping = this.getMapMapping(mapInstance);
         return mapping.getSelectStrokeStyle();
+    }
+
+    @Override
+    public IGeoFillStyle getBufferFillStyle(IMapInstance mapInstance) {
+        IClientMapToMapInstance mapping = this.getMapMapping(mapInstance);
+        return mapping.getBufferFillStyle();
     }
 
     /**
@@ -2196,7 +2413,7 @@ public class StorageManager implements IStorageManager {
      */
     private boolean hasAltitude(IFeature feature) {
         boolean bRet = false;
-        java.util.List<IGeoPosition> posList = feature.getPositions();
+        List<IGeoPosition> posList = feature.getPositions();
         if ((null != posList) && !posList.isEmpty()) {
             for (int index = 0; index < posList.size(); index++) {
                 if (Math.abs(posList.get(index).getAltitude()) < 1) {
@@ -2263,5 +2480,22 @@ public class StorageManager implements IStorageManager {
                 feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 break;
         }
+    }
+
+    @Override
+    public FontSizeModifierEnum getFontSizeModifier(IMap map) {
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
+        return mapping.getFontSizeModifier();
+
+    }
+
+    @Override
+    public void setFontSizeModifier(IMap map, FontSizeModifierEnum value) throws EMP_Exception {
+        if (value == null) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Font size modifier can not be null.");
+        }
+
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
+        mapping.setFontSizeModifier(value);
     }
 }

@@ -4,6 +4,9 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -82,7 +85,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *                      Target Value Area (TVAR) Rectangular
  */
 public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMultiPointEditor {
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
 
     private float minWidth;
     private float width;
@@ -102,7 +104,7 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
 
         if (posList.size() == this.getMinPoints()) {
@@ -137,7 +139,7 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
 
     @Override
     protected void assembleControlPoints() {
-        final java.util.List<IGeoPosition> posList = this.getPositions();
+        final List<IGeoPosition> posList = this.getPositions();
 
         // Add the left side control point.
         final ControlPoint controlPoint1 = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
@@ -165,7 +167,7 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
     }
 
     @Override
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition dragPosition) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition dragPosition) {
         switch (oCP.getCPType()) {
             case POSITION_CP: { // A side was moved.
                 final ControlPoint side1CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
@@ -213,9 +215,7 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
                 break;
             }
         }
-        cpList.add(oCP);
-
-        return cpList;
+        return true;
     }
 
     private void checkAMModifier() {
@@ -228,17 +228,17 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
             tempDistance = 20000;
         }
 
-        this.width = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0);
+        this.width = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0);
         if (Float.isNaN(this.width)) {
             // No AM0 modifier provided.
 
             this.width = tempDistance / 2;
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, this.width);
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, this.width);
         }
 
         // Remove any additional AM values.
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 1))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 1))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, Float.NaN);
         }
 
         this.minWidth = 10;
@@ -246,7 +246,7 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
 
     private void setWidthModifier(float value) {
         this.width = value;
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, Float.NaN);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, Float.NaN);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, value);
     }
 }

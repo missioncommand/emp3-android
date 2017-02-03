@@ -3,8 +3,12 @@ package mil.emp3.mapengine.listeners;
 import mil.emp3.mapengine.events.MapInstanceStateChangeEvent;
 
 /**
- * Created by ish.rivera on 3/7/2016.
+ * Listener interface for event generated the map state changes
  */
 public interface MapInstanceStateChangeEventListener {
-    public void onEvent(MapInstanceStateChangeEvent event);
+    /**
+     * Callback method called when MapInstanceStateChangeEvent is triggered.
+     * @param event
+     */
+    void onEvent(MapInstanceStateChangeEvent event);
 }

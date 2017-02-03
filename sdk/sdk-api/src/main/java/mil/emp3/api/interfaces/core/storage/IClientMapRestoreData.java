@@ -7,6 +7,9 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
 
+/*
+ * This is an internal interface class.  The app developer must not implement this interface.
+ */
 public interface IClientMapRestoreData {
     String getName();
 

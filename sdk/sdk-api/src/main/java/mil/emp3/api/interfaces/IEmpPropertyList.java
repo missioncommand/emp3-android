@@ -37,7 +37,17 @@ public interface IEmpPropertyList extends java.util.Map<String, Object> {
      */
     double getDoubleValue(String key);
 
+    /**
+     * Gives the mirror cache mode enumeration
+     * @param key
+     * @return enum
+     */
     mil.emp3.api.enums.MirrorCacheModeEnum getMirrorCacheModeEnum(String key);
 
+    /**
+     * Gets the Android context
+     * @param key
+     * @return context
+     */
     android.content.Context getContext(String key);
 }

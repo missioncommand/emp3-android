@@ -11,5 +11,9 @@ public abstract class FeatureEvent extends Event<FeatureEventEnum, IFeature> {
         super(eEvent, oTarget);
     }
 
+    /**
+     * Returns true if feature is selected.
+     * @return selected
+     */
     public abstract boolean getSelected();
 }

@@ -59,7 +59,7 @@ class PerformanceTestThread extends Thread {
         int iDirectionOfMovement = 0;
         int iSpeed = 600;
 
-        this.oMainActivity.removeAllFeatures();
+        //this.oMainActivity.removeAllFeatures();
         long startTime = System.currentTimeMillis();
         for (int iIndex = 0; iIndex < this.iCount; iIndex++) {
             try {
@@ -87,7 +87,8 @@ class PerformanceTestThread extends Thread {
                 //oSPSymbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.HQ_BRIGADE);
 
                 // Set the position list with 1 position.
-                oSPSymbol.setPositions(oPosList);
+                oSPSymbol.getPositions().clear();
+                oSPSymbol.getPositions().addAll(oPosList);
 
                 // Give the feature a name.
                 oSPSymbol.setName("Unit " + iIndex);
@@ -124,7 +125,15 @@ class PerformanceTestThread extends Thread {
     }
 
     private void removeTracks() {
-        this.oMainActivity.removeAllFeatures();
+        try {
+            this.oMainActivity.oRootOverlay.removeFeatures(this.oFeatureList);
+            for (IFeature feature: this.oFeatureList) {
+                this.oMainActivity.oFeatureHash.remove(feature.getGeoId());
+            }
+        } catch (EMP_Exception e) {
+            e.printStackTrace();
+        }
+        this.oFeatureList.clear();
     }
 
     @Override
@@ -201,7 +210,9 @@ class PerformanceTestThread extends Thread {
                         for (IFeature oSymbol: oBatchList) {
                             oSymbol.apply();
                         }
-                        //this.oMainActivity.oRootOverlay.addFeatures(oBatchList, true);
+                        //if (oBatchList.size() > 0) {
+                        //    this.oMainActivity.oRootOverlay.addFeatures(oBatchList, true);
+                        //}
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

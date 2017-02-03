@@ -1,43 +1,38 @@
 package mil.emp3.api.enums;
 
 /**
- * This class enumerates all the configuration property keys used by properties parameter of different API calls. Each enumerated
+ * Configuration property keys used by properties parameter of various API calls. Each enumerated
  * value requires a specific value type.
  */
 public enum Property {
     /**
-     * This enumerated value defines the map's fully qualified class name for a new map. The key value pair requires
-     * a string value.
+     * Fully qualified class name for a map engine. Property value must be of String type
      */
     ENGINE_CLASSNAME ("engine.className"),
     /**
-     * This enumerated value defines the map's fully qualified android APK name where the class indicated
-     * in ENGINE_CLASSNAME is implemented. The key value pair requires a string value.
+     * Fully qualified android APK name that contains an implementation of engine.className. Property value must be of String type.
      */
     ENGINE_APKNAME   ("engine.apkName")  ,
     /**
-     * This enumerated value defines the stoke color used to select features. The key value pair requires an IGeoColor
-     * value. The default color is yellow.
+     * Stroke color used to highlight selected feature(s) (Features selected using selectFeature method of IMap). The property value must be of
+     * type IGeoColor. The default color is yellow.
      */
     DEFAULT_SELECT_STROKE_COLOR ("default.stroke.color"),
     /**
-     * This enumerated value defines the scale factor to use when an icon type feature is selected. The key value pair
-     * requires a double value. The default value is 1.2.
+     * Scale factor to use when an icon type feature is selected. Property value must be of type double. The default value is 1.2.
      */
     DEFAULT_SELECT_ICON_SCALE   ("default.icon.scale"),
     /**
-     * This enumerated value defines the debug setting. The key value pair requires a boolean value and the default is
+     * Debug setting for the API and implementation code. Property value must be of type boolean. The default is
      * false. Setting this value to true will generate additional log statements.
      */
     DEBUG                       ("debug"),
     /**
-     * This enumerated value defines the proxy url to be used when a feature or map service indicates
-     * useProxy set to true. The default value is null. The key value pair requires a string value.
+     * Proxy url to be used when a feature or map service set useProxy to true. The default value is null. Property value must be of type string.
      */
     PROXY_URL                   ("proxy.url"),
     /**
-     * This enumerated value defines if the mirror cache is to be used and in what mode. The default
-     * value is {@link mil.emp3.api.enums.MirrorCacheModeEnum#DISABLED}. This property requires a
+     * MirrorCache mode to be used. The default value is {@link mil.emp3.api.enums.MirrorCacheModeEnum#DISABLED}. This property requires a
      * {@link mil.emp3.api.enums.MirrorCacheModeEnum} value.
      */
     MIRROR_CACHE_MODE           ("mirror.cache.mode"),

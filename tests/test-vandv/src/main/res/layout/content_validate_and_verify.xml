@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="mil.emp3.test.emp3vv.ValidateAndVerify"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <fragment
+        android:name="mil.emp3.test.emp3vv.MapTestMenuFragment"
+        android:id="@+id/testMenuFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <TextView
+        android:id="@+id/TestStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TestStatus:"/>
+    <!--
+        app:map_engine_name="mil.emp3.openstreet.MapInstance"
+        app:map_engine_apk_name="mil.emp3.openstreetapk"
+        app:map_engine_name="mil.emp3.worldwind.MapInstance"
+        app:map_engine_apk_name="mil.emp3.worldwind"
+
+        app:mirrorCache_mode="BIDIRECTIONAL"
+    -->
+
+    <!-- Use the Linear Layout to show two maps one below each other. -->
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/maps"
+        android:orientation="vertical">
+
+        <mil.emp3.api.MapView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/map"
+            app:map_name="map1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <mil.emp3.api.MapView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/map2"
+            app:map_name="map2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <!-- Use the FrameLayout to show one map as mini map on top of the other. Based on current z-order you must start
+    second map instance first on the Launch Map test. Note that it is applications responsibility to populate the maps
+    in any way they want.
+    -->
+    <!--
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/maps">
+
+        <mil.emp3.api.MapView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/map"
+            app:map_name="map1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <mil.emp3.api.MapView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/map2"
+            app:map_name="map2"
+            android:layout_width="300dp"
+            android:layout_height="200dp"
+            android:layout_marginLeft="400dp"
+            android:layout_marginTop="50dp"
+            android:padding="5dp"
+            android:layout_gravity="top"/>
+
+    </FrameLayout>
+    -->
+
+</LinearLayout>
+

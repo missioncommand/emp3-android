@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Number of tracks:"/>
+    <include android:id="@+id/number_of_tracks" layout="@layout/increment_decrement" />
+
+    <CheckBox
+        android:text="Change Affiliation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/change_affiliation" />
+
+    <CheckBox
+        android:text="Batch Updates"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/batch_updates" />
+
+    <include android:id="@+id/configure_apply_done" layout="@layout/apply_done" />
+</LinearLayout>
