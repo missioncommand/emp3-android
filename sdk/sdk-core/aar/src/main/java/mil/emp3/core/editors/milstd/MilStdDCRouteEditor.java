@@ -3,6 +3,9 @@ package mil.emp3.core.editors.milstd;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -33,8 +36,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *                          Axis of Advance Ground Supporting Attack
  */
 public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
-    // This list of control points is pre-aloocated and re-used through out.
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
 
     public MilStdDCRouteEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, symDef);
@@ -49,7 +50,7 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         // We set the initial line segment to 2/6 of the camera altitude.
         double segmentLength = cameraPos.getAltitude() / 6.0;
         IGeoPosition pos = new GeoPosition();
@@ -80,7 +81,7 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int index = 0;
         int posCnt = posList.size();
         int lastIndex = posCnt - 1;
@@ -104,15 +105,14 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
     };
 
     @Override
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
         ControlPoint controlPoint;
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
         int posCnt = posList.size();
         int lastIndex = posCnt - 1;
 
-        // Clear the list
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         // Increment the index => lastIndex.
         this.increaseControlPointIndexes(lastIndex);
@@ -124,46 +124,45 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
         pos.setLongitude(oLatLng.getLongitude());
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, lastIndex, -1);
         controlPoint.setPosition(pos);
-        this.cpList.add(controlPoint);
+        cpList.add(controlPoint);
         posList.add(lastIndex, pos);
 
         // Compute the new CP between the last position and the new one.
         controlPoint = this.createCPBetween(posList.get(lastIndex - 1), pos, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex - 1, lastIndex);
-        this.cpList.add(controlPoint);
+        cpList.add(controlPoint);
 
         // Add the update data
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{lastIndex});
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+    protected List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
+        List<IGeoPosition> posList = this.getPositions();
         int tailIndex = posList.size() - 1;
         int cpIndex = oCP.getCPIndex();
 
-        // Clear the list
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         if (posList.size() > this.getMinPoints()) {
             // We only remove points beyond the minimum # of positions.
 
             if (oCP.getCPType() != ControlPoint.CPTypeEnum.POSITION_CP) {
                 // We only remove position CP.
-                return this.cpList;
+                return cpList;
             }
 
             if (oCP.getCPIndex() == tailIndex) {
                 // We can't delete the last CP. Its the arrow width.
-                return this.cpList;
+                return cpList;
             }
 
             if (oCP.getCPIndex() == 0) {
                 // We can't remove the first position.
-                return this.cpList;
+                return cpList;
             }
 
-            this.cpList.add(oCP);
+            cpList.add(oCP);
 
             this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{oCP.getCPIndex()});
 
@@ -172,7 +171,7 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
             ControlPoint newBeforeCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, cpIndex);
             if (newBeforeCP != null) {
                 // We put it on the list so it gets removed.
-                this.cpList.add(newBeforeCP);
+                cpList.add(newBeforeCP);
             }
 
             // Calculate the index of the POSITION CP after this CP. If the index == tailIndex there is not one.
@@ -180,7 +179,7 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
             if (afterIndex != tailIndex) {
                 ControlPoint newAfterCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, cpIndex, afterIndex);
                 if (newAfterCP != null) {
-                    this.cpList.add(newAfterCP);
+                    cpList.add(newAfterCP);
                 }
 
                 // Now we add a new control point between the CP before and after the one removed.
@@ -194,22 +193,21 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
 
             this.decreaseControlPointIndexes(oCP.getCPIndex());
 
-            return this.cpList;
+            return cpList;
         }
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
         IGeoPosition currentPosition = oCP.getPosition();
         int cpIndex = oCP.getCPIndex();
         int cpSubIndex = oCP.getCPSubIndex();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int tailIndex = posList.size() - 2;
         int widthIndex = posList.size() - 1;
 
-        // Clear the list
-        this.cpList.clear();
+        boolean moved = false;
 
         switch (oCP.getCPType()) {
             case NEW_POSITION_CP: {
@@ -244,7 +242,7 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
 
                 // Now we add event update data.
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{cpSubIndex});
-                this.cpList.add(oCP);
+                moved = true;
                 break;
             }
             case POSITION_CP: {
@@ -253,7 +251,7 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
                 currentPosition.setLongitude((oLatLon.getLongitude()));
                 // Add the update data
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{cpIndex});
-                this.cpList.add(oCP);
+                moved = true;
 
                 // Now we need to move the new CP that may be before and after this one.
                 if ((cpIndex > 0) && (cpIndex <= tailIndex)) {
@@ -277,6 +275,6 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
             }
         }
 
-        return this.cpList;
+        return moved;
     }
 }

@@ -11,9 +11,14 @@ import dalvik.system.DexClassLoader;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
-import mil.emp3.mapengine.CopySharedObjectFile;
+import mil.emp3.mapengine.utils.CopySharedObjectFile;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
+
+/**
+ * This class is for internal use only.  The application developer should not make use of this
+ * class or its methods anytime.
+ */
 
 public class ManagerFactory {
     static private String TAG = ManagerFactory.class.getSimpleName();
@@ -74,22 +79,42 @@ public class ManagerFactory {
         return instance;
     }
 
+    /**
+     * This method returns the application context
+     * @return context object
+     */
     static private Context getContext() {
         return application.getApplicationContext();
     }
 
+    /**
+     * This method returns a reference to the storage manager
+     * @return storage manager
+     */
     public IStorageManager getStorageManager() {
         return storageManager;
     }
 
+    /**
+     * This method returns a reference to the event manager
+      * @return event manager
+     */
     public IEventManager getEventManager() {
         return eventManager;
     }
 
+    /**
+     * This method returns a reference to the core manager
+     * @return core manager
+     */
     public ICoreManager getCoreManager() {
         return coreManager;
     }
 
+    /**
+     * This method returns a reference to the military standard symbol renderer
+     * @return renderer
+     */
     public IMilStdRenderer getMilStdRenderer() {
         return milStdRenderer;
     }

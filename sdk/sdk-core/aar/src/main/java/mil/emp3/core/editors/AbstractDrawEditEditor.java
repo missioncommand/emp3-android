@@ -6,16 +6,27 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.FeatureDrawEventEnum;
 import mil.emp3.api.enums.FeatureEditEventEnum;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
+import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IUUIDSet;
+import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.api.utils.UUIDSet;
 import mil.emp3.core.events.EditUpdateData;
 import mil.emp3.core.events.FeatureDrawEvent;
@@ -31,9 +42,11 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  * This class implements the base class of all draw/edit editors. An editor allows the user to change the position
  * and/or shape of a feature while in edit mode or set the position and shape of a feature in draw mode.
  */
-public abstract class AbstractDrawEditEditor extends AbstractEditor {
+public abstract class AbstractDrawEditEditor<T extends IFeature> extends AbstractEditor<T> {
     private final static String TAG = AbstractDrawEditEditor.class.getSimpleName();
-    
+
+    final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
+
     public enum EditorStateEnum {
         IDLE,
         ADDING_CP,
@@ -44,12 +57,12 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
 
     private EditorStateEnum eEditorState = EditorStateEnum.IDLE;
     private final boolean bUsesControlPoints;
-    private final java.util.ArrayList<ControlPoint> oControlPointList = new java.util.ArrayList<>();
-    private final java.util.List<IGeoPosition> oOrgPosList = new java.util.ArrayList<>();
+    private final ArrayList<ControlPoint> oControlPointList = new ArrayList<>();
+    private final List<IGeoPosition> oOrgPosList = new ArrayList<>();
     private IEditEventListener oEditEventListener = null;
     private IDrawEventListener oDrawEventListener = null;
     // This list is pre-allocated for the use through out.
-    protected final java.util.List<IEditUpdateData> oUpdateList = new java.util.ArrayList<>();
+    protected final List<IEditUpdateData> oUpdateList = new ArrayList<>();
 
     // This is set to true on cancel, complete or exit of the editor.
     boolean finishing = false;
@@ -106,7 +119,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
      * @param bUsesCP If true the feature requires the use of control points during the edit process.
      * @throws EMP_Exception
      */
-    protected AbstractDrawEditEditor(IMapInstance map, IFeature feature, IEditEventListener oEventListener, boolean bUsesCP) throws EMP_Exception {
+    protected AbstractDrawEditEditor(IMapInstance map, T feature, IEditEventListener oEventListener, boolean bUsesCP) throws EMP_Exception {
         super(map, feature, EditorMode.EDIT_MODE);
 
         this.bUsesControlPoints = bUsesCP;
@@ -185,7 +198,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
      * @param bUsesCP If true the feature requires the use of control points during the draw process.
      * @throws EMP_Exception
      */
-    protected AbstractDrawEditEditor(IMapInstance map, IFeature feature, IDrawEventListener oEventListener, boolean bUsesCP) throws EMP_Exception {
+    protected AbstractDrawEditEditor(IMapInstance map, T feature, IDrawEventListener oEventListener, boolean bUsesCP) throws EMP_Exception {
         super(map, feature, EditorMode.DRAW_MODE);
 
         this.bUsesControlPoints = bUsesCP;
@@ -212,10 +225,6 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
         return this.eEditorState;
     }
 
-    public IFeature getFeature() {
-        return this.oFeature;
-    }
-
     /**
      * The derived class must implement this function.
      * It is called once at the start of a draw operation to allows the derived class to assign
@@ -234,7 +243,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
     /**
      * This method is call so that the editor can display the features control points.
      */
-    protected void assembleControlPoints() {};
+    protected void assembleControlPoints() {}
 
     /**
      * This method is call for icon type feature to the editor can
@@ -252,7 +261,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
      * @param oLatLng The Lat lon of the new control point.
      * @return A list of new control points or null if non are added.
      */
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
         return null;
     }
 
@@ -261,7 +270,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
      * @param oCP The control point to delete.
      * @return A list of control points deleted, or null if non are removed.
      */
-    protected java.util.List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
+    protected List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
         return null;
     }
 
@@ -271,8 +280,8 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
      * @param oLatLon The new location for the control point.
      * @return A list of control points that have been affected.
      */
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
-        return null;
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
+        return false;
     }
 
     /**
@@ -303,7 +312,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
         }
     }
 
-    private void addControlPoint(java.util.List<ControlPoint> oCPList) {
+    private void addControlPoint(List<ControlPoint> oCPList) {
         for (ControlPoint oCP: oCPList) {
             if (!this.oControlPointList.contains(oCP)) {
                 this.oControlPointList.add(oCP);
@@ -311,7 +320,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
         }
     }
 
-    private void removeControlPoint(java.util.List<ControlPoint> oCPList) {
+    private void removeControlPoint(List<ControlPoint> oCPList) {
         IUUIDSet oList = new UUIDSet();
 
         for (ControlPoint oCP: oCPList) {
@@ -399,9 +408,13 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
                 if (oEvent.getCoordinate() != null) {
                     if (this.bUsesControlPoints) {
                         this.eEditorState = EditorStateEnum.ADDING_CP;
-                        java.util.List<ControlPoint> oCPList = this.doAddControlPoint(oEvent.getCoordinate());
+                        List<ControlPoint> oCPList = this.doAddControlPoint(oEvent.getCoordinate());
                         if ((oCPList != null) && (oCPList.size() > 0)) {
-                            this.oFeature.apply();
+                            try {
+                                this.storageManager.apply(this.oFeature, false);
+                            } catch (EMP_Exception ex) {
+                                Log.e(TAG, "storageManger.apply failed.", ex);
+                            }
                             this.addControlPoint(oCPList);
                             this.updateControlPointOnMap();
                         }
@@ -441,9 +454,13 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
             case CLICKED:
                 if ((oEvent.getCoordinate() != null) && !bIsCP) {
                     this.eEditorState = EditorStateEnum.ADDING_CP;
-                    java.util.List<ControlPoint> oCPList = this.doAddControlPoint(oEvent.getCoordinate());
+                    List<ControlPoint> oCPList = this.doAddControlPoint(oEvent.getCoordinate());
                     if ((oCPList != null) && (oCPList.size() > 0)) {
-                        this.oFeature.apply();
+                        try {
+                            this.storageManager.apply(this.oFeature, false);
+                        } catch (EMP_Exception ex) {
+                            Log.e(TAG, "storageManger.apply failed.", ex);
+                        }
                         this.addControlPoint(oCPList);
                         this.updateControlPointOnMap();
                     }
@@ -455,11 +472,15 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
             case DOUBLE_CLICKED:
                 if (bIsCP) {
                     this.eEditorState = EditorStateEnum.DELETE_CP;
-                    java.util.List<ControlPoint> oCPList = this.doDeleteControlPoint((ControlPoint) oEventedFeature);
+                    List<ControlPoint> oCPList = this.doDeleteControlPoint((ControlPoint) oEventedFeature);
                     if ((oCPList != null) && (oCPList.size() > 0)) {
                         // The Editor deleted CPs.
                         // TODO add update event generation.
-                        this.oFeature.apply();
+                        try {
+                            this.storageManager.apply(this.oFeature, false);
+                        } catch (EMP_Exception ex) {
+                            Log.e(TAG, "storageManger.apply failed.", ex);
+                        }
                         this.removeControlPoint(oCPList);
                         this.updateControlPointOnMap();
                     }
@@ -489,12 +510,13 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
                             this.eEditorState = EditorStateEnum.IDLE;
                         }
                     } else {
-                        // It was a control point.
-                        java.util.List<ControlPoint> oCPMovedList;
                         this.eEditorState = EditorStateEnum.DRAGGING_CP;
-                        oCPMovedList = this.doControlPointMoved((ControlPoint) oEventedFeature, oEvent.getCoordinate());
-                        if ((oCPMovedList != null) && (oCPMovedList.size() > 0)) {
-                            this.oFeature.apply();
+                        if (this.doControlPointMoved((ControlPoint) oEventedFeature, oEvent.getCoordinate())) {
+                            try {
+                                this.storageManager.apply(this.oFeature, false);
+                            } catch (EMP_Exception ex) {
+                                Log.e(TAG, "storageManger.apply failed.", ex);
+                            }
                             this.updateControlPointOnMap();
                             bRet = true;
                         }
@@ -513,44 +535,50 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
 
     private void issueDrawEvent(FeatureDrawEventEnum eEvent) throws EMP_Exception {
 
-        if (this.oDrawEventListener != null) {
-            switch (eEvent) {
-                case DRAW_START:
-                    this.oDrawEventListener.onDrawStart(this.oClientMap);
-                    break;
-                case DRAW_UPDATE:
-                    break;
-                case DRAW_CANCELED:
-                    this.oDrawEventListener.onDrawCancel(this.oClientMap, this.oFeature);
-                    break;
-                case DRAW_COMPLETE:
-                    this.oDrawEventListener.onDrawComplete(this.oClientMap, this.oFeature);
-                    break;
+        try {
+            if (this.oDrawEventListener != null) {
+                switch (eEvent) {
+                    case DRAW_START:
+                        this.oDrawEventListener.onDrawStart(this.oClientMap);
+                        break;
+                    case DRAW_UPDATE:
+                        break;
+                    case DRAW_CANCELED:
+                        this.oDrawEventListener.onDrawCancel(this.oClientMap, this.oFeature);
+                        break;
+                    case DRAW_COMPLETE:
+                        this.oDrawEventListener.onDrawComplete(this.oClientMap, this.oFeature);
+                        break;
+                }
             }
+        } catch(Exception ex) {
+            Log.e(TAG, "issueDrawEvent", ex);
         }
-
         FeatureDrawEvent oEvent = new FeatureDrawEvent(eEvent, this.oFeature, this.oClientMap);
         eventManager.generateFeatureDrawEvent(oEvent);
     }
 
     private void issueEditEvent(FeatureEditEventEnum eEvent) throws EMP_Exception {
 
-        if (this.oEditEventListener != null) {
-            switch (eEvent) {
-                case EDIT_START:
-                    this.oEditEventListener.onEditStart(this.oClientMap);
-                    break;
-                case EDIT_UPDATE:
-                    break;
-                case EDIT_CANCELED:
-                    this.oEditEventListener.onEditCancel(this.oClientMap, this.oFeature);
-                    break;
-                case EDIT_COMPLETE:
-                    this.oEditEventListener.onEditComplete(this.oClientMap, this.oFeature);
-                    break;
+        try {
+            if (this.oEditEventListener != null) {
+                switch (eEvent) {
+                    case EDIT_START:
+                        this.oEditEventListener.onEditStart(this.oClientMap);
+                        break;
+                    case EDIT_UPDATE:
+                        break;
+                    case EDIT_CANCELED:
+                        this.oEditEventListener.onEditCancel(this.oClientMap, this.oFeature);
+                        break;
+                    case EDIT_COMPLETE:
+                        this.oEditEventListener.onEditComplete(this.oClientMap, this.oFeature);
+                        break;
+                }
             }
+        } catch (Exception ex) {
+            Log.e(TAG, "issueEditEvent", ex);
         }
-
         FeatureEditEvent oEvent = new FeatureEditEvent(eEvent, this.oFeature, this.oClientMap);
         eventManager.generateFeatureEditEvent(oEvent);
     }
@@ -568,6 +596,11 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
         }
     }
 
+    protected void restoreOnCancel() {
+        this.oFeature.getPositions().clear();
+        this.oFeature.getPositions().addAll(this.oOrgPosList);
+    }
+
     private void issueCanceledEvent() {
         try {
             if (this.inDrawMode()) {
@@ -575,8 +608,12 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
                 this.removeFeature();
                 this.issueDrawEvent(FeatureDrawEventEnum.DRAW_CANCELED);
             } else {
-                this.oFeature.setPositions(this.oOrgPosList);
-                this.oFeature.apply();
+                this.restoreOnCancel();
+                try {
+                    this.storageManager.apply(this.oFeature, false);
+                } catch (EMP_Exception ex) {
+                    Log.e(TAG, "storageManger.apply failed.", ex);
+                }
                 this.issueEditEvent(FeatureEditEventEnum.EDIT_CANCELED);
             }
             //coreManager.setMotionLockMode(this.oClientMap, MapMotionLockEnum.UNLOCKED);
@@ -599,23 +636,51 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
         }
     }
 
+//    public static List<IEditUpdateData> clone(List<IEditUpdateData> t) throws Exception {
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//
+//        ObjectOutputStream oos = new ObjectOutputStream(bos);
+//        oos.writeObject(t);
+//        byte[] bytes = bos.toByteArray();
+//        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+//
+//        return (List<IEditUpdateData>)ois.readObject();
+//    }
+
+    public static List<IEditUpdateData> clone(List<IEditUpdateData> t) throws Exception {
+        List<IEditUpdateData> copy = new ArrayList<>();
+        for (IEditUpdateData e : t) {
+            copy.add(new EditUpdateData(e));
+        }
+        return copy;
+    }
+
     protected void issueUpdateEvent() {
         if (this.oUpdateList.size() > 0) {
             try {
+                List<IEditUpdateData> clonedList = clone(this.oUpdateList);
                 if (this.inDrawMode()) {
                     if (this.oDrawEventListener != null) {
-                        this.oDrawEventListener.onDrawUpdate(this.oClientMap, this.oFeature, this.oUpdateList);
+                        try {
+                            this.oDrawEventListener.onDrawUpdate(this.oClientMap, this.oFeature, clonedList);
+                        } catch (Exception ex) {
+                            Log.e(TAG, "issueUpdateEvent", ex);
+                        }
                     }
-                    FeatureDrawEvent oEvent = new FeatureDrawEvent(this.oFeature, this.oClientMap, this.oUpdateList);
+                    FeatureDrawEvent oEvent = new FeatureDrawEvent(this.oFeature, this.oClientMap, clonedList);
                     eventManager.generateFeatureDrawEvent(oEvent);
                 } else {
                     if (this.oEditEventListener != null) {
-                        this.oEditEventListener.onEditUpdate(this.oClientMap, this.oFeature, this.oUpdateList);
+                        try {
+                            this.oEditEventListener.onEditUpdate(this.oClientMap, this.oFeature, clonedList);
+                        } catch (Exception ex) {
+                            Log.e(TAG, "issueUpdateEvent", ex);
+                        }
                     }
-                    FeatureEditEvent oEvent = new FeatureEditEvent(this.oFeature, this.oClientMap, this.oUpdateList);
+                    FeatureEditEvent oEvent = new FeatureEditEvent(this.oFeature, this.oClientMap, clonedList);
                     eventManager.generateFeatureEditEvent(oEvent);
                 }
-            } catch (EMP_Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, "issueUpdateEvent", e);
             }
             // Clear the list for reuse.
@@ -627,7 +692,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
      * Note that there are callers that depend on Feature.apply() being invoked here.
      */
 
-    private void sendUpdateEvent() {
+    protected void sendUpdateEvent() {
         int[] aIndex = new int[this.oFeature.getPositions().size()];
         IEditUpdateData oUpdateEntry;
         int iIndex = 0;
@@ -645,7 +710,11 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
             Log.e(TAG, "sendUpdateEvent", e);
         }
         // Now update the feature on the map.
-        this.oFeature.apply();
+        try {
+            this.storageManager.apply(this.oFeature, false);
+        } catch (EMP_Exception ex) {
+            Log.e(TAG, "storageManger.apply failed.", ex);
+        }
     }
 
     @Override
@@ -681,9 +750,31 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
         }
     }
 
+    protected void addUpdateEventData(FeatureEditUpdateTypeEnum eType) {
+        try {
+            IEditUpdateData updateData = new EditUpdateData(eType);
+            this.oUpdateList.add(updateData);
+        } catch (EMP_Exception e) {
+            Log.e(TAG, "addUpdateEventData", e);
+        }
+    }
+
     protected void addUpdateEventData(IGeoMilSymbol.Modifier eModifier) {
-        IEditUpdateData updateData = new EditUpdateData(eModifier);
-        this.oUpdateList.add(updateData);
+        try {
+            IEditUpdateData updateData = new EditUpdateData(eModifier);
+            this.oUpdateList.add(updateData);
+        } catch (EMP_Exception e) {
+            Log.e(TAG, eModifier.toString(), e);
+        }
+    }
+
+    protected void addUpdateEventData(FeaturePropertyChangedEnum eProperty) {
+        try {
+            IEditUpdateData updateData = new EditUpdateData(eProperty);
+            this.oUpdateList.add(updateData);
+        } catch(EMP_Exception e) {
+            Log.e(TAG, eProperty.toString(), e);
+        }
     }
 
     /**
@@ -724,7 +815,7 @@ public abstract class AbstractDrawEditEditor extends AbstractEditor {
         return newCP;
     }
 
-    protected java.util.List<ControlPoint> getControlPointList() {
+    protected List<ControlPoint> getControlPointList() {
         return this.oControlPointList;
     }
 

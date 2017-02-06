@@ -7,6 +7,8 @@ import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.enums.ContainerEventEnum;
 import org.cmapi.primitives.IGeoBase;
 
+import java.util.List;
+
 /**
  * This class implements an abstract Container event. It provides access to all event properties.
  */
@@ -26,7 +28,7 @@ public abstract class ContainerEvent extends Event<ContainerEventEnum, IContaine
      * event the list of children that were removed.
      * @return 
      */
-    public abstract java.util.List<IGeoBase> getAffectedChildren();
+    public abstract List<IGeoBase> getAffectedChildren();
 
     /**
      * This method is a convenience function that indicate if the target is an IMap

@@ -1,5 +1,6 @@
 package mil.emp3.api;
 
+import org.cmapi.primitives.GeoBase;
 import org.cmapi.primitives.GeoLookAt;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoLookAt;
@@ -17,12 +18,13 @@ import mil.emp3.api.listeners.ILookAtEventListener;
 import mil.emp3.api.utils.ManagerFactory;
 
 /**
- * This class implemts a LookAt object which can be set on the map.
+ * This class implements a LookAt object which can be set on the map. It encapsulates a GeoLookA. Once a look at object is created and set on at least one map,
+ * the apply method must be called after the values have been change in order to change the maps view.
  */
 public class LookAt implements ILookAt{
 
-    final private IEventManager eventManager = ManagerFactory.getInstance().getEventManager();
-    final private ICoreManager coreManager   = ManagerFactory.getInstance().getCoreManager();
+    final static private IEventManager eventManager = ManagerFactory.getInstance().getEventManager();
+    final static private ICoreManager coreManager   = ManagerFactory.getInstance().getCoreManager();
 
     /**
      * This is the backing/describing implementation instance as passed in through the
@@ -52,6 +54,21 @@ public class LookAt implements ILookAt{
         }
     }
 
+    /**
+     * Copy constructor
+     */
+
+    public LookAt(ILookAt from) {
+        this.geoLookAt = new GeoLookAt();
+        copySettingsFrom(from);
+        if (this.geoLookAt.getAltitudeMode() == null) {
+            this.geoLookAt.setAltitudeMode(AltitudeMode.ABSOLUTE);
+        }
+    }
+    /**
+     * Everything except geoId is copied as we don't want to change geoId after instantiation.
+     * @param from An object that implements the ILookAt interface.
+     */
     @Override
     public void copySettingsFrom (ILookAt from) {
         this.geoLookAt.setAltitude(from.getAltitude());
@@ -63,7 +80,6 @@ public class LookAt implements ILookAt{
         this.geoLookAt.setName(from.getName());
         this.geoLookAt.setRange(from.getRange());
         this.geoLookAt.setDescription(from.getDescription());
-        this.geoLookAt.setGeoId(from.getGeoId());
     }
 
     @Override
@@ -265,8 +281,8 @@ public class LookAt implements ILookAt{
     }
 
     @Override
-    public HashMap<String, Object> getProperties() {
-        return null;
+    public HashMap<String, String> getProperties() {
+        return this.geoLookAt.getProperties();
     }
 
     @Override

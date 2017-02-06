@@ -6,6 +6,9 @@ import java.util.UUID;
 import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.interfaces.IContainer;
 
+/*
+ * This is an internal interface class.  The app developer must not implement this interface.
+ */
 public interface IStorageObjectWrapper<T extends IContainer> {
 
     T getObject();

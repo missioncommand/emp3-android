@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_exit" android:orderInCategory="1"
+        android:title="@string/action_exit" app:showAsAction="always" />
+    <item android:id="@+id/action_clear_map" android:orderInCategory="2"
+        android:title="@string/action_clear_map" app:showAsAction="always" />
+    <item android:id="@+id/action_camera" android:orderInCategory="3"
+        android:title="@string/action_camera" app:showAsAction="always" />
+    <item android:id="@+id/action_distance_thresholds"
+        android:title="@string/action_distance_thresholds" app:showAsAction="never" />
+    <item android:id="@+id/action_set_wms"
+        android:title="@string/action_set_wms" app:showAsAction="never" />
+    <item android:id="@+id/action_reset_wms"
+        android:title="@string/action_reset_wms" app:showAsAction="never" />
+    <item android:id="@+id/action_addGeoPackage"
+        android:title="@string/action_addGeoPackage" app:showAsAction="never" />
+    <item android:id="@+id/action_removeGeoPackage"
+        android:title="@string/action_removeGeoPackage" app:showAsAction="never" />
+    <item android:id="@+id/action_bounds"
+        android:title="@string/action_bounds" app:showAsAction="never" />
+    <item android:id="@+id/action_look_at" android:orderInCategory="3"
+        android:title="@string/action_look_at" app:showAsAction="never" />
+    <item android:id="@+id/action_map" android:orderInCategory="3"
+        android:title="@string/action_map" app:showAsAction="never" />
+    <item android:id="@+id/action_editor_mode" android:orderInCategory="3"
+        android:title="@string/action_editor_mode" app:showAsAction="never" />
+    <item android:id="@+id/action_locate" android:orderInCategory="3"
+        android:title="@string/action_locate" app:showAsAction="never" />
+    <item android:id="@+id/action_graphics" android:orderInCategory="3"
+        android:title="@string/action_graphics" app:showAsAction="never" />
+    <item android:id="@+id/action_brightness" android:orderInCategory="3"
+          android:title="@string/action_brightness" app:showAsAction="never" />
+    <item android:id="@+id/action_screenshot" android:orderInCategory="3"
+          android:title="@string/action_screenshot" app:showAsAction="never" />
+</menu>

@@ -23,10 +23,15 @@ public abstract class CameraEvent extends Event<CameraEventEnum, ICamera> {
     }
 
     /**
-     * This method retrieves the target caMERA ON WHICH THE EVENT WAS GENERATED.
+     * This method retrieves the target camera on which the event was generated.
      * @return An object that implements the {@link ICamera} interface.
      */
     public abstract ICamera getCamera();
+
+    /**
+     * Returns the setting of animation. True means camera move will be animated.
+     * @return boolean value of animate.
+     */
 
     public boolean isAnimate() {
         return animate;

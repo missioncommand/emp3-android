@@ -14,8 +14,16 @@ public abstract class MapFreehandEvent extends Event<MapFreehandEventEnum, IMap>
             IMap map) {
         super(eEvent, map);
     }
-    
+
+    /**
+     * Gets the style that was used to draw the line.
+     * @return style of line
+     */
     public abstract IGeoStrokeStyle getStyle();
-    
+
+    /**
+     * Gets the points from the drawing
+     * @return points from drawing
+     */
     public abstract IGeoPositionGroup getPositionGroup();
 }

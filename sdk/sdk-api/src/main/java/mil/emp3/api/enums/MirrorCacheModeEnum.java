@@ -1,27 +1,28 @@
 package mil.emp3.api.enums;
 
 /**
- * This class enumerates the different operational modes of MirrorCache.
+ * Types of MirrorCache operational modes.
  */
 public enum MirrorCacheModeEnum {
 
     /**
-     * Indicates that no MirrorCache message exchanging should occur.
+     * MirrorCache message exchanging is disabled.
      */
     DISABLED,
 
     /**
-     * Indicates that local map changes should be synchronized remotely.
+     * Local map changes should be published to MirrorCache service.
      */
     EGRESS,
 
     /**
-     * Indicates that remote map changes should be synchronized locally.
+     * Map should register with MirrorCache service to receive updates made to remote map(s)
      */
     INGRESS,
 
     /**
-     * Indicates that both local and remote map changes should be synchronized.
+     * Local map changes should be published to MirrorCache service.
+     * Map should register with MirrorCache service to receive updates made to remote map(s)
      */
     BIDIRECTIONAL,
     ;

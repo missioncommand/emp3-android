@@ -1,12 +1,17 @@
 package mil.emp3.api.interfaces;
 
 import android.graphics.Point;
+import android.view.View;
 
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.security.InvalidParameterException;
+import java.util.List;
+
 import mil.emp3.api.enums.EditorMode;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
@@ -29,44 +34,48 @@ import mil.emp3.api.listeners.IMapStateChangeEventListener;
 import mil.emp3.api.listeners.IMapViewChangeEventListener;
 
 /**
- * This interface defines the access to a map instance. It is implemented by the <I>MapFragement</I>
- * and <I>MapView</I> classes.
+ * This interface defines the access to a map instance.
+ *
+ * Map represents the container that encapsulates the map displayed on the users screen. All overlays and Features are
+ * contained within the Map. Map is responsible for starting and displaying a map engine of users choice. An application
+ * can display multiple maps on the screen. Applications use either {@Link mil.emp3.api.MapView} or {@Link mil.emp3.api.MapFragment} to build and
+ * display a map.
  */
 public interface IMap extends IContainer {
 
     /**
-     * Used to set the operational mode for MirrorCache.
-     *
+     * Sets mirror cache mode to be either EGRESs, INGRESS or BIDIRECTIONAL {@link MirrorCacheModeEnum}
      * @param mode the operational mode for MirrorCache
      */
     void setMirrorCacheMode(MirrorCacheModeEnum mode);
 
     /**
-     * Used to determine if egress is enabled. If true, local map changes will be
-     * synchronized remotely.
+     * Returns true if map is enabled to publish data to Mirror Cache.
      * @return true if egress is enabled, false otherwise.
      */
     boolean isEgressEnabled();
 
     /**
-     * Used to determine if ingress is enabled. If true, remote map changes will be
-     * synchronized locally.
+     * Returns true if map is enabled to consume data from the Mirror Cache.
      * @return true if ingress is enabled, false otherwise.
      */
     boolean isIngressEnabled();
 
     /**
-     * Describes the state of this IMap implementation instance.
-     * For a description of the different states see mil.emp3.api.enums.MapStateEnum
+     * Describes the state of this IMap implementation instance {@Link mil.emp3.api.enums.MapStateEnum}
      * @return MapStateEnum
      */
     MapStateEnum getState();
 
     /**
-     * This method request a screen capture from the map.
-     * @return See {@link ICapture} or null if it is not supported by the map implementation.
+     * This method request a screen capture from the map. Client software must account for the event of
+     * a callback function being invoked prior to the function returning.
+     * @param callback An implementation of the {@link IScreenCaptureCallback} interface.
+     * @throws InvalidParameterException if the callback parameter is null.
+     * @throws UnsupportedOperationException if the map engine does not support screen capture operations.
      */
-    ICapture getScreenCapture();
+    void getScreenCapture(IScreenCaptureCallback callback);
+
     /**
      * This method retrieves the map's current camera.
      * @return ICamera
@@ -105,13 +114,13 @@ public interface IMap extends IContainer {
      * This method retrieves a list of all features currently plotted in the map.
      * @return This method returns a java.util.List of IFeature objects.
      */
-    java.util.List<IFeature> getAllFeatures();
+    List<IFeature> getAllFeatures();
 
     /**
      * This method retrieves a list of all overlays currently plotted in the map.
      * @return This method returns a java.util.List of IOverlay objects.
      */
-    java.util.List<IOverlay> getAllOverlays();
+    List<IOverlay> getAllOverlays();
 
     /**
      * This method adds an overlay container to the root of the map.
@@ -128,7 +137,7 @@ public interface IMap extends IContainer {
      * @param visible True if the overlays are to be made visible, false otherwise.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    void addOverlays(java.util.List<IOverlay> overlays, boolean visible)
+    void addOverlays(List<IOverlay> overlays, boolean visible)
             throws EMP_Exception;
 
     /**
@@ -144,20 +153,20 @@ public interface IMap extends IContainer {
      * @param overlays This parameters is a java.util.ArrayList of one or more overlay containers.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    void removeOverlays(java.util.List<IOverlay> overlays)
+    void removeOverlays(List<IOverlay> overlays)
             throws EMP_Exception;
 
     /**
-     * This method directs the map to utilize the map data provided by the WMS service defined in the parameter.
-     * @param mapService This parameter provides the parameters necessary to access the WMS service.
+     * This method directs the map to utilize the map data provided by the service defined in the parameter.
+     * @param mapService This parameter provides the parameters necessary to access the service.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
     void addMapService(IMapService mapService)
             throws EMP_Exception;
 
     /**
-     * This method removes the WMS service from the map.
-     * @param mapService This parameter identifies the WMS service.
+     * This method removes the service from the map.
+     * @param mapService This parameter identifies the service.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
     void removeMapService(IMapService mapService)
@@ -167,7 +176,7 @@ public interface IMap extends IContainer {
      * This method retrieves a list of map services that are being used by this map.
      * @return a java.util.List of IMapService.
      */
-    java.util.List<IMapService> getMapServices();
+    List<IMapService> getMapServices();
     
     /**
      * This method performs the visibility action on the target object under all 
@@ -309,11 +318,24 @@ public interface IMap extends IContainer {
      */
     EventListenerHandle addFeatureDrawEventListener(IFeatureDrawEventListener listener) throws EMP_Exception;
 
+    /**
+     * This method registers a listener for all feature added events on the map.
+     * @param listener The object that implements the proper listener for the feature draw events.
+     * @return A handle to the registration which is needed to unregister the listener. See {@link EventListenerHandle}
+     * @throws EMP_Exception The exception is raised if the listener is null.
+     */
     EventListenerHandle addMapFeatureAddedEventListener(IMapFeatureAddedEventListener listener) throws EMP_Exception;
+
+    /**
+     * This method registers a listener for all feature removed events on the map.
+     * @param listener The object that implements the proper listener for the feature draw events.
+     * @return A handle to the registration which is needed to unregister the listener. See {@link EventListenerHandle}
+     * @throws EMP_Exception The exception is raised if the listener is null.
+     */
     EventListenerHandle addMapFeatureRemovedEventListener(IMapFeatureRemovedEventListener listener) throws EMP_Exception;
 
     /**
-     * This method set the size that all icons are displayed. This includes MilStd and Point icons.
+     * This method set the size that all icons are displayed. This includes MilStd Point icons.
      * @param eSize {@link IconSizeEnum}
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
@@ -327,7 +349,7 @@ public interface IMap extends IContainer {
     IconSizeEnum getIconSize();
 
     /**
-     * This method indicates to the map engine which MilStd labels to display.
+     * This method indicates to the map engine which MilStd labels to display when renderering MilStd symbols.
      * @param labelSetting {@link MilStdLabelSettingEnum}
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
@@ -450,11 +472,11 @@ public interface IMap extends IContainer {
      * 4) - A MAP_FREEHAND_LINE_DRAW_UPDATE event is generated as the user continues the drag gesture.<br/>
      * 5) - When the user ends the drag gesture (lifts the finger or stylist), a MAP_FREEHAND_LINE_DRAW_END
      * event is generated. The event shall contain a list of geospatial coordinates of the line drawn.
-     * Once the event return the line is removed from the map, and the list of coordinates are deleted.<br/>
+     * Once the event return the line is removed from the map, and the list of coordinates is deleted.<br/>
      * 6) - The user may choose to initiate a new drag gesture to generate a new line therefore returning
      * to step # 3.<br/>
      * 7) - When drawComplete is called a MAP_EXIT_FREEHAND_DRAW_MODE is generated, the map is unlocked,
-     * 8) - EditorMode changes to FREEHAND_MODE
+     * 8) - EditorMode changes to INACTIVE.
      * and the map exits freehand draw mode.<br/>
      * @param initialStyle This parameters contains the initial style to use for the draw. A value of null causes an EMP_Exception.
      * @param listener This parameters is an event listener to handle the freehand draw events.
@@ -502,7 +524,7 @@ public interface IMap extends IContainer {
      * @param featureList
      * @param animate If set tto true then map will animate to the new position
      */
-    void zoomTo(java.util.List<IFeature> featureList, boolean animate);
+    void zoomTo(List<IFeature> featureList, boolean animate);
 
     /**
      * This method calculates the bounding box of the content of the overlay and sets
@@ -613,7 +635,7 @@ public interface IMap extends IContainer {
      * This method selects the features listed. If a feature is already selected or not on the map no action is taken.
      * @param features The list of features to select. NULL features are ignored.
      */
-    void selectFeatures(java.util.List<IFeature> features);
+    void selectFeatures(List<IFeature> features);
 
     /**
      * This method deselects the feature on the map. If the feature is not selected or not on the map no action is taken.
@@ -625,13 +647,13 @@ public interface IMap extends IContainer {
      * This method deselects the features on the map. If any feature is not selected or not on the map no action is taken.
      * @param features The features to deselected. NULL features are ignored.
      */
-    void deselectFeatures(java.util.List<IFeature> features);
+    void deselectFeatures(List<IFeature> features);
 
     /**
      * This method retrieves the list of feature that are marked selected on the map.
      * @return A list of IFeatures. If there are no features selected the list is empty.
      */
-    java.util.List<IFeature> getSelected();
+    List<IFeature> getSelected();
 
     /**
      * This method clears the map selected list.
@@ -644,4 +666,45 @@ public interface IMap extends IContainer {
      * @return True if it is selected false otherwise.
      */
     boolean isSelected(IFeature feature);
+
+    /**
+     * This method retrieves the font size modifier setting for the map.
+     * @return {@link FontSizeModifierEnum}
+     */
+    FontSizeModifierEnum getFontSizeModifier();
+
+    /**
+     * This method is used to apply a scale factor to the font size of all Text and Tactical Graphics features when rendered on the map.
+     * The default setting is {@link FontSizeModifierEnum#NORMAL}. All features
+     * affected get re-rendered with the font size increased or decreased according to this setting.
+     * @param value {@link FontSizeModifierEnum}
+     */
+    void setFontSizeModifier(FontSizeModifierEnum value) throws EMP_Exception;
+
+    /**
+     * This method set the brightness of the background maps on the map.
+     * @param setting Range 0 - 100. 0 Black, 100 white. Values less than 0 are set to 0, and values greater then 100 are set to 100.
+     */
+    void setBackgroundBrightness(int setting);
+
+    /**
+     * This method retrieves the current background brightness setting of the map.
+     * @return Return the current value 0 - 100.
+     */
+    int getBackgroundBrightness();
+
+    /**
+     * This method creates a mini map associated with the map. The android View containing the map is
+     * returned to the client. It is the responsibility of the client to add the view to a parent.
+     * All touch events are forwarded to the parent of the View. If the mini map has already been
+     * created the same view is returned.
+     * @return android.view.View
+     */
+    View showMiniMap();
+
+    /**
+     * This method destroys the mini map. The call will remove the view from its parent if it still
+     * has a parent. If the mini map has already been destroyed no action is taken.
+     */
+    void hideMiniMap();
 }

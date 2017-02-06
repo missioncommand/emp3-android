@@ -13,7 +13,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 /**
  * This class handles the Point feature editing.
  */
-public class PointEditor extends AbstractSinglePointEditor {
+public class PointEditor extends AbstractSinglePointEditor<mil.emp3.api.Point> {
     public PointEditor(IMapInstance map, mil.emp3.api.Point feature, IEditEventListener oEventListener) throws EMP_Exception {
         super(map, feature, oEventListener, false);
         this.initializeEdit();

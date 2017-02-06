@@ -3,6 +3,9 @@ package mil.emp3.core.editors.milstd;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -72,7 +75,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *              Ford Difficult *
  */
 public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor {
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
+    private final List<ControlPoint> cpList = new ArrayList<>();
 
     public MilStdDCSuperAutoShapeEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, symDef);
@@ -87,7 +90,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         // We set the length to 2/6 of the camera altitude.
         double distance = cameraPos.getAltitude() / 6.0;
         double dBrng, dBrngInc;
@@ -101,7 +104,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
         posList.clear();
 
 
-        switch (this.symbol.getBasicSymbol()) {
+        switch (this.oFeature.getBasicSymbol()) {
             case CoreMilStdUtilities.CCGM_OFFENCE_SUPPORT_BY_FIRE_POSITION:
             case CoreMilStdUtilities.TASK_RELIEF_IN_PLACE:
             case CoreMilStdUtilities.MS_MINEFIELD_GAP:
@@ -163,11 +166,11 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int posCnt = posList.size();
         IGeoPosition pos;
         ControlPoint controlPoint;
-        String basicSymbolCode = this.symbol.getBasicSymbol();
+        String basicSymbolCode = this.oFeature.getBasicSymbol();
 
         for (int index = 0; index < posCnt; index++) {
             if ((index == 2) && (
@@ -237,7 +240,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
      * @param eventPos
      */
     private void moveGraphicP1PerpendicularP2P3AtCenter(ControlPoint oCP, IGeoPosition eventPos) {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int cpIndex = oCP.getCPIndex();
         IGeoPosition centerPos;
         double bearingP2ToP3;
@@ -349,7 +352,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
     }
 
     private void moveGraphicP3PerpendicularP1P2AtP2(ControlPoint oCP, IGeoPosition eventPos) {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int cpIndex = oCP.getCPIndex();
 
         if (posList.size() >= this.getMinPoints()) {
@@ -437,14 +440,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
     }
 
     @Override
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition eventPos) {
-        String basicSymbolCode = this.symbol.getBasicSymbol();
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition eventPos) {
+        String basicSymbolCode = this.oFeature.getBasicSymbol();
 
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
         if (this.getPositions().size() < this.getMaxPoints()) {
             ControlPoint controlPoint;
             IGeoPosition pos;
-            java.util.List<IGeoPosition> posList = this.getPositions();
+            List<IGeoPosition> posList = this.getPositions();
 
             controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posList.size(), -1);
             pos = new GeoPosition();
@@ -452,19 +455,18 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             pos.setLongitude(eventPos.getLongitude());
             pos.setAltitude(0);
             controlPoint.setPosition(pos);
-            this.cpList.add(controlPoint);
+            cpList.add(controlPoint);
             posList.add(pos);
             this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{controlPoint.getCPIndex()});
         }
 
-        return this.cpList;
+        return cpList;
     }
 
     @Override
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition eventPos) {
-        String basicSymbolCode = this.symbol.getBasicSymbol();
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition eventPos) {
+        String basicSymbolCode = this.oFeature.getBasicSymbol();
 
-        cpList.clear();
         switch (basicSymbolCode) {
             case CoreMilStdUtilities.AMBUSH:
                 this.moveGraphicP1PerpendicularP2P3AtCenter(oCP, eventPos);
@@ -482,7 +484,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                 this.moveGraphicP3PerpendicularToP1P2Center(oCP, eventPos);
                 break;
             case CoreMilStdUtilities.TASK_CLEAR: {
-                switch (this.symbol.getSymbolStandard()) {
+                switch (this.oFeature.getSymbolStandard()) {
                     case MIL_STD_2525B:
                         this.moveCP(oCP, eventPos);
                         break;
@@ -504,6 +506,6 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                 break;
         }
 
-        return cpList;
+        return true;
     }
 }

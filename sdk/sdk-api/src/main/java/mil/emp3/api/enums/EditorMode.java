@@ -1,15 +1,17 @@
 package mil.emp3.api.enums;
 
 /**
- * This class enumerates various editing states Map can enter as a result of application invoking following
- * methods of IMap:
- *     editFeature, cancelEdit, completeEdit
- *     drawFeature, cancelDraw, completeDraw
- *     drawFreehand, drawFreehandExit
+ * {@link mil.emp3.api.abstracts.Map} is normally in INACTIVE mode but will transition to one of the Editor Modes as described below.
+ * Mode transitions are controlled by following Map methods
+ * <ul>
+ *     <li>editFeature, cancelEdit, completeEdit - EDIT_MODE</li>
+ *     <li>drawFeature, cancelDraw, completeDraw - DRAW_MODE</li>
+ *     <li>drawFreehand, drawFreehandExit - FREEHAND_MODE</li>
+ * </ul>
  */
 public enum EditorMode {
     /**
-     * Map is NOT within editFeature, drawFeature or drawFreehand operation
+     * Map is in normal mode and can transition to any other based on application actions and current value of {@link MapMotionLockEnum}
      */
     INACTIVE,
 

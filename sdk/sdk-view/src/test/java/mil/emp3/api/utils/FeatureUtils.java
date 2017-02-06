@@ -26,7 +26,8 @@ public class FeatureUtils {
 
         strokeStyle.setStrokeColor(geoColor);
         strokeStyle.setStrokeWidth(5);
-        strokeStyle.setStrokePattern(IGeoStrokeStyle.StrokePattern.dotted);
+        strokeStyle.setStipplingPattern((short) 0xCCCC);
+        strokeStyle.setStipplingFactor(4);
         polygon.setStrokeStyle(strokeStyle);
 
         fillStyle.setFillColor(geoFillColor);

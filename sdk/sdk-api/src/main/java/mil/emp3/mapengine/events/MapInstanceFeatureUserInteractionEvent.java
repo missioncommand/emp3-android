@@ -3,6 +3,7 @@ package mil.emp3.mapengine.events;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.EnumSet;
+import java.util.List;
 
 import mil.emp3.api.enums.UserInteractionKeyEnum;
 import mil.emp3.api.enums.UserInteractionMouseButtonEnum;
@@ -20,7 +21,7 @@ public class MapInstanceFeatureUserInteractionEvent extends Event<UserInteractio
     private final android.graphics.Point oPoint;
     private final IGeoPosition oCoordinate;
     private final IGeoPosition oStartCoordinate;
-    private final java.util.List<IFeature> oFeatureList;
+    private final List<IFeature> oFeatureList;
     private UserInteractionMouseButtonEnum oButton;
     private final EnumSet<UserInteractionKeyEnum> oKeys;
 
@@ -42,7 +43,7 @@ public class MapInstanceFeatureUserInteractionEvent extends Event<UserInteractio
             UserInteractionEventEnum eEvent,
             EnumSet<UserInteractionKeyEnum> keys,
             UserInteractionMouseButtonEnum button,
-            java.util.List<IFeature> featureList,
+            List<IFeature> featureList,
             android.graphics.Point oPointCoordinate,
             IGeoPosition oPosition) {
         super(eEvent, oMapInstance);
@@ -55,7 +56,7 @@ public class MapInstanceFeatureUserInteractionEvent extends Event<UserInteractio
     }
 
     /**
-     * This constructor must be called by the map engines to creates a MapInstanceFeatureUserInteractionEvent event
+     * This constructor must be called by the map engines to create a MapInstanceFeatureUserInteractionEvent event
      * @param oMapInstance The actual map instance. The this property of the object that implements the IMapInstance interface.
      * @param eEvent The enumerated value of the event that occurred. See {@link UserInteractionEventEnum}.
      * @param featureList A list of references to the features on which the event occurred.
@@ -68,7 +69,7 @@ public class MapInstanceFeatureUserInteractionEvent extends Event<UserInteractio
             UserInteractionEventEnum eEvent,
             EnumSet<UserInteractionKeyEnum> keys,
             UserInteractionMouseButtonEnum button,
-            java.util.List<IFeature> featureList,
+            List<IFeature> featureList,
             android.graphics.Point oPointCoordinate,
             IGeoPosition oPosition,
             IGeoPosition oStartPosition) {
@@ -81,25 +82,53 @@ public class MapInstanceFeatureUserInteractionEvent extends Event<UserInteractio
         this.oKeys = keys;
     }
 
+    /**
+     * The geographic coordinate of the location the event occurred.
+     * @return location
+     */
+
     public android.graphics.Point getLocation() {
         return this.oPoint;
     }
 
+    /**
+     * Returns geo-position of the location of the event.
+     * @return coordinates
+     */
     public IGeoPosition getCoordinate() {
         return this.oCoordinate;
     }
 
+    /**
+     * Returns geo-position of the location where DRAG started
+     * @return coordinates
+     */
     public IGeoPosition getStartCoordinate() {
         return this.oStartCoordinate;
     }
 
-    public java.util.List<IFeature> getFeatures() {
+    /**
+     * A list of references to the features on which the event occurred.
+     * @return list of references to features
+     */
+
+    public List<IFeature> getFeatures() {
         return this.oFeatureList;
     }
+
+    /**
+     * Returns mouse button, left, right or middle
+     * @return button
+     */
 
     public UserInteractionMouseButtonEnum getButton() {
         return this.oButton;
     }
+
+    /**
+     * Returns keyboard keys, shift, ctrl and/or alt
+     * @return enumeration of keys
+     */
 
     public EnumSet<UserInteractionKeyEnum> getKeys() {
         return this.oKeys;

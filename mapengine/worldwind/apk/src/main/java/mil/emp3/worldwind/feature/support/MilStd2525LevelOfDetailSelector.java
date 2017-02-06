@@ -4,8 +4,11 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.SparseArray;
 
+import org.cmapi.primitives.IGeoPosition;
+
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Offset;
+import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Placemark;
@@ -103,14 +106,18 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
      */
     @Override
     public void selectLevelOfDetail(RenderContext rc, Placemark placemark, double cameraDistance) {
-        if (!(placemark instanceof MilStd2525SinglePoint)) {
+        if (!(placemark instanceof MilStd2525SinglePoint.EMPPlacemark)) {
             throw new IllegalArgumentException(
                     Logger.logMessage(Logger.ERROR, "MilStd2525LevelOfDetailSelector", "selectLevelOfDetail",
                             "The placemark is not a MilStd2525SinglePoint"));
         }
-        MilStd2525SinglePoint milStdPlacemark = (MilStd2525SinglePoint) placemark;
-        PlacemarkAttributes placemarkAttributes = milStdPlacemark.getAttributes();
+        MilStd2525SinglePoint milStdPlacemark = ((MilStd2525SinglePoint.EMPPlacemark) placemark).featureMapper;
+        PlacemarkAttributes placemarkAttributes = placemark.getAttributes();
         int lastLevelOfDetail = milStdPlacemark.getLastLevelOfDetail();
+
+        // Update position.
+        IGeoPosition oPos = milStdPlacemark.getSymbol().getPosition();
+        placemark.setPosition(Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()));
 
         // Determine the normal attributes based on the distance from the camera to the placemark
         if (cameraDistance > FAR_THRESHOLD) {
@@ -139,7 +146,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
             // Apply the symbols and Icon size setting scales.
             double dScale = oMapInstance.getIconSizeSetting().getScaleFactor() * milStdPlacemark.getIconScale();
             placemarkAttributes.setImageScale(dScale);
-            milStdPlacemark.setAttributes(placemarkAttributes);
+            placemark.setAttributes(placemarkAttributes);
 
             if (milStdPlacemark.isDirty()) {
                 milStdPlacemark.resetDirty();

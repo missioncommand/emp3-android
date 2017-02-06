@@ -3,23 +3,24 @@ package mil.emp3.api.enums;
 import mil.emp3.api.interfaces.IEventEnum;
 
 /**
- * This class enumerates the type of feature draw events
+ * Type of events generated when map enters {@link EditorMode} DRAW_MODE and user DRAG gestures are processed. These events are triggered when application
+ * issues drawFeature, cancelDraw, completeDraw on {@link mil.emp3.api.interfaces.IMap}
  */
 public enum FeatureDrawEventEnum implements IEventEnum {
     /**
-     * This value indicates that the draw has started. The event target provides the feature being drawn.
+     * Draw mode has started
      */
     DRAW_START,
     /**
-     * This value indicates that the feature has been changed. The event target is a reference to the updated feature.
+     * Draw status has changed e.g. DRAG gesture continues or is complete, see {@link FeatureEditUpdateTypeEnum}
      */
     DRAW_UPDATE,
     /**
-     * This value indicates that the draw has been canceled.
+     * Application issued Cancel action was processed and Map has exited the DRAW_MODE
      */
     DRAW_CANCELED,
     /**
-     * This value indicates that the draw has completed. The event target is a reference of the drawn feature.
+     * Application issues Complete action was processed and Map has exited the DRAW_MODE
      */
     DRAW_COMPLETE
 }

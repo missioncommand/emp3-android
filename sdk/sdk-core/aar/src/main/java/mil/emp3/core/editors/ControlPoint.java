@@ -21,6 +21,8 @@ public class ControlPoint extends mil.emp3.api.Point {
         WIDTH_CP,
         LEFT_WIDTH_CP,
         RIGHT_WIDTH_CP,
+        HEIGHT_CP,         // Added HEIGHT_CP to match height and width of rectangle feature. I could have used LENGTH_CP but
+                           // that creates confusion.
         RANGE_CP,
         LENGTH_CP,
         AZIMUTH_CP,
@@ -39,12 +41,20 @@ public class ControlPoint extends mil.emp3.api.Point {
     // -1 for POSITION cp.
     private int cpSubIndex;
 
-    public ControlPoint(CPTypeEnum eType, int index, int subIndex) {
-        super();
-
+    private void init(CPTypeEnum eType, int index, int subIndex) {
         this.cpIndex = index;
         this.cpSubIndex = subIndex;
         this.setCPType(eType);
+    }
+    public ControlPoint(CPTypeEnum eType, int index, int subIndex) {
+        super();
+        init(eType, index, subIndex);
+    }
+
+    public ControlPoint(CPTypeEnum eType, int index, int subIndex, AltitudeMode altitudeMode) {
+        super();
+        init(eType, index, subIndex);
+        this.setAltitudeMode(altitudeMode);
     }
 
     public void setCPType(CPTypeEnum eType) {
@@ -69,6 +79,7 @@ public class ControlPoint extends mil.emp3.api.Point {
             case RIGHT_WIDTH_CP:
             case RANGE_CP:
             case LENGTH_CP:
+            case HEIGHT_CP:
             case AOI_BUFFER:
                 this.setResourceId(R.drawable.cp_distance);
                 break;

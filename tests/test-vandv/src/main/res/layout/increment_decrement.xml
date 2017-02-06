@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content" android:layout_gravity="center_horizontal"
+    android:layout_height="wrap_content">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/stroke_width" android:orientation="horizontal" android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <ImageButton
+            android:id="@+id/decrement_value_fast"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:src="@android:drawable/arrow_down_float" />
+        <ImageButton
+            android:id="@+id/decrement_value"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:src="@android:drawable/arrow_down_float" />
+        <TextView
+            android:id="@+id/current_value"
+            android:layout_width="100dp" android:layout_height="wrap_content" android:gravity="center_horizontal"
+            android:text="1"/>
+        <ImageButton
+            android:id="@+id/increment_value"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:src="@android:drawable/arrow_up_float" />
+        <ImageButton
+            android:id="@+id/increment_value_fast"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:src="@android:drawable/arrow_up_float" />
+    </LinearLayout>
+
+</LinearLayout>

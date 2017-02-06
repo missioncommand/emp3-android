@@ -11,7 +11,7 @@ import mil.emp3.mirrorcache.api.IMirrorable;
 public class MirrorableCamera extends Camera implements IMirrorable {
     private static final String TAG = MirrorableCamera.class.getName();
 
-    private Long mirrorKey; // this is never used by app dev
+    private String mirrorKey;
 
     public MirrorableCamera() {
         super(new GeoCamera());
@@ -52,12 +52,12 @@ public class MirrorableCamera extends Camera implements IMirrorable {
     }
 
     @Override
-    public Long getMirrorKey() {
+    public String getMirrorKey() {
         return mirrorKey;
     }
 
     @Override
-    public void setMirrorKey(Long mirrorKey) {
+    public void setMirrorKey(String mirrorKey) {
         this.mirrorKey = mirrorKey;
     }
 }

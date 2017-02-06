@@ -1,9 +1,17 @@
 package mil.emp3.mapengine.interfaces;
 
 /**
- *
- * This class defines the interface to the map engine requirements.
+ * An object that holds capabilities required by a specific map engine.
  */
 public interface IMapEngineRequirements {
-    public boolean requiresWMSCapabilities();
+    /**
+     * Returns true if map engine requires WMS capabilities.
+     * @return
+     */
+    boolean requiresWMSCapabilities();
+    /**
+     * Returns true if map engine requires WMTS capabilities.
+     * @return
+     */
+    public boolean requiresWMTSCapabilities();
 }

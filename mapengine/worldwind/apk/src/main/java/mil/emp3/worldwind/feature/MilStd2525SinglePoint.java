@@ -8,9 +8,9 @@ import org.cmapi.primitives.IGeoPosition;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.RenderContext;
+import gov.nasa.worldwind.render.Renderable;
 import gov.nasa.worldwind.shape.Placemark;
 import mil.emp3.api.MilStdSymbol;
-import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
@@ -18,53 +18,60 @@ import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
 /**
  * This class implements the milstd 2525 single point icons in the world wind map engine.
  */
-public class MilStd2525SinglePoint extends Placemark {
+public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol> {
     private static final String TAG = MilStd2525SinglePoint.class.getSimpleName();
 
-    private MilStdSymbol oSymbol;
+    public class EMPPlacemark extends Placemark {
+        public final MilStd2525SinglePoint featureMapper;
+
+        protected EMPPlacemark(MilStd2525SinglePoint mapper, Position position) {
+            super(position);
+            this.featureMapper = mapper;
+        }
+    }
     private final IMilStdRenderer oRenderer;
-    private final MapInstance oMapInstance;
     private String sSymbolCode;
     private SparseArray oModifiers = null;
     private SparseArray oAttributes = null;
-    private boolean bIsDirty = true;
     private int iLastLevelOfDetail = -1;
-    private boolean selected = false;
+    private final Placemark placemark;
 
-    public MilStd2525SinglePoint(MapInstance mapInstance, IMilStdRenderer iconRenderer, Position position, MilStdSymbol symbol, boolean selected) {
-        super(position);
-        this.oSymbol = symbol;
+    public MilStd2525SinglePoint(MapInstance mapInstance, IMilStdRenderer iconRenderer, Position position, MilStdSymbol symbol) {
+        super(symbol, mapInstance);
+
+        this.placemark = new EMPPlacemark(this, position);
         this.sSymbolCode = symbol.getSymbolCode();
         this.oRenderer = iconRenderer;
-        this.oMapInstance = mapInstance;
-        this.selected = selected;
         this.setSymbolAttributes();
         this.setSymbolModifiers();
-        this.setPickDelegate(this.oSymbol);
+        placemark.setPickDelegate(symbol);
         switch (symbol.getAltitudeMode()) {
             case RELATIVE_TO_GROUND:
-                this.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
+                placemark.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
                 break;
             case ABSOLUTE:
-                this.setAltitudeMode(WorldWind.ABSOLUTE);
+                placemark.setAltitudeMode(WorldWind.ABSOLUTE);
                 break;
             case CLAMP_TO_GROUND:
-                this.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+                placemark.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
                 break;
         }
-        this.setLevelOfDetailSelector(MilStd2525LevelOfDetailSelector.getInstance());
+        placemark.setLevelOfDetailSelector(MilStd2525LevelOfDetailSelector.getInstance());
+
+        this.setRenderable(placemark);
     }
 
-    public void setSelected(boolean value) {
-        this.selected = value;
+    @Override
+    public void render(RenderContext renderContext) {
+        this.placemark.render(renderContext);
     }
 
     private void setSymbolModifiers() {
-        this.oModifiers = this.oRenderer.getUnitModifiers(this.oMapInstance, this.oSymbol);
+        this.oModifiers = this.oRenderer.getUnitModifiers(this.getMapInstance(), this.getFeature());
     }
 
     private void setSymbolAttributes() {
-        this.oAttributes = this.oRenderer.getAttributes(this.oMapInstance, this.oSymbol, this.selected);
+        this.oAttributes = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), this.isSelected());
     }
 
     public SparseArray getSymbolModifiers() {
@@ -75,12 +82,8 @@ public class MilStd2525SinglePoint extends Placemark {
         return this.oAttributes;
     }
 
-    public boolean isDirty() {
-        return this.bIsDirty;
-    }
-
     public void resetDirty() {
-        this.bIsDirty = false;
+        this.setDirty(false);
     }
 
     /**
@@ -88,41 +91,44 @@ public class MilStd2525SinglePoint extends Placemark {
      * @param symbol
      */
     public void updateSymbol(MilStdSymbol symbol) {
-        if (this.oSymbol != symbol) {
-            this.oSymbol = symbol;
+        if (this.getFeature() != symbol) {
+            this.setFeature(symbol);
+            this.setDirty(false);
         }
-        IGeoPosition oPos = this.oSymbol.getPosition();
-        //Log.d(TAG, "Lat/Lon: " + oPos.getLatitude() + " / " + oPos.getLongitude());
-        this.setPosition(Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()));
+
+        // Without the following position updates via a call to Feature.apply will not work.
+        // Should we comparing old position vs new position?
+        IGeoPosition oPos = this.getFeature().getPosition();
+        this.placemark.setPosition(Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()));
 
         if (this.sSymbolCode != symbol.getSymbolCode()) {
             // if the symbol code has changed it is dirty.
-            this.bIsDirty = true;
+            this.setDirty(true);
             this.sSymbolCode = symbol.getSymbolCode();
         }
 
-        SparseArray oMod = this.oRenderer.getUnitModifiers(this.oMapInstance, this.oSymbol);
-        SparseArray oAttr = this.oRenderer.getAttributes(this.oMapInstance, this.oSymbol, selected);
+        SparseArray oMod = this.oRenderer.getUnitModifiers(this.getMapInstance(), this.getFeature());
+        SparseArray oAttr = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), isSelected());
 
         if (!this.oModifiers.toString().equals(oMod.toString())) {
             // The modifiers have changed so we mark it dirty.
-            this.bIsDirty = true;
+            this.setDirty(true);
             this.oModifiers = oMod;
         }
 
         if (!this.oAttributes.toString().equals(oAttr.toString())) {
             // The attributes has changed, mark dirty.
-            this.bIsDirty = true;
+            this.setDirty(true);
             this.oAttributes = oAttr;
         }
     }
 
     public String getSymbolCode() {
-        return this.oSymbol.getSymbolCode();
+        return this.getFeature().getSymbolCode();
     }
 
     public MilStdSymbol getSymbol() {
-        return this.oSymbol;
+        return this.getFeature();
     }
 
     public int getLastLevelOfDetail() {
@@ -134,12 +140,23 @@ public class MilStd2525SinglePoint extends Placemark {
     }
 
     public double getIconScale() {
-        double scale = this.oSymbol.getIconScale();
+        double scale = this.getFeature().getIconScale();
 
-        if (this.selected) {
-            scale = scale * oRenderer.getSelectedIconScale(this.oMapInstance);
+        if (this.isSelected()) {
+            scale = scale * oRenderer.getSelectedIconScale(this.getMapInstance());
         }
 
         return scale;
+    }
+
+    /**
+     * Update attributes based on selected flag. This will get picked up on the next render call.
+     * @param selected
+     */
+    @Override
+    public void setSelected(boolean selected) {
+        super.setSelected(selected);
+        setSymbolAttributes();
+        setSymbolModifiers();
     }
 }

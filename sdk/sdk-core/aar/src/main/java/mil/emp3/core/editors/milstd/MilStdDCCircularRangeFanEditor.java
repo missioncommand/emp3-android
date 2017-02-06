@@ -4,6 +4,9 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -25,8 +28,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *
  */
 public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEditor {
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
-    private final java.util.List<Float> rangeList = new java.util.ArrayList<>();
+    private final List<Float> rangeList = new ArrayList<>();
     private static final int MIN_RANGES = 1;
     private static final int MAX_RANGES = 3;
 
@@ -41,8 +43,8 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
     }
 
     private void checkAMModifier() {
-        for (int index = 0; !Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index)); index++) {
-            this.rangeList.add(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index));
+        for (int index = 0; !Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index)); index++) {
+            this.rangeList.add(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index));
         }
 
         if (this.rangeList.isEmpty()) {
@@ -55,7 +57,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         } else {
             // Delete all additional ranges.
             while (this.rangeList.size() > MAX_RANGES) {
-                this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, this.rangeList.size() - 1, Float.NaN);
+                this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, this.rangeList.size() - 1, Float.NaN);
                 this.rangeList.remove(this.rangeList.size() - 1);
             }
         }
@@ -64,14 +66,14 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
 
         posList.clear();
 
         // Delete all ranges.
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
         }
 
         this.checkAMModifier();
@@ -94,7 +96,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
     private void positionRangeCP(int index) {
         IGeoPosition pos;
         ControlPoint controlPoint;
-        float range = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
+        float range = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
         IGeoPosition centerPos = this.getPositions().get(0);
 
         // Get range CP.
@@ -105,7 +107,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
     private void createRange(int index) {
         IGeoPosition pos;
         ControlPoint controlPoint;
-        float range = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
+        float range = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index);
         IGeoPosition centerPos = this.getPositions().get(0);
 
         // Create range CP.
@@ -114,13 +116,11 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         controlPoint.setPosition(pos);
         GeoLibrary.computePositionAt(90.0, range, centerPos, pos);
         this.addControlPoint(controlPoint);
-        this.cpList.add(controlPoint);
-
     }
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         ControlPoint controlPoint;
 
         // Add the center control point.
@@ -136,7 +136,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
 
     private float getPreviousRangeValue(int index) {
         float prevRange = 0;
-        float tempRange = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
+        float tempRange = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index - 1);
 
         // Get the previous range value if there is one.
         if ((index > 0) && (!Float.isNaN(tempRange))) {
@@ -148,7 +148,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
 
     private float getNextRangeValue(int index) {
         float nextRange = Float.MAX_VALUE;
-        float tempRange = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index + 1);
+        float tempRange = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, index + 1);
 
         // Get the next range value if there is one.
         if (!Float.isNaN(tempRange)) {
@@ -160,26 +160,26 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
 
     private void setRangeValue(int index, float value) {
         this.rangeList.set(index, value);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, Float.NaN);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, Float.NaN);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, value);
     }
 
     private void insertRangeValue(int index, float value) {
         this.rangeList.add(index, value);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, value);
     }
 
     private void removeRangeValue(int index) {
         this.rangeList.remove(index);
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, Float.NaN);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, index, Float.NaN);
     }
 
     @Override
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition dragPosition) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition dragPosition) {
         int cpIndex = oCP.getCPIndex();
         int cpSubIndex = oCP.getCPSubIndex();
 
-        this.cpList.clear();
+        boolean moved = false;
         switch (oCP.getCPType()) {
             case POSITION_CP: {
                 // The center was moved.
@@ -195,6 +195,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
                 }
 
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0});
+                moved = true;
                 break;
             }
             case RANGE_CP: {
@@ -220,13 +221,12 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
                 this.setRangeValue(cpIndex, newRange);
                 GeoLibrary.computePositionAt(90.0, newRange, centerPos, oCP.getPosition());
                 this.addUpdateEventData(IGeoMilSymbol.Modifier.DISTANCE);
-
+                moved = true;
                 break;
             }
         }
-        cpList.add(oCP);
 
-        return this.cpList;
+        return moved;
     }
 
     private int getIndexForNewRange(float newRange) {
@@ -241,7 +241,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         return index;
     }
 
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition newPosition) {
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition newPosition) {
         if (this.rangeList.size() == MAX_RANGES) {
             // Once we have the max # of ranges we cant add any more.
             return null;
@@ -251,7 +251,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         float newRange = (float) GeoLibrary.computeDistanceBetween(centerPos, newPosition);
         int newRangeIndex = this.getIndexForNewRange(newRange);
 
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         // Shift the range indexes for the ranges
         this.changeControlPointIndexes(ControlPoint.CPTypeEnum.RANGE_CP, newRangeIndex, 1);
@@ -262,13 +262,13 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         this.createRange(newRangeIndex);
         this.addUpdateEventData(IGeoMilSymbol.Modifier.DISTANCE);
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
+    protected List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
         int cpIndex = oCP.getCPIndex();
 
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         switch (oCP.getCPType()) {
             case RANGE_CP: {
@@ -281,10 +281,10 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
 
                 this.removeRangeValue(cpIndex);
                 this.changeControlPointIndexes(ControlPoint.CPTypeEnum.RANGE_CP, cpIndex, -1);
-                this.cpList.add(oCP);
+                cpList.add(oCP);
                 break;
             }
         }
-        return this.cpList;
+        return cpList;
     }
 }

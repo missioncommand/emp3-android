@@ -3,6 +3,7 @@ package mil.emp3.core.editors;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.List;
 import java.util.UUID;
 
 import mil.emp3.api.enums.EditorMode;
@@ -17,9 +18,9 @@ import mil.emp3.mapengine.events.MapInstanceUserInteractionEvent;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
- * This abstract class the basic interface to the draw and edit editors.
+ * This abstract class is the basic interface to the draw and edit editors.
  */
-public abstract class AbstractEditor {
+public abstract class AbstractEditor<T extends IFeature> {
 
     final protected IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
     final protected IEventManager eventManager     = ManagerFactory.getInstance().getEventManager();
@@ -28,13 +29,17 @@ public abstract class AbstractEditor {
     protected final IMapInstance mapInstance;
     protected final EditorMode editorMode;
 
-    protected final IFeature oFeature;
+    protected final T oFeature;
 
-    protected AbstractEditor(IMapInstance instance, IFeature feature, EditorMode eMode) {
+    protected AbstractEditor(IMapInstance instance, T feature, EditorMode eMode) {
         this.oFeature = feature;
         this.mapInstance = instance;
         this.oClientMap = storageManager.getMapMapping(this.mapInstance).getClientMap();
         this.editorMode = eMode;
+    }
+
+    public T getFeature() {
+        return this.oFeature;
     }
 
     /**
@@ -72,7 +77,7 @@ public abstract class AbstractEditor {
         return this.editorMode;
     }
     
-    protected java.util.List<IGeoPosition> getPositions() {
+    protected List<IGeoPosition> getPositions() {
         return this.oFeature.getPositions();
     }
 

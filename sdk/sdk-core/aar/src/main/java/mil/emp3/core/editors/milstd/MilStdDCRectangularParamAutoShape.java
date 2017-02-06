@@ -4,6 +4,9 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -27,7 +30,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *                  Rectangular Target
  */
 public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointEditor {
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
 
     public MilStdDCRectangularParamAutoShape(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, symDef);
@@ -40,7 +42,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
     }
 
     private float getAttitudeModifier() {
-        float returnValue = this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0);
+        float returnValue = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0);
 /*
         if (!Float.isNaN(returnValue)) {
             switch (this.symbol.getSymbolStandard()) {
@@ -56,19 +58,19 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
     }
 
     private float getWidthModifier() {
-        return this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0);
+        return this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0);
     }
 
     private float getLengthModifier() {
-        return this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 1);
+        return this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 1);
     }
 
     private void setAttitudeModifier(float value) {
         float newValue = value;
 
-        if (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0))) {
+        if (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0))) {
             // If it exists delete it first.
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, Float.NaN);
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, Float.NaN);
         }
 /*
         if (!Float.isNaN(newValue)) {
@@ -81,24 +83,24 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
             }
         }
 */
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, newValue);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, newValue);
     }
 
     private void setWidthModifier(float value) {
-        if (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
+        if (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
             // If it exists delete it first.
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
         }
 
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, value);
     }
 
     private void setLengthModifier(float value) {
-        if (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 1))) {
+        if (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 1))) {
             // If it exists delete it first.
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, Float.NaN);
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, Float.NaN);
         }
-        this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, value);
+        this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, value);
     }
 
     private void checkAMModifier() {
@@ -122,8 +124,8 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         }
 
         // Remove any additional AM values.
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 2))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 2, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 2))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 2, Float.NaN);
         }
     }
 
@@ -134,31 +136,31 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         }
 
         // Remove all extra AN value.
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 1))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 1, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 1))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 1, Float.NaN);
         }
 
         // Remove any X values.
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, Float.NaN);
         }
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
 
         // Remove all positions, AM and AN modifiers.
         posList.clear();
 
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
         }
         // Remove all AN value.
-        while (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0))) {
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, Float.NaN);
+        while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0))) {
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, Float.NaN);
         }
 
         this.checkAMModifier();
@@ -185,7 +187,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         double width = this.getWidthModifier();
         double length = this.getLengthModifier();
         double attitude = this.getAttitudeModifier();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
         ControlPoint controlPoint;
 
@@ -223,7 +225,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         double width = this.getWidthModifier();
         double length = this.getLengthModifier();
         double attitude = this.getAttitudeModifier();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         ControlPoint controlPoint;
 
         // Get length control point.
@@ -243,18 +245,13 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
     }
 
     @Override
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition dragPosition) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition dragPosition) {
         double attitude = this.getAttitudeModifier();
 
         switch (oCP.getCPType()) {
             case POSITION_CP: {
                 // The center was moved.
-                ControlPoint widthCP = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 1, -1);
-                ControlPoint lengthCP = this.findControlPoint(ControlPoint.CPTypeEnum.LENGTH_CP, 0, -1);
-                ControlPoint attitudeCP = this.findControlPoint(ControlPoint.CPTypeEnum.ATTITUDE_CP, 0, -1);
                 IGeoPosition centerPos = oCP.getPosition();
-                double distanceMoved = GeoLibrary.computeDistanceBetween(centerPos, dragPosition);
-                double bearingMoved = GeoLibrary.computeBearing(centerPos, dragPosition);
 
                 // Set the center new position.
                 centerPos.setLatitude(dragPosition.getLatitude());
@@ -306,8 +303,6 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
                 this.addUpdateEventData(IGeoMilSymbol.Modifier.AZIMUTH);
             }
         }
-        cpList.add(oCP);
-
-        return cpList;
+        return true;
     }
 }

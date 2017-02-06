@@ -56,9 +56,39 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent" />
 
+                <LinearLayout
+                    android:id="@+id/main"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:orientation="horizontal"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="bottom|end"
+                    >
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/editorCompleteBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/fab_margin"
+                        app:backgroundTint="#00ff00"
+                        android:src="@android:drawable/ic_menu_save" />
+
+                    <android.support.design.widget.FloatingActionButton
+                        android:id="@+id/editorCancelBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/fab_margin"
+                        app:backgroundTint="#ff0000"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+                </LinearLayout>
+
             </RelativeLayout>
 
         </LinearLayout>
 
     </android.support.v4.widget.DrawerLayout>
+
 </LinearLayout>

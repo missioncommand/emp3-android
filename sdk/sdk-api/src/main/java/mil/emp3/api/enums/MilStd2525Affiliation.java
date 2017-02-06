@@ -1,7 +1,7 @@
 package mil.emp3.api.enums;
 
 /**
- * This class enumerates the MilStd affiliation values.
+ * Types of MilStd affiliations.
  */
 public enum MilStd2525Affiliation {
     PENDING,

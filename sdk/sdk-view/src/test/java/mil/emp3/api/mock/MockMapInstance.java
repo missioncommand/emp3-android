@@ -25,8 +25,9 @@ public class MockMapInstance extends MockMapInstance_ {
     private static String TAG = MockMapInstance.class.getSimpleName();
 
     public MockMapInstance(BlockingQueue<IFeature> addFeatureQueue, BlockingQueue<UUID> removeFeatureQueue,
-                           BlockingQueue<ICamera> setCameraQueue) {
-        super(addFeatureQueue, removeFeatureQueue, setCameraQueue);
+                           BlockingQueue<ICamera> setCameraQueue, BlockingQueue<IFeature> selectFeatureQueue,
+                           BlockingQueue deselectFeatureQueue) {
+        super(addFeatureQueue, removeFeatureQueue, setCameraQueue, selectFeatureQueue, deselectFeatureQueue);
     }
 
     public boolean validateAddFeatures(IFeature ... feature) throws InterruptedException {
@@ -250,6 +251,8 @@ public class MockMapInstance extends MockMapInstance_ {
         addFeatureQueue.clear();
         removeFeatureQueue.clear();
         setCameraQueue.clear();
+        selectFeatureQueue.clear();
+        deselectFeatureQueue.clear();
     }
 
     public void simulateUserInteractionEvent(UserInteractionEventEnum eventEnum, List<IFeature> pickList, double latitude, double longitude, double altitude) {
@@ -291,5 +294,51 @@ public class MockMapInstance extends MockMapInstance_ {
         pickList.add(feature);
 
         generateFeatureUserInteractionEvent(event, null, null, pickList, null, newPosition, oldPosition);
+    }
+
+    public boolean validateSelectedFeatures(IFeature ... feature) throws InterruptedException {
+        java.util.List<IFeature> features = new ArrayList<>();
+        for(IFeature aFeature : feature) {
+            features.add(aFeature);
+        }
+        return validateFeaturesAgainstQueue(features, selectFeatureQueue, "selectFeatureQueue");
+    }
+
+    public boolean validateDeselectedFeatures(IFeature ... feature) throws InterruptedException {
+        java.util.List<IFeature> features = new ArrayList<>();
+        for(IFeature aFeature : feature) {
+            features.add(aFeature);
+        }
+        return validateFeaturesAgainstQueue(features, deselectFeatureQueue, "deselectFeatureQueue");
+    }
+
+
+    public boolean validateFeaturesAgainstQueue(List<IFeature> features, BlockingQueue<IFeature> queue, String queueName) throws InterruptedException {
+        if((null == features) || (0 == features.size())) {
+            if(queue.size() == 0) return true;
+            else {
+                Log.e(TAG, queueName + " should but empty but has " + queue.size() + " elements");
+                return false;
+            }
+        }
+
+        while(!queue.isEmpty()) {
+            IFeature queuedFeature = queue.take();
+            if(features.contains(queuedFeature)) {
+                features.remove(queuedFeature);
+            } else {
+                Log.e(TAG, "Feature " + queuedFeature.getName() + " is in " + queueName + " but not in feature list");
+                return false;
+            }
+        }
+
+        if(!queue.isEmpty()) {
+            Log.e(TAG, "There are remaining queuedFeatures in " + queueName + " remaining count " + queue.size());
+            return false;
+        } else if(!features.isEmpty()) {
+            Log.e(TAG, "Number of features not found in the " + queue + " " + features.size());
+            return false;
+        }
+        return true;
     }
 }

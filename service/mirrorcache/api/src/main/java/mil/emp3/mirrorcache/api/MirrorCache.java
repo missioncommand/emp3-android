@@ -12,6 +12,9 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -87,20 +90,14 @@ public class MirrorCache {
     public static final int POLL_INTERVAL_LAZY = 10000;
 
     /**
-     * Reserved hash map key.
-     * This is used by specific application developer extensions to MirrorCache
-     * to establish a custom hierarchy of data.
-     * This key acts as the custom hierarchy root node.
-     * This is the only key that is hardcoded and not automatically generated for the developer by {@link IMirrorCache#genKey()}
-     */
-    public static final long ROOT_KEY = Long.MIN_VALUE;
-
-    /**
      * represents flag for invoking shunt optimization
      */
     private static final int SHUNT_PID = -1;
 
     private static final int PID = android.os.Process.myPid();
+
+    // A default value used for determining message origin.
+    public static final String MAGIC_STRING = "010101";
 
     private int pollInterval = POLL_INTERVAL_LAID_BACK;
 
@@ -112,21 +109,10 @@ public class MirrorCache {
     private volatile boolean mirrored = false;
 
     // mirrored cache synced with MirrorCacheService masterCache
-    protected static final HashMap<Long, MirrorCacheParcelable> mirrorCache = new HashMap<Long, MirrorCacheParcelable>();
-
-    /**
-     * Quick cross reference to convert keys to GUIDs
-     */
-    protected static final HashMap<Long, String> keyToGuid = new HashMap<Long, String>();
-
-    /**
-     * Quick cross reference to convert GUIDs to keys
-     */
-    protected static final HashMap<String, Long> guidToKey = new HashMap<String, Long>();
-
+    private static final Map<String, MirrorCacheParcelable> mirrorCache = new HashMap<>();
 
     // list of state change listeners this is traversed in MirrorCache.setState()
-    private static final ArrayList<IMirrorCacheStateChangeListener> mcStateListeners= new ArrayList<IMirrorCacheStateChangeListener>();
+    private static final List<IMirrorCacheStateChangeListener> mcStateListeners = new ArrayList<>();
 
     private static WaitToBindThread waitToBind = null;
 
@@ -187,7 +173,7 @@ public class MirrorCache {
             return appContext.getPackageName();
         }
         @Override
-        public void onUpdate(int pid, MirrorCacheParcelable in, long pk, String guid) {
+        public void onUpdate(int pid, MirrorCacheParcelable in, String pk) {
             //Log.d(TAG, "onUpdate key " + in.mirrorKey + " parent " + pk + " " + ((guid==null)?"null":guid));
 
             MirrorCacheParcelable p = in;
@@ -226,15 +212,11 @@ public class MirrorCache {
 
 
             mirrorCache.put(p.mirrorKey, p);
-            if (pk != -1) {
+            if (!pk.equals(MAGIC_STRING)) {
                 onMap(pk, p.mirrorKey);
             }
-            if (guid != null) {
-                guidToKey.put(guid, p.mirrorKey);
-                keyToGuid.put(p.mirrorKey, guid);
-            }
 
-            // notify listenners
+            // notify listeners
 //                Log.d(TAG, "onUpdate notify parcelable listeners");
             if (pid != SHUNT_PID) {
                 p.onUpdate(); //notify individual instance listeners
@@ -243,7 +225,7 @@ public class MirrorCache {
         }
 
         @Override
-        public void onDelete(int pid, long key) {
+        public void onDelete(int pid, String key) {
 //            Log.d(TAG, "onDelete key " + key);
             final MirrorCacheParcelable p = mirrorCache.remove(key);
             if (p != null) {
@@ -258,11 +240,7 @@ public class MirrorCache {
         }
 
         @Override
-        public void onNoop() {
-        }
-
-        @Override
-        public void onMap(long parentKey, long childKey) {
+        public void onMap(String parentKey, String childKey) {
             MirrorCacheParcelable p = mirrorCache.get(parentKey);
             if (p == null) {
                 Log.e(TAG, "mirror cache out of sync");
@@ -276,7 +254,7 @@ public class MirrorCache {
         }
 
         @Override
-        public void onUnmap(long parentKey, long childKey) {
+        public void onUnmap(String parentKey, String childKey) {
             MirrorCacheParcelable p = mirrorCache.get(parentKey);
             if (p == null) {
                 Log.e(TAG, "mirror cache out of sync");
@@ -306,6 +284,27 @@ public class MirrorCache {
      */
     public void onCreate(Context c, String packageName, String className, int pollInterval) {
         Log.d(TAG, "onCreate (" + packageName + " " + className + ")");
+
+        /* final Timer timer = new Timer("StatusTimer");
+        timer.schedule(
+            new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+
+                        Log.v(TAG, "    " + mirrorCache.size() + " mirrorCache registered:");
+                        for (Map.Entry<String, MirrorCacheParcelable> entry : mirrorCache.entrySet()) {
+                            Log.v(TAG, "        [" + entry.getKey() + "] " + entry.getValue());
+                        }
+                        Log.v(TAG, "    " + mirrorCache.size() + " items in mirrorCache.");
+
+                        Log.v(TAG, " ");
+
+                    } catch (Throwable t) {
+                        Log.e(TAG, "ERROR: " + t.getMessage(), t);
+                    }
+                }
+            }, 1000L, 5 * 1000L); // every 5 seconds */
 
         /* start state transition initialization sequence */
         if (state == MirrorCacheState.STATE_0_NULL) {
@@ -355,45 +354,23 @@ public class MirrorCache {
 
         // clear all static members, otherwise listeners that are hanging around will cause an exception
         mirrorCache.clear();
-        keyToGuid.clear();
-        guidToKey.clear();
         mcStateListeners.clear();
 
-        // waitToBind is handled by setting state to STATE_0_NULL
+        // NOTE: waitToBind thread is handled by setting state to STATE_0_NULL
     }
 
     /**
      * Get all the mirrorable objects stored in the mirror cache
      * @return array list of mirrorable objects
      */
-    public ArrayList<IMirrorable> values() {
+    public List<IMirrorable> values() {
         waitForMirror();
 
-        final ArrayList<IMirrorable> al = new ArrayList<IMirrorable>();
+        final List<IMirrorable> al = new ArrayList<>();
         for (MirrorCacheParcelable p : mirrorCache.values()) {
             al.add(p.payloadObject);
         }
         return al;
-    }
-
-    /**
-     * Test method for excercising IPC bounds without actually transferring any objects.
-     * This is meant to establish the IPC and function call overhead>
-     * It is made deprecated since the end developer should not use it.
-     */
-    @Deprecated
-    public void noop() {
-        waitForMirror();
-
-        try {
-            mirrorCacheService.noop(PID);
-        } catch (RemoteException e) {
-            Log.e(TAG, "ERROR: " + e.getMessage(), e);
-
-            changeState(MirrorCacheState.STATE_0_NULL);
-            changeState(MirrorCacheState.STATE_1_INIT_WAIT_TO_BIND);
-            noop();
-        }
     }
 
     /**
@@ -411,31 +388,11 @@ public class MirrorCache {
     }
 
     /**
-     * Obtain the mirrorable object denoted by the unique id string
-     * @param guid globally unique ID for obtaining the desired object
-     * @return the desired object identified by guid
-     */
-    public IMirrorable get(String guid) {
-        waitForMirror();
-
-        Long key = guidToKey.get(guid);
-        if (key == null) return null;
-
-        MirrorCacheParcelable mb = mirrorCache.get(key);
-        if (mb == null) return null;
-
-        // no need to inflate object unless its actually needed
-        // this may slow down first render loop
-        //if (mb.payloadObject == null) mb.inflate();
-        return mb.payloadObject;
-    }
-
-    /**
      * Obtain the mirrorable object denoted by the mirror cache provided key
      * @param key globally unique mirror cache generated key for obtaining the desired object
      * @return the desired object identified by key
      */
-    public IMirrorable get(long key) {
+    public IMirrorable get(String key) {
         waitForMirror();
 
         MirrorCacheParcelable mb = mirrorCache.get(key);
@@ -452,19 +409,19 @@ public class MirrorCache {
      * @param o the parent mirrorable object
      * @return a list of child mirrorable objects
      */
-    public ArrayList<IMirrorable> getChildren(IMirrorable o) {
+    public List<IMirrorable> getChildren(IMirrorable o) {
         waitForMirror();
 
         if (o == null) return null;
-        Long mirrorKey = o.getMirrorKey();
+        String mirrorKey = o.getMirrorKey();
         if (mirrorKey == null) return null;
         MirrorCacheParcelable p = mirrorCache.get(mirrorKey);
         if (p == null) return null;
         if (p.contentsKeys == null) return null;
         //if (p.contentsKeys.size() == 0) return null;
 
-        ArrayList<IMirrorable> al = new ArrayList<IMirrorable>();
-        for (Long nextKey : p.contentsKeys) {
+        List<IMirrorable> al = new ArrayList<>();
+        for (String nextKey : p.contentsKeys) {
             //Log.d(TAG, "load children from key " + nextKey);
             MirrorCacheParcelable mcp = mirrorCache.get(nextKey);
             if (mcp != null) {
@@ -483,12 +440,12 @@ public class MirrorCache {
      * @param o the parent mirrorable object
      * @return a list of mirror cache generated object keys representing the children
      */
-    public ArrayList<Long> getChildKeys(IMirrorable o) {
+    public List<String> getChildKeys(IMirrorable o) {
         waitForMirror();
 
         if (o == null) return null;
 
-        Long mirrorKey = o.getMirrorKey();
+        String mirrorKey = o.getMirrorKey();
         if (mirrorKey == null) return null;
 
         MirrorCacheParcelable p = mirrorCache.get(mirrorKey);
@@ -499,11 +456,11 @@ public class MirrorCache {
 
     /**
      * non atomic update has potential for race conditions when establishing new keys, guids and parent child mapping
-     * @see MirrorCache#update(IMirrorable, IMirrorable, String)
+     * @see MirrorCache#update(IMirrorable, IMirrorable)
      *
      */
     public void update(IMirrorable m) {
-        update(m, null, null);
+        update(m, null);
     }
 
     /**
@@ -511,13 +468,11 @@ public class MirrorCache {
      *
      * @param m mirrorable object to be updated
      * @param pm updated objects parent
-     * @param guid updated objects globally unique id
      */
-    public void update(IMirrorable m, IMirrorable pm, String guid) {
+    public void update(IMirrorable m, IMirrorable pm) {
         waitForMirror();
 
         Log.d(TAG, "update");
-        Log.d(TAG, "guid: " + guid);
 
         if (m == null) {
             Log.e(TAG, "attempting to cache null Mirrorable object");
@@ -525,14 +480,10 @@ public class MirrorCache {
         }
         try {
             if (m.getMirrorKey() == null) {
-//            Log.e(TAG, "update with assigned key...");
-                m.setMirrorKey(mirrorCacheService.genKey());  // This is the auto key gen capability
-//            Log.e(TAG, "update with server generated key " + m.getMirrorKey());
-            } else {
-//            Log.e(TAG, "update with existing key " + m.getMirrorKey());
+                m.setMirrorKey(UUID.randomUUID().toString());
             }
 
-            long key = m.getMirrorKey();
+            String key = m.getMirrorKey();
 
             MirrorCacheParcelable p = mirrorCache.get(key);
             if (p == null) {
@@ -541,19 +492,22 @@ public class MirrorCache {
             p.mirrorKey = key;
             p.payloadObject = m;
 
-            long pk = -1;
-            if (pm != null) pk = pm.getMirrorKey();
+            String pk = MAGIC_STRING;
+            if (pm != null) {
+                pk = pm.getMirrorKey();
+            }
             p.payloadValid = false; // invalidate byte buffer to force parcelable to serialize it
-            mirrorCacheService.update(PID, p, pk, guid);
+
+            mirrorCacheService.update(PID, p, pk); // update remote
             // apply the shunt, purposely bypass MirrorCacheService callback
-            mirrorCacheListener.onUpdate(SHUNT_PID, p, pk, guid);
+            mirrorCacheListener.onUpdate(SHUNT_PID, p, pk); // update local
 
         } catch (RemoteException e) {
             Log.e(TAG, "ERROR: " + e.getMessage(), e);
 
             changeState(MirrorCacheState.STATE_0_NULL);
             changeState(MirrorCacheState.STATE_1_INIT_WAIT_TO_BIND);
-            update(m, pm, guid);
+            update(m, pm);
         }
     }
 
@@ -568,13 +522,13 @@ public class MirrorCache {
         waitForMirror();
 
 //        Log.d(TAG, "map");
-        long pk = pm.getMirrorKey();
-        long ck = cm.getMirrorKey();
+        String pk = pm.getMirrorKey();
+        String ck = cm.getMirrorKey();
         MirrorCacheParcelable pp = mirrorCache.get(pk);
         MirrorCacheParcelable cp = mirrorCache.get(ck);
 
         if ((pp == null) || (cp == null)) {
-            Log.e(TAG, "map() cache is effed");
+            Log.e(TAG, "map() cache is troubled");
         }
 
         try {
@@ -598,8 +552,8 @@ public class MirrorCache {
         waitForMirror();
 
 //        Log.d(TAG, "map");
-        long pk = pm.getMirrorKey();
-        long ck = cm.getMirrorKey();
+        String pk = pm.getMirrorKey();
+        String ck = cm.getMirrorKey();
         MirrorCacheParcelable pp = mirrorCache.get(pk);
         MirrorCacheParcelable cp = mirrorCache.get(ck);
 
@@ -623,7 +577,7 @@ public class MirrorCache {
      * Remove the mirrorable object from the mirror cache
      * @param key the mirror cache generated key representing the object to be removed
      */
-    private void doDelete(long key) {
+    private void doDelete(String key) {
         waitForMirror();
 
         try {
@@ -647,10 +601,7 @@ public class MirrorCache {
     public void delete(String guid) {
         waitForMirror();
 
-        final Long key = guidToKey.get(guid);
-        if (key != null) {
-            doDelete(key);
-        }
+        doDelete(guid);
     }
 
     /**
@@ -662,7 +613,7 @@ public class MirrorCache {
         waitForMirror();
 
         Log.d(TAG, "dump");
-        for (Long key : mirrorCache.keySet()) {
+        for (String key : mirrorCache.keySet()) {
             Log.d(TAG, "dump key " + key);
 
             MirrorCacheParcelable mb = null;
@@ -834,16 +785,12 @@ public class MirrorCache {
                             @Override
                             public void run() {
                                 try {
-                                    Log.d(TAG, guidToKey.entrySet().size() + " GUID entries");
                                     Log.d(TAG, "freeing all references in the mirror cache");
                                     // remnove all listening references too!
                                     for (MirrorCacheParcelable m : mirrorCache.values()) {
                                         m.removeListeners();
                                     }
                                     mirrorCache.clear();
-                                    guidToKey.clear();
-                                    keyToGuid.clear();
-                                    Log.d(TAG, guidToKey.entrySet().size() + " GUID entries");
                                     Log.d(TAG, "calling mirror method");
                                     MirrorCache.mirrorCacheService.mirror(MirrorCache.PID, MirrorCache.this.mirrorCacheListener);
                                     Log.d(TAG, "mirroring complete");

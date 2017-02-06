@@ -1,0 +1,123 @@
+<!-- fragment_edit_name.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/camera"
+    android:layout_width="wrap_content" android:layout_height="wrap_content"
+    android:layout_gravity="center" android:orientation="vertical"  >
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="horizontal"  >
+
+        <TextView
+            android:id="@+id/lbl_latitude" android:text="Latitude: "
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"/>
+
+        <EditText
+            android:id="@+id/latitude"
+            android:layout_width="100dip"  android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:imeOptions="actionDone"
+            android:layout_gravity="left"/>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="horizontal"  >
+
+        <TextView
+            android:id="@+id/lbl_longitude" android:text="Longitude: "
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"/>
+
+        <EditText
+            android:id="@+id/longitude"
+            android:layout_width="100dip"  android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:imeOptions="actionDone"
+            android:layout_gravity="left"/>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="horizontal"  >
+
+        <!-- TextView
+            android:id="@+id/lbl_altitude_mode" android:text="Mode: "
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"/ -->
+
+        <Spinner
+            android:id="@+id/altitude_mode"
+            android:layout_width="180dip"  android:layout_height="wrap_content"
+            android:layout_gravity="left"/>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="horizontal"  >
+
+        <TextView
+            android:id="@+id/lbl_altitude" android:text="Altitude: "
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"/>
+
+        <EditText
+            android:id="@+id/altitude"
+            android:layout_width="100dip"  android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:imeOptions="actionDone"
+            android:layout_gravity="left"/>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="horizontal"  >
+
+        <TextView
+            android:id="@+id/lbl_heading" android:text="Heading: "
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"/>
+
+        <EditText
+            android:id="@+id/heading"
+            android:layout_width="100dip"  android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:imeOptions="actionDone"
+            android:layout_gravity="left"/>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="horizontal"  >
+
+        <TextView
+            android:id="@+id/lbl_tilt" android:text="Tilt: "
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"/>
+
+        <EditText
+            android:id="@+id/tilt"
+            android:layout_width="100dip"  android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:imeOptions="actionDone"
+            android:layout_gravity="left"/>
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" android:orientation="horizontal"  >
+
+        <TextView
+            android:id="@+id/lbl_roll_range" android:text="Roll: "
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"/>
+
+        <EditText
+            android:id="@+id/roll_range"
+            android:layout_width="100dip"  android:layout_height="wrap_content"
+            android:inputType="numberDecimal|numberSigned"
+            android:imeOptions="actionDone"
+            android:layout_gravity="left"/>
+    </LinearLayout>
+</LinearLayout>

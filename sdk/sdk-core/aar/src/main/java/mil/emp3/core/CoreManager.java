@@ -125,10 +125,26 @@ public class CoreManager implements ICoreManager {
     public void processCameraSettingChange(ICamera camera, boolean animate) {
         //storageManager.processCameraSettingChange(camera);
         eventManager.generateCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, camera, animate);
+        List<IClientMapToMapInstance> mappings = storageManager.getMappings(camera);
+        if(null != mappings) {
+            for(IClientMapToMapInstance mapping : mappings) {
+                if(null != mapping.getMapInstance()) {
+                    mapping.getMapInstance().applyCameraChange(camera, animate);
+                }
+            }
+        }
     }
 
     public void processLookAtSettingChange(ILookAt lookAt, boolean animate) {
         eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_IN_MOTION, lookAt, animate);
+        List<IClientMapToMapInstance> mappings = storageManager.getMappings(lookAt);
+        if(null != mappings) {
+            for(IClientMapToMapInstance mapping : mappings) {
+                if(null != mapping.getMapInstance()) {
+                    mapping.getMapInstance().applyLookAtChange(lookAt, animate);
+                }
+            }
+        }
     }
 
 

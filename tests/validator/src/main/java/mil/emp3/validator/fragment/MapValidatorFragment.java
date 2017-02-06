@@ -1,5 +1,6 @@
 package mil.emp3.validator.fragment;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.IMapStateChangeEventListener;
+import mil.emp3.validator.ContentActivity;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.validator.R;
 import mil.emp3.validator.ValidatorStateManager;
@@ -46,6 +48,9 @@ public class MapValidatorFragment extends Fragment {
                 Log.d(TAG, "onClick");
 
                 final ManagedMapFragment mapFragment = ValidatorStateManager.getInstance().createMapFragment();
+                ContentActivity activity = (ContentActivity)MapValidatorFragment.this.getActivity();
+                mapFragment.setComplete(activity.getComplete());
+                mapFragment.setCancel(activity.getCancel());
                 getFragmentManager().beginTransaction().replace(R.id.content_fragment, mapFragment.get(), "map_fragment").commit();
 
                 // TODO create 'loading' screen
@@ -61,7 +66,10 @@ public class MapValidatorFragment extends Fragment {
                         Log.d(TAG, "mapEngineAppId: " + mapEngineAppId);
 
                         final ICamera camera = new Camera();
-                        camera.setAltitude(1e7);
+                        // Location set to Aberdeen, Maryland approximately
+                        camera.setLongitude(-76.2);
+                        camera.setLatitude(39.5);
+                        camera.setAltitude(1e5);
 
                         try {
                             final IMap map = (IMap) getFragmentManager().findFragmentByTag("map_fragment");
@@ -78,7 +86,7 @@ public class MapValidatorFragment extends Fragment {
                                 @Override
                                 public void onEvent(MapStateChangeEvent e) {
                                     Log.d(TAG, "onEvent: " + e.getNewState());
-
+                                    mapFragment.setRootOverlay();
                                     getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                     getFragmentManager().beginTransaction().replace(R.id.sideNav_fragment, new SideNavFragment()).commit();
                                 }

@@ -28,12 +28,14 @@ import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
+import mil.emp3.api.events.FeatureDrawEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.listeners.IDrawEventListener;
+import mil.emp3.api.listeners.IFeatureDrawEventListener;
 import mil.emp3.api.utils.BasicUtilities;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.FeatureUtils;
@@ -68,6 +70,7 @@ public class DrawFeatureTest extends TestBaseMultiMap {
 
         IFeature feature;
         List<String> eventReceived = new ArrayList<>();
+        boolean testingExceptions = false;
 
         String getNextEventReceived() {
 
@@ -89,11 +92,18 @@ public class DrawFeatureTest extends TestBaseMultiMap {
         public FeatureDrawListener(IFeature feature) {
             this.feature = feature;
         }
+        public FeatureDrawListener(IFeature feature, boolean testingExceptions) {
+            this.feature = feature;
+            this.testingExceptions = testingExceptions;
+        }
 
         @Override
         public void onDrawStart(IMap map) {
             Log.d(TAG, "onDrawStart " + feature.getName());
             eventReceived.add("onDrawStart");
+            if(testingExceptions) {
+                throw new IllegalStateException("onDrawStart");
+            }
         }
 
         @Override
@@ -126,6 +136,10 @@ public class DrawFeatureTest extends TestBaseMultiMap {
                         break;
                 }
             }
+
+            if(testingExceptions) {
+                throw new IllegalStateException("onDrawUpdate");
+            }
         }
 
         @Override
@@ -136,18 +150,27 @@ public class DrawFeatureTest extends TestBaseMultiMap {
             for(int ii = 0; ii < feature.getPositions().size(); ii++ ) {
                 Log.d(TAG, "pos " + ii + " lat/lon " + feature.getPositions().get(ii).getLatitude() + "/" + feature.getPositions().get(ii).getLongitude());
             }
+            if(testingExceptions) {
+                throw new IllegalStateException("onDrawComplete");
+            }
         }
 
         @Override
         public void onDrawCancel(IMap map, IFeature originalFeature) {
             Log.d(TAG, "onDrawCancel " + originalFeature);
             eventReceived.add("onDrawCancel");
+            if(testingExceptions) {
+                throw new IllegalStateException("onDrawCancel");
+            }
         }
 
         @Override
         public void onDrawError(IMap map, String errorMessage) {
             Log.d(TAG, "onDrawError ");
             eventReceived.add("onDrawError");
+            if(testingExceptions) {
+                throw new IllegalStateException("onDrawError");
+            }
         }
     }
 
@@ -174,6 +197,7 @@ public class DrawFeatureTest extends TestBaseMultiMap {
      * @throws Exception
      */
     private void postDrawFeature(FeatureDrawListener fdl, Polygon polygon) throws Exception {
+        Thread.sleep(1000, 0);
         Assert.assertEquals("Map should be UNLOCKED", MapMotionLockEnum.UNLOCKED, remoteMap[0].getMotionLockMode());
         Assert.assertEquals("Editor Mode should be DRAW_MODE", EditorMode.DRAW_MODE, remoteMap[0].getEditorMode());
 
@@ -370,16 +394,19 @@ public class DrawFeatureTest extends TestBaseMultiMap {
         addCoordinate(fdl, 40.0, -40.0, 0.0);
 
         List<String> featureTypes = buildFeatureTypesList(true, 1);
+        Thread.sleep(1000,0);
         Assert.assertTrue(mapInstance[0].validateAddTypes(featureTypes));
 
         addCoordinate(fdl, 40.0, -41.0, 0.0);
         featureTypes = buildFeatureTypesList(true, 3);
+        Thread.sleep(1000,0);
         Assert.assertTrue(mapInstance[0].validateAddTypes(featureTypes));
 
         addCoordinate(fdl, 40.5, -40.5, 0.0);
         List<IFeature> cpList = mapInstance[0].getControlPoints();
 
         featureTypes = buildFeatureTypesList(true, 6);
+        Thread.sleep(1000,0);
         Assert.assertTrue(mapInstance[0].validateAddTypes(featureTypes));
 
         return cpList;
@@ -444,6 +471,7 @@ public class DrawFeatureTest extends TestBaseMultiMap {
         Assert.assertTrue("Three control points will be removed.", mapInstance[0].validateRemoveCount(3));
 
         List<String> featureTypes = buildFeatureTypesList(true, 6);
+        Thread.sleep(1000,0);
         Assert.assertTrue("Reconnect/Redraw the polygon", mapInstance[0].validateAddTypes(featureTypes));
     }
 
@@ -463,6 +491,7 @@ public class DrawFeatureTest extends TestBaseMultiMap {
 
         List<IFeature> cpList = mapInstance[0].getControlPoints();
 
+        Thread.sleep(1000,0);
         Assert.assertTrue("buildQuadrilateral ", mapInstance[0].validateAddTypes(featureTypes));
 
 
@@ -580,6 +609,7 @@ public class DrawFeatureTest extends TestBaseMultiMap {
         Assert.assertEquals("Expecting one event after dragFeature", 0, fdl.getEventReceivedCount());
 
         List<String> featureTypes = buildFeatureTypesList(1, 6);
+        Thread.sleep(1000,0);
         Assert.assertTrue("drag Triangle ", mapInstance[0].validateAddTypes(featureTypes));
 
         remoteMap[0].completeDraw();
@@ -614,5 +644,69 @@ public class DrawFeatureTest extends TestBaseMultiMap {
         } finally {
             Assert.assertTrue("drawFeature Expected EM_Exception Not Supported. The feature is on the map.", exceptionGood);
         }
+    }
+
+    /**
+     * Tests drawing of a triangle on the map. Application throws exception and that should be ignored by EMP software.
+     * Exception throwing is enabled by adding a flag to the constructor.
+     * @throws Exception
+     */
+    @Test
+    public void drawTriangleTestException() throws Exception {
+
+        Polygon polygon = initializeDraw();
+        FeatureDrawListener fdl = new FeatureDrawListener(polygon, true);
+
+        remoteMap[0].drawFeature(polygon, fdl);
+        postDrawFeature(fdl, polygon);
+
+        buildTriangle(fdl);
+
+        remoteMap[0].completeDraw();
+        Thread.sleep(100);
+
+        Assert.assertEquals("Expecting one event after completeDraw", 1, fdl.getEventReceivedCount());
+        Assert.assertEquals("Expecting onDrawCancel after completeDraw", "onDrawComplete", fdl.getNextEventReceived());
+
+        Assert.assertTrue("Feature should be removed from the map", mapInstance[0].validateRemoveCount(7));
+    }
+
+    class FeatureDrawEventListener implements IFeatureDrawEventListener {
+        int featureDrawEventListener = 0;
+        @Override
+        public void onEvent(FeatureDrawEvent event) {
+            featureDrawEventListener++;
+        }
+    }
+
+    /**
+     * Tests drawing of a triangle on the map. Application throws exception and that should be ignored by EMP software.
+     * Exception throwing is enabled by adding a flag to the constructor. It also verifies that IFeatureDrawEventListener is invoked if
+     * application has registered it.
+     * @throws Exception
+     */
+    @Test
+    public void drawTriangleTestFeatureDrawEventListener() throws Exception {
+
+        Polygon polygon = initializeDraw();
+        FeatureDrawListener fdl = new FeatureDrawListener(polygon, true);
+        FeatureDrawEventListener fdel = new FeatureDrawEventListener();
+        remoteMap[0].addFeatureDrawEventListener(fdel);
+
+        remoteMap[0].drawFeature(polygon, fdl);
+        postDrawFeature(fdl, polygon);
+
+        buildTriangle(fdl);
+
+        remoteMap[0].completeDraw();
+        Thread.sleep(100);
+
+        Assert.assertEquals("Expecting one event after completeDraw", 1, fdl.getEventReceivedCount());
+        Assert.assertEquals("Expecting onDrawCancel after completeDraw", "onDrawComplete", fdl.getNextEventReceived());
+
+        Assert.assertTrue("Feature should be removed from the map", mapInstance[0].validateRemoveCount(7));
+
+        Log.d(TAG, "featureDrawEventListener invoked " + fdel.featureDrawEventListener);
+        Assert.assertEquals("FeatureDrawEventListener should be invoked", 5, fdel.featureDrawEventListener );
     }
 }

@@ -7,6 +7,9 @@ import mil.emp3.mapengine.listeners.MapInstanceStateChangeEventListener;
 import mil.emp3.mapengine.listeners.MapInstanceUserInteractionEventListener;
 import mil.emp3.mapengine.listeners.MapInstanceViewChangeEventListener;
 
+/*
+ * This is an internal interface class.  The app developer must not implement this interface.
+ */
 public interface IMapInstanceEventHandler extends MapInstanceFeatureUserInteractionEventListener,
                                                   MapInstanceUserInteractionEventListener,
                                                   MapInstanceStateChangeEventListener,

@@ -3,6 +3,9 @@ package mil.emp3.core.editors.milstd;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -45,7 +48,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *
  */
 public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
-    private java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
 
     public MilStdAutoShapeEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, symDef);
@@ -60,7 +62,7 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         // We set the radius to 2/5 of the camera altitude.
         double distance = cameraPos.getAltitude() / 5.0;
         IGeoPosition pos;
@@ -73,7 +75,7 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
         // For drawing we remove all positions and start from scratch.
         posList.clear();
 
-        switch (this.symbol.getBasicSymbol()) {
+        switch (this.oFeature.getBasicSymbol()) {
             case CoreMilStdUtilities.TASK_CORDON_SEARCH:
             case CoreMilStdUtilities.TASK_CORDON_KNOCK:
             case CoreMilStdUtilities.TASK_ISOLATE:
@@ -127,12 +129,12 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int posCnt = posList.size();
         IGeoPosition pos;
         ControlPoint controlPoint;
 
-        switch (this.symbol.getBasicSymbol()) {
+        switch (this.oFeature.getBasicSymbol()) {
             case CoreMilStdUtilities.TASK_CORDON_SEARCH:
             case CoreMilStdUtilities.TASK_CORDON_KNOCK:
             case CoreMilStdUtilities.TASK_ISOLATE:
@@ -172,10 +174,10 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
     }
 
     @Override
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition eventPos) {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition eventPos) {
+        List<IGeoPosition> posList = this.getPositions();
 
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         if (posList.size() < this.getMaxPoints()) {
             IGeoPosition pos = new GeoPosition();
@@ -185,14 +187,15 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
             pos.setLongitude(eventPos.getLongitude());
             pos.setAltitude(0);
             controlPoint.setPosition(pos);
-            this.cpList.add(controlPoint);
+            cpList.add(controlPoint);
             posList.add(pos);
             this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{controlPoint.getCPIndex()});
         }
-        return this.cpList;
+        return cpList;
     }
 
-    private void moveCircleCP(ControlPoint controlPoint, IGeoPosition eventPos) {
+    private boolean moveCircleCP(ControlPoint controlPoint, IGeoPosition eventPos) {
+        boolean moved = false;
 
         switch (controlPoint.getCPIndex()) {
             case 0: {
@@ -211,15 +214,15 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                     if (cp2 == null) {
                         // Now move the 2nd position.
                         cp2.moveControlPoint(bearing, distance);
-                        cpList.add(cp2);
+                        moved = true;
                     }
                 } else {
                     // Now move the 2nd position.
                     cp2.moveControlPoint(bearing, distance);
-                    cpList.add(cp2);
+                    moved = true;
                 }
 
-                cpList.add(controlPoint);
+                moved = true;
 
                 // Add update data.
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0,1});
@@ -231,19 +234,21 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                 // Move the position.
                 pos.setLatitude(eventPos.getLatitude());
                 pos.setLongitude(eventPos.getLongitude());
-                cpList.add(controlPoint);
+                moved = true;
 
                 // Add update data.
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{1});
                 break;
             }
         }
+        return moved;
     }
 
-    private void moveConcentricCircle(ControlPoint controlPoint, IGeoPosition eventPos) {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+    private boolean moveConcentricCircle(ControlPoint controlPoint, IGeoPosition eventPos) {
+        List<IGeoPosition> posList = this.getPositions();
         int[] intList = new int[posList.size()];
         ControlPoint tempCP;
+        boolean moved = false;
 
         switch (controlPoint.getCPIndex()) {
             case 0: {
@@ -253,14 +258,14 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                 controlPoint.getPosition().setLatitude(eventPos.getLatitude());
                 controlPoint.getPosition().setLongitude(eventPos.getLongitude());
                 intList[0] = 0;
-                this.cpList.add(controlPoint);
+                moved = true;
 
                 for (int index = 1; index < posList.size(); index++) {
                     tempCP = this.findControlPoint(ControlPoint.CPTypeEnum.RADIUS_CP, index, -1);
                     if (tempCP != null) {
                         tempCP.moveControlPoint(bearingOfMotion, distanceOfMotion);
                         intList[index] = index;
-                        this.cpList.add(tempCP);
+                        moved = true;
                     }
                 }
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, intList);
@@ -268,6 +273,13 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                 break;
             }
             default: {
+                int index = controlPoint.getCPIndex();
+
+                controlPoint.getPosition().setLatitude(eventPos.getLatitude());
+                controlPoint.getPosition().setLongitude(eventPos.getLongitude());
+                moved = true;
+                this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{index});
+/*
                 double previousRange = 0;
                 double nextRange = Double.POSITIVE_INFINITY;
                 double newRange = GeoLibrary.computeDistanceBetween(posList.get(0), eventPos);
@@ -294,26 +306,28 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{index});
                     }
                 }
+*/
                 break;
             }
         }
+        return moved;
     }
 
     @Override
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition eventPos) {
-        this.cpList.clear();
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition eventPos) {
+        boolean moved = false;
 
-        switch (this.symbol.getBasicSymbol()) {
+        switch (this.oFeature.getBasicSymbol()) {
             case CoreMilStdUtilities.TASK_ISOLATE:
             case CoreMilStdUtilities.TASK_OCCUPY:
             case CoreMilStdUtilities.TASK_RETIAN:
             case CoreMilStdUtilities.TASK_SECURE:
             case CoreMilStdUtilities.TASK_CORDON_SEARCH:
             case CoreMilStdUtilities.TASK_CORDON_KNOCK:
-                this.moveCircleCP(oCP, eventPos);
+                moved = moveCircleCP(oCP, eventPos);
                 break;
             case CoreMilStdUtilities.MS_NBC_MINIMUM_SAFE_DISTANCE_ZONES:
-                this.moveConcentricCircle(oCP, eventPos);
+                moved = moveConcentricCircle(oCP, eventPos);
                 break;
             default: {
                 IGeoPosition pos = oCP.getPosition();
@@ -321,7 +335,7 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                 // Move the position.
                 pos.setLatitude(eventPos.getLatitude());
                 pos.setLongitude(eventPos.getLongitude());
-                cpList.add(oCP);
+                moved = true;
 
                 // Add update data.
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{oCP.getCPIndex()});
@@ -329,6 +343,6 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
             }
         }
 
-        return this.cpList;
+        return moved;
     }
 }

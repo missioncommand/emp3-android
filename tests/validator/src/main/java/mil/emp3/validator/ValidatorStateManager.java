@@ -2,9 +2,11 @@ package mil.emp3.validator;
 
 import org.cmapi.primitives.IGeoAltitudeMode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import mil.emp3.api.Camera;
 import mil.emp3.api.MapFragment;
@@ -24,6 +26,7 @@ public class ValidatorStateManager {
     final private Map<String, ManagedOverlay> overlays;
     final private Map<String, ManagedCamera> cameras;
     final private Map<String, ManagedWms> wmses;
+    private String currentOverlay = null;
 
     private ValidatorStateManager() {
         maps     = new HashMap<>();
@@ -48,9 +51,22 @@ public class ValidatorStateManager {
         final ManagedOverlay managedOverlay = new ManagedOverlay(new Overlay());
         managedOverlay.get().setName(name);
 
-        overlays.put(managedOverlay.getId(), managedOverlay);
+//        overlays.put(managedOverlay.getId(), managedOverlay);
+        overlays.put(name, managedOverlay);
 
         return managedOverlay;
+    }
+
+    public void setCurrentOverlay(String name) {
+        currentOverlay = name;
+    }
+
+    public String getCurrentOverlay() {
+        return currentOverlay;
+    }
+
+    public ArrayList<String> getOverlayNames() {
+        return new ArrayList<String>(overlays.keySet());
     }
 
     public ManagedCamera createCamera(String name, double latitude, double longitude, double altitude, double roll, double tilt, double heading, String altitudeMode) {

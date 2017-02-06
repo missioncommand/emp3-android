@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include android:id="@+id/graphic_icon_size" layout="@layout/enumeration_selection" />
+    <include android:id="@+id/graphic_mil_std_labels" layout="@layout/enumeration_selection" />
+    <include android:id="@+id/graphic_font_size_modifier" layout="@layout/enumeration_selection" />
+
+    <Button
+        android:id="@+id/done"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="Done" />
+</LinearLayout>
