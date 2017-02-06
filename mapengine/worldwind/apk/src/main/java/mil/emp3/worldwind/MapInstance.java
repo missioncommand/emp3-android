@@ -1203,14 +1203,22 @@ public class MapInstance extends CoreMapInstance {
         Log.d(TAG, "Brightness processed (" + backgroundBrightness + ").");
     }
 
+    /**
+     * What you’re trying to do is one of our intended use cases, and is achieved by assembling the ‘hatch’ grid lines in white,
+     * rather than black. Said another way, the template Bitmap must be filled with white pixels and transparent pixels.
+     * World Wind shapes supporting an image and an attribute color are rendered by multiplying each image pixel's RGBA color
+     * by the attribute’s RGBA color. We call this rendering mode modulation. This happens on the GPU and has no performance cost.
+     * A white/transparent Bitmap therefore acts as a color template, since modulation replaces white pixels with the attribute color
+     * but leaves transparent pixels unchanged.
+     */
     private void setHatchPatterns() {
         int transparent = android.graphics.Color.argb(0, 0, 0, 0);
 
         for (int y = 0; y < HATCH_SIZE; y++) {
             for (int x = 0; x < HATCH_SIZE; x++) {
                 if (y == x || (y - 1) == x || y == (x - 1)) {
-                    hatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, Color.BLACK);
-                    crossHatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, Color.BLACK);
+                    hatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, Color.WHITE);
+                    crossHatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, Color.WHITE);
                 } else {
                     hatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, transparent);
                     crossHatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, transparent);
@@ -1220,7 +1228,7 @@ public class MapInstance extends CoreMapInstance {
             // in the cross hatch bitmap
             for (int x = 0; x < HATCH_SIZE; x++) {
                 if (y == x || (y - 1) == x || y == (x - 1)) {
-                    crossHatchBitmap.setPixel(x, y, Color.BLACK);
+                    crossHatchBitmap.setPixel(x, y, Color.WHITE);
                 }
             }
         }
