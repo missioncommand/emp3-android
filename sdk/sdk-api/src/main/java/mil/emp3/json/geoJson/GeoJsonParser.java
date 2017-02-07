@@ -28,7 +28,7 @@ import mil.emp3.api.utils.EmpGeoColor;
 public class GeoJsonParser {
 
     private final static String TAG = GeoJsonParser.class.getSimpleName();
-    private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
 
     /**
      * Parses GeoJSON formatted string and returns a feature list
