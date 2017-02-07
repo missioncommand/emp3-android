@@ -127,7 +127,7 @@ import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
 import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
-import mil.emp3.json.geoJson.EmpGeoJsonParser;
+import mil.emp3.json.geoJson.GeoJsonParser;
 import mil.emp3.worldwind.utils.SystemUtils;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
@@ -1594,8 +1594,8 @@ public class MainActivity extends AppCompatActivity
                 try {
                     // Sample geoJSON from CMAPI 1.2 document, edited for correctness
                     InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.cmapi);
-                    EmpGeoJsonParser emp = new EmpGeoJsonParser(stream);
-                    for (IFeature feature : emp.getFeatureList()) {
+                    List<IFeature> featureList = GeoJsonParser.parse(stream);
+                    for (IFeature feature : featureList) {
                         this.oRootOverlay.addFeature(feature, true);
                         this.oFeatureHash.put(feature.getGeoId(), feature);
                     }
