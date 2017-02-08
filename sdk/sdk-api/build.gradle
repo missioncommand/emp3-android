@@ -86,6 +86,15 @@ publishing.publications {
         groupId    = project.ext.group
         artifactId = project.name
         version    = project.version
+
+        pom.withXml {
+            configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each
+                    { dep ->
+                        if (dep.moduleName.equals("google-maps-android-cmgn")) {
+                            asNode().dependencies[0].dependency?.scope[0]?.value = 'compile'
+                        }
+                    }
+        }
     }
 }
 
