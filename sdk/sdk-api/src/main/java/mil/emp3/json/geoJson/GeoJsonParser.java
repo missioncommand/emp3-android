@@ -43,6 +43,7 @@ public class GeoJsonParser {
             JsonValue value = Json.parse(reader);
             return parseJsonObject(value);
         } catch (Exception ioe) {
+            ioe.printStackTrace();
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "GeoJSON input error");
         }
     }
@@ -66,20 +67,32 @@ public class GeoJsonParser {
             try {
                 JsonObject object = value.asObject();
                 String objectType = object.get("type").asString();
-                if (objectType.equals("FeatureCollection")) {
-                    JsonArray featureArray = object.get("features").asArray();
-                    for (JsonValue feature : featureArray) {
-                        parseFeature(featureList, feature.asObject());
-                    }
-                } else if (objectType.equals("Feature")) {
-                    parseFeature(featureList, object);
-                } else if (objectType.equals("GeometryCollection")) {
-                    JsonArray geometryArray = object.get("geometries").asArray();
-                    for (JsonValue geometry : geometryArray) {
-                        parseGeometry(featureList, geometry.asObject(), null);
-                    }
+                switch (objectType) {
+                    case "FeatureCollection":
+                        JsonArray featureArray = object.get("features").asArray();
+                        for (JsonValue feature : featureArray) {
+                            parseFeature(featureList, feature.asObject());
+                        }
+                        break;
+                    case "Feature":
+                        parseFeature(featureList, object);
+                        break;
+                    case "Point":
+                    case "LineString":
+                    case "Polygon":
+                    case "MultiPoint":
+                    case "MultiLineString":
+                    case "MultiPolygon":
+                        parseGeometry(featureList, object, null);
+                        break;
+                    case "GeometryCollection":
+                        JsonArray geometryArray = object.get("geometries").asArray();
+                        for (JsonValue geometry : geometryArray) {
+                            parseGeometry(featureList, geometry.asObject(), null);
+                        }
+                        break;
                 }
-            } catch (ParseException|java.text.ParseException e) {
+            } catch (ParseException | java.text.ParseException e) {
                 throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "GeoJSON parse error");
             }
         } else {
@@ -103,14 +116,14 @@ public class GeoJsonParser {
         if (multi) {
             String singleGeometryType = geometryType.substring(5);// Length of "Multi"
             JsonArray coordinateListList = geometry.get("coordinates").asArray();
-            for (int i = 0; i < coordinateListList.size(); i++) {
-                IFeature feature = createFeature(singleGeometryType);
-                if (feature != null) {
-                    JsonArray coordinateList = coordinateListList.get(i).asArray();
-                    parseCoordinates(feature, coordinateList);
-                    parseProperties(feature, properties);
-                    featureList.add(feature);
+            // Polygons can have "holes" so we have nested lists
+            if (singleGeometryType.equals("Polygon")) {
+                for (int i = 0; i < coordinateListList.size(); i++) {
+                    JsonArray coordinateListList2 = coordinateListList.get(i).asArray();
+                    parseCoordinateList(featureList, coordinateListList2, singleGeometryType, properties);
                 }
+            } else {
+                parseCoordinateList(featureList, coordinateListList, singleGeometryType, properties);
             }
         } else {
             IFeature feature = createFeature(geometryType);
@@ -143,6 +156,20 @@ public class GeoJsonParser {
             newFeature.setName("GeoJSON " + geometryType);  // default name, overwrite later
         }
         return newFeature;
+    }
+
+    private static void parseCoordinateList(List<IFeature> featureList, JsonArray coordinateListList,
+                                            String singleGeometryType, JsonObject properties)
+            throws ParseException, java.text.ParseException {
+        for (int i = 0; i < coordinateListList.size(); i++) {
+            IFeature feature = createFeature(singleGeometryType);
+            if (feature != null) {
+                JsonArray coordinateList = coordinateListList.get(i).asArray();
+                parseCoordinates(feature, coordinateList);
+                parseProperties(feature, properties);
+                featureList.add(feature);
+            }
+        }
     }
 
     private static void parseCoordinates(IFeature feature, JsonArray coordinateList) throws ParseException {
