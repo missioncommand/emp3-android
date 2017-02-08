@@ -1593,18 +1593,33 @@ public class MainActivity extends AppCompatActivity
 //                "\"properties\": {\"name\": \"Dinagat Islands\"}}";
                 try {
                     // Sample geoJSON from CMAPI 1.2 document, edited for correctness
-                    InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.cmapi);
+                    InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
                     List<IFeature> featureList = GeoJsonParser.parse(stream);
                     for (IFeature feature : featureList) {
                         this.oRootOverlay.addFeature(feature, true);
                         this.oFeatureHash.put(feature.getGeoId(), feature);
                     }
+                    stream.close();
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
+                    featureList = GeoJsonParser.parse(stream);
+                    for (IFeature feature : featureList) {
+                        this.oRootOverlay.addFeature(feature, true);
+                        this.oFeatureHash.put(feature.getGeoId(), feature);
+                    }
+                    stream.close();
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
+                    featureList = GeoJsonParser.parse(stream);
+                    for (IFeature feature : featureList) {
+                        this.oRootOverlay.addFeature(feature, true);
+                        this.oFeatureHash.put(feature.getGeoId(), feature);
+                    }
+                    stream.close();
                     ICamera camera = this.map.getCamera();
-                    camera.setLatitude(0);
-                    camera.setLongitude(20);
-                    camera.setAltitude(3e6);
+                    camera.setLatitude(44.5);
+                    camera.setLongitude(1);
+                    camera.setAltitude(5e5);
                     camera.apply(false);
-                } catch (EMP_Exception e) {
+                } catch (IOException|EMP_Exception e) {
                     e.printStackTrace();
                 }
                 return true;
