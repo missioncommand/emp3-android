@@ -5,14 +5,19 @@
  */
 package gov.nasa.worldwind.layers;
 
-import gov.nasa.worldwind.geom.Vec4;
+import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.geom.Location;
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Sector;
+import gov.nasa.worldwind.geom.Vec3;
 import gov.nasa.worldwind.globe.GeographicProjection;
 import gov.nasa.worldwind.globe.Globe;
 import gov.nasa.worldwind.layer.AbstractLayer;
 import gov.nasa.worldwind.render.Color;
 import gov.nasa.worldwind.render.RenderContext;
+import gov.nasa.worldwind.shape.Path;
+import gov.nasa.worldwind.util.Logger;
 
-import java.awt.*;
 import java.util.*;
 
 /**
@@ -50,7 +55,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected Globe globe;
 
     // Update reference states
-    protected Vec4 lastEyePoint;
+    protected Vec3 lastEyePoint;
     protected double lastViewHeading = 0;
     protected double lastViewPitch = 0;
     protected double lastViewFOV = 0;
@@ -278,6 +283,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
      * @return Font used to render graticule labels.
      * @throws IllegalArgumentException <code>key</code> is null.
      */
+/*
     public Font getLabelFont(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "getLabelFont", "nullValue.StringIsNull");
@@ -286,15 +292,16 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         }
         return getRenderingParams(key).getLabelFont();
     }
-
+*/
     /**
      * Sets the Font used for graticule labels.
      *
-     * @param font Font that will be used to render graticule labels.
+     //* @param font Font that will be used to render graticule labels.
      * @param key  the rendering parameters key.
      * @throws IllegalArgumentException if <code>font</code> or <code>key</code> is null.
      */
-    public void setLabelFont(Font font, String key) {
+/*
+     public void setLabelFont(Font font, String key) {
         if (font == null) {
             String message = Logger.makeMessage(TAG, "setLabelFont", "nullValue.FontIsNull");
             //Logging.logger().severe(message);
@@ -308,6 +315,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
 
         getRenderingParams(key).setLabelFont(font);
     }
+*/
 /*
     public String getRestorableState() {
         RestorableSupport rs = RestorableSupport.newRestorableSupport();
@@ -546,7 +554,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         }
 
         double altitudeAboveGround = computeAltitudeAboveGround(dc);
-        if (view.getEyePoint().distanceTo3(this.lastEyePoint) > altitudeAboveGround / 100)  // 1% of AAG
+        if (dc.cameraPoint.distanceTo(this.lastEyePoint) > altitudeAboveGround / 100)  // 1% of AAG
         {
             return true;
         }
@@ -580,21 +588,27 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected void clear(RenderContext dc) {
         this.removeAllRenderables();
         this.terrainConformance = computeTerrainConformance(dc);
-        this.globe = dc.getGlobe();
-        this.lastEyePoint = dc.getView().getEyePoint();
-        this.lastViewFOV = dc.getView().getFieldOfView().degrees;
-        this.lastViewHeading = dc.getView().getHeading().degrees;
-        this.lastViewPitch = dc.getView().getPitch().degrees;
-        this.lastVerticalExaggeration = dc.getVerticalExaggeration();
+        this.globe = dc.globe;
+        //this.lastEyePoint = dc.getView().getEyePoint();
+        this.lastEyePoint = new Vec3(dc.cameraPoint);
+        //this.lastViewFOV = dc.getView().getFieldOfView().degrees;
+        this.lastViewFOV = dc.fieldOfView;
+        //this.lastViewHeading = dc.getView().getHeading().degrees;
+        this.lastViewHeading = dc.camera.heading;
+        //this.lastViewPitch = dc.getView().getPitch().degrees;
+        this.lastViewPitch = dc.camera.tilt;
+        //this.lastVerticalExaggeration = dc.getVerticalExaggeration();
+        this.lastVerticalExaggeration = dc.verticalExaggeration;
 
-        if (dc.is2DGlobe()) {
-            this.lastProjection = ((Globe2D) dc.getGlobe()).getProjection();
-        }
+        //if (dc.is2DGlobe()) {
+        //    this.lastProjection = ((Globe2D) dc.getGlobe()).getProjection();
+        //}
     }
 
     protected double computeTerrainConformance(RenderContext dc) {
         int value = 100;
-        double alt = dc.getView().getEyePosition().getElevation();
+        //double alt = dc.getView().getEyePosition().getElevation();
+        double alt = dc.camera.altitude;
         if (alt < 10e3) {
             value = 20;
         } else if (alt < 50e3) {
@@ -608,30 +622,36 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         return value;
     }
 
-    protected LatLon computeLabelOffset(RenderContext dc) {
-        LatLon labelPos;
+    protected Location computeLabelOffset(RenderContext dc) {
+        Location labelPos;
         // Compute labels offset from view center
-        if (dc.getView() instanceof OrbitView) {
-            OrbitView view = (OrbitView) dc.getView();
-            Position centerPos = view.getCenterPosition();
-            Double pixelSizeDegrees = Angle.fromRadians(view.computePixelSizeAtDistance(view.getZoom()) / dc.getGlobe().getEquatorialRadius()).degrees;
-            Double labelOffsetDegrees = pixelSizeDegrees * view.getViewport().getWidth() / 4;
-            labelPos = LatLon.fromDegrees(centerPos.getLatitude().degrees - labelOffsetDegrees, centerPos.getLongitude().degrees - labelOffsetDegrees);
-            Double labelLatDegrees = labelPos.getLatitude().normalizedLatitude().degrees;
+        //if (dc.getView() instanceof OrbitView) {
+            //OrbitView view = (OrbitView) dc.getView();
+            //Position centerPos = view.getCenterPosition();
+        Position centerPos = new Position(dc.camera.latitude, dc.camera.longitude, dc.camera.altitude);
+            //Double pixelSizeDegrees = Angle.fromRadians(view.computePixelSizeAtDistance(view.getZoom()) / dc.getGlobe().getEquatorialRadius()).degrees;
+        Double pixelSizeDegrees = Math.toDegrees(dc.pixelSizeAtDistance(dc.camera.altitude) / dc.globe.getEquatorialRadius());
+            //Double labelOffsetDegrees = pixelSizeDegrees * view.getViewport().getWidth() / 4;
+        Double labelOffsetDegrees = pixelSizeDegrees * dc.viewport.width / 4;
+            //labelPos = LatLon.fromDegrees(centerPos.getLatitude().degrees - labelOffsetDegrees, centerPos.getLongitude().degrees - labelOffsetDegrees);
+        labelPos = Location.fromDegrees(centerPos.latitude - labelOffsetDegrees, centerPos.longitude - labelOffsetDegrees);
+            //Double labelLatDegrees = labelPos.getLatitude().normalizedLatitude().degrees;
+        Double labelLatDegrees = labelPos.latitude;
             labelLatDegrees = Math.min(Math.max(labelLatDegrees, -70), 70);
-            labelPos = new LatLon(Angle.fromDegrees(labelLatDegrees), labelPos.getLongitude().normalizedLongitude());
-        } else {
-            labelPos = dc.getView().getEyePosition(); // fall back if no orbit view
-        }
+            //labelPos = new LatLon(Angle.fromDegrees(labelLatDegrees), labelPos.getLongitude().normalizedLongitude());
+        labelPos = new Location(labelLatDegrees, labelPos.longitude);
+        //} else {
+        //    labelPos = dc.getView().getEyePosition(); // fall back if no orbit view
+        //}
 
         return labelPos;
     }
 
-    protected Object createLineRenderable(Iterable<? extends Position> positions, String pathType) {
+    protected Object createLineRenderable(List<Position> positions, int pathType) {
         Path path = new Path(positions);
         path.setPathType(pathType);
         path.setFollowTerrain(true);
-        path.setTerrainConformance(1);
+        path.setFollowTerrain(true); //.setTerrainConformance(1);
         path.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         return path;
     }
@@ -685,7 +705,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
                 //Logging.logger().severe(message);
                 throw new IllegalArgumentException(message);
             }
-            return isInView(dc, dc.getVisibleSector());
+            return true; //isInView(dc, dc.getVisibleSector());
         }
 
         @SuppressWarnings({"RedundantIfStatement"})
@@ -710,21 +730,23 @@ public class AbstractGraticuleLayer extends AbstractLayer {
 
     // === Support methods ===
 
-    protected Vec4 getSurfacePoint(RenderContext dc, Angle latitude, Angle longitude) {
-        Vec4 surfacePoint = dc.getSurfaceGeometry().getSurfacePoint(latitude, longitude);
+    protected Vec3 getSurfacePoint(RenderContext dc, double latitude, double longitude) {
+        Vec3 surfacePoint = dc.globe.geographicToCartesianNormal(latitude, longitude, new Vec3()); //.getSurfaceGeometry().getSurfacePoint(latitude, longitude);
         if (surfacePoint == null) {
-            surfacePoint = dc.getGlobe().computePointFromPosition(new Position(latitude, longitude, dc.getGlobe().getElevation(latitude, longitude)));
+            surfacePoint = dc.globe.geographicToCartesian(latitude, longitude, dc.globe.getRadiusAt(latitude, longitude), new Vec3());
         }
 
         return surfacePoint;
     }
 
     protected double computeAltitudeAboveGround(RenderContext dc) {
-        View view = dc.getView();
-        Position eyePosition = view.getEyePosition();
-        Vec4 surfacePoint = getSurfacePoint(dc, eyePosition.getLatitude(), eyePosition.getLongitude());
+        //View view = dc.getView();
+        //Position eyePosition = view.getEyePosition();
+        //Vec4 surfacePoint = getSurfacePoint(dc, eyePosition.getLatitude(), eyePosition.getLongitude());
+        Vec3 surfacePoint = getSurfacePoint(dc, dc.camera.latitude, dc.camera.longitude);
 
-        return view.getEyePoint().distanceTo3(surfacePoint);
+        //return view.getEyePoint().distanceTo3(surfacePoint);
+        return dc.cameraPoint.distanceTo(surfacePoint);
     }
 
     protected void computeTruncatedSegment(Position p1, Position p2, Sector sector, ArrayList<Position> positions) {
@@ -732,8 +754,8 @@ public class AbstractGraticuleLayer extends AbstractLayer {
             return;
         }
 
-        boolean p1In = sector.contains(p1);
-        boolean p2In = sector.contains(p2);
+        boolean p1In = sector.contains(p1.latitude, p1.longitude);
+        boolean p2In = sector.contains(p2.latitude, p2.longitude);
         if (!p1In && !p2In) {
             // whole segment is (likely) outside
             return;
@@ -748,22 +770,22 @@ public class AbstractGraticuleLayer extends AbstractLayer {
             Position inPoint = p1In ? p1 : p2;
             for (int i = 1; i <= 2; i++)  // there may be two intersections
             {
-                LatLon intersection = null;
-                if (outPoint.getLongitude().degrees > sector.getMaxLongitude().degrees || (sector.getMaxLongitude().degrees == 180 && outPoint.getLongitude().degrees < 0)) {
+                Location intersection = null;
+                if (outPoint.longitude > sector.maxLongitude() || (sector.maxLongitude() == 180 && outPoint.longitude < 0)) {
                     // intersect with east meridian
-                    intersection = greatCircleIntersectionAtLongitude(inPoint, outPoint, sector.getMaxLongitude());
-                } else if (outPoint.getLongitude().degrees < sector.getMinLongitude().degrees || (sector.getMinLongitude().degrees == -180 && outPoint.getLongitude().degrees > 0)) {
+                    intersection = greatCircleIntersectionAtLongitude(inPoint, outPoint, sector.maxLongitude());
+                } else if (outPoint.longitude < sector.minLongitude() || (sector.minLongitude() == -180 && outPoint.longitude > 0)) {
                     // intersect with west meridian
-                    intersection = greatCircleIntersectionAtLongitude(inPoint, outPoint, sector.getMinLongitude());
-                } else if (outPoint.getLatitude().degrees > sector.getMaxLatitude().degrees) {
+                    intersection = greatCircleIntersectionAtLongitude(inPoint, outPoint, sector.minLongitude());
+                } else if (outPoint.latitude > sector.maxLatitude()) {
                     // intersect with top parallel
-                    intersection = greatCircleIntersectionAtLatitude(inPoint, outPoint, sector.getMaxLatitude());
-                } else if (outPoint.getLatitude().degrees < sector.getMinLatitude().degrees) {
+                    intersection = greatCircleIntersectionAtLatitude(inPoint, outPoint, sector.maxLatitude());
+                } else if (outPoint.latitude < sector.minLatitude()) {
                     // intersect with bottom parallel
-                    intersection = greatCircleIntersectionAtLatitude(inPoint, outPoint, sector.getMinLatitude());
+                    intersection = greatCircleIntersectionAtLatitude(inPoint, outPoint, sector.minLatitude());
                 }
                 if (intersection != null) {
-                    outPoint = new Position(intersection, outPoint.getElevation());
+                    outPoint = new Position(intersection.latitude, intersection.longitude, outPoint.altitude);
                 } else {
                     break;
                 }
@@ -781,24 +803,24 @@ public class AbstractGraticuleLayer extends AbstractLayer {
      * @param longitude the meridian longitude <code>Angle</code>
      * @return the intersection <code>Position</code> or null if there was no intersection found.
      */
-    protected LatLon greatCircleIntersectionAtLongitude(LatLon p1, LatLon p2, Angle longitude) {
-        if (p1.getLongitude().degrees == longitude.degrees) {
+    protected Location greatCircleIntersectionAtLongitude(Location p1, Location p2, double longitude) {
+        if (p1.longitude == longitude) {
             return p1;
         }
-        if (p2.getLongitude().degrees == longitude.degrees) {
+        if (p2.longitude == longitude) {
             return p2;
         }
-        LatLon pos = null;
-        Double deltaLon = getDeltaLongitude(p1, p2.getLongitude()).degrees;
-        if (getDeltaLongitude(p1, longitude).degrees < deltaLon && getDeltaLongitude(p2, longitude).degrees < deltaLon) {
+        Location pos = null;
+        Double deltaLon = getDeltaLongitude(p1, p2.longitude);
+        if (getDeltaLongitude(p1, longitude) < deltaLon && getDeltaLongitude(p2, longitude) < deltaLon) {
             int count = 0;
             double precision = 1d / 6378137d; // 1m angle in radians
-            LatLon a = p1;
-            LatLon b = p2;
-            LatLon midPoint = greatCircleMidPoint(a, b);
-            while (getDeltaLongitude(midPoint, longitude).radians > precision && count <= 20) {
+            Location a = p1;
+            Location b = p2;
+            Location midPoint = greatCircleMidPoint(a, b);
+            while (getDeltaLongitude(midPoint, longitude) > precision && count <= 20) {
                 count++;
-                if (getDeltaLongitude(a, longitude).degrees < getDeltaLongitude(b, longitude).degrees) {
+                if (getDeltaLongitude(a, longitude) < getDeltaLongitude(b, longitude)) {
                     b = midPoint;
                 } else {
                     a = midPoint;
@@ -811,7 +833,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         }
         // Adjust final longitude for an exact match
         if (pos != null) {
-            pos = new LatLon(pos.getLatitude(), longitude);
+            pos = new Location(pos.latitude, longitude);
         }
         return pos;
     }
@@ -824,17 +846,17 @@ public class AbstractGraticuleLayer extends AbstractLayer {
      * @param latitude the parallel latitude <code>Angle</code>
      * @return the intersection <code>Position</code> or null if there was no intersection found.
      */
-    protected LatLon greatCircleIntersectionAtLatitude(LatLon p1, LatLon p2, Angle latitude) {
-        LatLon pos = null;
-        if (Math.signum(p1.getLatitude().degrees - latitude.degrees) != Math.signum(p2.getLatitude().degrees - latitude.degrees)) {
+    protected Location greatCircleIntersectionAtLatitude(Location p1, Location p2, double latitude) {
+        Location pos = null;
+        if (Math.signum(p1.latitude - latitude) != Math.signum(p2.latitude - latitude)) {
             int count = 0;
-            double precision = 1d / 6378137d; // 1m angle in radians
-            LatLon a = p1;
-            LatLon b = p2;
-            LatLon midPoint = greatCircleMidPoint(a, b);
-            while (Math.abs(midPoint.getLatitude().radians - latitude.radians) > precision && count <= 20) {
+            double precision = Math.toDegrees(1d / 6378137d); // 1m angle in radians
+            Location a = p1;
+            Location b = p2;
+            Location midPoint = greatCircleMidPoint(a, b);
+            while (Math.abs(midPoint.latitude - latitude) > precision && count <= 20) {
                 count++;
-                if (Math.signum(a.getLatitude().degrees - latitude.degrees) != Math.signum(midPoint.getLatitude().degrees - latitude.degrees)) {
+                if (Math.signum(a.latitude - latitude) != Math.signum(midPoint.latitude - latitude)) {
                     b = midPoint;
                 } else {
                     a = midPoint;
@@ -847,19 +869,19 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         }
         // Adjust final latitude for an exact match
         if (pos != null) {
-            pos = new LatLon(latitude, pos.getLongitude());
+            pos = new Location(latitude, pos.longitude);
         }
         return pos;
     }
 
-    protected LatLon greatCircleMidPoint(LatLon p1, LatLon p2) {
-        Angle azimuth = LatLon.greatCircleAzimuth(p1, p2);
-        Angle distance = LatLon.greatCircleDistance(p1, p2);
-        return LatLon.greatCircleEndPosition(p1, azimuth.radians, distance.radians / 2);
+    protected Location greatCircleMidPoint(Location p1, Location p2) {
+        double azimuth = p1.greatCircleAzimuth(p2);
+        double distance = p1.greatCircleDistance(p2);
+        return p1.greatCircleLocation(azimuth, distance / 2, new Location());
     }
 
-    protected Angle getDeltaLongitude(LatLon p1, Angle longitude) {
-        double deltaLon = Math.abs(p1.getLongitude().degrees - longitude.degrees);
-        return Angle.fromDegrees(deltaLon < 180 ? deltaLon : 360 - deltaLon);
+    protected double getDeltaLongitude(Location p1, double longitude) {
+        double deltaLon = Math.abs(p1.longitude - longitude);
+        return deltaLon < 180 ? deltaLon : 360 - deltaLon;
     }
 }
