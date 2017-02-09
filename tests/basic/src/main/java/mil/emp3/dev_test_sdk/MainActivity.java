@@ -1624,7 +1624,9 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 } finally {
                     try {
-                        stream.close();
+                        if (stream != null) {
+                            stream.close();
+                        }
                     } catch (IOException ioe) {
                         ioe.printStackTrace();
                     }
