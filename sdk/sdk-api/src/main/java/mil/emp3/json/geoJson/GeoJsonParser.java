@@ -127,6 +127,9 @@ public class GeoJsonParser {
             } else {
                 parseCoordinateList(featureList, coordinateListList, geometryType, properties);
             }
+        } else if (geometryType.equals("Polygon")) {
+            JsonArray coordinateListList = geometry.get("coordinates").asArray();
+            parseCoordinateList(featureList, coordinateListList, geometryType, properties);
         } else {
             IFeature feature = createFeature(geometryType);
             if (feature != null) {
