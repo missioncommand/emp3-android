@@ -1591,9 +1591,10 @@ public class MainActivity extends AppCompatActivity
 //                String simpleGeoJsonString =
 //                "{\"type\": \"Feature\",\"geometry\": {\"type\": \"Point\",\"coordinates\": [125.6, 10.1]}," +
 //                "\"properties\": {\"name\": \"Dinagat Islands\"}}";
+                InputStream stream = null;
                 try {
                     // Sample geoJSON from CMAPI 1.2 document, edited for correctness
-                    InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
                     List<IFeature> featureList = GeoJsonParser.parse(stream);
                     for (IFeature feature : featureList) {
                         this.oRootOverlay.addFeature(feature, true);
@@ -1621,6 +1622,12 @@ public class MainActivity extends AppCompatActivity
                     camera.apply(false);
                 } catch (IOException|EMP_Exception e) {
                     e.printStackTrace();
+                } finally {
+                    try {
+                        stream.close();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
                 }
                 return true;
             case R.id.action_plot2units2525B:
