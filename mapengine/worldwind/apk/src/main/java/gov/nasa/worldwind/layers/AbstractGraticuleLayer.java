@@ -17,6 +17,8 @@ import gov.nasa.worldwind.render.Color;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Path;
 import gov.nasa.worldwind.util.Logger;
+import gov.nasa.worldwind.utils.SectorUtils;
+import mil.emp3.mapengine.interfaces.IMapInstance;
 
 import java.util.*;
 
@@ -63,7 +65,10 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected GeographicProjection lastProjection;
     protected long frameTimeStamp; // used only for 2D continuous globes to determine whether render is in same frame
 
-    public AbstractGraticuleLayer() {
+    protected IMapInstance mapInstance;
+
+    public AbstractGraticuleLayer(IMapInstance mapInstance) {
+        this.mapInstance = mapInstance;
     }
 
     /**
@@ -509,6 +514,8 @@ public class AbstractGraticuleLayer extends AbstractLayer {
             throw new IllegalArgumentException(message);
         }
 
+        this.doPreRender(dc);
+
         // Render
         this.renderGraticule(dc);
     }
@@ -650,7 +657,6 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected Object createLineRenderable(List<Position> positions, int pathType) {
         Path path = new Path(positions);
         path.setPathType(pathType);
-        path.setFollowTerrain(true);
         path.setFollowTerrain(true); //.setTerrainConformance(1);
         path.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         return path;
@@ -705,7 +711,8 @@ public class AbstractGraticuleLayer extends AbstractLayer {
                 //Logging.logger().severe(message);
                 throw new IllegalArgumentException(message);
             }
-            return true; //isInView(dc, dc.getVisibleSector());
+            //return isInView(dc, dc.terrain.getSector());
+            return isInView(dc, SectorUtils.getSector(AbstractGraticuleLayer.this.mapInstance));
         }
 
         @SuppressWarnings({"RedundantIfStatement"})

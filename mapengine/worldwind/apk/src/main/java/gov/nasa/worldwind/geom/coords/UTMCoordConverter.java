@@ -5,9 +5,6 @@
  */
 package gov.nasa.worldwind.geom.coords;
 
-import gov.nasa.worldwind.avlist.AVKey;
-import gov.nasa.worldwind.geom.*;
-import gov.nasa.worldwind.globes.Globe;
 
 /**
  * Converter used to translate UTM coordinates to and from geodetic latitude and longitude.
@@ -16,6 +13,10 @@ import gov.nasa.worldwind.globes.Globe;
  * @version $Id: UTMCoordConverter.java 1171 2013-02-11 21:45:02Z dcollins $
  * @see UTMCoord, TMCoordConverter
  */
+
+import gov.nasa.worldwind.avlist.AVKey;
+import gov.nasa.worldwind.geom.Location;
+import gov.nasa.worldwind.globe.Globe;
 
 /**
  * Ported to Java from the NGA GeoTrans utm.c and utm.h
@@ -46,8 +47,8 @@ class UTMCoordConverter
     private final static double PI = 3.14159265358979323;
     //private final static double MIN_LAT = ((-80.5 * PI) / 180.0); /* -80.5 degrees in radians    */
     //private final static double MAX_LAT = ((84.5 * PI) / 180.0);  /* 84.5 degrees in radians     */
-    private final static double MIN_LAT = ((-82 * PI) / 180.0); /* -82 degrees in radians    */
-    private final static double MAX_LAT = ((86 * PI) / 180.0);  /* 86 degrees in radians     */
+    private final static double MIN_LAT = -82; //((-82 * PI) / 180.0); /* -82 degrees in radians    */
+    private final static double MAX_LAT = 86; //((86 * PI) / 180.0);  /* 86 degrees in radians     */
 
     private final static int MIN_EASTING = 100000;
     private final static int MAX_EASTING = 900000;
@@ -206,9 +207,9 @@ class UTMCoordConverter
 
                 try
                 {
-                    TMCoord TM = TMCoord.fromLatLon(Angle.fromRadians(Latitude), Angle.fromRadians(Longitude),
-                        this.globe, this.UTM_a, this.UTM_f, Angle.fromRadians(Origin_Latitude),
-                        Angle.fromRadians(Central_Meridian), False_Easting, False_Northing, Scale);
+                    TMCoord TM = TMCoord.fromLatLon(Latitude, Longitude,
+                        this.globe, this.UTM_a, this.UTM_f, Origin_Latitude,
+                        Central_Meridian, False_Easting, False_Northing, Scale);
                     Easting = TM.getEasting();
                     Northing = TM.getNorthing();
 
@@ -239,8 +240,8 @@ class UTMCoordConverter
     }
 
     /**
-     * @return The coordinate hemisphere, either {@link gov.nasa.worldwind.avlist.AVKey#NORTH} or {@link
-     *         gov.nasa.worldwind.avlist.AVKey#SOUTH}.
+     * @return The coordinate hemisphere, either {@link gov.nasa.worldwind .avlist.AVKey#NORTH} or {@link
+     //*         gov.nasa.worldwind.avlist.AVKey#SOUTH}.
      */
     public String getHemisphere()
     {
@@ -259,8 +260,8 @@ class UTMCoordConverter
      * occur, the error code(s) are returned by the function, otherwise UTM_NO_ERROR is returned.
      *
      * @param Zone       UTM zone.
-     * @param Hemisphere The coordinate hemisphere, either {@link gov.nasa.worldwind.avlist.AVKey#NORTH} or {@link
-     *                   gov.nasa.worldwind.avlist.AVKey#SOUTH}.
+     * @param Hemisphere The coordinate hemisphere, either {@link gov.nasa.worldwind .avlist.AVKey#NORTH} or {@link
+     //*                   gov.nasa.worldwind.avlist.AVKey#SOUTH}.
      * @param Easting    Easting (X) in meters.
      * @param Northing   Northing (Y) in meters.
      *
@@ -295,10 +296,10 @@ class UTMCoordConverter
             try
             {
                 TMCoord TM = TMCoord.fromTM(Easting, Northing,
-                    this.globe, Angle.fromRadians(Origin_Latitude), Angle.fromRadians(Central_Meridian),
+                    this.globe, Origin_Latitude, Central_Meridian,
                     False_Easting, False_Northing, Scale);
-                Latitude = TM.getLatitude().radians;
-                Longitude = TM.getLongitude().radians;
+                Latitude = TM.getLatitude();
+                Longitude = TM.getLongitude();
 
                 if ((Latitude < MIN_LAT) || (Latitude > MAX_LAT))
                 { /* Latitude out of range */
@@ -331,7 +332,7 @@ class UTMCoordConverter
         return Central_Meridian;
     }
 
-    public static LatLon convertWGS84ToNAD27(Angle latWGS, Angle lonWGS)
+    public static Location convertWGS84ToNAD27(double latWGS, double lonWGS)
     {
         double deltaX = -12.0;
         double deltaY = 130.0;
@@ -339,8 +340,8 @@ class UTMCoordConverter
         double difA = WGS84_A - CLARKE_A;
         double difF = WGS84_F - CLARKE_F;
 
-        double lat = latWGS.radians;
-        double lon = lonWGS.radians;
+        double lat = Math.toRadians(latWGS);
+        double lon = Math.toRadians(lonWGS);
 
         double f = 1 - CLARKE_B / CLARKE_A;
         double e2 = 2 * f - Math.pow(f, 2);
@@ -352,6 +353,6 @@ class UTMCoordConverter
             + difA * (Rn * e2 * Math.sin(lat) * Math.cos(lat)) / CLARKE_A
             + difF * (Rm * CLARKE_A / CLARKE_B + Rn * CLARKE_B / CLARKE_A) * Math.sin(lat) * Math.cos(lat)) / Rm;
 
-        return LatLon.fromRadians(lat - errLat, lon - errLon);
+        return Location.fromRadians(lat - errLat, lon - errLon);
     }
 }

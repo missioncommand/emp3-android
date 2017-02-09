@@ -41,10 +41,13 @@ import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.Navigator;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
+import gov.nasa.worldwind.layer.AbstractLayer;
 import gov.nasa.worldwind.layer.BackgroundLayer;
 import gov.nasa.worldwind.layer.Layer;
 import gov.nasa.worldwind.layer.LayerFactory;
 import gov.nasa.worldwind.layer.RenderableLayer;
+import gov.nasa.worldwind.layers.Earth.MGRSGraticuleLayer;
+import gov.nasa.worldwind.layers.Earth.UTMBaseGraticuleLayer;
 import gov.nasa.worldwind.ogc.WmsLayer;
 import gov.nasa.worldwind.ogc.WmsLayerConfig;
 import gov.nasa.worldwind.render.ImageOptions;
@@ -56,6 +59,7 @@ import gov.nasa.worldwind.util.WWUtil;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
@@ -135,6 +139,7 @@ public class MapInstance extends CoreMapInstance {
     private android.graphics.Bitmap crossHatchBitmap;
     private ImageSource hatchImageSource;
     private ImageSource crossHatchImageSource;
+    private AbstractLayer gridLayer = null;
 
     private final Map<FeatureTypeEnum, EmpLayer> empLayerMap = new HashMap<>();
 
@@ -1333,5 +1338,36 @@ public class MapInstance extends CoreMapInstance {
             this.miniMap.onDetachedFromWindow();
             this.miniMap = null;
         }
+    }
+
+    @Override
+    public void setGridType(MapGridTypeEnum grid) {
+        AbstractLayer newGridLayer = null;
+
+        if (null != this.gridLayer) {
+            ww.getLayers().removeLayer(this.gridLayer);
+        }
+
+        switch (grid) {
+            case NONE:
+                break;
+            case MGRS:
+                newGridLayer = new MGRSGraticuleLayer(this);
+                break;
+            case UTM:
+                newGridLayer = new UTMBaseGraticuleLayer(this);
+                break;
+        }
+
+        if (null != newGridLayer) {
+            int iLayerIndex = ww.getLayers().indexOfLayer(this.brightnessLayer);
+
+            if (iLayerIndex != -1) {
+                ww.getLayers().addLayer(iLayerIndex + 1, newGridLayer);
+            }
+        }
+        this.gridLayer = newGridLayer;
+
+        ww.requestRedraw();
     }
 }

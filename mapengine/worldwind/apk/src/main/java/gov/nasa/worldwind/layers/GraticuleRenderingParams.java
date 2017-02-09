@@ -5,7 +5,9 @@
  */
 package gov.nasa.worldwind.layers;
 
+import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.render.Color;
+import gov.nasa.worldwind.util.Logger;
 
 /**
  * @author dcollins
@@ -13,6 +15,8 @@ import gov.nasa.worldwind.render.Color;
  */
 public class GraticuleRenderingParams extends AVListImpl
 {
+    final static private String TAG = GraticuleRenderingParams.class.getSimpleName();
+
     public static final String KEY_DRAW_LINES = "DrawGraticule";
     public static final String KEY_LINE_COLOR = "GraticuleLineColor";
     public static final String KEY_LINE_WIDTH = "GraticuleLineWidth";
@@ -50,8 +54,8 @@ public class GraticuleRenderingParams extends AVListImpl
     {
         if (color == null)
         {
-            String message = Logging.getMessage("nullValue.ColorIsNull");
-            Logging.logger().severe(message);
+            String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.ColorIsNull");
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -80,8 +84,8 @@ public class GraticuleRenderingParams extends AVListImpl
     {
         if (lineStyle == null)
         {
-            String message = Logging.getMessage("nullValue.StringIsNull");
-            Logging.logger().severe(message);
+            String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.StringIsNull");
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -109,17 +113,17 @@ public class GraticuleRenderingParams extends AVListImpl
     {
         if (color == null)
         {
-            String message = Logging.getMessage("nullValue.ColorIsNull");
-            Logging.logger().severe(message);
+            String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.ColorIsNull");
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
         setValue(KEY_LABEL_COLOR, color);
     }
-
+/*
     public Font getLabelFont()
     {
-        Object value = getValue(KEY_LABEL_FONT);
+        Object value = get(KEY_LABEL_FONT);
         return value instanceof Font ? (Font) value : null;
     }
 
@@ -127,11 +131,12 @@ public class GraticuleRenderingParams extends AVListImpl
     {
         if (font == null)
         {
-            String message = Logging.getMessage("nullValue.FontIsNull");
-            Logging.logger().severe(message);
+            String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.FontIsNull");
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
-        setValue(KEY_LABEL_FONT, font);
+        put(KEY_LABEL_FONT, font);
     }
+*/
 }

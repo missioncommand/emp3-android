@@ -22,6 +22,7 @@ import mil.emp3.api.enums.EventListenerTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.EditorMode;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
@@ -885,6 +886,10 @@ public class RemoteMap implements IMap {
         @Override
         public void hideMiniMap() {
         }
+
+        @Override
+        public void setGridType(MapGridTypeEnum grid) {
+        }
     }
 
     @Override
@@ -895,5 +900,10 @@ public class RemoteMap implements IMap {
     @Override
     public void hideMiniMap() {
         this.oClientMap.hideMiniMap();
+    }
+
+    @Override
+    public void setGridType(MapGridTypeEnum grid) {
+        this.oClientMap.setGridType(grid);
     }
 }

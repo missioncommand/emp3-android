@@ -5,16 +5,15 @@
  */
 package gov.nasa.worldwind.layers;
 
-import gov.nasa.worldwind.avlist.*;
-import gov.nasa.worldwind.render.*;
+import gov.nasa.worldwind.render.Color;
+import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Label;
 import gov.nasa.worldwind.shape.Path;
 import gov.nasa.worldwind.shape.ShapeAttributes;
 import gov.nasa.worldwind.shape.TextAttributes;
 import gov.nasa.worldwind.util.Logger;
-import gov.nasa.worldwind.util.Logging;
+import gov.nasa.worldwind.avlist.AVList;
 
-import java.awt.*;
 import java.util.*;
 
 /**
@@ -65,7 +64,7 @@ public class GraticuleSupport {
     private Collection<Pair> renderables = new HashSet<Pair>(); // a set to avoid duplicates in multi-pass (2D globes)
     private Map<String, GraticuleRenderingParams> namedParams = new HashMap<String, GraticuleRenderingParams>();
     private Map<String, ShapeAttributes> namedShapeAttributes = new HashMap<String, ShapeAttributes>();
-    //private AVList defaultParams;
+    private AVList defaultParams;
     //private GeographicTextRenderer textRenderer = new GeographicTextRenderer();
     private TextAttributes textAttribute = new TextAttributes();
 
@@ -110,7 +109,7 @@ public class GraticuleSupport {
         this.namedShapeAttributes.clear();
 
         // Render lines and collect text labels
-        Collection<Label> text = new ArrayList<Label>();
+        //Collection<Label> text = new ArrayList<Label>();
         for (Pair pair : this.renderables) {
             Object renderable = pair.a;
             String paramsKey = (pair.b != null && pair.b instanceof String) ? (String) pair.b : null;
@@ -118,13 +117,14 @@ public class GraticuleSupport {
 
             if (renderable != null && renderable instanceof Path) {
                 if (renderingParams == null || renderingParams.isDrawLines()) {
-                    applyRenderingParams(paramsKey, renderingParams, (Path) renderable, opacity);
+                    applyRenderingParams(paramsKey, (Path) renderable, opacity);
                     ((Path) renderable).render(dc);
                 }
             } else if (renderable != null && renderable instanceof Label) {
                 if (renderingParams == null || renderingParams.isDrawLabels()) {
                     applyRenderingParams(renderingParams, (Label) renderable, opacity);
-                    text.add((Label) renderable);
+                    //text.add((Label) renderable);
+                    ((Label) renderable).render(dc);
                 }
             }
         }
@@ -189,7 +189,7 @@ public class GraticuleSupport {
         }
 
         if (params.getValue(GraticuleRenderingParams.KEY_LINE_COLOR) == null) {
-            params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, Color.WHITE);
+            params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(1.0f, 1.0f, 1.0f, 1.0f));
         }
 
         if (params.getValue(GraticuleRenderingParams.KEY_LINE_WIDTH) == null)
@@ -207,11 +207,11 @@ public class GraticuleSupport {
         }
 
         if (params.getValue(GraticuleRenderingParams.KEY_LABEL_COLOR) == null) {
-            params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, Color.WHITE);
+            params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(1.0f, 1.0f, 1.0f, 1.0f));
         }
 
         if (params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT) == null) {
-            params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-12"));
+            //params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-12"));
         }
 
         return params;
@@ -223,17 +223,18 @@ public class GraticuleSupport {
             Object o = params.getValue(GraticuleRenderingParams.KEY_LABEL_COLOR);
             if (o != null && o instanceof Color) {
                 Color color = applyOpacity((Color) o, opacity);
-                float[] compArray = new float[4];
-                Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), compArray);
-                int colorValue = compArray[2] < .5f ? 255 : 0;
-                text.setColor(color);
-                text.setBackgroundColor(new Color(colorValue, colorValue, colorValue, color.getAlpha()));
+                //float[] compArray = new float[4];
+                //Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), compArray);
+                //int colorValue = compArray[2] < .5f ? 255 : 0;
+                text.getAttributes().setTextColor(color);
+                //text.setBackgroundColor(new Color(colorValue, colorValue, colorValue, color.getAlpha()));
+                text.getAttributes().setOutlineWidth(3f);
             }
 
             o = params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT);
-            if (o != null && o instanceof Font) {
-                text.setFont((Font) o);
-            }
+            //if (o != null && o instanceof Font) {
+            //    text.setFont((Font) o);
+            //}
         }
     }
 
