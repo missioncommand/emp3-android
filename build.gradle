@@ -4,22 +4,22 @@ buildscript {
         maven {
             url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
             credentials {
-                username project.empUsername
-                password project.empPassword
+                username System.getenv("CI_USERNAME") ?: project.empUsername
+                password System.getenv("CI_PASSWORD") ?: project.empPassword
             }
         }
         maven {
             url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
             credentials {
-                username project.empUsername
-                password project.empPassword
+                username System.getenv("CI_USERNAME") ?: project.empUsername
+                password System.getenv("CI_PASSWORD") ?: project.empPassword
             }
         }
         maven {
             url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
             credentials {
-                username project.empUsername
-                password project.empPassword
+                username System.getenv("CI_USERNAME") ?: project.empUsername
+                password System.getenv("CI_PASSWORD") ?: project.empPassword
             }
         }
         jcenter()
