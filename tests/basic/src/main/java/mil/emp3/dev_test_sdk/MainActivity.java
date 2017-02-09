@@ -1591,21 +1591,45 @@ public class MainActivity extends AppCompatActivity
 //                String simpleGeoJsonString =
 //                "{\"type\": \"Feature\",\"geometry\": {\"type\": \"Point\",\"coordinates\": [125.6, 10.1]}," +
 //                "\"properties\": {\"name\": \"Dinagat Islands\"}}";
+                InputStream stream = null;
                 try {
                     // Sample geoJSON from CMAPI 1.2 document, edited for correctness
-                    InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.cmapi);
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
                     List<IFeature> featureList = GeoJsonParser.parse(stream);
                     for (IFeature feature : featureList) {
                         this.oRootOverlay.addFeature(feature, true);
                         this.oFeatureHash.put(feature.getGeoId(), feature);
                     }
+                    stream.close();
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
+                    featureList = GeoJsonParser.parse(stream);
+                    for (IFeature feature : featureList) {
+                        this.oRootOverlay.addFeature(feature, true);
+                        this.oFeatureHash.put(feature.getGeoId(), feature);
+                    }
+                    stream.close();
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
+                    featureList = GeoJsonParser.parse(stream);
+                    for (IFeature feature : featureList) {
+                        this.oRootOverlay.addFeature(feature, true);
+                        this.oFeatureHash.put(feature.getGeoId(), feature);
+                    }
+                    stream.close();
                     ICamera camera = this.map.getCamera();
-                    camera.setLatitude(0);
-                    camera.setLongitude(20);
-                    camera.setAltitude(3e6);
+                    camera.setLatitude(44.5);
+                    camera.setLongitude(1);
+                    camera.setAltitude(5e5);
                     camera.apply(false);
-                } catch (EMP_Exception e) {
+                } catch (IOException|EMP_Exception e) {
                     e.printStackTrace();
+                } finally {
+                    try {
+                        if (stream != null) {
+                            stream.close();
+                        }
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
                 }
                 return true;
             case R.id.action_plot2units2525B:
