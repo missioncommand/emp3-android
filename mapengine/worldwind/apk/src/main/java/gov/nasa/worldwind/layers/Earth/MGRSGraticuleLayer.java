@@ -967,7 +967,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 }
         */
         public boolean isInView(RenderContext dc) {
-            return dc.frustum.intersectsViewport(dc.viewport);
+            return this.sector.intersect(MGRSGraticuleLayer.this.mapSector); //dc.frustum.intersectsViewport(dc.viewport);
         }
 
         public void selectRenderables(RenderContext dc, Sector vs, MGRSGraticuleLayer layer) {
@@ -1122,7 +1122,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
             positions.add(new Position(this.sector.minLatitude(), this.sector.minLongitude(), 10e3));
             positions.add(new Position(this.sector.maxLatitude(), this.sector.minLongitude(), 10e3));
             Object polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
-            Sector lineSector = new Sector(this.sector.minLatitude(), this.sector.minLongitude(), this.sector.deltaLatitude(), 0);
+            Sector lineSector = new Sector(this.sector.minLatitude(), this.sector.minLongitude(), this.sector.deltaLatitude(), 0.0000001);
             this.gridElements.add(new GridElement(lineSector, polyline, GridElement.TYPE_LINE_WEST));
 
             if (!this.isUPS) {
@@ -1131,7 +1131,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 positions.add(new Position(this.sector.minLatitude(), this.sector.maxLongitude(), 10e3));
                 positions.add(new Position(this.sector.maxLatitude(), this.sector.maxLongitude(), 10e3));
                 polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
-                lineSector = new Sector(this.sector.minLatitude(), this.sector.maxLongitude(), this.sector.deltaLatitude(), 0);
+                lineSector = new Sector(this.sector.minLatitude(), this.sector.maxLongitude(), this.sector.deltaLatitude(), 0.0000001);
                 this.gridElements.add(new GridElement(lineSector, polyline, GridElement.TYPE_LINE_EAST));
 
                 // bottom parallel segment
@@ -1139,7 +1139,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 positions.add(new Position(this.sector.minLatitude(), this.sector.minLongitude(), 10e3));
                 positions.add(new Position(this.sector.minLatitude(), this.sector.maxLongitude(), 10e3));
                 polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
-                lineSector = new Sector(this.sector.minLatitude(), this.sector.minLongitude(), 0, this.sector.deltaLongitude());
+                lineSector = new Sector(this.sector.minLatitude(), this.sector.minLongitude(), 0.0000001, this.sector.deltaLongitude());
                 this.gridElements.add(new GridElement(lineSector, polyline, GridElement.TYPE_LINE_SOUTH));
 
                 // top parallel segment
@@ -1147,7 +1147,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 positions.add(new Position(this.sector.maxLatitude(), this.sector.minLongitude(), 10e3));
                 positions.add(new Position(this.sector.maxLatitude(), this.sector.maxLongitude(), 10e3));
                 polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
-                lineSector = new Sector(this.sector.maxLatitude(), this.sector.minLongitude(), 0, this.sector.deltaLongitude());
+                lineSector = new Sector(this.sector.maxLatitude(), this.sector.minLongitude(), 0.0000001, this.sector.deltaLongitude());
                 this.gridElements.add(new GridElement(lineSector, polyline, GridElement.TYPE_LINE_NORTH));
             }
 

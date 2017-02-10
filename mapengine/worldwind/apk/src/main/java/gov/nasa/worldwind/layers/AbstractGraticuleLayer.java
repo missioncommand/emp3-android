@@ -66,6 +66,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected long frameTimeStamp; // used only for 2D continuous globes to determine whether render is in same frame
 
     protected IMapInstance mapInstance;
+    protected Sector mapSector;
 
     public AbstractGraticuleLayer(IMapInstance mapInstance) {
         this.mapInstance = mapInstance;
@@ -500,6 +501,8 @@ public class AbstractGraticuleLayer extends AbstractLayer {
             this.frameTimeStamp = dc.getFrameTimeStamp();
         } else {
 */
+            this.mapSector = SectorUtils.getSector(this.mapInstance);
+
             if (this.needsToUpdate(dc)) {
                 this.clear(dc);
                 this.selectRenderables(dc);
@@ -712,7 +715,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
                 throw new IllegalArgumentException(message);
             }
             //return isInView(dc, dc.terrain.getSector());
-            return isInView(dc, SectorUtils.getSector(AbstractGraticuleLayer.this.mapInstance));
+            return isInView(dc, AbstractGraticuleLayer.this.mapSector);
         }
 
         @SuppressWarnings({"RedundantIfStatement"})

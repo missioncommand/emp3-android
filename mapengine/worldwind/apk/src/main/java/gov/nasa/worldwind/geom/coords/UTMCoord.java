@@ -134,7 +134,7 @@ public class UTMCoord {
             throw new IllegalArgumentException(message);
         }
 
-        return new UTMCoord(converter.getLatitude(), converter.getLongitude(), zone, hemisphere, easting, northing, converter.getCentralMeridian());
+        return new UTMCoord(Math.toDegrees(converter.getLatitude()), Math.toDegrees(converter.getLongitude()), zone, hemisphere, easting, northing, converter.getCentralMeridian());
     }
 
     /**

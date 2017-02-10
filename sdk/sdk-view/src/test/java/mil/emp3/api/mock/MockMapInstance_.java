@@ -14,6 +14,7 @@ import java.util.concurrent.BlockingQueue;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.enums.WMTSVersionEnum;
@@ -296,4 +297,10 @@ public class MockMapInstance_ extends CoreMapInstance {
     public void hideMiniMap() {
 
     }
+
+    @Override
+    public void setGridType(MapGridTypeEnum grid) {
+
+    }
 }
+

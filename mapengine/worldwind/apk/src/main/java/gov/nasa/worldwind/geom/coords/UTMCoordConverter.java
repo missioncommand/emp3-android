@@ -45,10 +45,10 @@ class UTMCoordConverter
     public final static int UTM_TM_ERROR = 0x0200;
 
     private final static double PI = 3.14159265358979323;
-    //private final static double MIN_LAT = ((-80.5 * PI) / 180.0); /* -80.5 degrees in radians    */
-    //private final static double MAX_LAT = ((84.5 * PI) / 180.0);  /* 84.5 degrees in radians     */
-    private final static double MIN_LAT = -82; //((-82 * PI) / 180.0); /* -82 degrees in radians    */
-    private final static double MAX_LAT = 86; //((86 * PI) / 180.0);  /* 86 degrees in radians     */
+    private final static double MIN_LAT = ((-80.5 * PI) / 180.0); /* -80.5 degrees in radians    */
+    private final static double MAX_LAT = ((84.5 * PI) / 180.0);  /* 84.5 degrees in radians     */
+    //private final static double MIN_LAT = -82; //((-82 * PI) / 180.0); /* -82 degrees in radians    */
+    //private final static double MAX_LAT = 86; //((86 * PI) / 180.0);  /* 86 degrees in radians     */
 
     private final static int MIN_EASTING = 100000;
     private final static int MAX_EASTING = 900000;
@@ -207,7 +207,7 @@ class UTMCoordConverter
 
                 try
                 {
-                    TMCoord TM = TMCoord.fromLatLon(Latitude, Longitude,
+                    TMCoord TM = TMCoord.fromLatLon(Math.toDegrees(Latitude), Math.toDegrees(Longitude),
                         this.globe, this.UTM_a, this.UTM_f, Origin_Latitude,
                         Central_Meridian, False_Easting, False_Northing, Scale);
                     Easting = TM.getEasting();
@@ -298,8 +298,8 @@ class UTMCoordConverter
                 TMCoord TM = TMCoord.fromTM(Easting, Northing,
                     this.globe, Origin_Latitude, Central_Meridian,
                     False_Easting, False_Northing, Scale);
-                Latitude = TM.getLatitude();
-                Longitude = TM.getLongitude();
+                Latitude = Math.toRadians(TM.getLatitude());
+                Longitude = Math.toRadians(TM.getLongitude());
 
                 if ((Latitude < MIN_LAT) || (Latitude > MAX_LAT))
                 { /* Latitude out of range */
