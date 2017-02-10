@@ -1,28 +1,23 @@
 buildscript {
+    apply from: 'gradle/extra.gradle'
+
     repositories {
         mavenLocal()
-        maven {
-            url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
-            credentials {
-                username System.getenv("CI_USERNAME") ?: project.empUsername
-                password System.getenv("CI_PASSWORD") ?: project.empPassword
-            }
-        }
+        jcenter()
         maven {
             url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
             credentials {
-                username System.getenv("CI_USERNAME") ?: project.empUsername
-                password System.getenv("CI_PASSWORD") ?: project.empPassword
+                username empUsername
+                password empPassword
             }
         }
         maven {
             url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
             credentials {
-                username System.getenv("CI_USERNAME") ?: project.empUsername
-                password System.getenv("CI_PASSWORD") ?: project.empPassword
+                username empUsername
+                password empPassword
             }
         }
-        jcenter()
     }
 
     dependencies {
@@ -35,24 +30,11 @@ buildscript {
 }
 
 ext {
-    // Open the Git repository in the current directory.
-    git = org.ajoberstar.grgit.Grgit.open(file('.'))
-
-    // Get commit id of HEAD.
-    revision = git.head().id
-    // Alternative is using abbreviatedId of head() method.
-    // revision = git.head().abbreviatedId
+    git = org.ajoberstar.grgit.Grgit.open(file('.')) // Open the Git repository in the current directory.
+    revision = git.head().id                         // Get commitId of HEAD.
+    //revision = git.head().abbreviatedId            // An alternative way using the abbreviatedId.
 }
-allprojects { project ->
-    apply plugin: 'emp3AndroidCommon'
 
-    repositories {
-        maven {
-            url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
-            credentials {
-                username System.getenv("CI_USERNAME") ?: project.empUsername
-                password System.getenv("CI_PASSWORD") ?: project.empPassword
-            }
-        }
-    }
+subprojects {
+    apply plugin: 'emp3AndroidCommon'
 }

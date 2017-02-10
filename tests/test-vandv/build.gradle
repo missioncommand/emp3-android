@@ -1,5 +1,11 @@
 apply plugin: 'emp3AndroidApp'
 
+android {
+    defaultConfig {
+        applicationId "mil.emp3.test.emp3vv"
+    }
+}
+
 dependencies {
     compile         ("com.android.support:appcompat-v7")
     compile         ("com.android.support:design")
@@ -10,9 +16,7 @@ dependencies {
     compile project (":mapengine:worldwind:mapengine-worldwind-aar")
 
     compile         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
-    compile        ("org.cmapi.primitives:common-map-geospatial-notation")
+    compile         ("org.cmapi.primitives:common-map-geospatial-notation")
 
     testCompile     ("junit:junit")
 }
-
-android.defaultConfig.applicationId "mil.emp3.test.emp3vv"

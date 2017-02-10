@@ -25,6 +25,7 @@ cache:
 
 before_install:
   - chmod +x gradlew
+  - chmod +x travis/deploy.sh
 
 #install: echo "skip 'gradle assemble' step"
 
@@ -38,14 +39,14 @@ before_cache:
 deploy: # travis by default will not invoke this step for PRs
   - provider: script
     skip_cleanup: true
-    script: chmod +x travis/deploy.sh && travis/deploy.sh $CI_SNAPSHOT_URL
+    script: travis/deploy.sh && travis/deploy.sh $CI_SNAPSHOT_URL
     on:
       all_branches: true
       #branch:
         #- development
 #  - provider: script
 #    skip_cleanup: true
-#    script: chmod +x travis/deploy.sh && travis/deploy.sh $CI_RELEASE_URL
+#    script: travis/deploy.sh && travis/deploy.sh $CI_RELEASE_URL
 #    on:
 #      branch:
 #        - master
