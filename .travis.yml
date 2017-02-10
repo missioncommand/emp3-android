@@ -29,7 +29,7 @@ cache:
 before_install:
   - chmod +x gradlew
   - chmod +x travis/deploy.sh
-  - export GRADLE_OPTS="-Dorg.gradle.daemon=false -XX:MaxPermSize=512m -Xmx1024m $GRADLE_OPTS"
+  - export GRADLE_OPTS="-Dorg.gradle.daemon=false -XX:MaxPermSize=512m -Xmx2048m $GRADLE_OPTS"
   - export DEFAULT_JVM_OPTS=
 
 #install: echo "skip 'gradle assemble' step"
@@ -44,14 +44,13 @@ before_cache:
 deploy: # travis by default will not invoke this step for PRs
   - provider: script
     skip_cleanup: true
-    script: travis/deploy.sh && travis/deploy.sh $CI_SNAPSHOT_URL
+    script: travis/deploy.sh $CI_SNAPSHOT_URL
     on:
-      all_branches: true
-      #branch:
-        #- development
+      branch:
+        - development
 #  - provider: script
 #    skip_cleanup: true
-#    script: travis/deploy.sh && travis/deploy.sh $CI_RELEASE_URL
+#    script: travis/deploy.sh $CI_RELEASE_URL
 #    on:
 #      branch:
 #        - master
