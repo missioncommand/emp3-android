@@ -68,9 +68,3 @@ include ':tests:validator'
 project(':tests:validator').name = 'test-validator'
 
 include ':tests:test-vandv'
-
-//include ':tests:tmis:app'
-//include ':tests:tmis:wmsworldwind'
-//include ':tests:tmis:wwzoom'
-
-
