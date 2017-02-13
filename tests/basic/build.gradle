@@ -1,5 +1,11 @@
 apply plugin: 'emp3AndroidApp'
 
+android {
+    defaultConfig {
+        applicationId "mil.emp3.dev_test_sdk"
+    }
+}
+
 dependencies {
     compile project (":sdk:emp3-android-sdk")
     compile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
@@ -14,5 +20,3 @@ dependencies {
 
     testCompile     ("junit:junit")
 }
-
-android.defaultConfig.applicationId "mil.emp3.dev_test_sdk"

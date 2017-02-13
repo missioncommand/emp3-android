@@ -51,24 +51,22 @@ publishing {
     }
     repositories {
         maven {
-            //url "$rootProject.buildDir/_repo"
             url = nexusPublishUrl
 
             credentials {
-                username project.di2eNexusUsername
-                password project.di2eNexusPassword
+                username empUsername
+                password empPassword
             }
         }
     }
     if (project.hasProperty('di2eNexusReleaseUrl')) {
         repositories {
             maven {
-                //url "$rootProject.buildDir/_repo2"
                 url = project.property('di2eNexusReleaseUrl')
 
                 credentials {
-                    username project.di2eNexusUsername
-                    password project.di2eNexusPassword
+                    username empUsername
+                    password empPassword
                 }
             }
         }

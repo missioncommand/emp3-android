@@ -1,6 +1,10 @@
 apply plugin: 'emp3AndroidApp'
 
-android.defaultConfig.applicationId "mil.emp3.joystick"
+android {
+    defaultConfig {
+        applicationId "mil.emp3.joystick"
+    }
+}
 
 dependencies {
     compile project (":sdk:emp3-android-sdk-view")
