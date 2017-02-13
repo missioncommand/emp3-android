@@ -4,6 +4,9 @@ apply plugin: 'nebula.maven-nebula-publish'
 apply plugin: 'nebula.provided-base'
 apply plugin: 'nebula.compile-api'
 
+sourceCompatibility = rootProject.sourceCompatibility
+targetCompatibility = rootProject.targetCompatibility
+
 dependencies {
     provided project (":sdk:emp3-android-sdk")
     provided         ("org.cmapi.primitives:common-map-geospatial-notation")
@@ -26,24 +29,22 @@ publishing.publications {
 }
 publishing.repositories {
     maven {
-        //url "$rootProject.buildDir/_repo1"
         url = nexusPublishUrl
 
         credentials {
-            username project.di2eNexusUsername
-            password project.di2eNexusPassword
+            username empUsername
+            password empPassword
         }
     }
 }
 if (project.hasProperty('di2eNexusReleaseUrl')) {
     publishing.repositories {
         maven {
-            //url "$rootProject.buildDir/_repo2"
             url = project.property('di2eNexusReleaseUrl')
 
             credentials {
-                username project.di2eNexusUsername
-                password project.di2eNexusPassword
+                username empUsername
+                password empPassword
             }
         }
     }

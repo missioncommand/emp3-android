@@ -1,12 +1,10 @@
 apply plugin: 'emp3AndroidLib'
 
-//android.defaultConfig.applicationId "wei.mark.standout"
-
 
 android {
     compileSdkVersion 19
     //buildToolsVersion "23.0.2"
-    //
+
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 19
@@ -32,13 +30,10 @@ android {
         }
     }
 
-        lintOptions {
-            abortOnError false
-        }
-
-
+    lintOptions {
+        abortOnError false
+    }
 }
-
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
