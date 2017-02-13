@@ -32,7 +32,7 @@ before_install:
   - export GRADLE_OPTS="-Dorg.gradle.daemon=false -XX:MaxPermSize=512m -Xmx2048m $GRADLE_OPTS"
   - export DEFAULT_JVM_OPTS=
 
-#install: echo "skip 'gradle assemble' step"
+install: echo "skip 'gradle assemble' step"
 
 script:
  - ./gradlew build --refresh-dependencies --continue --stacktrace
