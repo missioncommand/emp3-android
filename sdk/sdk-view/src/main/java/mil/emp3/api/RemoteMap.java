@@ -740,11 +740,6 @@ public class RemoteMap implements IMap {
         }
 
         @Override
-        public void setVisibility(ISetVisibilityList visibilityList) {
-
-        }
-
-        @Override
         public void removeFeatures(IUUIDSet features) {
 
         }
