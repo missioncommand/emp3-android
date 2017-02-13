@@ -66,7 +66,7 @@ public class UTMCoord {
             throw new IllegalArgumentException(message);
         }
 
-        return new UTMCoord(latitude, longitude, converter.getZone(), converter.getHemisphere(), converter.getEasting(), converter.getNorthing(), converter.getCentralMeridian());
+        return new UTMCoord(latitude, longitude, converter.getZone(), converter.getHemisphere(), converter.getEasting(), converter.getNorthing(), Math.toDegrees(converter.getCentralMeridian()));
     }
 /*
     public static UTMCoord fromLatLon(Angle latitude, Angle longitude, String datum) {
@@ -134,7 +134,7 @@ public class UTMCoord {
             throw new IllegalArgumentException(message);
         }
 
-        return new UTMCoord(Math.toDegrees(converter.getLatitude()), Math.toDegrees(converter.getLongitude()), zone, hemisphere, easting, northing, converter.getCentralMeridian());
+        return new UTMCoord(Math.toDegrees(converter.getLatitude()), Math.toDegrees(converter.getLongitude()), zone, hemisphere, easting, northing, Math.toDegrees(converter.getCentralMeridian()));
     }
 
     /**

@@ -741,9 +741,10 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     // === Support methods ===
 
     protected Vec3 getSurfacePoint(RenderContext dc, double latitude, double longitude) {
-        Vec3 surfacePoint = dc.globe.geographicToCartesianNormal(latitude, longitude, new Vec3()); //.getSurfaceGeometry().getSurfacePoint(latitude, longitude);
+        Vec3 newVec = new Vec3();
+        Vec3 surfacePoint = dc.globe.geographicToCartesianNormal(latitude, longitude, newVec); //.getSurfaceGeometry().getSurfacePoint(latitude, longitude);
         if (surfacePoint == null) {
-            surfacePoint = dc.globe.geographicToCartesian(latitude, longitude, dc.globe.getRadiusAt(latitude, longitude), new Vec3());
+            surfacePoint = dc.globe.geographicToCartesian(latitude, longitude, dc.globe.getRadiusAt(latitude, longitude), newVec);
         }
 
         return surfacePoint;
