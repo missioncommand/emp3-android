@@ -46,8 +46,9 @@ deploy: # travis by default will not invoke this step for PRs
     skip_cleanup: true
     script: travis/deploy.sh $CI_SNAPSHOT_URL
     on:
-      branch:
-        - development
+      all_branches: true
+      #branch:
+        #- development
 #  - provider: script
 #    skip_cleanup: true
 #    script: travis/deploy.sh $CI_RELEASE_URL
