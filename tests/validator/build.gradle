@@ -1,16 +1,20 @@
 apply plugin: 'emp3AndroidApp'
 
-android.defaultConfig.applicationId "mil.emp3.validator"
+android {
+    defaultConfig {
+        applicationId "mil.emp3.validator"
+    }
+}
 
 dependencies {
-    compile     ("com.android.support:appcompat-v7")
-    compile     ("com.android.support:design")
-    compile     (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
+    compile         ("com.android.support:appcompat-v7")
+    compile         ("com.android.support:design")
+    compile         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
 
     compile project (":mapengine:worldwind:mapengine-worldwind-aar")
     compile project (":sdk:emp3-android-sdk")
     compile project (":sdk:emp3-android-sdk-view")
     compile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
 
-    testCompile ("junit:junit")
+    testCompile     ("junit:junit")
 }

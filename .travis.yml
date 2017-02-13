@@ -1,0 +1,56 @@
+sudo: false
+language: android
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-23.0.2
+    - android-23
+    - extra-google-m2repository
+    #- sys-img-armeabi-v7a-android-23
+    #- sys-img-x86-android-23
+
+jdk:
+  - oraclejdk8
+
+env:
+  global:
+    - secure: 38QGPcmNyRkS+FahYmT+6xcTwbXm5pYgVYr4KR2p3z5Lvc3WwQ3LqWCf2E+q3iaBqwS4d5p/XzYmQNb5a3wfRsr47PzhLJBb6EzJ+BypXF4LSTBHju2ysOvACoi2X3gB6tyH58eXvgjwBjbMDVHkj+lCEys8uqKGTQ4WtONKW2CdrD8Kju8xTTp5FS1AYm06eADnLerd9C9y76VEVOautxPG16kBMsXWjAxHO9vNjkQu7JgKR9QEpe9AWVT+IH+k64ywOxR4WJ6z9Y/5YC3OB/x932RjrSmyL9W7uEAxhnSXI0KqNSzEJhJaZqOK6LxNwCGtGAY9ULcvjqNY+0/AsBYm6P9SQeCoc0sAEerJE4LWiUfXHfEPVQcavO9tBOj73gKzWknRlfarWFda1hA+6b70eoBzpbOjDGZiF/3UwFeUVTIXp5X8X30GZEIlIl+5Whr94briOK6nJ3b3DK1nT98jrFgAX3ZF/CWAemgT5SJ4x5dIcbNz2rvNbt5ED1iyUZS4lPlw4TGJU+R6rt4iHvrGTf8X/qlf7OrgYERNPv1Ma9yJ8Xa9mQKN1hh9cSEBivVjNpKDqldMM1Ao4mR/mA3YMv1dn7jmnG6/IKZkifpmiXoTQD4odCQabbdPlaV6cuFyQb0I5HcLKjSfm80ZmkJgqqqgBW+z+iy1PpVJbcI=
+    - secure: 7LDa+gxMEU/23RGtCvn9iZVw+8kyGaiKWr6N663t0O3GcvTM0te8d3oBaDCU8PNLSMQ+9cZGH0ylqa3XmCbYZ2i30Kyps3plYXtpL5dceMJ9TVXs3lS0R0LNTmsfL2fnW9sXZ1GCDKY16t/2CCtBObkJR/zA+M4HiRCUrtKCXukuVlcWdVWUzA5/AuEzNSTdbIqIYktqK7MICyDeK95uouq4Q3aa+onJ3iCN3i2YWQO1AmRgGa7JZnLAxAsLYTfkDvYcYJOPRwY27S9wygFNI7UeUC8mn9PiM7ENOCW9FBX1skRyG2JhnJtuHvyOmZslyfyYnphat3UuaSXPGHBkj1rDs8y6FcW0ksydEyl+tqHXEAwlMdyoxhjGVNyduOWHtJbTq8dx8Gm65bSpcUTPbs+2cTUOze4v8YiVYvDBbkWch9YP5GCY2Lq6N9QOjz6UfWJ/uT62XhbzQeLMQ37lnonKQjHwqa1p+pZQ3P1JhD8jRHWTioy11JJK1fn9qTNhXo7yhOcqfQrT9KG9VSwxgQUVdGn9iZpTe8W34cMPPjZpkZZ51DnX6U4bevr6fd/zSKCg4ZkCLTxajQJlUzIsNN6OTP/d97Tijr9/eP3ALdW+8subwGxXWsjPiJW/b+JX42qZgCffCJsK5QjWBTBPyyj3Q9UTYbVJaARYD58ZSfY=
+    - secure: m1tUjzOXTKIkFwYWnVrO9NQas2ypyqQAqbv6hdCtm2IYOjQ4TjlCoiuhity3yyfwZxc2ArCYSYRTjGUdKE6GKj1JrPyI+GqMBIBrpuj6ldixOpqvjKEPBZPPth+sOdkQTYR9c3ZEoZ8Vep1e+TLN8TiL2om41K/cZKwayLH6560K5bsp765/dyyVh4T9U8s5rFivws21/63yisy3zAEd01LJAFhF6/EzLg02Jmm4UgkrQvPvcAwncIYdQWdtTO5vwYZgsxJaDESreDwyT+HSVOKT2DvJ9wGlaZ+7WH5rRhwXDEdfZg9q9bRv4mkGnvVTSrvmzMBU+PJLBTsX9b8TX/V62WkEsPMUGqqAK+Q/JOYvk6k0WqM53lK+mG2VIE7pLSFR/Uc9EbZBJxC0ec2BWK29yfyVDdTwopLboZuxViG7bPdyJ0XD/tZoJ5/O3GwB8YIv0AwhCY6jJOzQJqGSB/ChKIWYv2StaTHOvwNqTMP69BE/NAEzUhpWVLjeunRjYAUKfzP2s4KUo9xvoVe7Lv/RnEXaCa4WOpfMyIE6Kr0f41kwPVABNcsxT09e9UsRzd6TUDg23Q/rmaJjJfl7tJMf9HFC3QWPKStxnZxhZoOeedAvJhEtOb+CqI1Lf6zGi4BALBJmQlu8nyKO71kjEE8QW3q+nnY2xBOPKSFxS0M=
+    - secure: K8k0ngvRuKkapF5ziXB3aGy1DSitGqi2yCCQjGv/3SCXhE3R+dcgDlvYDxJ7KmYEUfuq4osLH1x9v+DJ0ALb9pXMUVt3fkum7sGqPNbppC6G6xqND+BP8roOcuPgdxDRfZHx40tcXzhx3KX8xb+zcaA/yfCtGDH9Qkbyr5Q0WOUGpzArflYr1SpwO3l9JGL4kQWhg/bJbjy0Adp1H8TsXv2KmwQAkX+prTLHaAdvC2cGqZLaYC9/8z9gx2gEoOD48bl/SW/NUMLHt/NFJY+Z2ZGTlRmg5zKVN1CyAxYuDJ8DDQM7hZaeHx7tfAN2vtZpnZX3J4D4b0pF84mR+G5PnbT38ssNfV0/uQaavB+CkjucfTp9KJucKW6DHjOCvFROZ9Hz7Nrpedt+hSm25QI4H9H6lB0gAzEBjU2m3lwkD+E8Aga7paiMAsUS5uEhisQo2aNWUqX8fKz7yLNdUOx0XSYAeLWUx6jnLOnyo3xj7pXnMiKVIKG7tpXOnbtNkJgBYmHPmRA192t4r0CCWsHZ0ur0Z1FTA2HQQVKX+R+8iGeLGdv6nyW8l7WGQWPMlD2r0tzEoOeZsMSdLtvkOLVF71lvf8I9ggnGGfnwpsdEWS1JHZrelWhOuvzpmNpy424hh2pT/kCIHMEZC9evb8m6vgU7C29+Iw+LbIXt3TBjcxw=
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
+
+before_install:
+  - chmod +x gradlew
+  - chmod +x travis/deploy.sh
+  - export GRADLE_OPTS="-Dorg.gradle.daemon=false -XX:MaxPermSize=512m -Xmx2048m $GRADLE_OPTS"
+  - export DEFAULT_JVM_OPTS=
+
+#install: echo "skip 'gradle assemble' step"
+
+script:
+ - ./gradlew build --continue --stacktrace
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+deploy: # travis by default will not invoke this step for PRs
+  - provider: script
+    skip_cleanup: true
+    script: travis/deploy.sh $CI_SNAPSHOT_URL
+    on:
+      branch:
+        - development
+#  - provider: script
+#    skip_cleanup: true
+#    script: travis/deploy.sh $CI_RELEASE_URL
+#    on:
+#      branch:
+#        - master

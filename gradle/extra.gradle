@@ -1,0 +1,7 @@
+ext {
+    empUsername = System.getenv("CI_USERNAME") ?: empUsername
+    empPassword = System.getenv("CI_PASSWORD") ?: empPassword
+
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+}
