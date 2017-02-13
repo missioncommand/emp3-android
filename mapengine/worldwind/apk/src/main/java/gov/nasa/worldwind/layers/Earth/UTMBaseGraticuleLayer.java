@@ -238,7 +238,7 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
             Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
-        //Sector vs = SectorUtils.getSector(this.mapInstance); //dc.terrain.getSector();
+        //Sector vs = SectorUtils.getMapSector(this.mapInstance); //dc.terrain.getMapSector();
         //OrbitView view = (OrbitView) dc.getView();
         // Compute labels offset from view center
         Position centerPos = new Position(dc.camera.latitude, dc.camera.longitude, dc.camera.altitude);
@@ -312,12 +312,18 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
                 }
             }
             Object polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.GREAT_CIRCLE);
-            Sector sector = Sector.fromDegrees(-80, lon, maxLat + 80, 0.000001);
+            //Sector sector = Sector.fromDegrees(-80, lon, maxLat + 80, 0.000001);
+            Sector sector = new Sector();
+            sector.union(-80, lon);
+            sector.union(maxLat, lon);
             this.gridElements.add(new GridElement(sector, polyline, GridElement.TYPE_LINE));
 
             // Zone label
             Label text = new Label(Position.fromDegrees(0, lon + 3, 0), zoneNumber + "");
-            sector = Sector.fromDegrees(-90, lon + 3, 180, 0.0000001);
+            //sector = Sector.fromDegrees(-90, lon + 3, 180, 1.0e-6);
+            sector = new Sector();
+            sector.union(-90, lon + 3);
+            sector.union(90, lon + 3);
             this.gridElements.add(new GridElement(sector, text, GridElement.TYPE_LONGITUDE_LABEL));
 
             // Increase longitude and zone number
@@ -332,7 +338,10 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
             positions.add(new Position(specialMeridians[i][1], lon, 10e3));
             positions.add(new Position(specialMeridians[i][2], lon, 10e3));
             Object polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.GREAT_CIRCLE);
-            Sector sector = Sector.fromDegrees(specialMeridians[i][1], lon, specialMeridians[i][2] - specialMeridians[i][1], 0.0000001);
+            //Sector sector = Sector.fromDegrees(specialMeridians[i][1], lon, specialMeridians[i][2] - specialMeridians[i][1], 0.0000001);
+            Sector sector = new Sector();
+            sector.union(specialMeridians[i][1], lon);
+            sector.union(specialMeridians[i][2], lon);
             this.gridElements.add(new GridElement(sector, polyline, GridElement.TYPE_LINE));
         }
 
@@ -349,13 +358,19 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
                 positions.add(new Position(latitude, lon + 60, 10e3));
                 positions.add(new Position(latitude, lon + 90, 10e3));
                 Object polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
-                Sector sector = Sector.fromDegrees(lat, lon, 0.0000001, 90);
+                //Sector sector = Sector.fromDegrees(lat, lon, 0.0000001, 90);
+                Sector sector = new Sector();
+                sector.union(lat, lon);
+                sector.union(lat, lon + 90);
                 this.gridElements.add(new GridElement(sector, polyline, GridElement.TYPE_LINE));
             }
             // Latitude band label
             if (i < 20) {
                 Label text = new Label(Position.fromDegrees(lat + 4, 0, 0), latBands.charAt(i) + "");
-                Sector sector = Sector.fromDegrees(lat + 4, -180, 0.0000001, 360);
+                //Sector sector = Sector.fromDegrees(lat + 4, -180, 0.0000001, 360);
+                Sector sector = new Sector();
+                sector.union(lat + 4, -180);
+                sector.union(lat + 4, 180);
                 this.gridElements.add(new GridElement(sector, text, GridElement.TYPE_LATITUDE_LABEL));
             }
 

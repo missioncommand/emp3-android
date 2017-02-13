@@ -82,7 +82,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public boolean isDrawGraticule(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "isDrawGraticule", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         } return getRenderingParams(key).isDrawLines();
     }
@@ -97,7 +97,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void setDrawGraticule(boolean drawGraticule, String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "setDrawGraticule", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         getRenderingParams(key).setDrawLines(drawGraticule);
@@ -113,7 +113,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public Color getGraticuleLineColor(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         return getRenderingParams(key).getLineColor();
@@ -129,12 +129,12 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void setGraticuleLineColor(Color color, String key) {
         if (color == null) {
             String message = Logger.makeMessage(TAG, "setGraticuleLineColor", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         if (key == null) {
             String message = Logger.makeMessage(TAG, "setGraticuleLineColor", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -151,7 +151,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public double getGraticuleLineWidth(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "getGraticuleLineWidth", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         return getRenderingParams(key).getLineWidth();
@@ -167,7 +167,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void setGraticuleLineWidth(double lineWidth, String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "setGraticuleLineWidth", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         getRenderingParams(key).setLineWidth(lineWidth);
@@ -183,7 +183,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public String getGraticuleLineStyle(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "getGraticuleLineStyle", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         return getRenderingParams(key).getLineStyle();
@@ -200,12 +200,12 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void setGraticuleLineStyle(String lineStyle, String key) {
         if (lineStyle == null) {
             String message = Logger.makeMessage(TAG, "setGraticuleLineStyle", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         if (key == null) {
             String message = Logger.makeMessage(TAG, "setGraticuleLineStyle", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -222,7 +222,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public boolean isDrawLabels(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "isDrawLabels", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         return getRenderingParams(key).isDrawLabels();
@@ -238,7 +238,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void setDrawLabels(boolean drawLabels, String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "setDrawLabels", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         getRenderingParams(key).setDrawLabels(drawLabels);
@@ -254,7 +254,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public Color getLabelColor(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "getLabelColor", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         return getRenderingParams(key).getLabelColor();
@@ -270,12 +270,12 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void setLabelColor(Color color, String key) {
         if (color == null) {
             String message = Logger.makeMessage(TAG, "setLabelColor", "nullValue.ColorIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         if (key == null) {
             String message = Logger.makeMessage(TAG, "setLabelColor", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -293,7 +293,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public Font getLabelFont(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "getLabelFont", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         return getRenderingParams(key).getLabelFont();
@@ -310,12 +310,12 @@ public class AbstractGraticuleLayer extends AbstractLayer {
      public void setLabelFont(Font font, String key) {
         if (font == null) {
             String message = Logger.makeMessage(TAG, "setLabelFont", "nullValue.FontIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
         if (key == null) {
             String message = Logger.makeMessage(TAG, "setLabelFont", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -365,7 +365,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void restoreState(String stateInXml) {
         if (stateInXml == null) {
             String message = Logger.makeMessage(TAG, "restoreState", "nullValue.StringIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -375,7 +375,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         } catch (Exception e) {
             // Parsing the document specified by stateInXml failed.
             String message = Logger.makeMessage(TAG, "restoreState", "generic.ExceptionAttemptingToParseStateXml" + stateInXml);
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message, e);
         }
 
@@ -448,7 +448,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected GraticuleRenderingParams getRenderingParams(String key) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "getRenderingParams", "nullValue.KeyIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -458,7 +458,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected void setRenderingParams(String key, GraticuleRenderingParams renderingParams) {
         if (key == null) {
             String message = Logger.makeMessage(TAG, "setRenderingParams", "nullValue.KeyIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -468,7 +468,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected void addRenderable(Object renderable, String paramsKey) {
         if (renderable == null) {
             String message = Logger.makeMessage(TAG, "addRenderable", "nullValue.ObjectIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -482,7 +482,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void doPreRender(RenderContext dc) {
         if (dc == null) {
             String message = Logger.makeMessage(TAG, "doPreRender", "nullValue.DrawContextIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 /*
@@ -501,7 +501,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
             this.frameTimeStamp = dc.getFrameTimeStamp();
         } else {
 */
-            this.mapSector = SectorUtils.getSector(this.mapInstance);
+            this.mapSector = SectorUtils.getMapSector(this.mapInstance);
 
             if (this.needsToUpdate(dc)) {
                 this.clear(dc);
@@ -513,7 +513,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public void doRender(RenderContext dc) {
         if (dc == null) {
             String message = Logger.makeMessage(TAG, "doRender", "nullValue.DrawContextIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -526,7 +526,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected void renderGraticule(RenderContext dc) {
         if (dc == null) {
             String message = Logger.makeMessage(TAG, "renderGraticule", "nullValue.DrawContextIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -541,7 +541,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     protected void selectRenderables(RenderContext dc) {
         if (dc == null) {
             String message = Logger.makeMessage(TAG, "selectRenderables", "nullValue.DrawContextIsNull");
-            //Logging.logger().severe(message);
+            Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
@@ -686,17 +686,17 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         public GridElement(Sector sector, Object renderable, String type) {
             if (sector == null) {
                 String message = Logger.makeMessage(TAG, "GridElement", "nullValue.SectorIsNull");
-                //Logging.logger().severe(message);
+                Logger.log(Logger.ERROR, message);
                 throw new IllegalArgumentException(message);
             }
             if (renderable == null) {
                 String message = Logger.makeMessage(TAG, "GridElement", "nullValue.ObjectIsNull");
-                //Logging.logger().severe(message);
+                Logger.log(Logger.ERROR, message);
                 throw new IllegalArgumentException(message);
             }
             if (type == null) {
                 String message = Logger.makeMessage(TAG, "GridElement", "nullValue.StringIsNull");
-                //Logging.logger().severe(message);
+                Logger.log(Logger.ERROR, message);
                 throw new IllegalArgumentException(message);
             }
             this.sector = sector;
@@ -711,10 +711,10 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         public boolean isInView(RenderContext dc) {
             if (dc == null) {
                 String message = Logger.makeMessage(TAG, "isInView", "nullValue.DrawContextIsNull");
-                //Logging.logger().severe(message);
+                Logger.log(Logger.ERROR, message);
                 throw new IllegalArgumentException(message);
             }
-            //return isInView(dc, dc.terrain.getSector());
+            //return isInView(dc, dc.terrain.getMapSector());
             return isInView(dc, AbstractGraticuleLayer.this.mapSector);
         }
 
@@ -722,12 +722,12 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         public boolean isInView(RenderContext dc, Sector vs) {
             if (dc == null) {
                 String message = Logger.makeMessage(TAG, "isInView", "nullValue.DrawContextIsNull");
-                //Logging.logger().severe(message);
+                Logger.log(Logger.ERROR, message);
                 throw new IllegalArgumentException(message);
             }
             if (vs == null) {
                 String message = Logger.makeMessage(TAG, "isInView", "nullValue.SectorIsNull");
-                //Logging.logger().severe(message);
+                Logger.log(Logger.ERROR, message);
                 throw new IllegalArgumentException(message);
             }
             if (!this.sector.intersects(vs)) {
