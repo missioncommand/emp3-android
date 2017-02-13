@@ -37,15 +37,4 @@ ext {
 
 subprojects {
     apply plugin: 'emp3AndroidCommon'
-
-//TEMPORARY
-    repositories {
-        maven {
-            url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
-            credentials {
-                username empUsername
-                password empPassword
-            }
-        }
-    }
 }
