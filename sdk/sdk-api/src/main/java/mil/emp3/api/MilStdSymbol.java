@@ -517,6 +517,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public MilStdSymbol() {
         super(new GeoMilSymbol(), FeatureTypeEnum.GEO_MIL_SYMBOL);
+        this.getRenderable().setSymbolCode(null);
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
@@ -795,25 +796,37 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * This method retrieves the basic symbol code with no modifiers.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return basic symbol code
      */
     public String getBasicSymbol() {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Can't call this method when symbol code is null");
+        }
         return SymbolUtilities.getBasicSymbolID(this.getSymbolCode());
     }
 
     /**
      * This method trues true if the symbol code is a tactical graphic. it returns false otherwise.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol is a tactical graphic
      */
     public boolean isTacticalGraphic() {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Can't call this method when symbol code is null");
+        }
         return SymbolUtilities.isTacticalGraphic(this.getBasicSymbol());
     }
 
     /**
      * This method returns true if the symbol code represents a single point MilStd.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is for a single point
      */
     public boolean isSinglePoint() {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Can't call this method when symbol code is null");
+        }
         boolean ret = false;
         String basicSymbolCode = this.getBasicSymbol();
 
@@ -834,9 +847,13 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * This method retrieves the affiliation value set in the symbol code.
+     * @throws IllegalStateException if called before symbol code is set
      * @return {@link MilStdSymbol.Affiliation}
      */
     public MilStdSymbol.Affiliation getAffiliation() {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Can't call this method when symbol code is null");
+        }
         String sSymbolCode = this.getSymbolCode();
 
         char affiliation = SymbolUtilities.getAffiliation(sSymbolCode);
@@ -845,11 +862,16 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * This method set the symbol code affiliation of the symbol code.
+     * @throws IllegalStateException if called before symbol code is set
      * @param eAffiliation {@link MilStdSymbol.Affiliation}
+     * @throws IllegalArgumentException if eAffiliation is null
      */
     public void setAffiliation(MilStdSymbol.Affiliation eAffiliation) {
         if (eAffiliation == null) {
             throw new IllegalArgumentException("Affiliation can not be null.");
+        }
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Can't call this method when symbol code is null");
         }
         String sSymbolCode = this.getSymbolCode();
         
@@ -860,6 +882,9 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     private void setEchelonField(String sStr) {
         if ((sStr == null) || (sStr.length() < 2)) {
             throw new IllegalArgumentException("Invalid echelon.");
+        }
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Can't call this method when symbol code is null");
         }
         String sSymbolCode = this.getSymbolCode();
 
@@ -957,20 +982,27 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * This method returns true if the symbol is an air track.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is for an air track
      */
     public boolean isAirTrack() {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Can't call this method when symbol code is null");
+        }
         return SymbolUtilities.isAirTrack(this.getSymbolCode());
     }
 
     /**
      * This method returns true if the symbol code is a space track, false otherwise.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is a space track
      */
     public boolean isSpaceTrack() {
         boolean bRet = false;
-
-        if ((null != this.getSymbolCode()) && (this.getSymbolCode().length() == 15)) {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Can't call this method when symbol code is null");
+        }
+        if (this.getSymbolCode().length() == 15) {
             if ("S*P".equals(this.getBasicSymbol().substring(0, 3))) {
                 bRet = true;
             }
