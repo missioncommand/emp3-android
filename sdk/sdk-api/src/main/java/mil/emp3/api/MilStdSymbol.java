@@ -801,7 +801,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public String getBasicSymbol() {
         if (getSymbolCode() == null) {
-            throw new IllegalStateException("Can't call this method when symbol code is null");
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
         return SymbolUtilities.getBasicSymbolID(this.getSymbolCode());
     }
@@ -813,7 +813,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public boolean isTacticalGraphic() {
         if (getSymbolCode() == null) {
-            throw new IllegalStateException("Can't call this method when symbol code is null");
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
         return SymbolUtilities.isTacticalGraphic(this.getBasicSymbol());
     }
@@ -825,7 +825,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public boolean isSinglePoint() {
         if (getSymbolCode() == null) {
-            throw new IllegalStateException("Can't call this method when symbol code is null");
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
         boolean ret = false;
         String basicSymbolCode = this.getBasicSymbol();
@@ -852,7 +852,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public MilStdSymbol.Affiliation getAffiliation() {
         if (getSymbolCode() == null) {
-            throw new IllegalStateException("Can't call this method when symbol code is null");
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
         String sSymbolCode = this.getSymbolCode();
 
@@ -871,7 +871,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             throw new IllegalArgumentException("Affiliation can not be null.");
         }
         if (getSymbolCode() == null) {
-            throw new IllegalStateException("Can't call this method when symbol code is null");
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
         String sSymbolCode = this.getSymbolCode();
         
@@ -884,7 +884,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             throw new IllegalArgumentException("Invalid echelon.");
         }
         if (getSymbolCode() == null) {
-            throw new IllegalStateException("Can't call this method when symbol code is null");
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
         String sSymbolCode = this.getSymbolCode();
 
@@ -987,7 +987,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public boolean isAirTrack() {
         if (getSymbolCode() == null) {
-            throw new IllegalStateException("Can't call this method when symbol code is null");
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
         return SymbolUtilities.isAirTrack(this.getSymbolCode());
     }
@@ -1000,7 +1000,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     public boolean isSpaceTrack() {
         boolean bRet = false;
         if (getSymbolCode() == null) {
-            throw new IllegalStateException("Can't call this method when symbol code is null");
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
         if (this.getSymbolCode().length() == 15) {
             if ("S*P".equals(this.getBasicSymbol().substring(0, 3))) {
