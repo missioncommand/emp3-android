@@ -60,6 +60,9 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     }
 
     @Override
+    public void validate() {}
+
+    @Override
     public void addFeature(IFeature feature, boolean visible)
             throws EMP_Exception {
         if (feature == null) {
@@ -78,9 +81,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Feature.addFeatures can not be null.");
         } else if (features.size() > 0) {
             for (IFeature feature : features) {
-                if (feature instanceof MilStdSymbol && ((MilStdSymbol) feature).getSymbolCode() == null) {
-                    throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Can't add feature with null symbol code");
-                }
+                feature.validate();
             }
             storageManager.addFeatures(this, features, visible);
         }

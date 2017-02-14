@@ -109,9 +109,7 @@ public class Overlay extends Container implements IOverlay {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Overlay.addFeatures can not be null.");
         } else if (features.size() > 0) {
             for (IFeature feature : features) {
-                if (feature instanceof MilStdSymbol && ((MilStdSymbol) feature).getSymbolCode() == null) {
-                    throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Can't add feature with null symbol code");
-                }
+                feature.validate();
             }
             storageManager.addFeatures(this, features, visible);
         }

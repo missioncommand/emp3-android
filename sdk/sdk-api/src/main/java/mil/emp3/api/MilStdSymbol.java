@@ -800,9 +800,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return basic symbol code
      */
     public String getBasicSymbol() {
-        if (getSymbolCode() == null) {
-            throw new IllegalStateException("Invalid operation. Symbol code is not set");
-        }
+        validate();
         return SymbolUtilities.getBasicSymbolID(this.getSymbolCode());
     }
 
@@ -812,9 +810,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return true if symbol is a tactical graphic
      */
     public boolean isTacticalGraphic() {
-        if (getSymbolCode() == null) {
-            throw new IllegalStateException("Invalid operation. Symbol code is not set");
-        }
+        validate();
         return SymbolUtilities.isTacticalGraphic(this.getBasicSymbol());
     }
 
@@ -824,9 +820,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return true if symbol code is for a single point
      */
     public boolean isSinglePoint() {
-        if (getSymbolCode() == null) {
-            throw new IllegalStateException("Invalid operation. Symbol code is not set");
-        }
+       validate();
         boolean ret = false;
         String basicSymbolCode = this.getBasicSymbol();
 
@@ -851,9 +845,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return {@link MilStdSymbol.Affiliation}
      */
     public MilStdSymbol.Affiliation getAffiliation() {
-        if (getSymbolCode() == null) {
-            throw new IllegalStateException("Invalid operation. Symbol code is not set");
-        }
+        validate();
         String sSymbolCode = this.getSymbolCode();
 
         char affiliation = SymbolUtilities.getAffiliation(sSymbolCode);
@@ -870,9 +862,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if (eAffiliation == null) {
             throw new IllegalArgumentException("Affiliation can not be null.");
         }
-        if (getSymbolCode() == null) {
-            throw new IllegalStateException("Invalid operation. Symbol code is not set");
-        }
+        validate();
         String sSymbolCode = this.getSymbolCode();
         
         sSymbolCode = SymbolUtilities.setAffiliation(sSymbolCode, eAffiliation.toString());
@@ -883,9 +873,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if ((sStr == null) || (sStr.length() < 2)) {
             throw new IllegalArgumentException("Invalid echelon.");
         }
-        if (getSymbolCode() == null) {
-            throw new IllegalStateException("Invalid operation. Symbol code is not set");
-        }
+        validate();
         String sSymbolCode = this.getSymbolCode();
 
         sSymbolCode = sSymbolCode.substring(0, 10) + sStr.substring(0,2) + sSymbolCode.substring(12);
@@ -986,9 +974,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return true if symbol code is for an air track
      */
     public boolean isAirTrack() {
-        if (getSymbolCode() == null) {
-            throw new IllegalStateException("Invalid operation. Symbol code is not set");
-        }
+        validate();
         return SymbolUtilities.isAirTrack(this.getSymbolCode());
     }
 
@@ -999,14 +985,19 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public boolean isSpaceTrack() {
         boolean bRet = false;
-        if (getSymbolCode() == null) {
-            throw new IllegalStateException("Invalid operation. Symbol code is not set");
-        }
+        validate();
         if (this.getSymbolCode().length() == 15) {
             if ("S*P".equals(this.getBasicSymbol().substring(0, 3))) {
                 bRet = true;
             }
         }
         return bRet;
+    }
+
+    @Override
+    public void validate() {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
+        }
     }
 }
