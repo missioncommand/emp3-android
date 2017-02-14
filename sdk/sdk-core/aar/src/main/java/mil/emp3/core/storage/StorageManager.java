@@ -489,28 +489,7 @@ public class StorageManager implements IStorageManager {
                 eventManager.generateVisibilityEvent(actionEnum, targetWrapper.getObject(), null, map);
             }
 
-            if (!idVisibilityList.isEmpty()) {
-                // Now send it to the map.
-                IMapInstance mapInstance = this.getMapInstance(map);
-                // mapInstance.setVisibility(idVisibilityList);
-
-                IUUIDSet removeSet = new UUIDSet();
-                FeatureVisibilityList fvList = new FeatureVisibilityList();
-                for (UUID uuid : idVisibilityList.keySet()) {
-                    if (idVisibilityList.get(uuid)) {
-                        StorageObjectWrapper sow = this.oObjectHash.get(uuid);
-                        if ((null != sow) && (sow.getObject() instanceof IFeature)) {
-                            fvList.add(new FeatureVisibility((IFeature) sow.getObject(), true));
-                        }
-                    } else {
-                        removeSet.add(uuid);
-                    }
-                }
-                if (!fvList.isEmpty())
-                    mapInstance.addFeatures(fvList);
-                if (!removeSet.isEmpty())
-                    mapInstance.removeFeatures(removeSet);
-            }
+            processVisibilityList(map, idVisibilityList);
         } finally {
             lock.unlock();
         }
@@ -691,11 +670,7 @@ public class StorageManager implements IStorageManager {
                     break;
             }
 
-            if (!idVisibilityList.isEmpty()) {
-                // Now send it to the map.
-                IMapInstance mapInstance = this.getMapInstance(map);
-                mapInstance.setVisibility(idVisibilityList);
-            }
+            processVisibilityList(map, idVisibilityList);
         } finally {
             lock.unlock();
         }
@@ -703,6 +678,35 @@ public class StorageManager implements IStorageManager {
         eventManager.generateVisibilityEvent(actionEnum, target, parent, map);
     }
 
+    /**
+     * Translate visibility actions into add/remove calls on MapInstance.
+     * @param map
+     * @param idVisibilityList
+     */
+    private void processVisibilityList(IMap map, IdentifierVisibilityHash idVisibilityList) {
+        if (!idVisibilityList.isEmpty()) {
+            // Now send it to the map.
+            IMapInstance mapInstance = this.getMapInstance(map);
+            // mapInstance.setVisibility(idVisibilityList);
+
+            IUUIDSet removeSet = new UUIDSet();
+            FeatureVisibilityList fvList = new FeatureVisibilityList();
+            for (UUID uuid : idVisibilityList.keySet()) {
+                if (idVisibilityList.get(uuid)) {
+                    StorageObjectWrapper sow = this.oObjectHash.get(uuid);
+                    if ((null != sow) && (sow.getObject() instanceof IFeature)) {
+                        fvList.add(new FeatureVisibility((IFeature) sow.getObject(), true));
+                    }
+                } else {
+                    removeSet.add(uuid);
+                }
+            }
+            if (!fvList.isEmpty())
+                mapInstance.addFeatures(fvList);
+            if (!removeSet.isEmpty())
+                mapInstance.removeFeatures(removeSet);
+        }
+    }
     @Override
     public VisibilityStateEnum getVisibilityOnMap(IMap map, IContainer target) {
         VisibilityStateEnum eRet = VisibilityStateEnum.HIDDEN;

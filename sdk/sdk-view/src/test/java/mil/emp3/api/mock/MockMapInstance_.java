@@ -107,18 +107,6 @@ public class MockMapInstance_ extends CoreMapInstance {
         return null;
     }
 
-    //
-    // This method should be removed. Storage Manager should just call addFeature/removeFeature as necessary.
-    //
-
-    @Override
-    public void setVisibility(ISetVisibilityList visibilityList) {
-//        for (UUID featureUUID: visibilityList.keySet()) {
-//            if(!visibilityList.get(featureUUID))
-//                removeFeatureQueue.add(featureUUID);
-//        }
-    }
-
     @Override
     public void addFeatures(FeatureVisibilityList features) {
         Log.d(TAG, "In addFeatures");
