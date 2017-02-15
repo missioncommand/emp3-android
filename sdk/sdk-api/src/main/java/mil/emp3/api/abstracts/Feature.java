@@ -13,6 +13,7 @@ import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.ArrayList;
 
+import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
@@ -59,6 +60,9 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     }
 
     @Override
+    public void validate() {}
+
+    @Override
     public void addFeature(IFeature feature, boolean visible)
             throws EMP_Exception {
         if (feature == null) {
@@ -76,6 +80,9 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         if (features == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Feature.addFeatures can not be null.");
         } else if (features.size() > 0) {
+            for (IFeature feature : features) {
+                feature.validate();
+            }
             storageManager.addFeatures(this, features, visible);
         }
     }
