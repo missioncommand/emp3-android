@@ -517,6 +517,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public MilStdSymbol() {
         super(new GeoMilSymbol(), FeatureTypeEnum.GEO_MIL_SYMBOL);
+        this.getRenderable().setSymbolCode(null);
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
@@ -795,25 +796,31 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * This method retrieves the basic symbol code with no modifiers.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return basic symbol code
      */
     public String getBasicSymbol() {
+        validate();
         return SymbolUtilities.getBasicSymbolID(this.getSymbolCode());
     }
 
     /**
      * This method trues true if the symbol code is a tactical graphic. it returns false otherwise.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol is a tactical graphic
      */
     public boolean isTacticalGraphic() {
+        validate();
         return SymbolUtilities.isTacticalGraphic(this.getBasicSymbol());
     }
 
     /**
      * This method returns true if the symbol code represents a single point MilStd.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is for a single point
      */
     public boolean isSinglePoint() {
+       validate();
         boolean ret = false;
         String basicSymbolCode = this.getBasicSymbol();
 
@@ -834,9 +841,11 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * This method retrieves the affiliation value set in the symbol code.
+     * @throws IllegalStateException if called before symbol code is set
      * @return {@link MilStdSymbol.Affiliation}
      */
     public MilStdSymbol.Affiliation getAffiliation() {
+        validate();
         String sSymbolCode = this.getSymbolCode();
 
         char affiliation = SymbolUtilities.getAffiliation(sSymbolCode);
@@ -845,12 +854,15 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * This method set the symbol code affiliation of the symbol code.
+     * @throws IllegalStateException if called before symbol code is set
      * @param eAffiliation {@link MilStdSymbol.Affiliation}
+     * @throws IllegalArgumentException if eAffiliation is null
      */
     public void setAffiliation(MilStdSymbol.Affiliation eAffiliation) {
         if (eAffiliation == null) {
             throw new IllegalArgumentException("Affiliation can not be null.");
         }
+        validate();
         String sSymbolCode = this.getSymbolCode();
         
         sSymbolCode = SymbolUtilities.setAffiliation(sSymbolCode, eAffiliation.toString());
@@ -861,6 +873,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if ((sStr == null) || (sStr.length() < 2)) {
             throw new IllegalArgumentException("Invalid echelon.");
         }
+        validate();
         String sSymbolCode = this.getSymbolCode();
 
         sSymbolCode = sSymbolCode.substring(0, 10) + sStr.substring(0,2) + sSymbolCode.substring(12);
@@ -957,24 +970,34 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * This method returns true if the symbol is an air track.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is for an air track
      */
     public boolean isAirTrack() {
+        validate();
         return SymbolUtilities.isAirTrack(this.getSymbolCode());
     }
 
     /**
      * This method returns true if the symbol code is a space track, false otherwise.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is a space track
      */
     public boolean isSpaceTrack() {
         boolean bRet = false;
-
-        if ((null != this.getSymbolCode()) && (this.getSymbolCode().length() == 15)) {
+        validate();
+        if (this.getSymbolCode().length() == 15) {
             if ("S*P".equals(this.getBasicSymbol().substring(0, 3))) {
                 bRet = true;
             }
         }
         return bRet;
+    }
+
+    @Override
+    public void validate() {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
+        }
     }
 }

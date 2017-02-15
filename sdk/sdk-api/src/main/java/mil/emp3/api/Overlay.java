@@ -2,6 +2,7 @@ package mil.emp3.api;
 
 
 import org.cmapi.primitives.GeoContainer;
+import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoContainer;
 import org.xmlpull.v1.XmlSerializer;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.abstracts.Container;
+import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IKMLExportable;
@@ -94,7 +96,7 @@ public class Overlay extends Container implements IOverlay {
         if (feature == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Overlay.addFeature can not be null.");
         }
-        
+
         ArrayList<IFeature> oList = new ArrayList<>();
         oList.add(feature);
         this.addFeatures(oList, visible);
@@ -106,6 +108,9 @@ public class Overlay extends Container implements IOverlay {
         if (features == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Overlay.addFeatures can not be null.");
         } else if (features.size() > 0) {
+            for (IFeature feature : features) {
+                feature.validate();
+            }
             storageManager.addFeatures(this, features, visible);
         }
     }
