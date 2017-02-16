@@ -7,8 +7,7 @@ publishUrl=$1
 echo '[deploy] publishUrl='$publishUrl
 
 # we only publish for specific branches and if NOT a PR
-#if [[ "$TRAVIS_BRANCH" == "development" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-echo $PWD
-    ./gradlew publish -PnexusPublishUrl=$publishUrl --stacktrace --info
-    #exit $?
-#fi
+if [[ "$TRAVIS_BRANCH" == "development" ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+    ./gradlew publish -PnexusPublishUrl=$publishUrl --stacktrace
+    exit $?
+fi

@@ -2944,7 +2944,13 @@ public class MainActivity extends AppCompatActivity
                     //oPosition.setLongitude(randomLocalLongitude());
                     //oPosition.setAltitude(Math.random() * 1000000.0);
                     //oPositionList.add(oPosition);
-                    final MilStdSymbol oNewSymbol = new MilStdSymbol(oDialog.getMilStdVersion(), oDialog.getSymbolCode());
+                    MilStdSymbol newSymbol = null;
+                    if (oDialog.getSymbolCode() == null || oDialog.getSymbolCode().isEmpty()) {
+                        newSymbol = new MilStdSymbol();
+                    } else {
+                        newSymbol = new MilStdSymbol(oDialog.getMilStdVersion(), oDialog.getSymbolCode());
+                    }
+                    final MilStdSymbol oNewSymbol = newSymbol;
                     //oNewSymbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.RELATIVE_TO_GROUND);
                     if ((oDialog.getFeatureName() != null) && !oDialog.getFeatureName().isEmpty()) {
                         oNewSymbol.setName(oDialog.getFeatureName());
