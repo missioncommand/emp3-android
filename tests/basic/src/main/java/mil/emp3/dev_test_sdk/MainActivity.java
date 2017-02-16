@@ -561,6 +561,10 @@ public class MainActivity extends AppCompatActivity
                                 // Give the feature a name.
                                 oSPSymbol.setName("Unit " + iCount);
 
+                                if ((iCount % 2) == 0) {
+                                    oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSPSymbol.getName());
+                                }
+
                                 //Add it to the list we will be adding to the overlay.
                                 oFeatureList.add(oSPSymbol);
 
@@ -810,15 +814,20 @@ public class MainActivity extends AppCompatActivity
 
         java.util.List<String> oLayers = new java.util.ArrayList<>();
 
-        oLayers.add("BlueMarble-200412");
+        oLayers.add("imagery_part2-2.0.0.1-wsmr.gpkg");
         try {
             this.wmsService = new mil.emp3.api.WMS(
-                    "http://worldwind25.arc.nasa.gov/wms",
-                    WMSVersionEnum.VERSION_1_1,
+                    "http://172.16.20.99:5000/WmsServerStrict",
+                    WMSVersionEnum.VERSION_1_3_0,
                     "image/png",
                     true,
                     oLayers
             );
+            this.wmsService.setLayerResolution(1.0);
+            oCamera.setLatitude(32.897);
+            oCamera.setLongitude(-105.939);
+            oCamera.setAltitude(500.0);
+            oCamera.apply(false);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -1135,7 +1144,8 @@ public class MainActivity extends AppCompatActivity
                 public void onClick(View view) {
                     ICamera camera = MainActivity.this.oCamera;
                     double initAltitude = camera.getAltitude();
-                    if (initAltitude >= 12000) {
+                    // lowest possible camera altitude set to 100 meters
+                    if (initAltitude >= 120) {
                         initAltitude /= 1.2;
                         camera.setAltitude(initAltitude);
                         camera.apply(false);
