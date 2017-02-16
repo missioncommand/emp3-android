@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity
     private IGeoStrokeStyle iconStyleStroke = new GeoStrokeStyle();
     private IGeoLabelStyle iconStyleLabel   = new GeoLabelStyle();
 
-    private String[] gpkgList;
+    private String[] gpkgList = null;
     private File downloadFolder = new File("/sdcard/Download/");
     private String gpkgPick;
     private static final String SUFFIX = ".gpkg";
@@ -1536,32 +1536,40 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_addGeoPackage: {
                 try {
                     getGpkgList();
-                    Dialog dialog = null;
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Choose GeoPackage file");
-                    if (gpkgList == null) {
-                        Log.e(TAG, "Showing file picker before loading the file list");
-                        dialog = builder.create();
-                    }
-                    builder.setItems(gpkgList, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            gpkgPick = gpkgList[which];
-                            Log.i(TAG, "File picked is " + gpkgPick);
-                            try {
-                                geoPackage = new GeoPackage("File:///sdcard/Download/" + gpkgPick);
-                                MainActivity.this.map.addMapService(geoPackage);
-                                ICamera camera = MainActivity.this.map.getCamera();
-                                // Place the camera directly over the GeoPackage image.
-                                camera.setLatitude(39.54795);
-                                camera.setLongitude(-76.16334);
-                                camera.setAltitude(2580);
-                                camera.apply(true);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    if (gpkgList == null || (gpkgList.length == 0)) {
+                        AlertDialog dialog = builder.create();
+                        dialog.setTitle("GeoPackage Chooser");
+                        dialog.setMessage("No geopackage file found");
+                        dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        dialog.show();
+                    } else {
+                        builder.setTitle("Choose GeoPackage file");
+                        builder.setItems(gpkgList, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                gpkgPick = gpkgList[which];
+                                Log.i(TAG, "File picked is " + gpkgPick);
+                                try {
+                                    geoPackage = new GeoPackage("File:///sdcard/Download/" + gpkgPick);
+                                    MainActivity.this.map.addMapService(geoPackage);
+                                    ICamera camera = MainActivity.this.map.getCamera();
+                                    // Place the camera directly over the GeoPackage image.
+                                    camera.setLatitude(39.54795);
+                                    camera.setLongitude(-76.16334);
+                                    camera.setAltitude(2580);
+                                    camera.apply(true);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        }
-                    });
-                    dialog = builder.show();
+                        });
+                        builder.show();
+                    }
 
                     //Using hard coded values here because it is extremely difficult to locate otherwise
                 } catch (Exception Ex) {
