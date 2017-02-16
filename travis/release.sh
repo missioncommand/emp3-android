@@ -14,10 +14,10 @@ echo '[release] di2ePublishUrl='$di2ePublishUrl
 
 # we only publish if a tag and for specific branches, but not NOT PRs
 if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    ./gradlew publish -PnexusPublishUrl=$publishUrl -Pdi2eNexusReleaseUrl=$di2ePublishUrl --stacktrace
+    #./gradlew publish -PnexusPublishUrl=$publishUrl -Pdi2eNexusReleaseUrl=$di2ePublishUrl --stacktrace
 
     REMOTE_URL=$(git config --get remote.origin.url)
-    REMOTE_URL=$(echo $REMOTE_URL | sed -e "s#://#://$GITHUB_API_KEY@#g") > /dev/null 2>&1
+    #REMOTE_URL=$(echo $REMOTE_URL | sed -e "s#://#://$GITHUB_API_KEY@#g") > /dev/null 2>&1
 
     RELEASE_BRANCH=release/$TRAVIS_TAG
 
@@ -34,7 +34,7 @@ if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     git checkout --force master
     git merge --no-commit --no-ff -X theirs $TRAVIS_TAG
     git commit -m "[travis] Merge tag '$TRAVIS_TAG' [ci skip]"
-    git push --quiet > /dev/null 2>&1
+    #git push --quiet > /dev/null 2>&1
 
     echo '[release] Merging to development..'
     git checkout --force development
@@ -42,14 +42,18 @@ if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     git commit -m "[travis] Merge branch '$RELEASE_BRANCH' [ci skip]"
 
     echo '[release] Setting next development version..'
+ls -la gradlew
+ls -la gradle.properties
+cat gradle.properties
     ./gradlew :nextMinorVersion -PisSnapshot
+cat gradle.properties
     git commit -am "[travis] Bump version"
-    git push --quiet > /dev/null 2>&1
+    #git push --quiet > /dev/null 2>&1
 
 
     echo '[release] Deleting release branch..'
     git branch -d $RELEASE_BRANCH
-    git push --quiet origin :$RELEASE_BRANCH > /dev/null 2>&1
+    #git push --quiet origin :$RELEASE_BRANCH > /dev/null 2>&1
 
     exit $?
 fi
