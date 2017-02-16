@@ -23,6 +23,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.io.InputStream;
 import java.util.List;
 
+import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.core.ICoreManager;
@@ -109,7 +110,6 @@ public class GeoJsonParserTest {
             stream = classLoader.getResourceAsStream("valid.json");
         } catch (Exception e) {
             Assert.fail("Could not get resource stream for parsing");
-        } finally {
         }
         try {
             List<IFeature> featureList = GeoJsonParser.parse(stream);
@@ -128,17 +128,66 @@ public class GeoJsonParserTest {
     }
 
     @Test
-    public void validGeoJsonTest() {
-        Log.d(TAG, "Valid geojson test");
+    public void invalidGeoJsonTest() {
+        Log.d(TAG, "Invalid geojson test");
         InputStream stream = null;
         try {
             stream = classLoader.getResourceAsStream("cmapi.json");
         } catch (Exception e) {
             Assert.fail("Could not get resource stream for parsing");
         }
+        List<IFeature> featureList = null;
+        IFeature feature = null;
+        try {
+            featureList = GeoJsonParser.parse(stream);
+            Assert.assertEquals(2, featureList.size());
+            feature = featureList.get(0);
+            Assert.assertEquals(feature.getFeatureType(), FeatureTypeEnum.GEO_POLYGON);
+            Assert.assertEquals(feature.getPositions().size(), 5);
+            Assert.assertNotEquals(feature.getDescription(), "polygon  pop-up  text");
+        } catch (Exception e) {
+            Assert.fail("invalid geojson threw exception, should have ignored error");
+        }
+        try {
+            feature = featureList.get(1);
+            Assert.assertEquals(feature.getFeatureType(), FeatureTypeEnum.GEO_PATH);
+            Assert.assertEquals(feature.getPositions().size(), 4);
+            Assert.assertEquals(feature.getPositions().get(2).getLatitude(), 5.0, 0.001);
+            Assert.assertNotEquals(feature.getName(), "crossingLine");
+        } catch (Exception e) {
+            Assert.fail("invalid geojson threw exception, should have ignored error");
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (Exception e) {
+
+                }
+            }
+        }
+    }
+
+    @Test
+    public void validGeoJsonTest() {
+        Log.d(TAG, "Valid geojson test");
+        InputStream stream = null;
+        try {
+            stream = classLoader.getResourceAsStream("cmapi-fixed.json");
+        } catch (Exception e) {
+            Assert.fail("Could not get resource stream for parsing");
+        }
         try {
             List<IFeature> featureList = GeoJsonParser.parse(stream);
             Assert.assertEquals(2, featureList.size());
+            IFeature feature = featureList.get(0);
+            Assert.assertEquals(feature.getFeatureType(), FeatureTypeEnum.GEO_POLYGON);
+            Assert.assertEquals(feature.getPositions().size(), 5);
+            Assert.assertEquals(feature.getDescription(), "polygon  pop-up  text");
+            feature = featureList.get(1);
+            Assert.assertEquals(feature.getFeatureType(), FeatureTypeEnum.GEO_PATH);
+            Assert.assertEquals(feature.getPositions().size(), 4);
+            Assert.assertEquals(feature.getPositions().get(2).getLatitude(), 5.0, 0.001);
+            Assert.assertEquals(feature.getName(), "crossingLine");
         } catch (Exception e) {
             Assert.fail("valid geojson threw exception");
         } finally {
