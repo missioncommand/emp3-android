@@ -1,7 +1,7 @@
 #!/bin/bash
 
-set +x
-set -e
+#set +x
+#set -e
 
 echo '[release] TRAVIS_TAG='$TRAVIS_TAG
 echo '[release] TRAVIS_BRANCH='$TRAVIS_BRANCH
@@ -32,7 +32,7 @@ if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
 
     echo '[release] Merging to master..'
     git checkout --force master
-    git merge --no-commit --no-ff $TRAVIS_TAG
+    git merge --no-commit --no-ff -X theirs $TRAVIS_TAG
     git commit -m "[travis] Merge tag '$TRAVIS_TAG' [ci skip]"
     git push --quiet > /dev/null 2>&1
 
