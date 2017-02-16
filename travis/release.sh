@@ -45,6 +45,7 @@ if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
 ls -la gradlew
 ls -la gradle.properties
 cat gradle.properties
+    chmod +x gradlew
     ./gradlew :nextMinorVersion -PisSnapshot
 cat gradle.properties
     git commit -am "[travis] Bump version"
