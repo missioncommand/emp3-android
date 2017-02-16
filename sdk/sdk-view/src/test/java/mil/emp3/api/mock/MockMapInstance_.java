@@ -12,10 +12,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
-import mil.emp3.api.Camera;
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
+import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.api.events.CameraEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
@@ -25,7 +26,7 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.listeners.ICameraEventListener;
-import mil.emp3.mapengine.CoreMapInstance;
+import mil.emp3.mapengine.abstracts.CoreMapInstance;
 import mil.emp3.mapengine.api.Capabilities;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
@@ -40,15 +41,20 @@ public class MockMapInstance_ extends CoreMapInstance {
     private static String TAG = MockMapInstance_.class.getSimpleName();
     protected final BlockingQueue<IFeature> addFeatureQueue;
     protected final BlockingQueue<UUID> removeFeatureQueue;
+    protected final BlockingQueue<IFeature> selectFeatureQueue;
+    protected final BlockingQueue<IFeature> deselectFeatureQueue;
     protected final BlockingQueue<ICamera> setCameraQueue;
     protected ICamera currentCamera;
 
     public MockMapInstance_(BlockingQueue<IFeature> addFeatureQueue, BlockingQueue<UUID> removeFeatureQueue,
-                           BlockingQueue<ICamera> setCameraQueue) {
+                           BlockingQueue<ICamera> setCameraQueue, BlockingQueue<IFeature> selectFeatureQueue,
+                            BlockingQueue deselectFeatureQueue) {
         super(TAG, null);
         this.addFeatureQueue = addFeatureQueue;
         this.removeFeatureQueue = removeFeatureQueue;
         this.setCameraQueue = setCameraQueue;
+        this.selectFeatureQueue = selectFeatureQueue;
+        this.deselectFeatureQueue = deselectFeatureQueue;
     }
 
     @Override
@@ -90,30 +96,15 @@ public class MockMapInstance_ extends CoreMapInstance {
                         FeatureTypeEnum.GEO_PATH,
                         FeatureTypeEnum.GEO_POLYGON
                 },
-                new WMSVersionEnum[] {WMSVersionEnum.VERSION_1_1, WMSVersionEnum.VERSION_1_1_1, WMSVersionEnum.VERSION_1_3});
+                new WMSVersionEnum[] {WMSVersionEnum.VERSION_1_1, WMSVersionEnum.VERSION_1_1_1,
+                        WMSVersionEnum.VERSION_1_3, WMSVersionEnum.VERSION_1_3_0},
+                new WMTSVersionEnum[] {WMTSVersionEnum.VERSION_1_0_0});
         return this.oEngineCapabilities;
     }
 
     @Override
     public IMapEngineRequirements getRequirements() {
         return null;
-    }
-
-    @Override
-    public ICapture getCapture() {
-        return null;
-    }
-
-    //
-    // This method should be removed. Storage Manager should just call addFeature/removeFeature as necessary.
-    //
-
-    @Override
-    public void setVisibility(ISetVisibilityList visibilityList) {
-//        for (UUID featureUUID: visibilityList.keySet()) {
-//            if(!visibilityList.get(featureUUID))
-//                removeFeatureQueue.add(featureUUID);
-//        }
     }
 
     @Override
@@ -179,6 +170,9 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
+    public void applyCameraChange(ICamera oCamera, boolean animate) { }
+
+    @Override
     public void setLookAt(ILookAt oLookAt, boolean animate) {
 
     }
@@ -187,6 +181,9 @@ public class MockMapInstance_ extends CoreMapInstance {
     public ILookAt getLookAt() {
         return null;
     }
+
+    @Override
+    public void applyLookAtChange(ILookAt oLookAt, boolean animate) { }
 
     @Override
     public void setBounds(IGeoBounds bounds) {
@@ -248,11 +245,43 @@ public class MockMapInstance_ extends CoreMapInstance {
 
     @Override
     public void selectFeatures(List<IFeature> featureList) {
-
+        Log.d(TAG, "In selectFeatures");
+        for (IFeature feature: featureList) {
+            Log.d(TAG, "In selectFeatures " + feature.getClass().getName() + " " + feature.getGeoId());
+            selectFeatureQueue.add(feature);
+        }
     }
 
     @Override
     public void deselectFeatures(List<IFeature> featureList) {
+        Log.d(TAG, "In deselectFeatures");
+        for (IFeature feature: featureList) {
+            Log.d(TAG, "In deselectFeatures " + feature.getClass().getName() + " " + feature.getGeoId());
+            deselectFeatureQueue.add(feature);
+        }
+    }
+
+    @Override
+    public void setFontSizeModifier(FontSizeModifierEnum value) {
+
+    }
+
+    @Override
+    public void setBackgroundBrightness(int setting) {
+    }
+
+    @Override
+    public int getBackgroundBrightness() {
+        return 50;
+    }
+    
+    @Override
+    public android.view.View showMiniMap() {
+        return null;
+    }
+
+    @Override
+    public void hideMiniMap() {
 
     }
 }

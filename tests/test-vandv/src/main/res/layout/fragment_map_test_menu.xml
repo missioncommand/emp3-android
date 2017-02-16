@@ -1,0 +1,52 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="mil.emp3.test.emp3vv.ValidateAndVerify">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/UserActionsContainer"
+        android:orientation="vertical">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/UserActions"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/UserAction1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="UserAction1" />
+
+            <Button
+                android:id="@+id/UserAction2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="UserAction2" />
+
+            <Button
+                android:id="@+id/UserAction3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="UserAction3" />
+            <Button
+                android:id="@+id/UserAction4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:text="UserAction4" />
+            <Button
+                android:id="@+id/More"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:layout_gravity="right"
+                android:text="..." />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

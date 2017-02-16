@@ -4,37 +4,36 @@ import android.util.SparseArray;
 
 import org.cmapi.primitives.IGeoBounds;
 
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.core.IStorageManager;
 
 /**
- *
- * This interface defines access to the core MilStd rendering capability required by the map instances.
+ * This object provides interface to Mild Std renderer. Ir is constructed in the EMP Core and registered with the Map Instance for its usage.
  */
 public interface IMilStdRenderer {
     void setStorageManager(IStorageManager storageManager);
 
     /**
-     * This method sets the Cache Directory used by renderer and also sets the available heap memory for the application
+     * Sets the Cache Directory used by renderer and also sets the available heap memory for the application
      * @param sCacheDir
      * @param getMemoryClass
      */
     void setRendererCacheDir(String sCacheDir, int getMemoryClass);
 
     /**
-     * This method is called by the map instances to get a list of renderable that compose the
-     * MilStd tactical graphic symbol.
+     * Gets a list of renderables that compose the MilStd tactical graphic symbol.
      * @param mapInstance
      * @param symbol
      * @param selected
      * @return A list of basic IFeature objects. See {@link IFeature).
      */
-    java.util.List<IFeature> getTGRenderableShapes(IMapInstance mapInstance, MilStdSymbol symbol, boolean selected);
+    List<IFeature> getTGRenderableShapes(IMapInstance mapInstance, MilStdSymbol symbol, boolean selected);
     
     /**
-     * This method is called by the map instances the bitmap that compose the
-     * MilStd icon symbol.
+     * Gets the bitmap that represents the MilStd icon symbol.
      * @param sSymbolCode The symbol code that identifies the 2525 symbol.
      * @param oModifiers An array of modifiers to apply to the icon.
      * @param oAttr An array of attributes to use for the icon.
@@ -43,7 +42,7 @@ public interface IMilStdRenderer {
     IEmpImageInfo getMilStdIcon(String sSymbolCode, SparseArray oModifiers, SparseArray oAttr);
 
     /**
-     * This method returns a SparseArray of the 2525 modifiers define in the symbol.
+     * Gets the 2525 modifiers defined in the symbol.
      * @param mapInstance The map instance making the call.
      * @param symbol the feature.
      * @return SparseArray as per MilStd 2525 renderer
@@ -51,7 +50,7 @@ public interface IMilStdRenderer {
     SparseArray<String> getUnitModifiers(IMapInstance mapInstance, MilStdSymbol symbol);
 
     /**
-     * This method returns a SparseArray of the 2525 modifiers define in the tactical graphic symbol.
+     * Gets the 2525 modifiers defined in the tactical graphic symbol.
      * @param mapInstance The map instance making the call.
      * @param symbol the feature.
      * @return SparseArray as per MilStd 2525 renderer
@@ -59,15 +58,15 @@ public interface IMilStdRenderer {
     SparseArray<String> getTGModifiers(IMapInstance mapInstance, MilStdSymbol symbol);
 
     /**
-     * This method returns a SparseArray of the attributes define in the symbol.
+     * Gets the attributes defines in the feature.
      * @param mapInstance The map instance making the call.
-     * @param symbol the feature.
+     * @param feature the feature.
      * @return SparseArray as per MilStd 2525 renderer
      */
-    SparseArray<String> getAttributes(IMapInstance mapInstance, MilStdSymbol symbol, boolean selected);
+    SparseArray<String> getAttributes(IMapInstance mapInstance, IFeature feature, boolean selected);
 
     /**
-     * This method retrieves the far distance threshold for the map. All single point MilStd icons at or
+     * Gets the far distance threshold for the map. All single point MilStd icons at or
      * beyond the far distances threshold (from the camera) are displayed as dots.
      * @param mapInstance The map instance for request.
      * @return The far distance threshold in meters.
@@ -75,7 +74,7 @@ public interface IMilStdRenderer {
     double getFarDistanceThreshold(IMapInstance mapInstance);
 
     /**
-     * This method retrieves the mid distance threshold for the map. All single point MiloStd icons at
+     * Gets the mid distance threshold for the map. All single point MiloStd icons at
      * a distance less than the mid distance threshold are displayed as fully qualified MilStd icons. The
      * labels displayed will depend on the maps MilStd label setting.
      * the distances
@@ -85,7 +84,7 @@ public interface IMilStdRenderer {
     double getMidDistanceThreshold(IMapInstance mapInstance);
 
     /**
-     * Returns the name of the cache being used. In the current implementation if we want to use the RenderCache implemented
+     * Returns the name of the cache used. In the current implementation if we want to use the RenderCache implemented
      * by NASA WW then MilStdRenderer must use "NoBitmapCache".
      * If we want to use the EMP cache then "BitmapCache" or "AdaptiveBitmapCache" should be used.
      * "BitmapCache" and "AdaptiveBitmapCache" does not work well with NAS WW but is kept in place if we move to or add a new map engine.
@@ -94,9 +93,18 @@ public interface IMilStdRenderer {
     String getBitmapCacheName();
 
     /**
-     * this methos return the selected icon scale factor for the map instance.
+     * Returns the selected icon scale factor for the map instance.
      * @param mapInstance
      * @return
      */
     double getSelectedIconScale(IMapInstance mapInstance);
+
+    /**
+     * Gets the list of renderables that represents the feature.
+     * @param mapInstance
+     * @param feature
+     * @param selected
+     * @return A list of basic IFeature objects. See {@link IFeature).
+     */
+    List<IFeature> getFeatureRenderableShapes(IMapInstance mapInstance, IFeature feature, boolean selected);
 }

@@ -17,7 +17,10 @@ public class MirrorablePoint extends Point implements IMirrorable {
     static final private int FLAG_NULL     = 0;
     static final private int FLAG_NOT_NULL = 1;
 
-    private Long mirrorKey; // this is never used by app dev
+    // describes the selected state of this feature
+    private boolean isSelected;
+
+    private String mirrorKey;
 
     public MirrorablePoint() {
         super(new GeoPoint());
@@ -51,6 +54,9 @@ public class MirrorablePoint extends Point implements IMirrorable {
 
             setPosition(position);
         }
+
+        // isSelected
+        setIsSelected(in.getShort() == 1);
     }
 
     @Override
@@ -80,23 +86,34 @@ public class MirrorablePoint extends Point implements IMirrorable {
         } else {
             out.putInt(FLAG_NULL);
         }
+
+        // isSelected
+        out.putShort((short) (isSelected() ? 1 : 0));
     }
 
     @Override
     public int length() {
         return
-            /* geoId    */ Integer.SIZE + getGeoId().toString().length() +
-            /* iconUri  */ Integer.SIZE + (getIconURI() != null ? Integer.SIZE + getIconURI().length() : 0) +
-            /* position */ Integer.SIZE + (getPosition() != null ? ((Double.SIZE / 8) * 3) : 0);
+            /* geoId      */ Integer.SIZE + getGeoId().toString().length() +
+            /* iconUri    */ Integer.SIZE + (getIconURI() != null ? Integer.SIZE + getIconURI().length() : 0) +
+            /* position   */ Integer.SIZE + (getPosition() != null ? ((Double.SIZE / 8) * 3) : 0) +
+            /* isSelected */ Short.SIZE;
     }
 
     @Override
-    public Long getMirrorKey() {
+    public String getMirrorKey() {
         return mirrorKey;
     }
 
     @Override
-    public void setMirrorKey(Long mirrorKey) {
+    public void setMirrorKey(String mirrorKey) {
         this.mirrorKey = mirrorKey;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 }

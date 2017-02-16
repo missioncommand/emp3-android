@@ -3,7 +3,6 @@ package mil.emp3.api.abstracts;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,12 +24,11 @@ import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.api.view.utils.EmpResources;
-import mil.emp3.mapengine.CopySharedObjectFile;
-import mil.emp3.mapengine.MapEngineContext;
+import mil.emp3.mapengine.utils.CopySharedObjectFile;
+import mil.emp3.api.view.utils.MapEngineContext;
 import mil.emp3.mapengine.interfaces.IEmpResources;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
-import mil.emp3.view.R;
 
 /**
  * This class is the base for the MapFragment and MapView classes.
@@ -92,6 +90,9 @@ public class MapViewFragmentBase extends MirroredMap {
 /* Loading and starting Map Engine if this class is used inside MapFragment or MapView */
 
     /**
+     * This code (copySharedObjects) is derived from: https://github.com/singwhatiwanna/dynamic-load-apk/blob/master/README-en.md
+     * Please see the license notice in CopySharedObjectFile class.
+     *
      * Copies so files from the Map Engine APK to the host application. Only the so for correct cpu
      * architecture are copied.
      *

@@ -162,6 +162,6 @@ public class Conversion {
             return;
         }
 
-        toColor.set((float) fromColor.getRed(), (float) fromColor.getGreen(), (float) fromColor.getBlue(), (float) fromColor.getAlpha());
+        toColor.set(fromColor.getRed()/255F, fromColor.getGreen()/255F, fromColor.getBlue()/255F, (float) fromColor.getAlpha());
     }
 }

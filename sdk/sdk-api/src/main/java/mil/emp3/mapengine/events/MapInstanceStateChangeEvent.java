@@ -14,7 +14,7 @@ public class MapInstanceStateChangeEvent extends Event<MapEventEnum, IMapInstanc
     private final MapStateEnum eNewState;
 
     /**
-     * This constructor must be called by the map engines to creates a MapInstanceUserInteractionEvent event
+     * This constructor must be called by the map engines to create a MapInstanceUserInteractionEvent event
      * @param oMapInstance The actual map instance. The this property of the object that implements the IMapInstance interface.
      * @param eState The enumerated value of the new state of the map instance. See {@link MapStateEnum}.
      */
@@ -23,6 +23,13 @@ public class MapInstanceStateChangeEvent extends Event<MapEventEnum, IMapInstanc
         super(MapEventEnum.STATE_CHANGE, oMapInstance);
         this.eNewState = eState;
     }
+
+
+    /**
+     * The enumerated value of the new state of the map instance
+     * @return one of the following values
+     *   MAP_NEW, INIT_IN_PROGRESS, MAP_SWAP_IN_PROGRESS, MAP_READY, SHUTDOWN_IN_PROGRESS, SHUTDOWN
+     */
 
     public MapStateEnum getState() {
         return this.eNewState;

@@ -1,5 +1,8 @@
 package mil.emp3.core.storage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IFeature;
@@ -15,7 +18,7 @@ import mil.emp3.mapengine.api.FeatureVisibilityList;
 public class TransactionList {
     private final java.util.HashMap<java.util.UUID, FeatureVisibilityList> featureAdds = new java.util.HashMap<>();
     private final java.util.HashMap<java.util.UUID, IUUIDSet> featureRemoves = new java.util.HashMap<>();
-    private final java.util.HashMap<java.util.UUID, java.util.List<IOverlay>> overlayAdds = new java.util.HashMap<>();
+    private final java.util.HashMap<java.util.UUID, List<IOverlay>> overlayAdds = new java.util.HashMap<>();
     private final java.util.HashMap<java.util.UUID, IUUIDSet> overlayRemoves = new java.util.HashMap<>();
 
     public TransactionList() {
@@ -30,7 +33,7 @@ public class TransactionList {
         return this.featureRemoves;
     }
 
-    public java.util.HashMap<java.util.UUID, java.util.List<IOverlay>> getOverlayAdds() {
+    public java.util.HashMap<java.util.UUID, List<IOverlay>> getOverlayAdds() {
         return this.overlayAdds;
     }
 
@@ -58,11 +61,11 @@ public class TransactionList {
                 oList.add(addRecord);
             }
         } else if (container instanceof IOverlay) {
-            java.util.List<IOverlay> oList;
+            List<IOverlay> oList;
             IOverlay overlay = (IOverlay) container;
 
             if (!this.overlayAdds.containsKey(mapId)) {
-                oList = new java.util.ArrayList<>();
+                oList = new ArrayList<>();
                 this.overlayAdds.put(mapId, oList);
             } else {
                 oList = this.overlayAdds.get(mapId);

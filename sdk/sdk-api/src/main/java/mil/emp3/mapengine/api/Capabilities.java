@@ -3,20 +3,23 @@ package mil.emp3.mapengine.api;
 import java.util.Arrays;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
+import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.mapengine.interfaces.IMapEngineCapabilities;
 
 /**
- * This class implements the IMapEngineCapabilities interface. It represent the 
- * capabilities of a map engine which the core will constantly query. A map engine
- * developer is free to implement its own class as long as the interface is implemented.
+ * EMP3 Core queries this class to determine the capabilities supported by a specific map engine.
+ * Currently this includes: shapes and symbols that can be plotted, version of supported WMS.
  */
 public class Capabilities implements IMapEngineCapabilities {
     private final java.util.Set<FeatureTypeEnum> canPlotSet;
     private final java.util.Set<WMSVersionEnum> supportedWMSVersion;
+    private final java.util.Set<WMTSVersionEnum> supportedWMTSVersion;
     
-    public Capabilities(FeatureTypeEnum[] aFeatureTypes, WMSVersionEnum[] aVersions) {
+    public Capabilities(FeatureTypeEnum[] aFeatureTypes, WMSVersionEnum[] aVersions,
+                        WMTSVersionEnum[] aWMTSVersions) {
         this.canPlotSet = new java.util.HashSet<>();
         this.supportedWMSVersion = new java.util.HashSet<>();
+        this.supportedWMTSVersion = new java.util.HashSet<>();
         
         if (aFeatureTypes != null) {
             this.canPlotSet.addAll(Arrays.asList(aFeatureTypes));
@@ -24,6 +27,10 @@ public class Capabilities implements IMapEngineCapabilities {
         
         if (aVersions != null) {
             this.supportedWMSVersion.addAll(Arrays.asList(aVersions));
+        }
+
+        if (aWMTSVersions != null) {
+            this.supportedWMTSVersion.addAll(Arrays.asList((aWMTSVersions)));
         }
     }
 
@@ -35,6 +42,11 @@ public class Capabilities implements IMapEngineCapabilities {
     @Override
     public boolean wmsVersionSupported(WMSVersionEnum eVersion) {
         return this.supportedWMSVersion.contains(eVersion);
+    }
+
+    @Override
+    public boolean wmtsVersionSupported(WMTSVersionEnum eVersion) {
+        return this.supportedWMTSVersion.contains(eVersion);
     }
 
 }

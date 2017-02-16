@@ -73,7 +73,7 @@ public class ZoomToUtils {
             }
         }
 
-        IGeoPosition center = getCenter(positionList);
+        IGeoPosition center = GeoLibrary.getCenter(positionList);
         BoundingBox boundingBox = getBoundingBox(positionList);
 
         if(boundingBox.isSinglePoint()) {
@@ -126,7 +126,7 @@ public class ZoomToUtils {
         positionList.add(getPosition(bounds.getNorth(), bounds.getWest()));
         positionList.add(getPosition(bounds.getSouth(), bounds.getEast()));
         positionList.add(getPosition(bounds.getSouth(), bounds.getWest()));
-        IGeoPosition center = getCenter(positionList);
+        IGeoPosition center = GeoLibrary.getCenter(positionList);
 
         BoundingBox boundingBox = new BoundingBox(bounds.getWest(), bounds.getEast(), bounds.getSouth(), bounds.getNorth(), 0.0, false);
         if((null != center) && (null != boundingBox)) {
@@ -168,57 +168,6 @@ public class ZoomToUtils {
         geoPosition.setLatitude(latitude);
         geoPosition.setLongitude(longitude);
         return geoPosition;
-    }
-
-    /**
-     * Procedure:
-     *     Convert each lat/long pair into a unit-length 3D vector.
-     *     Sum each of those vectors
-     *     Normalise the resulting vector
-     *     Convert back to spherical coordinates
-     * @param positionList
-     * @return
-     */
-    private IGeoPosition getCenter(List<IGeoPosition> positionList) {
-
-        IGeoPosition center = null;
-        if((null != positionList) && (0 != positionList.size())) {
-            center = new GeoPosition();
-            if(1 == positionList.size()) {
-                center.setLongitude(positionList.get(0).getLongitude());
-                center.setLatitude(positionList.get(0).getLatitude());
-            } else {
-                double x = 0;
-                double y = 0;
-                double z = 0;
-
-                for(IGeoPosition position: positionList)
-                {
-                    double latitude = position.getLatitude() * Math.PI / 180;
-                    double longitude = position.getLongitude() * Math.PI / 180;
-
-
-                    x += Math.cos(latitude) * Math.cos(longitude);
-                    y += Math.cos(latitude) * Math.sin(longitude);
-                    z += Math.sin(latitude);
-                }
-
-                x = x / positionList.size();
-                y = y / positionList.size();
-                z = z / positionList.size();
-
-                double centralLongitude = Math.atan2(y, x);
-                double centralSquareRoot = Math.sqrt(x * x + y * y);
-                double centralLatitude = Math.atan2(z, centralSquareRoot);
-
-                center.setLongitude(centralLongitude * 180 / Math.PI);
-                center.setLatitude(centralLatitude * 180 / Math.PI);
-
-                Log.d(TAG, "Center Lat/Lon " + center.getLatitude() + "/" + center.getLongitude());
-            }
-        }
-
-        return center;
     }
 
     /**

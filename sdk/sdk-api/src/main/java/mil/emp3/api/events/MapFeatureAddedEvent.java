@@ -12,6 +12,10 @@ public abstract class MapFeatureAddedEvent extends Event<MapFeatureEventEnum, IM
         this.feature = feature;
     }
 
+    /**
+     * Returns the feature for which the event was generated.
+     * @return the feature added
+     */
     public IFeature getFeature() {
         return feature;
     }

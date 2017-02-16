@@ -1,31 +1,31 @@
 package mil.emp3.api.enums;
 
 /**
- * This enumerated class defines the different states a map can be in.
+ * Type of usability state of the Map. Map must be in MAP_READY state before applications can use the API to update the map or issue any actions.
  */
 public enum MapStateEnum {
   /**
-   * This state indicates that the map instance has NOT been initialized and therefore inoperable. It is the initial state of all map instances.
+   * Map instance has NOT been initialized and therefore inoperable. It is the initial state of all map instances.
    */
   MAP_NEW,
   /**
-   * This state indicates that the map instance is initializing.
+   * Map instance is initializing.
    */
   INIT_IN_PROGRESS,
   /**
-   * This state indicates that the map is currently being swapped.
+   * Map instance is currently being swapped.
    */
   MAP_SWAP_IN_PROGRESS,
   /**
-   * This state indicates that the map instance is ready to process request.
+   * Map instance is ready to process request.
    */
   MAP_READY,
   /**
-   * This state indicates that the map instances is shutting down.
+   * Map instances is shutting down.
    */
   SHUTDOWN_IN_PROGRESS,
   /**
-   * This state indicates that the map instance has been shutdown.
+   * Map instance was shutdown.
    */
   SHUTDOWN
 }

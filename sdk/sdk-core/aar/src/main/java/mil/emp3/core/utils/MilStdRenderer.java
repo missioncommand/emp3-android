@@ -16,6 +16,10 @@ import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import armyc2.c2sd.graphics2d.Point2D;
 import armyc2.c2sd.renderer.utilities.MilStdAttributes;
 import armyc2.c2sd.renderer.utilities.ModifiersTG;
 import armyc2.c2sd.renderer.utilities.ModifiersUnits;
@@ -26,11 +30,13 @@ import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Path;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Text;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.EmpGeoColor;
+import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.core.utils.milstd2525.MilStdUtilities;
 import mil.emp3.core.utils.milstd2525.icons.BitmapCacheFactory;
 import mil.emp3.core.utils.milstd2525.icons.IBitmapCache;
@@ -46,12 +52,10 @@ import sec.web.render.SECWebRenderer;
 public class MilStdRenderer implements IMilStdRenderer {
     private static final String TAG = MilStdRenderer.class.getSimpleName();
 
-    // These constants are added here because the renderer lib does not define them as constance and
-    // therefore cant be used in a switch case
-    public static final int SHAPE_TYPE_POLYLINE = 0;
-    public static final int SHAPE_TYPE_FILL = 1;
-    public static final int SHAPE_TYPE_MODIFIER = 2;
-    public static final int SHAPE_TYPE_MODIFIER_FILL = 3;
+    public static final String METOC_PRESSURE_INSTABILITY_LINE = "WA-DPXIL---L---";
+    public static final String METOC_PRESSURE_SHEAR_LINE = "WA-DPXSH---L---";
+    public static final String METOC_BOUNDED_AREAS_OF_WEATHER_LIQUID_PRECIPITATION_NON_CONVECTIVE_CONTINUOUS_OR_INTERMITTENT = "WA-DBALPC---A--";
+    public static final String METOC_ATMOSPHERIC_BOUNDED_AREAS_OF_WEATHER_THUNDERSTORMS = "WA-DBAT-----A--";
 
     private IStorageManager storageManager;
 
@@ -59,8 +63,6 @@ public class MilStdRenderer implements IMilStdRenderer {
     private int getMemoryClass = 0;
     private static java.util.Set<IGeoMilSymbol.Modifier> oRequiredLabels = new java.util.HashSet<>();
     private static java.util.Set<IGeoMilSymbol.Modifier> oCommonLabels = new java.util.HashSet<>();
-    //private static java.util.Set<IGeoMilSymbol.Modifier> oTGRequiredLabels = new java.util.HashSet<>();
-    //private static java.util.Set<IGeoMilSymbol.Modifier> oTGCommonLabels = new java.util.HashSet<>();
     private static IBitmapCache oBitmapCache = null;
 
     private boolean initialized;
@@ -273,7 +275,7 @@ public class MilStdRenderer implements IMilStdRenderer {
                 }
             }
         }
-
+        
 
         if ((symbol.getName() != null) && !symbol.getName().isEmpty()) {
             if (eLabelSetting != null) {
@@ -490,23 +492,35 @@ public class MilStdRenderer implements IMilStdRenderer {
     }
 
     @Override
-    public SparseArray<String> getAttributes(IMapInstance mapInstance, MilStdSymbol symbol, boolean selected) {
+    public SparseArray<String> getAttributes(IMapInstance mapInstance, IFeature feature, boolean selected) {
         initCheck();
 
         SparseArray<String> oArray = new SparseArray<>();
         int iIconSize = storageManager.getIconPixelSize(mapInstance);
-        IGeoFillStyle oFillStyle = symbol.getFillStyle();
-        IGeoStrokeStyle oStrokeStyle = symbol.getStrokeStyle();
-        IGeoLabelStyle labelStyle = symbol.getLabelStyle();
+        IGeoFillStyle oFillStyle = feature.getFillStyle();
+        IGeoStrokeStyle oStrokeStyle = feature.getStrokeStyle();
+        IGeoLabelStyle labelStyle = feature.getLabelStyle();
+        IGeoColor strokeColor = null;
+        IGeoColor textColor = null;
+        boolean isMilStd = (feature instanceof MilStdSymbol);
 
-        oArray.put(MilStdAttributes.SymbologyStandard, "" + geoMilStdVersionToRendererVersion(symbol.getSymbolStandard()));
+        if (isMilStd) {
+            oArray.put(MilStdAttributes.SymbologyStandard, "" + geoMilStdVersionToRendererVersion(((MilStdSymbol) feature).getSymbolStandard()));
+        }
         oArray.put(MilStdAttributes.PixelSize, "" + iIconSize);
         oArray.put(MilStdAttributes.KeepUnitRatio, "true");
         oArray.put(MilStdAttributes.UseDashArray, "true");
 
         if (selected) {
-            oStrokeStyle = storageManager.getSelectedStrokeStyle(mapInstance);
-            labelStyle = storageManager.getSelectedLabelStyle(mapInstance);
+            strokeColor = storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor();
+            textColor = storageManager.getSelectedLabelStyle(mapInstance).getColor();
+        } else {
+            if (oStrokeStyle != null) {
+                strokeColor = oStrokeStyle.getStrokeColor();
+            }
+            if (labelStyle != null) {
+                textColor = labelStyle.getColor();
+            }
         }
 
         if (oFillStyle != null) {
@@ -518,12 +532,17 @@ public class MilStdRenderer implements IMilStdRenderer {
             oArray.put(MilStdAttributes.LineWidth, "" + (int) oStrokeStyle.getStrokeWidth());
         }
 
-        if (labelStyle != null) {
-            if (null != labelStyle.getColor()) {
-                oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(labelStyle.getColor()));
-            }
-            oArray.put(MilStdAttributes.FontSize, "" + symbol.getFontSize());
+        if (strokeColor != null) {
+            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(strokeColor));
+        }
+
+        if (textColor != null) {
+            oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
             // There is currently no way to change the font.
+        }
+
+        if (isMilStd && !((MilStdSymbol) feature).isSinglePoint()) {
+            oArray.put(MilStdAttributes.FontSize, "" + FontUtilities.getTextPixelSize(labelStyle, FontSizeModifierEnum.NORMAL));
         }
 
         return oArray;
@@ -543,7 +562,7 @@ public class MilStdRenderer implements IMilStdRenderer {
         return storageManager.getMidDistanceThreshold(mapInstance);
     }
 
-    private String convertToStringPosition(java.util.List<IGeoPosition> posList) {
+    private String convertToStringPosition(List<IGeoPosition> posList) {
         StringBuilder Str = new StringBuilder("");
 
         for (IGeoPosition pos: posList) {
@@ -560,15 +579,15 @@ public class MilStdRenderer implements IMilStdRenderer {
         return Str.toString();
     }
 
-    private java.util.List<java.util.List<IGeoPosition>> convertListOfPointListsToListOfPositionLists(java.util.ArrayList<java.util.ArrayList<armyc2.c2sd.graphics2d.Point2D>> listOfPointList) {
+    private List<List<IGeoPosition>> convertListOfPointListsToListOfPositionLists(ArrayList<ArrayList<Point2D>> listOfPointList) {
         IGeoPosition position;
-        java.util.List<IGeoPosition> positionList;
-        java.util.List<java.util.List<IGeoPosition>> listOfPosList = new java.util.ArrayList<>();
+        List<IGeoPosition> positionList;
+        List<List<IGeoPosition>> listOfPosList = new ArrayList<>();
 
         if (listOfPointList != null) {
             // Convert the point lists into position lists.
-            for (java.util.ArrayList<armyc2.c2sd.graphics2d.Point2D> pointList : listOfPointList) {
-                positionList = new java.util.ArrayList<>();
+            for (ArrayList<armyc2.c2sd.graphics2d.Point2D> pointList : listOfPointList) {
+                positionList = new ArrayList<>();
                 listOfPosList.add(positionList);
                 for (armyc2.c2sd.graphics2d.Point2D point : pointList) {
                     position = new GeoPosition();
@@ -584,21 +603,182 @@ public class MilStdRenderer implements IMilStdRenderer {
         return listOfPosList;
     }
 
-    private void renderTacticalGraphic(java.util.List<IFeature> featureList, IMapInstance mapInstance, MilStdSymbol symbol, boolean selected) {
+    private void renderShapeParser(List<IFeature> featureList,
+            IMapInstance mapInstance,
+            armyc2.c2sd.renderer.utilities.MilStdSymbol renderSymbol,
+            IFeature renderFeature,
+            boolean selected) {
         IFeature feature;
         IGeoColor geoLineColor;
         IGeoColor geoFillColor;
         armyc2.c2sd.renderer.utilities.Color fillColor;
         armyc2.c2sd.renderer.utilities.Color lineColor;
-        ICamera camera = mapInstance.getCamera();
-        IGeoStrokeStyle symbolStrokeStyle = symbol.getStrokeStyle();
-        IGeoFillStyle symbolFillStyle = symbol.getFillStyle();
-        IGeoLabelStyle symbolTextStyle = symbol.getLabelStyle();
+        IGeoStrokeStyle renderStrokeStyle = renderFeature.getStrokeStyle();
+        //IGeoFillStyle symbolFillStyle = renderFeature.getFillStyle();
+        IGeoLabelStyle symbolTextStyle = renderFeature.getLabelStyle();
         IGeoStrokeStyle currentStrokeStyle;
         IGeoFillStyle currentFillStyle;
         IGeoLabelStyle currentTextStyle;
+        IGeoAltitudeMode.AltitudeMode altitudeMode = renderFeature.getAltitudeMode();
+        ArrayList<ShapeInfo> shapeInfoList = renderSymbol.getSymbolShapes();
+        ArrayList<ShapeInfo> modifierShapeInfoList = renderSymbol.getModifierShapes();
+
+        // Process the list of shapes.
+        for(ShapeInfo shapeInfo: shapeInfoList) {
+            currentStrokeStyle = null;
+            currentFillStyle = null;
+
+            lineColor = shapeInfo.getLineColor();
+            if (lineColor != null) {
+                currentStrokeStyle = new GeoStrokeStyle();
+                currentStrokeStyle.setStrokeWidth((renderStrokeStyle == null)? 3: renderStrokeStyle.getStrokeWidth());
+                geoLineColor = new EmpGeoColor((double) lineColor.getAlpha() / 255.0, lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue());
+                currentStrokeStyle.setStrokeColor(geoLineColor);
+            }
+
+            if (selected) {
+                if (null == currentStrokeStyle) {
+                    currentStrokeStyle = storageManager.getSelectedStrokeStyle(mapInstance);
+                } else {
+                    currentStrokeStyle.setStrokeColor(storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor());
+                }
+            }
+
+            armyc2.c2sd.graphics2d.BasicStroke basicStroke = (armyc2.c2sd.graphics2d.BasicStroke) shapeInfo.getStroke();
+
+            if (renderFeature instanceof MilStdSymbol) {
+                MilStdSymbol symbol = (MilStdSymbol) renderFeature;
+                if ((null != currentStrokeStyle) && (basicStroke != null) && (basicStroke.getDashArray() != null)) {
+                    currentStrokeStyle.setStipplingPattern(this.getTGStipplePattern(symbol.getBasicSymbol()));
+                    currentStrokeStyle.setStipplingFactor(this.getTGStippleFactor(symbol.getBasicSymbol(), (int) currentStrokeStyle.getStrokeWidth()));
+                }
+            }
+
+            fillColor = shapeInfo.getFillColor();
+            if (fillColor != null) {
+                geoFillColor = new EmpGeoColor((double) fillColor.getAlpha() / 255.0, fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue());
+                currentFillStyle = new GeoFillStyle();
+                currentFillStyle.setFillColor(geoFillColor);
+            }
+
+            switch (shapeInfo.getShapeType()) {
+                case ShapeInfo.SHAPE_TYPE_POLYLINE: {
+                    List<List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
+
+                    if (currentFillStyle != null) {
+                        // We create the polygon feature if it has a fill style.
+                        for (List<IGeoPosition> posList : listOfPosList) {
+                            feature = new Polygon(posList);
+                            feature.setStrokeStyle(currentStrokeStyle);
+                            feature.setFillStyle(currentFillStyle);
+                            feature.setAltitudeMode(altitudeMode);
+                            featureList.add(feature);
+                        }
+                    } else {
+                        // We create a path feature if it does not have a fill style.
+                        for (List<IGeoPosition> posList: listOfPosList) {
+                            feature = new Path(posList);
+                            feature.setStrokeStyle(currentStrokeStyle);
+                            feature.setAltitudeMode(altitudeMode);
+                            featureList.add(feature);
+                        }
+                    }
+                    break;
+                }
+                case ShapeInfo.SHAPE_TYPE_FILL: {
+                    List<List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
+
+                    //if ((currentStrokeStyle != null) || (currentFillStyle != null)) {
+                    if (currentStrokeStyle != null) {
+                        // We create the feature if it has at least one style.
+                        for (List<IGeoPosition> posList: listOfPosList) {
+                            feature = new Path(posList); //new Polygon(posList);
+                            feature.setStrokeStyle(currentStrokeStyle);
+                            //feature.setFillStyle(currentFillStyle);
+                            feature.setAltitudeMode(altitudeMode);
+                            featureList.add(feature);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    Log.i(TAG, "Unhandled Shape type " + shapeInfo.getShapeType());
+                    break;
+            }
+        }
+
+        // All modifier text are the same color.
+        armyc2.c2sd.renderer.utilities.Color renderTextColor = renderSymbol.getTextColor();
+        IGeoColor textColor = new EmpGeoColor(renderTextColor.getAlpha(), renderTextColor.getRed(), renderTextColor.getGreen(), renderTextColor.getBlue());
+
+        // Process the list of shapes.
+        for(ShapeInfo shapeInfo: modifierShapeInfoList) {
+            switch (shapeInfo.getShapeType()) {
+                case ShapeInfo.SHAPE_TYPE_MODIFIER: {
+                    Log.i(TAG, "Shape Type M<odifier.");
+                    break;
+                }
+                case ShapeInfo.SHAPE_TYPE_MODIFIER_FILL: {
+                    Text textFeature;
+                    armyc2.c2sd.graphics2d.Point2D point2D = shapeInfo.getModifierStringPosition();
+                    IGeoPosition textPosition = new GeoPosition();
+
+                    textFeature = new Text(shapeInfo.getModifierString());
+
+                    textPosition.setAltitude(0);
+                    textPosition.setLatitude(point2D.getY());
+                    textPosition.setLongitude(point2D.getX());
+
+                    textFeature.setPosition(textPosition);
+                    textFeature.setAltitudeMode(altitudeMode);
+
+                    currentTextStyle = new GeoLabelStyle();
+                    if ((null == symbolTextStyle) || (null == symbolTextStyle.getColor())) {
+                        currentTextStyle.setColor(textColor);
+                        currentTextStyle.setSize(FontUtilities.DEFAULT_FONT_POINT_SIZE);
+                    } else {
+                        currentTextStyle.setColor(symbolTextStyle.getColor());
+                        currentTextStyle.setSize(symbolTextStyle.getSize());
+                    }
+                    if (selected) {
+                        if (null == currentTextStyle) {
+                            currentTextStyle = storageManager.getSelectedLabelStyle(mapInstance);
+                        } else {
+                            currentTextStyle.setColor(storageManager.getSelectedLabelStyle(mapInstance).getColor());
+                        }
+                    }
+                    currentTextStyle.setFontFamily(RendererSettings.getInstance().getMPModifierFontName());
+
+                    switch (shapeInfo.getTextJustify()) {
+                        case ShapeInfo.justify_left:
+                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
+                            break;
+                        case ShapeInfo.justify_right:
+                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.RIGHT);
+                            break;
+                        case ShapeInfo.justify_center:
+                        default:
+                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
+                            break;
+                    }
+
+                    textFeature.setLabelStyle(currentTextStyle);
+                    textFeature.setRotationAngle(shapeInfo.getModifierStringAngle());
+
+                    featureList.add(textFeature);
+                    //Log.i(TAG, "Shape Type Modifier Fill." + shapeInfo.getModifierString() + " at " + point2D.getY() + "/" + point2D.getX());
+                    break;
+                }
+                default:
+                    Log.i(TAG, "Unhandled Shape type " + shapeInfo.getShapeType());
+                    break;
+            }
+        }
+    }
+
+    private void renderTacticalGraphic(List<IFeature> featureList, IMapInstance mapInstance, MilStdSymbol symbol, boolean selected) {
+        ICamera camera = mapInstance.getCamera();
         IGeoBounds bounds = mapInstance.getMapBounds();
-        IGeoAltitudeMode.AltitudeMode altitudeMode = symbol.getAltitudeMode();
 
         if ((camera == null) || (bounds == null)) {
             return;
@@ -624,150 +804,16 @@ public class MilStdRenderer implements IMilStdRenderer {
                 symbol.getGeoId().toString(), symbol.getName(), symbol.getDescription(),
                 symbol.getSymbolCode(), coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, milstdVersion);
+
         // Retrieve the list of shapes.
-        java.util.ArrayList<ShapeInfo> shapeInfoList = renderSymbol.getSymbolShapes();
-
-        // Process the list of shapes.
-        for(ShapeInfo shapeInfo: shapeInfoList) {
-            currentStrokeStyle = null;
-            currentFillStyle = null;
-            if (symbolStrokeStyle == null) {
-                lineColor = shapeInfo.getLineColor();
-                if (lineColor != null) {
-                    geoLineColor = new EmpGeoColor((double) lineColor.getAlpha() / 255.0, lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue());
-                    currentStrokeStyle = new GeoStrokeStyle();
-                    currentStrokeStyle.setStrokeColor(geoLineColor);
-                    //currentStrokeStyle.setStrokeWidth(().getLineWidth());
-                    currentStrokeStyle.setStrokeWidth(3);
-                }
-            } else {
-                currentStrokeStyle = symbolStrokeStyle;
-            }
-            armyc2.c2sd.graphics2d.BasicStroke basicStroke = (armyc2.c2sd.graphics2d.BasicStroke) shapeInfo.getStroke();
-
-            if ((currentStrokeStyle != null ) && (basicStroke != null) && (basicStroke.getDashArray() != null)) {
-                currentStrokeStyle.setStrokePattern(IGeoStrokeStyle.StrokePattern.dotted);
-            }
-
-            if (symbolFillStyle == null) {
-                fillColor = shapeInfo.getFillColor();
-                if (fillColor != null) {
-                    geoFillColor = new EmpGeoColor((double) fillColor.getAlpha() / 255.0, fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue());
-                    currentFillStyle = new GeoFillStyle();
-                    currentFillStyle.setFillColor(geoFillColor);
-                }
-            } else {
-                currentFillStyle = symbolFillStyle;
-            }
-
-            switch (shapeInfo.getShapeType()) {
-                case MilStdRenderer.SHAPE_TYPE_POLYLINE: {
-                    java.util.List<java.util.List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
-
-                    for (java.util.List<IGeoPosition> posList: listOfPosList) {
-                        if ((currentStrokeStyle != null) || (currentFillStyle != null)) {
-                            // We create the feature if it has at least on style.
-                            feature = new Path(posList);
-                            feature.setStrokeStyle(currentStrokeStyle);
-                            feature.setFillStyle(currentFillStyle);
-                            feature.setAltitudeMode(altitudeMode);
-                            featureList.add(feature);
-                        }
-                    }
-                    break;
-                }
-                case MilStdRenderer.SHAPE_TYPE_FILL: {
-                    java.util.List<java.util.List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
-
-                    for (java.util.List<IGeoPosition> posList: listOfPosList) {
-                        if ((currentStrokeStyle != null) || (currentFillStyle != null)) {
-                            // We create the feature if it has at least on style.
-                            feature = new Polygon(posList);
-                            feature.setStrokeStyle(currentStrokeStyle);
-                            feature.setFillStyle(currentFillStyle);
-                            feature.setAltitudeMode(altitudeMode);
-                            featureList.add(feature);
-                        }
-                    }
-                    break;
-                }
-                default:
-                    Log.i(TAG, "Unhandled Shape type " + shapeInfo.getShapeType());
-                    break;
-            }
-        }
-
-        shapeInfoList = renderSymbol.getModifierShapes();
-
-        // All modifier text are the same color.
-        armyc2.c2sd.renderer.utilities.Color renderTextColor = renderSymbol.getTextColor();
-        IGeoColor textColor = new EmpGeoColor(renderTextColor.getAlpha(), renderTextColor.getRed(), renderTextColor.getGreen(), renderTextColor.getBlue());
-
-        // Process the list of shapes.
-        for(ShapeInfo shapeInfo: shapeInfoList) {
-            switch (shapeInfo.getShapeType()) {
-                case MilStdRenderer.SHAPE_TYPE_MODIFIER: {
-                    Log.i(TAG, "Shape Type M<odifier.");
-                    break;
-                }
-                case MilStdRenderer.SHAPE_TYPE_MODIFIER_FILL: {
-                    Text textFeature;
-                    armyc2.c2sd.graphics2d.Point2D point2D = shapeInfo.getModifierStringPosition();
-                    IGeoPosition textPosition = new GeoPosition();
-
-                    textFeature = new Text(shapeInfo.getModifierString());
-
-                    textPosition.setAltitude(0);
-                    textPosition.setLatitude(point2D.getY());
-                    textPosition.setLongitude(point2D.getX());
-
-                    textFeature.setPosition(textPosition);
-                    textFeature.setAltitudeMode(altitudeMode);
-
-                    currentTextStyle = new GeoLabelStyle();
-                    if ((null == symbolTextStyle) || (null == symbolTextStyle.getColor())) {
-                        currentTextStyle.setColor(textColor);
-                        currentTextStyle.setScale(1.0);
-                    } else {
-                        currentTextStyle.setColor(symbolTextStyle.getColor());
-                        currentTextStyle.setScale(symbolTextStyle.getScale());
-                    }
-
-                    switch (shapeInfo.getTextJustify()) {
-                        case ShapeInfo.justify_left:
-                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-                            break;
-                        case ShapeInfo.justify_right:
-                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.RIGHT);
-                            break;
-                        case ShapeInfo.justify_center:
-                        default:
-                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
-                            break;
-                    }
-
-                    textFeature.setLabelStyle(currentTextStyle);
-                    textFeature.setRotationAngle(shapeInfo.getModifierStringAngle());
-                    textFeature.setFontFamily(RendererSettings.getInstance().getMPModifierFontName());
-                    textFeature.setFontSize(symbol.getFontSize());
-
-                    featureList.add(textFeature);
-                    Log.i(TAG, "Shape Type Modifier Fill." + shapeInfo.getModifierString() + " at " + point2D.getY() + "/" + point2D.getX());
-                    break;
-                }
-                default:
-                    Log.i(TAG, "Unhandled Shape type " + shapeInfo.getShapeType());
-                    break;
-            }
-        }
+        this.renderShapeParser(featureList, mapInstance, renderSymbol, symbol, selected);
     }
 
     @Override
-    public java.util.List<IFeature> getTGRenderableShapes(IMapInstance mapInstance, MilStdSymbol symbol, boolean selected) {
+    public List<IFeature> getTGRenderableShapes(IMapInstance mapInstance, MilStdSymbol symbol, boolean selected) {
         initCheck();
 
-        java.util.List<IFeature> oList = new java.util.ArrayList<>();
-        IStorageManager sMgr = storageManager;
+        List<IFeature> oList = new ArrayList<>();
         String basicSC = SymbolUtilities.getBasicSymbolID(symbol.getSymbolCode());
         
         if (SymbolUtilities.isTacticalGraphic(basicSC)) {
@@ -790,7 +836,7 @@ public class MilStdRenderer implements IMilStdRenderer {
      * @param eStandard see IGeoMilSymbol.SymbolStandard.
      * @return an integer value indicating the standard version.
      */
-    public int geoMilStdVersionToRendererVersion(IGeoMilSymbol.SymbolStandard eStandard) {
+    private int geoMilStdVersionToRendererVersion(IGeoMilSymbol.SymbolStandard eStandard) {
         int iVersion = RendererSettings.Symbology_2525Bch2_USAS_13_14;
 
         switch (eStandard) {
@@ -808,5 +854,115 @@ public class MilStdRenderer implements IMilStdRenderer {
     @Override
     public double getSelectedIconScale(IMapInstance mapInstance) {
         return storageManager.getSelectedIconScale(mapInstance);
+    }
+
+    private int getTGStippleFactor(String basicSymbolCode, int strokeWidth) {
+        int factor = 0;
+
+        if (strokeWidth < 1) {
+            strokeWidth = 1;
+        }
+
+        switch (basicSymbolCode) {
+            case METOC_PRESSURE_INSTABILITY_LINE:
+            case METOC_PRESSURE_SHEAR_LINE:
+                factor = 2;
+                break;
+            case METOC_BOUNDED_AREAS_OF_WEATHER_LIQUID_PRECIPITATION_NON_CONVECTIVE_CONTINUOUS_OR_INTERMITTENT:
+            case METOC_ATMOSPHERIC_BOUNDED_AREAS_OF_WEATHER_THUNDERSTORMS:
+                factor = 3;
+                break;
+            default:
+                // Normal dashes.
+                factor = 3;
+                break;
+        }
+
+        return factor;
+    }
+
+    /**
+     * This method is called if the MilStd renderer indicates that the graphic requires a line stippling.
+     * Specific symbols require specific stippling patterns.
+     * @param basicSymbolCode
+     * @return
+     */
+    private short getTGStipplePattern(String basicSymbolCode) {
+        short pattern = 0;
+
+        switch (basicSymbolCode) {
+            case METOC_PRESSURE_INSTABILITY_LINE:
+                pattern = (short) 0xDFF6;
+                break;
+            case METOC_PRESSURE_SHEAR_LINE:
+            case METOC_BOUNDED_AREAS_OF_WEATHER_LIQUID_PRECIPITATION_NON_CONVECTIVE_CONTINUOUS_OR_INTERMITTENT:
+            case METOC_ATMOSPHERIC_BOUNDED_AREAS_OF_WEATHER_THUNDERSTORMS:
+                pattern = (short) 0xFFF6;
+                break;
+            default:
+                // Normal dashes.
+                pattern = (short) 0xEEEE;
+                break;
+        }
+
+        return pattern;
+    }
+
+    @Override
+    public List<IFeature> getFeatureRenderableShapes(IMapInstance mapInstance, IFeature feature, boolean selected) {
+        initCheck();
+
+        String symbolCode = "";
+        List<IFeature> oList = new ArrayList<>();
+        ICamera camera = mapInstance.getCamera();
+        IGeoBounds bounds = mapInstance.getMapBounds();
+
+        if ((camera == null) || (bounds == null)) {
+            return oList;
+        }
+
+        String coordinateStr = this.convertToStringPosition(feature.getPositions());
+        String boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
+        double scale = camera.getAltitude() * 6.36;
+        String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+        SparseArray<String> modifiers = new SparseArray<>();
+        SparseArray<String> attributes;
+
+        if (feature instanceof mil.emp3.api.Circle) {
+            mil.emp3.api.Circle circleFeature = (mil.emp3.api.Circle) feature;
+            symbolCode = "PBS_CIRCLE-----";
+            modifiers.put(ModifiersTG.AM_DISTANCE, "" + circleFeature.getRadius());
+            attributes = this.getAttributes(mapInstance, feature, selected);
+        } else if (feature instanceof mil.emp3.api.Ellipse) {
+            mil.emp3.api.Ellipse ellipseFeature = (mil.emp3.api.Ellipse) feature;
+            symbolCode = "PBS_ELLIPSE----";
+            modifiers.put(ModifiersTG.AM_DISTANCE, ellipseFeature.getSemiMinor() + "," + ellipseFeature.getSemiMajor());
+            modifiers.put(ModifiersTG.AN_AZIMUTH, ellipseFeature.getAzimuth() + "");
+            attributes = this.getAttributes(mapInstance, feature, selected);
+        } else if (feature instanceof mil.emp3.api.Rectangle) {
+            mil.emp3.api.Rectangle rectangleFeature = (mil.emp3.api.Rectangle) feature;
+            symbolCode = "PBS_RECTANGLE--";
+            modifiers.put(ModifiersTG.AM_DISTANCE, rectangleFeature.getWidth() + "," + rectangleFeature.getHeight());
+            modifiers.put(ModifiersTG.AN_AZIMUTH, rectangleFeature.getAzimuth() + "");
+            attributes = this.getAttributes(mapInstance, feature, selected);
+        } else if (feature instanceof mil.emp3.api.Square) {
+            mil.emp3.api.Square squareFeature = (mil.emp3.api.Square) feature;
+            symbolCode = "PBS_SQUARE-----";
+            modifiers.put(ModifiersTG.AM_DISTANCE, squareFeature.getWidth() + "");
+            modifiers.put(ModifiersTG.AN_AZIMUTH, squareFeature.getAzimuth() + "");
+            attributes = this.getAttributes(mapInstance, feature, selected);
+        } else {
+            return oList;
+        }
+
+        armyc2.c2sd.renderer.utilities.MilStdSymbol renderSymbol = SECWebRenderer.RenderMultiPointAsMilStdSymbol(
+                feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
+                symbolCode, coordinateStr, altitudeModeStr, scale, boundingBoxStr,
+                modifiers, attributes, 1);
+
+        // Retrieve the list of shapes.
+        this.renderShapeParser(oList, mapInstance, renderSymbol, feature, selected);
+
+        return oList;
     }
 }

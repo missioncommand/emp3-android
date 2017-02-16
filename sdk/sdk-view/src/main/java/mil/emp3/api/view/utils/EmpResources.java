@@ -3,12 +3,12 @@ package mil.emp3.api.view.utils;
 import android.util.Log;
 
 import org.cmapi.primitives.GeoIconStyle;
+import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import mil.emp3.api.interfaces.core.IStorageManager;
-import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.mapengine.interfaces.IEmpImageInfo;
 import mil.emp3.mapengine.interfaces.IEmpResources;
@@ -100,5 +100,10 @@ public class EmpResources implements IEmpResources {
     @Override
     public double getSelectedIconScale(IMapInstance mapInstance) {
         return storageManager.getSelectedIconScale(mapInstance);
+    }
+
+    @Override
+    public IGeoFillStyle getBufferFillStyle(IMapInstance mapInstance) {
+        return storageManager.getBufferFillStyle(mapInstance);
     }
 }

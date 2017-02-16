@@ -1,17 +1,18 @@
 package mil.emp3.api.enums;
 
 import mil.emp3.api.interfaces.IEventEnum;
+
 /**
- * Created by jgiovino on 1/29/16.
+ * Types of events raised when application issues either selectFeature(s), deselectFeature(s) or clearSelected on the Map to highlight displayed features. When those actions are
  */
 public enum FeatureEventEnum implements IEventEnum {
     /**
-     * IFeature event indicating a feature has been selected(highlighted)
+     * Feature was selected(highlighted)
      */
     FEATURE_SELECTED,
 
     /**
-     * IFeature event indicating a feature has been unselected(normal)
+     * Feature has been unselected i.e reverted to its normal appearance.
      */
     FEATURE_DESELECTED
 }

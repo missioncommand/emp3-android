@@ -10,7 +10,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  * This class implements the editor for Text features.
  */
 
-public class TextEditor extends AbstractSinglePointEditor {
+public class TextEditor extends AbstractSinglePointEditor<mil.emp3.api.Text> {
     public TextEditor(IMapInstance map, mil.emp3.api.Text feature, IEditEventListener oEventListener) throws EMP_Exception {
         super(map, feature, oEventListener, false);
         this.initializeEdit();

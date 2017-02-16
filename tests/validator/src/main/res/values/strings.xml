@@ -14,4 +14,73 @@
         <item>VERSION_1_1_1</item>
         <item>VERSION_1_3</item>
     </string-array>
+
+    <string name="action_exit">Exit</string>
+    <string name="action_test">Test</string>
+
+    <string name="action_drawMenu">Draw Menu</string>
+    <string name="action_drawLine">Draw Line</string>
+    <string name="action_drawPolygon">Draw Polygon</string>
+    <string name="action_drawMilStd">Draw MilStd</string>
+    <string name="action_drawMilStdIcon">Draw MilStd Icon</string>
+    <string name="action_drawTG">Draw Tactical Graphic</string>
+
+    <string name="action_plotPoint">Plot Default Point</string>
+    <string name="action_plotUrlPoint">Plot URL Point</string>
+    <string name="action_plot2units2525B">Many Units</string>
+    <string name="action_plotunits2525B">2525B Units</string>
+    <string name="action_plotunits2525C">2525C Units</string>
+    <string name="action_plotTG2525C">2525C TG</string>
+    <string name="action_removeAll">Remove All</string>
+    <string name="action_addWMS">Add WMS</string>
+    <string name="action_removeWMS">Remove WMS</string>
+    <string name="action_plotsymbol">Plot Symbol</string>
+    <string name="action_performanceTest">Performance Test</string>
+    <string name="action_stopTest">Stop Test</string>
+
+    <string name="action_iconsize">Icon Size</string>
+    <string name="action_iconsizetiny">Tiny</string>
+    <string name="action_iconsizesmall">Small</string>
+    <string name="action_iconsizemedium">Medium</string>
+    <string name="action_iconsizelarge">Large</string>
+
+    <string name="action_labelsetting">Label Setting</string>
+    <string name="action_requiredLabels">Required</string>
+    <string name="action_commonLabels">Common</string>
+    <string name="action_allLabels">All</string>
+
+    <string name="cancelBtn">Cancel</string>
+    <string name="saveBtn">Continue</string>
+
+    <!-- Feature Properties Dialog -->
+    <string name="FPD_title">Feature Properties</string>
+    <string name="FPD_featurename">Feature Name</string>
+
+    <string name="FPD_symbolcodetextLabel">Symbol Code:</string>
+
+    <string name="FPD_milstdversion">MilStd:</string>
+    <string name="FPD_2525B">2525B</string>
+    <string name="FPD_2525C">2525C</string>
+
+    <string name="FPD_affiliationLabel">Affiliation:</string>
+
+    <string name="FPD_echelonModifierLabel">Modifier:</string>
+    <string name="FPD_echelonLabel">Echelon:</string>
+
+    <string name="FPD_symbolcodeLabel">Symbol:</string>
+
+    <string name="FPD_symbolLatLabel">Lat:</string>
+    <string name="FPD_symbolLonLabel">Lon:</string>
+    <string name="FPD_symbolAltLabel">Alt:</string>
+
+    <string name="action_farThresholdLabel">FDT:</string>
+    <string name="action_midThresholdLabel">MDT:</string>
+
+    <string name="PRF_CountLabel">No Of Tracks:</string>
+
+    <string name="action_freehandDraw">Freehand Draw</string>
+    <string name="action_clearselected">Clear Selected</string>
+    <string name="action_freehandDrawExit">Exit Freehand</string>
+    <string name="action_getMapState">Get Map State</string>
+
 </resources>

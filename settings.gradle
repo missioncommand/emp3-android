@@ -1,6 +1,17 @@
 rootProject.name = 'emp3-android'
 
 //
+// 3rd Party Libraries
+//
+
+// Google Maps android utils
+include ':3rdpartylibrary:google-maps-android-cmgn'
+project(':3rdpartylibrary:google-maps-android-cmgn').name = 'google-maps-android-cmgn'
+
+// NASA WorldWind Android
+include ':3rdpartylibrary:worldwind-release'
+
+//
 // SDK
 //
 include ':sdk:sdk-api'
@@ -24,16 +35,6 @@ include ':mapengine:worldwind:aar'
 project(':mapengine:worldwind:aar').name = 'mapengine-worldwind-aar'
 include ':mapengine:worldwind:apk'
 project(':mapengine:worldwind:apk').name = 'mapengine-worldwind-apk'
-
-include ':mapengine:arcgis:aar'
-project(':mapengine:arcgis:aar').name = 'mapengine-arcgis-aar'
-include ':mapengine:arcgis:apk'
-project(':mapengine:arcgis:apk').name = 'mapengine-arcgis-apk'
-
-include ':mapengine:openstreet:aar'
-project(':mapengine:openstreet:aar').name = 'mapengine-openstreet-aar'
-include ':mapengine:openstreet:apk'
-project(':mapengine:openstreet:apk').name = 'mapengine-openstreet-apk'
 
 //
 // SERVICE
@@ -66,8 +67,4 @@ project(':tests:mirrorcache-joystick').name = 'test-mirrorcache-joystick'
 include ':tests:validator'
 project(':tests:validator').name = 'test-validator'
 
-//include ':tests:tmis:app'
-//include ':tests:tmis:wmsworldwind'
-//include ':tests:tmis:wwzoom'
-
-
+include ':tests:test-vandv'

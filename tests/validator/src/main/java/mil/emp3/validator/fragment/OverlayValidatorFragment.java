@@ -35,6 +35,7 @@ public class OverlayValidatorFragment extends Fragment {
                 Log.d(TAG, "name: " + name);
 
                 final ManagedOverlay overlay = ValidatorStateManager.getInstance().createOverlay(name);
+                ValidatorStateManager.getInstance().setCurrentOverlay(name);
 
                 //TODO 'add overlay to map' button with listView of existing maps.
                 try {

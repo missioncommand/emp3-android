@@ -21,6 +21,8 @@ import mil.emp3.mirrorcache.api.IMirrorCache;
 import mil.emp3.mirrorcache.api.IMirrorCacheListener;
 import mil.emp3.mirrorcache.api.MirrorCacheParcelable;
 
+import static mil.emp3.mirrorcache.api.MirrorCache.MAGIC_STRING;
+
 public class MirrorCacheService extends Service {
     private static final String TAG = MirrorCacheService.class.getSimpleName();
 
@@ -31,8 +33,7 @@ public class MirrorCacheService extends Service {
     private final Map<Integer, IMirrorCacheListener> listeners = new HashMap<>();
 
     // data store
-    private final HashMap<Long, MirrorCacheParcelable> masterCache = new HashMap<>();
-    private final HashMap<Long, String> keyToGuid = new HashMap<>();
+    private final Map<String, MirrorCacheParcelable> masterCache = new HashMap<>();
 
     // key generator
     private static long nextKey = Long.MIN_VALUE + 1;
@@ -140,10 +141,6 @@ public class MirrorCacheService extends Service {
             listeners.remove(pid);
         }
 
-        public synchronized void noop(int sourcepid) throws RemoteException {
-            noop.disseminate(sourcepid, null, 0, 0, null);
-        }
-
         public synchronized void nuke() throws RemoteException {
             Log.d(TAG, "nuke");
             stopSelf();
@@ -166,13 +163,8 @@ public class MirrorCacheService extends Service {
             // walk the tree and build out remove client cache via callbacks
             for (MirrorCacheParcelable o : masterCache.values()) {
 //                Log.d(TAG, "mirror key " + o.mirrorKey);
-                String guid = keyToGuid.get(o.mirrorKey);
-//                if (guid != null)
-//                    Log.d(TAG, "mirror guid " + guid);
-//                else
-//                    Log.d(TAG, "mirror guid (null)");
 //                Log.d(TAG, "before onUpdate...");
-                l.onUpdate(SERVICE_ID, o, -1, guid); // always force local client cache to inflate payload even if its in teh same namespace
+                l.onUpdate(SERVICE_ID, o, MAGIC_STRING); // always force local client cache to inflate payload even if its in teh same namespace
 //                Log.d(TAG, "after onUpdate.");
             }
 
@@ -195,48 +187,31 @@ public class MirrorCacheService extends Service {
         }
 
         @Override
-        public synchronized long genKey() throws RemoteException {
-//            Log.d(TAG, "genKey");
-
-            // Note: Long.MIN_VALUE is reserved for the cache root entry
-            long ret = nextKey++;
-            if (nextKey == Long.MAX_VALUE) {
-                throw new RemoteException("MirrorCacheService ran out of unique keys");
-            }
-//            Log.d(TAG, "assigning new key " + ret);
-            return ret;
-        }
-
-        @Override
-        public synchronized void update(int sourcepid, MirrorCacheParcelable o, long parentKey, String guid) throws RemoteException {
+        public synchronized void update(int sourcepid, MirrorCacheParcelable o, String parentKey) throws RemoteException {
             // update the master cache with this entry
             masterCache.put(o.mirrorKey, o);
 
-            // update potential GUID reference
-            if (guid != null) {
-                keyToGuid.put(o.mirrorKey, guid);
-            }
-
             // update potential parent child mapping
-            if (parentKey != -1) {
+            if (!parentKey.equals(MAGIC_STRING)) {
                 MirrorCacheParcelable parent =  masterCache.get(parentKey);
                 if (parent != null) {
                     parent.contentsKeys.add(o.mirrorKey);
                 }
             }
 
+
             // disseminate to connected clients
-            update.disseminate(sourcepid, o, parentKey, o.mirrorKey, guid);
+            update.disseminate(sourcepid, o, parentKey, o.mirrorKey);
         }
 
         @Override
-        public synchronized void delete(int xpid, long key) throws RemoteException {
+        public synchronized void delete(int xpid, String key) throws RemoteException {
             masterCache.remove(key);
-            delete.disseminate(xpid, null, -1, key, null);
+            delete.disseminate(xpid, null, MAGIC_STRING, key);
         }
 
         @Override
-        public synchronized void map(int sourcepid, long parentKey, long childKey) throws RemoteException {
+        public synchronized void map(int sourcepid, String parentKey, String childKey) throws RemoteException {
 //            Log.d(TAG, "map");
 
             MirrorCacheParcelable p = masterCache.get(parentKey);
@@ -246,11 +221,11 @@ public class MirrorCacheService extends Service {
             }
             p.contentsKeys.add(childKey);
 
-            map.disseminate(sourcepid, null, parentKey, childKey, null);
+            map.disseminate(sourcepid, null, parentKey, childKey);
         }
 
         @Override
-        public synchronized void unmap(int sourcepid, long parentKey, long childKey) throws RemoteException {
+        public synchronized void unmap(int sourcepid, String parentKey, String childKey) throws RemoteException {
 //            Log.d(TAG, "unmap");
 
             MirrorCacheParcelable p = masterCache.get(parentKey);
@@ -260,7 +235,7 @@ public class MirrorCacheService extends Service {
             }
             p.contentsKeys.remove(childKey);
 
-            unmap.disseminate(sourcepid, null, parentKey, childKey, null);
+            unmap.disseminate(sourcepid, null, parentKey, childKey);
         }
     };
 
@@ -269,7 +244,7 @@ public class MirrorCacheService extends Service {
 
     private abstract class Disseminator {
 
-        public final void disseminate(int sourcePid, MirrorCacheParcelable p, long parentKey, long childKey, String guid) throws RemoteException {
+        public final void disseminate(int sourcePid, MirrorCacheParcelable p, String parentKey, String childKey) throws RemoteException {
 
             // Synchronously call back all listening client connection
             for (Iterator<Map.Entry<Integer, IMirrorCacheListener>> iter = listeners.entrySet().iterator(); iter.hasNext(); ) {
@@ -290,7 +265,7 @@ public class MirrorCacheService extends Service {
                 }
 
                 try {
-                    applyFunctionCall(listener, sourcePid, p, parentKey, childKey, guid);
+                    applyFunctionCall(listener, sourcePid, p, parentKey, childKey);
 
                 } catch (DeadObjectException e) {
                     Log.d(TAG, "removing listener from callback list " + destPid);
@@ -299,35 +274,29 @@ public class MirrorCacheService extends Service {
             }
         }
 
-        protected abstract void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, long parentKey, long childKey, String guid) throws DeadObjectException, RemoteException;
+        protected abstract void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, String parentKey, String childKey) throws DeadObjectException, RemoteException;
     }
 
-    private final Disseminator noop = new Disseminator() {
-        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, long parentKey, long childKey, String guid) throws DeadObjectException, RemoteException {
-            l.onNoop();
-        }
-    };
-
     private final Disseminator update = new Disseminator() {
-        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, long parentKey, long childKey, String guid) throws DeadObjectException, RemoteException {
-            l.onUpdate(sourcepid, p, parentKey, guid);
+        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, String parentKey, String childKey) throws DeadObjectException, RemoteException {
+            l.onUpdate(sourcepid, p, parentKey);
         }
     };
 
     private final Disseminator delete = new Disseminator() {
-        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, long parentKey, long childKey, String guid) throws DeadObjectException, RemoteException {
+        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, String parentKey, String childKey) throws DeadObjectException, RemoteException {
             l.onDelete(sourcepid, childKey);
         }
     };
 
     private final Disseminator map = new Disseminator() {
-        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, long parentKey, long childKey, String guid) throws DeadObjectException, RemoteException {
+        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, String parentKey, String childKey) throws DeadObjectException, RemoteException {
             l.onMap(parentKey, childKey);
         }
     };
 
     private final Disseminator unmap = new Disseminator() {
-        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, long parentKey, long childKey, String guid) throws DeadObjectException, RemoteException {
+        protected void applyFunctionCall(IMirrorCacheListener l, int sourcepid, MirrorCacheParcelable p, String parentKey, String childKey) throws DeadObjectException, RemoteException {
             l.onUnmap(parentKey, childKey);
         }
     };

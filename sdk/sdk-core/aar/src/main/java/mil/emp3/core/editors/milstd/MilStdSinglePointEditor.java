@@ -19,11 +19,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 /**
  * This class implements the editor for single point MilStd symbols.
  */
-public class MilStdSinglePointEditor extends AbstractSinglePointEditor {
-    private final mil.emp3.api.MilStdSymbol getSymbolIcon() {
-        return (mil.emp3.api.MilStdSymbol) this.oFeature;
-    }
-
+public class MilStdSinglePointEditor extends AbstractSinglePointEditor<MilStdSymbol> {
     public MilStdSinglePointEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener) throws EMP_Exception {
         super(map, feature, oEventListener, false);
         this.initializeEdit();
@@ -36,8 +32,8 @@ public class MilStdSinglePointEditor extends AbstractSinglePointEditor {
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        String sSymbolCode = this.getSymbolIcon().getBasicSymbol();
-        int iMilStdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(this.getSymbolIcon().getSymbolStandard());
+        String sSymbolCode = this.oFeature.getBasicSymbol();
+        int iMilStdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(this.oFeature.getSymbolStandard());
         UnitDef oUnitDef = armyc2.c2sd.renderer.utilities.UnitDefTable.getInstance().getUnitDef(sSymbolCode, iMilStdVersion);
 
         if (null == oUnitDef) {

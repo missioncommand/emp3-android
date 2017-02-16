@@ -3,6 +3,8 @@ package mil.emp3.api;
 import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.IGeoMilSymbol;
 
+import java.util.ArrayList;
+
 import armyc2.c2sd.renderer.utilities.SymbolDef;
 import armyc2.c2sd.renderer.utilities.SymbolDefTable;
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
@@ -14,15 +16,11 @@ import mil.emp3.api.exceptions.EMP_Exception;
 /**
  * This class encapsulates a GeoMilSymbol. It provides additional functionality.
  */
-public class MilStdSymbol extends Feature implements IGeoMilSymbol {
+public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbol {
 
-    // This type must be removed when it is supported by the IGeoLabelStyle
-    private String fontFamily = "Arial";
-    // This type must be removed when it is supported by the IGeoLabelStyle
-    private int fontSize = 20;
-    // This type must be removed when it is supported by the IGeoLabelStyle
-    private Text.TypeFaceStyle typeFaceStyle = Text.TypeFaceStyle.NORMAL;
-
+    /**
+     * This enumeration class defines the MilStd unit affiliation values.
+     */
     public enum Affiliation {
         PENDING,
         UNKNOWN,
@@ -75,6 +73,11 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
             return "*";
         }
 
+        /**
+         * This static method returns the affiliation enumerated value for the given string representation.
+         * @param str
+         * @return affiliation enumerated value or null if the string does not represent a valid MilStd affiliation code.
+         */
         public static Affiliation fromString(String str) {
             Affiliation eValue = null;
 
@@ -131,6 +134,101 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         }
     }
 
+    /**
+     * This enumeration class defines the echelon symbol modifier of the symbol code position 11.
+     */
+    public enum EchelonSymbolModifier {
+        UNIT,
+        HEADQUARTERS,
+        TASK_FORCE_HQ,
+        FEINT_DUMMY_HQ,
+        FEINT_DUMMY_TASK_FORCE_HQ,
+        TASK_FORCE,
+        FEINT_DUMMY,
+        FEINT_DUMMY_TASK_FORCE,
+        INSTALLATION,
+        MOBILITY,
+        TOWED_ARRAY;
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case UNIT:
+                    return "-";
+                case HEADQUARTERS:
+                    return "A";
+                case TASK_FORCE_HQ:
+                    return "B";
+                case FEINT_DUMMY_HQ:
+                    return "C";
+                case FEINT_DUMMY_TASK_FORCE_HQ:
+                    return "D";
+                case TASK_FORCE:
+                    return "E";
+                case FEINT_DUMMY:
+                    return "F";
+                case FEINT_DUMMY_TASK_FORCE:
+                    return "G";
+                case INSTALLATION:
+                    return "H";
+                case MOBILITY:
+                    return "M";
+                case TOWED_ARRAY:
+                    return "N";
+            }
+            return "-";
+        }
+
+        public static EchelonSymbolModifier fromString(String str) {
+            EchelonSymbolModifier eValue = null;
+
+            if ((str == null) || (str.length() < 1)) {
+                return eValue;
+            }
+
+            switch (str.substring(0,1)) {
+                case "-":
+                case "*":
+                    eValue = UNIT;
+                    break;
+                case "A":
+                    eValue = HEADQUARTERS;
+                    break;
+                case "B":
+                    eValue = TASK_FORCE_HQ;
+                    break;
+                case "C":
+                    eValue = FEINT_DUMMY_HQ;
+                    break;
+                case "D":
+                    eValue = FEINT_DUMMY_TASK_FORCE_HQ;
+                    break;
+                case "E":
+                    eValue = TASK_FORCE;
+                    break;
+                case "F":
+                    eValue = FEINT_DUMMY;
+                    break;
+                case "G":
+                    eValue = FEINT_DUMMY_TASK_FORCE;
+                    break;
+                case "H":
+                    eValue = INSTALLATION;
+                    break;
+                case "M":
+                    eValue = MOBILITY;
+                    break;
+                case "N":
+                    eValue = TOWED_ARRAY;
+                    break;
+            }
+            return eValue;
+        }
+    }
+
+    /**
+     * This enumeration class defines the values for the MilStd echelon component of the symbol code (position 12)
+     */
     public enum Echelon {
         UNIT,
         TEAM_CREW,
@@ -244,6 +342,9 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         }
     }
 
+    /**
+     * This enumerated class defines the symbol modifier position 12 for installations.
+     */
     public enum InstalationEchelon {
         INSTALLATION,
         FEINT_DUMMY_INSTALLATION;
@@ -277,6 +378,9 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         }
     }
 
+    /**
+     * This enumeration class defines the symbol modifier of the symbol position 12 for modility.
+     */
     public enum MobilityEchelonModifier {
         WHEELED_LIMITED_CROSS_COUNTRY,
         CROSS_COUNTRY,
@@ -366,6 +470,9 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         }
     }
 
+    /**
+     * This enumeration class defines the symbol modifier of the symbol position 12 for towed arrays.
+     */
     public enum TowedArrayEchelonModifier {
         SHORT,
         LONG;
@@ -401,110 +508,27 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         }
     }
 
-    public enum EchelonSymbolModifier {
-        UNIT,
-        HEADQUARTERS,
-        TASK_FORCE_HQ,
-        FEINT_DUMMY_HQ,
-        FEINT_DUMMY_TASK_FORCE_HQ,
-        TASK_FORCE,
-        FEINT_DUMMY,
-        FEINT_DUMMY_TASK_FORCE,
-        INSTALLATION,
-        MOBILITY,
-        TOWED_ARRAY;
-
-        @Override
-        public String toString() {
-            switch (this) {
-                case UNIT:
-                    return "-";
-                case HEADQUARTERS:
-                    return "A";
-                case TASK_FORCE_HQ:
-                    return "B";
-                case FEINT_DUMMY_HQ:
-                    return "C";
-                case FEINT_DUMMY_TASK_FORCE_HQ:
-                    return "D";
-                case TASK_FORCE:
-                    return "E";
-                case FEINT_DUMMY:
-                    return "F";
-                case FEINT_DUMMY_TASK_FORCE:
-                    return "G";
-                case INSTALLATION:
-                    return "H";
-                case MOBILITY:
-                    return "M";
-                case TOWED_ARRAY:
-                    return "N";
-            }
-            return "-";
-        }
-
-        public static EchelonSymbolModifier fromString(String str) {
-            EchelonSymbolModifier eValue = null;
-
-            if ((str == null) || (str.length() < 1)) {
-                return eValue;
-            }
-
-            switch (str.substring(0,1)) {
-                case "-":
-                case "*":
-                    eValue = UNIT;
-                    break;
-                case "A":
-                    eValue = HEADQUARTERS;
-                    break;
-                case "B":
-                    eValue = TASK_FORCE_HQ;
-                    break;
-                case "C":
-                    eValue = FEINT_DUMMY_HQ;
-                    break;
-                case "D":
-                    eValue = FEINT_DUMMY_TASK_FORCE_HQ;
-                    break;
-                case "E":
-                    eValue = TASK_FORCE;
-                    break;
-                case "F":
-                    eValue = FEINT_DUMMY;
-                    break;
-                case "G":
-                    eValue = FEINT_DUMMY_TASK_FORCE;
-                    break;
-                case "H":
-                    eValue = INSTALLATION;
-                    break;
-                case "M":
-                    eValue = MOBILITY;
-                    break;
-                case "N":
-                    eValue = TOWED_ARRAY;
-                    break;
-            }
-            return eValue;
-        }
-    }
-
     private double dIconScale = 1.0;
 
     /**
-     * This is the default constructor for the class
+     * This is the default constructor for the class. It creates a GeoMilSymbol that is rendered using
+     * the standard MilStd 2525 coloring scheme. Setting the stroke, fill, and or label styles will
+     * alter the colors the symbol is rendered in.
      */
     public MilStdSymbol() {
         super(new GeoMilSymbol(), FeatureTypeEnum.GEO_MIL_SYMBOL);
+        this.getRenderable().setSymbolCode(null);
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
     }
     
     /**
-     * This constructor creates MilStdSymbol, generates the GeoMilSymbol it encapsulates, and sets the
-     * MilStd version and symbol code to the values provided.
+     * This constructor creates MilStdSymbol, and sets the
+     * MilStd version and symbol code to the values provided.  It creates a GeoMilSymbol that is rendered using
+     * the standard MilStd 2525 coloring scheme. Setting the stroke, fill, and or label styles will
+     * alter the colors the symbol is rendered in.
+
      * @param eStandard {@link IGeoMilSymbol.SymbolStandard}
      * @param sSymbolCode A valid MilStd symbol code.
      * @throws mil.emp3.api.exceptions.EMP_Exception
@@ -528,7 +552,7 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
     }
 
     /**
-     * This constructor creates MilStdSymbol and encapsulates the IGeoMilSymbol object provided.
+     * This constructor creates MilStdSymbol from the the IGeoMilSymbol object provided.
      * If the standard version is not set, it is set to the default value. If the modifiers are
      * null it is set to an empty modifier list.
      * @param oRenderable an object that implements the IGeoMilSymbol interface.
@@ -553,15 +577,6 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         if (null == this.getAffiliation()) {
             this.setAffiliation(Affiliation.FRIEND);
         }
-    }
-
-    /**
-     * This method returns a reference to the GeoMilSymbol object encapsulated in the feature.
-     * @return See {@link IGeoMilSymbol}
-     */
-    @Override
-    public final IGeoMilSymbol getRenderable() {
-        return (IGeoMilSymbol) super.getRenderable();
     }
 
     /**
@@ -670,13 +685,13 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         }
     }
 
-    private java.util.ArrayList<String> convertToArrayList(String sCommaDelimitedString) {
-        java.util.ArrayList<String> aValueList = new java.util.ArrayList<>(java.util.Arrays.asList(sCommaDelimitedString.split("\\s*,\\s*")));
+    private ArrayList<String> convertToArrayList(String sCommaDelimitedString) {
+        ArrayList<String> aValueList = new ArrayList<>(java.util.Arrays.asList(sCommaDelimitedString.split("\\s*,\\s*")));
 
         if (sCommaDelimitedString.isEmpty()) {
-            aValueList = new java.util.ArrayList<>();
+            aValueList = new ArrayList<>();
         } else {
-            aValueList = new java.util.ArrayList<>(java.util.Arrays.asList(sCommaDelimitedString.split("\\s*,\\s*")));
+            aValueList = new ArrayList<>(java.util.Arrays.asList(sCommaDelimitedString.split("\\s*,\\s*")));
         }
 
         return aValueList;
@@ -692,7 +707,7 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         java.util.HashMap<IGeoMilSymbol.Modifier, String> oModifierList =
                 this.getRenderable().getModifiers();
         String sValue = "";
-        java.util.ArrayList<String> aValueList;
+        ArrayList<String> aValueList;
 
         if (oModifierList.containsKey(eModifier)) {
             sValue = oModifierList.get(eModifier);
@@ -762,7 +777,7 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         java.util.HashMap<IGeoMilSymbol.Modifier, String> oModifierList =
                 this.getModifiers();
         String sValue = "";
-        java.util.ArrayList<String> aValueList;
+        ArrayList<String> aValueList;
 
         if (oModifierList.containsKey(eModifier)) {
             sValue = oModifierList.get(eModifier);
@@ -778,16 +793,34 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         }
         return Float.NaN;
     }
-    
+
+    /**
+     * This method retrieves the basic symbol code with no modifiers.
+     * @throws IllegalStateException if called before symbol code is set
+     * @return basic symbol code
+     */
     public String getBasicSymbol() {
+        validate();
         return SymbolUtilities.getBasicSymbolID(this.getSymbolCode());
     }
-    
+
+    /**
+     * This method trues true if the symbol code is a tactical graphic. it returns false otherwise.
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol is a tactical graphic
+     */
     public boolean isTacticalGraphic() {
+        validate();
         return SymbolUtilities.isTacticalGraphic(this.getBasicSymbol());
     }
 
+    /**
+     * This method returns true if the symbol code represents a single point MilStd.
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is for a single point
+     */
     public boolean isSinglePoint() {
+       validate();
         boolean ret = false;
         String basicSymbolCode = this.getBasicSymbol();
 
@@ -806,17 +839,30 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         return ret;
     }
 
+    /**
+     * This method retrieves the affiliation value set in the symbol code.
+     * @throws IllegalStateException if called before symbol code is set
+     * @return {@link MilStdSymbol.Affiliation}
+     */
     public MilStdSymbol.Affiliation getAffiliation() {
+        validate();
         String sSymbolCode = this.getSymbolCode();
 
         char affiliation = SymbolUtilities.getAffiliation(sSymbolCode);
         return MilStdSymbol.Affiliation.fromString(Character.toString(affiliation));
     }
 
+    /**
+     * This method set the symbol code affiliation of the symbol code.
+     * @throws IllegalStateException if called before symbol code is set
+     * @param eAffiliation {@link MilStdSymbol.Affiliation}
+     * @throws IllegalArgumentException if eAffiliation is null
+     */
     public void setAffiliation(MilStdSymbol.Affiliation eAffiliation) {
         if (eAffiliation == null) {
             throw new IllegalArgumentException("Affiliation can not be null.");
         }
+        validate();
         String sSymbolCode = this.getSymbolCode();
         
         sSymbolCode = SymbolUtilities.setAffiliation(sSymbolCode, eAffiliation.toString());
@@ -827,12 +873,19 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         if ((sStr == null) || (sStr.length() < 2)) {
             throw new IllegalArgumentException("Invalid echelon.");
         }
+        validate();
         String sSymbolCode = this.getSymbolCode();
 
         sSymbolCode = sSymbolCode.substring(0, 10) + sStr.substring(0,2) + sSymbolCode.substring(12);
         this.getRenderable().setSymbolCode(sSymbolCode);
     }
 
+    /**
+     * This method sets the symbol code echelon modifier (position 11, 12)
+     * @param eModifier {@link MilStdSymbol.EchelonSymbolModifier}
+     * @param eEchelon {@link MilStdSymbol.Echelon}
+     * @throws EMP_Exception
+     */
     public void setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier eModifier, MilStdSymbol.Echelon eEchelon)
             throws EMP_Exception {
         if (eModifier == null) {
@@ -853,6 +906,11 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         this.setEchelonField(eModifier.toString() + eEchelon.toString());
     }
 
+    /**
+     * This method set the symbol code echelon modifier for installation symbols.
+     * @param eValue {@link InstalationEchelon}
+     * @throws EMP_Exception
+     */
     public void setEchelonSymbolModifier(InstalationEchelon eValue)
             throws EMP_Exception {
         if (eValue == null) {
@@ -862,6 +920,11 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         this.setEchelonField(EchelonSymbolModifier.INSTALLATION.toString() + eValue.toString());
     }
 
+    /**
+     * This method sets the symbol code echelon modifier (position 11,12) for mobility.
+     * @param eValue {@link MobilityEchelonModifier}
+     * @throws EMP_Exception
+     */
     public void setEchelonSymbolModifier(MobilityEchelonModifier eValue)
             throws EMP_Exception {
         if (eValue == null) {
@@ -871,6 +934,11 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         this.setEchelonField(EchelonSymbolModifier.MOBILITY.toString() + eValue.toString());
     }
 
+    /**
+     * This method sets the symbol code echelon modifier (position 11,12) of the symbol code of towed arrays.
+     * @param eValue {@link TowedArrayEchelonModifier}
+     * @throws EMP_Exception
+     */
     public void setEchelonSymbolModifier(TowedArrayEchelonModifier eValue)
             throws EMP_Exception {
         if (eValue == null) {
@@ -900,77 +968,36 @@ public class MilStdSymbol extends Feature implements IGeoMilSymbol {
         return this.dIconScale;
     }
 
-
-    /**
-     * This method return the font family the text is rendered with.
-     * NOTE: This method will be removed went it is supported by the IGeoLabelStyle.
-     * @return String
-     */
-    public String getFontFamily() {
-        return this.fontFamily;
-    }
-
-    /**
-     * This method set the font family the text is to be rendered with. The map will use the closest font available.
-     * NOTE: This method will be removed went it is supported by the IGeoLabelStyle.
-     * @param fFamily String
-     */
-    public void setFontFamily(String fFamily) {
-        this.fontFamily = fFamily;
-    }
-
-    /**
-     * This method retrieves the font size used to render the text.
-     * NOTE: This method will be removed went it is supported by the IGeoLabelStyle.
-     * @return Integer
-     */
-    public int getFontSize() {
-        return this.fontSize;
-    }
-
-    /**
-     * This method set the size of the font the map is to render the text in.
-     * NOTE: This method will be removed went it is supported by the IGeoLabelStyle.
-     * @param size
-     */
-    public void setFontSize(int size) {
-        this.fontSize = size;
-    }
-
-    /**
-     * This methos returns the type face style of the lable.
-     * NOTE: This method will be removed went it is supported by the IGeoLabelStyle.
-     * @return Text.TypeFaceStyle
-     */
-    public Text.TypeFaceStyle getTypeFaceStyle() {
-        return this.typeFaceStyle;
-    }
-
-    /**
-     * This methos set the type face style the text is to be rendered in.
-     * NOTE: This method will be removed went it is supported by the IGeoLabelStyle.
-     * @param tfs
-     */
-    public void setTypeFaceStyle(Text.TypeFaceStyle tfs) {
-        this.typeFaceStyle = tfs;
-    }
-
     /**
      * This method returns true if the symbol is an air track.
-     * @return
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is for an air track
      */
     public boolean isAirTrack() {
+        validate();
         return SymbolUtilities.isAirTrack(this.getSymbolCode());
     }
 
+    /**
+     * This method returns true if the symbol code is a space track, false otherwise.
+     * @throws IllegalStateException if called before symbol code is set
+     * @return true if symbol code is a space track
+     */
     public boolean isSpaceTrack() {
         boolean bRet = false;
-
-        if ((null != this.getSymbolCode()) && (this.getSymbolCode().length() == 15)) {
+        validate();
+        if (this.getSymbolCode().length() == 15) {
             if ("S*P".equals(this.getBasicSymbol().substring(0, 3))) {
                 bRet = true;
             }
         }
         return bRet;
+    }
+
+    @Override
+    public void validate() {
+        if (getSymbolCode() == null) {
+            throw new IllegalStateException("Invalid operation. Symbol code is not set");
+        }
     }
 }

@@ -1,5 +1,7 @@
 package mil.emp3.api.listeners;
 
+import java.util.List;
+
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
@@ -18,7 +20,7 @@ public interface IDrawEventListener {
      * @param map This parameter indicates the map the event occurred on.
      * @param updateList This parameter contains a list of changes. see {@link IEditUpdateData}
      */
-    public void onDrawUpdate(IMap map, IFeature feature, java.util.List<IEditUpdateData> updateList);
+    public void onDrawUpdate(IMap map, IFeature feature, List<IEditUpdateData> updateList);
     /**
      * This method is called when the draw session is finished.
      * @param map This parameter indicates the map the event occurred on.

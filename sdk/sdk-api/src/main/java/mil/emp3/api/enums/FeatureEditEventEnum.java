@@ -1,24 +1,26 @@
 package mil.emp3.api.enums;
 
 import mil.emp3.api.interfaces.IEventEnum;
+
 /**
- * This class enumerates the type of feature edit events
+ * Type of events generated when map enters {@link EditorMode} EDIT_MODE and user DRAG gestures are processed. These events are triggered when application
+ * issues editFeature, cancelEdit, completeEdit on {@link mil.emp3.api.interfaces.IMap}
  */
 public enum FeatureEditEventEnum implements IEventEnum {
     /**
-     * This value indicates that the edit has started. The event target provides the feature being edited.
+     * EDIT_MODE has started.
      */
     EDIT_START,
     /**
-     * This value indicates that the feature has been changed. The event target is a reference to the updated feature.
+     * Edit status has changed e.g. DRAG gesture continues or is complete, see {@link FeatureEditUpdateTypeEnum}
      */
     EDIT_UPDATE,
     /**
-     * This value indicates that the edit has been canceled. The event target is a reference of the feature prior to the edit.
+     * Application issued Cancel action was processed and Map has exited the EDIT_MODE
      */
     EDIT_CANCELED,
     /**
-     * This value indicates that the edit has completed. The event target is a reference of the edited feature.
+     * Application issues Complete action was processed and Map has exited the EDIT_MODE
      */
     EDIT_COMPLETE
 }

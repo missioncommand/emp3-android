@@ -2,6 +2,8 @@ package mil.emp3.api.interfaces;
 
 import org.cmapi.primitives.IGeoContainer;
 
+import java.util.List;
+
 import mil.emp3.api.exceptions.EMP_Exception;
 
 /**
@@ -13,7 +15,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      *
      * @return An ArrayList of zero or more IOverlay objects.
      */
-    public java.util.List<IOverlay> getOverlays();
+    public List<IOverlay> getOverlays();
 
     /**
      * This method adds a child overlay to this overlay.
@@ -32,7 +34,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param visible True if the overlays are to be made visible, false otherwise.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addOverlays(java.util.List<IOverlay> overlays, boolean visible)
+    public void addOverlays(List<IOverlay> overlays, boolean visible)
             throws EMP_Exception;
 
     /**
@@ -50,14 +52,14 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param overlays A list of child overlays to remove.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeOverlays(java.util.List<IOverlay> overlays)
+    public void removeOverlays(List<IOverlay> overlays)
             throws EMP_Exception;
 
     /**
      * This method retrieves all child features of this overlay.
      * @return An ArrayList of IFeatures.
      */
-    public java.util.List<IFeature> getFeatures();
+    public List<IFeature> getFeatures();
 
     /**
      * This method adds a feature to this overlay.
@@ -74,7 +76,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param visible True if the features are to be made visible, false otherwise.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addFeatures(java.util.List<IFeature> features, boolean visible)
+    public void addFeatures(List<IFeature> features, boolean visible)
             throws EMP_Exception;
 
     /**
@@ -92,7 +94,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param features A list of child features to remove.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeFeatures(java.util.List<IFeature> features)
+    public void removeFeatures(List<IFeature> features)
             throws EMP_Exception;
 
     /**

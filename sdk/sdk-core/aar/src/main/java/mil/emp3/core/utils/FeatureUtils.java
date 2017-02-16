@@ -4,6 +4,8 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.util.List;
+
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.mapengine.interfaces.IEmpImageInfo;
@@ -34,7 +36,7 @@ public class FeatureUtils {
         return oPos;
     }
 
-    public static boolean isOnIDL(java.util.List<IGeoPosition> oPositionList) {
+    public static boolean isOnIDL(List<IGeoPosition> oPositionList) {
         boolean bCrossIDL = false;
 
         if ((oPositionList == null) || (oPositionList.size() == 0) || (oPositionList.size() == 1)) {

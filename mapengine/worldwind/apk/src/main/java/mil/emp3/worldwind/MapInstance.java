@@ -2,104 +2,143 @@ package mil.emp3.worldwind;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 
 import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoBounds;
-import org.cmapi.primitives.IGeoFillStyle;
-import org.cmapi.primitives.IGeoIconStyle;
-import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import gov.nasa.worldwind.FrameMetrics;
 import gov.nasa.worldwind.WorldWind;
-import gov.nasa.worldwind.geom.Offset;
+import gov.nasa.worldwind.Navigator;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layer.BackgroundLayer;
+import gov.nasa.worldwind.layer.Layer;
+import gov.nasa.worldwind.layer.LayerFactory;
 import gov.nasa.worldwind.layer.RenderableLayer;
 import gov.nasa.worldwind.ogc.WmsLayer;
 import gov.nasa.worldwind.ogc.WmsLayerConfig;
+import gov.nasa.worldwind.render.ImageOptions;
 import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderResourceCache;
-import gov.nasa.worldwind.render.Renderable;
-import gov.nasa.worldwind.shape.Placemark;
-import gov.nasa.worldwind.shape.PlacemarkAttributes;
+import gov.nasa.worldwind.shape.SurfaceImage;
 import gov.nasa.worldwind.util.Logger;
-import mil.emp3.api.MilStdSymbol;
-import mil.emp3.api.Path;
-import mil.emp3.api.Polygon;
-import mil.emp3.api.Text;
+import gov.nasa.worldwind.util.WWUtil;
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
-import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IGeoPackage;
+import mil.emp3.api.interfaces.IImageLayer;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
-import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.IWMS;
-import mil.emp3.mapengine.CoreMapInstance;
+import mil.emp3.api.interfaces.IScreenCaptureCallback;
+import mil.emp3.api.interfaces.core.IStorageManager;
+import mil.emp3.api.utils.EmpBoundingBox;
+import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.ManagerFactory;
+import mil.emp3.mapengine.abstracts.CoreMapInstance;
 import mil.emp3.mapengine.api.Capabilities;
-import mil.emp3.mapengine.interfaces.IEmpResources;
-import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
-
-import mil.emp3.mapengine.interfaces.IEmpImageInfo;
+import mil.emp3.mapengine.interfaces.IEmpResources;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
+import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.mapengine.interfaces.ISetVisibilityList;
-
 import mil.emp3.worldwind.controller.PickNavigateController;
-import mil.emp3.worldwind.feature.MilStd2525SinglePoint;
-import mil.emp3.worldwind.feature.MilStd2525TacticalGraphic;
+import mil.emp3.worldwind.feature.FeatureRenderableMapping;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
+import mil.emp3.worldwind.layer.EmpLayer;
+import mil.emp3.worldwind.layer.IconLayer;
+import mil.emp3.worldwind.layer.KMLLayer;
+import mil.emp3.worldwind.layer.PathLayer;
+import mil.emp3.worldwind.layer.PolygonLayer;
+import mil.emp3.worldwind.layer.RenderedFeatureLayer;
+import mil.emp3.worldwind.layer.MilStdSymbolLayer;
+import mil.emp3.worldwind.layer.TextLayer;
 import mil.emp3.worldwind.utils.ConfigChooser;
-import mil.emp3.worldwind.utils.Conversion;
+import mil.emp3.worldwind.utils.EmpSurfaceImage;
 import mil.emp3.worldwind.utils.MapEngineProperties;
+import mil.emp3.worldwind.utils.ScreenCapture;
 import mil.emp3.worldwind.utils.SystemUtils;
 
 public class MapInstance extends CoreMapInstance {
     private static final String TAG = MapInstance.class.getSimpleName();
+    private static final int BRIGHTNESS_BITMAP_WIDTH_HEIGHT = 4;
+    private static final int HATCH_SIZE = (new Double(0.178571 * Resources.getSystem().getDisplayMetrics().densityDpi)).intValue();
 
     private Context context;
-    private WorldWindow ww;
+    private gov.nasa.worldwind.WorldWindow ww;
     private SurfaceHolder mySurfaceHolder;                 // This is required for WallPaper Service
-    final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
-    
-    private PickNavigateController mapController = null;
-    private RenderableLayer oRenderableLayer = null;
-    private TacticalGraphicLayer oTacticalGraphicLayer = null;
-    protected Emp3NavigationListener oMapViewController;
+    private final IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
+
+    private PickNavigateController mapController;
+    private Emp3NavigationListener oMapViewController;
 
     private double FAR_THRESHOLD = 30000;
     private double MID_THRESHOLD = 10000;
 
+    private Map<UUID, mil.emp3.worldwind.feature.FeatureRenderableMapping> featureHash;
+    private Set<UUID> dirtyOnMapMove;
+    private RenderableLayer imageLayer;
+    private Map<UUID, SurfaceImage> surfaceLayerHash;
+    private Map<UUID, Layer> wmsHash;
+    private RenderableLayer brightnessLayer;
 
-    private java.util.HashMap<java.util.UUID, WmsLayer> wmsHash;
-    private java.util.Map<java.util.UUID, mil.emp3.worldwind.FeatureRenderableMapping> featureHash;
+    private boolean brightnessProcessingPosted = false;
+    private int backgroundBrightness = 50;
+    android.graphics.Bitmap blackBitmap;
+    android.graphics.Bitmap whiteBitmap;
+    EmpSurfaceImage blackSurfaceImage;
+    EmpSurfaceImage whiteSurfaceImage;
+    ImageSource blackImageSource;
+    ImageSource whiteImageSource;
+    private android.graphics.Bitmap hatchBitmap;
+    private android.graphics.Bitmap crossHatchBitmap;
+    private ImageSource hatchImageSource;
+    private ImageSource crossHatchImageSource;
+
+    private final Map<FeatureTypeEnum, EmpLayer> empLayerMap = new HashMap<>();
+
+    private MiniMapWorldWindow miniMap = null;
 
     // If you ever need to provide a trace of render cache to NASA then following constants and handler are important.
     // Handler is kicked of by the last line in initMapEngine which remains commented until required.
@@ -117,6 +156,7 @@ public class MapInstance extends CoreMapInstance {
             }
         }
     });
+
     /**
      * This handler is used to explicitly run posted messages on the main UI thread.
      *
@@ -160,32 +200,46 @@ public class MapInstance extends CoreMapInstance {
         initMapEngine(context, attrs);
     }
 
-    public Emp3NavigationListener getCameraHandler() {
-        return this.oMapViewController;
-    }
+    /**
+     * A developer may want to either extend MapInstance or the MapInstance.WorldWindow inner class. If you are extending MapInstance then
+     * be sure to invoke super.initMapEngine and override one of getWW methods that takes non-empty arguments. In future we may want to allow
+     * the user to create a custom feature but that is currently not supported. One approach would be to create a FeatureType CUSTOM and then
+     * invoke methods from user's Feature object to render the feature. User's Feature object would need to implement IFeature and ICustomFeature
+     * (doesn't exist yet). Developer should also create a separate layer for the custom features and add it by fetching Layer List from the MapInstance
+     * getEmpLayerMap. What is being done under EMP-3024 is a first step and more work like allowing developers to Capabilities
+     * is still to be done.
+     * @param context
+     * @param attrs
+     */
+    protected void initMapEngine(Context context, AttributeSet attrs) {
+        this.context = context;
 
-    public void initMapEngine(Context context, AttributeSet attrs) {
         // Create the World Window and set it as the content view for this activity.
         Log.i(TAG, "initMapEngine()");
         this.oEngineCapabilities = new Capabilities(
-                new FeatureTypeEnum[] {
-                        FeatureTypeEnum.GEO_MIL_SYMBOL,
-                        FeatureTypeEnum.GEO_POINT,
-                        FeatureTypeEnum.GEO_PATH,
-                        FeatureTypeEnum.GEO_POLYGON,
-                        FeatureTypeEnum.GEO_TEXT
-                },
-                new WMSVersionEnum[] {WMSVersionEnum.VERSION_1_1,
-                        WMSVersionEnum.VERSION_1_1_1,
-                        WMSVersionEnum.VERSION_1_3,
-                        WMSVersionEnum.VERSION_1_3_0});
+            new FeatureTypeEnum[] {
+                    FeatureTypeEnum.GEO_MIL_SYMBOL,
+                    FeatureTypeEnum.GEO_POINT,
+                    FeatureTypeEnum.GEO_PATH,
+                    FeatureTypeEnum.GEO_POLYGON,
+                    FeatureTypeEnum.GEO_TEXT,
+                    FeatureTypeEnum.GEO_CIRCLE,
+                    FeatureTypeEnum.GEO_ELLIPSE,
+                    FeatureTypeEnum.GEO_RECTANGLE,
+                    FeatureTypeEnum.GEO_SQUARE,
+                    FeatureTypeEnum.KML
+            },
+            new WMSVersionEnum[] {
+                    WMSVersionEnum.VERSION_1_1,
+                    WMSVersionEnum.VERSION_1_1_1,
+                    WMSVersionEnum.VERSION_1_3,
+                    WMSVersionEnum.VERSION_1_3_0
+            },
+                new WMTSVersionEnum[] {
+                        WMTSVersionEnum.VERSION_1_0_0}
+        );
 
-        if(null == attrs) {
-            ww = new WorldWindow(context);
-        } else {
-            ww = new WorldWindow(context, attrs);
-        }
-
+        ww = null == attrs ? getWW(context) : getWW(context, attrs);
         /*
            Here is some explanation from NASA for the following two lines of code:
            Thanks for the logcat output. After reviewing the latest EMP3 code, it appears that the LevelOfDetailSelector implementation is correct and
@@ -206,28 +260,89 @@ public class MapInstance extends CoreMapInstance {
         RenderResourceCache customCache = new RenderResourceCache(96 * 1024 * 1024); // 96 megabyte render cache capacity, for example
         ww.setRenderResourceCache(customCache);
 
-        this.context = context;
         this.oMapViewController = new Emp3NavigationListener(this, ww);
         this.handler = new Handler(Looper.getMainLooper());
-        this.wmsHash = new java.util.HashMap<>();
+        this.wmsHash = new HashMap<>();
         this.featureHash = new ConcurrentHashMap<>(); // zoom operation and re-rendering of Tactical Graphics will otherwise crash
+        this.dirtyOnMapMove = new HashSet<>();
+        /*
+         * Layers to be rendered, in order.
+         */
+        EmpLayer empLayer;
 
         ww.getLayers().addLayer(new BackgroundLayer());
-        //this.getLayers().addLayer(new BlueMarbleLandsatLayer());
 
-        // First place the TG layer next so it renders before icons.
-        this.oTacticalGraphicLayer = new TacticalGraphicLayer(this);
-        ww.getLayers().addLayer(this.oTacticalGraphicLayer);
+        this.imageLayer = new RenderableLayer();
+        ww.getLayers().addLayer(this.imageLayer);
 
-        //The the layer for all other stuff.
-        this.oRenderableLayer = new RenderableLayer();
-        ww.getLayers().addLayer(this.oRenderableLayer);
+        this.brightnessLayer = new RenderableLayer();
+        ww.getLayers().addLayer(this.brightnessLayer);
 
+        this.surfaceLayerHash = new ConcurrentHashMap<>();
+
+        empLayer = new PolygonLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_POLYGON, empLayer);
+
+        empLayer = new RenderedFeatureLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_ELLIPSE, empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_CIRCLE, empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_RECTANGLE, empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_SQUARE, empLayer);
+
+        empLayer = new PathLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_PATH, empLayer);
+
+        empLayer = new KMLLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.KML, empLayer);
+
+        empLayer = new MilStdSymbolLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_MIL_SYMBOL, empLayer);
+
+        empLayer = new TextLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_TEXT, empLayer);
+
+        empLayer = new IconLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEO_POINT, empLayer);
+
+
+        createBrightnessBitmaps();
         // Uncomment the following line if you want to start tracing the render cache status.
         // This should always be the last line of code in this method.
         // logHandler.sendEmptyMessageDelayed(PRINT_METRICS, PRINT_METRICS_DELAY);
     }
 
+    //
+    // Following four methods allow the developer to extends the WorldWindow class and use it instead of
+    //  using the inner WorldWindow class defined here. EMP-2857
+    //
+
+    public gov.nasa.worldwind.WorldWindow getWW() {
+        return ww;
+    }
+
+    protected gov.nasa.worldwind.WorldWindow getWW(Context context) {
+        return new WorldWindow(context);
+    }
+
+    protected gov.nasa.worldwind.WorldWindow getWW(Context context, AttributeSet attrs) {
+        return new WorldWindow(context, attrs);
+    }
+
+    protected void onDetachedFromWindow() {
+        ((WorldWindow) ww).onDetachedFromWindow();
+        if (null != this.miniMap) {
+            ((WorldWindow) this.miniMap).onDetachedFromWindow();
+        }
+    }
+
+    // Above four methods created for MapInstance/WorldWindow extensibility EMP-2857
     public Context getContext() {
         return this.context;
     }
@@ -241,41 +356,45 @@ public class MapInstance extends CoreMapInstance {
     public void onDestroy() {
 
         Log.i(TAG, "onDestroy");
-        java.util.UUID oUniqueId;
+        UUID oUniqueId;
         this.generateStateChangeEvent(MapStateEnum.SHUTDOWN_IN_PROGRESS);
         this.oMapViewController.Destroy();
-        
+
+        this.dirtyOnMapMove.clear();
+
         while (!this.wmsHash.isEmpty()) {
-            oUniqueId = (java.util.UUID) this.wmsHash.keySet().toArray()[0];
-            WmsLayer oLayer = this.wmsHash.get(oUniqueId);
+            oUniqueId = (UUID) this.wmsHash.keySet().toArray()[0];
+            Layer oLayer = this.wmsHash.get(oUniqueId);
             this.wmsHash.remove(oUniqueId);
             ww.getLayers().removeLayer(oLayer);
         }
-        
+
         while (!this.featureHash.isEmpty()) {
-            oUniqueId = (java.util.UUID) this.featureHash.keySet().toArray()[0];
-            final java.util.List<Renderable> removeRenderableList = new java.util.ArrayList<>();
-            this.removeFeature(oUniqueId, removeRenderableList);
-            if(removeRenderableList.size() > 0) {
-                // There should be max one item and we are in UI thread
-                oRenderableLayer.removeRenderable(removeRenderableList.get(0));
-            }
+            oUniqueId = (UUID) this.featureHash.keySet().toArray()[0];
+            this.removeFeature(oUniqueId);
         }
+
 
         this.generateStateChangeEvent(MapStateEnum.SHUTDOWN);
 
-        ww.onDetachedFromWindow();
+        onDetachedFromWindow();
         Log.i(TAG, "onDestroy complete");
     }
 
     @Override
     public void onResume() {
         ww.onResume();
+        if (null != this.miniMap) {
+            this.miniMap.onResume();
+        }
     }
 
     @Override
     public void onPause() {
         ww.onPause();
+        if (null != this.miniMap) {
+            this.miniMap.onPause();
+        }
     }
 
     @Override
@@ -309,24 +428,23 @@ public class MapInstance extends CoreMapInstance {
         return new MapEngineProperties();
     }
 
-    @Override
-    public void setVisibility(ISetVisibilityList visibilityList) {
-    }
-
+    /**
+     * NOTE : This method is going to redraw what ever is in dirtyOnMapMove list. Based EMP-3065
+     * this now included RenderableFeatures (Rectangle, Square, Circle and Ellipse).
+     */
     public void reRenderMPTacticalGraphics() {
         boolean issueRedraw = false;
 
-        for (FeatureRenderableMapping mapping: this.featureHash.values()) {
-            if (mapping instanceof MilStd2525TacticalGraphic) {
-                mapping.isDirty(true);
-                issueRedraw = true;
-            }
+        for (Iterator<UUID> geoIds = dirtyOnMapMove.iterator(); geoIds.hasNext();) {
+            FeatureRenderableMapping mapping = featureHash.get(geoIds.next());
+            mapping.setDirty(true);
+            issueRedraw = true;
         }
         if (issueRedraw) {
             if (!SystemUtils.isCurrentThreadUIThread()) {
-            /*
-             * SEE HANDLER NOTES ABOVE.
-             */
+                /*
+                 * SEE HANDLER NOTES ABOVE.
+                 */
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -339,605 +457,12 @@ public class MapInstance extends CoreMapInstance {
         }
     }
 
-    public void renderMPTacticalGraphic(MilStd2525TacticalGraphic mapping, IGeoBounds bounds) {
-        Renderable tempRenderable;
-        java.util.List<Renderable> newRenderables;
-        gov.nasa.worldwind.shape.Path wwPath;
-        gov.nasa.worldwind.shape.Polygon wwPolygon;
-        MilStdSymbol oSymbol = (MilStdSymbol) mapping.getFeature();
-
-        newRenderables = mapping.getRenderable();
-        newRenderables.clear();
-        java.util.List<IFeature> featureList = this.oMilStdRenderer.getTGRenderableShapes(this, oSymbol, mapping.isSelected());
-
-        for (IFeature feature: featureList) {
-            tempRenderable = null;
-            if (feature instanceof Path) {
-                // Create a WW path object.
-                java.util.List<gov.nasa.worldwind.geom.Position> wwPositionList = new java.util.ArrayList<>();
-                gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
-                wwPath = new gov.nasa.worldwind.shape.Path(wwPositionList, shapeAttribute);
-                this.createWWPath((mil.emp3.api.Path) feature, wwPath, null);
-                // shapeAttribute.setOutlineStippleFactor(MapEngineUtils.getTGStippleFactor(oSymbol.getBasicSymbol(), feature.getStrokeStyle())); TODO
-                // shapeAttribute.setOutlineStipplePattern(MapEngineUtils.getTGStipplePattern(oSymbol.getBasicSymbol(), feature.getStrokeStyle())); TODO
-                tempRenderable = wwPath;
-            } else if (feature instanceof Polygon) {
-                // Create a WW polygon object.
-                java.util.List<gov.nasa.worldwind.geom.Position> wwPositionList = new java.util.ArrayList<>();
-                gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
-                wwPolygon = new gov.nasa.worldwind.shape.Polygon(wwPositionList, shapeAttribute);
-                this.createWWPolygon((mil.emp3.api.Polygon) feature, wwPolygon, null);
-                tempRenderable = wwPolygon;
-            } else if (feature instanceof Text) {
-                // Create a WW text object.
-                mil.emp3.api.Text textFeature = (mil.emp3.api.Text) feature;
-                IGeoLabelStyle labelStyle = textFeature.getLabelStyle();
-                IGeoPosition textFeaturePosition = textFeature.getPosition();
-                gov.nasa.worldwind.geom.Position textPosition = new gov.nasa.worldwind.geom.Position();
-                gov.nasa.worldwind.shape.TextAttributes textAttribute = new gov.nasa.worldwind.shape.TextAttributes();
-
-                textPosition.set(textFeaturePosition.getLatitude(), textFeaturePosition.getLongitude(), textFeaturePosition.getAltitude());
-
-                //textAttribute.setScale(labelStyle.getScale());
-                textAttribute.setTextColor(Conversion.covertColor(labelStyle.getColor()));
-
-                gov.nasa.worldwind.geom.Offset textOffset;
-                switch (labelStyle.getJustification()) {
-                    case LEFT:
-                        textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_PIXELS, 0, WorldWind.OFFSET_FRACTION, 0.5);
-                        break;
-                    case RIGHT:
-                        textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_INSET_PIXELS, 0, WorldWind.OFFSET_FRACTION, 0.5);
-                        break;
-                    case CENTER:
-                    default:
-                        textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5);
-                        break;
-                }
-                textAttribute.setTextOffset(textOffset);
-                textAttribute.setTextSize(textFeature.getFontSize());
-                //textAttribute.setOutlineWidth(3);
-                //textAttribute.setEnableOutline(true);
-
-                switch (textFeature.getTypeFaceStyle()) {
-                    case BOLD:
-                        textAttribute.setTypeface(Typeface.create(textFeature.getFontFamily(), Typeface.BOLD));
-                        break;
-                    case ITALIC:
-                        textAttribute.setTypeface(Typeface.create(textFeature.getFontFamily(), Typeface.ITALIC));
-                        break;
-                    case BOLD_ITALIC:
-                        textAttribute.setTypeface(Typeface.create(textFeature.getFontFamily(), Typeface.BOLD_ITALIC));
-                        break;
-                    case NORMAL:
-                    default:
-                        textAttribute.setTypeface(Typeface.create(textFeature.getFontFamily(), Typeface.NORMAL));
-                        break;
-                }
-
-                gov.nasa.worldwind.shape.Label label = new gov.nasa.worldwind.shape.Label(textPosition, textFeature.getText(), textAttribute);
-
-                tempRenderable = label;
-            }
-
-            if (tempRenderable != null) {
-                tempRenderable.setPickDelegate(oSymbol);
-                newRenderables.add(tempRenderable);
-            }
-        }
-    }
-
-    private void plotTacticalGraphicSymbol(MilStdSymbol oSymbol, boolean bVisible) {
-        MilStd2525TacticalGraphic mapping = (MilStd2525TacticalGraphic) this.findFeatureMapping(oSymbol);
-
-        if (mapping == null) {
-            // Its a new feature
-            mapping = new MilStd2525TacticalGraphic(oSymbol, this);
-            this.storeFeature(mapping);
-            this.oTacticalGraphicLayer.addRenderable(mapping);
-        } else {
-            mapping.setFeature(oSymbol);
-        }
-
-        mapping.setVisible(bVisible);
-    }
-
-    /**
-     * Make sure you don't touch the View in this method.
-     * @param feature
-     * @param renderable
-     * @param visible
-     * @param removeRenderablesList - old renderable that should be removed goes here
-     */
-    private void storeFeature(IFeature feature, Renderable renderable, boolean visible,
-                              java.util.List<Renderable> removeRenderablesList) {
-        FeatureRenderableMapping oMapping;
-        
-        if (this.featureHash.containsKey(feature.getGeoId())) {
-            oMapping = this.featureHash.get(feature.getGeoId());
-            
-            removeRenderablesList.addAll(oMapping.getRenderable());
-            oMapping.setFeature(feature);
-            oMapping.setRenderable(renderable);
-            oMapping.setVisible(visible);
-        } else {
-            oMapping = new FeatureRenderableMapping(feature, renderable);
-            oMapping.setVisible(visible);
-            this.featureHash.put(feature.getGeoId(), oMapping);
-        }
-    }
-
-    /**
-     * This method adds the mapping to the feature hash if does not exists.
-     * @param mapping
-     */
-    private void storeFeature(FeatureRenderableMapping mapping) {
-        if (!this.featureHash.containsKey(mapping.getFeature().getGeoId())) {
-            this.featureHash.put(mapping.getFeature().getGeoId(), mapping);
-        }
-    }
-
-    private FeatureRenderableMapping findFeatureMapping(IFeature feature) {
-        if (this.featureHash.containsKey(feature.getGeoId())) {
-            return this.featureHash.get(feature.getGeoId());
-        }
-
-        return null;
-    }
-    /**
-     * Make sure you don't touch the View in this method.
-     * @param oSymbol
-     * @param bVisible
-     * @param renderableList - new renderable that should be added to the map goes here
-     * @param removeRenderablesList - old renderable that should be removed goes here
-     */
-    private void plotSinglePointSymbol(MilStdSymbol oSymbol, boolean bVisible, java.util.List<Renderable> renderableList,
-                                       java.util.List<Renderable> removeRenderablesList) {
-        if (this.featureHash.containsKey(oSymbol.getGeoId())) {
-            FeatureRenderableMapping oMapping = this.featureHash.get(oSymbol.getGeoId());
-            MilStd2525SinglePoint oWWSymbol = (MilStd2525SinglePoint) oMapping.getRenderable().get(0);
-
-            oMapping.setFeature(oSymbol);
-            oMapping.setVisible(bVisible);
-            oWWSymbol.setSelected(oMapping.isSelected());
-            oWWSymbol.updateSymbol(oSymbol);
-        } else {
-            IGeoPosition oPos = oSymbol.getPositions().get(0);
-            MilStd2525SinglePoint oWWSymbol = new MilStd2525SinglePoint(this, this.oMilStdRenderer, Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()), oSymbol, false);
-
-            if (oWWSymbol == null) {
-                Log.e(TAG, "MilStd2525SinglePoint failed to create.");
-                return;
-            }
-
-            this.storeFeature(oSymbol, oWWSymbol, bVisible, removeRenderablesList);
-
-            if (bVisible) {
-                renderableList.add(oWWSymbol);
-            }
-        }
-    }
-
     public IconSizeEnum getIconSizeSetting() {
         return storageManager.getIconSize(this);
     }
 
-    /**
-     * Make sure you don't touch the View in this method.
-     * @param oPoint
-     * @param bVisible
-     * @param renderableList - new renderable that should be added to the map goes here
-     * @param removeRenderablesList - old renderable that should be removed goes here
-     */
-    private void plotPoint(mil.emp3.api.Point oPoint, boolean bVisible, java.util.List<Renderable> renderableList,
-                           java.util.List<Renderable> removeRenderablesList) {
-        Offset imageOffset;
-        PlacemarkAttributes oAttr;
-        IGeoIconStyle oIconStyle = oPoint.getIconStyle();
-        IGeoPosition oPos = oPoint.getPosition();
-        String sURL = oPoint.getIconURI();
-        IconSizeEnum iconSizeEnum = this.getIconSizeSetting();
-        double dScale = iconSizeEnum.getScaleFactor() * oPoint.getIconScale();
-
-        if (oPos == null) {
-            Log.e(TAG, "Point feature with no coordinate.");
-            return;
-        }
-
-        if (this.featureHash.containsKey(oPoint.getGeoId())) {
-            FeatureRenderableMapping oMapping = this.featureHash.get(oPoint.getGeoId());
-            oMapping.setVisible(bVisible);
-
-            if (oMapping.isSelected()) {
-                dScale = dScale * this.empResources.getSelectedIconScale(this);
-            }
-        }
-
-        if (oPoint.getResourceId() != 0) {
-            IEmpImageInfo imageInfo =  this.empResources.getAndroidResourceIconImageInfo(oPoint.getResourceId());
-
-            if (imageInfo == null) {
-                Log.e(TAG, "Android resource for point feature not found.");
-                return;
-            }
-
-            Rect imageBounds = imageInfo.getImageBounds();      // The bounds of the entire image, including text
-
-            if (oIconStyle != null) {
-                imageOffset = new Offset(
-                        gov.nasa.worldwind.WorldWind.OFFSET_FRACTION, oIconStyle.getOffSetX(), // x offset
-                        gov.nasa.worldwind.WorldWind.OFFSET_FRACTION, 1.0 - oIconStyle.getOffSetY()); // y offset
-            } else {
-                imageOffset = new Offset(gov.nasa.worldwind.WorldWind.OFFSET_PIXELS, 0, // x offset
-                        gov.nasa.worldwind.WorldWind.OFFSET_PIXELS, imageBounds.height()); // y offset
-            }
-            oAttr = PlacemarkAttributes.createWithImage(ImageSource.fromBitmap(imageInfo.getImage())).setImageOffset(imageOffset);
-        } else if ((sURL == null) || (sURL.length() == 0)) {
-            IEmpImageInfo imageInfo =  this.empResources.getDefaultIconImageInfo();
-
-            if (imageInfo == null) {
-                Log.e(TAG, "Failed to load default icon for point feature.");
-                return;
-            }
-
-            Rect imageBounds = imageInfo.getImageBounds();      // The bounds of the entire image, including text
-            Point centerPoint = imageInfo.getCenterPoint();     // The center of the core symbol
-            IGeoIconStyle defaultIconStyle = this.empResources.getDefaultIconStyle();
-
-            if (defaultIconStyle != null) {
-                oIconStyle = defaultIconStyle;
-            } else {
-                Log.w(TAG, "Default icon style returned null.");
-            }
-            imageOffset = new Offset(
-                    gov.nasa.worldwind.WorldWind.OFFSET_PIXELS, oIconStyle.getOffSetX(), // x offset
-                    gov.nasa.worldwind.WorldWind.OFFSET_PIXELS, 1.0 - (oIconStyle.getOffSetY() / imageBounds.height())); // y offset
-            oAttr = PlacemarkAttributes.createWithImage(ImageSource.fromBitmap(imageInfo.getImage())).setImageOffset(imageOffset);
-        } else {
-            if (oIconStyle != null) {
-                imageOffset = new Offset(
-                        gov.nasa.worldwind.WorldWind.OFFSET_PIXELS, oIconStyle.getOffSetX(), // x offset
-                        gov.nasa.worldwind.WorldWind.OFFSET_PIXELS, oIconStyle.getOffSetY() * -1); // y offset
-            } else {
-                imageOffset = new Offset(
-                        gov.nasa.worldwind.WorldWind.OFFSET_FRACTION, 0, // x offset
-                        gov.nasa.worldwind.WorldWind.OFFSET_FRACTION, 1.0); // y offset
-            }
-            oAttr = PlacemarkAttributes.createWithImage(ImageSource.fromUrl(sURL)).setImageOffset(imageOffset);
-        }
-
-        oAttr.setImageScale(dScale);
-
-        Placemark oIcon = new Placemark(
-            Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()),
-            oAttr);
-        
-        oIcon.setPickDelegate(oPoint);
-
-        this.storeFeature(oPoint, oIcon, bVisible, removeRenderablesList);
-
-        if (bVisible) {
-            renderableList.add(oIcon);
-        }
-    }
-
-    private  void createWWPath(mil.emp3.api.Path feature, gov.nasa.worldwind.shape.Path wwPath, IGeoStrokeStyle strokeStyle) {
-        java.util.List<gov.nasa.worldwind.geom.Position> wwPositionList = wwPath.getPositions();
-        gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = wwPath.getAttributes();
-
-        if (shapeAttribute == null) {
-            shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
-        }
-
-        if (wwPositionList == null) {
-            wwPositionList = new java.util.ArrayList<>();
-        }
-
-        try {
-            Conversion.convertToWWPositionList(feature.getPositions(), wwPositionList);
-        } catch (EMP_Exception ex) {
-            Log.e(TAG, "CoordinateConvertion.convertToWWPositionList fail.", ex);
-            return;
-        }
-
-        shapeAttribute.setDrawVerticals(false);
-        shapeAttribute.setDrawInterior(false);
-        if (strokeStyle != null) {
-            shapeAttribute.setDrawOutline(true);
-            Conversion.covertColor(strokeStyle.getStrokeColor(), shapeAttribute.getOutlineColor());
-            shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
-
-            // shapeAttribute.setOutlineStippleFactor(MapEngineUtils.getStippleFactor(strokeStyle)); TODO
-            // shapeAttribute.setOutlineStipplePattern(MapEngineUtils.getStipplePattern(strokeStyle)); TODO
-        } else if (feature.getStrokeStyle() != null) {
-            strokeStyle = feature.getStrokeStyle();
-
-            shapeAttribute.setDrawOutline(true);
-            Conversion.covertColor(strokeStyle.getStrokeColor(), shapeAttribute.getOutlineColor());
-            shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
-
-            // shapeAttribute.setOutlineStippleFactor(MapEngineUtils.getStippleFactor(strokeStyle)); TODO
-            // shapeAttribute.setOutlineStipplePattern(MapEngineUtils.getStipplePattern(strokeStyle)); TODO
-        } else {
-            shapeAttribute.setDrawOutline(false);
-        }
-
-        Conversion.convertAndSetIGeoAltitudeMode(wwPath, feature.getAltitudeMode());
-
-        if (feature.getAltitudeMode() == IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND){
-            wwPath.setFollowTerrain(true);
-        } else {
-            wwPath.setFollowTerrain(false);
-        }
-        wwPath.setPickDelegate(feature);
-        wwPath.setPositions(wwPositionList);
-        wwPath.setAttributes(shapeAttribute);
-        wwPath.setHighlighted(false);
-    }
-
-    private  void createWWPolygon(mil.emp3.api.Polygon feature, gov.nasa.worldwind.shape.Polygon wwPolygon, IGeoStrokeStyle strokeStyle) {
-        java.util.List<gov.nasa.worldwind.geom.Position> wwPositionList = wwPolygon.getBoundary(0);
-        gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = wwPolygon.getAttributes();
-
-        if (shapeAttribute == null) {
-            shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
-        }
-
-        if (wwPositionList == null) {
-            wwPositionList = new java.util.ArrayList<>();
-        }
-
-        try {
-            Conversion.convertToWWPositionList(feature.getPositions(), wwPositionList);
-        } catch (EMP_Exception ex) {
-            Log.e(TAG, "CoordinateConvertion.convertToWWPositionList fail.", ex);
-            return;
-        }
-
-        shapeAttribute.setDrawVerticals(false);
-        if (strokeStyle != null) {
-            shapeAttribute.setDrawOutline(true);
-            Conversion.covertColor(strokeStyle.getStrokeColor(), shapeAttribute.getOutlineColor());
-            shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
-            // shapeAttribute.setOutlineStippleFactor(MapEngineUtils.getStippleFactor(strokeStyle)); TODO
-            // shapeAttribute.setOutlineStipplePattern(MapEngineUtils.getStipplePattern(strokeStyle)); TODO
-        } else if (feature.getStrokeStyle() != null) {
-            strokeStyle = feature.getStrokeStyle();
-
-            shapeAttribute.setDrawOutline(true);
-            Conversion.covertColor(strokeStyle.getStrokeColor(), shapeAttribute.getOutlineColor());
-            shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
-            // shapeAttribute.setOutlineStippleFactor(MapEngineUtils.getStippleFactor(strokeStyle)); TODO
-            // shapeAttribute.setOutlineStipplePattern(MapEngineUtils.getStipplePattern(strokeStyle)); TODO
-        } else {
-            shapeAttribute.setDrawOutline(false);
-        }
-
-        if (feature.getFillStyle() != null) {
-            IGeoFillStyle fillStyle = feature.getFillStyle();
-
-            shapeAttribute.setDrawInterior(true);
-            Conversion.covertColor(fillStyle.getFillColor(), shapeAttribute.getInteriorColor());
-        } else {
-            shapeAttribute.setDrawInterior(false);
-        }
-
-        Conversion.convertAndSetIGeoAltitudeMode(wwPolygon, feature.getAltitudeMode());
-
-        if (feature.getAltitudeMode() == IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND){
-            wwPolygon.setFollowTerrain(true);
-        } else {
-            wwPolygon.setFollowTerrain(false);
-        }
-        wwPolygon.setPickDelegate(feature);
-        wwPolygon.setBoundary(0, wwPositionList);
-        wwPolygon.setAttributes(shapeAttribute);
-        wwPolygon.setHighlighted(false);
-    }
-
-    private void plotPath(mil.emp3.api.Path feature, boolean bVisible, java.util.List<Renderable> renderableList,
-            java.util.List<Renderable> removeRenderablesList) {
-        gov.nasa.worldwind.shape.Path wwPath = null;
-        IGeoStrokeStyle selectedStrokeStyle = null;
-
-        if (feature.getPositions().size() < 2) {
-            Log.i(TAG, "Path feature (" + feature.getName() + ") with less than 2 points.");
-            return;
-        }
-
-        if (this.featureHash.containsKey(feature.getGeoId())) {
-            FeatureRenderableMapping oMapping = this.featureHash.get(feature.getGeoId());
-            oMapping.setVisible(bVisible);
-            java.util.List<Renderable> featureRenderableList = oMapping.getRenderable();
-
-            if (featureRenderableList.size() > 0) {
-                wwPath = (gov.nasa.worldwind.shape.Path) featureRenderableList.get(0);
-            }
-
-            if (oMapping.isSelected()) {
-                selectedStrokeStyle = this.empResources.getSelectedStrokeStyle(this);
-            }
-        }
-
-        if (wwPath == null) {
-            java.util.List<gov.nasa.worldwind.geom.Position> wwPositionList = new java.util.ArrayList<>();
-            gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
-            wwPath = new gov.nasa.worldwind.shape.Path(wwPositionList, shapeAttribute);
-        }
-
-        this.createWWPath(feature, wwPath, selectedStrokeStyle);
-
-        this.storeFeature(feature, wwPath, bVisible, removeRenderablesList);
-        if (bVisible) {
-            renderableList.add(wwPath);
-        }
-    }
-
-    private void plotPolygon(mil.emp3.api.Polygon feature, boolean bVisible, java.util.List<Renderable> renderableList,
-            java.util.List<Renderable> removeRenderablesList) {
-        gov.nasa.worldwind.shape.Polygon wwPolygon = null;
-        IGeoStrokeStyle selectedStrokeStyle = null;
-
-        if (feature.getPositions().size() < 2) {
-            Log.i(TAG, "Path feature (" + feature.getName() + ") with less than 2 points.");
-            return;
-        }
-
-        if (this.featureHash.containsKey(feature.getGeoId())) {
-            FeatureRenderableMapping oMapping = this.featureHash.get(feature.getGeoId());
-            oMapping.setVisible(bVisible);
-            java.util.List<Renderable> featureRenderableList = oMapping.getRenderable();
-
-            if (featureRenderableList.size() > 0) {
-                wwPolygon = (gov.nasa.worldwind.shape.Polygon) featureRenderableList.get(0);
-            }
-
-            if (oMapping.isSelected()) {
-                selectedStrokeStyle = this.empResources.getSelectedStrokeStyle(this);
-            }
-        }
-
-        if (wwPolygon == null) {
-            java.util.List<gov.nasa.worldwind.geom.Position> wwPositionList = new java.util.ArrayList<>();
-            gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
-            wwPolygon = new gov.nasa.worldwind.shape.Polygon(wwPositionList, shapeAttribute);
-        }
-
-        this.createWWPolygon(feature, wwPolygon, selectedStrokeStyle);
-
-        this.storeFeature(feature, wwPolygon, bVisible, removeRenderablesList);
-        if (bVisible) {
-            renderableList.add(wwPolygon);
-        }
-    }
-
-    private void plotText(mil.emp3.api.Text feature, boolean bVisible, java.util.List<Renderable> renderableList,
-            java.util.List<Renderable> removeRenderablesList) {
-        gov.nasa.worldwind.shape.Label wwLabel = null;
-        IGeoLabelStyle selectedLabelStyle = null;
-        IGeoLabelStyle labelStyle;
-        gov.nasa.worldwind.geom.Position textPosition;
-        gov.nasa.worldwind.shape.TextAttributes textAttribute;
-
-        if (feature.getPositions().size() < 1) {
-            Log.i(TAG, "Path feature (" + feature.getName() + ") with no points.");
-            return;
-        }
-
-        if (this.featureHash.containsKey(feature.getGeoId())) {
-            FeatureRenderableMapping oMapping = this.featureHash.get(feature.getGeoId());
-            oMapping.setVisible(bVisible);
-            java.util.List<Renderable> featureRenderableList = oMapping.getRenderable();
-
-            if (featureRenderableList.size() > 0) {
-                wwLabel = (gov.nasa.worldwind.shape.Label) featureRenderableList.get(0);
-            }
-
-            if (oMapping.isSelected()) {
-                selectedLabelStyle = this.empResources.getSelectedLabelStyle(this);
-            }
-        }
-
-        IGeoPosition textFeaturePosition = feature.getPosition();
-        if (wwLabel == null) {
-            textPosition = new gov.nasa.worldwind.geom.Position();
-            textAttribute = new gov.nasa.worldwind.shape.TextAttributes();
-        } else {
-            textPosition = wwLabel.getPosition();
-            textAttribute = wwLabel.getAttributes();
-            wwLabel.setText(feature.getText());
-        }
-
-        labelStyle = feature.getLabelStyle();
-        textPosition.set(textFeaturePosition.getLatitude(), textFeaturePosition.getLongitude(), textFeaturePosition.getAltitude());
-
-        gov.nasa.worldwind.geom.Offset textOffset;
-
-        if (null != selectedLabelStyle) {
-            textAttribute.setTextColor(Conversion.covertColor(selectedLabelStyle.getColor()));
-        }
-
-        if (null != labelStyle) {
-            if ((null == selectedLabelStyle) && (null != labelStyle.getColor())) {
-                textAttribute.setTextColor(Conversion.covertColor(labelStyle.getColor()));
-            }
-
-            switch (labelStyle.getJustification()) {
-                case LEFT:
-                    textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_PIXELS, 0, WorldWind.OFFSET_FRACTION, 0.5);
-                    break;
-                case RIGHT:
-                    textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_INSET_PIXELS, 0, WorldWind.OFFSET_FRACTION, 0.5);
-                    break;
-                case CENTER:
-                default:
-                    textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5);
-                    break;
-            }
-        } else {
-            textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_PIXELS, 0, WorldWind.OFFSET_FRACTION, 0.5);
-        }
-        textAttribute.setTextOffset(textOffset);
-        textAttribute.setTextSize(feature.getFontSize());
-
-        switch (feature.getTypeFaceStyle()) {
-            case BOLD:
-                textAttribute.setTypeface(Typeface.create(feature.getFontFamily(), Typeface.BOLD));
-                break;
-            case ITALIC:
-                textAttribute.setTypeface(Typeface.create(feature.getFontFamily(), Typeface.ITALIC));
-                break;
-            case BOLD_ITALIC:
-                textAttribute.setTypeface(Typeface.create(feature.getFontFamily(), Typeface.BOLD_ITALIC));
-                break;
-            case NORMAL:
-            default:
-                textAttribute.setTypeface(Typeface.create(feature.getFontFamily(), Typeface.NORMAL));
-                break;
-        }
-
-        if (null == wwLabel) {
-            wwLabel = new gov.nasa.worldwind.shape.Label(textPosition, feature.getText(), textAttribute);
-        }
-        Conversion.convertAndSetIGeoAltitudeMode(wwLabel, feature.getAltitudeMode());
-        wwLabel.setPickDelegate(feature);
-
-        this.storeFeature(feature, wwLabel, bVisible, removeRenderablesList);
-        if (bVisible) {
-            renderableList.add(wwLabel);
-        }
-    }
-
-    private void plotFeature(IFeature feature, boolean bVisible,
-            java.util.List<Renderable> renderableList,
-            java.util.List<Renderable> removeRenderablesList) {
-        switch (feature.getFeatureType()) {
-            case GEO_CIRCLE:
-                break;
-            case GEO_ELLIPSE:
-                break;
-            case GEO_PATH:
-                this.plotPath((mil.emp3.api.Path) feature, bVisible, renderableList, removeRenderablesList);
-                break;
-            case GEO_POINT:
-                this.plotPoint((mil.emp3.api.Point) feature, bVisible, renderableList, removeRenderablesList);
-                break;
-            case GEO_POLYGON:
-                this.plotPolygon((mil.emp3.api.Polygon) feature, bVisible, renderableList, removeRenderablesList);
-                break;
-            case GEO_RECTANGLE:
-                break;
-            case GEO_SQUARE:
-                break;
-            case GEO_MIL_SYMBOL:
-                this.plotMilStdSymbol(feature, bVisible, renderableList, removeRenderablesList);
-                break;
-            case GEO_ACM:
-                break;
-            case GEO_TEXT:
-                this.plotText((mil.emp3.api.Text) feature, bVisible, renderableList, removeRenderablesList);
-                break;
-        }
+    private void plotFeature(IFeature feature, boolean bVisible) {
+        getRenderableLayer(feature).plot(feature, bVisible);
     }
 
     /**
@@ -948,69 +473,59 @@ public class MapInstance extends CoreMapInstance {
      */
     @Override
     public void addFeatures(final FeatureVisibilityList features) {
-        final java.util.List<Renderable> renderableList = new java.util.ArrayList<>();
-        final java.util.List<Renderable> removeRenderablesList = new java.util.ArrayList<>();
-
-        for (FeatureVisibility featureVisibility: features) {
-            MapInstance.this.plotFeature(featureVisibility.feature, featureVisibility.visible, renderableList, removeRenderablesList);
-            generateFeatureAddedEvent(featureVisibility.feature);
-        }
-
         // Update the view on UI thread.
         if (!SystemUtils.isCurrentThreadUIThread()) {
             /*
              * SEE HANDLER NOTES ABOVE.
              */
             handler.post(new Runnable() {
-
                 @Override
                 public void run() {
-                    for(Renderable item: removeRenderablesList) {
-                        oRenderableLayer.removeRenderable(item);
+                    for (FeatureVisibility featureVisibility: features) {
+                        //if (null != featureVisibility.feature.getStrokeStyle()) {
+                        //    Log.d(TAG, "Add Feature Stroke Width: " + featureVisibility.feature.getStrokeStyle().getStrokeWidth());
+                        //}
+                        MapInstance.this.plotFeature(featureVisibility.feature, featureVisibility.visible);
+                        MapInstance.this.generateFeatureAddedEvent(featureVisibility.feature);
                     }
-                    for(Renderable item: renderableList ) {
-                        oRenderableLayer.addRenderable(item);
-                    }
+
                     ww.requestRedraw();
                 }
             });
         } else {
-            for(Renderable item: removeRenderablesList) {
-                oRenderableLayer.removeRenderable(item);
+            for (FeatureVisibility featureVisibility: features) {
+                MapInstance.this.plotFeature(featureVisibility.feature, featureVisibility.visible);
+                generateFeatureAddedEvent(featureVisibility.feature);
             }
-            for(Renderable item : renderableList ) {
-                oRenderableLayer.addRenderable(item);
-            }
+
             ww.requestRedraw();
         }
     }
 
-    private void removeFeature(java.util.UUID uniqueId, java.util.List<Renderable> removeRenderableList) {
+    private void removeFeature(UUID uniqueId) {
         if (this.featureHash.containsKey(uniqueId)) {
-            FeatureRenderableMapping oWrapper = this.featureHash.remove(uniqueId);;
+            FeatureRenderableMapping oWrapper = this.featureHash.get(uniqueId);;
+            dirtyOnMapMove.remove(uniqueId);
 
             if (oWrapper != null) {
-                if (oWrapper instanceof MilStd2525TacticalGraphic) {
-                    removeRenderableList.add((MilStd2525TacticalGraphic) oWrapper);
-                } else {
-                    removeRenderableList.addAll(oWrapper.getRenderable());
-                }
-                generateFeatureRemovedEvent(oWrapper.getFeature());
+                IFeature feature = oWrapper.getFeature();
+                getRenderableLayer(feature).removeFeatureRenderables(uniqueId);
+                generateFeatureRemovedEvent(feature);
+                this.featureHash.remove(uniqueId);
             }
         }
     }
 
     /**
-     * Assumption here is that core software (Storage Manager has taken care of thread safety. So we will not need a lock
+     * Assumption here is that core software Storage Manager has taken care of thread safety. So we will not need a lock
      * here. View is updated from removeRenderableList
      *
      * @param features
      */
     @Override
     public void removeFeatures(final IUUIDSet features) {
-        final java.util.List<Renderable> removeRenderableList = new java.util.ArrayList<>();
         for (java.util.UUID uniqueId: features) {
-            this.removeFeature(uniqueId, removeRenderableList);
+            this.removeFeature(uniqueId);
         }
 
         // Update the view on UI thread.
@@ -1019,39 +534,63 @@ public class MapInstance extends CoreMapInstance {
              * SEE HANDLER NOTES ABOVE.
              */
             handler.post(new Runnable() {
-
                 @Override
                 public void run() {
-                    for(Renderable item: removeRenderableList) {
-                        if (item instanceof MilStd2525TacticalGraphic) {
-                            MapInstance.this.oTacticalGraphicLayer.removeRenderable((MilStd2525TacticalGraphic) item);
-                        } else {
-                            oRenderableLayer.removeRenderable(item);
-                        }
-                    }
                     ww.requestRedraw();
                 }
             });
         } else {
-            for(Renderable item: removeRenderableList) {
-                if (item instanceof MilStd2525TacticalGraphic) {
-                    this.oTacticalGraphicLayer.removeRenderable((MilStd2525TacticalGraphic) item);
-                } else {
-                    oRenderableLayer.removeRenderable(item);
-                }
-            }
             ww.requestRedraw();
         }
     }
 
-    private void addWMSService(IWMS wms) {
-        WmsLayer layer;
+    private void addWMSService(final IWMS wms) {
+        // Create a layer factory, World Wind's general component for creating layers
+        // from complex data sources.
+        LayerFactory layerFactory = new LayerFactory();
+        String sLayers = "";
+        for (String layerName : wms.getLayers()) {
+            if (sLayers.length() > 0) {
+                sLayers += ",";
+            }
+            sLayers += layerName;
+        }
+        // Create an OGC Web Map Service (WMS) layer to display the
+        // surface temperature layer from NASA's Near Earth Observations WMS.
+        layerFactory.createFromWms(
+            wms.getURL().toString(), // WMS server URL
+            sLayers,  // WMS layer name
+            new LayerFactory.Callback() {
+                @Override
+                public void creationSucceeded(LayerFactory factory, Layer layer) {
+                    // try to insert layer before the image layer
+                    final int insertIdx = ww.getLayers().indexOfLayer(MapInstance.this.imageLayer);
+                    if (insertIdx != -1) {
+                        ww.getLayers().addLayer(insertIdx, layer);
+                        MapInstance.this.wmsHash.put(wms.getGeoId(), layer);
+                        // redraw should be automatic
+                    } else {
+                        throw new IllegalStateException("ERROR: unable to locate tactical graphic layer.");
+                    }
+                    Log.i(TAG, "WMS layer creation succeeded");
+                }
+
+                @Override
+                public void creationFailed(LayerFactory factory, Layer layer, Throwable ex) {
+                    // Something went wrong connecting to the WMS server.
+                    Log.e(TAG, "WMS layer creation failed", ex);
+                }
+            }
+        );
+    }
+
+    private void addWMSServiceOldWay(IWMS wms) {
+        Layer layer; // was WmsLayer layer;
         WmsLayerConfig wmsConfig;
         String sLayers = "";
         String sStyles = "";
-        int iLayerIndex;
 
-        for (String Str: wms.getLayers()) {
+        for (String Str : wms.getLayers()) {
             if (sLayers.length() > 0) {
                 sLayers += ",";
             }
@@ -1070,10 +609,7 @@ public class MapInstance extends CoreMapInstance {
         // If its an update we need to remove the old one.
         if (this.wmsHash.containsKey(wms.getGeoId())) {
             layer = this.wmsHash.get(wms.getGeoId());
-            iLayerIndex = ww.getLayers().indexOfLayer(layer);
             ww.getLayers().removeLayer(layer);
-        } else {
-            iLayerIndex = ww.getLayers().indexOfLayer(this.oTacticalGraphicLayer);
         }
 
         wmsConfig = new WmsLayerConfig();
@@ -1096,10 +632,70 @@ public class MapInstance extends CoreMapInstance {
             metersPerPixel = wms.getLayerResolution();
         }
         layer = new WmsLayer(new Sector().setFullSphere(), metersPerPixel, wmsConfig);
-        layer.setDetailControl(1.0);
+        //layer.setDetailControl(1.0);
         this.wmsHash.put(wms.getGeoId(), layer);
-        ww.getLayers().addLayer(iLayerIndex, layer);
+
+        // try to insert layer before the image Layer
+        final int insertIdx = ww.getLayers().indexOfLayer(this.imageLayer);
+        if (insertIdx != -1) {
+            ww.getLayers().addLayer(insertIdx, layer);
+        } else {
+            throw new IllegalStateException("ERROR: unable to locate tactical graphic layer.");
+        }
+
+        if (null != this.miniMap) {
+            this.miniMap.getLayers().addLayer(layer);
+        }
+
         ww.requestRedraw();
+    }
+
+    private void addImageLayer(IImageLayer imageLayer) {
+        IGeoBounds bBox = imageLayer.getBoundingBox();
+        double deltaLatitude = bBox.getNorth() - bBox.getSouth();
+        double deltaLongitude = bBox.getEast() - bBox.getWest();
+        Sector sector = Sector.fromDegrees(bBox.getSouth(), bBox.getWest(), deltaLatitude, deltaLongitude);
+        ImageSource imageSource = ImageSource.fromUrl(imageLayer.getURL().toString());
+        SurfaceImage surfaceImage = new SurfaceImage(sector, imageSource);
+
+        if (this.surfaceLayerHash.containsKey(imageLayer.getGeoId())) {
+            this.imageLayer.removeRenderable(this.surfaceLayerHash.get(imageLayer.getGeoId()));
+        }
+        this.surfaceLayerHash.put(imageLayer.getGeoId(), surfaceImage);
+        this.imageLayer.addRenderable(surfaceImage);
+        ww.requestRedraw();
+    }
+
+    private void addGeoPackage(final IGeoPackage geoPackage) {
+        // Create a layer factory, World Wind's general component for creating layers
+        // from complex data sources.
+        LayerFactory layerFactory = new LayerFactory();
+        final String geoPackagePath = geoPackage.getURL().getPath();
+        Log.i(TAG, "gpkg file located at " + geoPackagePath);
+        // Create an OGC GeoPackage layer
+        layerFactory.createFromGeoPackage(
+                geoPackagePath, // file path on the local Android filesystem
+                new LayerFactory.Callback() {
+                    @Override
+                    public void creationSucceeded(LayerFactory factory, Layer layer) {
+                        // Add the finished GeoPackage layer to the World Window.
+                        final int insertIdx = ww.getLayers().indexOfLayer(MapInstance.this.imageLayer);
+                        if (insertIdx != -1) {
+                            ww.getLayers().addLayer(insertIdx, layer);
+                        } else {
+                            throw new IllegalStateException("ERROR: unable to locate tactical graphic layer.");
+                        }
+                        ww.requestRedraw();
+                        Log.i(TAG, "GeoPackage layer creation succeeded");
+                    }
+
+                    @Override
+                    public void creationFailed(LayerFactory factory, Layer layer, Throwable ex) {
+                        // Something went wrong reading the GeoPackage.
+                        Log.e(TAG, "GeoPackage layer creation failed", ex);
+                    }
+                }
+        );
     }
 
     @Override
@@ -1109,8 +705,7 @@ public class MapInstance extends CoreMapInstance {
                 /*
                  * SEE HANDLER NOTES ABOVE.
                  */
-                handler.post(new Runnable(){
-
+                handler.post(new Runnable() {
                     @Override
                     public void run() {
                         MapInstance.this.addWMSService((IWMS) mapService);
@@ -1119,17 +714,56 @@ public class MapInstance extends CoreMapInstance {
             } else {
                 this.addWMSService((IWMS) mapService);
             }
+        } else if (mapService instanceof IImageLayer) {
+            if (!SystemUtils.isCurrentThreadUIThread()) {
+                /*
+                 * SEE HANDLER NOTES ABOVE.
+                 */
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        MapInstance.this.addImageLayer((IImageLayer) mapService);
+                    }
+                });
+            } else {
+                this.addImageLayer((IImageLayer) mapService);
+            }
+        } else if (mapService instanceof IGeoPackage) {
+            if (!SystemUtils.isCurrentThreadUIThread()) {
+                /*
+                 * SEE HANDLER NOTES ABOVE.
+                 */
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        MapInstance.this.addGeoPackage((IGeoPackage) mapService);
+                    }
+                });
+            } else {
+                this.addGeoPackage((IGeoPackage) mapService);
+            }
         }
     }
 
-    private void removeMapServiceEx(IMapService wmsService) {
-        WmsLayer layer;
+    private void removeMapServiceEx(IMapService mapService) {
+        if (mapService instanceof IWMS) {
+            if (this.wmsHash.containsKey(mapService.getGeoId())) {
+                Layer layer = this.wmsHash.get(mapService.getGeoId());
+                ww.getLayers().removeLayer(layer);
+                this.wmsHash.remove(mapService.getGeoId());
+                ww.requestRedraw();
 
-        if (this.wmsHash.containsKey(wmsService.getGeoId())) {
-            layer = this.wmsHash.get(wmsService.getGeoId());
-            ww.getLayers().removeLayer(layer);
-            this.wmsHash.remove(wmsService.getGeoId());
-            ww.requestRedraw();
+                if (null != this.miniMap) {
+                    this.miniMap.getLayers().removeLayer(layer);
+                    this.miniMap.requestRedraw();
+                }
+            }
+        } else if (mapService instanceof IImageLayer) {
+            if (this.surfaceLayerHash.containsKey(mapService.getGeoId())) {
+                this.imageLayer.removeRenderable(this.surfaceLayerHash.get(mapService.getGeoId()));
+                this.surfaceLayerHash.remove(mapService.getGeoId());
+                ww.requestRedraw();
+            }
         }
     }
 
@@ -1154,10 +788,15 @@ public class MapInstance extends CoreMapInstance {
     public ICamera getCamera() {
         return this.oMapViewController.getCamera();
     }
-    
+
     @Override
     public void setCamera(ICamera oCamera, boolean animate) {
         this.oMapViewController.setCamera(oCamera, animate);
+    }
+
+    @Override
+    public void applyCameraChange(ICamera oCamera, boolean animate) {
+        this.oMapViewController.applyCameraChange(oCamera, animate);
     }
 
     @Override
@@ -1168,6 +807,10 @@ public class MapInstance extends CoreMapInstance {
     @Override
     public void setLookAt(ILookAt oLookAt, boolean animate) { this.oMapViewController.setLookAt(oLookAt, animate); }
 
+    @Override
+    public void applyLookAtChange(ILookAt oLookAt, boolean animate) {
+        this.oMapViewController.applyLookAtChange(oLookAt, animate);
+    }
     /**
      * If this was designed for zoomIt support then it should be removed as all calculations are done in the core. Methids
      * getFieldOfView(), getViewHeight() and getViewWidth() were added to this interface for zoomIt support.
@@ -1189,10 +832,12 @@ public class MapInstance extends CoreMapInstance {
     }
 
     @Override
-    public ICapture getCapture() {
-        return null;
+    public void getCapture(IScreenCaptureCallback callback) {
+        ScreenCapture screenCapture = new ScreenCapture(callback);
+        screenCapture.generateScreenCapture(getWW());
     }
 
+    @Override
     public void registerMilStdRenderer(IMilStdRenderer oRenderer) {
         super.registerMilStdRenderer(oRenderer);
         MilStd2525LevelOfDetailSelector.initInstance(oRenderer, this);
@@ -1297,7 +942,7 @@ public class MapInstance extends CoreMapInstance {
     /**
      * This must be an inner class of mapInstance so that it can access the surfaceHolder in its constructor.
      */
-    class WorldWindow  extends gov.nasa.worldwind.WorldWindow {
+    protected class WorldWindow extends gov.nasa.worldwind.WorldWindow {
         private String TAG = WorldWindow.class.getSimpleName();
 
         public WorldWindow(Context context) {
@@ -1343,6 +988,24 @@ public class MapInstance extends CoreMapInstance {
         }
     }
 
+    protected class MiniMapWorldWindow extends WorldWindow {
+        private String TAG = MiniMapWorldWindow.class.getSimpleName();
+
+        public MiniMapWorldWindow(Context context) {
+            super(context);
+            Log.i(TAG, "Constructor MiniMapWorldWindow Context");
+        }
+
+        public MiniMapWorldWindow(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            Log.i(TAG, "Constructor MiniMapWorldWindow Context, AttributeSet");
+        }
+
+        public boolean onTouchEvent(MotionEvent event) {
+            return false;
+        }
+    }
+
     @Override
     public IGeoBounds getMapBounds() {
         return this.oMapViewController.getBounds();
@@ -1370,14 +1033,11 @@ public class MapInstance extends CoreMapInstance {
     }
 
     private void processSelection(List<IFeature> featureList, boolean selected) {
-        final java.util.List<Renderable> renderableList = new java.util.ArrayList<>();
-        final java.util.List<Renderable> removeRenderablesList = new java.util.ArrayList<>();
-
         for (IFeature feature: featureList) {
             if (this.featureHash.containsKey(feature.getGeoId())) {
                 FeatureRenderableMapping oMapping = this.featureHash.get(feature.getGeoId());
                 oMapping.setSelected(selected);
-                MapInstance.this.plotFeature(feature, oMapping.isVisible(), renderableList, removeRenderablesList);
+                oMapping.setDirty(true);
             }
         }
 
@@ -1387,25 +1047,12 @@ public class MapInstance extends CoreMapInstance {
              * SEE HANDLER NOTES ABOVE.
              */
             handler.post(new Runnable() {
-
                 @Override
                 public void run() {
-                    for(Renderable item: removeRenderablesList) {
-                        oRenderableLayer.removeRenderable(item);
-                    }
-                    for(Renderable item: renderableList ) {
-                        oRenderableLayer.addRenderable(item);
-                    }
                     ww.requestRedraw();
                 }
             });
         } else {
-            for(Renderable item: removeRenderablesList) {
-                oRenderableLayer.removeRenderable(item);
-            }
-            for(Renderable item : renderableList ) {
-                oRenderableLayer.addRenderable(item);
-            }
             ww.requestRedraw();
         }
     }
@@ -1420,18 +1067,267 @@ public class MapInstance extends CoreMapInstance {
         this.processSelection(featureList, false);
     }
 
-    private void plotMilStdSymbol(IFeature feature, boolean bVisible, java.util.List<Renderable> renderableList,
-            java.util.List<Renderable> removeRenderablesList) {
-        MilStdSymbol oSymbol = (MilStdSymbol) feature;
+    private void updateFontSize() {
+        float fontPixelSize;
 
-        if (oSymbol.isSinglePoint()) {
-            this.plotSinglePointSymbol(oSymbol, bVisible, renderableList, removeRenderablesList);
+        for (FeatureRenderableMapping oMapping: this.featureHash.values()) {
+            fontPixelSize = FontUtilities.getTextPixelSize(oMapping.getFeature().getLabelStyle(), this.fontSizeModifier);
+
+            for (Object renderable: oMapping.getRenderableList()) {
+                if (renderable instanceof gov.nasa.worldwind.shape.Label) {
+                    gov.nasa.worldwind.shape.Label label = (gov.nasa.worldwind.shape.Label) renderable;
+
+                    label.getAttributes().setTextSize(fontPixelSize);
+                }
+            }
+        }
+
+        ww.requestRedraw();
+    }
+
+    @Override
+    public void setFontSizeModifier(FontSizeModifierEnum value) {
+        this.fontSizeModifier = value;
+
+        if (!SystemUtils.isCurrentThreadUIThread()) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    MapInstance.this.updateFontSize();
+                }
+            });
         } else {
-            this.plotTacticalGraphicSymbol(oSymbol, bVisible);
+            this.updateFontSize();
         }
     }
 
-    public WorldWindow getWW() {
-        return this.ww;
+    public Map<UUID, mil.emp3.worldwind.feature.FeatureRenderableMapping> getFeatureHash() {
+        return featureHash;
+    }
+
+    /**
+     * Retrieves the layer responsible for handling a particular IFeature.
+     */
+    private EmpLayer getRenderableLayer(IFeature feature) {
+        final EmpLayer layer = empLayerMap.get(feature.getFeatureType());
+        if (layer == null) {
+            throw new IllegalStateException("layer == null");
+        }
+        return layer;
+    }
+
+    public void addToDirtyOnMapMove(UUID geoId) {
+        this.dirtyOnMapMove.add(geoId);
+    }
+
+    /**
+     * Users extending MapInstance to add their own feature can add their layer.
+     * @return
+     */
+    protected Map<FeatureTypeEnum, EmpLayer> getEmpLayerMap() {
+        return empLayerMap;
+    }
+
+    private void createBrightnessBitmaps() {
+        gov.nasa.worldwind.render.ImageOptions imageOptions = new gov.nasa.worldwind.render.ImageOptions();
+
+        imageOptions.imageConfig = WorldWind.RGBA_8888;
+        //imageOptions.resamplingMode = WorldWind.BILINEAR;
+        imageOptions.wrapMode = WorldWind.REPEAT;
+
+        blackBitmap = android.graphics.Bitmap.createBitmap(Resources.getSystem().getDisplayMetrics(), BRIGHTNESS_BITMAP_WIDTH_HEIGHT, BRIGHTNESS_BITMAP_WIDTH_HEIGHT, Bitmap.Config.ARGB_8888);
+        whiteBitmap = android.graphics.Bitmap.createBitmap(Resources.getSystem().getDisplayMetrics(), BRIGHTNESS_BITMAP_WIDTH_HEIGHT, BRIGHTNESS_BITMAP_WIDTH_HEIGHT, Bitmap.Config.ARGB_8888);
+
+        Sector globeSector = Sector.fromDegrees(-90, -180, 180, 360);
+
+        blackSurfaceImage = new EmpSurfaceImage();
+        whiteSurfaceImage = new EmpSurfaceImage();
+
+        blackSurfaceImage.setDisplayName("Black SurfaceImage");
+        whiteSurfaceImage.setDisplayName("White SurfaceImage");
+
+        blackSurfaceImage.setSector(globeSector);
+        whiteSurfaceImage.setSector(globeSector);
+
+        blackSurfaceImage.setImageOptions(imageOptions);
+        whiteSurfaceImage.setImageOptions(imageOptions);
+
+        blackImageSource = ImageSource.fromBitmap(blackBitmap);
+        whiteImageSource = ImageSource.fromBitmap(whiteBitmap);
+
+        blackSurfaceImage.setImageSource(blackImageSource);
+        whiteSurfaceImage.setImageSource(whiteImageSource);
+
+        setBitmapBrightness();
+
+        this.brightnessLayer.addRenderable(blackSurfaceImage);
+        this.brightnessLayer.addRenderable(whiteSurfaceImage);
+
+        hatchBitmap = android.graphics.Bitmap.createBitmap(Resources.getSystem().getDisplayMetrics(),
+                HATCH_SIZE, HATCH_SIZE, Bitmap.Config.ARGB_8888);
+        crossHatchBitmap = android.graphics.Bitmap.createBitmap(Resources.getSystem().getDisplayMetrics(),
+                HATCH_SIZE, HATCH_SIZE, Bitmap.Config.ARGB_8888);
+
+        setHatchPatterns();
+        hatchImageSource = ImageSource.fromBitmap(hatchBitmap);
+        crossHatchImageSource = ImageSource.fromBitmap(crossHatchBitmap);
+    }
+
+    private void setBitmapBrightness() {
+        int blackAlpha = 0;
+        int whiteAlpha = 0;
+
+        if (backgroundBrightness < 50) {
+            blackAlpha = (int) ((double) (50 - backgroundBrightness) / 50.0 * 255);
+        } else if (backgroundBrightness > 50) {
+            whiteAlpha = (int) ((double) (backgroundBrightness - 50) / 50.0 * 255);
+        }
+        this.brightnessProcessingPosted = false;
+
+        int blackColor = android.graphics.Color.argb(blackAlpha, 0, 0, 0);
+        int whiteColor = android.graphics.Color.argb(whiteAlpha, 255, 255, 255);
+
+        for (int y = 0; y < BRIGHTNESS_BITMAP_WIDTH_HEIGHT; y++) {
+            for (int x = 0; x < BRIGHTNESS_BITMAP_WIDTH_HEIGHT; x++) {
+                blackBitmap.setPixel(x, y, blackColor);
+                whiteBitmap.setPixel(x, y, whiteColor);
+            }
+        }
+        blackSurfaceImage.imageSourceUpdated();
+        whiteSurfaceImage.imageSourceUpdated();
+
+        Log.d(TAG, "Brightness processed (" + backgroundBrightness + ").");
+    }
+
+    /**
+     * What you’re trying to do is one of our intended use cases, and is achieved by assembling the ‘hatch’ grid lines in white,
+     * rather than black. Said another way, the template Bitmap must be filled with white pixels and transparent pixels.
+     * World Wind shapes supporting an image and an attribute color are rendered by multiplying each image pixel's RGBA color
+     * by the attribute’s RGBA color. We call this rendering mode modulation. This happens on the GPU and has no performance cost.
+     * A white/transparent Bitmap therefore acts as a color template, since modulation replaces white pixels with the attribute color
+     * but leaves transparent pixels unchanged.
+     */
+    private void setHatchPatterns() {
+        int transparent = android.graphics.Color.argb(0, 0, 0, 0);
+
+        for (int y = 0; y < HATCH_SIZE; y++) {
+            for (int x = 0; x < HATCH_SIZE; x++) {
+                if (y == x || (y - 1) == x || y == (x - 1)) {
+                    hatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, Color.WHITE);
+                    crossHatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, Color.WHITE);
+                } else {
+                    hatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, transparent);
+                    crossHatchBitmap.setPixel(HATCH_SIZE - 1 - x, y, transparent);
+                }
+            }
+            // Don't merge these loops or the transparent pixels will get overwritten
+            // in the cross hatch bitmap
+            for (int x = 0; x < HATCH_SIZE; x++) {
+                if (y == x || (y - 1) == x || y == (x - 1)) {
+                    crossHatchBitmap.setPixel(x, y, Color.WHITE);
+                }
+            }
+        }
+
+        Log.d(TAG, "Hatch processed ");
+    }
+
+    public ImageSource getHatchImage() {
+        return hatchImageSource;
+    }
+
+    public ImageSource getCrossHatchImage() {
+        return crossHatchImageSource;
+    }
+
+    @Override
+    public void setBackgroundBrightness(int setting) {
+        if (setting < 0) {
+            setting = 0;
+        } else if (setting > 100) {
+            setting = 100;
+        }
+
+        // Set the new brightness setting.
+        backgroundBrightness = setting;
+        if (!this.brightnessProcessingPosted) {
+            if (!SystemUtils.isCurrentThreadUIThread()) {
+                this.brightnessProcessingPosted = true;
+                Log.d(TAG, "Scheduling brightness processing.");
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        setBitmapBrightness();
+                        ww.requestRedraw();
+                    }
+                });
+            } else {
+                setBitmapBrightness();
+                ww.requestRedraw();
+            }
+        }
+    }
+
+    @Override
+    public int getBackgroundBrightness() {
+        return backgroundBrightness;
+    }
+
+    public void updateMiniMapCamera() {
+        if (null != this.miniMap) {
+            Navigator mapNavigator = this.ww.getNavigator();
+            Navigator miniMapNavigator = this.miniMap.getNavigator();
+
+            if (null != mapNavigator) {
+                double altitude = mapNavigator.getAltitude();
+                double latitude = mapNavigator.getLatitude();
+                double longitude = mapNavigator.getLongitude();
+                if (null != miniMapNavigator) {
+                    miniMapNavigator.setLatitude(latitude);
+                    miniMapNavigator.setLongitude(longitude);
+                    miniMapNavigator.setAltitude(altitude * 4);
+                    miniMapNavigator.setHeading(0);
+                    miniMapNavigator.setRoll(0);
+                    miniMapNavigator.setTilt(0);
+                }
+            }
+            this.miniMap.requestRedraw();
+        }
+    }
+
+    @Override
+    public android.view.View showMiniMap() {
+        if (null == this.miniMap) {
+            Context context = ww.getContext();
+            this.miniMap = new MiniMapWorldWindow(context);
+
+            // Now we must load all map layers.
+            ww.queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    MapInstance.this.miniMap.getLayers().addLayer(new BackgroundLayer());
+
+                    for (UUID id: MapInstance.this.wmsHash.keySet()) {
+                        Layer layer = MapInstance.this.wmsHash.get(id);
+                        MapInstance.this.miniMap.getLayers().addLayer(layer);
+                    }
+                    MapInstance.this.updateMiniMapCamera();
+                }
+            });
+        }
+        return this.miniMap;
+    }
+
+    @Override
+    public void hideMiniMap() {
+        if (null != this.miniMap) {
+            if (null != this.miniMap.getParent()) {
+                if (this.miniMap.getParent() instanceof android.view.ViewGroup) {
+                    ((android.view.ViewGroup) this.miniMap.getParent()).removeView(this.miniMap);
+                }
+            }
+            this.miniMap.onDetachedFromWindow();
+            this.miniMap = null;
+        }
     }
 }

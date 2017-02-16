@@ -1,14 +1,20 @@
 package mil.emp3.api.utils;
 
+import android.util.Log;
+
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.GeoPosition;
 
 import java.security.InvalidParameterException;
+import java.util.List;
+
+import static java.lang.Double.isNaN;
 
 /**
  * This class provide utility function for geospatial computations.
  */
 public class GeoLibrary {
+    private static String TAG = GeoLibrary.class.getSimpleName();
     public static double DEFAULT_EARTH_RADIUS = 6371000.0; // meters
 
     //
@@ -22,6 +28,11 @@ public class GeoLibrary {
     // Element 90 contains the earth radius at the pole.
     private static double[] earthRadius = {6378137, 6378131, 6378111, 6378079, 6378034, 6377976, 6377905, 6377822, 6377726, 6377618, 6377497, 6377365, 6377220, 6377063, 6376895, 6376716, 6376525, 6376323, 6376110, 6375887, 6375654, 6375411, 6375158, 6374895, 6374624, 6374344, 6374055, 6373759, 6373455, 6373143, 6372824, 6372499, 6372168, 6371831, 6371489, 6371141, 6370789, 6370433, 6370074, 6369711, 6369345, 6368977, 6368607, 6368235, 6367863, 6367490, 6367116, 6366743, 6366371, 6366001, 6365632, 6365265, 6364900, 6364539, 6364181, 6363827, 6363478, 6363133, 6362794, 6362460, 6362132, 6361811, 6361497, 6361189, 6360890, 6360598, 6360315, 6360040, 6359775, 6359519, 6359272, 6359036, 6358810, 6358594, 6358390, 6358196, 6358014, 6357843, 6357684, 6357537, 6357402, 6357280, 6357170, 6357073, 6356988, 6356916, 6356857, 6356811, 6356779, 6356759, 6356752};
 
+    /**
+     * This method gives the earth's radius at a given latitude
+     * @param Latitude
+     * @return double
+     */
     public static double getEarthRadiusAt(double Latitude) {
         int newLat = (int) (Math.round(Math.abs(Latitude)) % 90);
 
@@ -305,5 +316,120 @@ public class GeoLibrary {
         double lon3 = Math.toRadians(p3.getLongitude());
 
         return ((lat2 - lat1) * (lon3 - lon1) - (lon2 - lon1) * (lat3 - lat1)) > 0;
+    }
+
+    /**
+     * http://www.movable-type.co.uk/scripts/latlong.html
+     * Returns the point of intersection of two paths defined by point and bearing.
+     *
+     * @param   {LatLon} p1 - First point.
+     * @param   {number} brng1 - Initial bearing from first point.
+     * @param   {LatLon} p2 - Second point.
+     * @param   {number} brng2 - Initial bearing from second point.
+     * @returns {LatLon|null} Destination point (null if no unique intersection defined).
+     *
+     * @example
+     *     var p1 = LatLon(51.8853, 0.2545), brng1 = 108.547;
+     *     var p2 = LatLon(49.0034, 2.5735), brng2 =  32.435;
+     *     var pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9078°N, 004.5084°E
+     */
+    public static IGeoPosition intersection(IGeoPosition p1, double brng1, IGeoPosition p2, double brng2) {
+
+        // see http://williams.best.vwh.net/avform.htm#Intersection
+
+        double phi1 = Math.toRadians(p1.getLatitude());
+        double lambda1 = Math.toRadians(p1.getLongitude());
+        double phi2 = Math.toRadians(p2.getLatitude());
+        double lambda2 = Math.toRadians(p2.getLongitude());
+        
+        double theta13 = Math.toRadians(brng1);
+        double theta23 = Math.toRadians(brng2);
+        double deltaPhi = phi2-phi1;
+        double deltaLambda = lambda2-lambda1;
+
+        double daba12 = 2*Math.asin( Math.sqrt( Math.sin(deltaPhi/2)*Math.sin(deltaPhi/2)
+                + Math.cos(phi1)*Math.cos(phi2)*Math.sin(deltaLambda/2)*Math.sin(deltaLambda/2) ) );
+        if (daba12 == 0) return null;
+
+        // initial/final bearings between points
+        double thetaa = Math.acos( ( Math.sin(phi2) - Math.sin(phi1)*Math.cos(daba12) ) / ( Math.sin(daba12)*Math.cos(phi1) ) );
+        if (isNaN(thetaa)) thetaa = 0; // protect against rounding
+        double thetab = Math.acos( ( Math.sin(phi1) - Math.sin(phi2)*Math.cos(daba12) ) / ( Math.sin(daba12)*Math.cos(phi2) ) );
+
+        double theta12 = Math.sin(lambda2-lambda1)>0 ? thetaa : 2*Math.PI-thetaa;
+        double theta21 = Math.sin(lambda2-lambda1)>0 ? 2*Math.PI-thetab : thetab;
+
+        double alpha1 = (theta13 - theta12 + Math.PI) % (2*Math.PI) - Math.PI; // angle 2-1-3
+        double alpha2 = (theta21 - theta23 + Math.PI) % (2*Math.PI) - Math.PI; // angle 1-2-3
+
+        if (Math.sin(alpha1)==0 && Math.sin(alpha2)==0) return null; // infinite intersections
+        if (Math.sin(alpha1)*Math.sin(alpha2) < 0) return null;      // ambiguous intersection
+
+        //alpha1 = Math.abs(alpha1);
+        //alpha2 = Math.abs(alpha2);
+        // ... Ed Williams takes abs of alpha1/alpha2, but seems to break calculation?
+
+        double alpha3 = Math.acos( -Math.cos(alpha1)*Math.cos(alpha2) + Math.sin(alpha1)*Math.sin(alpha2)*Math.cos(daba12) );
+        double daba13 = Math.atan2( Math.sin(daba12)*Math.sin(alpha1)*Math.sin(alpha2), Math.cos(alpha2)+Math.cos(alpha1)*Math.cos(alpha3) );
+        double phi3 = Math.asin( Math.sin(phi1)*Math.cos(daba13) + Math.cos(phi1)*Math.sin(daba13)*Math.cos(theta13) );
+        double dabalambda13 = Math.atan2( Math.sin(theta13)*Math.sin(daba13)*Math.cos(phi1), Math.cos(daba13)-Math.sin(phi1)*Math.sin(phi3) );
+        double lambda3 = lambda1 + dabalambda13;
+
+        IGeoPosition geoPosition = new GeoPosition();
+        geoPosition.setLatitude(Math.toDegrees(phi3));
+        geoPosition.setLongitude((Math.toDegrees(lambda3)+540)%360-180);
+        // return new (phi3.toDegrees(), (lambda3.toDegrees()+540)%360-180); // normalise to −180..+180°
+        return geoPosition;
+    }
+
+    /**
+     * Procedure:
+     *     Convert each lat/long pair into a unit-length 3D vector.
+     *     Sum each of those vectors
+     *     Normalise the resulting vector
+     *     Convert back to spherical coordinates
+     * @param positionList
+     * @return
+     */
+    public static IGeoPosition getCenter(List<IGeoPosition> positionList) {
+
+        IGeoPosition center = null;
+        if((null != positionList) && (0 != positionList.size())) {
+            center = new GeoPosition();
+            if(1 == positionList.size()) {
+                center.setLongitude(positionList.get(0).getLongitude());
+                center.setLatitude(positionList.get(0).getLatitude());
+            } else {
+                double x = 0;
+                double y = 0;
+                double z = 0;
+
+                for(IGeoPosition position: positionList)
+                {
+                    double latitude = position.getLatitude() * Math.PI / 180;
+                    double longitude = position.getLongitude() * Math.PI / 180;
+
+
+                    x += Math.cos(latitude) * Math.cos(longitude);
+                    y += Math.cos(latitude) * Math.sin(longitude);
+                    z += Math.sin(latitude);
+                }
+
+                x = x / positionList.size();
+                y = y / positionList.size();
+                z = z / positionList.size();
+
+                double centralLongitude = Math.atan2(y, x);
+                double centralSquareRoot = Math.sqrt(x * x + y * y);
+                double centralLatitude = Math.atan2(z, centralSquareRoot);
+
+                center.setLongitude(centralLongitude * 180 / Math.PI);
+                center.setLatitude(centralLatitude * 180 / Math.PI);
+
+                Log.d(TAG, "Center Lat/Lon " + center.getLatitude() + "/" + center.getLongitude());
+            }
+        }
+
+        return center;
     }
 }

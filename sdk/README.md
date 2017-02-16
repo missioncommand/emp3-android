@@ -1,6 +1,6 @@
 ### :sdk:sdk-api
 
-Contains EMP3 MAP developer facting API, Implementation of the developer facing API and EMP Core component. Event though this is an Android library we will only publish the jar rather than an aar as there are no resources that need to be published.
+Contains EMP3 MAP developer facing API, Implementation of the developer facing API and EMP Core component. Event though this is an Android library we will only publish the jar rather than an aar as there are no resources that need to be published.
 
 ### :sdk:sdk-view
 

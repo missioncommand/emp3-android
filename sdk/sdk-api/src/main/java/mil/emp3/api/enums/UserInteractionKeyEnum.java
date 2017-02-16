@@ -3,8 +3,7 @@ package mil.emp3.api.enums;
 import mil.emp3.api.interfaces.IEventEnum;
 
 /**
- * Created by raju on 9/2/2016.
- * Enumerates keys which are pressed during mouse interaction
+ * Types of supported key presses
  */
 public enum UserInteractionKeyEnum implements IEventEnum {
     /**

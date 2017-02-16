@@ -21,7 +21,7 @@ public class MapInstanceViewChangeEvent extends Event<MapViewEventEnum, IMapInst
     private final int iViewHeight;
 
     /**
-     * This constructor must be called by the map engines to creates a MapInstanceViewChangeEvent event
+     * This constructor must be called by the map engines to create a MapInstanceViewChangeEvent event
      * @param oMapInstance The actual map instance. The this property of the object that implements the IMapInstance interface.
      * @param viewEventEnum The view event generated. See {@link MapViewEventEnum}
      * @param camera The new camera position of the view of the map. See {@link ICamera}.
@@ -42,19 +42,41 @@ public class MapInstanceViewChangeEvent extends Event<MapViewEventEnum, IMapInst
         this.oLookAt = lookAt;
     }
 
+    /**
+     * Returns the updated Camera object after the event.
+     * @return @See ICamera
+     */
     public ICamera getCamera() {
         return this.oCamera;
     }
 
+    /**
+     * Returns the updated lookAt object after the event.
+     * @return @See ILookAt
+     */
     public ILookAt getLookAt() { return this.oLookAt; }
-    
+
+    /**
+     * Returns the map bounds after the event, it could be null based camera settings.
+     * @return bounds
+     */
+
     public IGeoBounds getBounds() {
         return this.oBounds;
     }
 
+    /**
+     * Returns width of the map in pixels
+     * @return width
+     */
     public int getMapViewWidth() {
         return this.iViewWidth;
     }
+
+    /**
+     * Returns height of the map in pixels
+     * @return height
+     */
 
     public int getMapViewHeight() {
         return this.iViewHeight;

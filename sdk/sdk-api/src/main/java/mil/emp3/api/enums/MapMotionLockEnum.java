@@ -1,24 +1,26 @@
 package mil.emp3.api.enums;
 
 /**
- * This class enumerates the different locks that can be placed on the map's motion.
+ * Types of locks that can be placed on the map's motion. In a normal scenario map is in UNLOCKED state i.e. user can pan/zoom/rotate the map.
  */
 public enum MapMotionLockEnum {
 
     /**
-     * This enumerated value indicates that the map view is free to change i.e. pan, zoom, rotate, tilt
+     * Map view is free to change i.e. pan, zoom, rotate, tilt
      * based on Gestures. Note that pan, zoom, rotate, tilt is not necessarily an exhaustive list of motions
      */
     UNLOCKED,
     /**
-     * This enumerated value indicates that the map will not pan, zoom or rotate, tilt based on Gestures. The only
+     * Map will not pan, zoom or rotate, tilt based on Gestures. The only
      * motion allowed is panning if the user is dragging an object at the edge of the viewing area.
-     * This is currently used by the Freehand Editor
+     * This is currently used by the Freehand Editor. drawFeature and editFeature actions are not allowed when map
+     * is in this lock mode.
      */
     SMART_LOCK,
     /**
-     * This enumerated value indicates that the map will not pan, zoom, rotate, tilt based on Gestures.
+     * Map will not pan, zoom, rotate, tilt based on Gestures.
      * Client application can still use Camera and LookAt to change the map view.
+     *  drawFeature and editFeature actions are not allowed when map is in this lock mode.
      */
     LOCKED
 }

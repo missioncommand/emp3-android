@@ -6,6 +6,9 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -20,8 +23,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  * This class implements the MilStd editor for Line draw category TG.
  */
 public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
-    // This list of control points is pre-aloocated and re-used through out.
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
 
     public MilStdDCLineEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, symDef);
@@ -56,8 +57,8 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
             // As per 2525C COE V2 it is in AM modifier.
             // As per 2525B COE V1 it should be in H2 but everyone seems to put in AM.
             // So we will assume it always in AM.
-            if (!Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
-                retValue = (double) this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0);
+            if (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
+                retValue = (double) this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0);
             }
 /*
             switch (this.symbol.getSymbolStandard()) {
@@ -97,8 +98,8 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
             // As per 2525C COE V2 it is in AM modifier.
             // As per 2525B COE V1 it should be in H2 but everyone seems to put in AM.
             // So we will assume it always in AM.
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
-            this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, (float) value);
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
+            this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, (float) value);
 /*
             switch (this.symbol.getSymbolStandard()) {
                 case MIL_STD_2525C:
@@ -122,10 +123,13 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
             // As per 2525C COE V2 it is in AM modifier.
             // As per 2525B COE V1 it should be in H2 but everyone seems to put in AM.
             // So we will assume it always in AM.
-            if (Float.isNaN(this.symbol.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
+            if (Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
                 // There is no AM modifier.
                 // We need to add one.
-                this.symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 10000); // 10Km wide.
+                IGeoPosition cameraPos = this.getMapCameraPosition();
+                // We set the width to 1/10 of the camera altitude.
+                float distance = (float) (cameraPos.getAltitude() / 10.0);
+                this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, distance);
             }
 /*
             switch (this.symbol.getSymbolStandard()) {
@@ -172,7 +176,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
 
     private void positionWidthControlPoint(ControlPoint widthCP) {
         if (this.hasWidth()) {
-            java.util.List<IGeoPosition> posList = this.getPositions();
+            List<IGeoPosition> posList = this.getPositions();
             int posCnt = posList.size();
 
             if (posCnt > 1) {
@@ -194,7 +198,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int index = 0;
         int posCnt = posList.size();
         IGeoPosition pos;
@@ -230,15 +234,14 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
     };
 
     @Override
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
         ControlPoint controlPoint;
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos = new GeoPosition();
         int posCnt = posList.size();
         int lastIndex = posCnt - 1;
 
-        // Clear the list
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         // Compute the position control point.
         pos = new GeoPosition();
@@ -247,7 +250,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
         pos.setLongitude(oLatLng.getLongitude());
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posCnt, -1);
         controlPoint.setPosition(pos);
-        this.cpList.add(controlPoint);
+        cpList.add(controlPoint);
         // Add the new position to the feature position list.
         posList.add(pos);
 
@@ -262,25 +265,24 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
         if (posList.size() > 1) {
             // Compute the new CP between the last position and the new one.
             controlPoint = this.createCPBetween(posList.get(lastIndex), oLatLng, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex, posCnt);
-            this.cpList.add(controlPoint);
+            cpList.add(controlPoint);
         }
 
         // Add the update data
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{posCnt});
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+    protected List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
+        List<IGeoPosition> posList = this.getPositions();
         int lastIndex = posList.size() - 1;
 
-        // Clear the list
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         if (oCP.getCPType() == ControlPoint.CPTypeEnum.WIDTH_CP) {
             // We never delete the width CP.
-            return this.cpList;
+            return cpList;
         }
 
         if (posList.size() > 2) {
@@ -288,10 +290,10 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
 
             if (oCP.getCPType() != ControlPoint.CPTypeEnum.POSITION_CP) {
                 // We only remove position CP.
-                return this.cpList;
+                return cpList;
             }
 
-            this.cpList.add(oCP);
+            cpList.add(oCP);
 
             this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{oCP.getCPIndex()});
 
@@ -303,14 +305,14 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
             ControlPoint newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, oCP.getCPIndex());
             if (newCP != null) {
                 // The first point does not have a new CP before it.
-                this.cpList.add(newCP);
+                cpList.add(newCP);
             }
 
             // Now find and add the after new position CP to the list.
             newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, oCP.getCPIndex(), afterIndex);
             if (newCP != null) {
                 // The last point does not have a new CP after it.
-                this.cpList.add(newCP);
+                cpList.add(newCP);
             }
 
             // Remove the position from the feature position list.
@@ -333,10 +335,10 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
             }
         }
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
         double dDistance;
         double dBearing;
         ControlPoint newCP;
@@ -344,10 +346,9 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
         IGeoPosition currentPosition = oCP.getPosition();
         int cpIndex = oCP.getCPIndex();
         int cpSubIndex = oCP.getCPSubIndex();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
 
-        // Clear the list
-        this.cpList.clear();
+        boolean moved = false;
 
         switch (oCP.getCPType()) {
             case NEW_POSITION_CP: {
@@ -387,10 +388,10 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                     ControlPoint widthCP = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 0, -1);
                     if (widthCP != null) {
                         this.positionWidthControlPoint(widthCP);
-                        this.cpList.add(widthCP);
+                        moved = true;
                     }
                 }
-                this.cpList.add(oCP);
+                moved = true;
                 break;
             }
             case POSITION_CP: {
@@ -399,7 +400,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                 currentPosition.setLongitude((oLatLon.getLongitude()));
                 // Add the update data
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{oCP.getCPIndex()});
-                this.cpList.add(oCP);
+                moved = true;
 
                 // Now we need to move the new CP that may be before and after this one.
                 if (cpIndex > 0) {
@@ -424,7 +425,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                     ControlPoint widthCP = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 0, -1);
                     if (widthCP != null) {
                         this.positionWidthControlPoint(widthCP);
-                        this.cpList.add(widthCP);
+                        moved = true;
                     }
                 }
                 break;
@@ -437,10 +438,10 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                 this.saveWidth(newHalfWidth * 2);
                 this.positionWidthControlPoint(oCP);
 
-                this.cpList.add(oCP);
+                moved = true;
             }
         }
 
-        return this.cpList;
+        return moved;
     }
 }

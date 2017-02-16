@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/thresholds"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Far Distance Threshold(m)"/>
+    <include android:id="@+id/far_distance_threshold" layout="@layout/increment_decrement" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mid Distance Threshold(m)"/>
+    <include android:id="@+id/mid_distance_threshold" layout="@layout/increment_decrement" />
+
+    <Button
+        android:id="@+id/done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Done" />
+</LinearLayout>

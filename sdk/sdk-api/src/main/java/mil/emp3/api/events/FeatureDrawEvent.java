@@ -1,5 +1,7 @@
 package mil.emp3.api.events;
 
+import java.util.List;
+
 import mil.emp3.api.enums.FeatureDrawEventEnum;
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IFeature;
@@ -23,5 +25,5 @@ public abstract class FeatureDrawEvent extends Event<FeatureDrawEventEnum, IFeat
      * This method retrieves a list of object that identifies what was updated in the feature. It only applies to DRAW_UPDATE events.
      * @return A list of {@link IEditUpdateData} object for DRAW_UPDATE events or null otherwise.
      */
-    public abstract java.util.List<IEditUpdateData> getUpdateData();
+    public abstract List<IEditUpdateData> getUpdateData();
 }

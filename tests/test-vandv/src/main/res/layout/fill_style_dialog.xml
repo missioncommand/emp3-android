@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Color"/>
+    <include android:id="@+id/fill_style_color" layout="@layout/color_components" />
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@android:color/darker_gray"/>
+    <include android:id="@+id/fill_style_pattern" layout="@layout/enumeration_selection" />
+
+    <include android:id="@+id/fill_style_apply_done" layout="@layout/apply_done" />
+</LinearLayout>

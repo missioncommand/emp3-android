@@ -9,13 +9,26 @@ import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
  */
 public class Requirements implements IMapEngineRequirements {
     private final boolean wmsCapabilities;
-    
-    public Requirements(boolean requireWMSCapabilities) {
+    private final boolean wmtsCapabilities;
+
+    /**
+     * Initialize the required capabilities.
+     * @param requireWMSCapabilities is true if map depends on WMS capabilities.
+     * @param requireWMTSCapabilities is true if map depends on WMS capabilities.
+     */
+    public Requirements(boolean requireWMSCapabilities,
+                        boolean requireWMTSCapabilities) {
         this.wmsCapabilities = requireWMSCapabilities;
+        this.wmtsCapabilities = requireWMTSCapabilities;
     }
 
     @Override
     public boolean requiresWMSCapabilities() {
         return this.wmsCapabilities;
+    }
+
+    @Override
+    public boolean requiresWMTSCapabilities() {
+        return this.wmtsCapabilities;
     }
 }

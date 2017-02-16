@@ -32,6 +32,8 @@ public class TestBaseSingleMap extends TestBase {
     private BlockingQueue<IFeature> addFeatureQueue;
     private BlockingQueue<UUID> removeFeatureQueue;
     private BlockingQueue<ICamera> setCameraQueue;
+    private BlockingQueue<IFeature> selectFeatureQueue;
+    private BlockingQueue<UUID> deselectFeatureQueue;
 
     BlockingQueue<IEvent> receivedEventQueue;
     protected MockEventListener eventListener;
@@ -44,8 +46,11 @@ public class TestBaseSingleMap extends TestBase {
 
         addFeatureQueue = new LinkedBlockingDeque<>();
         removeFeatureQueue = new LinkedBlockingDeque<>();
+        selectFeatureQueue = new LinkedBlockingDeque<>();
+        deselectFeatureQueue = new LinkedBlockingDeque<>();
+
         setCameraQueue = new LinkedBlockingDeque<>();
-        mapInstance = new MockMapInstance(addFeatureQueue, removeFeatureQueue, setCameraQueue );
+        mapInstance = new MockMapInstance(addFeatureQueue, removeFeatureQueue, setCameraQueue, selectFeatureQueue, deselectFeatureQueue );
         receivedEventQueue = new LinkedBlockingDeque<>();
         eventListener = new MockEventListener(receivedEventQueue);
 

@@ -1,10 +1,24 @@
 package mil.emp3.mapengine.interfaces;
 
 /**
- * Created by jgiovino on 1/28/16.
+ * An object that holds map engine properties.
  */
 public interface IMapEngineProperties {
-    public String getName();
-    public String getVersion();
-    public String getHelp();
+    /**
+     * Map engine name
+     * @return string
+     */
+    String getName();
+
+    /**
+     * Map engine version
+     * @return string
+     */
+    String getVersion();
+
+    /**
+     * Help
+     * @return string
+     */
+    String getHelp();
 }

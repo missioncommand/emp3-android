@@ -5,6 +5,9 @@ import android.util.Log;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -21,9 +24,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 public class MilStdPolygonEditor extends AbstractDrawEditEditor {
     private final static String TAG = MilStdPolygonEditor.class.getSimpleName();
 
-    // This list of control points is pre-aloocated and re-used through out.
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
-
     public MilStdPolygonEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener) throws EMP_Exception {
         super(map, feature, oEventListener, true);
 
@@ -38,14 +38,14 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
 
         posList.clear();
     }
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int index = 0;
         int posCnt = posList.size();
         IGeoPosition pos;
@@ -76,16 +76,14 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
     };
 
     @Override
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
         ControlPoint controlPoint;
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
         int posCnt = posList.size();
         int lastIndex = posCnt - 1;
 
-        // Clear the list
-        this.cpList.clear();
-
+        List<ControlPoint> cpList = new ArrayList<>();
         // Set the position control point.
         pos = new GeoPosition();
         pos.setAltitude(0);
@@ -93,7 +91,7 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
         pos.setLongitude(oLatLng.getLongitude());
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posCnt, -1);
         controlPoint.setPosition(pos);
-        this.cpList.add(controlPoint);
+        cpList.add(controlPoint);
         // Add the new position to the feature position list.
         posList.add(pos);
 
@@ -120,24 +118,23 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
         // Add the update data
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{posCnt - 1});
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+    protected List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
+        List<IGeoPosition> posList = this.getPositions();
 
-        // Clear the list
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         if (posList.size() > 3) {
             // We only remove points beyond the minimum # of positions.
 
             if (oCP.getCPType() != ControlPoint.CPTypeEnum.POSITION_CP) {
                 // We only remove position CP.
-                return this.cpList;
+                return cpList;
             }
 
-            this.cpList.add(oCP);
+            cpList.add(oCP);
             // Add update event data.
             this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{oCP.getCPIndex()});
 
@@ -147,11 +144,11 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
 
             // Now find and add the before new position CP to the list.
             ControlPoint newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, oCP.getCPIndex());
-            this.cpList.add(newCP);
+            cpList.add(newCP);
 
             // Now find and add the after new position CP to the list.
             newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, oCP.getCPIndex(), afterIndex);
-            this.cpList.add(newCP);
+            cpList.add(newCP);
 
             // Remove the position from the feature position list.
             posList.remove(oCP.getCPIndex());
@@ -163,20 +160,19 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
 
             this.decreaseControlPointIndexes(oCP.getCPIndex());
 
-            return this.cpList;
+            return cpList;
         }
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
         IGeoPosition currentPosition = oCP.getPosition();
         int cpIndex = oCP.getCPIndex();
         int cpSubIndex = oCP.getCPSubIndex();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
 
-        // Clear the list
-        this.cpList.clear();
+        boolean moved = false;
 
         switch (oCP.getCPType()) {
             case NEW_POSITION_CP: {
@@ -211,7 +207,7 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
 
                 // Now we add event update data.
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{oCP.getCPIndex()});
-                this.cpList.add(oCP);
+                moved = true;
                 break;
             }
             case POSITION_CP: {
@@ -223,7 +219,7 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
                 currentPosition.setLongitude((oLatLon.getLongitude()));
                 // Add the update data
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{oCP.getCPIndex()});
-                this.cpList.add(oCP);
+                moved = true;
 
                 // Now we need to move the new CP that is before the one moved.
                 ControlPoint beforeCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, beforeCPIndex, -1);
@@ -240,6 +236,6 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
             }
         }
 
-        return this.cpList;
+        return moved;
     }
 }

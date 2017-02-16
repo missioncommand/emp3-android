@@ -1,29 +1,29 @@
 package mil.emp3.api.enums;
 
 /**
- * This class enumerate the icon sizes suported by the system. Actual pixel size is not used do
+ * These are the icon sizes supported by the system. Actual pixel size is not used due
  * to the difference in pixel density of android devices.
  */
 public enum IconSizeEnum {
     /**
-     * This enumerated value indicates the smallest size possible. It should match 0.6 the size of a SMALL icon.
+     * Smallest size possible. It should match 0.6 the size of a SMALL icon.
      */
     TINY,
     /**
-     * This enumerated value indicates a size equivalent to a 1/3 in X 1/3 in icon. Which on a standard 96dpi screen is ~32x32.
+     * Size equivalent to a 1/3 in X 1/3 in icon. Which on a standard 96dpi screen is approximately 32x32.
      */
     SMALL,
     /**
-     * This enumerated value indicates a size equivalent to 1.4 the size of a SMALL icon.
+     * Size equivalent to 1.4 times the size of a SMALL icon.
      */
     MEDIUM,
     /**
-     * This enumerated value indicates a size equivalent to 1.8 the size of a SMALL icon.
+     * Size equivalent to 1.8 times the size of a SMALL icon.
      */
     LARGE;
 
     /**
-     * This method return the scaling factor associated with the enumerated value.
+     * This method returns the scaling factor associated with the enumerated value.
      * @return scale factor.
      */
     public double getScaleFactor() {

@@ -4,10 +4,20 @@
     <string name="action_exit">Exit</string>
     <string name="action_test">Test</string>
 
+    <string name="action_addImageLayer">Add Image Layer</string>
+    <string name="action_removeImageLayer">Remove Image Layer</string>
+
+    <string name="action_addGeoPackage">Add GeoPackage</string>
+    <string name="action_removeGeoPackage">Remove GeoPackage</string>
+
     <string name="action_drawMenu">Draw Menu</string>
     <string name="action_drawText">Draw Text</string>
     <string name="action_drawLine">Draw Line</string>
     <string name="action_drawPolygon">Draw Polygon</string>
+    <string name="action_drawCircle">Draw Circle</string>
+    <string name="action_drawEllipse">Draw Ellipse</string>
+    <string name="action_drawRectangle">Draw Rectangle</string>
+    <string name="action_drawSquare">Draw Square</string>
     <string name="action_drawMilStd">Draw MilStd</string>
     <string name="action_drawMilStdIcon">Draw MilStd Icon</string>
     <string name="action_drawTG">Draw Tactical Graphic</string>
@@ -18,6 +28,7 @@
     <string name="action_plotunits2525B">2525B Units</string>
     <string name="action_plotunits2525C">2525C Units</string>
     <string name="action_plotTG2525C">2525C TG</string>
+    <string name="action_plotKML">Plot KML</string>
     <string name="action_removeAll">Remove All</string>
     <string name="action_addWMS">Add WMS</string>
     <string name="action_removeWMS">Remove WMS</string>
@@ -118,4 +129,31 @@
     <string name="action_toggleCrossHairs">Toggle Cross Hair</string>
 
     <string name="action_plotText">Plot Text</string>
+    <string name="action_plotRectangle">Plot Rectangle</string>
+    <string name="action_plotSquare">Plot Square</string>
+    <string name="action_plotCircle">Plot Circle</string>
+    <string name="action_plotEllipse">Plot Ellipse</string>
+
+    <string name="action_tgTextSize">Map Text Size</string>
+    <string name="action_textsizeSmallest">Smallest</string>
+    <string name="action_textsizeSmaller">Smaller</string>
+    <string name="action_textsizeNormal">Normal</string>
+    <string name="action_textsizeLarger">Larger</string>
+    <string name="action_textsizeLargest">Largest</string>
+
+    <!-- string name="UrlDefault">http://10.0.2.7:5000/WmsServerStrict</string -->
+    <string name="UrlDefault">http://demo.mapserver.org/cgi-bin/wms</string>
+    <string name="VersionDefault">1.3.0</string>
+    <string name="TileFormatDefault">image/png</string>
+    <string name="TransparentDefault">true</string>
+    <!-- string name="LayersDefault">imagery_part3-2.0.0.1-apg.gpkg</string -->
+    <!-- string name="LayersDefault">bluemarble,country_bounds,cities</string -->
+    <string name="LayersDefault">cities</string>
+    <string name="ResolutionDefault">1.0</string>
+    <string name="CancelButton">Cancel</string>
+    <string name="OKButton">OK</string>
+
+    <string name="action_minimap">Toggle Mini Map</string>
+    <string name="action_brightnessLabel">Brightness:</string>
+    <string name="action_screenShot">Screen Shot</string>
 </resources>

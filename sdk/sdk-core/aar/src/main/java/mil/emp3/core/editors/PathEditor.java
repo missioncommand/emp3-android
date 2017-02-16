@@ -5,6 +5,9 @@ import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.Path;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -17,35 +20,30 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 /**
  * this class implements the path editor.
  */
-public class PathEditor extends AbstractDrawEditEditor {
-    private final Path pathFeature;
-    // This list of control points is pre-aloocated and re-used through out.
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
+public class PathEditor extends AbstractDrawEditEditor<Path> {
 
     public PathEditor(IMapInstance map, Path feature, IEditEventListener oEventListener) throws EMP_Exception {
         super(map, feature, oEventListener, true);
 
-        this.pathFeature = feature;
         this.initializeEdit();
     }
 
     public PathEditor(IMapInstance map, Path feature, IDrawEventListener oEventListener) throws EMP_Exception {
         super(map, feature, oEventListener, true);
 
-        this.pathFeature = feature;
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
 
         posList.clear();
     }
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int index = 0;
         int posCnt = posList.size();
         IGeoPosition pos;
@@ -67,15 +65,14 @@ public class PathEditor extends AbstractDrawEditEditor {
     };
 
     @Override
-    protected java.util.List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
         ControlPoint controlPoint;
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
         int posCnt = posList.size();
         int lastIndex = posCnt - 1;
 
-        // Clear the list
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         // Compute the position control point.
         pos = new GeoPosition();
@@ -84,38 +81,37 @@ public class PathEditor extends AbstractDrawEditEditor {
         pos.setLongitude(oLatLng.getLongitude());
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posCnt, -1);
         controlPoint.setPosition(pos);
-        this.cpList.add(controlPoint);
+        cpList.add(controlPoint);
         // Add the new position to the feature position list.
         posList.add(pos);
 
         if (posList.size() > 1) {
             // Compute the new CP between the last position and the new one.
             controlPoint = this.createCPBetween(posList.get(lastIndex), oLatLng, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex, posCnt);
-            this.cpList.add(controlPoint);
+            cpList.add(controlPoint);
         }
 
         // Add the update data
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{posCnt});
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+    protected List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
+        List<IGeoPosition> posList = this.getPositions();
         int lastIndex = posList.size() - 1;
 
-        // Clear the list
-        this.cpList.clear();
+        List<ControlPoint> cpList = new ArrayList<>();
 
         if (posList.size() > 2) {
             // We only remove points beyond the minimum # of positions.
 
             if (oCP.getCPType() != ControlPoint.CPTypeEnum.POSITION_CP) {
                 // We only remove position CP.
-                return this.cpList;
+                return cpList;
             }
 
-            this.cpList.add(oCP);
+            cpList.add(oCP);
 
             this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{oCP.getCPIndex()});
 
@@ -127,14 +123,14 @@ public class PathEditor extends AbstractDrawEditEditor {
             ControlPoint newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, oCP.getCPIndex());
             if (newCP != null) {
                 // The first point does not have a new CP before it.
-                this.cpList.add(newCP);
+                cpList.add(newCP);
             }
 
             // Now find and add the after new position CP to the list.
             newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, oCP.getCPIndex(), afterIndex);
             if (newCP != null) {
                 // The last point does not have a new CP after it.
-                this.cpList.add(newCP);
+                cpList.add(newCP);
             }
 
             // Remove the position from the feature position list.
@@ -150,10 +146,10 @@ public class PathEditor extends AbstractDrawEditEditor {
             this.decreaseControlPointIndexes(oCP.getCPIndex());
         }
 
-        return this.cpList;
+        return cpList;
     }
 
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
         double dDistance;
         double dBearing;
         ControlPoint newCP;
@@ -161,10 +157,9 @@ public class PathEditor extends AbstractDrawEditEditor {
         IGeoPosition currentPosition = oCP.getPosition();
         int cpIndex = oCP.getCPIndex();
         int cpSubIndex = oCP.getCPSubIndex();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
 
-        // Clear the list
-        this.cpList.clear();
+        boolean moved = false;
 
         switch (oCP.getCPType()) {
             case NEW_POSITION_CP: {
@@ -199,7 +194,7 @@ public class PathEditor extends AbstractDrawEditEditor {
 
                 // Now we add event update data.
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{oCP.getCPIndex()});
-                this.cpList.add(oCP);
+                moved = true;
                 break;
             }
             case POSITION_CP: {
@@ -208,7 +203,7 @@ public class PathEditor extends AbstractDrawEditEditor {
                 currentPosition.setLongitude((oLatLon.getLongitude()));
                 // Add the update data
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{oCP.getCPIndex()});
-                this.cpList.add(oCP);
+                moved = true;
 
                 // Now we need to move the new CP that may be before and after this one.
                 if (cpIndex > 0) {
@@ -232,6 +227,6 @@ public class PathEditor extends AbstractDrawEditEditor {
             }
         }
 
-        return this.cpList;
+        return moved;
     }
 }

@@ -3,6 +3,8 @@ package mil.emp3.core.utils;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.List;
+
 import mil.emp3.api.exceptions.EMP_Exception;
 
 /**
@@ -39,7 +41,7 @@ public class MapCircularRegion {
      * @param oPositionList A list of geographic coordinates.
      * @throws EMP_Exception
      */
-    public MapCircularRegion(java.util.List<IGeoPosition> oPositionList) throws EMP_Exception {
+    public MapCircularRegion(List<IGeoPosition> oPositionList) throws EMP_Exception {
         this.addCoordinates(oPositionList);
     }
 
@@ -90,7 +92,7 @@ public class MapCircularRegion {
      * @param oPositionList The list of coordinates.
      * @throws EMP_Exception
      */
-    public void addCoordinates(java.util.List<IGeoPosition> oPositionList) throws EMP_Exception {
+    public void addCoordinates(List<IGeoPosition> oPositionList) throws EMP_Exception {
         if (oPositionList == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "oPositionList can't be null.");
         }

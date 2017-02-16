@@ -7,16 +7,17 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
 
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ICapture;
-import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IUUIDSet;
+import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
 import mil.emp3.mapengine.events.MapInstanceFeatureUserInteractionEvent;
 import mil.emp3.mapengine.events.MapInstanceStateChangeEvent;
@@ -28,17 +29,41 @@ import mil.emp3.mapengine.listeners.MapInstanceUserInteractionEventListener;
 import mil.emp3.mapengine.listeners.MapInstanceViewChangeEventListener;
 
 /**
- * This is the interface that must be implemented by all map engines. It represent the interface to one instance
- * of a map implemented by the engine APK The APK must be able to create multiple independent instances at any one time.
- * Each map instance must expose this interface.
+ * EMP is loosely split into three layers, namely API, Core and Map Engine. The API and Core together insulate the application
+ * from specific Map Engine implementations. IMapInstance insulates the EMP Core from specific map engine API. In the current implementation
+ * EMP supports NASA World Wind map engine. If you want to support a map engine other than NASA World Wind then you will need to
+ * implement IMpaInstance interface along with other interfaces in this package. EMP also allows for multiple instances of same or different
+ * map engines to be present and active in a single application. Implementors of IMapInstance must allow for multiple instances of one or more
+ * map engines to operate side-by-side in a single instance of an application. Instances of map engine can either be compiled into the application
+ * or can be loaded from a self contained android application.
  */
 public interface IMapInstance {
 
+    /**
+     * Returns the Map View.
+     * @return
+     */
     android.view.View getMapInstanceAndroidView();
 
+    /**
+     * Android life cycle method.
+     */
     void onResume();
+
+    /**
+     * Android life cycle method.
+     */
     void onPause();
+
+    /**
+     * Android life cycle method.
+     */
     void onDestroy();
+
+    /**
+     * Android life cycle method.
+     * @return
+     */
     android.view.View onCreateView();
 
     /**
@@ -63,15 +88,14 @@ public interface IMapInstance {
 
     /**
      * This method is called to retrieve an image of the current viewing area of the map.
-     * @return An {@link ICapture} object or null if not supported.
+     * @param callback An implementation of the {@link IScreenCaptureCallback} interface. The EMP core
+     *                 ensures that this parameter is not null. Therefore a map engine implementation
+     *                 does not need to check for null. Any exception generated during the process must
+     *                 invoke the failure callback with the exception as the parameter. Upon success the
+     *                 map implementation must call the success callback with the ICapture object.
+     * @throws UnsupportedOperationException if the map engine does not support screen capture operation.
      */
-    ICapture getCapture();
-
-    /**
-     * This method is called by the core to set the visibility of the features listed to the setting indicated.
-     * @param visibilityList A list of unique Ids of the affected features and their visibility setting.
-     */
-    void setVisibility(ISetVisibilityList visibilityList);
+    void getCapture(IScreenCaptureCallback callback);
 
     /**
      * This method is called by the EMP core to add features to the map.
@@ -86,7 +110,7 @@ public interface IMapInstance {
     void removeFeatures(IUUIDSet features);
 
     /**
-     * This method is called by the EMP core to add a WMS service to the map.
+     * This method is called by the EMP core to add a service to the map.
      * @param mapService The list of one or more map services to add to the map.
      */
     void addMapService(IMapService mapService);
@@ -98,31 +122,43 @@ public interface IMapInstance {
     void removeMapService(IMapService mapService);
 
     /**
-     * This method is used to retrieve the map current camera.
+     * This method is used to retrieve the map's current camera.
      * @return See {@link ICamera}
      */
     ICamera getCamera();
 
     /**
-     * This method is used to set the camera for the map. Once the camera values are set in the map,
-     * the map registers for camera change events for the camera and must apply the camera
-     * changes to the map view on each event.
+     * This method is used to set the camera for the map. It is the responsibility of IMapInstance to keep the
+     * EMP Camera and map engine camera in sync.
      * @param oCamera The new setting. See {@link ICamera}
      * @param animate If set to true then animate to new position
      */
     void setCamera(ICamera oCamera, boolean animate);
 
     /**
-     * This method is used to set the camera for the map. Once the camera values are set in the map,
-     * the map registers for camera change events for the camera and must apply the camera
-     * changes to the map view on each event.
+     * This method is used to update camera setting. Camera settings are updated only if oCamera is the currentCamera.
+     * This method is invoked as a result of application invoking ICamera.apply();
+     * @param oCamera
+     * @param animate
+     */
+    void applyCameraChange(ICamera oCamera, boolean animate);
+
+    /**
+     * This method is used to set the lookAt for the map. It is the responsibility of IMapInstance to keep the
+     * EMP LookAt and map engine LookAt in sync.
      * @param oLookAt The new setting. See {@link ILookAt}
      * @param animate If set to true then animate to new position
      */
     void setLookAt(ILookAt oLookAt, boolean animate);
 
     /**
-     * This method is used to retrieve the map current camera.
+     * This method is used to update lookAt settings. LookAt settings are updated only if oLookAt is the current LookAt.
+     * This method is invoked as a result of application invoking ILookAt.apply();
+     */
+    void applyLookAtChange(ILookAt oLookAt, boolean animate);
+
+    /**
+     * This method is used to retrieve the map current LookAt.
      * @return See {@link ILookAt}
      */
     ILookAt getLookAt();
@@ -163,19 +199,30 @@ public interface IMapInstance {
      */
     void addMapInstanceViewChangeEventListener(MapInstanceViewChangeEventListener listener);
 
+    /**
+     * This method is called by the core to register a feature added event listener. The core will call this once
+     * and only once upon starting the map instance. The listener registration MUST be destroyed when the onDestroy call is made.
+     * The Map instance MUST generate a FeatureAddEvent each time a feature is added to the map using addFeature method.
+     * @param listener The object that implements the appropriate listener see {@link mil.emp3.mapengine.events.MapInstanceFeatureAddedEvent}
+     */
     void addMapInstanceFeatureAddedEventListener(MapInstanceFeatureAddedEventListener listener);
+
+    /**
+     * This method is called by the core to register a feature removed event listener. The core will call this once
+     * and only once upon starting the map instance. The listener registration MUST be destroyed when the onDestroy call is made.
+     * The Map instance MUST generate a FeatureRemovedEvent each time a feature is removed from the map using removeFeature method.
+     * @param listener The object that implements the appropriate listener see {@link mil.emp3.mapengine.events.MapInstanceFeatureRemovedEvent}
+     */
     void addMapInstanceFeatureRemovedEventListener(MapInstanceFeatureRemovedEventListener listener);
 
     /**
      * This method sets the maps viewing area to the coordinates contained in the bounding box provided.
-     * If this was designed for zoomIt support then it should be removed as all calculations are done in the core. Methods
-     * getFieldOfView(), getViewHeight() and getViewWidth() were added to this interface for zoomIt support.
      * @param bounds
      */
     void setBounds(IGeoBounds bounds);
 
     /**
-     * This method set the map's motion lock.
+     * This method sets the map's motion lock.
      * @param mode see {@link MapMotionLockEnum}
      */
     void setMotionLockMode(MapMotionLockEnum mode);
@@ -194,13 +241,13 @@ public interface IMapInstance {
     double getFieldOfView();
 
     /**
-     * Returns height of the view. Currently used by the core for zoomIt calculations to adjust camera altitude.
+     * Returns height of the view.
      * @return
      */
     int getViewHeight();
 
     /**
-     * Returns height of the view. Currently used by the core for zoomIt calculations to adjust camera altitude.
+     * Returns height of the view.
      * @return
      */
     int getViewWidth();
@@ -266,16 +313,56 @@ public interface IMapInstance {
     IGeoPosition containerToGeo(Point point);
 
     /**
-     * This method instructs the map instance to render the features in the list with the selected style
+     * Instructs the map instance to render the features in the list with the selected style
      * obtained from the core.
      * @param featureList
      */
-    void selectFeatures(java.util.List<IFeature> featureList);
+    void selectFeatures(List<IFeature> featureList);
 
     /**
-     * This method instructs the map instance to render the features in the list with their normal style.
+     * Instructs the map instance to render the features in the list with their normal style.
      * obtained from the core.
      * @param featureList
      */
-    void deselectFeatures(java.util.List<IFeature> featureList);
+    void deselectFeatures(List<IFeature> featureList);
+
+    /**
+     * Sets the font size modifier for the map.
+     * @param value {@link FontSizeModifierEnum}
+     */
+    void setFontSizeModifier(FontSizeModifierEnum value);
+
+    /**
+     * Returns the font size modifier
+     * @return
+     */
+    FontSizeModifierEnum getFontSizeModifier();
+
+    /**
+     * This method creates a mini map associated with the map instance. The android View containing the map is
+     * returned to the client. It is the responsibility of the client to add the view to a parent.
+     * All touch events must be forwarded to the parent of the View. If the mini map has already been
+     * created the same view must be returned.
+     * @return android.view.View
+     */
+    android.view.View showMiniMap();
+
+    /**
+     * This method destroys the mini map. The call must remove the view from its parent if it still
+     * has a parent. If the mini map has already been destroyed no action should be taken. All resources
+     * associated with the mini map must be freed.
+     */
+    void hideMiniMap();
+    
+    /**
+     * This method set the brightness of the background maps on the map.
+     * @param setting Range 0 - 100. 0 Black, 100 white. Values less than 0 are set to 0, and values greater then 100 are set to 100.
+     */
+    void setBackgroundBrightness(int setting);
+
+    /**
+     * This method retrieves the current background brightness setting of the map.
+     * @return Return the current value 0 - 100.
+     */
+    int getBackgroundBrightness();
 }

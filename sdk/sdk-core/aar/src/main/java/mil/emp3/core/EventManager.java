@@ -7,7 +7,11 @@ import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 import mil.emp3.api.enums.CameraEventEnum;
 import mil.emp3.api.enums.ContainerEventEnum;
@@ -55,9 +59,9 @@ public class EventManager implements IEventManager {
 
     private IStorageManager storageManager;
 
-    private class ListenerHandleList extends java.util.ArrayList<EventListenerHandle> {}
-    private class ListenerRegistrationHashMap extends java.util.HashMap<java.util.UUID, ListenerHandleList> {}
-    private class EventRegistrationHashMap extends java.util.HashMap<EventListenerTypeEnum, ListenerRegistrationHashMap> {}
+    private class ListenerHandleList extends ArrayList<EventListenerHandle> {}
+    private class ListenerRegistrationHashMap extends HashMap<UUID, ListenerHandleList> {}
+    private class EventRegistrationHashMap extends HashMap<EventListenerTypeEnum, ListenerRegistrationHashMap> {}
 
     // When new members are added review the 'clear' method for update.
     // This hash contains the event listener that were registers on an IMap.
@@ -146,10 +150,10 @@ public class EventManager implements IEventManager {
         return oHandle;
     }
 
-    private void getEventHandlersFromHash(java.util.UUID sContainerId,
+    private void getEventHandlersFromHash(UUID sContainerId,
                                           ListenerRegistrationHashMap oEventTypeHandlers,
-                                          java.util.List<EventListenerHandle> oList) {
-        java.util.ArrayList<EventListenerHandle> oHandleList;
+                                          List<EventListenerHandle> oList) {
+        ArrayList<EventListenerHandle> oHandleList;
 
         if (oEventTypeHandlers.containsKey(sContainerId)) {
             oHandleList = oEventTypeHandlers.get(sContainerId);
@@ -163,7 +167,7 @@ public class EventManager implements IEventManager {
 
     private void getContainerEventHandlers(EventListenerTypeEnum eEventType,
                                          IGeoBase oEventedObject,
-                                         java.util.List<EventListenerHandle> oList) {
+                                         List<EventListenerHandle> oList) {
         IContainerSet oParentList;
 
         if (this.oRegisteredOnContainer.containsKey(eEventType)) {
@@ -182,7 +186,7 @@ public class EventManager implements IEventManager {
 
     private void getFeatureEventHandlers(EventListenerTypeEnum eEventType,
             IGeoBase oEventedObject,
-            java.util.List<EventListenerHandle> oList) {
+            List<EventListenerHandle> oList) {
         IContainerSet oParentList;
 
         if (this.oRegisteredOnFeature.containsKey(eEventType)) {
@@ -201,7 +205,7 @@ public class EventManager implements IEventManager {
 
     private void getOverlayEventHandlers(EventListenerTypeEnum eEventType,
             IGeoBase oEventedObject,
-            java.util.List<EventListenerHandle> oList) {
+            List<EventListenerHandle> oList) {
         IContainerSet oParentList;
 
         if (this.oRegisteredOnOverlay.containsKey(eEventType)) {
@@ -218,7 +222,7 @@ public class EventManager implements IEventManager {
 
     private void getMapEventHandlers(EventListenerTypeEnum eEventType,
             IGeoBase oEventedObject,
-            java.util.List<EventListenerHandle> oList) {
+            List<EventListenerHandle> oList) {
         IContainerSet oParentList;
 
         if (this.oRegisteredOnMap.containsKey(eEventType)) {
@@ -235,7 +239,7 @@ public class EventManager implements IEventManager {
 
     private void getEventHandlers(EventListenerTypeEnum eEventType,
             IGeoBase oEventedObject,
-            java.util.List<EventListenerHandle> oList) {
+            List<EventListenerHandle> oList) {
         
         if (oEventedObject instanceof IMap) {
             this.getMapEventHandlers(eEventType, oEventedObject, oList);
@@ -272,7 +276,7 @@ public class EventManager implements IEventManager {
         this.callEventHandlers(oList, oEvent);
     }
 
-    private void processEvent(EventListenerTypeEnum eEventType, java.util.List<IFeature> featureList, Event oEvent) {
+    private void processEvent(EventListenerTypeEnum eEventType, List<IFeature> featureList, Event oEvent) {
         ListenerHandleList oList = new ListenerHandleList();
 
         for (IFeature feature: featureList) {
@@ -293,7 +297,7 @@ public class EventManager implements IEventManager {
     @Override
     public void generateContainerEvent(ContainerEventEnum eEvent,
                                        IContainer oEventedObject,
-                                       java.util.List<? extends IGeoBase> oList) {
+                                       List<? extends IGeoBase> oList) {
         ContainerEvent oEvent = new ContainerEvent(eEvent, oEventedObject, oList);
 
         this.processEvent(EventListenerTypeEnum.CONTAINER_EVENT_LISTENER, oEventedObject, oEvent);
@@ -310,7 +314,7 @@ public class EventManager implements IEventManager {
     public void  generateFeatureInteractionEvent(UserInteractionEventEnum eEvent,
                                                  EnumSet<UserInteractionKeyEnum> keys,
                                                  UserInteractionMouseButtonEnum button,
-                                                 java.util.List<IFeature> oTargetList,
+                                                 List<IFeature> oTargetList,
                                                  IMap oMap,
                                                  Point oPoint,
                                                  IGeoPosition oPosition,
@@ -360,6 +364,22 @@ public class EventManager implements IEventManager {
     }
 
     @Override
+    public void generateMapCameraEvent(CameraEventEnum eventEnum, IMap map, ICamera camera, boolean animate) {
+        mil.emp3.core.events.CameraEvent cameraEvent;
+        ListenerRegistrationHashMap registrationList;
+        ListenerHandleList handlerList;
+
+        if (this.oRegisteredOnMap.containsKey(EventListenerTypeEnum.CAMERA_EVENT_LISTENER)) {
+            registrationList = this.oRegisteredOnMap.get(EventListenerTypeEnum.CAMERA_EVENT_LISTENER);
+            if (registrationList.containsKey(map.getGeoId())) {
+                cameraEvent = new mil.emp3.core.events.CameraEvent(eventEnum, camera, animate);
+                handlerList = registrationList.get(map.getGeoId());
+                this.callEventHandlers(handlerList, cameraEvent);
+            }
+        }
+    }
+
+    @Override
     public void generateVisibilityEvent(VisibilityActionEnum eEvent, IContainer oTarget, IContainer oParent, IMap oOnMap) {
         VisibilityEvent oEvent = new VisibilityEvent(eEvent, oTarget, oParent, oOnMap);
 
@@ -398,7 +418,7 @@ public class EventManager implements IEventManager {
         }
     }
 
-    private void removeListener(EventListenerHandle oHandle, java.util.ArrayList<EventListenerHandle> oHandleList) {
+    private void removeListener(EventListenerHandle oHandle, ArrayList<EventListenerHandle> oHandleList) {
         if (oHandleList.contains(oHandle)) {
             oHandleList.remove(oHandle);
         }
@@ -431,6 +451,10 @@ public class EventManager implements IEventManager {
             } else if (oRegistrationObject instanceof IContainer) {
                 if (this.oRegisteredOnContainer.containsKey(eListenerType)) {
                     oListenerList = this.oRegisteredOnContainer.get(eListenerType);
+                }
+            } else if (oRegistrationObject instanceof ILookAt) {
+                if (this.oRegisteredOnLookAt.containsKey(eListenerType)) {
+                    oListenerList = this.oRegisteredOnLookAt.get(eListenerType);
                 }
             }
 

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/GeoPackageParametersLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/NameText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Name(required)"/>
+
+            <EditText
+                android:id="@+id/GeoPackageFileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="GeoPackage Layer"
+                android:text="@string/GpkgDefault" />
+
+            <EditText
+                android:id="@+id/CameraLatitude"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Camera Latitude"
+                android:inputType="numberDecimal"
+                android:text="@string/CameraLatitude" />
+
+            <EditText
+                android:id="@+id/CameraLongitude"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Camera Longitude"
+                android:inputType="numberDecimal"
+                android:text="@string/CameraLongitude" />
+
+            <EditText
+                android:id="@+id/CameraAltitude"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Camera Altitude"
+                android:inputType="numberDecimal"
+                android:text="@string/CameraAltitude" />
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent" android:layout_height="match_parent"
+                android:layout_gravity="center" android:orientation="horizontal"  >
+
+                <Button
+                    android:id="@+id/apply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Apply" />
+
+
+                <Button
+                    android:id="@+id/done"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Done" />
+            </LinearLayout>
+        </LinearLayout>
+
+</LinearLayout>

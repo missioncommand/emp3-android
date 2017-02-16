@@ -1,12 +1,17 @@
 apply plugin: 'java'
 apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.maven-nebula-publish'
 apply plugin: 'nebula.provided-base'
+apply plugin: 'nebula.compile-api'
+
+sourceCompatibility = rootProject.sourceCompatibility
+targetCompatibility = rootProject.targetCompatibility
 
 dependencies {
-    provided project (":sdk:emp3-android-sdk")
-    
-    compile          (group: 'mil.army.sec.smartClient', name: 'worldwind-android-sdk', ext: 'aar') { transitive = true }
-    compile          ("com.android.support:support-annotations")
+    provided project   (":sdk:emp3-android-sdk")
+
+    compileApi project (":3rdpartylibrary:worldwind-release")
+    compileApi         ("com.android.support:support-annotations")
 }
 
 publishing.publications {
@@ -19,42 +24,26 @@ publishing.publications {
             "$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar",
             "$buildDir/../apk/build/outputs/apk/mapengine-worldwind-apk-debug.apk"
         ]
-
-        pom.withXml {
-            configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
-                asNode().dependencies[0].dependency.each {
-
-                    if (it.artifactId[0].text() == dep.moduleName &&
-                        it.groupId[0].text() == dep.moduleGroup &&
-                        it.scope[0].text() != "provided") {
-
-                        it.scope[0].value = "compile"
-                    }
-                }
-            }
-        }
     }
 }
 publishing.repositories {
     maven {
-        //url "$rootProject.buildDir/_repo1"
         url = nexusPublishUrl
 
         credentials {
-            username project.di2eNexusUsername
-            password project.di2eNexusPassword
+            username empUsername
+            password empPassword
         }
     }
 }
 if (project.hasProperty('di2eNexusReleaseUrl')) {
     publishing.repositories {
         maven {
-            //url "$rootProject.buildDir/_repo2"
             url = project.property('di2eNexusReleaseUrl')
 
             credentials {
-                username project.di2eNexusUsername
-                password project.di2eNexusPassword
+                username empUsername
+                password empPassword
             }
         }
     }

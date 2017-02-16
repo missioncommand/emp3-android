@@ -5,16 +5,9 @@
  */
 package mil.emp3.core.storage;
 
-import org.cmapi.primitives.GeoLabelStyle;
-import org.cmapi.primitives.IGeoColor;
-import org.cmapi.primitives.IGeoStrokeStyle;
+import java.util.ArrayList;
+import java.util.List;
 
-import mil.emp3.api.Circle;
-import mil.emp3.api.MilStdSymbol;
-import mil.emp3.api.Path;
-import mil.emp3.api.Point;
-import mil.emp3.api.Polygon;
-import mil.emp3.api.Text;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
@@ -38,6 +31,10 @@ public class ClientMapToMapInstance extends MapInstanceEventHandler implements I
         this.clientMap = clientMap;
         this.mapInstance = mapInstance;
         this.oMapCapabilities = this.mapInstance.getCapabilities();
+
+        // On initialization MapInstance and core should refer to the same LookAt object else apply logic will not work
+        //  before a set. Corresponding change in Emp3NavigationListener was also made to create an instance of LookAt on construction
+        this.initializeLookAt(mapInstance.getLookAt());
     }
 
     /**
@@ -90,8 +87,8 @@ public class ClientMapToMapInstance extends MapInstanceEventHandler implements I
     }
 
     @Override
-    public java.util.List<IFeature> getSelected() {
-        java.util.List<IFeature> list = new java.util.ArrayList<>();
+    public List<IFeature> getSelected() {
+        List<IFeature> list = new ArrayList<>();
 
         for (IFeature feature: this.selectedFeatures.values()) {
             list.add(feature);

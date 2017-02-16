@@ -9,7 +9,6 @@ import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -27,10 +26,16 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
     static final private int FLAG_NULL     = 0;
     static final private int FLAG_NOT_NULL = 1;
 
-    private Long mirrorKey; // this is never used by app dev
+    // describes the selected state of this feature
+    private boolean isSelected;
+
+    private String mirrorKey;
 
     public MirrorableMilStdSymbol() throws EMP_Exception {
         this(new GeoMilSymbol());
+        setStrokeStyle(null);
+        setFillStyle(null);
+        setLabelStyle(null);
     }
     public MirrorableMilStdSymbol(IGeoMilSymbol s) throws EMP_Exception {
         super(s);
@@ -76,7 +81,8 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
 
             positions.add(position);
         }
-        setPositions(positions);
+        getPositions().clear();
+        getPositions().addAll(positions);
 
         // modifiers
         for (int i = 0, modifierCount = in.getInt(); i < modifierCount; i++) {
@@ -124,12 +130,11 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
                 getStrokeStyle().setStrokeColor(new EmpGeoColor(in.getDouble(), in.getInt(), in.getInt(), in.getInt()));
             }
 
-            // strokePattern
-            if (FLAG_NOT_NULL == in.getInt()) {
-                bytes = new byte[in.getInt()];
-                in.get(bytes);
-                getStrokeStyle().setStrokePattern(IGeoStrokeStyle.StrokePattern.valueOf(new String(bytes)));
-            }
+            // stipplingPattern
+            getStrokeStyle().setStipplingPattern(in.getShort());
+
+            // StipplingFactor
+            getStrokeStyle().setStipplingFactor(in.getInt());
 
             // strokeWidth
             getStrokeStyle().setStrokeWidth(in.getDouble());
@@ -144,6 +149,11 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
                 getLabelStyle().setColor(new EmpGeoColor(in.getDouble(), in.getInt(), in.getInt(), in.getInt()));
             }
 
+            // outline color
+            if (FLAG_NOT_NULL == in.getInt()) {
+                getLabelStyle().setOutlineColor(new EmpGeoColor(in.getDouble(), in.getInt(), in.getInt(), in.getInt()));
+            }
+
             // justification
             if (FLAG_NOT_NULL == in.getInt()) {
                 bytes = new byte[in.getInt()];
@@ -151,9 +161,26 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
                 getLabelStyle().setJustification(IGeoLabelStyle.Justification.valueOf(new String(bytes)));
             }
 
-            // scale
-            getLabelStyle().setScale(in.getDouble());
+            // Typeface
+            if (FLAG_NOT_NULL == in.getInt()) {
+                bytes = new byte[in.getInt()];
+                in.get(bytes);
+                getLabelStyle().setTypeface(IGeoLabelStyle.Typeface.valueOf(new String(bytes)));
+            }
+
+            // FontFamily
+            if (FLAG_NOT_NULL == in.getInt()) {
+                bytes = new byte[in.getInt()];
+                in.get(bytes);
+                getLabelStyle().setFontFamily(new String(bytes));
+            }
+
+            // size
+            getLabelStyle().setSize(in.getDouble());
         }
+
+        // isSelected
+        setIsSelected(in.getShort() == 1);
     }
 
     @Override
@@ -259,15 +286,11 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
                 out.putInt(FLAG_NULL);
             }
 
-            // strokePattern
-            if (getStrokeStyle().getStrokePattern() != null) {
-                out.putInt(FLAG_NOT_NULL);
-                out.putInt(getStrokeStyle().getStrokePattern().toString().length());
-                out.put(getStrokeStyle().getStrokePattern().toString().getBytes());
+            // StipplingPattern
+            out.putShort(getStrokeStyle().getStipplingPattern());
 
-            } else {
-                out.putInt(FLAG_NULL);
-            }
+            // StipplingFactor
+            out.putInt(getStrokeStyle().getStipplingFactor());
 
             // strokeWidth
             out.putDouble(getStrokeStyle().getStrokeWidth());
@@ -292,6 +315,18 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
                 out.putInt(FLAG_NULL);
             }
 
+            // outline color
+            if (getLabelStyle().getOutlineColor() != null) {
+                out.putInt(FLAG_NOT_NULL);
+                out.putDouble(getLabelStyle().getOutlineColor().getAlpha());
+                out.putInt(getLabelStyle().getOutlineColor().getRed());
+                out.putInt(getLabelStyle().getOutlineColor().getGreen());
+                out.putInt(getLabelStyle().getOutlineColor().getBlue());
+
+            } else {
+                out.putInt(FLAG_NULL);
+            }
+
             // justification
             if (getLabelStyle().getJustification() != null) {
                 out.putInt(FLAG_NOT_NULL);
@@ -302,12 +337,35 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
                 out.putInt(FLAG_NULL);
             }
 
-            // scale
-            out.putDouble(getLabelStyle().getScale());
+            // Typeface
+            if (getLabelStyle().getTypeface() != null) {
+                out.putInt(FLAG_NOT_NULL);
+                out.putInt(getLabelStyle().getTypeface().toString().length());
+                out.put(getLabelStyle().getTypeface().toString().getBytes());
+
+            } else {
+                out.putInt(FLAG_NULL);
+            }
+
+            // FontFamily
+            if (getLabelStyle().getFontFamily() != null) {
+                out.putInt(FLAG_NOT_NULL);
+                out.putInt(getLabelStyle().getFontFamily().length());
+                out.put(getLabelStyle().getFontFamily().getBytes());
+
+            } else {
+                out.putInt(FLAG_NULL);
+            }
+
+            // size
+            out.putDouble(getLabelStyle().getSize());
 
         } else {
             out.putInt(FLAG_NULL);
         }
+
+        // isSelected
+        out.putShort((short) (isSelected() ? 1 : 0));
     }
 
     @Override
@@ -332,20 +390,32 @@ public class MirrorableMilStdSymbol extends MilStdSymbol implements IMirrorable 
                                                 Integer.SIZE + (getFillStyle().getFillPattern() != null ? Integer.SIZE + getFillStyle().getFillPattern().toString().length() : 0) +
                                                 Integer.SIZE + (getFillStyle().getDescription() != null ? Integer.SIZE + getFillStyle().getDescription().length() : 0)) : 0) +
             /* strokeStyle    */ Integer.SIZE + (getStrokeStyle() != null ? (Integer.SIZE + (getStrokeStyle().getStrokeColor() != null ? (Double.SIZE / 8) + (Integer.SIZE * 3) : 0) +
-                                                Integer.SIZE + (getStrokeStyle().getStrokePattern() != null ? Integer.SIZE + getStrokeStyle().getStrokePattern().toString().length() : 0) +
+                                                Short.SIZE +
+                                                Integer.SIZE +
                                                 (Double.SIZE / 8)) : 0) +
             /* labelStyle     */ Integer.SIZE + (getLabelStyle() != null ? (Integer.SIZE + (getLabelStyle().getColor() != null ? (Double.SIZE / 8) + (Integer.SIZE * 3) : 0) +
+                                                Integer.SIZE + (getLabelStyle().getOutlineColor() != null ? (Double.SIZE / 8) + (Integer.SIZE * 3) : 0) +                                                (getLabelStyle().getOutlineColor() != null ? (Double.SIZE / 8) + (Integer.SIZE * 3) : 0) +
                                                 Integer.SIZE + (getLabelStyle().getJustification() != null ? Integer.SIZE + getLabelStyle().getJustification().toString().length() : 0) +
-                                                (Double.SIZE / 8)) : 0);
+                                                Integer.SIZE + (getLabelStyle().getTypeface() != null ? Integer.SIZE + getLabelStyle().getTypeface().toString().length() : 0) +
+                                                Integer.SIZE + (getLabelStyle().getFontFamily() != null ? getLabelStyle().getFontFamily().length(): 0) +
+                                                (Double.SIZE / 8)) : 0) +
+            /* isSelected     */ Short.SIZE;
     }
 
     @Override
-    public Long getMirrorKey() {
+    public String getMirrorKey() {
         return mirrorKey;
     }
 
     @Override
-    public void setMirrorKey(Long mirrorKey) {
+    public void setMirrorKey(String mirrorKey) {
         this.mirrorKey = mirrorKey;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 }

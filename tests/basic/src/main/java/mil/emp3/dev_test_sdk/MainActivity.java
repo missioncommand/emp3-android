@@ -1,20 +1,26 @@
 package mil.emp3.dev_test_sdk;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
@@ -32,6 +38,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoIconStyle;
@@ -39,6 +46,7 @@ import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoIconStyle;
@@ -48,20 +56,39 @@ import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import armyc2.c2sd.renderer.utilities.SymbolDef;
+import armyc2.c2sd.renderer.utilities.SymbolDefTable;
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
 import armyc2.c2sd.renderer.utilities.UnitDef;
 import armyc2.c2sd.renderer.utilities.UnitDefTable;
+import mil.emp3.api.Camera;
+import mil.emp3.api.Circle;
+import mil.emp3.api.Ellipse;
 import mil.emp3.api.Emp3LifeCycleManager;
+import mil.emp3.api.GeoPackage;
+import mil.emp3.api.ImageLayer;
+import mil.emp3.api.KML;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.Path;
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
+import mil.emp3.api.Rectangle;
+import mil.emp3.api.Square;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
@@ -73,12 +100,15 @@ import mil.emp3.api.events.MapStateChangeEvent;
 import mil.emp3.api.events.MapUserInteractionEvent;
 import mil.emp3.api.events.MapViewChangeEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ICameraEventListener;
 import mil.emp3.api.listeners.IDrawEventListener;
@@ -88,12 +118,20 @@ import mil.emp3.api.listeners.IFreehandEventListener;
 import mil.emp3.api.listeners.IMapInteractionEventListener;
 import mil.emp3.api.listeners.IMapStateChangeEventListener;
 import mil.emp3.api.listeners.IMapViewChangeEventListener;
+import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpPropertyList;
+import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
+import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
+import mil.emp3.json.geoJson.GeoJsonParser;
+import mil.emp3.worldwind.utils.SystemUtils;
+
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 
 public class MainActivity extends AppCompatActivity
@@ -105,6 +143,7 @@ public class MainActivity extends AppCompatActivity
     private ICamera oCamera;
     private ILookAt oLookAt;
     private mil.emp3.api.WMS wmsService;
+    private mil.emp3.api.GeoPackage geoPackage;
     protected java.util.HashMap<java.util.UUID, IFeature> oFeatureHash = new java.util.HashMap<>();
     private IFeature oCurrentSelectedFeature;
     private final org.cmapi.primitives.IGeoStrokeStyle oSelectedStrokeStyle = new org.cmapi.primitives.GeoStrokeStyle();
@@ -129,6 +168,8 @@ public class MainActivity extends AppCompatActivity
     private EventListenerHandle featureInteraction = null;
     private EventListenerHandle viewChange = null;
     private EventListenerHandle cameraHandler = null;
+    private Handler handler;
+    private MiniMapDialog miniMapDialog = null;
 
     private boolean swapMapFlag;
 
@@ -552,7 +593,8 @@ public class MainActivity extends AppCompatActivity
                                 //oSPSymbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.HQ_BRIGADE);
 
                                 // Set the position list with 1 position.
-                                oSPSymbol.setPositions(oPosList);
+                                oSPSymbol.getPositions().clear();
+                                oSPSymbol.getPositions().addAll(oPosList);
 
                                 //Set a single modifier.
                                 oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSymDef.getDescription());
@@ -633,7 +675,8 @@ public class MainActivity extends AppCompatActivity
                     //oSPSymbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.HQ_BRIGADE);
 
                     // Set the position list with 1 position.
-                    oSPSymbol.setPositions(oPosList);
+                    oSPSymbol.getPositions().clear();
+                    oSPSymbol.getPositions().addAll(oPosList);
 
                     //Set a single modifier.
                     oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSymDef.getDescription());
@@ -763,7 +806,7 @@ public class MainActivity extends AppCompatActivity
         oCamera = new mil.emp3.api.Camera();
         oCamera.setName("Main Cam");
         oCamera.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.RELATIVE_TO_GROUND);
-        oCamera.setAltitude(9000.0);
+        oCamera.setAltitude(100000.0);
         oCamera.setHeading(0.0);
         oCamera.setLatitude(40.0);
         oCamera.setLongitude(-105.0);
@@ -797,6 +840,17 @@ public class MainActivity extends AppCompatActivity
                             MainActivity.this.createCrossHair();
                             //Log.i(TAG, "Map State: " + MainActivity.this.map.getState().name());
 
+                            map.addCameraEventListener(new ICameraEventListener() {
+                                @Override
+                                public void onEvent(final CameraEvent event) {
+                                    MainActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() { // to indicate that an imap camera event was triggered
+                                            //Toast.makeText(MainActivity.this, "IMap.cameraEventListener.onEvent() triggered: " + event.getEvent(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            });
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "ERROR: " + e.getMessage(), e);
@@ -809,12 +863,13 @@ public class MainActivity extends AppCompatActivity
         //Log.d(TAG, "Registered for Map Ready.");
 
         TextView oCameraSetting = (TextView) this.findViewById(R.id.camerasettings);
-        String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(), oCamera.getHeading(), oCamera.getTilt(), oCamera.getRoll());
+        String sTemp = String.format(Locale.US, "Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(), oCamera.getHeading(), oCamera.getTilt(), oCamera.getRoll());
         oCameraSetting.setText(sTemp);
 
         java.util.List<String> oLayers = new java.util.ArrayList<>();
 
         oLayers.add("imagery_part2-2.0.0.1-wsmr.gpkg");
+/*
         try {
             this.wmsService = new mil.emp3.api.WMS(
                     "http://172.16.20.99:5000/WmsServerStrict",
@@ -823,14 +878,15 @@ public class MainActivity extends AppCompatActivity
                     true,
                     oLayers
             );
-            this.wmsService.setLayerResolution(1.0);
-            oCamera.setLatitude(32.897);
-            oCamera.setLongitude(-105.939);
-            oCamera.setAltitude(500.0);
-            oCamera.apply(false);
+            //this.wmsService.setLayerResolution(1.0);
+            //oCamera.setLatitude(32.897);
+            //oCamera.setLongitude(-105.939);
+            //oCamera.setAltitude(500.0);
+            //oCamera.apply(false);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+*/
 
         this.oEditorCompleteBtn = (FloatingActionButton) this.findViewById(R.id.editorCompleteBtn);
         this.oEditorCancelBtn = (FloatingActionButton) this.findViewById(R.id.editorCancelBtn);
@@ -899,7 +955,7 @@ public class MainActivity extends AppCompatActivity
         canvas.drawLine(lineLength / 2, 0, lineLength / 2, lineLength, paint);
         canvas.drawLine(0, lineLength / 2, lineLength, lineLength / 2, paint);
 
-        Handler handler = new Handler(Looper.getMainLooper());
+        handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -915,8 +971,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setEventListeners() {
-        map.setFarDistanceThreshold(2000000.0);
-        map.setMidDistanceThreshold(1900000.0);
+        map.setFarDistanceThreshold(20000.0);
+        map.setMidDistanceThreshold(10000.0);
         try {
             userInteraction = map.addMapInteractionEventListener(new MapInteractionEventListener());
         } catch (EMP_Exception e) {
@@ -939,6 +995,7 @@ public class MainActivity extends AppCompatActivity
                     if (mapViewChangeEvent.getLookAt().getGeoId().compareTo(MainActivity.this.oLookAt.getGeoId()) == 0) {
                         //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
                     }
+/*
                     MainActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -952,6 +1009,7 @@ public class MainActivity extends AppCompatActivity
                             MainActivity.this.CoordToast.show();
                         }
                     });
+*/
                 }
             });
         } catch (EMP_Exception e) {
@@ -959,7 +1017,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         try {
-            cameraHandler = oCamera.addCameraEventListener(new ICameraEventListener(){
+            cameraHandler = oCamera.addCameraEventListener(new ICameraEventListener() {
                 @Override
                 public void onEvent(CameraEvent cameraEvent) {
                     //Log.d(TAG, "cameraEvent on " + cameraEvent.getCamera().getName());
@@ -1079,7 +1137,13 @@ public class MainActivity extends AppCompatActivity
                 MainActivity.this.oStartBtn.setEnabled(false);
                 MainActivity.this.oStopBtn.setEnabled(true);
                 MainActivity.this.oCloseBtn.setEnabled(false);
-                int iCount = Integer.parseInt(MainActivity.this.oCountTb.getText().toString());
+                int iCount = 5000;
+
+                try {
+                    iCount = Integer.parseInt(MainActivity.this.oCountTb.getText().toString());
+                } catch (NumberFormatException ex) {
+                    iCount = 5000;
+                }
                 boolean bBatch = MainActivity.this.oBatchUpdateCkb.isChecked();
                 boolean bAff = MainActivity.this.oAffiliationCkb.isChecked();
 
@@ -1220,7 +1284,7 @@ public class MainActivity extends AppCompatActivity
                     try {
                         double dTilt = camera.getTilt();
 
-                        if (dTilt <= 85.0) {
+                        if (dTilt < global.CAMERA_TILT_MAXIMUM) {
                             dTilt += 5;
                             camera.setTilt(dTilt);
                             camera.apply(false);
@@ -1228,7 +1292,7 @@ public class MainActivity extends AppCompatActivity
                             //Toast.makeText(CustomActivity.this, "Can't tilt any higher", Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
             });
@@ -1246,7 +1310,7 @@ public class MainActivity extends AppCompatActivity
                     try {
                         double dTilt = camera.getTilt();
 
-                        if (dTilt >= -85.0) {
+                        if (dTilt > global.CAMERA_TILT_MINIMUM) {
                             dTilt -= 5;
                             camera.setTilt(dTilt);
                             camera.apply(false);
@@ -1254,7 +1318,7 @@ public class MainActivity extends AppCompatActivity
                             //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        //e.printStackTrace();
                     }
                 }
             });
@@ -1307,6 +1371,45 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         }
+
+        final TextView brightnessCtrl = (TextView) findViewById(R.id.brightnessValue);
+        if (null != brightnessCtrl) {
+            brightnessCtrl.setText("" + MainActivity.this.map.getBackgroundBrightness());
+
+            ImageButton increaseBrightnessBtn = (ImageButton) findViewById(R.id.brightnessUp);
+            if (null != increaseBrightnessBtn) {
+                increaseBrightnessBtn.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        int value = Integer.parseInt(brightnessCtrl.getText().toString()) + 5;
+
+                        if (value > 100) {
+                            value = 100;
+                        }
+                        brightnessCtrl.setText("" + value);
+                        MainActivity.this.map.setBackgroundBrightness(value);
+                    }
+                });
+            }
+
+            ImageButton decreaseBrightnessBtn = (ImageButton) findViewById(R.id.brightnessDown);
+            if (null != decreaseBrightnessBtn) {
+                decreaseBrightnessBtn.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        int value = Integer.parseInt(brightnessCtrl.getText().toString()) - 5;
+
+                        if (value < 0) {
+                            value = 0;
+                        }
+                        brightnessCtrl.setText("" + value);
+                        MainActivity.this.map.setBackgroundBrightness(value);
+                    }
+                });
+            }
+        }
     }
 
     @Override
@@ -1336,6 +1439,199 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.action_minimap: {
+                if (null == this.miniMapDialog) {
+                    this.miniMapDialog = new MiniMapDialog();
+                    this.miniMapDialog.setMap(this.map);
+                    this.miniMapDialog.show(MainActivity.this.getFragmentManager(), null);
+                } else {
+                    this.miniMapDialog.dismiss();
+                    this.miniMapDialog = null;
+                }
+                return true;
+            }
+            case R.id.action_screenShot: {
+                this.map.getScreenCapture(new IScreenCaptureCallback() {
+                    @Override
+                    public void captureSuccess(ICapture capture) {
+                        String dataURL = capture.screenshotDataURL();
+                        FileOutputStream out = null;
+                        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                        if (permissionCheck !=  PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                        } else {
+                            try {
+                                File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                                File dest = new File(sd, "empscreenshot.png");
+                                if (dest.exists()) {
+                                    dest.delete();
+                                }
+                                out = new FileOutputStream(dest);
+                                if (!capture.screenshotBitmap().compress(Bitmap.CompressFormat.PNG, 100, out)) {
+                                    Log.e(TAG, "The Bitmap compress return false.");
+                                }
+                                // PNG is a loss less format, the compression factor (100) is ignored
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                try {
+                                    if (out != null) {
+                                        out.flush();
+                                        out.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void captureFailed(Exception Ex) {
+                        Log.e(TAG, "Screen Capture Failed.", Ex);
+                    }
+                });
+                return true;
+            }
+            case R.id.action_addImageLayer: {
+                try {
+                    IGeoBounds bBox = new GeoBounds();
+
+                    bBox.setNorth(37.91904192681665);
+                    bBox.setSouth(37.46543388598137);
+                    bBox.setEast(15.35832653742206);
+                    bBox.setWest(14.60128369746704);
+                    ImageLayer imageLayer = new ImageLayer("https://developers.google.com/kml/documentation/images/etna.jpg", bBox);
+
+                    this.map.addMapService(imageLayer);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "Image Layer failed.", Ex);
+                }
+                return true;
+            }
+            case R.id.action_addGeoPackage: {
+                try {
+                    //Using hard coded values here because it is extremely difficult to locate otherwise
+                    geoPackage = new GeoPackage("File:///sdcard/Download/AGC_DG_APG_R2C1_14_17_22NOV2016.gpkg");
+                    this.map.addMapService(geoPackage);
+                    ICamera camera = this.map.getCamera();
+                    // Place the camera directly over the GeoPackage image.
+                    camera.setLatitude(39.54795);
+                    camera.setLongitude(-76.16334);
+                    camera.setAltitude(2580);
+                    camera.apply(true);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "Image Layer failed.", Ex);
+                }
+                return true;
+            }
+            case R.id.action_plotKML: {
+                InputStream stream = null;
+                try {
+/*
+                    KML kmlOverlay = new KML();
+
+                    kmlOverlay.setKMLString("<kml>\n" +
+                            "                  <Document>\n" +
+                            "                    <Placemark id=\"f2\">\n" +
+                            "                      <name>\n" +
+                            "                        Feature Collection Test 1\n" +
+                            "                      </name>\n" +
+                            "                      <description>\n" +
+                            "                        <![CDATA[<br/><table border=\\\"1\\\" cellpadding=\\\"2\\\" cellspacing=\\\"0\\\" width=100%><tr ><td><b>lineColor</b></td><td>7f00ffff</td></tr><tr  bgcolor=\\\"#F0F0F0\\\"><td><b>lineThickness</b></td><td>5</td></tr></table>]]>\n" +
+                            "                      </description>\n" +
+                            "                      <Style id=\"geomcollection\">\n" +
+                            "                        <LineStyle>\n" +
+                            "                          <color>7fffff00</color>\n" +
+                            "                          <width>5</width>\n" +
+                            "                        </LineStyle>\n" +
+                            "                        <PolyStyle>\n" +
+                            "                          <color>88000000</color>\n" +
+                            "                        </PolyStyle>\n" +
+                            "                        <LabelStyle>\n" +
+                            "                          <color>FFFFFFFF</color>\n" +
+                            "                        </LabelStyle>\n" +
+                            "                        <IconStyle>\n" +
+                            "                          <color>00000000</color>\n" +
+                            "                        </IconStyle>\n" +
+                            "                      </Style>\n" +
+                            "                      <MultiGeometry>\n" +
+                            "                        <LineString>\n" +
+                            "                          <tessellate>1</tessellate>\n" +
+                            "                          <coordinates>-110,40 -111,41 -112,40 -113,41</coordinates>\n" +
+                            "                        </LineString>\n" +
+                            "                        <Point>\n" +
+                            "                          <coordinates>-110.0,42.0</coordinates>\n" +
+                            "                        </Point>\n" +
+                            "                      </MultiGeometry>\n" +
+                            "                    </Placemark>\n" +
+                            "                  </Document>\n" +
+                            "                </kml>");
+*/
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.kml_samples);
+
+                    KML kmlFeature = new KML(stream);
+                    this.oRootOverlay.addFeature(kmlFeature, true);
+                    this.oFeatureHash.put(kmlFeature.getGeoId(), kmlFeature);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "KML failed.", Ex);
+                } finally {
+                    if (null != stream) {
+                        try {
+                            stream.close();
+                        }catch (IOException ex) {
+                        }
+                    }
+                }
+                return true;
+            }
+            case R.id.action_addGeoJSON:
+//                String simpleGeoJsonString =
+//                "{\"type\": \"Feature\",\"geometry\": {\"type\": \"Point\",\"coordinates\": [125.6, 10.1]}," +
+//                "\"properties\": {\"name\": \"Dinagat Islands\"}}";
+                InputStream stream = null;
+                try {
+                    // Sample geoJSON from CMAPI 1.2 document, edited for correctness
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
+                    List<IFeature> featureList = GeoJsonParser.parse(stream);
+                    for (IFeature feature : featureList) {
+                        this.oRootOverlay.addFeature(feature, true);
+                        this.oFeatureHash.put(feature.getGeoId(), feature);
+                    }
+                    stream.close();
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
+                    featureList = GeoJsonParser.parse(stream);
+                    for (IFeature feature : featureList) {
+                        this.oRootOverlay.addFeature(feature, true);
+                        this.oFeatureHash.put(feature.getGeoId(), feature);
+                    }
+                    stream.close();
+                    stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
+                    featureList = GeoJsonParser.parse(stream);
+                    for (IFeature feature : featureList) {
+                        this.oRootOverlay.addFeature(feature, true);
+                        this.oFeatureHash.put(feature.getGeoId(), feature);
+                    }
+                    stream.close();
+                    ICamera camera = this.map.getCamera();
+                    camera.setLatitude(44.5);
+                    camera.setLongitude(1);
+                    camera.setAltitude(5e5);
+                    camera.apply(false);
+                } catch (IOException|EMP_Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (stream != null) {
+                            stream.close();
+                        }
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+                return true;
             case R.id.action_plot2units2525B:
                 removeAllFeatures();
                 plotManyMilStd(10000);
@@ -1361,12 +1657,80 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_addWMS:
                 try {
-                    map.addMapService(this.wmsService);
-                    MenuItem oItem = this.oMenu.findItem(R.id.action_removeWMS);
-                    oItem.setEnabled(true);
-                    oItem = this.oMenu.findItem(R.id.action_addWMS);
-                    oItem.setEnabled(false);
-                } catch (EMP_Exception ex) {
+                    final Dialog dialog = new Dialog(MainActivity.this);
+                    dialog.setContentView(R.layout.wms_parameters_dialog);
+                    dialog.setTitle("Title...");
+                    Button okButton = (Button) dialog.findViewById(R.id.OKButton);
+                    // if button is clicked, close the custom dialog
+                    okButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            EditText urlText = (EditText) dialog.findViewById(R.id.UrlText);
+                            EditText versionText = (EditText) dialog.findViewById(R.id.VersionText);
+                            EditText tileFormatText = (EditText) dialog.findViewById(R.id.TileFormatText);
+                            EditText transparentText = (EditText) dialog.findViewById(R.id.TransparentText);
+                            EditText layerText = (EditText) dialog.findViewById(R.id.LayerText);
+                            EditText resolutionText = (EditText) dialog.findViewById(R.id.ResolutionText);
+
+                            String url = urlText.getText().toString();
+                            String version = versionText.getText().toString();
+                            if (version == null)
+                                version = "";
+                            String tileFormat = tileFormatText.getText().toString();
+                            String transparent = transparentText.getText().toString();
+                            String layer = layerText.getText().toString();
+                            String resolution = resolutionText.getText().toString();
+                            Resources res = getBaseContext().getResources();
+                            dialog.dismiss();
+                            WMSVersionEnum wmsVersion = null;
+                            switch (version) {
+                                case "1.1.1" : wmsVersion = WMSVersionEnum.VERSION_1_1_1;
+                                    break;
+                                case "1.1" : wmsVersion = WMSVersionEnum.VERSION_1_1;
+                                    break;
+                                case "1.3.0" :wmsVersion = WMSVersionEnum.VERSION_1_3_0;
+                                    break;
+                                case "1.3" : wmsVersion = WMSVersionEnum.VERSION_1_3;
+                                    break;
+                                default:
+                                    wmsVersion = WMSVersionEnum.VERSION_1_3_0;;
+                            }
+                            ArrayList<String> layers = new ArrayList<>();
+                            layers.add(layer);
+                            try {
+                                wmsService = new mil.emp3.api.WMS(
+                                        url,
+                                        wmsVersion,
+                                        tileFormat,
+                                        transparent.equalsIgnoreCase("true"),
+                                        layers
+                                );
+                            } catch (MalformedURLException ex) {
+                                ex.printStackTrace();
+                            }
+                            MainActivity.this.wmsService.setLayerResolution(Double.valueOf(resolution));
+                            try {
+                                map.addMapService(MainActivity.this.wmsService);
+                            } catch (EMP_Exception e) {
+                                e.printStackTrace();
+                            }
+                            MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWMS);
+                            oItem.setEnabled(true);
+                            oItem = MainActivity.this.oMenu.findItem(R.id.action_addWMS);
+                            oItem.setEnabled(false);
+                        }
+                    });
+                    Button cancelButton = (Button) dialog.findViewById(R.id.CancelButton);
+                    // if button is clicked, don't add WMS service
+                    cancelButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.show();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
                 return true;
             case R.id.action_removeWMS:
@@ -1623,7 +1987,7 @@ public class MainActivity extends AppCompatActivity
 
                 strokeStyle.setStrokeColor(geoColor);
                 strokeStyle.setStrokeWidth(5);
-                strokeStyle.setStrokePattern(IGeoStrokeStyle.StrokePattern.dashed);
+                strokeStyle.setStipplingPattern((short) 0);
                 linePath.setStrokeStyle(strokeStyle);
                 //linePath.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
 
@@ -1645,18 +2009,96 @@ public class MainActivity extends AppCompatActivity
 
                 strokeStyle.setStrokeColor(geoColor);
                 strokeStyle.setStrokeWidth(5);
-                strokeStyle.setStrokePattern(IGeoStrokeStyle.StrokePattern.dotted);
+                strokeStyle.setStipplingPattern((short) 0);
                 polygon.setStrokeStyle(strokeStyle);
 
                 fillStyle.setFillColor(geoFillColor);
                 fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
-                polygon.setFillStyle(fillStyle);
+                polygon.setFillStyle(null); //fillStyle
 
                 //polygon.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 try {
                     this.map.drawFeature(polygon, new FeatureDrawListener(polygon));
                 } catch(EMP_Exception Ex) {
                     Log.e(TAG, "Draw ploygon failed.");
+                    //oItem.setEnabled(true);
+                }
+
+                return true;
+            }
+            case R.id.action_drawCircle: {
+                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                IGeoFillStyle fillStyle = new GeoFillStyle();
+                IGeoColor geoColor = new EmpGeoColor(1.0, 0, 255, 255);
+                IGeoColor geoFillColor = new EmpGeoColor(0.5, 0, 0, 255);
+                Circle circle = new Circle();
+
+                strokeStyle.setStrokeColor(geoColor);
+                strokeStyle.setStrokeWidth(5);
+                strokeStyle.setStipplingPattern((short) 0);
+                circle.setStrokeStyle(strokeStyle);
+
+                fillStyle.setFillColor(geoFillColor);
+                fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
+                //circle.setFillStyle(fillStyle);
+
+                circle.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                try {
+                    this.map.drawFeature(circle, new FeatureDrawListener(circle));
+                } catch(EMP_Exception Ex) {
+                    Log.e(TAG, "Draw circle failed.");
+                    //oItem.setEnabled(true);
+                }
+
+                return true;
+            }
+            case R.id.action_drawEllipse: {
+                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                IGeoFillStyle fillStyle = new GeoFillStyle();
+                IGeoColor geoColor = new EmpGeoColor(1.0, 0, 255, 255);
+                IGeoColor geoFillColor = new EmpGeoColor(0.5, 255, 0, 0);
+                Ellipse ellipse = new Ellipse();
+
+                strokeStyle.setStrokeColor(geoColor);
+                strokeStyle.setStrokeWidth(5);
+                strokeStyle.setStipplingPattern((short) 0);
+                ellipse.setStrokeStyle(strokeStyle);
+
+                fillStyle.setFillColor(geoFillColor);
+                fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
+                //ellipse.setFillStyle(fillStyle);
+
+                ellipse.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                try {
+                    this.map.drawFeature(ellipse, new FeatureDrawListener(ellipse));
+                } catch(EMP_Exception Ex) {
+                    Log.e(TAG, "Draw ellipse failed.");
+                    //oItem.setEnabled(true);
+                }
+
+                return true;
+            }
+            case R.id.action_drawRectangle: {
+                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                IGeoFillStyle fillStyle = new GeoFillStyle();
+                IGeoColor geoColor = new EmpGeoColor(1.0, 0, 255, 255);
+                IGeoColor geoFillColor = new EmpGeoColor(0.5, 255, 0, 0);
+                Rectangle feature = new Rectangle();
+
+                strokeStyle.setStrokeColor(geoColor);
+                strokeStyle.setStrokeWidth(5);
+                strokeStyle.setStipplingPattern((short) 0);
+                feature.setStrokeStyle(strokeStyle);
+
+                fillStyle.setFillColor(geoFillColor);
+                fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
+                feature.setFillStyle(null);
+
+                feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                try {
+                    this.map.drawFeature(feature, new FeatureDrawListener(feature));
+                } catch(EMP_Exception Ex) {
+                    Log.e(TAG, "Draw Rectangle failed.");
                     //oItem.setEnabled(true);
                 }
 
@@ -1822,25 +2264,27 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_iconStyleStrokePatternDefault: {
                 final MenuItem menuItem = oMenu.findItem(R.id.action_iconStyleStrokePatternDefault);
                 menuItem.setChecked(true);
-                iconStyleStroke.setStrokePattern(IGeoStrokeStyle.StrokePattern.solid);
+                iconStyleStroke.setStipplingPattern((short) 0);
                 break;
             }
             case R.id.action_iconStyleStrokePatternSolid: {
                 final MenuItem menuItem = oMenu.findItem(R.id.action_iconStyleStrokePatternSolid);
                 menuItem.setChecked(true);
-                iconStyleStroke.setStrokePattern(IGeoStrokeStyle.StrokePattern.solid);
+                iconStyleStroke.setStipplingPattern((short) 0);
                 break;
             }
             case R.id.action_iconStyleStrokePatternDashed: {
                 final MenuItem menuItem = oMenu.findItem(R.id.action_iconStyleStrokePatternDashed);
                 menuItem.setChecked(true);
-                iconStyleStroke.setStrokePattern(IGeoStrokeStyle.StrokePattern.dashed);
+                iconStyleStroke.setStipplingPattern((short) 0xCCCC);
+                iconStyleStroke.setStipplingFactor(8);
                 break;
             }
             case R.id.action_iconStyleStrokePatternDotted: {
                 final MenuItem menuItem = oMenu.findItem(R.id.action_iconStyleStrokePatternDotted);
                 menuItem.setChecked(true);
-                iconStyleStroke.setStrokePattern(IGeoStrokeStyle.StrokePattern.dotted);
+                iconStyleStroke.setStipplingPattern((short) 0xCCCC);
+                iconStyleStroke.setStipplingFactor(2);
                 break;
             }
 
@@ -1904,21 +2348,24 @@ public class MainActivity extends AppCompatActivity
                 pos2.setLongitude(this.oCamera.getLongitude());
                 pos2.setAltitude(0);
 
-                pos1.setLatitude(pos2.getLatitude() + 0.5);
+                pos1.setLatitude(pos2.getLatitude() + 0.01);
                 pos1.setLongitude(pos2.getLongitude());
                 pos1.setAltitude(0);
 
-                pos3.setLatitude(pos2.getLatitude() - 0.5);
+                pos3.setLatitude(pos2.getLatitude() - 0.01);
                 pos3.setLongitude(pos2.getLongitude());
                 pos3.setAltitude(0);
 
                 labelStyle = new GeoLabelStyle();
                 labelStyle.setColor(new EmpGeoColor(1.0, 0, 255, 255));
                 labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
+                labelStyle.setSize(14.0);
+                labelStyle.setOutlineColor(null);
                 textFeature = new mil.emp3.api.Text();
-                textFeature.setName("This Text is LEFT Justified.");
+                textFeature.setName("This Text is LEFT Justified 14pt.");
                 textFeature.setLabelStyle(labelStyle);
                 textFeature.setPosition(pos1);
+                textFeature.setRotationAngle(45.0);
                 //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 try {
                     this.oRootOverlay.addFeature(textFeature, true);
@@ -1930,10 +2377,13 @@ public class MainActivity extends AppCompatActivity
                 labelStyle = new GeoLabelStyle();
                 labelStyle.setColor(new EmpGeoColor(1.0, 0, 255, 255));
                 labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
+                labelStyle.setSize(12.0);
+                //labelStyle.setOutlineColor(null);
                 textFeature = new mil.emp3.api.Text();
-                textFeature.setName("This Text is CENTER Justified.");
+                textFeature.setName("This Text is CENTER Justified 12pt.");
                 textFeature.setLabelStyle(labelStyle);
                 textFeature.setPosition(pos2);
+                textFeature.setRotationAngle(45.0);
                 //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 try {
                     this.oRootOverlay.addFeature(textFeature, true);
@@ -1945,10 +2395,13 @@ public class MainActivity extends AppCompatActivity
                 labelStyle = new GeoLabelStyle();
                 labelStyle.setColor(new EmpGeoColor(1.0, 0, 255, 255));
                 labelStyle.setJustification(IGeoLabelStyle.Justification.RIGHT);
+                labelStyle.setSize(10.0);
+                labelStyle.setOutlineColor(null);
                 textFeature = new mil.emp3.api.Text();
-                textFeature.setName("This Text is RIGHT Justified.");
+                textFeature.setName("This Text is RIGHT Justified 10pt.");
                 textFeature.setLabelStyle(labelStyle);
                 textFeature.setPosition(pos3);
+                textFeature.setRotationAngle(45.0);
                 //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 try {
                     this.oRootOverlay.addFeature(textFeature, true);
@@ -1960,9 +2413,400 @@ public class MainActivity extends AppCompatActivity
 
                 return true;
             }
+            case R.id.action_plotTG2525C: {
+                this.plot2525CTG();
+                return true;
+            }
+            case R.id.action_textsizeSmallest: {
+                try {
+                    this.map.setFontSizeModifier(FontSizeModifierEnum.SMALLEST);
+                } catch (EMP_Exception e) {
+                    Log.e(TAG, "setFontSizeModifier failed.", e);
+                }
+                return true;
+            }
+            case R.id.action_textsizeSmaller: {
+                try {
+                    this.map.setFontSizeModifier(FontSizeModifierEnum.SMALLER);
+                } catch (EMP_Exception e) {
+                    Log.e(TAG, "setFontSizeModifier failed.", e);
+                }
+                return true;
+            }
+            case R.id.action_textsizeNormal: {
+                try {
+                    this.map.setFontSizeModifier(FontSizeModifierEnum.NORMAL);
+                } catch (EMP_Exception e) {
+                    Log.e(TAG, "setFontSizeModifier failed.", e);
+                }
+                return true;
+            }
+            case R.id.action_textsizeLarger: {
+                try {
+                    this.map.setFontSizeModifier(FontSizeModifierEnum.LARGER);
+                } catch (EMP_Exception e) {
+                    Log.e(TAG, "setFontSizeModifier failed.", e);
+                }
+                return true;
+            }
+            case R.id.action_textsizeLargest: {
+                try {
+                    this.map.setFontSizeModifier(FontSizeModifierEnum.LARGEST);
+                } catch (EMP_Exception e) {
+                    Log.e(TAG, "setFontSizeModifier failed.", e);
+                }
+                return true;
+            }
+            case R.id.action_plotRectangle: {
+                try {
+                    IGeoColor lineColor = new EmpGeoColor(1.0, 0, 0, 255);
+                    IGeoColor fillColor = new EmpGeoColor(0.6, 255, 0, 0);
+                    IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                    IGeoFillStyle fillStyle = new GeoFillStyle();
+                    List<IGeoPosition> oPosList = this.getCameraPosition();
+                    Rectangle oFeature = new Rectangle();
+
+                    strokeStyle.setStrokeColor(lineColor);
+                    strokeStyle.setStrokeWidth(3);
+                    fillStyle.setFillColor(fillColor);
+
+                    oFeature.setPosition(oPosList.get(0));
+                    oFeature.setHeight(100000);
+                    oFeature.setWidth(50000);
+                    oFeature.setAzimuth(0);
+                    oFeature.setStrokeStyle(strokeStyle);
+                    oFeature.setFillStyle(fillStyle);
+                    oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                    this.oRootOverlay.addFeature(oFeature, true);
+                    this.oFeatureHash.put(oFeature.getGeoId(), oFeature);
+
+                } catch (EMP_Exception ex) {
+                }
+                return true;
+            }
+            case R.id.action_plotSquare: {
+                try {
+                    IGeoColor lineColor = new EmpGeoColor(1.0, 0, 0, 255);
+                    IGeoColor fillColor = new EmpGeoColor(0.5, 255, 0, 0);
+                    IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                    IGeoFillStyle fillStyle = new GeoFillStyle();
+                    List<IGeoPosition> oPosList = this.getCameraPosition();
+                    Square oFeature = new Square();
+
+                    strokeStyle.setStrokeColor(lineColor);
+                    strokeStyle.setStrokeWidth(3);
+                    fillStyle.setFillColor(fillColor);
+
+                    oFeature.setPosition(oPosList.get(0));
+                    oFeature.setWidth(50000);
+                    oFeature.setAzimuth(0);
+                    oFeature.setStrokeStyle(strokeStyle);
+                    oFeature.setFillStyle(fillStyle);
+                    oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                    this.oRootOverlay.addFeature(oFeature, true);
+                    this.oFeatureHash.put(oFeature.getGeoId(), oFeature);
+                } catch (EMP_Exception ex) {
+                }
+                return true;
+            }
+            case R.id.action_plotCircle: {
+                try {
+                    IGeoColor lineColor = new EmpGeoColor(1.0, 0, 0, 255);
+                    IGeoColor fillColor = new EmpGeoColor(0.5, 255, 0, 0);
+                    IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                    IGeoFillStyle fillStyle = new GeoFillStyle();
+                    List<IGeoPosition> oPosList = this.getCameraPosition();
+                    Circle oFeature = new Circle();
+
+                    strokeStyle.setStrokeColor(lineColor);
+                    strokeStyle.setStrokeWidth(3);
+                    fillStyle.setFillColor(fillColor);
+
+                    oFeature.setPosition(oPosList.get(0));
+                    oFeature.setRadius(25000);
+                    oFeature.setStrokeStyle(strokeStyle);
+                    oFeature.setFillStyle(fillStyle);
+                    oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                    this.oRootOverlay.addFeature(oFeature, true);
+                    this.oFeatureHash.put(oFeature.getGeoId(), oFeature);
+                } catch (EMP_Exception ex) {
+                }
+                return true;
+            }
+            case R.id.action_plotEllipse: {
+                try {
+                    IGeoColor lineColor = new EmpGeoColor(1.0, 0, 0, 255);
+                    IGeoColor fillColor = new EmpGeoColor(0.5, 255, 0, 0);
+                    IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                    IGeoFillStyle fillStyle = new GeoFillStyle();
+                    List<IGeoPosition> oPosList = this.getCameraPosition();
+                    Ellipse oFeature = new Ellipse();
+
+                    strokeStyle.setStrokeColor(lineColor);
+                    strokeStyle.setStrokeWidth(3);
+                    fillStyle.setFillColor(fillColor);
+
+                    oFeature.setPosition(oPosList.get(0));
+                    oFeature.setSemiMajor(50000);
+                    oFeature.setSemiMinor(25000);
+                    oFeature.setAzimuth(0);
+                    oFeature.setStrokeStyle(strokeStyle);
+                    oFeature.setFillStyle(fillStyle);
+                    oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                    this.oRootOverlay.addFeature(oFeature, true);
+                    this.oFeatureHash.put(oFeature.getGeoId(), oFeature);
+                } catch (EMP_Exception ex) {
+                }
+                return true;
+            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void plot2525CTG() {
+        int tgCount = 0;
+        int countPerLine = 0;
+        ICamera camera = this.map.getCamera();
+        IGeoPosition position = new GeoPosition();
+        SymbolDefTable oDefTable = SymbolDefTable.getInstance();
+        java.util.Map<java.lang.String, armyc2.c2sd.renderer.utilities.SymbolDef> oDefList = oDefTable.GetAllSymbolDefs( armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525C);
+
+        position.setLatitude(camera.getLatitude());
+        position.setLongitude(camera.getLongitude());
+        position.setAltitude(0.0);
+
+
+        for (armyc2.c2sd.renderer.utilities.SymbolDef oSymbolDef: oDefList.values()) {
+            if (oSymbolDef.getHierarchy().charAt(0) == '0') {
+                continue;
+            }
+
+            if (oSymbolDef.getDrawCategory() == SymbolDef.DRAW_CATEGORY_DONOTDRAW) {
+                continue;
+            }
+
+            tgCount++;
+
+            countPerLine++;
+            this.plotTacticalGraphic("TG-" + tgCount, oSymbolDef, position);
+            if (countPerLine == 20) {
+                position.setLongitude(camera.getLongitude());
+                GeoLibrary.computePositionAt(180.0, 2500.0, position, position);
+                countPerLine = 0;
+            } else {
+                GeoLibrary.computePositionAt(90.0, 2500.0, position, position);
+            }
+        }
+    }
+
+    private void plotTacticalGraphic(String name, armyc2.c2sd.renderer.utilities.SymbolDef oSymbolDef, IGeoPosition position) {
+        try {
+            java.util.List<IGeoPosition> posList = new java.util.ArrayList<>();
+            IGeoPosition pos;
+            MilStdSymbol symbol = new MilStdSymbol(IGeoMilSymbol.SymbolStandard.MIL_STD_2525C, oSymbolDef.getBasicSymbolId());
+
+            symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSymbolDef.getDescription());
+            symbol.setName(name);
+
+            switch (oSymbolDef.getMinPoints()) {
+                case 1:
+                    pos = new GeoPosition();
+                    pos.setLatitude(position.getLatitude());
+                    pos.setLongitude(position.getLongitude());
+                    pos.setAltitude(0.0);
+                    posList.add(pos);
+
+                    if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                        symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 1000);
+                        symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, 315);
+                        symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 1, 45);
+                    } else if (CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                        symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 500);
+                        symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, 1000);
+                        symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 2, 1500);
+                    }
+
+                    break;
+                case 2:
+                    if (oSymbolDef.getDrawCategory() == SymbolDef.DRAW_CATEGORY_LINE) {
+                        pos = GeoLibrary.computePositionAt(270, 1000.0, position);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                        pos = GeoLibrary.computePositionAt(90, 1000.0, position);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                    } else {
+                        pos = new GeoPosition();
+                        pos.setLatitude(position.getLatitude());
+                        pos.setLongitude(position.getLongitude());
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                        pos = GeoLibrary.computePositionAt(90, 1000.0, position);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                    }
+
+                    break;
+                case 3:
+                default:
+                    pos = GeoLibrary.computePositionAt(240.0, 1000.0, position);
+                    pos.setAltitude(0.0);
+                    posList.add(pos);
+                    pos = GeoLibrary.computePositionAt(0.0, 1000.0, position);
+                    pos.setAltitude(0.0);
+                    posList.add(pos);
+                    pos = GeoLibrary.computePositionAt(120.0, 1000.0, position);
+                    pos.setAltitude(0.0);
+                    posList.add(pos);
+
+                    break;
+                case 4:
+                    if (CoreMilStdUtilities.MS_NBC_MINIMUM_SAFE_DISTANCE_ZONES.equals(symbol.getBasicSymbol())) {
+                        pos = new GeoPosition();
+                        pos.setLatitude(position.getLatitude());
+                        pos.setLongitude(position.getLongitude());
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+
+                        pos = new GeoPosition();
+                        GeoLibrary.computePositionAt(90.0, 500.0, posList.get(0), pos);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+
+                        pos = new GeoPosition();
+                        GeoLibrary.computePositionAt(90.0, 1000.0, posList.get(0), pos);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+
+                        pos = new GeoPosition();
+                        GeoLibrary.computePositionAt(90.0, 1500.0, posList.get(0), pos);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                    } else {
+                        pos = GeoLibrary.computePositionAt(225.0, 1000.0, position);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                        pos = GeoLibrary.computePositionAt(315.0, 1000.0, position);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                        pos = GeoLibrary.computePositionAt(45.0, 1000.0, position);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                        pos = GeoLibrary.computePositionAt(135.0, 1000.0, position);
+                        pos.setAltitude(0.0);
+                        posList.add(pos);
+                    }
+
+                    break;
+            }
+
+            if (!oSymbolDef.getModifiers().isEmpty()) {
+                // Needs modifiers.
+                String[] aModifiers = oSymbolDef.getModifiers().split("\\.");
+                for (int index = 0; index < aModifiers.length; index++) {
+                    switch (aModifiers[index]) {
+                        case "W":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.DATE_TIME_GROUP, "0800Z");
+                            break;
+                        case "W1":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.DATE_TIME_GROUP_2, "2300Z");
+                            break;
+                        case "T":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, symbol.getName());
+                            break;
+                        case "T1":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_2, "UD2");
+                            break;
+                        case "AM":
+                            if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol()) ||
+                                    CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                            } else {
+                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 1000);
+                            }
+                            break;
+                        case "AM#":
+                            if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol()) ||
+                                    CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                            } else {
+                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 500);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, 1000);
+                            }
+                            break;
+                        case "AN":
+                            if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol()) ||
+                                    CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                            } else {
+                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 0);
+                            }
+                            break;
+                        case "AN#":
+                            if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol()) ||
+                                    CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                            } else {
+                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 45);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, 315);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 2, 45);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 3, 315);
+                            }
+                            break;
+                        case "X":
+                            if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                                symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                            } else if (CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                                symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 1, 20000);
+                            } else {
+                                symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                            }
+                            break;
+                        case "X1":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 1, 20000);
+                            break;
+                        case "H":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_1, "Info 1");
+                            break;
+                        case "H1":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_2, "Info 2");
+                            break;
+                        case "H2":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_3, "Info 3");
+                            break;
+                        case "N":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.HOSTILE, "N-ENY");
+                            break;
+                        case "C":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.QUANTITY, "12");
+                            break;
+                        case "A":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.SYMBOL_ICON, "SI");
+                            break;
+                        case "B":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ECHELON, "Echelon");
+                            break;
+                        case "Y":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.LOCATION, "Location");
+                            break;
+                        case "V":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.EQUIPMENT_TYPE, "Eq Type");
+                            break;
+                        case "Q":
+                            symbol.setModifier(IGeoMilSymbol.Modifier.DIRECTION_OF_MOVEMENT, "45");
+                            break;
+                        default:
+                            Log.e(TAG, "Modifier not set " + aModifiers[index] + ". " + oSymbolDef.getDescription() + " getModifiers() " + oSymbolDef.getModifiers());
+                            break;
+                    }
+                }
+            }
+            symbol.getPositions().clear();
+            symbol.getPositions().addAll(posList);
+            this.oFeatureHash.put(symbol.getGeoId(), symbol);
+            this.oRootOverlay.addFeature(symbol, true);
+        } catch (EMP_Exception ex) {
+            Log.e(TAG, "Error plot TG. " + oSymbolDef.getDescription(), ex);
+        }
     }
 
     private void openTGProperties() {
@@ -2100,7 +2944,13 @@ public class MainActivity extends AppCompatActivity
                     //oPosition.setLongitude(randomLocalLongitude());
                     //oPosition.setAltitude(Math.random() * 1000000.0);
                     //oPositionList.add(oPosition);
-                    final MilStdSymbol oNewSymbol = new MilStdSymbol(oDialog.getMilStdVersion(), oDialog.getSymbolCode());
+                    MilStdSymbol newSymbol = null;
+                    if (oDialog.getSymbolCode() == null || oDialog.getSymbolCode().isEmpty()) {
+                        newSymbol = new MilStdSymbol();
+                    } else {
+                        newSymbol = new MilStdSymbol(oDialog.getMilStdVersion(), oDialog.getSymbolCode());
+                    }
+                    final MilStdSymbol oNewSymbol = newSymbol;
                     //oNewSymbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.RELATIVE_TO_GROUND);
                     if ((oDialog.getFeatureName() != null) && !oDialog.getFeatureName().isEmpty()) {
                         oNewSymbol.setName(oDialog.getFeatureName());

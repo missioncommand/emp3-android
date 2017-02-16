@@ -4,19 +4,24 @@ import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoColor;
+import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.emp3.api.Camera;
-import mil.emp3.api.LookAt;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.EditorMode;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
@@ -34,10 +39,14 @@ import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.listeners.IFreehandEventListener;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.core.editors.AbstractEditor;
+import mil.emp3.core.editors.CircleEditor;
+import mil.emp3.core.editors.EllipseEditor;
 import mil.emp3.core.editors.FreehandDrawEditor;
 import mil.emp3.core.editors.PathEditor;
 import mil.emp3.core.editors.PointEditor;
 import mil.emp3.core.editors.PolygonEditor;
+import mil.emp3.core.editors.RectangleEditor;
+import mil.emp3.core.editors.SquareEditor;
 import mil.emp3.core.editors.TextEditor;
 import mil.emp3.core.editors.milstd.MilStdSinglePointEditor;
 import mil.emp3.core.utils.CoreMilStdUtilities;
@@ -57,8 +66,8 @@ public abstract class MapStatus implements IMapStatus {
     private MapStateEnum stateEnum = MapStateEnum.MAP_NEW;
     // This value is the map's current camera.
     private ICamera currentCamera = new Camera();
-    // This value is the map's lookAt.
-    private ILookAt currentLookAt = new LookAt();
+    // This value is the map's lookAt. This must be initialized from MapInstance
+    private ILookAt currentLookAt;
     // This value is the base size of icons on the map.
     private int iIconPixelSize;
     // This value is the icon size setting.
@@ -93,6 +102,10 @@ public abstract class MapStatus implements IMapStatus {
     private final IGeoLabelStyle selectedLabelStyle = new GeoLabelStyle();
     private double selectedIconScale = 1.2;
 
+    private final IGeoFillStyle bufferFillStyle = new GeoFillStyle();
+
+    private FontSizeModifierEnum fontSizeModifier = FontSizeModifierEnum.NORMAL;
+
     protected MapStatus() {
         this.mapServiceHash = new java.util.HashMap<>();
         this.setIconSize(IconSizeEnum.SMALL);
@@ -100,6 +113,8 @@ public abstract class MapStatus implements IMapStatus {
         this.selectedStrokeStyle.setStrokeColor(color);
         this.selectedStrokeStyle.setStrokeWidth(3.0);
         this.selectedLabelStyle.setColor(color);
+
+        this.bufferFillStyle.setFillColor(new EmpGeoColor(0.5, 255, 255, 0));
     }
 
     protected AbstractEditor getEditor() {
@@ -118,10 +133,12 @@ public abstract class MapStatus implements IMapStatus {
     public void copy(IClientMapToMapInstance from) {
         this.eIconSize = from.getIconSize();
         this.eLabelSetting = from.getMilStdLabels();
-        this.selectedStrokeStyle.setStrokePattern(from.getSelectStrokeStyle().getStrokePattern());
+        this.selectedStrokeStyle.setStipplingPattern(from.getSelectStrokeStyle().getStipplingPattern());
+        this.selectedStrokeStyle.setStipplingFactor(from.getSelectStrokeStyle().getStipplingFactor());
         this.selectedStrokeStyle.setStrokeWidth(from.getSelectStrokeStyle().getStrokeWidth());
         this.selectedStrokeStyle.setStrokeColor(from.getSelectStrokeStyle().getStrokeColor());
         this.selectedIconScale = from.getSelectIconScale();
+        bufferFillStyle.setFillColor(from.getBufferFillStyle().getFillColor());
     }
 
     public final MapMotionLockEnum getLockMode() {
@@ -196,6 +213,12 @@ public abstract class MapStatus implements IMapStatus {
         return this.currentLookAt;
     }
 
+    // Make sure that to start with MapInstance and Mapping in the core have same reference if LookAt object.
+    // This object has all 0 values to start with.
+
+    protected void initializeLookAt(ILookAt lookAt) {
+        this.currentLookAt = lookAt;
+    }
     public final java.util.Collection<IMapService> getWMSList() {
         return this.mapServiceHash.values();
     }
@@ -217,8 +240,8 @@ public abstract class MapStatus implements IMapStatus {
         return this.mapServiceHash.containsKey(id);
     }
 
-    public java.util.List<IMapService> getMapServices() {
-        java.util.List<IMapService> oList = new java.util.ArrayList<>();
+    public List<IMapService> getMapServices() {
+        List<IMapService> oList = new ArrayList<>();
 
         for (java.util.UUID id : this.mapServiceHash.keySet()) {
             oList.add(this.mapServiceHash.get(id));
@@ -280,6 +303,11 @@ public abstract class MapStatus implements IMapStatus {
     }
 
     @Override
+    public boolean canPlot(IFeature oFeature) {
+        return this.oMapCapabilities.canPlot(oFeature.getFeatureType());
+    }
+
+    @Override
     public void editFeature(IFeature oFeature, IEditEventListener listener) throws EMP_Exception {
         if ((this.oEditor == null) && (MapMotionLockEnum.UNLOCKED == eLockMode)) {
             switch (oFeature.getFeatureType()) {
@@ -303,10 +331,18 @@ public abstract class MapStatus implements IMapStatus {
                 case GEO_TEXT:
                     this.oEditor = new TextEditor(this.getMapInstance(), (mil.emp3.api.Text) oFeature, listener);
                     break;
-                case GEO_CIRCLE:
-                case GEO_ELLIPSE:
                 case GEO_RECTANGLE:
+                    this.oEditor = new RectangleEditor(this.getMapInstance(), (mil.emp3.api.Rectangle) oFeature, listener);
+                    break;
+                case GEO_CIRCLE:
+                    this.oEditor = new CircleEditor(this.getMapInstance(), (mil.emp3.api.Circle) oFeature, listener);
+                    break;
+                case GEO_ELLIPSE:
+                    this.oEditor = new EllipseEditor(this.getMapInstance(), (mil.emp3.api.Ellipse) oFeature, listener);
+                    break;
                 case GEO_SQUARE:
+                    this.oEditor = new SquareEditor(this.getMapInstance(), (mil.emp3.api.Square) oFeature, listener);
+                    break;
                 case GEO_ACM:
                     throw new EMP_Exception(EMP_Exception.ErrorDetail.NOT_SUPPORTED, "Not Supported. The current map can not display a feature of this type.");
             }
@@ -389,10 +425,18 @@ public abstract class MapStatus implements IMapStatus {
                 case GEO_TEXT:
                     this.oEditor = new TextEditor(this.getMapInstance(), (mil.emp3.api.Text) oFeature, listener);
                     break;
-                case GEO_CIRCLE:
-                case GEO_ELLIPSE:
                 case GEO_RECTANGLE:
+                    this.oEditor = new RectangleEditor(this.getMapInstance(), (mil.emp3.api.Rectangle) oFeature, listener);
+                    break;
+                case GEO_CIRCLE:
+                    this.oEditor = new CircleEditor(this.getMapInstance(), (mil.emp3.api.Circle) oFeature, listener);
+                    break;
+                case GEO_ELLIPSE:
+                    this.oEditor = new EllipseEditor(this.getMapInstance(), (mil.emp3.api.Ellipse) oFeature, listener);
+                    break;
                 case GEO_SQUARE:
+                    this.oEditor = new SquareEditor(this.getMapInstance(), (mil.emp3.api.Square) oFeature, listener);
+                    break;
                 case GEO_ACM:
                     throw new EMP_Exception(EMP_Exception.ErrorDetail.NOT_SUPPORTED, "Not Supported. The current map can not display a feature of this type.");
             }
@@ -499,5 +543,23 @@ public abstract class MapStatus implements IMapStatus {
     @Override
     public double getSelectIconScale() {
         return this.selectedIconScale;
+    }
+
+    @Override
+    public FontSizeModifierEnum getFontSizeModifier() {
+        return this.fontSizeModifier;
+    }
+
+    @Override
+    public void setFontSizeModifier(FontSizeModifierEnum value) {
+        this.fontSizeModifier = value;
+        if (null != this.getMapInstance()) {
+            this.getMapInstance().setFontSizeModifier(value);
+        }
+    }
+
+    @Override
+    public IGeoFillStyle getBufferFillStyle() {
+        return bufferFillStyle;
     }
 }

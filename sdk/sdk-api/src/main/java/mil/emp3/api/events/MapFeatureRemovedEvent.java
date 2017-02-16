@@ -12,6 +12,10 @@ public abstract class MapFeatureRemovedEvent extends Event<MapFeatureEventEnum, 
         this.feature = feature;
     }
 
+    /**
+     * Returns the feature for which the event was generated.
+     * @return the feature removed
+     */
     public IFeature getFeature() {
         return feature;
     }

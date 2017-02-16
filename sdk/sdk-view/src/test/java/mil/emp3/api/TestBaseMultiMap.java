@@ -29,8 +29,9 @@ public class TestBaseMultiMap extends TestBase {
     protected MockMapInstance[] mapInstance;
     private BlockingQueue<IFeature>[] addFeatureQueue;
     private BlockingQueue<UUID>[] removeFeatureQueue;
+    private BlockingQueue<IFeature>[] selectFeatureQueue;
+    private BlockingQueue<UUID>[] deselectFeatureQueue;
     private BlockingQueue<ICamera>[] setCameraQueue;
-
 
     BlockingQueue<IEvent>[] receivedEventQueue;
     protected MockEventListener[] eventListener;
@@ -47,6 +48,8 @@ public class TestBaseMultiMap extends TestBase {
         addFeatureQueue = new BlockingQueue[mapCount];
         removeFeatureQueue = new BlockingQueue[mapCount];
         setCameraQueue = new BlockingQueue[mapCount];
+        selectFeatureQueue = new BlockingQueue[mapCount];
+        deselectFeatureQueue = new BlockingQueue[mapCount];
 
         receivedEventQueue = new BlockingQueue[mapCount];
         eventListener = new MockEventListener[mapCount];
@@ -54,8 +57,12 @@ public class TestBaseMultiMap extends TestBase {
         for(int ii = 0; ii < mapCount; ii++) {
             addFeatureQueue[ii] = new LinkedBlockingDeque<>();
             removeFeatureQueue[ii] = new LinkedBlockingDeque<>();
+            selectFeatureQueue[ii] = new LinkedBlockingDeque<>();
+            deselectFeatureQueue[ii] = new LinkedBlockingDeque<>();
+
             setCameraQueue[ii] = new LinkedBlockingQueue<>();
-            mapInstance[ii] = new MockMapInstance(addFeatureQueue[ii], removeFeatureQueue[ii], setCameraQueue[ii]);
+            mapInstance[ii] = new MockMapInstance(addFeatureQueue[ii], removeFeatureQueue[ii], setCameraQueue[ii], selectFeatureQueue[ii],
+                    deselectFeatureQueue[ii]);
             receivedEventQueue[ii] = new LinkedBlockingDeque<>();
             eventListener[ii] = new MockEventListener(receivedEventQueue[ii]);
 

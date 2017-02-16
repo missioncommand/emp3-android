@@ -1,0 +1,41 @@
+apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.maven-nebula-publish'
+
+configurations.maybeCreate("default")
+artifacts.add("default", file('worldwind-release.aar'))
+
+// worldwind-release.aar was downloaded form https://github.com/NASAWorldWind/WorldWindAndroid/releases/
+
+publishing.publications {
+    nebula(MavenPublication) {
+        groupId    = project.ext.group
+        artifactId = "worldwind-release"
+        version    = project.version
+
+        artifacts = [
+                "./worldwind-release.aar"
+        ]
+    }
+}
+publishing.repositories {
+    maven {
+        url = nexusPublishUrl
+
+        credentials {
+            username empUsername
+            password empPassword
+        }
+    }
+}
+if (project.hasProperty('di2eNexusReleaseUrl')) {
+    publishing.repositories {
+        maven {
+            url = project.property('di2eNexusReleaseUrl')
+
+            credentials {
+                username empUsername
+                password empPassword
+            }
+        }
+    }
+}

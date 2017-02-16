@@ -19,6 +19,7 @@ import java.util.TimerTask;
 
 import mil.emp3.api.abstracts.MirroredMap;
 import mil.emp3.api.enums.EventListenerTypeEnum;
+import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.MapMotionLockEnum;
@@ -40,6 +41,7 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.IUUIDSet;
+import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.listeners.EventListenerHandle;
@@ -61,7 +63,7 @@ import mil.emp3.api.listeners.IMapViewChangeEventListener;
 import mil.emp3.api.listeners.IVisibilityEventListener;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.ManagerFactory;
-import mil.emp3.mapengine.CoreMapInstance;
+import mil.emp3.mapengine.abstracts.CoreMapInstance;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
 import mil.emp3.mapengine.interfaces.IMapEngineCapabilities;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
@@ -168,8 +170,8 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public ICapture getScreenCapture() {
-        return null;
+    public void getScreenCapture(IScreenCaptureCallback callback) {
+        throw new UnsupportedOperationException("This map engine does not support this opertaion.");
     }
 
     @Override
@@ -429,7 +431,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public HashMap<String, Object> getProperties() {
+    public HashMap<String, String> getProperties() {
         return this.oClientMap.getProperties();
     }
 
@@ -621,6 +623,67 @@ public class RemoteMap implements IMap {
         this.oClientMap.drawFreehand(initialStyle, listener);
     }
 
+    @Override
+    public FontSizeModifierEnum getFontSizeModifier() {
+        return this.oClientMap.getFontSizeModifier();
+    }
+
+    @Override
+    public void setFontSizeModifier(FontSizeModifierEnum value)
+            throws EMP_Exception {
+        this.oClientMap.setFontSizeModifier(value);
+    }
+
+    @Override
+    public boolean containsProperty(String propertyName) {
+        return this.oClientMap.containsProperty(propertyName);
+    }
+
+    @Override
+    public String getProperty(String propertyName) {
+        return this.oClientMap.getProperty(propertyName);
+    }
+
+    @Override
+    public void setProperty(String propertyName, String propertyValue) {
+        this.oClientMap.setProperty(propertyName, propertyValue);
+    }
+
+    @Override
+    public void removeProperty(String propertyName) {
+        this.oClientMap.removeProperty(propertyName);
+    }
+
+    @Override
+    public boolean getBooleanProperty(String propertyName) {
+        return this.oClientMap.getBooleanProperty(propertyName);
+    }
+
+    @Override
+    public int getIntegerProperty(String propertyName) {
+        return this.oClientMap.getIntegerProperty(propertyName);
+    }
+
+    @Override
+    public float getFloatProperty(String propertyName) {
+        return this.oClientMap.getFloatProperty(propertyName);
+    }
+
+    @Override
+    public double getDoubleProperty(String propertyName) {
+        return this.oClientMap.getDoubleProperty(propertyName);
+    }
+
+    @Override
+    public void setBackgroundBrightness(int setting) {
+        this.oClientMap.setBackgroundBrightness(setting);
+    }
+
+    @Override
+    public int getBackgroundBrightness() {
+        return this.oClientMap.getBackgroundBrightness();
+    }
+
     static private class NoMap extends CoreMapInstance {
         static final private String TAG = NoMap.class.getSimpleName();
 
@@ -677,16 +740,6 @@ public class RemoteMap implements IMap {
         }
 
         @Override
-        public ICapture getCapture() {
-            return null;
-        }
-
-        @Override
-        public void setVisibility(ISetVisibilityList visibilityList) {
-
-        }
-
-        @Override
         public void removeFeatures(IUUIDSet features) {
 
         }
@@ -712,6 +765,9 @@ public class RemoteMap implements IMap {
         }
 
         @Override
+        public void applyCameraChange(ICamera oCamera, boolean animate) { }
+
+        @Override
         public void setLookAt(ILookAt lookAt, boolean animate) {
             this.currentLookAt = lookAt;
         }
@@ -720,6 +776,9 @@ public class RemoteMap implements IMap {
         public ILookAt getLookAt() {
             return currentLookAt;
         }
+
+        @Override
+        public void applyLookAtChange(ILookAt oLookAt, boolean animate) { }
 
         @Override
         public void setBounds(IGeoBounds bounds) {
@@ -798,5 +857,38 @@ public class RemoteMap implements IMap {
         public void deselectFeatures(List<IFeature> featureList) {
 
         }
+
+        @Override
+        public void setFontSizeModifier(FontSizeModifierEnum value) {
+
+        }
+
+        @Override
+        public void setBackgroundBrightness(int setting) {
+        }
+
+        @Override
+        public int getBackgroundBrightness() {
+            return 50;
+        }
+        
+        @Override
+        public View showMiniMap() {
+            return null;
+        }
+
+        @Override
+        public void hideMiniMap() {
+        }
+    }
+
+    @Override
+    public View showMiniMap() {
+        return this.oClientMap.showMiniMap();
+    }
+
+    @Override
+    public void hideMiniMap() {
+        this.oClientMap.hideMiniMap();
     }
 }

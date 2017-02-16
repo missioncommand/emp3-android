@@ -3,6 +3,9 @@ package mil.emp3.core.editors.milstd;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import armyc2.c2sd.renderer.utilities.SymbolDef;
 import armyc2.c2sd.renderer.utilities.UnitDef;
 import mil.emp3.api.MilStdSymbol;
@@ -20,9 +23,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  */
 public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
 
-    // This list of control points is pre-aloocated and re-used through out.
-    private final java.util.List<ControlPoint> cpList = new java.util.ArrayList<>();
-
     public MilStdDCTwoPointEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, SymbolDef symDef) throws EMP_Exception {
         super(map, feature, oEventListener, symDef);
         this.initializeEdit();
@@ -36,7 +36,7 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         IGeoPosition cameraPos = this.getMapCameraPosition();
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         // We set the initial line segment to 2/6 of the camera altitude.
         double segmentLength = cameraPos.getAltitude() / 6.0;
         IGeoPosition pos = new GeoPosition();
@@ -68,7 +68,7 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
 
     @Override
     protected void assembleControlPoints() {
-        java.util.List<IGeoPosition> posList = this.getPositions();
+        List<IGeoPosition> posList = this.getPositions();
         int index = 0;
         int posCnt = posList.size();
         int lastIndex = posCnt - 1;
@@ -99,13 +99,11 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
      * @return A list of control points that have been affected.
      */
     @Override
-    protected java.util.List<ControlPoint> doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
-        cpList.clear();
+    protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
         IGeoPosition currentPosition = oCP.getPosition();
         currentPosition.setLatitude(oLatLon.getLatitude());
         currentPosition.setLongitude((oLatLon.getLongitude()));
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{oCP.getCPIndex()});
-        cpList.add(oCP);
-        return cpList;
+        return true;
     }
 }

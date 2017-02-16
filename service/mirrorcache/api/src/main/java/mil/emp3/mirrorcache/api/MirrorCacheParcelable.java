@@ -6,6 +6,7 @@ import android.os.Parcelable;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -14,19 +15,11 @@ import java.util.ArrayList;
 public class MirrorCacheParcelable implements Parcelable {
     private static final String TAG = MirrorCacheParcelable.class.getSimpleName();
 
+    // Mirror cache master key
+    public String mirrorKey;
 
-    // Mirrorable implementation
-
-    // Mirror Cache Global UID for dynamic discovery of shared resources
-    public String GUID=null;
-
-    // Mirror cache master key, generally obtained by MirrorCache.genKey();
-    public long mirrorKey;
-
-
-    // Mirrorable implementation
     // mapping relationships, currently only parents can contain children
-    public ArrayList<Long> contentsKeys = new ArrayList<>();
+    public List<String> contentsKeys = new ArrayList<>();
 
     // wrapped object
     public String payloadClassName;
@@ -58,7 +51,7 @@ public class MirrorCacheParcelable implements Parcelable {
 //        android.util.Log.d(TAG, "write to parcel " + mirrorKey);
 
         // MirrorableBase map values: key, contents array...
-        dest.writeLong(mirrorKey);
+        dest.writeString(mirrorKey);
 //        android.util.Log.d(TAG, "write: wrote key " + mirrorKey);
 
         // write the child keys
@@ -66,8 +59,8 @@ public class MirrorCacheParcelable implements Parcelable {
         else {
             dest.writeInt(contentsKeys.size());
 
-            for (long l : contentsKeys) {
-                dest.writeLong(l);
+            for (String s : contentsKeys) {
+                dest.writeString(s);
             }
         }
 
@@ -111,14 +104,14 @@ public class MirrorCacheParcelable implements Parcelable {
     public void readFromParcel(Parcel in) {
 
         // MirrorableBase map values: key, contents array...
-        this.mirrorKey = in.readLong();
+        this.mirrorKey = in.readString();
 //        android.util.Log.d(TAG, "read : mirrorKey " + mirrorKey );
 
         // serialize the child keys
         int numChidlren = in.readInt();
-        contentsKeys = new ArrayList<Long>();
+        contentsKeys = new ArrayList<>();
         for (int i=0; i<numChidlren; i++) {
-            contentsKeys.add(in.readLong());
+            contentsKeys.add(in.readString());
         }
 
         this.payloadClassName = in.readString();

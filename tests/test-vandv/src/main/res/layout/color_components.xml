@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content" android:layout_gravity="center_horizontal"
+    android:layout_height="wrap_content">
+
+    <include android:id="@+id/color_components_red" layout="@layout/increment_decrement" />
+    <include android:id="@+id/color_components_green" layout="@layout/increment_decrement" />
+    <include android:id="@+id/color_components_blue" layout="@layout/increment_decrement" />
+    <include android:id="@+id/color_components_alpha" layout="@layout/increment_decrement" />
+
+</LinearLayout>

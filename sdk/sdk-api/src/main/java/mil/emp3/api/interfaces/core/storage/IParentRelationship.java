@@ -3,6 +3,9 @@ package mil.emp3.api.interfaces.core.storage;
 import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.interfaces.IUUIDSet;
 
+/*
+ * This is an internal interface class.  The app developer must not implement this interface.
+ */
 public interface IParentRelationship {
     IStorageObjectWrapper getParentWrapper();
 
