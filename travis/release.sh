@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#set +x
-#set -e
+set +x
+set -e
 
 echo '[release] TRAVIS_TAG='$TRAVIS_TAG
 echo '[release] TRAVIS_BRANCH='$TRAVIS_BRANCH
@@ -42,6 +42,7 @@ if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     git commit -m "[travis] Merge branch '$RELEASE_BRANCH' [ci skip]"
 
     echo '[release] Setting next development version..'
+    chmod +x gradlew
     ./gradlew :nextMinorVersion -PisSnapshot
     git commit -am "[travis] Bump version"
     git push --quiet > /dev/null 2>&1
