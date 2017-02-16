@@ -10,6 +10,7 @@ import java.util.HashMap;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 import mil.emp3.test.emp3vv.navItems.AddRemoveGetTest;
+import mil.emp3.test.emp3vv.navItems.BoundsGenerationTest;
 import mil.emp3.test.emp3vv.navItems.FreehandDrawTest;
 import mil.emp3.test.emp3vv.navItems.LaunchMap;
 import mil.emp3.test.emp3vv.navItems.performance_test.PerformanceTest;
@@ -59,6 +60,7 @@ public class ExecuteTest {
         capabilityTests.put("Basic Shape", BasicShapeTest.class);
         capabilityTests.put("Freehand Draw", FreehandDrawTest.class);
         capabilityTests.put("Performance", PerformanceTest.class);
+        capabilityTests.put("Bounds Generation", BoundsGenerationTest.class);
 
         optionSettings = new HashMap<>();
         optionSettings.put("Camera", Camera.class);

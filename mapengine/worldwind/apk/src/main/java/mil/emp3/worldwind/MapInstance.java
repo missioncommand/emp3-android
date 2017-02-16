@@ -1330,4 +1330,8 @@ public class MapInstance extends CoreMapInstance {
             this.miniMap = null;
         }
     }
+
+    public PickNavigateController getMapController() {
+        return mapController;
+    }
 }

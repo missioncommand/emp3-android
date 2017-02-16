@@ -24,6 +24,7 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ILookAt;
 
 import mil.emp3.mapengine.events.MapInstanceViewChangeEvent;
+import mil.emp3.worldwind.utils.BoundsGeneration;
 import mil.emp3.worldwind.utils.SystemUtils;
 
 public class Emp3NavigationListener implements NavigatorListener {
@@ -406,31 +407,32 @@ public class Emp3NavigationListener implements NavigatorListener {
     }
 
     public IGeoBounds getBounds() {
-        IGeoBounds oBounds = new GeoBounds();
-        Navigator oNav = this.ww.getNavigator();
-        double dAlt = oNav.getAltitude();
-        Location oCenterLatLon = Location.fromDegrees(oNav.getLatitude(), oNav.getLongitude());
-        double metersPerPixel = this.ww.pixelSizeAtDistance(dAlt);
-        int mapWidth = this.ww.getWidth();
-        int mapHeight = this.ww.getHeight();
-        double dRadius = this.ww.getGlobe().getRadiusAt(oNav.getLatitude(), oNav.getLongitude());
-        double verticalHalf = mapHeight / 2.0 * metersPerPixel / dRadius;
-        double horizontalHalf = mapWidth / 2.0 * metersPerPixel / dRadius;
-
-        Location oLatLon = new Location();
-        oCenterLatLon.greatCircleLocation(90.0, horizontalHalf, oLatLon);
-        oBounds.setEast(Location.normalizeLongitude(oLatLon.longitude));
-
-        oCenterLatLon.greatCircleLocation(-90.0, horizontalHalf, oLatLon);
-        oBounds.setWest(Location.normalizeLongitude(oLatLon.longitude));
-
-        oCenterLatLon.greatCircleLocation(0.0, verticalHalf, oLatLon);
-        oBounds.setNorth(Location.normalizeLatitude(oLatLon.latitude));
-
-        oCenterLatLon.greatCircleLocation(180.0, verticalHalf, oLatLon);
-        oBounds.setSouth(Location.normalizeLatitude(oLatLon.latitude));
-
-        return oBounds;
+        return BoundsGeneration.getBounds(mapInstance);
+//        IGeoBounds oBounds = new GeoBounds();
+//        Navigator oNav = this.ww.getNavigator();
+//        double dAlt = oNav.getAltitude();
+//        Location oCenterLatLon = Location.fromDegrees(oNav.getLatitude(), oNav.getLongitude());
+//        double metersPerPixel = this.ww.pixelSizeAtDistance(dAlt);
+//        int mapWidth = this.ww.getWidth();
+//        int mapHeight = this.ww.getHeight();
+//        double dRadius = this.ww.getGlobe().getRadiusAt(oNav.getLatitude(), oNav.getLongitude());
+//        double verticalHalf = mapHeight / 2.0 * metersPerPixel / dRadius;
+//        double horizontalHalf = mapWidth / 2.0 * metersPerPixel / dRadius;
+//
+//        Location oLatLon = new Location();
+//        oCenterLatLon.greatCircleLocation(90.0, horizontalHalf, oLatLon);
+//        oBounds.setEast(Location.normalizeLongitude(oLatLon.longitude));
+//
+//        oCenterLatLon.greatCircleLocation(-90.0, horizontalHalf, oLatLon);
+//        oBounds.setWest(Location.normalizeLongitude(oLatLon.longitude));
+//
+//        oCenterLatLon.greatCircleLocation(0.0, verticalHalf, oLatLon);
+//        oBounds.setNorth(Location.normalizeLatitude(oLatLon.latitude));
+//
+//        oCenterLatLon.greatCircleLocation(180.0, verticalHalf, oLatLon);
+//        oBounds.setSouth(Location.normalizeLatitude(oLatLon.latitude));
+//
+//        return oBounds;
     }
 
     private void generateViewChangeEvent(MapViewEventEnum eEvent, gov.nasa.worldwind.geom.Camera oWWCamera) {
