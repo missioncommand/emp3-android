@@ -38,7 +38,7 @@ before_install:
 install: echo "skip 'gradle assemble' step"
 
 script:
- - ./gradlew build --refresh-dependencies  --continue --stacktrace
+ - ./gradlew build --refresh-dependencies --continue --stacktrace
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
