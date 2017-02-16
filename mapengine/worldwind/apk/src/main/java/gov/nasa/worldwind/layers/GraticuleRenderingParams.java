@@ -5,6 +5,8 @@
  */
 package gov.nasa.worldwind.layers;
 
+import android.graphics.Typeface;
+
 import gov.nasa.worldwind.avlist.AVListImpl;
 import gov.nasa.worldwind.render.Color;
 import gov.nasa.worldwind.util.Logger;
@@ -48,7 +50,7 @@ public class GraticuleRenderingParams extends AVListImpl {
 
     public void setLineColor(Color color) {
         if (color == null) {
-            String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.ColorIsNull");
+            String message = Logger.makeMessage(TAG, "setLineColor", "nullValue.ColorIsNull");
             Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
@@ -73,7 +75,7 @@ public class GraticuleRenderingParams extends AVListImpl {
 
     public void setLineStyle(String lineStyle) {
         if (lineStyle == null) {
-            String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.StringIsNull");
+            String message = Logger.makeMessage(TAG, "setLineStyle", "nullValue.StringIsNull");
             Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
@@ -97,30 +99,41 @@ public class GraticuleRenderingParams extends AVListImpl {
 
     public void setLabelColor(Color color) {
         if (color == null) {
-            String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.ColorIsNull");
+            String message = Logger.makeMessage(TAG, "setLabelColor", "nullValue.ColorIsNull");
             Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
         setValue(KEY_LABEL_COLOR, color);
     }
-/*
-    public Font getLabelFont()
-    {
-        Object value = get(KEY_LABEL_FONT);
-        return value instanceof Font ? (Font) value : null;
+
+    public Typeface getLabelTypeface() {
+        Object value = getValue(KEY_LABEL_FONT_TYPE_FACE);
+        return value instanceof Typeface ? (Typeface) value : null;
     }
 
-    public void setLabelFont(Font font)
-    {
-        if (font == null)
-        {
-            String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.FontIsNull");
+    public void setLabelTypeface(Typeface typeFace) {
+        if (typeFace == null) {
+            String message = Logger.makeMessage(TAG, "setLabelTypeface", "typeface can not be null.");
             Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
         }
 
-        put(KEY_LABEL_FONT, font);
+        setValue(KEY_LABEL_FONT_TYPE_FACE, typeFace);
     }
-*/
+
+    public Float getLabelPointSize() {
+        Object value = getValue(KEY_LABEL_FONT_POINT_SIZE);
+        return value instanceof Float ? (Float) value : null;
+    }
+
+    public void setLablePointSize(float value) {
+        if (value == Float.NaN) {
+            String message = Logger.makeMessage(TAG, "setLablePointSize", "invalid float value.");
+            Logger.log(Logger.ERROR, message);
+            throw new IllegalArgumentException(message);
+        }
+
+        setValue(KEY_LABEL_FONT_POINT_SIZE, new Float(value));
+    }
 }

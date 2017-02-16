@@ -48,6 +48,7 @@ import gov.nasa.worldwind.layer.LayerFactory;
 import gov.nasa.worldwind.layer.RenderableLayer;
 import gov.nasa.worldwind.layers.Earth.MGRSGraticuleLayer;
 import gov.nasa.worldwind.layers.Earth.UTMBaseGraticuleLayer;
+import gov.nasa.worldwind.layers.Earth.UTMGraticuleLayer;
 import gov.nasa.worldwind.ogc.WmsLayer;
 import gov.nasa.worldwind.ogc.WmsLayerConfig;
 import gov.nasa.worldwind.render.ImageOptions;
@@ -1355,7 +1356,7 @@ public class MapInstance extends CoreMapInstance {
                 newGridLayer = new MGRSGraticuleLayer(this);
                 break;
             case UTM:
-                newGridLayer = new UTMBaseGraticuleLayer(this);
+                newGridLayer = new UTMGraticuleLayer(this);
                 break;
         }
 

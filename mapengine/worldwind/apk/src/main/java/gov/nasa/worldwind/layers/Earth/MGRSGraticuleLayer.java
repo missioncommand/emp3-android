@@ -79,7 +79,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
     }
 
     /**
-     * Returns the maxiumum resolution graticule that will be rendered, or null if no graticules will be rendered. By
+     * Returns the maximum resolution graticule that will be rendered, or null if no graticules will be rendered. By
      * default, all graticules are rendered, and this will return GRATICULE_1M.
      *
      * @return maximum resolution rendered.
@@ -651,44 +651,48 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
         GraticuleRenderingParams params;
         // UTM graticule
         params = new GraticuleRenderingParams();
-        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(1.0f, 1.0f, 0, 0.8f));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(1.0f, 1.0f, 0, 0.8f));
-        //params.put(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-16"));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE, Typeface.create("Arial", Typeface.BOLD));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE, new Float(14.0f));
+        params.setLineColor(new Color(1.0f, 1.0f, 0, 0.8f));
+        params.setLabelColor(new Color(1.0f, 1.0f, 0, 0.8f));
+        params.setLabelTypeface(Typeface.create("Arial", Typeface.BOLD));
+        params.setLablePointSize(14.0f);
         setRenderingParams(GRATICULE_UTM_GRID, params);
+
         // 100,000 meter graticule
         params = new GraticuleRenderingParams();
-        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(0.0f, 1.0f, 0, 0.8f));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(0.0f, 1.0f, 0, 0.8f));
-        //params.put(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-14"));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE, Typeface.create("Arial", Typeface.BOLD));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE, new Float(12.0f));
+        params.setLineColor(new Color(0.0f, 1.0f, 0, 0.8f));
+        params.setLabelColor(new Color(0.0f, 1.0f, 0, 0.8f));
+        params.setLabelTypeface(Typeface.create("Arial", Typeface.BOLD));
+        params.setLablePointSize(12.0f);
         setRenderingParams(GRATICULE_100000M, params);
+
         // 10,000 meter graticule
         params = new GraticuleRenderingParams();
-        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(0.0f, 102 / 255, 1.0f, 0.8f));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(0f, 102 / 255, 1.0f, 0.8f));
+        params.setLineColor(new Color(0.0f, 102 / 255, 1.0f, 0.8f));
+        params.setLabelColor(new Color(0f, 102 / 255, 1.0f, 0.8f));
         setRenderingParams(GRATICULE_10000M, params);
+
         // 1,000 meter graticule
         params = new GraticuleRenderingParams();
-        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(0.0f, 1.0f, 1.0f, 0.8f));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(0.0f, 1.0f, 1.0f, 0.8f));
+        params.setLineColor(new Color(0.0f, 1.0f, 1.0f, 0.8f));
+        params.setLabelColor(new Color(0.0f, 1.0f, 1.0f, 0.8f));
         setRenderingParams(GRATICULE_1000M, params);
+
         // 100 meter graticule
         params = new GraticuleRenderingParams();
-        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(0.0f, 153 / 255, 153 / 255, 0.0f));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(0.0f, 153 / 255, 153 / 255, 0.8f));
+        params.setLineColor(new Color(0.0f, 153 / 255, 153 / 255, 0.0f));
+        params.setLabelColor(new Color(0.0f, 153 / 255, 153 / 255, 0.8f));
         setRenderingParams(GRATICULE_100M, params);
+
         // 10 meter graticule
         params = new GraticuleRenderingParams();
-        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(102 / 255, 1.0f, 204 / 255, 0.8f));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(102 / 255, 1.0f, 204 / 255, 0.8f));
+        params.setLineColor(new Color(102 / 255, 1.0f, 204 / 255, 0.8f));
+        params.setLabelColor(new Color(102 / 255, 1.0f, 204 / 255, 0.8f));
         setRenderingParams(GRATICULE_10M, params);
+
         // 1 meter graticule
         params = new GraticuleRenderingParams();
-        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(153 / 255, 153 / 255, 1.0f, 0.8f));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(153 / 255, 153 / 255, 1.0f, 0.8f));
+        params.setLineColor(new Color(153 / 255, 153 / 255, 1.0f, 0.8f));
+        params.setLabelColor(new Color(153 / 255, 153 / 255, 1.0f, 0.8f));
         setRenderingParams(GRATICULE_1M, params);
     }
 
@@ -1004,6 +1008,11 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
             }
 
             if (dc.camera.altitude > MGRSGraticuleLayer.this.squareMaxAltitude) {
+                if (null != this.squares) {
+                    for (SquareZone sz : this.squares) {
+                        sz.clearRenderables();
+                    }
+                }
                 return;
             }
 

@@ -274,8 +274,8 @@ public class UTMGraticuleLayer extends UTMBaseGraticuleLayer {
 
         public double getSizeInPixels(RenderContext dc) {
             //View view = dc.getView();
-            Vec3 centerPoint = getSurfacePoint(dc, this.sector.centroidLatitude(), this.sector.centroidLongitude());
-            double distance = dc.cameraPoint.distanceTo(centerPoint);
+            //Vec3 centerPoint = getSurfacePoint(dc, this.sector.centroidLatitude(), this.sector.centroidLongitude());
+            //double distance = dc.cameraPoint.distanceTo(centerPoint);
             double tileSizeMeter = Math.toRadians(this.sector.deltaLatitude() * dc.globe.getRadiusAt(this.sector.centroidLatitude(), this.sector.centroidLongitude()));
             return tileSizeMeter / dc.pixelSizeAtDistance(dc.camera.altitude); //view.computePixelSizeAtDistance(distance);
         }

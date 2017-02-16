@@ -221,12 +221,11 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
 
     protected void initRenderingParams() {
         GraticuleRenderingParams params = new GraticuleRenderingParams();
-        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(0.8f, 0.8f, 0.8f, 0.5f));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(1f, 1f, 1f, .8f));
-        //params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-14"));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE, Typeface.create("Arial", Typeface.BOLD));
-        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE, new Float(12.0f));
-        params.setValue(GraticuleRenderingParams.KEY_DRAW_LABELS, Boolean.TRUE);
+        params.setLineColor(new Color(0.8f, 0.8f, 0.8f, 0.5f));
+        params.setLabelColor(new Color(1f, 1f, 1f, .8f));
+        params.setLabelTypeface(Typeface.create("Arial", Typeface.BOLD));
+        params.setLablePointSize(12.0f);
+        params.setDrawLabels(Boolean.TRUE);
         setRenderingParams(GRATICULE_UTM, params);
     }
 
@@ -558,7 +557,8 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
                                     double lat = labelPos.latitude;
                                     double lon = labelPos.longitude;
                                     Vec3 surfacePoint = getSurfacePoint(dc, lat, lon);
-                                    if (viewFrustum.containsPoint(surfacePoint) && isPointInRange(dc, surfacePoint)) {
+                                    //if (viewFrustum.containsPoint(surfacePoint) && isPointInRange(dc, surfacePoint)) {
+                                    if (locationInView(lat, lon)) {
                                         String text = String.valueOf((int) (easting % this.scaleModulo));
                                         Label gt = new Label(new Position(lat, lon, 0), text);
                                         //gt.setPriority(gridStepTimesTen);
@@ -582,8 +582,9 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
                                     }
                                     double lat = labelPos.latitude;
                                     double lon = labelPos.longitude;
-                                    Vec3 surfacePoint = getSurfacePoint(dc, lat, lon);
-                                    if (viewFrustum.containsPoint(surfacePoint) && isPointInRange(dc, surfacePoint)) {
+                                    //Vec3 surfacePoint = getSurfacePoint(dc, lat, lon);
+                                    //if (viewFrustum.containsPoint(surfacePoint) && isPointInRange(dc, surfacePoint)) {
+                                    if (locationInView(lat, lon)) {
                                         String text = String.valueOf((int) (northing % this.scaleModulo));
                                         Label gt = new Label(new Position(lat, lon, 0), text);
                                         //gt.setPriority(gridStepTimesTen);
@@ -715,7 +716,7 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
                 this.boundingSector.union(ne.latitude, ne.longitude);
 
                 if (!isInsideGridZone()) {
-                    this.boundingSector = SectorUtils.intersection(this.UTMZoneSector, this.boundingSector);
+                    this.boundingSector.intersect(this.UTMZoneSector);
                 }
 
                 this.centroid = this.boundingSector != null ? this.boundingSector.centroid(new Location()) : this.squareCenter;
@@ -888,6 +889,9 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
             }
 
             if (getSizeInPixels(dc) <= MIN_CELL_SIZE_PIXELS * 2) {
+                if (null != this.squareGrid) {
+                    this.squareGrid.clearRenderables();
+                }
                 return;
             }
 
@@ -1081,6 +1085,11 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
             }
 
             if (getSizeInPixels(dc) <= MIN_CELL_SIZE_PIXELS * 4 * 2) {
+                if (null != this.subGrids) {
+                    for (SquareGrid sg : this.subGrids) {
+                        sg.clearRenderables();
+                    }
+                }
                 return;
             }
 
@@ -1181,5 +1190,9 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
                 }
             }
         }
+    }
+
+    public boolean locationInView(double latitude, double longitude) {
+        return this.mapSector.contains(latitude, longitude);
     }
 }

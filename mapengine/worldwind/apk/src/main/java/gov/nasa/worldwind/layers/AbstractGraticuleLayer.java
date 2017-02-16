@@ -755,10 +755,10 @@ public class AbstractGraticuleLayer extends AbstractLayer {
         //View view = dc.getView();
         //Position eyePosition = view.getEyePosition();
         //Vec4 surfacePoint = getSurfacePoint(dc, eyePosition.getLatitude(), eyePosition.getLongitude());
-        Vec3 surfacePoint = getSurfacePoint(dc, dc.camera.latitude, dc.camera.longitude);
+        //Vec3 surfacePoint = getSurfacePoint(dc, dc.camera.latitude, dc.camera.longitude);
 
         //return view.getEyePoint().distanceTo3(surfacePoint);
-        return dc.cameraPoint.distanceTo(surfacePoint);
+        return dc.camera.altitude; //dc.cameraPoint.distanceTo(surfacePoint);
     }
 
     protected void computeTruncatedSegment(Position p1, Position p2, Sector sector, ArrayList<Position> positions) {
