@@ -7,6 +7,7 @@ package gov.nasa.worldwind.layers.Earth;
 
 
 import android.graphics.Rect;
+import android.graphics.Typeface;
 
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.WorldWind;
@@ -74,6 +75,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
         initRenderingParams();
         this.metricScaleSupport.setScaleModulo((int) 100e3);
         //this.setName(Logging.getMessage("layers.Earth.MGRSGraticule.Name"));
+        this.setOpacity(0.6);
     }
 
     /**
@@ -645,18 +647,23 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
     }
 */
     protected void initRenderingParams() {
+        super.initRenderingParams();
         GraticuleRenderingParams params;
         // UTM graticule
         params = new GraticuleRenderingParams();
         params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(1.0f, 1.0f, 0, 0.8f));
         params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(1.0f, 1.0f, 0, 0.8f));
         //params.put(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-16"));
+        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE, Typeface.create("Arial", Typeface.BOLD));
+        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE, new Float(14.0f));
         setRenderingParams(GRATICULE_UTM_GRID, params);
         // 100,000 meter graticule
         params = new GraticuleRenderingParams();
         params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(0.0f, 1.0f, 0, 0.8f));
         params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(0.0f, 1.0f, 0, 0.8f));
         //params.put(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-14"));
+        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE, Typeface.create("Arial", Typeface.BOLD));
+        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE, new Float(12.0f));
         setRenderingParams(GRATICULE_100000M, params);
         // 10,000 meter graticule
         params = new GraticuleRenderingParams();
@@ -764,10 +771,9 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
             // UTM Grid
             Rect gridRectangle = getGridRectangleForSector(vs);
             if (gridRectangle != null) {
-                for (int row = (int) gridRectangle.top; row <= gridRectangle.bottom; row++) {
-                    for (int col = (int) gridRectangle.left; col <= gridRectangle.right; col++) {
-                        if (row != 19 || (col != 31 && col != 33 && col != 35)) // ignore X32, 34 and 36
-                        {
+                for (int row = gridRectangle.top; row <= gridRectangle.bottom; row++) {
+                    for (int col = gridRectangle.left; col <= gridRectangle.right; col++) {
+                        if (row != 19 || (col != 31 && col != 33 && col != 35)) { // ignore X32, 34 and 36
                             if (gridZones[row][col] == null) {
                                 gridZones[row][col] = new GridZone(getGridSector(row, col));
                             }
@@ -811,11 +817,13 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
         Rect rectangle = null;
 
         if (sector.minLatitude() < 84 && sector.maxLatitude() > -80) {
-            //Sector gridSector = Sector.fromDegrees(Math.max(sector.minLatitude(), -80), sector.minLongitude(), sector.deltaLatitude(), sector.deltaLongitude());
+            //Sector gridSector = Sector.fromDegrees(
+            //        Math.max(sector.getMinLatitude().degrees, -80), Math.min(sector.getMaxLatitude().degrees, 84),
+            //        sector.getMinLongitude().degrees, sector.getMaxLongitude().degrees);
             Sector gridSector = new Sector();
 
             gridSector.union(Math.max(sector.minLatitude(), -80), sector.minLongitude());
-            gridSector.union(gridSector.minLatitude() + sector.deltaLatitude(), sector.maxLongitude());
+            gridSector.union(Math.min(sector.maxLatitude(), 84), sector.maxLongitude());
 
             int x1 = getGridColumn(gridSector.minLongitude());
             int x2 = getGridColumn(gridSector.maxLongitude());
@@ -973,7 +981,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 }
         */
         public boolean isInView(RenderContext dc) {
-            return this.sector.intersect(MGRSGraticuleLayer.this.mapSector); //dc.frustum.intersectsViewport(dc.viewport);
+            return this.sector.intersects(MGRSGraticuleLayer.this.mapSector); //dc.frustum.intersectsViewport(dc.viewport);
         }
 
         public void selectRenderables(RenderContext dc, Sector vs, MGRSGraticuleLayer layer) {
@@ -1050,12 +1058,10 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 double maxEasting = 1e6 - minEasting;
 
                 // Compensate for some distorted zones
-                if (this.name.equals("32V")) // catch KS and LS in 32V
-                {
+                if (this.name.equals("32V")) { // catch KS and LS in 32V
                     maxNorthing += 20e3;
                 }
-                if (this.name.equals("31X")) // catch GA and GV in 31X
-                {
+                if (this.name.equals("31X")) { // catch GA and GV in 31X
                     maxEasting += ONEHT;
                 }
 
@@ -1127,7 +1133,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
             positions.clear();
             positions.add(new Position(this.sector.minLatitude(), this.sector.minLongitude(), 10e3));
             positions.add(new Position(this.sector.maxLatitude(), this.sector.minLongitude(), 10e3));
-            Object polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
+            Object polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.GREAT_CIRCLE);
             //Sector lineSector = new Sector(this.sector.minLatitude(), this.sector.minLongitude(), this.sector.deltaLatitude(), 0.0000001);
             Sector lineSector = new Sector();
             lineSector.union(this.sector.minLatitude(), this.sector.minLongitude());
@@ -1139,7 +1145,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 positions.clear();
                 positions.add(new Position(this.sector.minLatitude(), this.sector.maxLongitude(), 10e3));
                 positions.add(new Position(this.sector.maxLatitude(), this.sector.maxLongitude(), 10e3));
-                polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
+                polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.GREAT_CIRCLE);
                 //lineSector = new Sector(this.sector.minLatitude(), this.sector.maxLongitude(), this.sector.deltaLatitude(), 0.0000001);
                 lineSector = new Sector();
                 lineSector.union(this.sector.minLatitude(), this.sector.maxLongitude());
@@ -1150,7 +1156,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 positions.clear();
                 positions.add(new Position(this.sector.minLatitude(), this.sector.minLongitude(), 10e3));
                 positions.add(new Position(this.sector.minLatitude(), this.sector.maxLongitude(), 10e3));
-                polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
+                polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.GREAT_CIRCLE);
                 //lineSector = new Sector(this.sector.minLatitude(), this.sector.minLongitude(), 0.0000001, this.sector.deltaLongitude());
                 lineSector = new Sector();
                 lineSector.union(this.sector.minLatitude(), this.sector.minLongitude());
@@ -1161,7 +1167,7 @@ public class MGRSGraticuleLayer extends UTMBaseGraticuleLayer {
                 positions.clear();
                 positions.add(new Position(this.sector.maxLatitude(), this.sector.minLongitude(), 10e3));
                 positions.add(new Position(this.sector.maxLatitude(), this.sector.maxLongitude(), 10e3));
-                polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
+                polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.GREAT_CIRCLE);
                 //lineSector = new Sector(this.sector.maxLatitude(), this.sector.minLongitude(), 0.0000001, this.sector.deltaLongitude());
                 lineSector = new Sector();
                 lineSector.union(this.sector.maxLatitude(), this.sector.minLongitude());

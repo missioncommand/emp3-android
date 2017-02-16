@@ -52,7 +52,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
     public static final String LINE_STYLE_DOTTED = GraticuleRenderingParams.VALUE_LINE_STYLE_DOTTED;
 
     protected ArrayList<GridElement> gridElements;
-    protected GraticuleSupport graticuleSupport = new GraticuleSupport();
+    protected GraticuleSupport graticuleSupport;
     protected double terrainConformance = 50;
     protected Globe globe;
 
@@ -70,6 +70,7 @@ public class AbstractGraticuleLayer extends AbstractLayer {
 
     public AbstractGraticuleLayer(IMapInstance mapInstance) {
         this.mapInstance = mapInstance;
+        graticuleSupport = new GraticuleSupport(mapInstance);
     }
 
     /**

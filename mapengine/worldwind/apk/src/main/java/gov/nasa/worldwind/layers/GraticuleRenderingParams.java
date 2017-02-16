@@ -13,8 +13,7 @@ import gov.nasa.worldwind.util.Logger;
  * @author dcollins
  * @version $Id: GraticuleRenderingParams.java 1171 2013-02-11 21:45:02Z dcollins $
  */
-public class GraticuleRenderingParams extends AVListImpl
-{
+public class GraticuleRenderingParams extends AVListImpl {
     final static private String TAG = GraticuleRenderingParams.class.getSimpleName();
 
     public static final String KEY_DRAW_LINES = "DrawGraticule";
@@ -24,36 +23,31 @@ public class GraticuleRenderingParams extends AVListImpl
     public static final String KEY_LINE_CONFORMANCE = "GraticuleLineConformance";
     public static final String KEY_DRAW_LABELS = "DrawLabels";
     public static final String KEY_LABEL_COLOR = "LabelColor";
-    public static final String KEY_LABEL_FONT = "LabelFont";
+    public static final String KEY_LABEL_FONT_TYPE_FACE = "LabelFontTypeFace";
+    public static final String KEY_LABEL_FONT_POINT_SIZE = "LabelFontPointSize";
     public static final String VALUE_LINE_STYLE_SOLID = "LineStyleSolid";
     public static final String VALUE_LINE_STYLE_DASHED = "LineStyleDashed";
     public static final String VALUE_LINE_STYLE_DOTTED = "LineStyleDotted";
 
-    public GraticuleRenderingParams()
-    {
+    public GraticuleRenderingParams() {
     }
 
-    public boolean isDrawLines()
-    {
+    public boolean isDrawLines() {
         Object value = getValue(KEY_DRAW_LINES);
         return value instanceof Boolean ? (Boolean) value : false;
     }
 
-    public void setDrawLines(boolean drawLines)
-    {
+    public void setDrawLines(boolean drawLines) {
         setValue(KEY_DRAW_LINES, drawLines);
     }
 
-    public Color getLineColor()
-    {
+    public Color getLineColor() {
         Object value = getValue(KEY_LINE_COLOR);
         return value instanceof Color ? (Color) value : null;
     }
 
-    public void setLineColor(Color color)
-    {
-        if (color == null)
-        {
+    public void setLineColor(Color color) {
+        if (color == null) {
             String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.ColorIsNull");
             Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
@@ -62,28 +56,23 @@ public class GraticuleRenderingParams extends AVListImpl
         setValue(KEY_LINE_COLOR, color);
     }
 
-    public double getLineWidth()
-    {
+    public float getLineWidth() {
 
         Object value = getValue(KEY_LINE_WIDTH);
-        return value instanceof Double ? (Double) value : 0;
+        return value instanceof Float ? (Float) value : 0;
     }
 
-    public void setLineWidth(double lineWidth)
-    {
+    public void setLineWidth(double lineWidth) {
         setValue(KEY_LINE_WIDTH, lineWidth);
     }
 
-    public String getLineStyle()
-    {
+    public String getLineStyle() {
         Object value = getValue(KEY_LINE_STYLE);
         return value instanceof String ? (String) value : null;
     }
 
-    public void setLineStyle(String lineStyle)
-    {
-        if (lineStyle == null)
-        {
+    public void setLineStyle(String lineStyle) {
+        if (lineStyle == null) {
             String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.StringIsNull");
             Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);
@@ -92,27 +81,22 @@ public class GraticuleRenderingParams extends AVListImpl
         setValue(KEY_LINE_STYLE, lineStyle);
     }
 
-    public boolean isDrawLabels()
-    {
+    public boolean isDrawLabels() {
         Object value = getValue(KEY_DRAW_LABELS);
         return value instanceof Boolean ? (Boolean) value : false;
     }
 
-    public void setDrawLabels(boolean drawLabels)
-    {
+    public void setDrawLabels(boolean drawLabels) {
         setValue(KEY_DRAW_LABELS, drawLabels);
     }
 
-    public Color getLabelColor()
-    {
+    public Color getLabelColor() {
         Object value = getValue(KEY_LABEL_COLOR);
         return value instanceof Color ? (Color) value : null;
     }
 
-    public void setLabelColor(Color color)
-    {
-        if (color == null)
-        {
+    public void setLabelColor(Color color) {
+        if (color == null) {
             String message = Logger.makeMessage(TAG, "getGraticuleLineColor", "nullValue.ColorIsNull");
             Logger.log(Logger.ERROR, message);
             throw new IllegalArgumentException(message);

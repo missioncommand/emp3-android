@@ -5,6 +5,9 @@
  */
 package gov.nasa.worldwind.layers;
 
+import android.graphics.Typeface;
+
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.render.Color;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Label;
@@ -13,6 +16,8 @@ import gov.nasa.worldwind.shape.ShapeAttributes;
 import gov.nasa.worldwind.shape.TextAttributes;
 import gov.nasa.worldwind.util.Logger;
 import gov.nasa.worldwind.avlist.AVList;
+import mil.emp3.api.utils.FontUtilities;
+import mil.emp3.mapengine.interfaces.IMapInstance;
 
 import java.util.*;
 
@@ -67,8 +72,9 @@ public class GraticuleSupport {
     private AVList defaultParams;
     //private GeographicTextRenderer textRenderer = new GeographicTextRenderer();
     private TextAttributes textAttribute = new TextAttributes();
+    private IMapInstance mapInstance;
 
-    public GraticuleSupport() {
+    public GraticuleSupport(IMapInstance mapInstance) {
         //this.textRenderer.setEffect(AVKey.TEXT_EFFECT_SHADOW);
         // Keep labels separated by at least two pixels
         //this.textRenderer.setCullTextEnabled(true);
@@ -79,6 +85,7 @@ public class GraticuleSupport {
         this.textAttribute.setEnableOutline(true);
         this.textAttribute.setOutlineWidth(3);
         //this.textAttribute.setTextColor()
+        this.mapInstance = mapInstance;
     }
 
     public void addRenderable(Object renderable, String paramsKey) {
@@ -192,10 +199,8 @@ public class GraticuleSupport {
             params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(1.0f, 1.0f, 1.0f, 1.0f));
         }
 
-        if (params.getValue(GraticuleRenderingParams.KEY_LINE_WIDTH) == null)
-        //noinspection UnnecessaryBoxing
-        {
-            params.setValue(GraticuleRenderingParams.KEY_LINE_WIDTH, new Double(1));
+        if (params.getValue(GraticuleRenderingParams.KEY_LINE_WIDTH) == null) {
+            params.setValue(GraticuleRenderingParams.KEY_LINE_WIDTH, new Float(3));
         }
 
         if (params.getValue(GraticuleRenderingParams.KEY_LINE_STYLE) == null) {
@@ -210,8 +215,16 @@ public class GraticuleSupport {
             params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(1.0f, 1.0f, 1.0f, 1.0f));
         }
 
-        if (params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT) == null) {
+        //if (params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT) == null) {
             //params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-12"));
+        //}
+
+        if (params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE) == null) {
+            params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE, new Float(12.0f));
+        }
+
+        if (params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE) == null) {
+            params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE, Typeface.create("Arial", Typeface.BOLD));
         }
 
         return params;
@@ -231,10 +244,23 @@ public class GraticuleSupport {
                 text.getAttributes().setOutlineWidth(3f);
             }
 
-            o = params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT);
-            //if (o != null && o instanceof Font) {
-            //    text.setFont((Font) o);
-            //}
+            o = params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE);
+            if (o != null && o instanceof Typeface) {
+                Typeface typeFace = (Typeface) o;
+
+                text.getAttributes().setTypeface(typeFace);
+            }
+
+            o = params.getValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE);
+            if (o != null && o instanceof Float) {
+                Float pointSize = (Float) o;
+                int fontPixelSize = FontUtilities.getTextPixelSize(pointSize, mapInstance.getFontSizeModifier());
+
+                text.getAttributes().setTextSize(fontPixelSize);
+            }
+
+            gov.nasa.worldwind.geom.Offset textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5);
+            text.getAttributes().setTextOffset(textOffset);
         }
     }
 
@@ -247,20 +273,35 @@ public class GraticuleSupport {
     private ShapeAttributes getLineShapeAttributes(String key, double opacity) {
         ShapeAttributes attrs = this.namedShapeAttributes.get(key);
         if (attrs == null) {
-            attrs = createLineShapeAttributes(opacity);
+            attrs = createLineShapeAttributes(key, opacity);
             this.namedShapeAttributes.put(key, attrs);
         }
         return attrs;
     }
 
-    private ShapeAttributes createLineShapeAttributes(double opacity) {
+    private ShapeAttributes createLineShapeAttributes(String key, double opacity) {
+        Object o;
+        GraticuleRenderingParams renderingParams = this.namedParams.get(key);
         ShapeAttributes attrs = new ShapeAttributes();
+
         attrs.setDrawInterior(false);
         attrs.setDrawOutline(true);
 
         // Apply "line" properties.
-        attrs.setOutlineColor(new Color(1.0f, 1.0f, 1.0f, (float) opacity));
-        attrs.setOutlineWidth(3);
+        o = renderingParams.getLineColor();
+        if (null != o) {
+            Color color = applyOpacity((Color) o, opacity);
+            attrs.setOutlineColor(color);
+        } else {
+            attrs.setOutlineColor(new Color(1.0f, 1.0f, 1.0f, (float) opacity));
+        }
+
+        o = renderingParams.getLineWidth();
+        if (null != o) {
+            attrs.setOutlineWidth((Float) o);
+        } else {
+            attrs.setOutlineWidth(3);
+        }
         // Draw a solid line.
         // Draw the line as longer strokes with space in between.
 

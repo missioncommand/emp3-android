@@ -6,6 +6,9 @@
 package gov.nasa.worldwind.layers.Earth;
 
 
+import android.content.res.Resources;
+import android.graphics.Typeface;
+
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.*;
@@ -28,6 +31,8 @@ import java.util.*;
  */
 public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
     final static private String TAG = UTMBaseGraticuleLayer.class.getSimpleName();
+
+    public static final int MIN_CELL_SIZE_PIXELS = (new Double(50.0 / 96.0 * Resources.getSystem().getDisplayMetrics().densityDpi)).intValue();//25;//50;
 
     public static final String GRATICULE_UTM = "Graticule.UTM";
 
@@ -216,10 +221,12 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
 
     protected void initRenderingParams() {
         GraticuleRenderingParams params = new GraticuleRenderingParams();
-        //params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(.8f, .8f, .8f, .5f));
-        //params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(1f, 1f, 1f, .8f));
+        params.setValue(GraticuleRenderingParams.KEY_LINE_COLOR, new Color(0.8f, 0.8f, 0.8f, 0.5f));
+        params.setValue(GraticuleRenderingParams.KEY_LABEL_COLOR, new Color(1f, 1f, 1f, .8f));
         //params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT, Font.decode("Arial-Bold-14"));
-        //params.setValue(GraticuleRenderingParams.KEY_DRAW_LABELS, Boolean.TRUE);
+        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_TYPE_FACE, Typeface.create("Arial", Typeface.BOLD));
+        params.setValue(GraticuleRenderingParams.KEY_LABEL_FONT_POINT_SIZE, new Float(12.0f));
+        params.setValue(GraticuleRenderingParams.KEY_DRAW_LABELS, Boolean.TRUE);
         setRenderingParams(GRATICULE_UTM, params);
     }
 
@@ -350,14 +357,14 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
         for (int i = 0; i < 21; i++) {
             double latitude = lat;
             for (int j = 0; j < 4; j++) {
-                // Each prallel is divided into four 90 degrees segments
+                // Each parallel is divided into four 90 degrees segments
                 positions.clear();
                 lon = -180 + j * 90;
                 positions.add(new Position(latitude, lon, 10e3));
                 positions.add(new Position(latitude, lon + 30, 10e3));
                 positions.add(new Position(latitude, lon + 60, 10e3));
                 positions.add(new Position(latitude, lon + 90, 10e3));
-                Object polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.LINEAR);
+                Object polyline = createLineRenderable(new ArrayList<Position>(positions), WorldWind.GREAT_CIRCLE);
                 //Sector sector = Sector.fromDegrees(lat, lon, 0.0000001, 90);
                 Sector sector = new Sector();
                 sector.union(lat, lon);
@@ -670,7 +677,7 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
      * Represent a generic UTM/UPS square area
      */
     private class SquareSector {
-        public static final int MIN_CELL_SIZE_PIXELS = 50;
+        //public static final int MIN_CELL_SIZE_PIXELS = 25;//50;
 
         protected int UTMZone;
         protected String hemisphere;
@@ -685,13 +692,13 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
         protected Location squareCenter;
         protected boolean isTruncated = false;
 
-        public SquareSector(int UTMZone, String hemisphere, Sector UTMZoneSector, double SWEasting, double SWNorthing, double size) {
+        public SquareSector(int UTMZone, String hemisphere, Sector UTMZoneSector, double SWEasting, double SWNorthing, double sectorSize) {
             this.UTMZone = UTMZone;
             this.hemisphere = hemisphere;
             this.UTMZoneSector = UTMZoneSector;
             this.SWEasting = SWEasting;
             this.SWNorthing = SWNorthing;
-            this.size = size;
+            this.size = sectorSize;
 
             // Compute corners positions
             this.sw = computePosition(this.UTMZone, this.hemisphere, SWEasting, SWNorthing);
@@ -703,7 +710,10 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
             // Compute approximate bounding sector and center point
             if (this.sw != null && this.se != null && this.nw != null && this.ne != null) {
                 adjustDateLineCrossingPoints();
-                this.boundingSector = new Sector(sw.latitude, sw.longitude, nw.latitude - sw.latitude, ne.longitude - sw.longitude);
+                this.boundingSector = new Sector();
+                this.boundingSector.union(sw.latitude, sw.longitude);
+                this.boundingSector.union(ne.latitude, ne.longitude);
+
                 if (!isInsideGridZone()) {
                     this.boundingSector = SectorUtils.intersection(this.UTMZoneSector, this.boundingSector);
                 }
@@ -751,12 +761,15 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
             return Sector.computeBoundingCylinder(globe, ve, this.boundingSector);
         }
 */
-        @SuppressWarnings({"RedundantIfStatement"})
+
         public boolean isInView(RenderContext dc) {
             //if (!dc.getView().getFrustumInModelCoordinates().intersects(this.getExtent(dc.getGlobe(), dc.getVerticalExaggeration()))) {
             //    return false;
             //}
-            if (!dc.frustum.intersectsViewport(dc.viewport)) {
+            //if (!dc.frustum.intersectsViewport(dc.viewport)) {
+            //    return false;
+            //}
+            if (!this.boundingSector.intersects(UTMBaseGraticuleLayer.this.mapSector)) {
                 return false;
             }
 
@@ -793,7 +806,7 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
         /**
          * Determines whether this square is fully outside its parent grid zone.
          *
-         * @return true if this square is totaly outside its parent grid zone.
+         * @return true if this square is totally outside its parent grid zone.
          */
         @SuppressWarnings({"RedundantIfStatement"})
         public boolean isOutsideGridZone() {
@@ -820,7 +833,7 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
             //View view = dc.getView();
             Vec3 centerPoint = getSurfacePoint(dc, this.centroid.latitude, this.centroid.longitude);
             Double distance = dc.cameraPoint.distanceTo(centerPoint);
-            return this.size / dc.pixelSizeAtDistance(distance);
+            return this.size / dc.pixelSizeAtDistance(dc.camera.altitude);
         }
     }
 
@@ -834,8 +847,8 @@ public class UTMBaseGraticuleLayer extends AbstractGraticuleLayer {
 
         private SquareZone northNeighbor, eastNeighbor;
 
-        public SquareZone(int UTMZone, String hemisphere, Sector UTMZoneSector, double SWEasting, double SWNorthing, double size) {
-            super(UTMZone, hemisphere, UTMZoneSector, SWEasting, SWNorthing, size);
+        public SquareZone(int UTMZone, String hemisphere, Sector UTMZoneSector, double SWEasting, double SWNorthing, double squareSize) {
+            super(UTMZone, hemisphere, UTMZoneSector, SWEasting, SWNorthing, squareSize);
         }
 
         public void setName(String name) {
