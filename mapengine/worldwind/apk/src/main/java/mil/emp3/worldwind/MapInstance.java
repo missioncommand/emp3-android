@@ -175,7 +175,10 @@ public class MapInstance extends CoreMapInstance {
                         FeatureTypeEnum.GEO_POLYGON,
                         FeatureTypeEnum.GEO_TEXT
                 },
-                new WMSVersionEnum[] {WMSVersionEnum.VERSION_1_1, WMSVersionEnum.VERSION_1_1_1, WMSVersionEnum.VERSION_1_3});
+                new WMSVersionEnum[] {WMSVersionEnum.VERSION_1_1,
+                        WMSVersionEnum.VERSION_1_1_1,
+                        WMSVersionEnum.VERSION_1_3,
+                        WMSVersionEnum.VERSION_1_3_0});
 
         if(null == attrs) {
             ww = new WorldWindow(context);
@@ -1045,6 +1048,7 @@ public class MapInstance extends CoreMapInstance {
         WmsLayer layer;
         WmsLayerConfig wmsConfig;
         String sLayers = "";
+        String sStyles = "";
         int iLayerIndex;
 
         for (String Str: wms.getLayers()) {
@@ -1052,6 +1056,15 @@ public class MapInstance extends CoreMapInstance {
                 sLayers += ",";
             }
             sLayers += Str;
+        }
+
+        if (wms.getStyles() != null) {
+            for (String Str : wms.getStyles()) {
+                if (sStyles.length() > 0) {
+                    sStyles += ",";
+                }
+                sStyles += Str;
+            }
         }
 
         // If its an update we need to remove the old one.
@@ -1068,9 +1081,22 @@ public class MapInstance extends CoreMapInstance {
         wmsConfig.transparent = wms.getTransaparent();
         wmsConfig.wmsVersion = wms.getWMSVersion().toString();
         wmsConfig.layerNames = sLayers;
+        if (wms.getCoordinateSystem() != null) {
+            wmsConfig.coordinateSystem = wms.getCoordinateSystem();
+        }
+        if (sStyles.length() > 0) {
+            wmsConfig.styleNames = sStyles;
+        }
+        if (wms.getTimeString() != null) {
+            wmsConfig.timeString = wms.getTimeString();
+        }
 
-        layer = new WmsLayer(new Sector().setFullSphere(), 1e3, wmsConfig);
-
+        double metersPerPixel = 10;
+        if (wms.getLayerResolution() != 0) {
+            metersPerPixel = wms.getLayerResolution();
+        }
+        layer = new WmsLayer(new Sector().setFullSphere(), metersPerPixel, wmsConfig);
+        layer.setDetailControl(1.0);
         this.wmsHash.put(wms.getGeoId(), layer);
         ww.getLayers().addLayer(iLayerIndex, layer);
         ww.requestRedraw();

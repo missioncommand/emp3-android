@@ -133,9 +133,11 @@ public class MilStdRenderer implements IMilStdRenderer {
     public SparseArray<String> getTGModifiers(IMapInstance mapInstance, MilStdSymbol symbol) {
         initCheck();
 
+        String UniqueDesignator1 = null;
         MilStdLabelSettingEnum eLabelSetting = storageManager.getMilStdLabels(mapInstance);
         SparseArray<String> oArray = new SparseArray<>();
         java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = symbol.getModifiers();
+/*
         java.util.Set<IGeoMilSymbol.Modifier> oLabels = null;
 
         if (eLabelSetting != null) {
@@ -148,7 +150,7 @@ public class MilStdRenderer implements IMilStdRenderer {
                     break;
             }
         }
-        
+*/
         if ((geoModifiers != null) && !geoModifiers.isEmpty()) {
             java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
             
@@ -209,7 +211,8 @@ public class MilStdRenderer implements IMilStdRenderer {
                     case OFFSET_INDICATOR:
                         break;
                     case UNIQUE_DESIGNATOR_1:
-                        oArray.put(ModifiersTG.T_UNIQUE_DESIGNATION_1, geoModifiers.get(eModifier));
+                        UniqueDesignator1 = geoModifiers.get(eModifier);
+                        oArray.put(ModifiersTG.T_UNIQUE_DESIGNATION_1, UniqueDesignator1);
                         break;
                     case UNIQUE_DESIGNATOR_2:
                         oArray.put(ModifiersTG.T1_UNIQUE_DESIGNATION_2, geoModifiers.get(eModifier));
@@ -270,20 +273,23 @@ public class MilStdRenderer implements IMilStdRenderer {
                 }
             }
         }
-        
-        if (symbol.getName().length() > 0) {
+
+
+        if ((symbol.getName() != null) && !symbol.getName().isEmpty()) {
             if (eLabelSetting != null) {
                 switch (eLabelSetting) {
                     case REQUIRED_LABELS:
                         break;
                     case COMMON_LABELS:
                     case ALL_LABELS:
-                        oArray.put(ModifiersUnits.CN_CPOF_NAME_LABEL, symbol.getName());
+                        if ((UniqueDesignator1 == null) || UniqueDesignator1.isEmpty() || !UniqueDesignator1.toUpperCase().equals(symbol.getName().toUpperCase())) {
+                            oArray.put(ModifiersUnits.CN_CPOF_NAME_LABEL, symbol.getName());
+                        }
                         break;
                 }
             }
         }
-        
+
         return oArray;
     }
 
@@ -302,6 +308,7 @@ public class MilStdRenderer implements IMilStdRenderer {
             return this.getTGModifiers(mapInstance, symbol);
         }
 
+        String UniqueDesignator1 = null;
         SparseArray<String> oArray = new SparseArray<>();
         MilStdLabelSettingEnum eLabelSetting = storageManager.getMilStdLabels(mapInstance);
         java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = symbol.getModifiers();
@@ -388,7 +395,8 @@ public class MilStdRenderer implements IMilStdRenderer {
                         oArray.put(ModifiersUnits.S_HQ_STAFF_OR_OFFSET_INDICATOR, geoModifiers.get(eModifier));
                         break;
                     case UNIQUE_DESIGNATOR_1:
-                        oArray.put(ModifiersUnits.T_UNIQUE_DESIGNATION_1, geoModifiers.get(eModifier));
+                        UniqueDesignator1 = geoModifiers.get(eModifier);
+                        oArray.put(ModifiersUnits.T_UNIQUE_DESIGNATION_1, UniqueDesignator1);
                         break;
                     case UNIQUE_DESIGNATOR_2:
                         oArray.put(ModifiersUnits.T1_UNIQUE_DESIGNATION_2, geoModifiers.get(eModifier));
@@ -471,7 +479,9 @@ public class MilStdRenderer implements IMilStdRenderer {
                         break;
                     case COMMON_LABELS:
                     case ALL_LABELS:
-                        oArray.put(ModifiersUnits.CN_CPOF_NAME_LABEL, symbol.getName());
+                        if ((UniqueDesignator1 == null) || UniqueDesignator1.isEmpty() || !UniqueDesignator1.toUpperCase().equals(symbol.getName().toUpperCase())) {
+                            oArray.put(ModifiersUnits.CN_CPOF_NAME_LABEL, symbol.getName());
+                        }
                         break;
                 }
             }

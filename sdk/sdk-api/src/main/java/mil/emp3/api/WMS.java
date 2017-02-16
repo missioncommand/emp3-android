@@ -1,5 +1,8 @@
 package mil.emp3.api;
 
+import java.util.HashMap;
+import java.util.List;
+
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.core.IStorageManager;
@@ -16,11 +19,17 @@ public class WMS implements IWMS {
     private final java.util.UUID uniqueId;
     private String name = "";
     private String description = "";
-    private WMSVersionEnum eVersion = WMSVersionEnum.VERSION_1_3;
-    private boolean bTranparent = true;
+    private WMSVersionEnum eVersion = null;
+    private boolean bTransparent = true;
     private String sTileFormat = "image/png";
     private java.util.List<String> oLayers;
     private final java.net.URL url;
+    private String coordinateSystem = null;
+    private List<String> oStyles = null;
+    private String oTimeString = null;
+    private double oResolution = 0;
+    private double oControl = 0;
+    private final static String NULL_LAYER = "WMS layer name can't be null or empty";
 
     /**
      * This constructor creates a WMS
@@ -39,7 +48,7 @@ public class WMS implements IWMS {
             throws java.net.MalformedURLException {
         
         uniqueId = java.util.UUID.randomUUID();
-        this.bTranparent = bTransparent;
+        this.bTransparent = bTransparent;
         if (oLayers != null) {
             this.oLayers = oLayers;
         } else {
@@ -48,7 +57,9 @@ public class WMS implements IWMS {
         if ((sTileFormat != null) && !sTileFormat.isEmpty()) {
             this.sTileFormat = sTileFormat;
         }
-        if (eWMSVersion != null) {
+        if (eWMSVersion == null) {
+            this.eVersion = WMSVersionEnum.VERSION_1_3_0;
+        } else {
             this.eVersion = eWMSVersion;
         }
 
@@ -136,7 +147,55 @@ public class WMS implements IWMS {
      * @return String
      */    
     public boolean getTransaparent() {
-        return this.bTranparent;
+        return this.bTransparent;
+    }
+
+    @Override
+    public void setCoordinateSystem(String coordinateSystem) throws EMP_Exception {
+        if (coordinateSystem != null && !coordinateSystem.isEmpty()) {
+            this.coordinateSystem = coordinateSystem;
+        } else {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER,
+                    "Coordinate system can't be null or empty");
+        }
+    }
+
+    @Override
+    public String getCoordinateSystem() {
+        return coordinateSystem;
+    }
+
+    @Override
+    public void setStyles(List<String> styles) {
+        if (styles != null)
+            oStyles = styles;
+    }
+
+    @Override
+    public List<String> getStyles() {
+        return oStyles;
+    }
+
+    @Override
+    public void setTimeString(String timeString) {
+        if (timeString != null && !timeString.isEmpty()) {
+            oTimeString = timeString;
+        }
+    }
+
+    @Override
+    public String getTimeString() {
+        return oTimeString;
+    }
+
+    @Override
+    public void setLayerResolution(double resolution) {
+        oResolution = resolution;
+    }
+
+    @Override
+    public double getLayerResolution() {
+        return oResolution;
     }
 
     /**
