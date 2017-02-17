@@ -12,6 +12,7 @@ import mil.emp3.api.Overlay;
 import mil.emp3.api.Point;
 import mil.emp3.api.Text;
 import mil.emp3.api.events.CameraEvent;
+import mil.emp3.api.events.MapUserInteractionEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IMap;
@@ -20,6 +21,7 @@ import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ICameraEventListener;
 
+import mil.emp3.api.listeners.IMapInteractionEventListener;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.NavItemBase;
@@ -45,13 +47,15 @@ public class BoundsGenerationTest extends NavItemBase {
     Text nwText[] = new Text[ExecuteTest.MAX_MAPS];
     Text neText[] = new Text[ExecuteTest.MAX_MAPS];
 
+    EventListenerHandle mapInteractionHandle[] = new EventListenerHandle[ExecuteTest.MAX_MAPS];
+
     public BoundsGenerationTest(Activity activity, IMap map1, IMap map2) {
         super(activity, map1, map2, TAG);
     }
 
     @Override
     public String[] getSupportedUserActions() {
-        String[] actions = {"Start", "Get Bounds"};
+        String[] actions = {"Start", "Get Bounds", "Show Corners"};
         return actions;
     }
 
@@ -90,9 +94,36 @@ public class BoundsGenerationTest extends NavItemBase {
                     if (listenerHandle[ii] != null) {
                         maps[ii].removeEventListener(listenerHandle[ii]);
                     }
+
+                    if (mapInteractionHandle[ii] != null) {
+                        maps[ii].removeEventListener(mapInteractionHandle[ii]);
+                    }
                 }
                 testThread.interrupt();
             } else if (userAction.equals("ClearMap")) {
+                for(int ii = 0; ii < ExecuteTest.MAX_MAPS; ii++) {
+                    cameraPoint[ii] = null;
+                    swPoint[ii] = null;
+                    sePoint[ii] = null;
+                    nwPoint[ii] = null;
+                    nePoint[ii] = null;
+
+                    cameraText[ii] = null;
+                    swText[ii] = null;
+                    seText[ii] = null;
+                    nwText[ii] = null;
+                    neText[ii] = null;
+
+                    if (listenerHandle[ii] != null) {
+                        maps[ii].removeEventListener(listenerHandle[ii]);
+                        listenerHandle[ii] = null;
+                    }
+
+                    if (mapInteractionHandle[ii] != null) {
+                        maps[ii].removeEventListener(mapInteractionHandle[ii]);
+                        mapInteractionHandle[ii] = null;
+                    }
+                }
                 clearMaps();
             } else if (userAction.equals("Start")) {
                 ICamera camera = maps[whichMap].getCamera();
@@ -204,6 +235,13 @@ public class BoundsGenerationTest extends NavItemBase {
                     });
                     t.start();
                 }
+            } else if (userAction.equals("Show Corners")) {
+                if(null == mapInteractionHandle[ExecuteTest.getCurrentMap()]) {
+                    mapInteractionHandle[whichMap] = maps[whichMap].addMapInteractionEventListener(new MapInteractionListener());
+                } else {
+                    maps[whichMap].removeEventListener(mapInteractionHandle[whichMap]);
+                    mapInteractionHandle[whichMap] = null;
+                }
             }
         } catch (Exception e) {
             updateStatus(TAG, e.getMessage());
@@ -246,4 +284,22 @@ public class BoundsGenerationTest extends NavItemBase {
         }
     }
 
+    class MapInteractionListener implements IMapInteractionEventListener {
+        @Override
+        public void onEvent(final MapUserInteractionEvent event) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if(null != event.getCoordinate()) {
+                        ErrorDialog.showMessageWaitForConfirm(activity, "X, Y [" + event.getPoint().x + ", " + event.getPoint().y +
+                                "] Lat/Long [" + event.getCoordinate().getLatitude() + ", " + event.getCoordinate().getLongitude() + "]");
+                    } else {
+                        ErrorDialog.showMessageWaitForConfirm(activity, "X, Y [" + event.getPoint().x + ", " + event.getPoint().y +
+                                "] Lat/Long [Not Available]");
+                    }
+                }
+            });
+            t.start();
+        }
+    }
 }

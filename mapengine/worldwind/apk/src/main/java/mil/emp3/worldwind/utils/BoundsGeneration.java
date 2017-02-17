@@ -1,5 +1,6 @@
 package mil.emp3.worldwind.utils;
 
+import android.graphics.Point;
 import android.util.Log;
 
 import org.cmapi.primitives.GeoBounds;
@@ -10,6 +11,8 @@ import org.cmapi.primitives.IGeoPosition;
 import gov.nasa.worldwind.geom.Position;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
+
+import static java.lang.Math.abs;
 
 /**
  * Generates bounds for the map. Work in progress.
@@ -101,7 +104,13 @@ public class BoundsGeneration {
         // to the heading. These points should be as close to the edge of the view as possible.
         //
 
-        if((mapInstance.getCamera().getHeading() > 0) || (mapInstance.getCamera().getHeading() < 0)) {
+        if((mapInstance.getCamera().getRoll() > 0) || (mapInstance.getCamera().getRoll() < 0)) {
+            vertices[NW] = new android.graphics.Point(origin_x, origin_y);
+            vertices[SW] = new android.graphics.Point(origin_x, origin_y + height);
+            vertices[SE] = new android.graphics.Point(origin_x + width, origin_y + height);
+            vertices[NE] = new android.graphics.Point(origin_x + width, origin_y);
+        }
+        else if((mapInstance.getCamera().getHeading() > 0) || (mapInstance.getCamera().getHeading() < 0)) {
 
             // We have to first translate the rectangle to the center of the view from top left corner.
             vertices[NW] = new android.graphics.Point(-(width)/2, (height)/2);
@@ -148,33 +157,128 @@ public class BoundsGeneration {
                 cornersFound++;
             }
         }
-//        Position pos = new Position();
-//        if (mapController.screenPointToGroundPosition(origin_x, origin_y, pos)) {
-//            corners[NW] = new MyGeoPosition(pos.latitude, pos.longitude);
-//            Log.d(TAG, "x/y/l/n " + origin_x + " " + origin_y + " " + pos.latitude + " " + pos.longitude);
-//            cornersFound++;
-//        }
-//
-//        if (mapController.screenPointToGroundPosition(origin_x + width, origin_y, pos)) {
-//            corners[NE] = new MyGeoPosition(pos.latitude, pos.longitude);
-//            Log.d(TAG, "x/y/l/n " + (origin_x + width) + " " + origin_y + " " + pos.latitude + " " + pos.longitude);
-//            cornersFound++;
-//        }
-//
-//        if (mapController.screenPointToGroundPosition(origin_x + width, origin_y + height, pos)) {
-//            corners[SE] = new MyGeoPosition(pos.latitude, pos.longitude);
-//            Log.d(TAG, "x/y/l/n " + (origin_x + width) + " " + (origin_y + height) + " " + pos.latitude + " " + pos.longitude);
-//            cornersFound++;
-//        }
-//
-//        if (mapController.screenPointToGroundPosition(origin_x, origin_y + height, pos)) {
-//            corners[SW] = new MyGeoPosition(pos.latitude, pos.longitude);
-//            Log.d(TAG, "x/y/l/n " + (origin_x) + " " + (origin_y + height) + " " + pos.latitude + " " + pos.longitude);
-//            cornersFound++;
-//        }
+
+        if(CORNERS == cornersFound) {
+            if ((mapInstance.getCamera().getRoll() > 0) || (mapInstance.getCamera().getRoll() < 0)) {
+                processForRole(mapInstance, corners);
+            }
+        }
+
         return cornersFound;
     }
 
+    private static void processForRole(MapInstance mapInstance, IGeoPosition corners[]) {
+        PickNavigateController mapController = mapInstance.getMapController();
+        int width = mapInstance.getWW().getWidth();
+        int height = mapInstance.getWW().getHeight();
+        
+        Double northMost = -91.0;
+        Double southMost = -91.0;
+        int northMostCorner = -1;
+        int southMostCorner = -1;
+
+        for (int ii = 0; ii < corners.length; ii++) {
+            if (northMost < -90.0) {
+                northMost = corners[ii].getLatitude();
+                southMost = corners[ii].getLatitude();
+                northMostCorner = ii;
+                southMostCorner = ii;
+                continue;
+            }
+
+            if (corners[ii].getLatitude() > northMost) {
+                northMost = corners[ii].getLatitude();
+                northMostCorner = ii;
+            } else if (corners[ii].getLatitude() < southMost) {
+                southMost = corners[ii].getLatitude();
+                southMostCorner = ii;
+            }
+        }
+        Log.d(TAG, "NEWS Roll " + northMost + " " + southMost + " " + northMostCorner + " " + southMostCorner);
+
+        // Now pick the starting longitudes from the other two corners
+        int westMostCorner = (northMostCorner + 1) % 4;
+        int eastMostCorner = (northMostCorner + 3) % 4;
+
+        Double eastMost = corners[eastMostCorner].getLongitude();
+        Double westMost = corners[westMostCorner].getLongitude();
+
+        Log.d(TAG, "NEWS Roll " + eastMost + " " + westMost + " " + eastMostCorner + " " + westMostCorner);
+
+        double nsDiff = abs(northMost - southMost);
+        double ewDiff;
+
+        if((eastMost >= 0) && (westMost >= 0)) {
+            ewDiff = abs(eastMost - westMost);
+        } else if((eastMost <= 0) && (westMost <= 0)) {
+            ewDiff = abs(eastMost - westMost);
+        } else {
+            ewDiff = abs(eastMost) + abs(westMost);
+            if(ewDiff > 180.0) {
+                ewDiff = (180.0 - abs(eastMost) + 180.0 - abs(westMost));
+            }
+        }
+
+        Log.d(TAG, "NEWS Roll diff " + nsDiff + " " + ewDiff);
+
+        double nsDelta = nsDiff * .05;
+        double ewDelta = ewDiff * .05;
+
+        android.graphics.Point result = new Point();
+        boolean adjusted = true;
+        for (int ii = 0; (ii < 100) && adjusted; ii++) {
+            adjusted = false;
+            if (!mapController.groundPositionToScreenPoint(northMost, eastMost, result) || (result.x > width) || (result.y > height)
+                    || (result.x < 0) || (result.y < 0)) {
+                adjusted = true;
+                northMost -= nsDelta;
+                eastMost -= ewDelta;
+            } else {
+                Log.d(TAG, " northMost, eastMost  + " + result.x + " " + result.y);
+            }
+
+            if (!mapController.groundPositionToScreenPoint(northMost, westMost, result) || (result.x > width) || (result.y > height)
+                    || (result.x < 0) || (result.y < 0)) {
+                adjusted = true;
+                northMost -= nsDelta;
+                westMost += ewDelta;
+            } else {
+                Log.d(TAG, " northMost, westMost  + " + result.x + " " + result.y);
+            }
+
+            if (!mapController.groundPositionToScreenPoint(southMost, westMost, result) || (result.x > width) || (result.y > height) ||
+                    (result.x < 0) || (result.y < 0)) {
+                adjusted = true;
+                southMost += nsDelta;
+                westMost += ewDelta;
+            } else {
+                Log.d(TAG, " southMost, westMost  + " + result.x + " " + result.y);
+            }
+
+            if (!mapController.groundPositionToScreenPoint(southMost, eastMost, result) || (result.x > width) || (result.y > height)
+                    || (result.x < 0) || (result.y < 0)) {
+                adjusted = true;
+                southMost += nsDelta;
+                eastMost -= ewDelta;
+            } else {
+                Log.d(TAG, " southMost, eastMost  + " + result.x + " " + result.y);
+            }
+
+            Log.d(TAG, "NEWS Roll " + northMost + " " + eastMost + " " + westMost + " " + southMost);
+        }
+
+        corners[NE].setLatitude(northMost);
+        corners[NE].setLongitude(eastMost);
+
+        corners[SE].setLatitude(southMost);
+        corners[SE].setLongitude(eastMost);
+
+        corners[NW].setLatitude(northMost);
+        corners[NW].setLongitude(westMost);
+
+        corners[SW].setLatitude(southMost);
+        corners[SW].setLongitude(westMost);
+    }
     /**
      * refer to https://en.wikipedia.org/wiki/Rotation_matrix for the theory behind the following code.
      * @param vertices
