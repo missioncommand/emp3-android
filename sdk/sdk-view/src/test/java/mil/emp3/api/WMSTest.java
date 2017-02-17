@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.net.MalformedURLException;
 
 import mil.emp3.api.enums.WMSVersionEnum;
+import mil.emp3.json.geoJson.GeoJsonParser;
 
 public class WMSTest extends TestBase {
     public static final String TAG = WMSTest.class.getSimpleName();
@@ -56,6 +57,17 @@ public class WMSTest extends TestBase {
             Assert.fail("Null coordinate system not caught");
         } catch (Exception e) {
             Log.i(TAG, "Null coordinate system caught, test passed");
+        }
+    }
+
+    @Test
+    public void invalidGeoPackageUrlTest() {
+        Log.i(TAG, "Invalid GeoPackage URL Test");
+        try {
+            GeoPackage gpkg = new GeoPackage("zzzzz");
+            Assert.fail("Bad URL not caught");
+        } catch (MalformedURLException mue) {
+            Log.i(TAG, "Bad URL caught, test passed");
         }
     }
 }
