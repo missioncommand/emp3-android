@@ -171,7 +171,7 @@ public class BoundsGeneration {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
-        
+
         Double northMost = -91.0;
         Double southMost = -91.0;
         int northMostCorner = -1;
