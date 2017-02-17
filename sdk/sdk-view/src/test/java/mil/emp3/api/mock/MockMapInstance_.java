@@ -34,6 +34,7 @@ import mil.emp3.mapengine.api.FeatureVisibilityList;
 import mil.emp3.mapengine.interfaces.IMapEngineCapabilities;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
+import mil.emp3.mapengine.interfaces.IMapGridLines;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.mapengine.interfaces.ISetVisibilityList;
 
@@ -287,7 +288,12 @@ public class MockMapInstance_ extends CoreMapInstance {
     public int getBackgroundBrightness() {
         return 50;
     }
-    
+
+    @Override
+    public void setMapGridGenerator(IMapGridLines gridGenerator) {
+
+    }
+
     @Override
     public android.view.View showMiniMap() {
         return null;
@@ -295,11 +301,6 @@ public class MockMapInstance_ extends CoreMapInstance {
 
     @Override
     public void hideMiniMap() {
-
-    }
-
-    @Override
-    public void setGridType(MapGridTypeEnum grid) {
 
     }
 }

@@ -19,13 +19,6 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,23 +39,19 @@ import gov.nasa.worldwind.layer.BackgroundLayer;
 import gov.nasa.worldwind.layer.Layer;
 import gov.nasa.worldwind.layer.LayerFactory;
 import gov.nasa.worldwind.layer.RenderableLayer;
-import gov.nasa.worldwind.layers.Earth.MGRSGraticuleLayer;
-import gov.nasa.worldwind.layers.Earth.UTMBaseGraticuleLayer;
-import gov.nasa.worldwind.layers.Earth.UTMGraticuleLayer;
 import gov.nasa.worldwind.ogc.WmsLayer;
 import gov.nasa.worldwind.ogc.WmsLayerConfig;
-import gov.nasa.worldwind.render.ImageOptions;
 import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderResourceCache;
 import gov.nasa.worldwind.shape.SurfaceImage;
 import gov.nasa.worldwind.util.Logger;
-import gov.nasa.worldwind.util.WWUtil;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
+import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.api.interfaces.ICamera;
@@ -83,9 +72,12 @@ import mil.emp3.mapengine.abstracts.CoreMapInstance;
 import mil.emp3.mapengine.api.Capabilities;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
+import mil.emp3.mapengine.events.MapInstanceViewChangeEvent;
+import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
 import mil.emp3.mapengine.interfaces.IEmpResources;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
+import mil.emp3.mapengine.interfaces.IMapGridLines;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.mapengine.interfaces.ISetVisibilityList;
 import mil.emp3.worldwind.controller.PickNavigateController;
@@ -94,6 +86,7 @@ import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
 import mil.emp3.worldwind.layer.EmpLayer;
 import mil.emp3.worldwind.layer.IconLayer;
 import mil.emp3.worldwind.layer.KMLLayer;
+import mil.emp3.worldwind.layer.MapGridLayer;
 import mil.emp3.worldwind.layer.PathLayer;
 import mil.emp3.worldwind.layer.PolygonLayer;
 import mil.emp3.worldwind.layer.RenderedFeatureLayer;
@@ -140,7 +133,7 @@ public class MapInstance extends CoreMapInstance {
     private android.graphics.Bitmap crossHatchBitmap;
     private ImageSource hatchImageSource;
     private ImageSource crossHatchImageSource;
-    private AbstractLayer gridLayer = null;
+    private MapGridLayer gridLayer = null;
 
     private final Map<FeatureTypeEnum, EmpLayer> empLayerMap = new HashMap<>();
 
@@ -285,6 +278,9 @@ public class MapInstance extends CoreMapInstance {
         ww.getLayers().addLayer(this.brightnessLayer);
 
         this.surfaceLayerHash = new ConcurrentHashMap<>();
+
+        this.gridLayer = new MapGridLayer("Grid Line Layer", this);
+        ww.getLayers().addLayer(this.gridLayer);
 
         empLayer = new PolygonLayer(this);
         ww.getLayers().addLayer(empLayer);
@@ -1342,33 +1338,25 @@ public class MapInstance extends CoreMapInstance {
     }
 
     @Override
-    public void setGridType(MapGridTypeEnum grid) {
-        AbstractLayer newGridLayer = null;
-
+    public void setMapGridGenerator(IMapGridLines gridGenerator) {
         if (null != this.gridLayer) {
-            ww.getLayers().removeLayer(this.gridLayer);
+            this.gridLayer.setMapGridGenerator(gridGenerator);
         }
-
-        switch (grid) {
-            case NONE:
-                break;
-            case MGRS:
-                newGridLayer = new MGRSGraticuleLayer(this);
-                break;
-            case UTM:
-                newGridLayer = new UTMGraticuleLayer(this);
-                break;
-        }
-
-        if (null != newGridLayer) {
-            int iLayerIndex = ww.getLayers().indexOfLayer(this.brightnessLayer);
-
-            if (iLayerIndex != -1) {
-                ww.getLayers().addLayer(iLayerIndex + 1, newGridLayer);
-            }
-        }
-        this.gridLayer = newGridLayer;
 
         ww.requestRedraw();
+    }
+
+    public void generateViewChangeEvent(MapInstanceViewChangeEvent oEvent) {
+        super.generateViewChangeEvent(oEvent);
+        if (oEvent.getEvent() == MapViewEventEnum.VIEW_MOTION_STOPPED) {
+            if ((null != this.gridLayer) && this.gridLayer.needsRendering()) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ww.requestRedraw();
+                    }
+                });
+            }
+        }
     }
 }

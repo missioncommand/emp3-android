@@ -1,5 +1,6 @@
 package mil.emp3.api.utils;
 
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.security.InvalidParameterException;
@@ -13,6 +14,13 @@ public class EmpBoundingBox {
     private double south = 0;
     private double east = 0;
     private double west = 0;
+
+    /**
+     * This is the default constructor.
+     */
+    public EmpBoundingBox() {
+
+    }
 
     /**
      * This constructor defines an area bounded by the north, south, east, and west parameters provided.
@@ -125,5 +133,65 @@ public class EmpBoundingBox {
      */
     public boolean containsIDL() {
         return (this.west > this.east);
+    }
+
+    public void copyFrom(IGeoBounds geoBounds) {
+        this.east = geoBounds.getEast();
+        this.south = geoBounds.getSouth();
+        this.west = geoBounds.getWest();
+        this.north = geoBounds.getNorth();
+    }
+
+    public void copyFrom(EmpBoundingBox empBounds) {
+        this.east = empBounds.east();
+        this.south = empBounds.south();
+        this.west = empBounds.west();
+        this.north = empBounds.north();
+    }
+
+    public boolean intersects(double northDeg, double southDeg, double eastDeg, double westDeg) {
+        if ((northDeg == Double.NaN) || (southDeg == Double.NaN) || (eastDeg == Double.NaN) || (westDeg == Double.NaN)) {
+            throw new InvalidParameterException("invalid coordinate.");
+        }
+
+        boolean bRet = false;
+
+        // If their north and south dont intersect they don't intersect.
+        if ((this.south < northDeg) && (this.north > southDeg)) {
+            if (this.containsIDL()) {
+                // This bounding box contains the IDL.
+                if (westDeg > eastDeg) {
+                    // The coordinates provided also contains the IDL;
+                    bRet = true;
+                } else {
+                    // The coordinates provided do not contains the IDL;
+                    bRet = ((this.west < eastDeg) && (180 > westDeg)) || ((-180 < eastDeg) && (this.east > westDeg));
+                }
+            } else {
+                // This bounding box does not contains the IDL.
+                if (westDeg > eastDeg) {
+                    // The coordinates provided contains the IDL;
+                    bRet = ((this.west < eastDeg) && (this.east < westDeg) || (this.east > westDeg) && (this.west > eastDeg));
+                } else {
+                    // The coordinates provided do not contains the IDL;
+                    bRet = ((this.south < northDeg) && (this.north > southDeg) && (this.west < eastDeg) && (this.east > westDeg));
+                }
+            }
+        }
+        return bRet;
+    }
+
+    public boolean intersects(IGeoBounds bounds) {
+        if (bounds == null) {
+            throw new InvalidParameterException("null bounds.");
+        }
+        return this.intersects(bounds.getNorth(), bounds.getSouth(), bounds.getEast(), bounds.getWest());
+    }
+
+    public boolean intersects(EmpBoundingBox bounds) {
+        if (bounds == null) {
+            throw new InvalidParameterException("null bounds.");
+        }
+        return this.intersects(bounds.north(), bounds.south(), bounds.east(), bounds.west());
     }
 }

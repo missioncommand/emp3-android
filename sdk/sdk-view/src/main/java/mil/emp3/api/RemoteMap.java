@@ -69,6 +69,7 @@ import mil.emp3.mapengine.api.FeatureVisibilityList;
 import mil.emp3.mapengine.interfaces.IMapEngineCapabilities;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
+import mil.emp3.mapengine.interfaces.IMapGridLines;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.mapengine.interfaces.ISetVisibilityList;
@@ -877,7 +878,12 @@ public class RemoteMap implements IMap {
         public int getBackgroundBrightness() {
             return 50;
         }
-        
+
+        @Override
+        public void setMapGridGenerator(IMapGridLines gridGenerator) {
+
+        }
+
         @Override
         public View showMiniMap() {
             return null;
@@ -885,10 +891,6 @@ public class RemoteMap implements IMap {
 
         @Override
         public void hideMiniMap() {
-        }
-
-        @Override
-        public void setGridType(MapGridTypeEnum grid) {
         }
     }
 

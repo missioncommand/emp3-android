@@ -1,5 +1,6 @@
 package mil.emp3.api.interfaces.core;
 
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.mapengine.listeners.MapInstanceFeatureAddedEventListener;
 import mil.emp3.mapengine.listeners.MapInstanceFeatureRemovedEventListener;
 import mil.emp3.mapengine.listeners.MapInstanceFeatureUserInteractionEventListener;
@@ -17,4 +18,7 @@ public interface IMapInstanceEventHandler extends MapInstanceFeatureUserInteract
                                                   MapInstanceFeatureAddedEventListener,
                                                   MapInstanceFeatureRemovedEventListener {
 
+
+    void setMapGridType(MapGridTypeEnum gridType);
+    MapGridTypeEnum getMapGridType();
 }

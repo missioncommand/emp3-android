@@ -649,7 +649,7 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
-    public void setGridType(MapGridTypeEnum grid) {
-        storageManager.getMapInstance(this).setGridType(grid);
+    public void setGridType(MapGridTypeEnum gridType) {
+        coreManager.setMapGridType(this, gridType);
     }
 }

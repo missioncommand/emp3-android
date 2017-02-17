@@ -8,12 +8,10 @@ import org.cmapi.primitives.IGeoPosition;
 import java.util.List;
 
 import mil.emp3.api.enums.FontSizeModifierEnum;
-import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
 import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
@@ -374,8 +372,8 @@ public interface IMapInstance {
     int getBackgroundBrightness();
 
     /**
-     * This method set the grid type displayed on the map.
-     * @param grid {@link MapGridTypeEnum}
+     * This method set the map grid generator on the map.
+     * @param gridGenerator {@link IMapGridLines}
      */
-    void setGridType(MapGridTypeEnum grid);
+    void setMapGridGenerator(IMapGridLines gridGenerator);
 }
