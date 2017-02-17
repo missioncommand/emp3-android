@@ -1,0 +1,164 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath "net.researchgate:gradle-release:2.4.1"
+    }
+}
+
+apply plugin: io.spring.gradle.dependencymanagement.DependencyManagementPlugin
+
+
+ext {
+    versionFile = new File(project.rootDir, 'gradle.properties')
+
+    group = "mil.army.sec.smartClient"
+
+    description = "Extensible Mapping Platform (EMP)"
+
+    di2eNexusEmpReleaseUrl  = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
+    di2eNexusEmpSnapshotUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
+    di2eNexusEmp3rdPartyUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_ThirdParty/"
+
+    nexusPublishUrl   = project.hasProperty('nexusPublishUrl') ? project.property('nexusPublishUrl') : ''
+}
+group = project.ext.group
+
+repositories {
+    mavenLocal()
+
+    maven {
+        url = di2eNexusEmpReleaseUrl
+        credentials {
+            username empUsername
+            password empPassword
+        }
+    }
+    maven {
+        url = di2eNexusEmpSnapshotUrl
+        credentials {
+            username empUsername
+            password empPassword
+        }
+    }
+    maven {
+        url = di2eNexusEmp3rdPartyUrl
+        credentials {
+            username empUsername
+            password empPassword
+        }
+    }
+    maven {
+        url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
+        credentials {
+            username empUsername
+            password empPassword
+        }
+    }
+
+    jcenter()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'mil.army.sec.smartClient:emp3-android-bom:19'
+    }
+}
+
+configure(rootProject) {
+    if (!rootProject.hasProperty('isRootConfigured')) {
+        apply plugin: 'base'
+        apply plugin: net.researchgate.release.ReleasePlugin
+
+        release {
+            buildTasks = ['releaseBuild']
+            tagTemplate = 'v${version}'
+
+            git {
+                requireBranch = project.hasProperty('release_requireBranch') ? project.property('release_requireBranch') : 'FAIL'
+            }
+        }
+
+        task releaseBuild {
+            dependsOn allprojects.collect { it.tasks.withType(PublishToMavenRepository) }
+        }
+
+        rootProject.ext.isRootConfigured = true
+    }
+}
+
+task wrapper(type: Wrapper, description: "Generates gradlew[.bat] scripts") {
+    gradleVersion = '3.1'
+}
+
+if (JavaVersion.current().isJava8Compatible()) { // disable lint for java8
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+task nextMinorVersion(description: "Increments the version property in ${versionFile}.") {
+    doFirst {
+        nextMinorVersion()
+    }
+}
+
+void nextMinorVersion() {
+    def version = readVersion()
+
+    def octet = version['version'].split("\\.|-")
+
+    def versionMajor = octet[0] as int
+    def versionMinor = octet[1] as int
+    def versionPatch = 0
+
+    versionMinor++
+
+    if (project.hasProperty('isSnapshot')) {
+        version['version'] = "${versionMajor}.${versionMinor}.${versionPatch}-SNAPSHOT".toString()
+    } else {
+        version['version'] = "${versionMajor}.${versionMinor}.${versionPatch}".toString()
+    }
+
+    println "Set version to: ${version['version']}"
+
+    def stream = new FileOutputStream(versionFile)
+    try {
+        version.store(stream, null)
+    } finally {
+        stream.close()
+    }
+}
+
+Properties readVersion() {
+    def version = new Properties()
+    def stream
+    try {
+        stream = new FileInputStream(versionFile)
+        version.load(stream)
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
+    } finally {
+        if (stream != null) stream.close()
+    }
+    return version
+}
+
+/*task removeMavenLocalRepo {
+    doLast {
+        for (def repo : repositories) {
+            if (repo instanceof org.gradle.api.internal.artifacts.repositories.DefaultMavenLocalArtifactRepository) {
+                repositories.remove (repo);
+                break;
+            }
+        }
+    }
+}*/
+
+/*dependencyManagement.importedProperties.each { key, value ->
+    project.ext.set(key, value) // inject properties to project
+}*/
