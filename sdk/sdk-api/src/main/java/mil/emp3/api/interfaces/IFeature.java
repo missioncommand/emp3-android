@@ -85,4 +85,9 @@ public interface IFeature<T extends IGeoRenderable> extends IContainer, IGeoRend
      * method MUST be called to force an update to be sent to the map(s).
      */
     void apply();
+
+    /**
+     * This method validates the feature.  It throws an unchecked exception if validation fails.
+     */
+    void validate();
 }

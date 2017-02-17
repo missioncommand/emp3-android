@@ -37,7 +37,7 @@ abstract public class TestBase {
         milStdRenderer.setStorageManager(storageManager);
     }
 
-    private void init() throws Exception {
+    protected void init() throws Exception {
         //
         // ManagerFactory
         //

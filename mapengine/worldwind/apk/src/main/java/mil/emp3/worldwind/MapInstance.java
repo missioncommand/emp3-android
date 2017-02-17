@@ -430,10 +430,6 @@ public class MapInstance extends CoreMapInstance {
         return new MapEngineProperties();
     }
 
-    @Override
-    public void setVisibility(ISetVisibilityList visibilityList) {
-    }
-
     /**
      * NOTE : This method is going to redraw what ever is in dirtyOnMapMove list. Based EMP-3065
      * this now included RenderableFeatures (Rectangle, Square, Circle and Ellipse).

@@ -97,12 +97,6 @@ public interface IMapInstance {
     void getCapture(IScreenCaptureCallback callback);
 
     /**
-     * This method is called by the core to set the visibility of the features listed to the setting indicated.
-     * @param visibilityList A list of unique Ids of the affected features and their visibility setting.
-     */
-    void setVisibility(ISetVisibilityList visibilityList);
-
-    /**
      * This method is called by the EMP core to add features to the map.
      * @param features The list of one or more feature to add to the map. See {@link FeatureVisibilityList}
      */

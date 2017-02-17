@@ -58,14 +58,13 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,7 +73,6 @@ import armyc2.c2sd.renderer.utilities.SymbolDefTable;
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
 import armyc2.c2sd.renderer.utilities.UnitDef;
 import armyc2.c2sd.renderer.utilities.UnitDefTable;
-import mil.emp3.api.Camera;
 import mil.emp3.api.Circle;
 import mil.emp3.api.Ellipse;
 import mil.emp3.api.Emp3LifeCycleManager;
@@ -119,7 +117,6 @@ import mil.emp3.api.listeners.IFreehandEventListener;
 import mil.emp3.api.listeners.IMapInteractionEventListener;
 import mil.emp3.api.listeners.IMapStateChangeEventListener;
 import mil.emp3.api.listeners.IMapViewChangeEventListener;
-import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
@@ -129,9 +126,7 @@ import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.json.geoJson.GeoJsonParser;
-import mil.emp3.worldwind.utils.SystemUtils;
 
-import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 
@@ -180,6 +175,11 @@ public class MainActivity extends AppCompatActivity
     private IGeoFillStyle iconStyleFill     = new GeoFillStyle();
     private IGeoStrokeStyle iconStyleStroke = new GeoStrokeStyle();
     private IGeoLabelStyle iconStyleLabel   = new GeoLabelStyle();
+
+    private String[] gpkgList = null;
+    private File downloadFolder = new File("/sdcard/Download/");
+    private String gpkgPick;
+    private static final String SUFFIX = ".gpkg";
 
     public enum PlotModeEnum {
         IDLE,
@@ -986,7 +986,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         try {
-            viewChange = map.addMapViewChangeEventListener(new IMapViewChangeEventListener(){
+            viewChange = map.addMapViewChangeEventListener(new IMapViewChangeEventListener() {
                 @Override
                 public void onEvent(MapViewChangeEvent mapViewChangeEvent) {
                     Log.d(TAG, "mapViewChangeEvent");
@@ -1329,7 +1329,7 @@ public class MainActivity extends AppCompatActivity
 
         ImageButton rollCCW = (ImageButton) findViewById(R.id.rollCCW);
         if (rollCCW != null) {
-            rollCCW.setOnClickListener(new View.OnClickListener(){
+            rollCCW.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ICamera camera = MainActivity.this.oCamera;
@@ -1352,7 +1352,7 @@ public class MainActivity extends AppCompatActivity
 
         ImageButton rollCW = (ImageButton) findViewById(R.id.rollCW);
         if (rollCW != null) {
-            rollCW.setOnClickListener(new View.OnClickListener(){
+            rollCW.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ICamera camera = MainActivity.this.oCamera;
@@ -1410,6 +1410,28 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
             }
+        }
+    }
+
+    private void getGpkgList() {
+        try {
+            downloadFolder.mkdirs();
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        if (downloadFolder.exists()) {
+            FilenameFilter filter = new FilenameFilter() {
+
+                @Override
+                public boolean accept(File dir, String filename) {
+                    File sel = new File(dir, filename);
+                    return filename.contains(SUFFIX) || sel.isDirectory();
+                }
+
+            };
+            gpkgList = downloadFolder.list(filter);
+        } else {
+            gpkgList = new String[0];
         }
     }
 
@@ -1526,15 +1548,43 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_addGeoPackage: {
                 try {
+                    getGpkgList();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    if (gpkgList == null || (gpkgList.length == 0)) {
+                        AlertDialog dialog = builder.create();
+                        dialog.setTitle("GeoPackage Chooser");
+                        dialog.setMessage("No geopackage file found");
+                        dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        dialog.show();
+                    } else {
+                        builder.setTitle("Choose GeoPackage file");
+                        builder.setItems(gpkgList, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                gpkgPick = gpkgList[which];
+                                Log.i(TAG, "File picked is " + gpkgPick);
+                                try {
+                                    geoPackage = new GeoPackage("File:///sdcard/Download/" + gpkgPick);
+                                    MainActivity.this.map.addMapService(geoPackage);
+                                    ICamera camera = MainActivity.this.map.getCamera();
+                                    // Place the camera directly over the GeoPackage image.
+                                    camera.setLatitude(39.54795);
+                                    camera.setLongitude(-76.16334);
+                                    camera.setAltitude(2580);
+                                    camera.apply(true);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        builder.show();
+                    }
+
                     //Using hard coded values here because it is extremely difficult to locate otherwise
-                    geoPackage = new GeoPackage("File:///sdcard/Download/AGC_DG_APG_R2C1_14_17_22NOV2016.gpkg");
-                    this.map.addMapService(geoPackage);
-                    ICamera camera = this.map.getCamera();
-                    // Place the camera directly over the GeoPackage image.
-                    camera.setLatitude(39.54795);
-                    camera.setLongitude(-76.16334);
-                    camera.setAltitude(2580);
-                    camera.apply(true);
                 } catch (Exception Ex) {
                     Log.e(TAG, "Image Layer failed.", Ex);
                 }
@@ -2957,7 +3007,13 @@ public class MainActivity extends AppCompatActivity
                     //oPosition.setLongitude(randomLocalLongitude());
                     //oPosition.setAltitude(Math.random() * 1000000.0);
                     //oPositionList.add(oPosition);
-                    final MilStdSymbol oNewSymbol = new MilStdSymbol(oDialog.getMilStdVersion(), oDialog.getSymbolCode());
+                    MilStdSymbol newSymbol = null;
+                    if (oDialog.getSymbolCode() == null || oDialog.getSymbolCode().isEmpty()) {
+                        newSymbol = new MilStdSymbol();
+                    } else {
+                        newSymbol = new MilStdSymbol(oDialog.getMilStdVersion(), oDialog.getSymbolCode());
+                    }
+                    final MilStdSymbol oNewSymbol = newSymbol;
                     //oNewSymbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.RELATIVE_TO_GROUND);
                     if ((oDialog.getFeatureName() != null) && !oDialog.getFeatureName().isEmpty()) {
                         oNewSymbol.setName(oDialog.getFeatureName());
