@@ -70,6 +70,7 @@ import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.IWMS;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
+import mil.emp3.api.interfaces.IWMTS;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.FontUtilities;
@@ -121,6 +122,7 @@ public class MapInstance extends CoreMapInstance {
     private RenderableLayer imageLayer;
     private Map<UUID, SurfaceImage> surfaceLayerHash;
     private Map<UUID, Layer> wmsHash;
+    private Map<UUID, Layer> wmtsHash;
     private RenderableLayer brightnessLayer;
 
     private boolean brightnessProcessingPosted = false;
@@ -263,6 +265,7 @@ public class MapInstance extends CoreMapInstance {
         this.oMapViewController = new Emp3NavigationListener(this, ww);
         this.handler = new Handler(Looper.getMainLooper());
         this.wmsHash = new HashMap<>();
+        this.wmtsHash = new HashMap<>();
         this.featureHash = new ConcurrentHashMap<>(); // zoom operation and re-rendering of Tactical Graphics will otherwise crash
         this.dirtyOnMapMove = new HashSet<>();
         /*
@@ -366,6 +369,13 @@ public class MapInstance extends CoreMapInstance {
             oUniqueId = (UUID) this.wmsHash.keySet().toArray()[0];
             Layer oLayer = this.wmsHash.get(oUniqueId);
             this.wmsHash.remove(oUniqueId);
+            ww.getLayers().removeLayer(oLayer);
+        }
+
+        while (!this.wmtsHash.isEmpty()) {
+            oUniqueId = (UUID) this.wmtsHash.keySet().toArray()[0];
+            Layer oLayer = this.wmtsHash.get(oUniqueId);
+            this.wmtsHash.remove(oUniqueId);
             ww.getLayers().removeLayer(oLayer);
         }
 
@@ -584,70 +594,45 @@ public class MapInstance extends CoreMapInstance {
         );
     }
 
-    private void addWMSServiceOldWay(IWMS wms) {
-        Layer layer; // was WmsLayer layer;
-        WmsLayerConfig wmsConfig;
+    private void addWMTSService(final IWMTS wmts) {
+        // Create a layer factory, World Wind's general component for creating layers
+        // from complex data sources.
+        LayerFactory layerFactory = new LayerFactory();
         String sLayers = "";
-        String sStyles = "";
-
-        for (String Str : wms.getLayers()) {
+        for (String layerName : wmts.getLayers()) {
             if (sLayers.length() > 0) {
                 sLayers += ",";
             }
-            sLayers += Str;
+            sLayers += layerName;
         }
+        // Create an OGC Web Map Service (WMS) layer to display the
+        // surface temperature layer from NASA's Near Earth Observations WMS.
+        layerFactory.createFromWmts(
+                wmts.getURL().toString(), // WMS server URL
+                sLayers,  // WMS layer name
+                new LayerFactory.Callback() {
+                    @Override
+                    public void creationSucceeded(LayerFactory factory, Layer layer) {
+                        // try to insert layer before the image layer
+                        final int insertIdx = ww.getLayers().indexOfLayer(MapInstance.this.imageLayer);
+                        if (insertIdx != -1) {
+                            ww.getLayers().addLayer(insertIdx, layer);
+                            MapInstance.this.wmtsHash.put(wmts.getGeoId(), layer);
+                            // redraw should be automatic
+                        } else {
+                            throw new IllegalStateException("ERROR: unable to locate tactical graphic layer.");
+                        }
+                        Log.i(TAG, "WMTS layer creation succeeded");
+                    }
 
-        if (wms.getStyles() != null) {
-            for (String Str : wms.getStyles()) {
-                if (sStyles.length() > 0) {
-                    sStyles += ",";
+                    @Override
+                    public void creationFailed(LayerFactory factory, Layer layer, Throwable ex) {
+                        // Something went wrong connecting to the WMS server.
+                        Log.e(TAG, "WMTS layer creation failed", ex);
+                        ex.printStackTrace();
+                    }
                 }
-                sStyles += Str;
-            }
-        }
-
-        // If its an update we need to remove the old one.
-        if (this.wmsHash.containsKey(wms.getGeoId())) {
-            layer = this.wmsHash.get(wms.getGeoId());
-            ww.getLayers().removeLayer(layer);
-        }
-
-        wmsConfig = new WmsLayerConfig();
-        wmsConfig.serviceAddress = wms.getURL().toString();
-        wmsConfig.transparent = wms.getTransaparent();
-        wmsConfig.wmsVersion = wms.getWMSVersion().toString();
-        wmsConfig.layerNames = sLayers;
-        if (wms.getCoordinateSystem() != null) {
-            wmsConfig.coordinateSystem = wms.getCoordinateSystem();
-        }
-        if (sStyles.length() > 0) {
-            wmsConfig.styleNames = sStyles;
-        }
-        if (wms.getTimeString() != null) {
-            wmsConfig.timeString = wms.getTimeString();
-        }
-
-        double metersPerPixel = 10;
-        if (wms.getLayerResolution() != 0) {
-            metersPerPixel = wms.getLayerResolution();
-        }
-        layer = new WmsLayer(new Sector().setFullSphere(), metersPerPixel, wmsConfig);
-        //layer.setDetailControl(1.0);
-        this.wmsHash.put(wms.getGeoId(), layer);
-
-        // try to insert layer before the image Layer
-        final int insertIdx = ww.getLayers().indexOfLayer(this.imageLayer);
-        if (insertIdx != -1) {
-            ww.getLayers().addLayer(insertIdx, layer);
-        } else {
-            throw new IllegalStateException("ERROR: unable to locate tactical graphic layer.");
-        }
-
-        if (null != this.miniMap) {
-            this.miniMap.getLayers().addLayer(layer);
-        }
-
-        ww.requestRedraw();
+        );
     }
 
     private void addImageLayer(IImageLayer imageLayer) {
@@ -742,6 +727,20 @@ public class MapInstance extends CoreMapInstance {
             } else {
                 this.addGeoPackage((IGeoPackage) mapService);
             }
+        } else if (mapService instanceof IWMTS) {
+            if (!SystemUtils.isCurrentThreadUIThread()) {
+                /*
+                 * SEE HANDLER NOTES ABOVE.
+                 */
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        MapInstance.this.addWMTSService((IWMTS) mapService);
+                    }
+                });
+            } else {
+                this.addWMTSService((IWMTS) mapService);
+            }
         }
     }
 
@@ -763,6 +762,18 @@ public class MapInstance extends CoreMapInstance {
                 this.imageLayer.removeRenderable(this.surfaceLayerHash.get(mapService.getGeoId()));
                 this.surfaceLayerHash.remove(mapService.getGeoId());
                 ww.requestRedraw();
+            }
+        } else if (mapService instanceof IWMTS) {
+            if (this.wmtsHash.containsKey(mapService.getGeoId())) {
+                Layer layer = this.wmtsHash.get(mapService.getGeoId());
+                ww.getLayers().removeLayer(layer);
+                this.wmtsHash.remove(mapService.getGeoId());
+                ww.requestRedraw();
+
+                if (null != this.miniMap) {
+                    this.miniMap.getLayers().removeLayer(layer);
+                    this.miniMap.requestRedraw();
+                }
             }
         }
     }

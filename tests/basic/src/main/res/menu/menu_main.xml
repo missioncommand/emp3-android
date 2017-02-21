@@ -11,6 +11,15 @@
           android:enabled="false"
           android:orderInCategory="101"
           app:showAsAction="never" />
+    <item android:id="@+id/action_addWMTS"
+        android:title="@string/action_addWMTS"
+        android:orderInCategory="101"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_removeWMTS"
+        android:title="@string/action_removeWMTS"
+        android:enabled="false"
+        android:orderInCategory="101"
+        app:showAsAction="never" />
     <item android:id="@+id/action_addImageLayer"
           android:title="@string/action_addImageLayer"
           android:enabled="true"
