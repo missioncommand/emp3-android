@@ -8,6 +8,11 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import gov.nasa.worldwind.geom.Position;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
@@ -27,7 +32,7 @@ public class BoundsGeneration {
     private final static int SE = 2;       // x = width, y = height
     private final static int NE = 3;       // x = width, y = 0;
 
-    public static IGeoBounds getBounds(MapInstance mapInstance) {
+    public static List<IGeoPosition> getBoundingPolygon(MapInstance mapInstance) {
         IGeoBounds bounds = null;
         IGeoPosition corners[] = new IGeoPosition[CORNERS];
 
@@ -35,10 +40,39 @@ public class BoundsGeneration {
         int cornersFound = getCornersTouched(mapInstance, corners);
         if(CORNERS == cornersFound) {
             // All corners have a map, so this is the most common and probably relatively easy scenario.
-            return cornersToBound(corners);
+            cornersToBound(corners);
+        } else if(1 == cornersFound) {
+            processSingleCorner(mapInstance, corners);
+        } else if(2 == cornersFound) {
+            processTwoCorners(mapInstance, corners);
+        } else if(3 == cornersFound) {
+            processThreeCorners(mapInstance, corners);
         }
-        return bounds;
+
+        List<IGeoPosition> boundingPolygon = new ArrayList<>();
+        for(int ii = 0; ii < corners.length; ii++) {
+            if(null != corners[ii]) {
+                boundingPolygon.add(corners[ii]);
+            }
+        }
+        return boundingPolygon;
     }
+
+//    public static IGeoBounds getBounds(MapInstance mapInstance) {
+//        IGeoBounds bounds = null;
+//        IGeoPosition corners[] = new IGeoPosition[CORNERS];
+//
+//        // Check how many corners we have a map rather than sky/space
+//        int cornersFound = getCornersTouched(mapInstance, corners);
+//        if(CORNERS == cornersFound) {
+//            // All corners have a map, so this is the most common and probably relatively easy scenario.
+//            return cornersToBound(corners);
+//        } else if(1 == cornersFound) {
+////            return(processSingleCorner(mapInstance, corners));
+//            processSingleCorner(mapInstance, corners);
+//        }
+//        return bounds;
+//    }
 
     /**
      * We have calculated four corners of the bounding box. Now convert that to bounds, i.e.
@@ -148,7 +182,7 @@ public class BoundsGeneration {
             vertices[NE] = new android.graphics.Point(origin_x + width, origin_y);
         }
 
-        // Now fetch the geographical points for the corners of the relavent rectangle.
+        // Now fetch the geographical points for the corners of the relevant rectangle.
         Position pos = new Position();
         for (int ii = 0; ii < vertices.length; ii++) {
             if (mapController.screenPointToGroundPosition(vertices[ii].x, vertices[ii].y, pos)) {
@@ -297,8 +331,236 @@ public class BoundsGeneration {
         }
     }
 
+    private static int processSingleCorner(MapInstance mapInstance, IGeoPosition corners[]) {
+        PickNavigateController mapController = mapInstance.getMapController();
+        int width = mapInstance.getWW().getWidth();
+        int height = mapInstance.getWW().getHeight();
+
+        int start_x = 0;
+        int start_y = 0;
+        int delta_x = (int) (width * .05);
+        int delta_y = (int) (height * .05);
+
+        int fourth_x = -1;
+        int fourth_y = -1;
+
+        IGeoPosition corner_1;
+        IGeoPosition corner_2 = null;
+        IGeoPosition corner_3 = null;
+        IGeoPosition corner_4 = null;
+
+        int cornersFound = 0;
+
+        if(corners[NW] != null) {
+            corner_1 = corners[NW];
+        } else if(corners[SW] != null) {
+            corner_1 = corners[SW];
+            start_y = height;
+            delta_y *= -1;
+        } else if(corners[NE] != null) {
+            corner_1 = corners[NE];
+            start_x = width;
+            delta_x *= -1;
+        } else if(corners[SE] != null) {
+            corner_1 = corners[SE];
+            start_x = width;
+            delta_x *= -1;
+            start_y = height;
+            delta_y *= -1;
+        } else {
+            Log.e(TAG, "NO CORNER FOUND");
+            return cornersFound;
+        }
+
+        cornersFound++;
+        Log.d(TAG, "corner_1 " + corner_1.getLatitude() + " " + corner_1.getLongitude());
+
+        int current_x = start_x + delta_x;
+        int current_y = start_y + delta_y;
+
+        boolean found = false;
+        Position pos = new Position();
+        Position prevPos = null;
+        for(; current_x < width && current_x > 0 && !found; current_x += delta_x) {
+            if (!mapController.screenPointToGroundPosition(current_x, start_y, pos)) {
+                if(prevPos != null) {
+                    corner_2 = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                    Log.d(TAG, "corner_2 " + corner_2.getLatitude() + " " + corner_2.getLongitude());
+                    found = true;
+                    cornersFound++;
+                }
+            } else {
+                prevPos = pos;
+                fourth_x = current_x;
+            }
+        }
+
+        if((null == corner_2) && (prevPos != null)) {
+            corner_2 = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+            Log.d(TAG, "corner_2 " + corner_2.getLatitude() + " " + corner_2.getLongitude());
+            cornersFound++;
+        }
+
+        found = false;
+        prevPos = null;
+        for(; current_y < height && current_y > 0 && !found; current_y += delta_y) {
+            if (!mapController.screenPointToGroundPosition(start_x, current_y, pos)) {
+                if(prevPos != null) {
+                    corner_3 = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                    Log.d(TAG, "corner_3 " + corner_3.getLatitude() + " " + corner_3.getLongitude());
+                    found = true;
+                    cornersFound++;
+                }
+            } else {
+                prevPos = pos;
+                fourth_y = current_y;
+            }
+        }
+
+        if((null == corner_3) && (prevPos != null)) {
+            corner_3 = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+            Log.d(TAG, "corner_3 " + corner_3.getLatitude() + " " + corner_3.getLongitude());
+            cornersFound++;
+        }
+
+        current_x = fourth_x;
+        current_y = fourth_y;
+        found = false;
+        for(; current_x < width && current_x > 0 && current_y < height && current_y > 0 && !found;
+            current_x -= delta_x, current_y -= delta_y ) {
+            if (mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
+                corner_4 = new MyGeoPosition(pos.latitude, pos.longitude);
+                Log.d(TAG, "corner_4 " + corner_4.getLatitude() + " " + corner_4.getLongitude());
+                found = true;
+                cornersFound++;
+            }
+        }
+
+        corners[NW] = corner_1;
+        corners[SW] = corner_2;
+        corners[SE] = corner_3;
+        corners[NE] = corner_4;
+
+        return cornersFound;
+    }
+
+    private static IGeoPosition findCorner(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
+
+        IGeoPosition corner = null;
+        boolean found = false;
+        Position pos = new Position();
+        Position prevPos = null;
+
+        if(0 != delta_x) {
+            int current_x = start_x + delta_x;
+            for(; current_x < width && current_x > 0 && !found; current_x += delta_x) {
+                if (!mapController.screenPointToGroundPosition(current_x, start_y, pos)) {
+                    if(prevPos != null) {
+                        corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                        Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                        found = true;
+                    }
+                } else {
+                    prevPos = pos;
+                }
+            }
+
+            if((null == corner) && (prevPos != null)) {
+                corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+            }
+
+        } else if(0 != delta_y) {
+            int current_y = start_y + delta_y;
+            for(; current_y < height && current_y > 0 && !found; current_y += delta_y) {
+                if (!mapController.screenPointToGroundPosition(start_x, current_y, pos)) {
+                    if(prevPos != null) {
+                        corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                        Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                        found = true;
+                    }
+                } else {
+                    prevPos = pos;
+                }
+            }
+
+            if((null == corner) && (prevPos != null)) {
+                corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+            }
+        }
+        return corner;
+    }
+
+    private static boolean processTwoCorners(MapInstance mapInstance, IGeoPosition corners[]) {
+        PickNavigateController mapController = mapInstance.getMapController();
+        int width = mapInstance.getWW().getWidth();
+        int height = mapInstance.getWW().getHeight();
+
+        if((corners[NW] != null) && (corners[NE] != null)){
+            corners[SE] = findCorner(mapController, width, 0, 0, (int) (height * .05), width, height);
+            corners[SW] = findCorner(mapController, 0, 0, 0, (int) (height * .05), width, height);
+        } else if((corners[SW] != null) && (corners[SE] != null)) {
+            corners[NE] = findCorner(mapController, width, height, 0, -(int) (height * .05), width, height);
+            corners[NW] = findCorner(mapController, 0, height, 0, -(int) (height * .05), width, height);
+        } else if((corners[NE] != null) && (corners[SE] != null)) {
+            corners[NW] = findCorner(mapController, width, 0, -(int) (width * .05), 0, width, height);
+            corners[SW] = findCorner(mapController, width, height, -(int) (width * .05), 0, width, height);
+        } else if((corners[SW] != null) && (corners[NW] != null)) {
+            corners[NE] = findCorner(mapController, 0, 0, (int) (width * .05), 0, width, height);
+            corners[SE] = findCorner(mapController, 0, height, (int) (width * .05), 0, width, height);
+        } else {
+            Log.e(TAG, "TWO CORNERS NOT FOUND");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static IGeoPosition findInnerCorner(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
+        IGeoPosition corner = null;
+        boolean found = false;
+        Position pos = new Position();
+
+        if (0 != delta_x) {
+            int current_x = start_x + delta_x;
+            int current_y = start_y + delta_y;
+            for (; current_x < width && current_x > 0 && current_y < height && current_y > 0 && !found;
+                 current_x += delta_x, current_y += delta_y) {
+                if (mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
+                    corner = new MyGeoPosition(pos.latitude, pos.longitude);
+                    Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                    found = true;
+                }
+            }
+
+        }
+        return corner;
+    }
+
+    private static boolean processThreeCorners(MapInstance mapInstance, IGeoPosition corners[]) {
+        PickNavigateController mapController = mapInstance.getMapController();
+        int width = mapInstance.getWW().getWidth();
+        int height = mapInstance.getWW().getHeight();
+
+        if(corners[NW] == null) {
+            corners[NW] = findInnerCorner(mapController, 0, 0, (int) (width * .05), (int) (height * .05), width, height);
+        } else if(corners[SW] == null) {
+            corners[SW] = findInnerCorner(mapController, 0, height, (int) (width * .05), -(int) (height * .05), width, height);
+        } else if(corners[NE] == null) {
+            Log.d(TAG, "Looking for NE corner");
+            corners[NE] = findInnerCorner(mapController, width, 0, -(int) (width * .05), (int) (height * .05), width, height);
+        } else if(corners[SE] == null) {
+            corners[SE] = findInnerCorner(mapController, width, height, -(int) (width * .05), -(int) (height * .05), width, height);
+        } else {
+            Log.e(TAG, "NULL CORNER NOT FOUND");
+            return false;
+        }
+
+        return true;
+    }
     /**
-     * Convinience class.
+     * Convenience class.
      */
     private static class MyGeoPosition extends GeoPosition {
         MyGeoPosition(double latitude, double longitude) {
