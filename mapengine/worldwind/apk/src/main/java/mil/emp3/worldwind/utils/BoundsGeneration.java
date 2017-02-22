@@ -47,6 +47,15 @@ public class BoundsGeneration {
             processTwoCorners(mapInstance, corners);
         } else if(3 == cornersFound) {
             processThreeCorners(mapInstance, corners);
+        } else if(0 == cornersFound) {
+            Log.d(TAG, "camera Tils " + mapInstance.getCamera().getTilt());
+            if(-1.0 < mapInstance.getCamera().getTilt() && mapInstance.getCamera().getTilt() < 1.0) {
+                // Globe is at the center of the view but roll and heading may not be zero.
+                processGlobeInCenter(mapInstance, corners);
+            }
+            else {
+                processGrid(mapInstance, corners);
+            }
         }
 
         List<IGeoPosition> boundingPolygon = new ArrayList<>();
@@ -336,111 +345,31 @@ public class BoundsGeneration {
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
 
-        int start_x = 0;
-        int start_y = 0;
         int delta_x = (int) (width * .05);
         int delta_y = (int) (height * .05);
-
-        int fourth_x = -1;
-        int fourth_y = -1;
-
-        IGeoPosition corner_1;
-        IGeoPosition corner_2 = null;
-        IGeoPosition corner_3 = null;
-        IGeoPosition corner_4 = null;
 
         int cornersFound = 0;
 
         if(corners[NW] != null) {
-            corner_1 = corners[NW];
+            corners[NE] = findCorner(mapController, 0, 0, delta_x, 0, width, height);
+            corners[SE] = findInnerCorner(mapController, width, height, -(int) (width * .05), -(int) (height * .05), width, height);
+            corners[SW] = findCorner(mapController, 0, 0, 0, delta_y, width, height);
         } else if(corners[SW] != null) {
-            corner_1 = corners[SW];
-            start_y = height;
-            delta_y *= -1;
+            corners[NW] = findCorner(mapController, 0, height, 0, -delta_y, width, height);
+            corners[NE] = findInnerCorner(mapController, width, 0, -(int) (width * .05), (int) (height * .05), width, height);
+            corners[SE] = findCorner(mapController, 0, height, delta_x, 0, width, height);
         } else if(corners[NE] != null) {
-            corner_1 = corners[NE];
-            start_x = width;
-            delta_x *= -1;
+            corners[SE] = findCorner(mapController, width, 0, 0, delta_y, width, height);
+            corners[SW] = findInnerCorner(mapController, 0, height, (int) (width * .05), -(int) (height * .05), width, height);
+            corners[NW] = findCorner(mapController, width, 0, -delta_x, 0, width, height);
         } else if(corners[SE] != null) {
-            corner_1 = corners[SE];
-            start_x = width;
-            delta_x *= -1;
-            start_y = height;
-            delta_y *= -1;
+            corners[SW] = findCorner(mapController, width, height, -delta_x, 0, width, height);
+            corners[NW] = findInnerCorner(mapController, 0, 0, (int) (width * .05), (int) (height * .05), width, height);
+            corners[NE] = findCorner(mapController, width, height, 0, -delta_y, width, height);
         } else {
             Log.e(TAG, "NO CORNER FOUND");
             return cornersFound;
         }
-
-        cornersFound++;
-        Log.d(TAG, "corner_1 " + corner_1.getLatitude() + " " + corner_1.getLongitude());
-
-        int current_x = start_x + delta_x;
-        int current_y = start_y + delta_y;
-
-        boolean found = false;
-        Position pos = new Position();
-        Position prevPos = null;
-        for(; current_x < width && current_x > 0 && !found; current_x += delta_x) {
-            if (!mapController.screenPointToGroundPosition(current_x, start_y, pos)) {
-                if(prevPos != null) {
-                    corner_2 = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
-                    Log.d(TAG, "corner_2 " + corner_2.getLatitude() + " " + corner_2.getLongitude());
-                    found = true;
-                    cornersFound++;
-                }
-            } else {
-                prevPos = pos;
-                fourth_x = current_x;
-            }
-        }
-
-        if((null == corner_2) && (prevPos != null)) {
-            corner_2 = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
-            Log.d(TAG, "corner_2 " + corner_2.getLatitude() + " " + corner_2.getLongitude());
-            cornersFound++;
-        }
-
-        found = false;
-        prevPos = null;
-        for(; current_y < height && current_y > 0 && !found; current_y += delta_y) {
-            if (!mapController.screenPointToGroundPosition(start_x, current_y, pos)) {
-                if(prevPos != null) {
-                    corner_3 = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
-                    Log.d(TAG, "corner_3 " + corner_3.getLatitude() + " " + corner_3.getLongitude());
-                    found = true;
-                    cornersFound++;
-                }
-            } else {
-                prevPos = pos;
-                fourth_y = current_y;
-            }
-        }
-
-        if((null == corner_3) && (prevPos != null)) {
-            corner_3 = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
-            Log.d(TAG, "corner_3 " + corner_3.getLatitude() + " " + corner_3.getLongitude());
-            cornersFound++;
-        }
-
-        current_x = fourth_x;
-        current_y = fourth_y;
-        found = false;
-        for(; current_x < width && current_x > 0 && current_y < height && current_y > 0 && !found;
-            current_x -= delta_x, current_y -= delta_y ) {
-            if (mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
-                corner_4 = new MyGeoPosition(pos.latitude, pos.longitude);
-                Log.d(TAG, "corner_4 " + corner_4.getLatitude() + " " + corner_4.getLongitude());
-                found = true;
-                cornersFound++;
-            }
-        }
-
-        corners[NW] = corner_1;
-        corners[SW] = corner_2;
-        corners[SE] = corner_3;
-        corners[NE] = corner_4;
-
         return cornersFound;
     }
 
@@ -451,7 +380,36 @@ public class BoundsGeneration {
         Position pos = new Position();
         Position prevPos = null;
 
-        if(0 != delta_x) {
+        if((0 != delta_x) && (0 != delta_y)) {
+            if (mapController.screenPointToGroundPosition(start_x, start_y, pos)) {
+                prevPos = pos;
+            }
+
+            int current_x = start_x + delta_x;
+            int current_y = start_y + delta_y;
+            for (; current_x < width && current_x > 0 && current_y < height && current_y > 0 && !found;
+                 current_x += delta_x, current_y += delta_y) {
+                if (!mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
+                    if(prevPos != null) {
+                        corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                        Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                        found = true;
+                    }
+                } else {
+                    prevPos = pos;
+                }
+            }
+
+            if((null == corner) && (prevPos != null)) {
+                corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+            }
+
+        } else if(0 != delta_x) {
+            if (mapController.screenPointToGroundPosition(start_x, start_y, pos)) {
+                prevPos = pos;
+            }
+
             int current_x = start_x + delta_x;
             for(; current_x < width && current_x > 0 && !found; current_x += delta_x) {
                 if (!mapController.screenPointToGroundPosition(current_x, start_y, pos)) {
@@ -471,6 +429,9 @@ public class BoundsGeneration {
             }
 
         } else if(0 != delta_y) {
+            if(mapController.screenPointToGroundPosition(start_x, start_y, pos)) {
+                prevPos = pos;
+            }
             int current_y = start_y + delta_y;
             for(; current_y < height && current_y > 0 && !found; current_y += delta_y) {
                 if (!mapController.screenPointToGroundPosition(start_x, current_y, pos)) {
@@ -522,7 +483,7 @@ public class BoundsGeneration {
         boolean found = false;
         Position pos = new Position();
 
-        if (0 != delta_x) {
+        if ((0 != delta_x) || (0 != delta_y)){
             int current_x = start_x + delta_x;
             int current_y = start_y + delta_y;
             for (; current_x < width && current_x > 0 && current_y < height && current_y > 0 && !found;
@@ -558,6 +519,83 @@ public class BoundsGeneration {
         }
 
         return true;
+    }
+
+    private static void processGlobeInCenter(MapInstance mapInstance, IGeoPosition corners[]) {
+        PickNavigateController mapController = mapInstance.getMapController();
+        int width = mapInstance.getWW().getWidth();
+        int height = mapInstance.getWW().getHeight();
+        corners[NW] = findInnerCorner(mapController, width/2, 0, 0, (int) (height * .05), width, height);
+        corners[NE] = findInnerCorner(mapController, width, height/2, -(int) (width * .05), 0, width, height);
+        corners[SW] = findInnerCorner(mapController, width/2, height, 0, -(int) (height * .05), width, height);
+        corners[SE] = findInnerCorner(mapController, 0, height/2, (int) (width * .05), 0, width, height);
+    }
+
+    private static void processGrid(MapInstance mapInstance, IGeoPosition corners[]) {
+        PickNavigateController mapController = mapInstance.getMapController();
+        int width = mapInstance.getWW().getWidth();
+        int height = mapInstance.getWW().getHeight();
+
+        RectangleView level0 = new RectangleView(0, 0, width, 0, width, height, 0, height);
+        List<Point> level0Points = level0.getPoints();
+        for(Point p: level0Points) {
+            Log.d(TAG, "x, y " + p.x + " " + p.y);
+            Position pos = new Position();
+            if (mapController.screenPointToGroundPosition(p.x, p.y, pos)) {
+                corners[NW] = findCorner(mapController, p.x, p.y, 0, -(int) (height * .05), width, height);
+                corners[NE] = findCorner(mapController, p.x, p.y, (int)(width * .05), 0, width, height);
+                corners[SE] = findCorner(mapController, p.x, p.y, 0, (int) (height * .05), width, height);
+                corners[SW] = findCorner(mapController, p.x, p.y, -(int)(width * .05), 0, width, height);
+                break;
+            }
+        }
+
+//        List<RectangleView> level1 = level0.getRectangleViews();
+//        for(RectangleView rv: level1) {
+//            Log.d(TAG, "nw, ne, se, sw " + rv.nw_x + " " + rv.nw_y + " " + rv.ne_x + " " + rv.ne_y + " "
+//                + rv.se_x + " " + rv.se_y + " " + rv.sw_x + " " + rv.sw_y);
+//        }
+    }
+
+    static class RectangleView {
+        int nw_x;
+        int nw_y;
+        int ne_x;
+        int ne_y;
+        int se_x;
+        int se_y;
+        int sw_x;
+        int sw_y;
+
+        RectangleView(int nw_x, int nw_y, int ne_x, int ne_y, int se_x, int se_y, int sw_x, int sw_y) {
+            this.nw_x = nw_x;
+            this.nw_y = nw_y;
+            this.ne_x = ne_x;
+            this.ne_y = ne_y;
+            this.se_x = se_x;
+            this.se_y = se_y;
+            this.sw_x = sw_x;
+            this.sw_y = sw_y;
+        }
+
+        List<Point> getPoints() {
+            List<Point> points = new ArrayList();
+            points.add(new Point((se_x - sw_x)/2, (se_y - ne_y)/2));
+            points.add(new Point((ne_x - nw_x)/2, ne_y));
+            points.add(new Point(ne_x, (se_y - ne_y)/2));
+            points.add(new Point((se_x - sw_x)/2, se_y));
+            points.add(new Point(nw_x, (sw_y - nw_y)/2));
+            return points;
+        }
+
+        List<RectangleView> getRectangleViews() {
+            List<RectangleView> rectangleViews = new ArrayList<>();
+            rectangleViews.add(new RectangleView(nw_x, nw_y, (ne_x - nw_x)/2, nw_y, (ne_x - nw_x)/2, (se_y - ne_y)/2, nw_x, (sw_y - nw_y)/2));
+            rectangleViews.add(new RectangleView((ne_x - nw_x)/2, nw_y, ne_x, ne_y, ne_x, (se_y - ne_y)/2, (ne_x - nw_x)/2, (se_y - ne_y)/2));
+            rectangleViews.add(new RectangleView((ne_x - nw_x)/2, (se_y - ne_y)/2, ne_x, (se_y - ne_y)/2, ne_x, se_y, (se_x - sw_x)/2, se_y));
+            rectangleViews.add(new RectangleView(nw_x, (sw_y - nw_y)/2, (ne_x - nw_x)/2, (se_y - ne_y)/2, (se_x - sw_x)/2, se_y, sw_x, sw_y));
+            return rectangleViews;
+        }
     }
     /**
      * Convenience class.
