@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_exit">Exit</string>
     <string name="action_test">Test</string>
+    <string name="action_layer">Layer</string>
 
     <string name="action_addImageLayer">Add Image Layer</string>
     <string name="action_removeImageLayer">Remove Image Layer</string>
