@@ -13,6 +13,10 @@ apply plugin: io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
+    //version_nasa_worldwind_sdk = "0.5.2"
+    version_cmapi              = "0.0.6"
+    version_renderer           = "0.1.17"
+
     di2eNexusEmpReleaseUrl  = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
     di2eNexusEmpSnapshotUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
     di2eNexusEmp3rdPartyUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_ThirdParty/"
@@ -57,8 +61,22 @@ repositories {
 }
 
 dependencyManagement {
-    imports {
-        mavenBom 'mil.army.sec.smartClient:emp3-android-bom:19'
+    dependencies {
+        // MISSION_COMMAND-related
+        dependency ("org.cmapi.primitives:common-map-geospatial-notation:${version_cmapi}")
+        dependency ("sec.web.renderer:mil-sym-android-renderer:${version_renderer}")
+
+        // ANDROID-related
+        dependency ("android:android:6.0_r3")
+        dependency ("com.android.support:appcompat-v7:23.2.1")
+        dependency ("com.android.support:support-annotations:23.1.1")
+        dependency ("com.android.support:design:23.2.1")
+
+        // TEST-related
+        dependency ("junit:junit:4.12")
+        dependency ("org.mockito:mockito-core:2.0.43-beta")
+        dependency ("org.powermock:powermock-api-mockito:1.6.2")
+        dependency ("org.powermock:powermock-module-junit4:1.6.2")
     }
 }
 

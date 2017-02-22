@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'nebula.provided-base'
 apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.maven-nebula-publish'
 
 sourceCompatibility = rootProject.sourceCompatibility
 targetCompatibility = rootProject.targetCompatibility
@@ -8,4 +9,11 @@ targetCompatibility = rootProject.targetCompatibility
 dependencies {
     provided (group:'org.cmapi.primitives', name:'common-map-geospatial-notation', ext:'jar')
     provided ("android:android")
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+        }
+    }
 }
