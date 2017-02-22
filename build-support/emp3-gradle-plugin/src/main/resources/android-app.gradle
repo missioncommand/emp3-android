@@ -24,7 +24,7 @@ android {
     }
     buildTypes.each {
         it.buildConfigField "String", "Implementation_Id", "\"${project.name}\""
-        it.buildConfigField "String", "Implementation_Vendor", "\"mil.army.sec.smartClient\""
+        it.buildConfigField "String", "Implementation_Vendor", "\"mil.army.missioncommand\""
         it.buildConfigField "String", "Implementation_Title", "\"EMP3 Android ${project.version}\""
         it.buildConfigField "String", "Implementation_Version", "\"${project.revision}\""
     }
