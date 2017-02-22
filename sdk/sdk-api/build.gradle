@@ -29,7 +29,7 @@ dependencies {
 
 tasks.withType(Test) {
     scanForTestClasses = false
-    include "**/*Test.class" // whatever Ant pattern matches your test class files
+    include "**/*Test.class"
 }
 
 javadoc {
@@ -57,38 +57,11 @@ javadoc {
 
 publishing.publications {
     nebula(MavenPublication) {
-        groupId    = project.ext.group
-        artifactId = project.name
-        version    = project.version
-
         pom.withXml {
             configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
                 if (dep.moduleName.equals("google-maps-android-cmgn")) {
                     asNode().dependencies[0].dependency?.scope[0]?.value = 'compile'
                 }
-            }
-        }
-    }
-}
-
-publishing.repositories {
-    maven {
-        url = nexusPublishUrl
-
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
-}
-if (project.hasProperty('di2eNexusReleaseUrl')) {
-    publishing.repositories {
-        maven {
-            url = project.property('di2eNexusReleaseUrl')
-
-            credentials {
-                username empUsername
-                password empPassword
             }
         }
     }

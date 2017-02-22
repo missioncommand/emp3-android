@@ -4,7 +4,6 @@ buildscript {
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
-        classpath "net.researchgate:gradle-release:2.4.1"
     }
 }
 
@@ -14,21 +13,16 @@ apply plugin: io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
-    group = "mil.army.sec.smartClient"
-
-    description = "Extensible Mapping Platform (EMP)"
-
     di2eNexusEmpReleaseUrl  = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
     di2eNexusEmpSnapshotUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
     di2eNexusEmp3rdPartyUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_ThirdParty/"
-
-    nexusPublishUrl   = project.hasProperty('nexusPublishUrl') ? project.property('nexusPublishUrl') : ''
 }
-group = project.ext.group
+
+group = "mil.army.missioncommand"
 
 repositories {
     mavenLocal()
-
+    jcenter()
     maven {
         url = di2eNexusEmpReleaseUrl
         credentials {
@@ -57,35 +51,14 @@ repositories {
             password empPassword
         }
     }
-
-    jcenter()
+    /*maven {
+        url  "https://dl.bintray.com/missioncommand/maven"
+    }*/
 }
 
 dependencyManagement {
     imports {
         mavenBom 'mil.army.sec.smartClient:emp3-android-bom:19'
-    }
-}
-
-configure(rootProject) {
-    if (!rootProject.hasProperty('isRootConfigured')) {
-        apply plugin: 'base'
-        apply plugin: net.researchgate.release.ReleasePlugin
-
-        release {
-            buildTasks = ['releaseBuild']
-            tagTemplate = 'v${version}'
-
-            git {
-                requireBranch = project.hasProperty('release_requireBranch') ? project.property('release_requireBranch') : 'FAIL'
-            }
-        }
-
-        task releaseBuild {
-            dependsOn allprojects.collect { it.tasks.withType(PublishToMavenRepository) }
-        }
-
-        rootProject.ext.isRootConfigured = true
     }
 }
 
@@ -124,7 +97,7 @@ void nextMinorVersion() {
         version['version'] = "${versionMajor}.${versionMinor}.${versionPatch}".toString()
     }
 
-    println "Set version to: ${version['version']}"
+    println "Setting version to: ${version['version']}"
 
     def stream = new FileOutputStream(versionFile)
     try {

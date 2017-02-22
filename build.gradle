@@ -1,25 +1,8 @@
 buildscript {
-    apply from: 'gradle/extra.gradle'
-
     repositories {
         mavenLocal()
         jcenter()
-        maven {
-            url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
-            credentials {
-                username empUsername
-                password empPassword
-            }
-        }
-        maven {
-            url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
-            credentials {
-                username empUsername
-                password empPassword
-            }
-        }
     }
-
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:4.9.1'
@@ -29,8 +12,14 @@ buildscript {
 }
 
 ext {
-    groupId     = "mil.army.sec.smartClient"
+    empUsername = System.getenv("CI_USERNAME") ?: empUsername
+    empPassword = System.getenv("CI_PASSWORD") ?: empPassword
+
     description = "Extensible Map Platform (EMP)"
+
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
+
 
     git = org.ajoberstar.grgit.Grgit.open(file('.')) // Open the Git repository in the current directory.
     revision = git.head().id                         // Get commitId of HEAD.
