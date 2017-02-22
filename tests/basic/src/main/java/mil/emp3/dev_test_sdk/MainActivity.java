@@ -1721,12 +1721,24 @@ public class MainActivity extends AppCompatActivity
                     camera.setLongitude(10.12);
                     camera.setAltitude(225000);
                     camera.apply(false);
+                    MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWMTS);
+                    oItem.setEnabled(true);
+                    oItem = MainActivity.this.oMenu.findItem(R.id.action_addWMTS);
+                    oItem.setEnabled(false);
                 } catch (MalformedURLException | EMP_Exception m) {
                     m.printStackTrace();
                 }
-                break;
+                return true;
             case R.id.action_removeWMTS:
-                break;
+                try {
+                    map.removeMapService(this.wmtsService);
+                    MenuItem oItem = this.oMenu.findItem(R.id.action_removeWMTS);
+                    oItem.setEnabled(false);
+                    oItem = this.oMenu.findItem(R.id.action_addWMTS);
+                    oItem.setEnabled(true);
+                } catch (EMP_Exception ex) {
+                }
+                return true;
             case R.id.action_addWMS:
                 try {
                     final Dialog dialog = new Dialog(MainActivity.this);
