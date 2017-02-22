@@ -29,7 +29,7 @@ buildscript {
 }
 
 ext {
-    groupId     = "mil.army.sec.smartClient"
+    groupId     = "mil.army.missioncommand"
     description = "Extensible Map Platform (EMP)"
 
     git = org.ajoberstar.grgit.Grgit.open(file('.')) // Open the Git repository in the current directory.
