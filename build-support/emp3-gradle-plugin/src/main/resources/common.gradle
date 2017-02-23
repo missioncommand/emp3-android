@@ -14,7 +14,7 @@ apply plugin: io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
-    group = "mil.army.sec.smartClient"
+    group = "mil.army.missioncommand"
 
     description = "Extensible Mapping Platform (EMP)"
 
