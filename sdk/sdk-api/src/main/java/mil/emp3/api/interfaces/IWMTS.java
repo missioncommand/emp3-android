@@ -3,6 +3,7 @@ package mil.emp3.api.interfaces;
 import java.util.List;
 
 import mil.emp3.api.enums.WMTSVersionEnum;
+import mil.emp3.api.exceptions.EMP_Exception;
 
 public interface IWMTS extends IMapService{
 
@@ -48,5 +49,18 @@ public interface IWMTS extends IMapService{
 
     List<String> getStyles();
 
+    /**
+     * This method sets the layer list. The updated list is sent to all maps utilizing
+     * this service.
+     * @param newLayers A list of string. The list is ignored if its null or empty.
+     * @throws EMP_Exception
+     */
+    public void setLayers(List<String> newLayers) throws EMP_Exception;
+
+    /**
+     * This method retrieves the current layer list.
+     * @return A list of String values.
+     */
+    public List<String> getLayers();
 
 }
