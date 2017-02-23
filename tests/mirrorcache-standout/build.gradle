@@ -1,5 +1,4 @@
-apply plugin: 'emp3AndroidLib'
-
+apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-lib.gradle"
 
 android {
     compileSdkVersion 19
