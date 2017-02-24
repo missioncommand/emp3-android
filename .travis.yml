@@ -2,13 +2,11 @@ sudo: false
 language: android
 android:
   components:
-    #- tools
+    - tools
     #- platform-tools
     - build-tools-23.0.2
     - android-23
     - extra-android-m2repository
-  licenses:
-    - 'android-sdk-license-.+'
 
 jdk:
   - oraclejdk8
