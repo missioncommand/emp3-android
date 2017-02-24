@@ -35,6 +35,9 @@ repositories {
     maven {
         url "file://${System.env['ANDROID_HOME']}/extras/android/m2repository"
     }
+    /*maven {
+        url "file://${System.env['ANDROID_HOME']}/extras/google/m2repository"
+    }*/
     maven {
         url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
         credentials {
@@ -43,7 +46,6 @@ repositories {
         }
     }
     maven {
-        //url  "https://dl.bintray.com/missioncommand/maven"
         url "https://oss.jfrog.org/artifactory/libs-snapshot"
     }
 }

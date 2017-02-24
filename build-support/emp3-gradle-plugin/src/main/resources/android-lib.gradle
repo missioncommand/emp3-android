@@ -32,4 +32,7 @@ android {
         sourceCompatibility rootProject.sourceCompatibility
         targetCompatibility rootProject.targetCompatibility
     }
+    lintOptions {
+        abortOnError false
+    }
 }
