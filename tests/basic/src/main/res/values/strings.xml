@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_exit">Exit</string>
     <string name="action_test">Test</string>
+    <string name="action_layer">Layer</string>
 
     <string name="action_addImageLayer">Add Image Layer</string>
     <string name="action_removeImageLayer">Remove Image Layer</string>
@@ -32,6 +33,8 @@
     <string name="action_removeAll">Remove All</string>
     <string name="action_addWMS">Add WMS</string>
     <string name="action_removeWMS">Remove WMS</string>
+    <string name="action_addWMTS">Add WMTS</string>
+    <string name="action_removeWMTS">Remove WMTS</string>
     <string name="action_plotsymbol">Plot Symbol</string>
     <string name="action_performanceTest">Performance Test</string>
     <string name="action_stopTest">Stop Test</string>
