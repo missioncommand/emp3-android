@@ -10,12 +10,7 @@ android {
 
 publishing {
     publications {
-        stuff(MavenPublication) {
-
-            groupId    = project.ext.group
-            artifactId = project.name
-            version    = project.version
-
+        nebula(MavenPublication) {
             artifact "$buildDir/outputs/aar/${project.name}-release.aar"
 
             pom.withXml {
@@ -35,28 +30,6 @@ publishing {
                             dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
                         }
                     }
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            url = nexusPublishUrl
-
-            credentials {
-                username empUsername
-                password empPassword
-            }
-        }
-    }
-    if (project.hasProperty('di2eNexusReleaseUrl')) {
-        repositories {
-            maven {
-                url = project.property('di2eNexusReleaseUrl')
-
-                credentials {
-                    username empUsername
-                    password empPassword
                 }
             }
         }

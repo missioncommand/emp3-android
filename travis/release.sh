@@ -7,14 +7,9 @@ echo '[release] TRAVIS_TAG='$TRAVIS_TAG
 echo '[release] TRAVIS_BRANCH='$TRAVIS_BRANCH
 echo '[release] TRAVIS_PULL_REQUEST='$TRAVIS_PULL_REQUEST
 
-publishUrl=$1
-di2ePublishUrl=$2
-echo '[release] publishUrl='$publishUrl
-echo '[release] di2ePublishUrl='$di2ePublishUrl
-
 # we only publish if a tag and for specific branches, but not NOT PRs
 if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    ./gradlew publish -PnexusPublishUrl=$publishUrl -Pdi2eNexusReleaseUrl=$di2ePublishUrl --stacktrace
+    ./gradlew bintray --stacktrace
 
     REMOTE_URL=$(git config --get remote.origin.url)
     REMOTE_URL=$(echo $REMOTE_URL | sed -e "s#://#://$GITHUB_API_KEY@#g") > /dev/null 2>&1
