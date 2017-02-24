@@ -3,14 +3,14 @@ package mil.emp3.worldwind.utils;
 import android.graphics.Point;
 import android.util.Log;
 
-import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import gov.nasa.worldwind.geom.Position;
 import mil.emp3.api.utils.GeoLibrary;
@@ -18,7 +18,7 @@ import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
 
 /**
- * Generates bounds for the map. Work in progress.
+ * Generates a bounding polygon for the visible map. Aim is to return four points defining a quadrilateral.
  */
 public class BoundsGeneration {
 
@@ -30,113 +30,103 @@ public class BoundsGeneration {
     private final static int SE = 2;       // x = width, y = height
     private final static int NE = 3;       // x = width, y = 0;
 
-    private final static int cc = 3;       // Corner correction.
+    private final static int cc = 0;       // Corner correction. This is no longer an issue
     private final static double lc = 0.05;  // Least Count on the grid. (5 percent of width/height
 
+    private static List<GridPoints> gridPoints = new ArrayList<>();
+
+    /**
+     * When stepping through the view space we need to select the size of the step. lc defines the percentage of
+     * width or height as size of the step.
+     * @return
+     */
     private static double getLc() {
         return lc;
     }
 
+    /**
+     * Calculates the size of the step along X axis using width.
+     * @param mapInstance
+     * @return
+     */
     private static int getDeltaX(MapInstance mapInstance) {
         return (int) (mapInstance.getWW().getWidth() * getLc());
     }
 
+    /**
+     * Calculates the size of the step along Y axis using height.
+     * @param mapInstance
+     * @return
+     */
     private static int getDeltaY(MapInstance mapInstance) {
         return (int) (mapInstance.getWW().getHeight() * getLc());
     }
-    public static List<IGeoPosition> getBoundingPolygon(MapInstance mapInstance) {
-        // IGeoBounds bounds = null;
-        IGeoPosition corners[] = new IGeoPosition[CORNERS];
-
-        // Check how many corners we have a map rather than sky/space
-        int cornersFound = getCornersTouched(mapInstance, corners);
-        if(CORNERS == cornersFound) {
-            // All corners have a map, so this is the most common and probably relatively easy scenario.
-            // cornersToBound(corners);
-        } else if(1 == cornersFound) {
-            processSingleCorner(mapInstance, corners);
-        } else if(2 == cornersFound) {
-            processTwoCorners(mapInstance, corners);
-        } else if(3 == cornersFound) {
-            processThreeCorners(mapInstance, corners);
-        } else if(0 == cornersFound) {
-            Log.d(TAG, "camera Tils " + mapInstance.getCamera().getTilt());
-            if(-1.0 < mapInstance.getCamera().getTilt() && mapInstance.getCamera().getTilt() < 1.0) {
-                // Globe is at the center of the view but roll and heading may not be zero.
-                processGlobeInCenter(mapInstance, corners);
-            }
-            else {
-                processGrid(mapInstance, corners);
-            }
-        }
-
-        List<IGeoPosition> boundingPolygon = new ArrayList<>();
-        for(int ii = 0; ii < corners.length; ii++) {
-            if(null != corners[ii]) {
-                boundingPolygon.add(corners[ii]);
-            }
-        }
-        return boundingPolygon;
-    }
-
-//    public static IGeoBounds getBounds(MapInstance mapInstance) {
-//        IGeoBounds bounds = null;
-//        IGeoPosition corners[] = new IGeoPosition[CORNERS];
-//
-//        // Check how many corners we have a map rather than sky/space
-//        int cornersFound = getCornersTouched(mapInstance, corners);
-//        if(CORNERS == cornersFound) {
-//            // All corners have a map, so this is the most common and probably relatively easy scenario.
-//            return cornersToBound(corners);
-//        } else if(1 == cornersFound) {
-////            return(processSingleCorner(mapInstance, corners));
-//            processSingleCorner(mapInstance, corners);
-//        }
-//        return bounds;
-//    }
 
     /**
-     * We have calculated four corners of the bounding box. Now convert that to bounds, i.e.
-     * West, East, North and South. We want entire bounding box to be visible so we will pick the coordinates accordingly.
-     *
-     * Example, We have to pick the South latitude from either SE corner or SW corner. We will pick the one that is lesser of the
-     * two. Similar logic is applied to all four sides as for each side we have a choice of two coordinates.
-     * @param corners
+     * Figures out how many corners of the view show a sky. Based on that information invokes appropriate method to calculate the
+     * polygon.
+     * @param mapInstance
      * @return
      */
-    private static IGeoBounds cornersToBound(IGeoPosition corners[]) {
-        IGeoBounds bounds = new GeoBounds();
-        if(corners[SW].getLatitude() < corners[SE].getLatitude()) {
-            bounds.setSouth(corners[SE].getLatitude());
-        } else {
-            bounds.setSouth(corners[SW].getLatitude());
-        }
+    public static List<IGeoPosition> getBoundingPolygon(MapInstance mapInstance) {
+        int cornersFound = 0;
+        try {
+            IGeoPosition corners[] = new IGeoPosition[CORNERS];
+            boolean status = false;
 
-        if(corners[NW].getLatitude() < corners[NE].getLatitude()) {
-            bounds.setNorth(corners[NW].getLatitude());
-        } else {
-            bounds.setNorth(corners[NE].getLatitude());
-        }
+            // Check how many corners we have a map rather than sky/space
+            cornersFound = getCornersTouched(mapInstance, corners);
+            Log.d(TAG, "getBoundingPolygon cornersFound " + cornersFound);
+            if (CORNERS == cornersFound) {
+                // All corners have a map, so this is the most common and probably relatively easy scenario.
+                // corners are already populated with the bounding polygon.
+                // cornersToBound(corners);
+                status = true;
+            } else if (1 == cornersFound) {
+                status = processSingleCorner(mapInstance, corners);
+            } else if (2 == cornersFound) {
+                status = processTwoCorners(mapInstance, corners);
+            } else if (3 == cornersFound) {
+                status = processThreeCorners(mapInstance, corners);
+            } else if (0 == cornersFound) {
+                if (-1.0 < mapInstance.getCamera().getTilt() && mapInstance.getCamera().getTilt() < 1.0) {
+                    // Globe is at the center of the view but roll and heading may not be zero.
+                    status = processGlobeInCenter(mapInstance, corners);
+                } else {
+                    status = processGrid(mapInstance, corners);
+                }
+            }
 
-        if(((corners[SW].getLongitude() + 540) % 360) < ((corners[NW].getLongitude() + 540) % 360))
-        {
-            bounds.setWest(corners[NW].getLongitude());
-        } else {
-            bounds.setWest(corners[SW].getLongitude());
-        }
+            if(status) {
+                List<IGeoPosition> boundingPolygon = new ArrayList<>();
+                for (int ii = 0; ii < corners.length; ii++) {
+                    if (null != corners[ii]) {
+                        boundingPolygon.add(corners[ii]);
+                    }
+                }
 
-        if(((corners[SE].getLongitude() + 540) % 360) < ((corners[NE].getLongitude() + 540) % 360))
-        {
-            bounds.setEast(corners[SE].getLongitude());
-        } else {
-            bounds.setEast(corners[NE].getLongitude());
-        }
+                if (-1.0 > mapInstance.getCamera().getTilt() || mapInstance.getCamera().getTilt() > 1.0) {
+                    // Globe is at the center of the view but roll and heading may not be zero.
+                    adjustPolygon(boundingPolygon);
+                }
 
-        return bounds;
+                if (CORNERS != boundingPolygon.size()) {
+                    Log.e(TAG, "Return bounding polygon with size " + boundingPolygon.size());
+                }
+                return boundingPolygon;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "cornersFound " + cornersFound + " " + e.getMessage());
+        }
+        return null;
+    }
+
+    private static void adjustPolygon(List<IGeoPosition> boundingPolygon) {
+
     }
 
     /**
-     * We are trying to figure out if a specific corner has a map of sky/space (mape may be tilted/rotated). If we do find
+     * We are trying to figure out if a specific corner has a map or sky/space (map may be tilted/rotated). If we do find
      * such corners then we also get the corresponding latitude/longitude of the point.
      *
      * @param mapInstance
@@ -158,206 +148,35 @@ public class BoundsGeneration {
         vertices[SE] = new android.graphics.Point(origin_x + width - cc, origin_y + height - cc);
         vertices[NE] = new android.graphics.Point(origin_x + width - cc, origin_y + cc);
 
-        //
-        // If heading is not zero then we can't use the physical corners of the rectangular view. We have to rotate the rectangle
-        // so that it aligns with the heading. We then figure out the points that are the vertices of the rectangle that is perpandicular
-        // to the heading. These points should be as close to the edge of the view as possible.
-        //
-
-//        if((mapInstance.getCamera().getRoll() > 0) || (mapInstance.getCamera().getRoll() < 0)) {
-//            vertices[NW] = new android.graphics.Point(origin_x, origin_y);
-//            vertices[SW] = new android.graphics.Point(origin_x, origin_y + height);
-//            vertices[SE] = new android.graphics.Point(origin_x + width, origin_y + height);
-//            vertices[NE] = new android.graphics.Point(origin_x + width, origin_y);
-//        }
-//        else if((mapInstance.getCamera().getHeading() > 0) || (mapInstance.getCamera().getHeading() < 0)) {
-//
-//            // We have to first translate the rectangle to the center of the view from top left corner.
-//            vertices[NW] = new android.graphics.Point(-(width)/2, (height)/2);
-//            vertices[SW] = new android.graphics.Point(-(width)/2, -(height)/2);
-//            vertices[SE] = new android.graphics.Point((width)/2, -(height)/2);
-//            vertices[NE] = new android.graphics.Point((width)/2, (height)/2);
-//
-//            // We then rotate the rectangle to aligned the heading.
-//            rotate(vertices, mapInstance.getCamera().getHeading());
-//
-//            // We now translate the aligned rectangle's points to the original coordinate syetem rooted at top left of the view.
-//            for(int ii = 0; ii < vertices.length; ii++) {
-//                Log.d(TAG, "Rotation B4 Translate" + vertices[ii].x + " " + vertices[ii].y);
-//                vertices[ii].x = vertices[ii].x + (width) / 2;
-//                if(vertices[ii].x > width) {
-//                    vertices[ii].x = width;
-//                } else if(vertices[ii].x < 0) {
-//                    vertices[ii].x = 0;
-//                }
-//                vertices[ii].y *= -1;
-//                vertices[ii].y = vertices[ii].y + (height) / 2;
-//                if(vertices[ii].y > height) {
-//                    vertices[ii].y = height;
-//                } else if(vertices[ii].y < 0) {
-//                    vertices[ii].y = 0;
-//                }
-//                Log.d(TAG, "Rotation AFT Translate" + vertices[ii].x + " " + vertices[ii].y);
-//            }
-//        } else {
-//
-//            // No rotations is required.
-//            vertices[NW] = new android.graphics.Point(origin_x, origin_y);
-//            vertices[SW] = new android.graphics.Point(origin_x, origin_y + height);
-//            vertices[SE] = new android.graphics.Point(origin_x + width, origin_y + height);
-//            vertices[NE] = new android.graphics.Point(origin_x + width, origin_y);
-//        }
-
         // Now fetch the geographical points for the corners of the relevant rectangle.
+        // There is an issue with underlying NASA methods where it reports a geographical point where there is actually
+        // sky. This happens when camera is at an altitude less than (approximately) 100000 meters.
+        // So as a work around we do a reverse check to verify the answer returned by screenPointToGroundPosition.
+        // I have filed a report with NASA.
+
         Position pos = new Position();
+        Point result = new Point();
         for (int ii = 0; ii < vertices.length; ii++) {
             if (mapController.screenPointToGroundPosition(vertices[ii].x, vertices[ii].y, pos)) {
-                corners[ii] = new MyGeoPosition(pos.latitude, pos.longitude);
-                Log.d(TAG, "x/y/l/n " + vertices[ii].x + " " +  vertices[ii].y + " " + pos.latitude + " " + pos.longitude);
-                cornersFound++;
+                if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)) {
+                    corners[ii] = new MyGeoPosition(pos.latitude, pos.longitude);
+                    // Log.d(TAG, "x/y/l/n " + vertices[ii].x + " " + vertices[ii].y + " " + pos.latitude + " " + pos.longitude);
+                    cornersFound++;
+                }
             }
         }
-
-//        if(CORNERS == cornersFound) {
-//            if ((mapInstance.getCamera().getRoll() > 0) || (mapInstance.getCamera().getRoll() < 0)) {
-//                processForRole(mapInstance, corners);
-//            }
-//        }
 
         return cornersFound;
     }
 
-//    private static void processForRole(MapInstance mapInstance, IGeoPosition corners[]) {
-//        PickNavigateController mapController = mapInstance.getMapController();
-//        int width = mapInstance.getWW().getWidth();
-//        int height = mapInstance.getWW().getHeight();
-//
-//        Double northMost = -91.0;
-//        Double southMost = -91.0;
-//        int northMostCorner = -1;
-//        int southMostCorner = -1;
-//
-//        for (int ii = 0; ii < corners.length; ii++) {
-//            if (northMost < -90.0) {
-//                northMost = corners[ii].getLatitude();
-//                southMost = corners[ii].getLatitude();
-//                northMostCorner = ii;
-//                southMostCorner = ii;
-//                continue;
-//            }
-//
-//            if (corners[ii].getLatitude() > northMost) {
-//                northMost = corners[ii].getLatitude();
-//                northMostCorner = ii;
-//            } else if (corners[ii].getLatitude() < southMost) {
-//                southMost = corners[ii].getLatitude();
-//                southMostCorner = ii;
-//            }
-//        }
-//        Log.d(TAG, "NEWS Roll " + northMost + " " + southMost + " " + northMostCorner + " " + southMostCorner);
-//
-//        // Now pick the starting longitudes from the other two corners
-//        int westMostCorner = (northMostCorner + 1) % 4;
-//        int eastMostCorner = (northMostCorner + 3) % 4;
-//
-//        Double eastMost = corners[eastMostCorner].getLongitude();
-//        Double westMost = corners[westMostCorner].getLongitude();
-//
-//        Log.d(TAG, "NEWS Roll " + eastMost + " " + westMost + " " + eastMostCorner + " " + westMostCorner);
-//
-//        double nsDiff = abs(northMost - southMost);
-//        double ewDiff;
-//
-//        if((eastMost >= 0) && (westMost >= 0)) {
-//            ewDiff = abs(eastMost - westMost);
-//        } else if((eastMost <= 0) && (westMost <= 0)) {
-//            ewDiff = abs(eastMost - westMost);
-//        } else {
-//            ewDiff = abs(eastMost) + abs(westMost);
-//            if(ewDiff > 180.0) {
-//                ewDiff = (180.0 - abs(eastMost) + 180.0 - abs(westMost));
-//            }
-//        }
-//
-//        Log.d(TAG, "NEWS Roll diff " + nsDiff + " " + ewDiff);
-//
-//        double nsDelta = nsDiff * .05;
-//        double ewDelta = ewDiff * .05;
-//
-//        android.graphics.Point result = new Point();
-//        boolean adjusted = true;
-//        for (int ii = 0; (ii < 100) && adjusted; ii++) {
-//            adjusted = false;
-//            if (!mapController.groundPositionToScreenPoint(northMost, eastMost, result) || (result.x > width) || (result.y > height)
-//                    || (result.x < 0) || (result.y < 0)) {
-//                adjusted = true;
-//                northMost -= nsDelta;
-//                eastMost -= ewDelta;
-//            } else {
-//                Log.d(TAG, " northMost, eastMost  + " + result.x + " " + result.y);
-//            }
-//
-//            if (!mapController.groundPositionToScreenPoint(northMost, westMost, result) || (result.x > width) || (result.y > height)
-//                    || (result.x < 0) || (result.y < 0)) {
-//                adjusted = true;
-//                northMost -= nsDelta;
-//                westMost += ewDelta;
-//            } else {
-//                Log.d(TAG, " northMost, westMost  + " + result.x + " " + result.y);
-//            }
-//
-//            if (!mapController.groundPositionToScreenPoint(southMost, westMost, result) || (result.x > width) || (result.y > height) ||
-//                    (result.x < 0) || (result.y < 0)) {
-//                adjusted = true;
-//                southMost += nsDelta;
-//                westMost += ewDelta;
-//            } else {
-//                Log.d(TAG, " southMost, westMost  + " + result.x + " " + result.y);
-//            }
-//
-//            if (!mapController.groundPositionToScreenPoint(southMost, eastMost, result) || (result.x > width) || (result.y > height)
-//                    || (result.x < 0) || (result.y < 0)) {
-//                adjusted = true;
-//                southMost += nsDelta;
-//                eastMost -= ewDelta;
-//            } else {
-//                Log.d(TAG, " southMost, eastMost  + " + result.x + " " + result.y);
-//            }
-//
-//            Log.d(TAG, "NEWS Roll " + northMost + " " + eastMost + " " + westMost + " " + southMost);
-//        }
-//
-//        corners[NE].setLatitude(northMost);
-//        corners[NE].setLongitude(eastMost);
-//
-//        corners[SE].setLatitude(southMost);
-//        corners[SE].setLongitude(eastMost);
-//
-//        corners[NW].setLatitude(northMost);
-//        corners[NW].setLongitude(westMost);
-//
-//        corners[SW].setLatitude(southMost);
-//        corners[SW].setLongitude(westMost);
-//    }
     /**
-     * refer to https://en.wikipedia.org/wiki/Rotation_matrix for the theory behind the following code.
-     * @param vertices
-     * @param heading
+     * Three corners of the view show sky and one corner shows the map. You will need to tilt and roll the camera to get this
+     * scenario. Our job is to figure out the three geographical points that are not at the view corner.
+     * @param mapInstance
+     * @param corners
+     * @return
      */
-    private static void rotate(android.graphics.Point[] vertices, double heading) {
-
-        double cosHeading = Math.cos(Math.toRadians(heading));
-        double sinHeading = Math.sin(Math.toRadians(heading));
-
-        for(int ii = 0; ii < vertices.length; ii++) {
-            int new_x = (int) ((vertices[ii].x * cosHeading) - (vertices[ii].y * sinHeading));
-            int new_y = (int) ((vertices[ii].x * sinHeading) + (vertices[ii].y * cosHeading));
-            vertices[ii].x = new_x;
-            vertices[ii].y = new_y;
-        }
-    }
-
-    private static int processSingleCorner(MapInstance mapInstance, IGeoPosition corners[]) {
+    private static boolean processSingleCorner(MapInstance mapInstance, IGeoPosition corners[]) {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
@@ -365,8 +184,10 @@ public class BoundsGeneration {
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
 
-        int cornersFound = 0;
-
+        // Locate the view corner that doesn't show the sky. Then traverse from this corner towards the adjacent corner(s) (findCorner)
+        // looking for a place where we make a transition from map (earth) to sky and you have found two points.
+        // Traverse from the opposite corner towards this corner (findInnerCorner) looking for the place where there is a transition
+        // from sky to map (earth) and this will give you the third point of the polygon.
         if(corners[NW] != null) {
             corners[NE] = findCorner(mapController, 0, 0, delta_x, 0, width, height);
             corners[SE] = findInnerCorner(mapController, width, height, -delta_x, -delta_y, width, height);
@@ -385,11 +206,24 @@ public class BoundsGeneration {
             corners[NE] = findCorner(mapController, width, height, 0, -delta_y, width, height);
         } else {
             Log.e(TAG, "NO CORNER FOUND");
-            return cornersFound;
+            return false;
         }
-        return cornersFound;
+        return true;
     }
 
+    /**
+     * Finds a point on the map where there is a transition from earth to sky. Values of delta_x & delta_y decide the
+     * direction of search and size of the step.
+     *
+     * @param mapController
+     * @param start_x - Starting position
+     * @param start_y - Starting position
+     * @param delta_x - Step size
+     * @param delta_y - Step size
+     * @param width - width of the view
+     * @param height - height of the view.
+     * @return
+     */
     private static IGeoPosition findCorner(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
 
         IGeoPosition corner = null;
@@ -397,7 +231,12 @@ public class BoundsGeneration {
         Position pos = new Position();
         Position prevPos = null;
 
+        // Following three block can actually be collapsed into one if we change the comparison to <= and =>, but for now
+        // we are keeping them separate. Until then whatever changes you make in one block have to be applied to other two blocks.
+
         if((0 != delta_x) && (0 != delta_y)) {
+
+            // Save the initial position where there is earth so that we can deal with the special case of first step transition.
             if (mapController.screenPointToGroundPosition(start_x, start_y, pos)) {
                 prevPos = pos;
             }
@@ -417,6 +256,8 @@ public class BoundsGeneration {
                 }
             }
 
+            // Following takes care of the condition where transition occurs before the first increment. lower the value of
+            // lc less the probability of that happening, but that will affect the performance.
             if((null == corner) && (prevPos != null)) {
                 corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
                 Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
@@ -466,10 +307,19 @@ public class BoundsGeneration {
                 corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
                 Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
             }
+        } else {
+            Log.e(TAG, "findCorner was invoked with both delta_x and delta_y set to zero.");
         }
         return corner;
     }
 
+    /**
+     * Tow view corners are showing sky and two are showing earth. Considering the geometry of the earth these have to be
+     * adjacent corners.
+     * @param mapInstance
+     * @param corners
+     * @return
+     */
     private static boolean processTwoCorners(MapInstance mapInstance, IGeoPosition corners[]) {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
@@ -477,6 +327,9 @@ public class BoundsGeneration {
 
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
+
+        // Locate the two adjacent corners that show the earth. Then traverse along the x or the y axis to find transition
+        // from earth to sky.
 
         if((corners[NW] != null) && (corners[NE] != null)){
             corners[SE] = findCorner(mapController, width, 0, 0, delta_y, width, height);
@@ -491,14 +344,19 @@ public class BoundsGeneration {
             corners[NE] = findCorner(mapController, 0, 0, delta_x, 0, width, height);
             corners[SE] = findCorner(mapController, 0, height, delta_x, 0, width, height);
         } else {
-            Log.e(TAG, "TWO CORNERS NOT FOUND");
+            Log.e(TAG, "processTwoCorners TWO CORNERS NOT FOUND");
             return false;
         }
 
-        refineIt(mapInstance, corners);
+        // refineIt(mapInstance, corners);
         return true;
     }
 
+    /**
+     * This is currently unused.
+     * @param mapInstance
+     * @param corners
+     */
     private static void refineIt(MapInstance mapInstance, IGeoPosition corners[]) {
         PickNavigateController mapController = mapInstance.getMapController();
 
@@ -532,20 +390,39 @@ public class BoundsGeneration {
             Log.d(TAG, "Cannot refine further not enough points " + cornersFound.size());
         }
     }
+
+    /**
+     * This is very similar to findCorner, except it traverses from a point that has sky towards an area that shows the earth and
+     * stops at the transition.
+     *
+     * @param mapController
+     * @param start_x
+     * @param start_y
+     * @param delta_x
+     * @param delta_y
+     * @param width
+     * @param height
+     * @return
+     */
     private static IGeoPosition findInnerCorner(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
         IGeoPosition corner = null;
         boolean found = false;
         Position pos = new Position();
+        Point result = new Point();
 
         if ((0 != delta_x) || (0 != delta_y)){
             int current_x = start_x + delta_x;
             int current_y = start_y + delta_y;
             for (; current_x < width && current_x > 0 && current_y < height && current_y > 0 && !found;
                  current_x += delta_x, current_y += delta_y) {
+
+                // Note that we are checking the reverse to work around the NASA issue mentioned in getCornersTouched method.
                 if (mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
-                    corner = new MyGeoPosition(pos.latitude, pos.longitude);
-                    Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
-                    found = true;
+                    if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)) {
+                        corner = new MyGeoPosition(pos.latitude, pos.longitude);
+                        Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                        found = true;
+                    }
                 }
             }
 
@@ -553,6 +430,13 @@ public class BoundsGeneration {
         return corner;
     }
 
+    /**
+     * One view corner is showing the sky and other three are showing the earth.
+     *
+     * @param mapInstance
+     * @param corners
+     * @return
+     */
     private static boolean processThreeCorners(MapInstance mapInstance, IGeoPosition corners[]) {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
@@ -560,24 +444,31 @@ public class BoundsGeneration {
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
 
+        // Locate the corner that is showing the sky and traverse from that corner towards the opposite corner looking for a
+        // transition from sky to earth.
         if(corners[NW] == null) {
             corners[NW] = findInnerCorner(mapController, 0, 0, delta_x, delta_y, width, height);
         } else if(corners[SW] == null) {
             corners[SW] = findInnerCorner(mapController, 0, height, delta_x, -delta_y, width, height);
         } else if(corners[NE] == null) {
-            Log.d(TAG, "Looking for NE corner");
             corners[NE] = findInnerCorner(mapController, width, 0, -delta_x, delta_y, width, height);
         } else if(corners[SE] == null) {
             corners[SE] = findInnerCorner(mapController, width, height, -delta_x, -delta_y, width, height);
         } else {
-            Log.e(TAG, "NULL CORNER NOT FOUND");
+            Log.e(TAG, "processThreeCorners NULL CORNER NOT FOUND");
             return false;
         }
 
         return true;
     }
 
-    private static void processGlobeInCenter(MapInstance mapInstance, IGeoPosition corners[]) {
+    /**
+     * All four corners of the view are showing the sky and tilt is within range, so we are showing the entire globe in the view.
+     *
+     * @param mapInstance
+     * @param corners
+     */
+    private static boolean processGlobeInCenter(MapInstance mapInstance, IGeoPosition corners[]) {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
@@ -586,6 +477,9 @@ public class BoundsGeneration {
 
         List<IGeoPosition> cornersFound = new ArrayList<>();
         IGeoPosition corner;
+
+        // Traverse from each corner towards the center of the view, find the transition from sky to earth and you have found one
+        // point. Repeat this for all four corners.
 
         if(null != (corner = findInnerCorner(mapController, width/2, 0, 0, delta_y, width, height))) {
             cornersFound.add(corner);
@@ -600,22 +494,42 @@ public class BoundsGeneration {
             cornersFound.add(corner);
         }
 
-        IGeoPosition center = GeoLibrary.getCenter(cornersFound);
-
-        Point result = new Point();
-        if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result)) {
-            corners[NW] = findCorner(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
-            corners[NE] = findCorner(mapController, result.x, result.y, delta_x, -delta_y, width, height);
-            corners[SE] = findCorner(mapController, result.x, result.y, delta_x, delta_y, width, height);
-            corners[SW] = findCorner(mapController, result.x, result.y, -delta_x, delta_y, width, height);
+        if(CORNERS != cornersFound.size()) {
+            Log.e(TAG, "processGlobeInCenter couldn't find all four points");
         }
-//        corners[NW] = findInnerCorner(mapController, width/2, 0, 0, delta_y, width, height);
-//        corners[NE] = findInnerCorner(mapController, width, height/2, -delta_x, 0, width, height);
-//        corners[SW] = findInnerCorner(mapController, width/2, height, 0, -delta_y, width, height);
-//        corners[SE] = findInnerCorner(mapController, 0, height/2, delta_x, 0, width, height);
+
+        if(0 != cornersFound.size()) {
+            // Find the center of the four geographical points
+            IGeoPosition center = GeoLibrary.getCenter(cornersFound);
+
+            // Convert the center to geo point and traverse out diagonally to locate the desired polygon vertices.
+            // We don't short circuit this by simply traversiong from center of the sides initially as globe may not be
+            // exactly at the center.
+
+            Point result = new Point();
+            if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result)) {
+                corners[NW] = findCorner(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
+                corners[NE] = findCorner(mapController, result.x, result.y, delta_x, -delta_y, width, height);
+                corners[SE] = findCorner(mapController, result.x, result.y, delta_x, delta_y, width, height);
+                corners[SW] = findCorner(mapController, result.x, result.y, -delta_x, delta_y, width, height);
+            }
+        } else {
+            Log.e(TAG, "processGlobeInCenter couldn't find ANY point");
+            return false;
+        }
+        return true;
     }
 
-    private static void processGrid(MapInstance mapInstance, IGeoPosition corners[]) {
+    /**
+     * There is sky in the four corners and tilt is outside the range so now we will build a grid of points and figure out
+     * points near the border of the earth/sky boundary. We will use these points to arrive at four points that best
+     * represent the bounding polygon.
+     *
+     * @param mapInstance
+     * @param corners
+     * @return
+     */
+    private static boolean processGrid(MapInstance mapInstance, IGeoPosition corners[]) {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
@@ -625,68 +539,95 @@ public class BoundsGeneration {
 
         List<IGeoPosition> cornersFound = new ArrayList<>();
         IGeoPosition corner;
-        List<RectangleView> rcViews = new ArrayList<>();
-        List<Point> points = new ArrayList<>();
+        Set<Point> points = getGridPoints(width, height);
 
-        RectangleView level0 = new RectangleView(0, 0, width, 0, width, height, 0, height);
-        Log.d(TAG, "level0 rectangle");
-        level0.printRectangle();
-
-        List<RectangleView> level1 = level0.getRectangleViews();
-
-        for(RectangleView rv: level1) {
-            Log.d(TAG, "level1 rectangle");
-            rv.printRectangle();
-
-            rcViews.addAll(rv.getRectangleViews());
-        }
-
-        for(RectangleView rv : rcViews) {
-            points.addAll(rv.getPoints());
-        }
+        Point result = new Point();
+        Position pos = new Position();
 
         for(Point p: points) {
-            Log.d(TAG, "x, y " + p.x + " " + p.y);
-            Position pos = new Position();
+            Log.v(TAG, "x, y " + p.x + " " + p.y);
             if (mapController.screenPointToGroundPosition(p.x, p.y, pos)) {
-                if(null != (corner = findCorner(mapController, p.x, p.y, 0, -delta_y, width, height))) {
-                    cornersFound.add(corner);
+                if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)
+                        && 0 < result.x && 0 < result.y && result.x < width && result.y < height) {
+                    if (null != (corner = findCorner(mapController, p.x, p.y, 0, -delta_y, width, height))) {
+                        cornersFound.add(corner);
+                    }
+                    if (null != (corner = findCorner(mapController, p.x, p.y, delta_x, 0, width, height))) {
+                        cornersFound.add(corner);
+                    }
+                    if (null != (corner = findCorner(mapController, p.x, p.y, 0, delta_y, width, height))) {
+                        cornersFound.add(corner);
+                    }
+                    if (null != (corner = findCorner(mapController, p.x, p.y, -delta_x, 0, width, height))) {
+                        cornersFound.add(corner);
+                    }
                 }
-                if(null != (corner = findCorner(mapController, p.x, p.y, delta_x, 0, width, height))) {
-                    cornersFound.add(corner);
-                }
-                if (null != (corner = findCorner(mapController, p.x, p.y, 0, delta_y, width, height))) {
-                    cornersFound.add(corner);
-                }
-                if (null != (corner = findCorner(mapController, p.x, p.y, -delta_x, 0, width, height))) {
-                    cornersFound.add(corner);
-                }
-
-//                corners[NW] = findCorner(mapController, p.x, p.y, 0, -delta_y, width, height);
-//                corners[NE] = findCorner(mapController, p.x, p.y, delta_x, 0, width, height);
-//                corners[SE] = findCorner(mapController, p.x, p.y, 0, delta_y, width, height);
-//                corners[SW] = findCorner(mapController, p.x, p.y, -delta_x, 0, width, height);
-//                break;
             }
         }
 
         IGeoPosition center = GeoLibrary.getCenter(cornersFound);
 
-        Point result = new Point();
         if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result)) {
             corners[NW] = findCorner(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
             corners[NE] = findCorner(mapController, result.x, result.y, delta_x, -delta_y, width, height);
             corners[SE] = findCorner(mapController, result.x, result.y, delta_x, delta_y, width, height);
             corners[SW] = findCorner(mapController, result.x, result.y, -delta_x, delta_y, width, height);
         }
-
-//        List<RectangleView> level1 = level0.getRectangleViews();
-//        for(RectangleView rv: level1) {
-//            Log.d(TAG, "nw, ne, se, sw " + rv.nw_x + " " + rv.nw_y + " " + rv.ne_x + " " + rv.ne_y + " "
-//                + rv.se_x + " " + rv.se_y + " " + rv.sw_x + " " + rv.sw_y);
-//        }
+        return true;
     }
 
+    private static Set<Point> getGridPoints(int height, int width) {
+        for(GridPoints gp: gridPoints) {
+            if((height == gp.height) && (width == gp.width)) {
+                return gp.points;
+            }
+        }
+
+        GridPoints newGridPoints = new GridPoints(width, height);
+        gridPoints.add(newGridPoints);
+        return newGridPoints.points;
+    }
+
+    static class GridPoints {
+        final int width;
+        final int height;
+        final Set<Point> points;
+
+        GridPoints(int width, int height) {
+            this.width = width;
+            this.height = height;
+            this.points = new HashSet<>();
+
+            // We are going to create a grid of 16 rectangles. We will then pick the four points from each rectangle
+            // (four vertices). Yes there will be overlapping (identical) points and we will trim them
+            // as part of optimization phase.
+            // We can also generate these points ahead of time based on height and width.
+
+            List<RectangleView> rcViews = new ArrayList<>();
+
+            RectangleView level0 = new RectangleView(0, 0, width, 0, width, height, 0, height);
+            Log.d(TAG, "level0 rectangle");
+            level0.printRectangle();
+
+            List<RectangleView> level1 = level0.getRectangleViews();
+
+            for(RectangleView rv: level1) {
+                Log.d(TAG, "level1 rectangle");
+                rv.printRectangle();
+                rcViews.addAll(rv.getRectangleViews());
+            }
+
+            for(RectangleView rv : rcViews) {
+                this.points.addAll(rv.getPoints());
+            }
+
+            Log.d(TAG, "GRID POINTS w/h/count " + width + " " + height + " " + this.points.size());
+        }
+    }
+
+    /**
+     * Defines a rectangle with four screen points.
+     */
     static class RectangleView {
         int nw_x;
         int nw_y;
@@ -712,20 +653,25 @@ public class BoundsGeneration {
         void printRectangle() {
             Log.d(TAG, "nw ne we sw " + nw_x + " " + nw_y + " " + ne_x + " " + ne_y + " " + se_x + " " + se_y + " " + sw_x + " " + sw_y);
         }
+
+        /**
+         * Returns list of vertices of the rectangle
+         * @return
+         */
         List<Point> getPoints() {
             List<Point> points = new ArrayList();
             points.add(new Point(nw_x, nw_y));
             points.add(new Point(ne_x, ne_y));
             points.add(new Point(se_x, se_y));
             points.add(new Point(sw_x, sw_y));
-//            points.add(new Point((se_x - sw_x)/2, (se_y - ne_y)/2));
-//            points.add(new Point((ne_x - nw_x)/2, ne_y));
-//            points.add(new Point(ne_x, (se_y - ne_y)/2));
-//            points.add(new Point((se_x - sw_x)/2, se_y));
-//            points.add(new Point(nw_x, (sw_y - nw_y)/2));
+
             return points;
         }
 
+        /**
+         * Generates four rectangles from this rectangle.
+         * @return
+         */
         List<RectangleView> getRectangleViews() {
             List<RectangleView> rectangleViews = new ArrayList<>();
             int o_x = nw_x;
