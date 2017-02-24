@@ -17,9 +17,14 @@ ext {
     version_cmapi              = "0.0.6"
     version_renderer           = "0.1.17"
 
-    di2eNexusEmpReleaseUrl  = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
-    di2eNexusEmpSnapshotUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
-    di2eNexusEmp3rdPartyUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_ThirdParty/"
+    android_minSdkVersion     = 19
+    android_targetSdkVersion  = 23
+    android_compileSdkVersion = 23
+    android_buildToolsVersion = "23.0.2"
+
+//    di2eNexusEmpReleaseUrl  = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
+//    di2eNexusEmpSnapshotUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
+//    di2eNexusEmp3rdPartyUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_ThirdParty/"
 }
 
 group = "mil.army.missioncommand"
@@ -28,25 +33,7 @@ repositories {
     mavenLocal()
     jcenter()
     maven {
-        url = di2eNexusEmpReleaseUrl
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
-    maven {
-        url = di2eNexusEmpSnapshotUrl
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
-    maven {
-        url = di2eNexusEmp3rdPartyUrl
-        credentials {
-            username empUsername
-            password empPassword
-        }
+        url "file://${System.env['ANDROID_HOME']}/extras/android/m2repository"
     }
     maven {
         url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
@@ -55,9 +42,10 @@ repositories {
             password empPassword
         }
     }
-    /*maven {
-        url  "https://dl.bintray.com/missioncommand/maven"
-    }*/
+    maven {
+        //url  "https://dl.bintray.com/missioncommand/maven"
+        url "https://oss.jfrog.org/artifactory/libs-snapshot"
+    }
 }
 
 dependencyManagement {
@@ -67,12 +55,11 @@ dependencyManagement {
         dependency ("sec.web.renderer:mil-sym-android-renderer:${version_renderer}")
 
         // ANDROID-related
-        dependency ("android:android:6.0_r3")
         dependency ("com.android.support:appcompat-v7:23.2.1")
         dependency ("com.android.support:support-annotations:23.1.1")
         dependency ("com.android.support:design:23.2.1")
 
-        // OTHER-related
+        // OTHER
         dependency ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
 
         // TEST-related
@@ -84,7 +71,7 @@ dependencyManagement {
 }
 
 task wrapper(type: Wrapper, description: "Generates gradlew[.bat] scripts") {
-    gradleVersion = '3.1'
+    gradleVersion = '3.4'
 }
 
 if (JavaVersion.current().isJava8Compatible()) { // disable lint for java8
@@ -141,18 +128,3 @@ Properties readVersion() {
     }
     return version
 }
-
-/*task removeMavenLocalRepo {
-    doLast {
-        for (def repo : repositories) {
-            if (repo instanceof org.gradle.api.internal.artifacts.repositories.DefaultMavenLocalArtifactRepository) {
-                repositories.remove (repo);
-                break;
-            }
-        }
-    }
-}*/
-
-/*dependencyManagement.importedProperties.each { key, value ->
-    project.ext.set(key, value) // inject properties to project
-}*/

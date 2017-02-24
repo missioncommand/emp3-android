@@ -11,7 +11,7 @@ dependencies {
 
 publishing {
     publications {
-        stuff(MavenPublication) {
+        nebula(MavenPublication) {
             from components.java
         }
     }

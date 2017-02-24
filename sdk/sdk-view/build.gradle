@@ -26,7 +26,7 @@ dependencies {
 
 publishing {
     publications {
-        stuff(MavenPublication) {
+        nebula(MavenPublication) {
             artifact "$buildDir/outputs/aar/${project.name}-release.aar"
 
             pom.withXml {

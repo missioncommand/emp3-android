@@ -18,9 +18,8 @@ android {
 }
 
 publishing {
-
     publications {
-        stuff(MavenPublication) {
+        nebula(MavenPublication) {
             artifact "$buildDir/outputs/apk/${project.name}-debug.apk"
 
             pom.withXml {

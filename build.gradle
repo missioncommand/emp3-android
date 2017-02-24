@@ -8,12 +8,17 @@ buildscript {
         classpath 'com.netflix.nebula:nebula-publishing-plugin:4.9.1'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
         classpath 'org.ajoberstar:grgit:1.7.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.4.13'
     }
 }
 
 ext {
     empUsername = System.getenv("CI_USERNAME") ?: empUsername
     empPassword = System.getenv("CI_PASSWORD") ?: empPassword
+
+    bintrayUser = System.getenv("BINTRAY_USER") ?: project.hasProperty('bintrayUser') ? bintrayUser : ''
+    bintrayKey  = System.getenv('BINTRAY_KEY') ?: project.hasProperty('bintrayKey') ? bintrayKey : ''
 
     description = "Extensible Map Platform (EMP)"
 
@@ -28,4 +33,34 @@ ext {
 
 allprojects {
     apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/common.gradle"
+}
+
+def publishableModules() {
+    //subprojects.findAll { it.pluginManager.hasPlugin('org.gradle.maven-publish') } // MavenPublishPlugin
+    [
+          project(":3rdpartylibrary:google-maps-android-cmgn")
+        , project(":3rdpartylibrary:worldwind-release")
+        , project(":build-support:emp3-gradle-plugin")
+        , project(":mapengine:worldwind")
+        , project(":sdk:emp3-android-sdk")
+        , project(":sdk:emp3-android-sdk-apk")
+        , project(":service:mirrorcache:service-mirrorcache-api")
+        , project(":service:mirrorcache:service-mirrorcache-mirrorables")
+        , project(":sdk:emp3-android-sdk-view")
+        , project(":sdk:sdk-core")
+        , project(":service:mirrorcache:service-mirrorcache-service")
+    ]
+}
+
+configure(publishableModules()) {
+    apply plugin: 'com.jfrog.bintray'
+    apply plugin: 'com.jfrog.artifactory'
+    apply from: "${rootDir}/gradle/bintray.gradle"
+}
+
+task bintray {
+    group 'Publishing'
+    description 'Publish artifacts to Bintray'
+
+    dependsOn publishableModules().bintrayUpload
 }

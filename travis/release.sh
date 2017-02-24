@@ -9,7 +9,7 @@ echo '[release] TRAVIS_PULL_REQUEST='$TRAVIS_PULL_REQUEST
 
 # we only publish if a tag and for specific branches, but not NOT PRs
 if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    ./gradlew bintrayUpload --stacktrace
+    ./gradlew bintray --stacktrace
 
     REMOTE_URL=$(git config --get remote.origin.url)
     REMOTE_URL=$(echo $REMOTE_URL | sed -e "s#://#://$GITHUB_API_KEY@#g") > /dev/null 2>&1
