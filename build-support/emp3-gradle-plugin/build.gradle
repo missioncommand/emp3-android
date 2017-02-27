@@ -11,21 +11,8 @@ dependencies {
 
 publishing {
     publications {
-        stuff(MavenPublication) {
-            groupId    project.ext.group
-            artifactId project.name
-            version    project.version
-
+        nebula(MavenPublication) {
             from components.java
-        }
-    }
-    repositories {
-        maven {
-            url = nexusPublishUrl
-            credentials {
-                username = empUsername
-                password = empPassword
-            }
         }
     }
 }

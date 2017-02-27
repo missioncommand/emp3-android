@@ -1,4 +1,5 @@
 apply plugin: 'java'
+
 apply plugin: 'nebula.provided-base'
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
@@ -8,36 +9,12 @@ targetCompatibility = rootProject.targetCompatibility
 
 dependencies {
     provided (group:'org.cmapi.primitives', name:'common-map-geospatial-notation', ext:'jar')
-    provided ("android:android")
+    provided files("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
 }
 
-publishing.publications {
-    nebula(MavenPublication) {
-        groupId    = project.ext.group
-        artifactId = "google-maps-android-cmgn"
-        version    = project.version
-    }
-}
-publishing.repositories {
-    maven {
-        url = nexusPublishUrl
-
-        credentials {
-            username empUsername
-            password empPassword
+publishing {
+    publications {
+        nebula(MavenPublication) {
         }
     }
 }
-if (project.hasProperty('di2eNexusReleaseUrl')) {
-    publishing.repositories {
-        maven {
-            url = project.property('di2eNexusReleaseUrl')
-
-            credentials {
-                username empUsername
-                password empPassword
-            }
-        }
-    }
-}
-

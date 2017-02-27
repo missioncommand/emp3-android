@@ -16,35 +16,11 @@ dependencies {
 
 publishing.publications {
     nebula(MavenPublication) {
-        groupId    = project.ext.group
         artifactId = "emp3-android-worldwind"
-        version    = project.version
 
         artifacts = [
             "$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar",
             "$buildDir/../apk/build/outputs/apk/mapengine-worldwind-apk-debug.apk"
         ]
-    }
-}
-publishing.repositories {
-    maven {
-        url = nexusPublishUrl
-
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
-}
-if (project.hasProperty('di2eNexusReleaseUrl')) {
-    publishing.repositories {
-        maven {
-            url = project.property('di2eNexusReleaseUrl')
-
-            credentials {
-                username empUsername
-                password empPassword
-            }
-        }
     }
 }

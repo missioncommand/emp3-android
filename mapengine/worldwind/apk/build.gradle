@@ -8,7 +8,7 @@ dependencies {
 }
 
 android {
-    def engine_version = dependencyManagement.importedProperties['version_nasa_worldwind_sdk']
+    //def engine_version = dependencyManagement.importedProperties['version_nasa_worldwind_sdk']
 
     defaultConfig {
         applicationId "mil.emp3.worldwind"
