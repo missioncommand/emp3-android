@@ -67,7 +67,7 @@ public class BoundsGeneration {
         try {
             List<IGeoPosition> list = getBoundingPolygon(mapInstance);
             if ((null != list) && (EmpBoundingBox.REQUIRED_VERTICES == list.size())) {
-                EmpBoundingBox boundingBox = new EmpBoundingBox(list.get(0), list.get(1), list.get(2), list.get(3));
+                EmpBoundingBox boundingBox = new EmpBoundingBox(mapInstance.getCamera(), list.get(0), list.get(1), list.get(2), list.get(3));
                 return boundingBox;
             }
         } catch (Exception e) {
@@ -251,6 +251,7 @@ public class BoundsGeneration {
         boolean found = false;
         Position pos = new Position();
         Position prevPos = null;
+        Point result = new Point();
 
         // Following three block can actually be collapsed into one if we change the comparison to <= and =>, but for now
         // we are keeping them separate. Until then whatever changes you make in one block have to be applied to other two blocks.
@@ -259,7 +260,13 @@ public class BoundsGeneration {
 
             // Save the initial position where there is earth so that we can deal with the special case of first step transition.
             if (mapController.screenPointToGroundPosition(start_x, start_y, pos)) {
-                prevPos = pos;
+                if(null == prevPos) {
+                    prevPos = new Position(pos.latitude, pos.longitude, pos.altitude);
+                } else {
+                    prevPos.latitude = pos.latitude;
+                    prevPos.longitude = pos.longitude;
+                    prevPos.altitude = pos.altitude;
+                }
             }
 
             int current_x = start_x + delta_x;
@@ -273,7 +280,23 @@ public class BoundsGeneration {
                         found = true;
                     }
                 } else {
-                    prevPos = pos;
+                    // This check is for NASA issue related to false positive.
+                    if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result) &&
+                            result.x >= 0 && result.x <= width && result.y >= 0 && result.y <= height) {
+                        if(null == prevPos) {
+                            prevPos = new Position(pos.latitude, pos.longitude, pos.altitude);
+                        } else {
+                            prevPos.latitude = pos.latitude;
+                            prevPos.longitude = pos.longitude;
+                            prevPos.altitude = pos.altitude;
+                        }
+                    } else {
+                        if(prevPos != null) {
+                            corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                            Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                            found = true;
+                        }
+                    }
                 }
             }
 
@@ -325,7 +348,9 @@ public class BoundsGeneration {
             return false;
         }
 
-        // refineIt(mapInstance, corners);
+//        if(mapInstance.getCamera().getAltitude() < 1000) {
+//            refineIt(mapInstance, corners);
+//        }
         return true;
     }
 
@@ -511,8 +536,10 @@ public class BoundsGeneration {
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
 
-        int delta_x = getDeltaX(mapInstance);
-        int delta_y = getDeltaY(mapInstance);
+        // We will use a smaller deltaX and deltaY as we may be looking at a small portion of the globe and we need to get
+        // distinct four points.
+        int delta_x = (int) (getDeltaX(mapInstance) * .25);
+        int delta_y = (int) (getDeltaY(mapInstance) * .25);
 
         List<IGeoPosition> cornersFound = new ArrayList<>();
         IGeoPosition corner;
