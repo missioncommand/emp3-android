@@ -1,101 +1,186 @@
 package mil.emp3.api.utils;
 
+import android.util.Log;
+
+import org.cmapi.primitives.GeoBounds;
+import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.List;
+
+import mil.emp3.api.global;
 
 /**
  * This class defines a bounded box.
  */
 
-public class EmpBoundingBox {
-    private double north = 0;
-    private double south = 0;
-    private double east = 0;
-    private double west = 0;
+public class EmpBoundingBox extends GeoBounds {
+    private static String TAG = EmpBoundingBox.class.getSimpleName();
+    public final static int REQUIRED_VERTICES = 4;
+    private final IGeoPosition[] vertices;
 
-    /**
-     * This constructor defines an area bounded by the north, south, east, and west parameters provided.
-     * @param northValue The most northern latitude of the area. If this value is less than southValue, the values are swapped.
-     * @param southValue The most southern latitude of the area. If this value is greater than northValue, the values are swapped.
-     * @param eastValue The east longitude of the area. If the east value is greater than the west value the area contains the international date line.
-     * @param westValue The west longitude of the area. If the west value is less than the east value the area contains the international date line.
-     */
-    public EmpBoundingBox(double northValue, double southValue, double eastValue, double westValue) {
-        if (Double.isNaN(northValue) || Double.isNaN(southValue) || Double.isNaN(eastValue) || Double.isNaN(westValue)) {
-            throw new InvalidParameterException("Invalid value NaN.");
-        }
+    // We will calculate the bounds required for the GeoBounds class only when application tries to get them.
+    private boolean boundsCalculated = false;
 
-        if ((northValue < -90) || (northValue > 90) || (southValue < -90) || (southValue > 90)) {
-            throw new InvalidParameterException("Invalid latitude value.");
-        }
+    public EmpBoundingBox(IGeoPosition v1, IGeoPosition v2, IGeoPosition v3, IGeoPosition v4) {
 
-        if ((eastValue < -180) || (eastValue > 180) || (westValue < -180) || (westValue > 180)) {
-            throw new InvalidParameterException("Invalid longitude value.");
+        if((null == v1) || (null == v2) || (null == v3) || (null == v4)) {
+            throw new IllegalArgumentException("All vertices must be non-null");
         }
+        vertices = new IGeoPosition[REQUIRED_VERTICES];
+        vertices[0] = v1;
+        vertices[1] = v2;
+        vertices[2] = v3;
+        vertices[3] = v4;
 
-        if (northValue >= southValue) {
-            this.north = northValue;
-            this.south = southValue;
-        } else {
-            this.south = northValue;
-            this.north = southValue;
+        for(int ii = 0; ii < vertices.length; ii++) {
+            if (Double.isNaN(vertices[ii].getLatitude()) || (vertices[ii].getLatitude() < global.LATITUDE_MINIMUM) || (vertices[ii].getLatitude() > global.LATITUDE_MAXIMUM)) {
+                throw new InvalidParameterException("Latitude is Out Of Range for vertex " + (ii+1));
+            }
+
+            if (Double.isNaN(vertices[ii].getLongitude()) || (vertices[ii].getLongitude() < global.LONGITUDE_MINIMUM) || (vertices[ii].getLongitude() > global.LONGITUDE_MAXIMUM)) {
+                throw new InvalidParameterException("Longitude is Out Of Range for vertex " + (ii+1));
+            }
+
+            vertices[ii].setAltitude(0);
         }
-        this.east = eastValue;
-        this.west = westValue;
     }
 
     /**
-     * This constructor defines an area bounded by the northEast and southWest coordinates.
-     * @param southWest The coordinates of the south west point of the bounding area.
-     * @param northEast The coordinates of the north east point of the bounding area.
+     * Sets North boundary to the highest latitude
+     * Sets South boundary to the smallest latitude.
      */
-    public EmpBoundingBox(IGeoPosition southWest, IGeoPosition northEast) {
-        if ((null == southWest) || (null == northEast)) {
-            throw new InvalidParameterException("Invalid null GeoPosition.");
+    private void setNorthAndSouth() {
+        double tmpNorth = 91.0;
+        double tmpSouth = -91.0;
+        for(int ii = 0; ii < vertices.length; ii++) {
+            if(tmpNorth > 90.0) {
+                tmpNorth = vertices[ii].getLatitude();
+                tmpSouth = vertices[ii].getLatitude();
+            } else {
+                if(vertices[ii].getLatitude() > tmpNorth) {
+                    tmpNorth = vertices[ii].getLatitude();
+                } else if(vertices[ii].getLatitude() < tmpSouth) {
+                    tmpSouth = vertices[ii].getLatitude();
+                }
+            }
         }
-        if (northEast.getLatitude() >= southWest.getLatitude()) {
-            this.north = northEast.getLatitude();
-            this.south = southWest.getLatitude();
-        } else {
-            this.south = northEast.getLatitude();
-            this.north = southWest.getLatitude();
+
+        super.setNorth(tmpNorth);
+        super.setSouth(tmpSouth);
+    }
+
+    /**
+     * This methods finds APPROXIMATE east/west boundaries for the underlying GeoBounds object.
+     *    - Get the center of the vertices.
+     *    - Find the bearing of each vertex from center to the vertex.
+     *    - Set East boundary to the longitude of the vertex with smallest bearing
+     *    - Set West boundary to the longitude of the vertex with highest bearing.
+     */
+    private void setEastAndWest() {
+
+        // Get the center
+        List<IGeoPosition> positionList = new ArrayList<>();
+        for(int ii = 0; ii < vertices.length; ii++) {
+            positionList.add(vertices[ii]);
+        }
+        IGeoPosition center = GeoLibrary.getCenter(positionList);
+
+        // Now compute bearing of each vertex and figure out vertex with smallest and highest bearing.
+        double[] bearing = new double[vertices.length];
+        double smallestBearing = -361.0;
+        double highestBearing = 361.0;
+        int smallestBearingIndex = -1;
+        int highestBearingIndex = -1;
+        for(int ii = 0; ii < vertices.length; ii++) {
+            bearing[ii] = GeoLibrary.computeBearing(center, vertices[ii]);
+            Log.d(TAG, "bearing " + bearing[ii] + " " + vertices[ii].getLatitude() + " " + vertices[ii].getLongitude());
+            if(smallestBearing < -360.0) {
+                smallestBearingIndex = ii;
+                highestBearingIndex = ii;
+                smallestBearing = bearing[ii];
+                highestBearing = bearing[ii];
+            } else {
+                if(bearing[ii] < smallestBearing) {
+                    smallestBearing = bearing[ii];
+                    smallestBearingIndex = ii;
+                } else if(bearing[ii] > highestBearing) {
+                    highestBearing = bearing[ii];
+                    highestBearingIndex = ii;
+                }
+            }
         }
 
-        this.east = northEast.getLongitude();
-        this.west = southWest.getLongitude();
+        // Set east and west.
+        if(smallestBearingIndex >= 0) {
+            super.setEast(vertices[smallestBearingIndex].getLongitude());
+        }
+        if(highestBearingIndex >= 0) {
+            super.setWest(vertices[highestBearingIndex].getLongitude());
+        }
+    }
+    public String toString() {
+        String value = "";
+        return value;
     }
 
-    /**
-     * This method returns the northern latitude.
-     * @return The north latitude in degrees.
-     */
-    public double north() {
-        return this.north;
+    public IGeoPosition[] getBounds() {
+        IGeoPosition[] bounds = new IGeoPosition[REQUIRED_VERTICES];
+        for(int ii = 0; ii < vertices.length; ii++) {
+            bounds[ii] = new GeoPosition();
+            bounds[ii].setLatitude(vertices[ii].getLatitude());
+            bounds[ii].setLongitude(vertices[ii].getLongitude());
+        }
+        return bounds;
+    }
+    public void setWest(double west){
+        throw new IllegalStateException("Cannot set on " + this.getClass().getSimpleName());
     }
 
-    /**
-     * This method returns the southern latitude.
-     * @return The southern latitude in degrees.
-     */
-    public double south() {
-        return this.south;
+    public void setEast(double east){
+        throw new IllegalStateException("Cannot set on " + this.getClass().getSimpleName());
     }
 
-    /**
-     * This method returns the eastern longitude.
-     * @return The eastern longitude in degrees.
-     */
-    public double east() {
-        return this.east;
+    public void setNorth(double north){
+        throw new IllegalStateException("Cannot set on " + this.getClass().getSimpleName());
     }
 
-    /**
-     * This method returns the western longitude.
-     * @return The western logintude in degrees.
-     */
-    public double west() {
-        return this.west;
+    public void setSouth(double south){
+        throw new IllegalStateException("Cannot set on " + this.getClass().getSimpleName());
+    }
+
+    private void calculateBounds() {
+        if(!boundsCalculated) {
+            // Set approximate North, south, east and west.
+            setNorthAndSouth();
+            setEastAndWest();
+            boundsCalculated = true;
+        }
+    }
+    @Override
+    public double getWest() {
+        calculateBounds();
+        return super.getWest();
+    }
+
+    @Override
+    public double getEast() {
+        calculateBounds();
+        return super.getEast();
+    }
+
+    @Override
+    public double getNorth() {
+        calculateBounds();
+        return super.getNorth();
+    }
+
+    @Override
+    public double getSouth() {
+        calculateBounds();
+        return super.getSouth();
     }
 
     /**
@@ -103,7 +188,7 @@ public class EmpBoundingBox {
      * @return Degrees
      */
     public double deltaLatitude() {
-        return Math.abs(this.north - this.south);
+        return Math.abs(getNorth() - getSouth());
     }
 
     /**
@@ -111,7 +196,7 @@ public class EmpBoundingBox {
      * @return degrees.
      */
     public double deltaLongitude() {
-        double delta = this.east - this.west;
+        double delta = getEast() - getWest();
 
         if (delta < 0) {
             delta = (delta + 360) % 360;
@@ -124,6 +209,6 @@ public class EmpBoundingBox {
      * @return True if the IDL is contained in the bounding box, false if not.
      */
     public boolean containsIDL() {
-        return (this.west > this.east);
+        return (getWest() > getEast());
     }
 }

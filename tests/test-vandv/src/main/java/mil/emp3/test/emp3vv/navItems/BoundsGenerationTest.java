@@ -3,18 +3,27 @@ package mil.emp3.test.emp3vv.navItems;
 import android.app.Activity;
 import android.util.Log;
 
-import org.cmapi.primitives.GeoBounds;
+import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
+import org.cmapi.primitives.IGeoStrokeStyle;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import mil.emp3.api.Overlay;
 import mil.emp3.api.Point;
+import mil.emp3.api.Polygon;
 import mil.emp3.api.Text;
 import mil.emp3.api.events.CameraEvent;
 import mil.emp3.api.events.MapUserInteractionEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 
 import mil.emp3.api.interfaces.IOverlay;
@@ -22,6 +31,8 @@ import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ICameraEventListener;
 
 import mil.emp3.api.listeners.IMapInteractionEventListener;
+import mil.emp3.api.utils.EmpBoundingBox;
+import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.NavItemBase;
@@ -49,13 +60,19 @@ public class BoundsGenerationTest extends NavItemBase {
 
     EventListenerHandle mapInteractionHandle[] = new EventListenerHandle[ExecuteTest.MAX_MAPS];
 
+    List<IFeature> boundingFeatures[] = new List[ExecuteTest.MAX_MAPS];
+
     public BoundsGenerationTest(Activity activity, IMap map1, IMap map2) {
         super(activity, map1, map2, TAG);
+
+        for(int ii = 0; ii < ExecuteTest.MAX_MAPS; ii++) {
+            boundingFeatures[ii] = new ArrayList<>();
+        }
     }
 
     @Override
     public String[] getSupportedUserActions() {
-        String[] actions = {"Start", "Get Bounds", "Show Corners"};
+        String[] actions = {"Start", "Get Emp Bounds", "Get Geo Bounds", "Show Corners" };
         return actions;
     }
 
@@ -134,8 +151,12 @@ public class BoundsGenerationTest extends NavItemBase {
                     cameraPoint[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
                     overlay[whichMap].addFeature(cameraPoint[whichMap], true);
 
+                    IGeoLabelStyle labelStyle = new GeoLabelStyle();
+                    labelStyle.setColor(new EmpGeoColor(1, 255, 0, 0));
+
                     cameraText[whichMap] = new Text();
                     cameraText[whichMap].setText("Camera");
+                    cameraText[whichMap].setLabelStyle(labelStyle);
                     cameraText[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
                     overlay[whichMap].addFeature(cameraText[whichMap], true);
 
@@ -150,91 +171,6 @@ public class BoundsGenerationTest extends NavItemBase {
                     cameraText[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
                     cameraText[whichMap].apply();
                 }
-            } else if (userAction.equals("Get Bounds")) {
-                final IGeoBounds bounds = maps[whichMap].getBounds();
-//                IGeoPosition pos = maps[whichMap].containerToGeo(new android.graphics.Point(0, 0));
-//                Log.d(TAG, "0/0 " + pos.getLatitude() + " " + pos.getLongitude());
-//
-//                pos = maps[whichMap].containerToGeo(new android.graphics.Point(768, 0));
-//                Log.d(TAG, "768/0 " + pos.getLatitude() + " " + pos.getLongitude());
-//
-//                pos = maps[whichMap].containerToGeo(new android.graphics.Point(0, 869));
-//                Log.d(TAG, "0/869 " + pos.getLatitude() + " " + pos.getLongitude());
-//
-//                pos = maps[whichMap].containerToGeo(new android.graphics.Point(768, 869));
-//                Log.d(TAG, "768/869 " + pos.getLatitude() + " " + pos.getLongitude());
-                if (null != bounds) {
-                    if (sePoint[whichMap] == null) {
-                        sePoint[whichMap] = new Point();
-                        swPoint[whichMap] = new Point();
-                        nePoint[whichMap] = new Point();
-                        nwPoint[whichMap] = new Point();
-                        sePoint[whichMap].getPositions().add(new MyGeoPosition(bounds.getSouth(), bounds.getEast(), 0));
-                        swPoint[whichMap].getPositions().add(new MyGeoPosition(bounds.getSouth(), bounds.getWest(), 0));
-                        nePoint[whichMap].getPositions().add(new MyGeoPosition(bounds.getNorth(), bounds.getEast(), 0));
-                        nwPoint[whichMap].getPositions().add(new MyGeoPosition(bounds.getNorth(), bounds.getWest(), 0));
-                        overlay[whichMap].addFeature(sePoint[whichMap], true);
-                        overlay[whichMap].addFeature(swPoint[whichMap], true);
-                        overlay[whichMap].addFeature(nePoint[whichMap], true);
-                        overlay[whichMap].addFeature(nwPoint[whichMap], true);
-
-                        seText[whichMap] = new Text();
-                        swText[whichMap] = new Text();
-                        neText[whichMap] = new Text();
-                        nwText[whichMap] = new Text();
-                        seText[whichMap].setText("SE");
-                        swText[whichMap].setText("SW");
-                        neText[whichMap].setText("NE");
-                        nwText[whichMap].setText("NW");
-                        seText[whichMap].getPositions().add(new MyGeoPosition(bounds.getSouth(), bounds.getEast(), 0));
-                        swText[whichMap].getPositions().add(new MyGeoPosition(bounds.getSouth(), bounds.getWest(), 0));
-                        neText[whichMap].getPositions().add(new MyGeoPosition(bounds.getNorth(), bounds.getEast(), 0));
-                        nwText[whichMap].getPositions().add(new MyGeoPosition(bounds.getNorth(), bounds.getWest(), 0));
-                        overlay[whichMap].addFeature(seText[whichMap], true);
-                        overlay[whichMap].addFeature(swText[whichMap], true);
-                        overlay[whichMap].addFeature(neText[whichMap], true);
-                        overlay[whichMap].addFeature(nwText[whichMap], true);
-                    } else {
-                        sePoint[whichMap].getPositions().clear();
-                        swPoint[whichMap].getPositions().clear();
-                        nePoint[whichMap].getPositions().clear();
-                        nwPoint[whichMap].getPositions().clear();
-
-                        sePoint[whichMap].getPositions().add(new MyGeoPosition(bounds.getSouth(), bounds.getEast(), 0));
-                        swPoint[whichMap].getPositions().add(new MyGeoPosition(bounds.getSouth(), bounds.getWest(), 0));
-                        nePoint[whichMap].getPositions().add(new MyGeoPosition(bounds.getNorth(), bounds.getEast(), 0));
-                        nwPoint[whichMap].getPositions().add(new MyGeoPosition(bounds.getNorth(), bounds.getWest(), 0));
-
-                        sePoint[whichMap].apply();
-                        swPoint[whichMap].apply();
-                        nePoint[whichMap].apply();
-                        nwPoint[whichMap].apply();
-
-                        seText[whichMap].getPositions().clear();
-                        swText[whichMap].getPositions().clear();
-                        neText[whichMap].getPositions().clear();
-                        nwText[whichMap].getPositions().clear();
-
-                        seText[whichMap].getPositions().add(new MyGeoPosition(bounds.getSouth(), bounds.getEast(), 0));
-                        swText[whichMap].getPositions().add(new MyGeoPosition(bounds.getSouth(), bounds.getWest(), 0));
-                        neText[whichMap].getPositions().add(new MyGeoPosition(bounds.getNorth(), bounds.getEast(), 0));
-                        nwText[whichMap].getPositions().add(new MyGeoPosition(bounds.getNorth(), bounds.getWest(), 0));
-
-                        seText[whichMap].apply();
-                        swText[whichMap].apply();
-                        neText[whichMap].apply();
-                        nwText[whichMap].apply();
-                    }
-
-                    Thread t = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ErrorDialog.showMessageWaitForConfirm(activity, "NEWS " + bounds.getNorth() + " " + bounds.getEast() + " " +
-                                    bounds.getWest() + " " + bounds.getSouth());
-                        }
-                    });
-                    t.start();
-                }
             } else if (userAction.equals("Show Corners")) {
                 if(null == mapInteractionHandle[ExecuteTest.getCurrentMap()]) {
                     mapInteractionHandle[whichMap] = maps[whichMap].addMapInteractionEventListener(new MapInteractionListener());
@@ -242,6 +178,59 @@ public class BoundsGenerationTest extends NavItemBase {
                     maps[whichMap].removeEventListener(mapInteractionHandle[whichMap]);
                     mapInteractionHandle[whichMap] = null;
                 }
+            } else if (userAction.equals("Get Emp Bounds")) {
+                IGeoLabelStyle labelStyle = new GeoLabelStyle();
+                labelStyle.setColor(new EmpGeoColor(1, 255, 0, 0));
+
+                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                strokeStyle.setStrokeColor(new EmpGeoColor(1, 0, 255, 255));
+                strokeStyle.setStrokeWidth(5);
+
+                overlay[whichMap].removeFeatures(boundingFeatures[whichMap]);
+                boundingFeatures[whichMap].clear();
+
+                IGeoBounds geoBounds = maps[whichMap].getBounds();
+                if(geoBounds instanceof EmpBoundingBox) {
+                    EmpBoundingBox empBoundingBox = (EmpBoundingBox) geoBounds;
+                    IGeoPosition[] positions = empBoundingBox.getBounds();
+                    Polygon p = new Polygon();
+                    p.setStrokeStyle(strokeStyle);
+                    boundingFeatures[whichMap].add(p);
+                    for (IGeoPosition position : positions) {
+                        Text text = new Text();
+
+                    /*
+                    sMessage = String.format(Locale.US, "%1s L:N:A %2$6.3f %3$6.3f %4$6.0f F:M %5$6.1f %6$6.1f %7$d ", oMap.getName(),
+                            oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(),
+                            oMap.getFarDistanceThreshold(), oMap.getMidDistanceThreshold(),
+                            iCount);
+                     */
+                        String formattedLatLong = String.format(Locale.US, "%1$6.3f %2$6.3f", position.getLatitude(), position.getLongitude());
+                        text.setText(formattedLatLong);
+                        text.setLabelStyle(labelStyle);
+                        text.getPositions().add(position);
+                        boundingFeatures[whichMap].add(text);
+
+                        Point point = new Point();
+                        point.getPositions().add(position);
+                        boundingFeatures[whichMap].add(point);
+
+                        p.getPositions().add(position);
+                    }
+                    overlay[whichMap].addFeatures(boundingFeatures[whichMap], true);
+                }
+            }  else if (userAction.equals("Get Geo Bounds")) {
+
+                final IGeoBounds geoBounds = maps[whichMap].getBounds();
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String formattedLatLong = String.format(Locale.US, "NEWS %1$6.3f %2$6.3f %3$6.3f %4$6.3f",
+                                geoBounds.getNorth(), geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth());
+                        ErrorDialog.showMessageWaitForConfirm(activity, formattedLatLong);
+                    }
+                });
+                t.start();
             }
         } catch (Exception e) {
             updateStatus(TAG, e.getMessage());
@@ -281,6 +270,10 @@ public class BoundsGenerationTest extends NavItemBase {
             cameraPoint[whichMap].getPositions().clear();
             cameraPoint[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
             cameraPoint[whichMap].apply();
+
+            cameraText[whichMap].getPositions().clear();
+            cameraText[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
+            cameraText[whichMap].apply();
         }
     }
 
@@ -290,6 +283,26 @@ public class BoundsGenerationTest extends NavItemBase {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    try {
+                        int ii, jj;
+                        for(ii = 0, jj = 0; ; ii++, jj++){
+                            IGeoPosition position = maps[ExecuteTest.getCurrentMap()].containerToGeo(new android.graphics.Point(ii, jj));
+                            if (null != position) {
+                                Log.d(TAG, "Position AT  " + ii + " " + jj + " " + position.getLatitude() + " " + position.getLongitude());
+                                android.graphics.Point p = maps[ExecuteTest.getCurrentMap()].geoToScreen(position);
+                                if(p != null) {
+                                    Log.d(TAG, "Point AT  " + p.x + " " + p.y + " " + position.getLatitude() + " " + position.getLongitude());
+                                } else {
+                                    Log.d(TAG, "Null Point AT");
+                                }
+                            } else {
+                                Log.d(TAG, "Null Position AT " + ii + " " + jj);
+                                break;
+                            }
+                        }
+                    } catch (EMP_Exception e) {
+                        e.printStackTrace();
+                    }
                     if(null != event.getCoordinate()) {
                         ErrorDialog.showMessageWaitForConfirm(activity, "X, Y [" + event.getPoint().x + ", " + event.getPoint().y +
                                 "] Lat/Long [" + event.getCoordinate().getLatitude() + ", " + event.getCoordinate().getLongitude() + "]");
@@ -300,6 +313,27 @@ public class BoundsGenerationTest extends NavItemBase {
                 }
             });
             t.start();
+
+//            try {
+//                int ii, jj;
+//                for (ii = 0, jj = 0; ; ii++, jj++) {
+//                    IGeoPosition position = maps[ExecuteTest.getCurrentMap()].containerToGeo(new android.graphics.Point(ii, jj));
+//                    if (null != position) {
+//                        Log.d(TAG, "Position AT  " + ii + " " + jj + " " + position.getLatitude() + " " + position.getLongitude());
+//                        android.graphics.Point p = maps[ExecuteTest.getCurrentMap()].geoToScreen(position);
+//                        if (p != null) {
+//                            Log.d(TAG, "Point AT  " + p.x + " " + p.y + " " + position.getLatitude() + " " + position.getLongitude());
+//                        } else {
+//                            Log.d(TAG, "Null Point AT");
+//                        }
+//                    } else {
+//                        Log.d(TAG, "Null Position AT " + ii + " " + jj);
+//                        break;
+//                    }
+//                }
+//            } catch (EMP_Exception e) {
+//                e.printStackTrace();
+//            }
         }
     }
 }

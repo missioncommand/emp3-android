@@ -71,7 +71,7 @@ public class BoundsGeneration {
                 return boundingBox;
             }
         } catch (Exception e) {
-            Log.e(TAG, "getBoundingBox " + e.getMessage());
+            Log.e(TAG, "getBoundingBox " + e.getMessage(), e);
         }
         return null;
     }
@@ -90,24 +90,32 @@ public class BoundsGeneration {
             // Check how many corners we have a map rather than sky/space
             cornersFound = getCornersTouched(mapInstance, corners);
             Log.d(TAG, "getBoundingPolygon cornersFound " + cornersFound);
-            if (CORNERS == cornersFound) {
-                // All corners have a map, so this is the most common and probably relatively easy scenario.
-                // corners are already populated with the bounding polygon.
-                // cornersToBound(corners);
-                status = true;
-            } else if (1 == cornersFound) {
-                status = processSingleCorner(mapInstance, corners);
-            } else if (2 == cornersFound) {
-                status = processTwoCorners(mapInstance, corners);
-            } else if (3 == cornersFound) {
-                status = processThreeCorners(mapInstance, corners);
-            } else if (0 == cornersFound) {
-                if (-1.0 < mapInstance.getCamera().getTilt() && mapInstance.getCamera().getTilt() < 1.0) {
-                    // Globe is at the center of the view but roll and heading may not be zero.
-                    status = processGlobeInCenter(mapInstance, corners);
-                } else {
-                    status = processGrid(mapInstance, corners);
-                }
+            switch(cornersFound) {
+                case CORNERS:
+                    // All corners have a map, so this is the most common and probably relatively easy scenario.
+                    // corners are already populated with the bounding polygon.
+                    // cornersToBound(corners);
+                    status = true;
+                    break;
+                case 1:
+                    status = processSingleCorner(mapInstance, corners);
+                    break;
+                case 2:
+                    status = processTwoCorners(mapInstance, corners);
+                    break;
+                case 3:
+                    status = processThreeCorners(mapInstance, corners);
+                    break;
+                case 0:
+                    if (-1.0 < mapInstance.getCamera().getTilt() && mapInstance.getCamera().getTilt() < 1.0) {
+                        // Globe is at the center of the view but roll and heading may not be zero.
+                        status = processGlobeInCenter(mapInstance, corners);
+                    } else {
+                        status = processGrid(mapInstance, corners);
+                    }
+                    break;
+                default:
+                    Log.e(TAG, "getCornersTouched returned " + cornersFound);
             }
 
             if(status) {
@@ -129,7 +137,7 @@ public class BoundsGeneration {
                 return boundingPolygon;
             }
         } catch (Exception e) {
-            Log.e(TAG, "cornersFound " + cornersFound + " " + e.getMessage());
+            Log.e(TAG, "cornersFound " + cornersFound + " " + e.getMessage(), e);
         }
         return null;
     }
@@ -173,7 +181,7 @@ public class BoundsGeneration {
             if (mapController.screenPointToGroundPosition(vertices[ii].x, vertices[ii].y, pos)) {
                 if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)) {
                     corners[ii] = new MyGeoPosition(pos.latitude, pos.longitude);
-                    // Log.d(TAG, "x/y/l/n " + vertices[ii].x + " " + vertices[ii].y + " " + pos.latitude + " " + pos.longitude);
+                    Log.v(TAG, "x/y/l/n " + vertices[ii].x + " " + vertices[ii].y + " " + pos.latitude + " " + pos.longitude);
                     cornersFound++;
                 }
             }
@@ -197,26 +205,26 @@ public class BoundsGeneration {
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
 
-        // Locate the view corner that doesn't show the sky. Then traverse from this corner towards the adjacent corner(s) (findCorner)
+        // Locate the view corner that doesn't show the sky. Then traverse from this corner towards the adjacent corner(s) (findEarth2SkyTransition)
         // looking for a place where we make a transition from map (earth) to sky and you have found two points.
-        // Traverse from the opposite corner towards this corner (findInnerCorner) looking for the place where there is a transition
+        // Traverse from the opposite corner towards this corner (findSky2EarthTransition) looking for the place where there is a transition
         // from sky to map (earth) and this will give you the third point of the polygon.
         if(corners[NW] != null) {
-            corners[NE] = findCorner(mapController, 0, 0, delta_x, 0, width, height);
-            corners[SE] = findInnerCorner(mapController, width, height, -delta_x, -delta_y, width, height);
-            corners[SW] = findCorner(mapController, 0, 0, 0, delta_y, width, height);
+            corners[NE] = findEarth2SkyTransition(mapController, 0, 0, delta_x, 0, width, height);
+            corners[SE] = findSky2EarthTransition(mapController, width, height, -delta_x, -delta_y, width, height);
+            corners[SW] = findEarth2SkyTransition(mapController, 0, 0, 0, delta_y, width, height);
         } else if(corners[SW] != null) {
-            corners[NW] = findCorner(mapController, 0, height, 0, -delta_y, width, height);
-            corners[NE] = findInnerCorner(mapController, width, 0, -delta_x, delta_y, width, height);
-            corners[SE] = findCorner(mapController, 0, height, delta_x, 0, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, 0, height, 0, -delta_y, width, height);
+            corners[NE] = findSky2EarthTransition(mapController, width, 0, -delta_x, delta_y, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, 0, height, delta_x, 0, width, height);
         } else if(corners[NE] != null) {
-            corners[SE] = findCorner(mapController, width, 0, 0, delta_y, width, height);
-            corners[SW] = findInnerCorner(mapController, 0, height, delta_x, -delta_y, width, height);
-            corners[NW] = findCorner(mapController, width, 0, -delta_x, 0, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, width, 0, 0, delta_y, width, height);
+            corners[SW] = findSky2EarthTransition(mapController, 0, height, delta_x, -delta_y, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, width, 0, -delta_x, 0, width, height);
         } else if(corners[SE] != null) {
-            corners[SW] = findCorner(mapController, width, height, -delta_x, 0, width, height);
-            corners[NW] = findInnerCorner(mapController, 0, 0, delta_x, delta_y, width, height);
-            corners[NE] = findCorner(mapController, width, height, 0, -delta_y, width, height);
+            corners[SW] = findEarth2SkyTransition(mapController, width, height, -delta_x, 0, width, height);
+            corners[NW] = findSky2EarthTransition(mapController, 0, 0, delta_x, delta_y, width, height);
+            corners[NE] = findEarth2SkyTransition(mapController, width, height, 0, -delta_y, width, height);
         } else {
             Log.e(TAG, "NO CORNER FOUND");
             return false;
@@ -237,7 +245,7 @@ public class BoundsGeneration {
      * @param height - height of the view.
      * @return
      */
-    private static IGeoPosition findCorner(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
+    private static IGeoPosition findEarth2SkyTransition(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
 
         IGeoPosition corner = null;
         boolean found = false;
@@ -247,7 +255,7 @@ public class BoundsGeneration {
         // Following three block can actually be collapsed into one if we change the comparison to <= and =>, but for now
         // we are keeping them separate. Until then whatever changes you make in one block have to be applied to other two blocks.
 
-        if((0 != delta_x) && (0 != delta_y)) {
+        if((0 != delta_x) || (0 != delta_y)) {
 
             // Save the initial position where there is earth so that we can deal with the special case of first step transition.
             if (mapController.screenPointToGroundPosition(start_x, start_y, pos)) {
@@ -256,7 +264,7 @@ public class BoundsGeneration {
 
             int current_x = start_x + delta_x;
             int current_y = start_y + delta_y;
-            for (; current_x < width && current_x > 0 && current_y < height && current_y > 0 && !found;
+            for (; current_x <= width && current_x >= 0 && current_y <= height && current_y >= 0 && !found;
                  current_x += delta_x, current_y += delta_y) {
                 if (!mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
                     if(prevPos != null) {
@@ -276,52 +284,8 @@ public class BoundsGeneration {
                 Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
             }
 
-        } else if(0 != delta_x) {
-            if (mapController.screenPointToGroundPosition(start_x, start_y, pos)) {
-                prevPos = pos;
-            }
-
-            int current_x = start_x + delta_x;
-            for(; current_x < width && current_x > 0 && !found; current_x += delta_x) {
-                if (!mapController.screenPointToGroundPosition(current_x, start_y, pos)) {
-                    if(prevPos != null) {
-                        corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
-                        Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
-                        found = true;
-                    }
-                } else {
-                    prevPos = pos;
-                }
-            }
-
-            if((null == corner) && (prevPos != null)) {
-                corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
-                Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
-            }
-
-        } else if(0 != delta_y) {
-            if(mapController.screenPointToGroundPosition(start_x, start_y, pos)) {
-                prevPos = pos;
-            }
-            int current_y = start_y + delta_y;
-            for(; current_y < height && current_y > 0 && !found; current_y += delta_y) {
-                if (!mapController.screenPointToGroundPosition(start_x, current_y, pos)) {
-                    if(prevPos != null) {
-                        corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
-                        Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
-                        found = true;
-                    }
-                } else {
-                    prevPos = pos;
-                }
-            }
-
-            if((null == corner) && (prevPos != null)) {
-                corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
-                Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
-            }
         } else {
-            Log.e(TAG, "findCorner was invoked with both delta_x and delta_y set to zero.");
+            Log.e(TAG, "findEarth2SkyTransition was invoked with both delta_x and delta_y set to zero.");
         }
         return corner;
     }
@@ -345,17 +309,17 @@ public class BoundsGeneration {
         // from earth to sky.
 
         if((corners[NW] != null) && (corners[NE] != null)){
-            corners[SE] = findCorner(mapController, width, 0, 0, delta_y, width, height);
-            corners[SW] = findCorner(mapController, 0, 0, 0, delta_y, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, width, 0, 0, delta_y, width, height);
+            corners[SW] = findEarth2SkyTransition(mapController, 0, 0, 0, delta_y, width, height);
         } else if((corners[SW] != null) && (corners[SE] != null)) {
-            corners[NE] = findCorner(mapController, width, height, 0, -delta_y, width, height);
-            corners[NW] = findCorner(mapController, 0, height, 0, -delta_y, width, height);
+            corners[NE] = findEarth2SkyTransition(mapController, width, height, 0, -delta_y, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, 0, height, 0, -delta_y, width, height);
         } else if((corners[NE] != null) && (corners[SE] != null)) {
-            corners[NW] = findCorner(mapController, width, 0, -delta_x, 0, width, height);
-            corners[SW] = findCorner(mapController, width, height, -delta_x, 0, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, width, 0, -delta_x, 0, width, height);
+            corners[SW] = findEarth2SkyTransition(mapController, width, height, -delta_x, 0, width, height);
         } else if((corners[SW] != null) && (corners[NW] != null)) {
-            corners[NE] = findCorner(mapController, 0, 0, delta_x, 0, width, height);
-            corners[SE] = findCorner(mapController, 0, height, delta_x, 0, width, height);
+            corners[NE] = findEarth2SkyTransition(mapController, 0, 0, delta_x, 0, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, 0, height, delta_x, 0, width, height);
         } else {
             Log.e(TAG, "processTwoCorners TWO CORNERS NOT FOUND");
             return false;
@@ -392,10 +356,10 @@ public class BoundsGeneration {
             Point result = new Point();
             if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result) &&
                     result.x > 0 && result.y > 0 && result.x < width && result.y < height) {
-                corners[NW] = findCorner(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
-                corners[NE] = findCorner(mapController, result.x, result.y, delta_x, -delta_y, width, height);
-                corners[SE] = findCorner(mapController, result.x, result.y, delta_x, delta_y, width, height);
-                corners[SW] = findCorner(mapController, result.x, result.y, -delta_x, delta_y, width, height);
+                corners[NW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
+                corners[NE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, -delta_y, width, height);
+                corners[SE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, delta_y, width, height);
+                corners[SW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, delta_y, width, height);
             } else {
                 Log.d(TAG, "Cannot refine further center is NOT on screen");
             }
@@ -405,7 +369,7 @@ public class BoundsGeneration {
     }
 
     /**
-     * This is very similar to findCorner, except it traverses from a point that has sky towards an area that shows the earth and
+     * This is very similar to findEarth2SkyTransition, except it traverses from a point that has sky towards an area that shows the earth and
      * stops at the transition.
      *
      * @param mapController
@@ -417,7 +381,7 @@ public class BoundsGeneration {
      * @param height
      * @return
      */
-    private static IGeoPosition findInnerCorner(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
+    private static IGeoPosition findSky2EarthTransition(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
         IGeoPosition corner = null;
         boolean found = false;
         Position pos = new Position();
@@ -460,13 +424,13 @@ public class BoundsGeneration {
         // Locate the corner that is showing the sky and traverse from that corner towards the opposite corner looking for a
         // transition from sky to earth.
         if(corners[NW] == null) {
-            corners[NW] = findInnerCorner(mapController, 0, 0, delta_x, delta_y, width, height);
+            corners[NW] = findSky2EarthTransition(mapController, 0, 0, delta_x, delta_y, width, height);
         } else if(corners[SW] == null) {
-            corners[SW] = findInnerCorner(mapController, 0, height, delta_x, -delta_y, width, height);
+            corners[SW] = findSky2EarthTransition(mapController, 0, height, delta_x, -delta_y, width, height);
         } else if(corners[NE] == null) {
-            corners[NE] = findInnerCorner(mapController, width, 0, -delta_x, delta_y, width, height);
+            corners[NE] = findSky2EarthTransition(mapController, width, 0, -delta_x, delta_y, width, height);
         } else if(corners[SE] == null) {
-            corners[SE] = findInnerCorner(mapController, width, height, -delta_x, -delta_y, width, height);
+            corners[SE] = findSky2EarthTransition(mapController, width, height, -delta_x, -delta_y, width, height);
         } else {
             Log.e(TAG, "processThreeCorners NULL CORNER NOT FOUND");
             return false;
@@ -494,16 +458,16 @@ public class BoundsGeneration {
         // Traverse from each corner towards the center of the view, find the transition from sky to earth and you have found one
         // point. Repeat this for all four corners.
 
-        if(null != (corner = findInnerCorner(mapController, width/2, 0, 0, delta_y, width, height))) {
+        if(null != (corner = findSky2EarthTransition(mapController, width/2, 0, 0, delta_y, width, height))) {
             cornersFound.add(corner);
         }
-        if(null != (corner = findInnerCorner(mapController, width, height/2, -delta_x, 0, width, height)))  {
+        if(null != (corner = findSky2EarthTransition(mapController, width, height/2, -delta_x, 0, width, height)))  {
             cornersFound.add(corner);
         }
-        if(null != (corner = findInnerCorner(mapController, width/2, height, 0, -delta_y, width, height))) {
+        if(null != (corner = findSky2EarthTransition(mapController, width/2, height, 0, -delta_y, width, height))) {
             cornersFound.add(corner);
         }
-        if(null != (corner = corners[SE] = findInnerCorner(mapController, 0, height/2, delta_x, 0, width, height))) {
+        if(null != (corner = corners[SE] = findSky2EarthTransition(mapController, 0, height/2, delta_x, 0, width, height))) {
             cornersFound.add(corner);
         }
 
@@ -521,10 +485,10 @@ public class BoundsGeneration {
 
             Point result = new Point();
             if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result)) {
-                corners[NW] = findCorner(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
-                corners[NE] = findCorner(mapController, result.x, result.y, delta_x, -delta_y, width, height);
-                corners[SE] = findCorner(mapController, result.x, result.y, delta_x, delta_y, width, height);
-                corners[SW] = findCorner(mapController, result.x, result.y, -delta_x, delta_y, width, height);
+                corners[NW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
+                corners[NE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, -delta_y, width, height);
+                corners[SE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, delta_y, width, height);
+                corners[SW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, delta_y, width, height);
             }
         } else {
             Log.e(TAG, "processGlobeInCenter couldn't find ANY point");
@@ -562,31 +526,34 @@ public class BoundsGeneration {
             if (mapController.screenPointToGroundPosition(p.x, p.y, pos)) {
                 if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)
                         && 0 < result.x && 0 < result.y && result.x < width && result.y < height) {
-                    if (null != (corner = findCorner(mapController, p.x, p.y, 0, -delta_y, width, height))) {
+                    if (null != (corner = findEarth2SkyTransition(mapController, p.x, p.y, 0, -delta_y, width, height))) {
                         cornersFound.add(corner);
                     }
-                    if (null != (corner = findCorner(mapController, p.x, p.y, delta_x, 0, width, height))) {
+                    if (null != (corner = findEarth2SkyTransition(mapController, p.x, p.y, delta_x, 0, width, height))) {
                         cornersFound.add(corner);
                     }
-                    if (null != (corner = findCorner(mapController, p.x, p.y, 0, delta_y, width, height))) {
+                    if (null != (corner = findEarth2SkyTransition(mapController, p.x, p.y, 0, delta_y, width, height))) {
                         cornersFound.add(corner);
                     }
-                    if (null != (corner = findCorner(mapController, p.x, p.y, -delta_x, 0, width, height))) {
+                    if (null != (corner = findEarth2SkyTransition(mapController, p.x, p.y, -delta_x, 0, width, height))) {
                         cornersFound.add(corner);
                     }
                 }
             }
         }
 
-        IGeoPosition center = GeoLibrary.getCenter(cornersFound);
+        if(cornersFound.size() > 0) {
+            IGeoPosition center = GeoLibrary.getCenter(cornersFound);
 
-        if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result)) {
-            corners[NW] = findCorner(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
-            corners[NE] = findCorner(mapController, result.x, result.y, delta_x, -delta_y, width, height);
-            corners[SE] = findCorner(mapController, result.x, result.y, delta_x, delta_y, width, height);
-            corners[SW] = findCorner(mapController, result.x, result.y, -delta_x, delta_y, width, height);
+            if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result)) {
+                corners[NW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
+                corners[NE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, -delta_y, width, height);
+                corners[SE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, delta_y, width, height);
+                corners[SW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, delta_y, width, height);
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     private static Set<Point> getGridPoints(int height, int width) {
@@ -677,6 +644,7 @@ public class BoundsGeneration {
             points.add(new Point(ne_x, ne_y));
             points.add(new Point(se_x, se_y));
             points.add(new Point(sw_x, sw_y));
+            points.add(new Point(nw_x + (ne_x - nw_x)/2, nw_y + (se_y - ne_y)/2));
 
             return points;
         }
