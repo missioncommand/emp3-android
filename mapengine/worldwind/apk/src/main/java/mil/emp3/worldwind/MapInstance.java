@@ -558,18 +558,11 @@ public class MapInstance extends CoreMapInstance {
         // Create a layer factory, World Wind's general component for creating layers
         // from complex data sources.
         LayerFactory layerFactory = new LayerFactory();
-        String sLayers = "";
-        for (String layerName : wms.getLayers()) {
-            if (sLayers.length() > 0) {
-                sLayers += ",";
-            }
-            sLayers += layerName;
-        }
         // Create an OGC Web Map Service (WMS) layer to display the
         // surface temperature layer from NASA's Near Earth Observations WMS.
         layerFactory.createFromWms(
             wms.getURL().toString(), // WMS server URL
-            sLayers,  // WMS layer name
+            wms.getLayers(),  // WMS layer names
             new LayerFactory.Callback() {
                 @Override
                 public void creationSucceeded(LayerFactory factory, Layer layer) {
