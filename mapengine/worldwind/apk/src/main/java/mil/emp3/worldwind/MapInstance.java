@@ -1338,21 +1338,15 @@ public class MapInstance extends CoreMapInstance {
         if (null != this.gridLayer) {
             this.gridLayer.setMapGridGenerator(gridGenerator);
         }
-
-        ww.requestRedraw();
     }
 
-    public void generateViewChangeEvent(MapInstanceViewChangeEvent oEvent) {
-        super.generateViewChangeEvent(oEvent);
-        if (oEvent.getEvent() == MapViewEventEnum.VIEW_MOTION_STOPPED) {
-            if ((null != this.gridLayer) && this.gridLayer.needsRendering()) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ww.requestRedraw();
-                    }
-                });
+    @Override
+    public void scheduleMapRedraw() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                ww.requestRedraw();
             }
-        }
+        });
     }
 }

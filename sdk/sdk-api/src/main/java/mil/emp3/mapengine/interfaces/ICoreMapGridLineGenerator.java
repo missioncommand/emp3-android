@@ -10,5 +10,6 @@ import mil.emp3.mapengine.events.MapInstanceViewChangeEvent;
  */
 
 public interface ICoreMapGridLineGenerator {
+    void shutdownGenerator();
     void mapViewChange(IGeoBounds mapBounds, ICamera camera, int viewWidth, int viewHeight);
 }

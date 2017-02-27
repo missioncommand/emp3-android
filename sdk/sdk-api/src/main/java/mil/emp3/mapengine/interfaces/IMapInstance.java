@@ -370,4 +370,9 @@ public interface IMapInstance {
      * @param gridGenerator {@link IMapGridLines}
      */
     void setMapGridGenerator(IMapGridLines gridGenerator);
+
+    /**
+     * This method causes a draw to be scheduled on the map.
+     */
+    void scheduleMapRedraw();
 }

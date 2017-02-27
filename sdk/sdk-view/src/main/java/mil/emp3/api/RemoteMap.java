@@ -880,6 +880,11 @@ public class RemoteMap implements IMap {
         }
 
         @Override
+        public void scheduleMapRedraw() {
+
+        }
+
+        @Override
         public View showMiniMap() {
             return null;
         }

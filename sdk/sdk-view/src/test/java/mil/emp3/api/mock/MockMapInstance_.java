@@ -283,6 +283,11 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
+    public void scheduleMapRedraw() {
+
+    }
+
+    @Override
     public android.view.View showMiniMap() {
         return null;
     }

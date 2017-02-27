@@ -246,11 +246,17 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         if (null == gridType) {
             throw new InvalidParameterException("Invalid grid type.");
         }
+
+        if (null != this.mapGridLineGenerator) {
+            this.mapGridLineGenerator.shutdownGenerator();
+            this.mapGridLineGenerator = null;
+        }
+
         IMapGridLines gridLineGenerator = null;
 
         switch (gridType) {
             case MGRS:
-                MGRSMapGridLine mgrsGridGenerator =  new MGRSMapGridLine();
+                MGRSMapGridLine mgrsGridGenerator =  new MGRSMapGridLine(this.getMapInstance());
                 this.mapGridLineGenerator = mgrsGridGenerator;
                 gridLineGenerator = mgrsGridGenerator;
                 break;
@@ -259,11 +265,13 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
                 break;
         }
 
+        this.getMapInstance().setMapGridGenerator(gridLineGenerator);
+
         if (null != this.mapGridLineGenerator) {
             this.mapGridLineGenerator.mapViewChange(this.getBounds(), this.getCamera(), this.getMapViewWidth(), this.getMapViewHeight());
+        } else {
+            this.getMapInstance().scheduleMapRedraw();
         }
-
-        this.getMapInstance().setMapGridGenerator(gridLineGenerator);
     }
 
     @Override

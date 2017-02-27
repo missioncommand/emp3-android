@@ -17,7 +17,9 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
+import mil.emp3.core.mapgridlines.coordinates.UTMCoordainte;
 import mil.emp3.core.mapgridlines.utils.GridLineUtils;
+import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
  * this class implements the top level UTM map grid line generator. It is the base class for other grid line generators.
@@ -25,6 +27,8 @@ import mil.emp3.core.mapgridlines.utils.GridLineUtils;
 
 public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
     private static final String TAG = UTMBaseMapGridLine.class.getSimpleName();
+    // Latitude bands letters - from south to north
+    protected static final String latBands = "CDEFGHJKLMNPQRSTUVWX";
 
     private static final double MAX_GRID_ALTITUDE = 5e7;
 
@@ -37,10 +41,9 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
 
     // Exceptions for some meridians. Values: longitude, min latitude, max latitude
     private static final int[][] specialMeridians = {{3, 56, 64}, {6, 64, 72}, {9, 72, 84}, {21, 72, 84}, {33, 72, 84}};
-    // Latitude bands letters - from south to north
-    private static final String latBands = "CDEFGHJKLMNPQRSTUVWX";
 
-    protected UTMBaseMapGridLine() {
+    protected UTMBaseMapGridLine(IMapInstance mapInstance) {
+        super(mapInstance);
         this.meridianLineStyle = new GeoStrokeStyle();
         this.meridianLabelStyle = new GeoLabelStyle();
         setStyles();
@@ -79,8 +82,8 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
 
         long startTS = System.currentTimeMillis();
 
-        double minLatitude = Math.floor(mapBounds.south());
-        double maxLatitude = Math.ceil((mapBounds.north()));
+        double minLatitude = Math.max(mapBounds.south(), -80.0);
+        double maxLatitude = Math.min(mapBounds.north(), 84.0);
 
         if (!shouldGridRedraw(camera)) {
             return;
@@ -93,9 +96,8 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         double minLongitude = (double) ((startZoneIndex * 6) - 180);
         double maxLongitude = (double) ((endZoneIndex * 6) - 180);
 
-        zoneIndex = startZoneIndex - 1;
-        do {
-            zoneIndex = ++zoneIndex % 60;
+        zoneIndex = startZoneIndex;
+        while (zoneIndex != (endZoneIndex + 1)) {
             intLon = (zoneIndex * 6) - 180;
             longitude = (double) intLon;
             positionList = new ArrayList<>();
@@ -103,14 +105,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
             // Meridian
             latitude = Math.max(minLatitude, -80.0);
             positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
-/*
-            if (maxLatitude > -60) {
-                positionList.add(GridLineUtils.newPosition(-60, longitude, 0));
-            }
-            positionList.add(GridLineUtils.newPosition(-30, longitude, 0));
-            positionList.add(GridLineUtils.newPosition(0, longitude, 0));
-            positionList.add(GridLineUtils.newPosition(30, longitude, 0));
-*/
+
             if (intLon < 6 || intLon > 36) {
                 // 'regular' UTM meridians
                 maxLat = 84;
@@ -123,11 +118,52 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
                     maxLat = 56;
                     latitude = Math.min(maxLatitude, maxLat);
                     positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
+
+                    if (maxLatitude > 56.0) {
+                        gridObject = createPathFeature(positionList, GRID_MERIDIAN);
+                        addFeature(gridObject);
+
+                        positionList = new ArrayList<>();
+                        positionList.add(GridLineUtils.newPosition(56.0, longitude - 3.0, 0));
+                        positionList.add(GridLineUtils.newPosition(64.0, longitude -3.0, 0));
+
+                        if (maxLatitude > 64.0) {
+                            gridObject = createPathFeature(positionList, GRID_MERIDIAN);
+                            addFeature(gridObject);
+
+                            positionList = new ArrayList<>();
+                            positionList.add(GridLineUtils.newPosition(64.0, longitude, 0));
+                            positionList.add(GridLineUtils.newPosition(72.0, longitude, 0));
+
+                            if (maxLatitude > 72.0) {
+                                gridObject = createPathFeature(positionList, GRID_MERIDIAN);
+                                addFeature(gridObject);
+
+                                positionList = new ArrayList<>();
+                                positionList.add(GridLineUtils.newPosition(72.0, longitude + 3.0, 0));
+                                positionList.add(GridLineUtils.newPosition(84.0, longitude + 3.0, 0));
+                            }
+                        }
+                    }
                 } else {
                     maxLat = 72;
                     latitude = Math.min(maxLatitude, maxLat);
                     //positionList.add(GridLineUtils.newPosition(60, longitude, 0));
                     positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
+
+                    if (maxLatitude > 72.0) {
+                        switch (intLon) {
+                            case 18:
+                            case 30:
+                                gridObject = createPathFeature(positionList, GRID_MERIDIAN);
+                                addFeature(gridObject);
+
+                                positionList = new ArrayList<>();
+                                positionList.add(GridLineUtils.newPosition(72.0, longitude + 3.0, 0));
+                                positionList.add(GridLineUtils.newPosition(84.0, longitude + 3.0, 0));
+                                break;
+                        }
+                    }
                 }
             }
 
@@ -135,7 +171,13 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
             addFeature(gridObject);
 
             // Zone label
-            gridObject = createLabelFeature(GridLineUtils.newPosition(minLatitude, longitude + 3.0 , 0), (zoneIndex + 1) + "", GRID_MERIDIAN_LABEL);
+            // Add 3 deg so the label appears in the center of the zone.
+            if (camera.getLatitude() < 0) {
+                // For zones in the southern hemisphere place the labels at the top.
+                gridObject = createLabelFeature(GridLineUtils.newPosition(maxLatitude, longitude + 3.0, 0), (zoneIndex + 1) + "", GRID_MERIDIAN_LABEL);
+            } else {
+                gridObject = createLabelFeature(GridLineUtils.newPosition(minLatitude, longitude + 3.0, 0), (zoneIndex + 1) + "", GRID_MERIDIAN_LABEL);
+            }
             addFeature(gridObject);
 
 
@@ -148,39 +190,52 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
                 gridObject = createPathFeature(positionList, GRID_MERIDIAN);
                 addFeature(gridObject);
             }
-        } while (zoneIndex != endZoneIndex);
+            zoneIndex = ++zoneIndex % 60;
+        }
 
         // Generate parallels
-        int lat = -80;
-        for (int i = 0; i < 21; i++) {
-            latitude = lat;
-            if ((minLatitude <= latitude) && (latitude <= maxLatitude)) {
-/*
-                for (int j = 0; j < 4; j++) {
-                    positionList = new ArrayList<>();
-                    longitude = -180 + j * 90;
-                    positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
-                    positionList.add(GridLineUtils.newPosition(latitude, longitude + 30, 0));
-                    positionList.add(GridLineUtils.newPosition(latitude, longitude + 60, 0));
-                    positionList.add(GridLineUtils.newPosition(latitude, longitude + 90, 0));
-                    gridObject = createPathFeature(positionList, GRID_MERIDIAN);
-                    addFeature(gridObject);
-                }
-*/
-                positionList = new ArrayList<>();
-                positionList.add(GridLineUtils.newPosition(latitude, minLongitude, 0));
-                positionList.add(GridLineUtils.newPosition(latitude, maxLongitude, 0));
-                gridObject = createPathFeature(positionList, GRID_PARALLELS);
-                addFeature(gridObject);
+        int minRow = (int) Math.floor((Math.max(minLatitude, -80.0) + 80.0) / 8.0);
+        int maxRow = (int) Math.floor((Math.min(maxLatitude, 84.0) + 80.0) / 8.0);
+        int iIndex;
 
-                // Latitude band label
-                gridObject = createLabelFeature(GridLineUtils.newPosition(latitude + 4, minLongitude + 3, 0), latBands.charAt(i) + "", GRID_MERIDIAN_LABEL);
-                addFeature(gridObject);
+        for (iIndex = minRow; iIndex < maxRow; iIndex++) {
+            latitude = (double) ((iIndex * 8) - 80);
+
+            positionList = new ArrayList<>();
+            positionList.add(GridLineUtils.newPosition(latitude, minLongitude, 0));
+            positionList.add(GridLineUtils.newPosition(latitude, maxLongitude, 0));
+            gridObject = createPathFeature(positionList, GRID_PARALLELS);
+            addFeature(gridObject);
+
+            // Latitude band label
+            if ((minLongitude + 3) < mapBounds.west()) {
+                // Add 9 deg so the label appears in the center of the second grid from the left.
+                gridObject = createLabelFeature(GridLineUtils.newPosition(latitude + 4, minLongitude + 9, 0), latBands.charAt(iIndex) + "", GRID_MERIDIAN_LABEL);
+            } else {
+                // Add 3 deg so the label appears in the center of the grid to the left.
+                gridObject = createLabelFeature(GridLineUtils.newPosition(latitude + 4, minLongitude + 3, 0), latBands.charAt(iIndex) + "", GRID_MERIDIAN_LABEL);
             }
-
-            // Increase latitude
-            lat += lat < 72 ? 8 : 12;
+            addFeature(gridObject);
         }
+
+        // See if the south UPS is visible.
+        if ( mapBounds.south() < -80.0) {
+            // Add the south UPS.
+            gridObject = createLabelFeature(GridLineUtils.newPosition(-85.0, -90.0, 0), "A", GRID_MERIDIAN_LABEL);
+            addFeature(gridObject);
+            gridObject = createLabelFeature(GridLineUtils.newPosition(-85.0, 90.0, 0), "B", GRID_MERIDIAN_LABEL);
+            addFeature(gridObject);
+        }
+
+        // See if the north UPS is visible.
+        if ( mapBounds.north() > 84.0) {
+            // Add the north UPS.
+            gridObject = createLabelFeature(GridLineUtils.newPosition(87.0, -90.0, 0), "Y", GRID_MERIDIAN_LABEL);
+            addFeature(gridObject);
+            gridObject = createLabelFeature(GridLineUtils.newPosition(87.0, 90.0, 0), "Z", GRID_MERIDIAN_LABEL);
+            addFeature(gridObject);
+        }
+
         Log.i(TAG, "feature generation in " + (System.currentTimeMillis() - startTS) + " ms.");
     }
 
@@ -200,27 +255,5 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
     @Override
     protected void setLabelAttributes(Text label, String gridObjectType) {
         label.setLabelStyle(this.meridianLabelStyle);
-    }
-
-    private boolean shouldGridRedraw(ICamera camera) {
-
-        if (Math.abs(this.previousCamera.getLongitude() - camera.getLongitude()) >= 3.0) {
-            // Redraw if the longitude changes by 3 deg or more.
-            return true;
-        }
-
-        if (Math.abs(this.previousCamera.getLatitude() - camera.getLatitude()) >= 4.0) {
-            // redraw if the latitude changed by 4 or more deg.
-            return true;
-        }
-
-        if (Math.abs(this.previousCamera.getAltitude() - camera.getAltitude()) > 1e3) {
-            return true;
-        }
-
-        if (Math.abs(this.previousCamera.getTilt() - camera.getTilt()) > 2.0) {
-            return true;
-        }
-        return false;
     }
 }

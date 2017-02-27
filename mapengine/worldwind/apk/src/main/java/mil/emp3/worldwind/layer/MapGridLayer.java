@@ -48,19 +48,21 @@ public class MapGridLayer extends RenderableLayer {
             // The grid has been updated sense our last rendering.
             List<IFeature> featureList = this.gridGenerator.getGridFeatures();
 
-            for (IFeature feature: featureList) {
-                renderable = null;
-                switch (feature.getFeatureType()) {
-                    case GEO_PATH:
-                        renderable = this.featureConverter.createWWPath((Path) feature, false);
-                        break;
-                    case GEO_TEXT:
-                        renderable = this.featureConverter.createWWLabel((Text) feature, false);
-                        break;
-                }
+            if (!featureList.isEmpty()) {
+                for (IFeature feature : featureList) {
+                    renderable = null;
+                    switch (feature.getFeatureType()) {
+                        case GEO_PATH:
+                            renderable = this.featureConverter.createWWPath((Path) feature, false);
+                            break;
+                        case GEO_TEXT:
+                            renderable = this.featureConverter.createWWLabel((Text) feature, false);
+                            break;
+                    }
 
-                if (null != renderable) {
-                    this.addRenderable(renderable);
+                    if (null != renderable) {
+                        this.addRenderable(renderable);
+                    }
                 }
             }
             this.lastUpdateTime = this.gridGenerator.getLastUpdated().getTime();
