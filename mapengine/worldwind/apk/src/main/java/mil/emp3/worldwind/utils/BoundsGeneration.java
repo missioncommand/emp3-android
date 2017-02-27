@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import gov.nasa.worldwind.geom.Position;
+import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
@@ -62,6 +63,18 @@ public class BoundsGeneration {
         return (int) (mapInstance.getWW().getHeight() * getLc());
     }
 
+    public static EmpBoundingBox getBounds(MapInstance mapInstance) {
+        try {
+            List<IGeoPosition> list = getBoundingPolygon(mapInstance);
+            if ((null != list) && (EmpBoundingBox.REQUIRED_VERTICES == list.size())) {
+                EmpBoundingBox boundingBox = new EmpBoundingBox(list.get(0), list.get(1), list.get(2), list.get(3));
+                return boundingBox;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "getBoundingBox " + e.getMessage());
+        }
+        return null;
+    }
     /**
      * Figures out how many corners of the view show a sky. Based on that information invokes appropriate method to calculate the
      * polygon.
