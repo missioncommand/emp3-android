@@ -1,0 +1,52 @@
+artifactory {
+    contextUrl = "https://oss.jfrog.org/artifactory"
+
+    publish {
+        repository {
+            repoKey = 'oss-snapshot-local'
+            username = bintrayUser
+            password = bintrayKey
+        }
+
+        defaults {
+            publications ('nebula')
+        }
+    }
+}
+
+bintray {
+    dryRun   = false
+    publish  = false
+    override = false
+
+    user = bintrayUser
+    key  = bintrayKey
+
+    publications = ['nebula']
+
+    pkg {
+        userOrg = 'missioncommand'
+        repo    = 'maven'
+        name    = 'emp3-android'
+        desc    = 'Extensible Map Platform (EMP) Android Development Kit'
+        
+        licenses = ['Apache-2.0']
+
+        vcsUrl          = 'https://github.com/missioncommand/emp3-android.git'
+        websiteUrl      = 'https://github.com/missioncommand/emp3-android'
+        issueTrackerUrl = 'https://github.com/missioncommand/emp3-android/issues'
+
+        publicDownloadNumbers = true
+        labels                = []
+        attributes            = [:]
+
+        githubRepo = 'missioncommand/emp3-android'
+        //githubReleaseNotesFile = 'README.md'
+
+        version {
+            name       = project.version
+            vcsTag     = "v${project.version}"
+            attributes = [:]
+        }
+    }
+}

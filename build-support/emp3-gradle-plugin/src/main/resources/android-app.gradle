@@ -7,12 +7,12 @@ def minor = vc[1].toInteger() * 1000
 def patch = vc[2].tokenize('-')[0].toInteger()
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion android_compileSdkVersion
+    buildToolsVersion android_buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 23
+        minSdkVersion android_minSdkVersion
+        targetSdkVersion android_targetSdkVersion
         versionCode (major + minor + patch)
         versionName "${project.version}"
     }
@@ -24,13 +24,13 @@ android {
     }
     buildTypes.each {
         it.buildConfigField "String", "Implementation_Id", "\"${project.name}\""
-        it.buildConfigField "String", "Implementation_Vendor", "\"mil.army.sec.smartClient\""
+        it.buildConfigField "String", "Implementation_Vendor", "\"mil.army.missioncommand\""
         it.buildConfigField "String", "Implementation_Title", "\"EMP3 Android ${project.version}\""
         it.buildConfigField "String", "Implementation_Version", "\"${project.revision}\""
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility rootProject.sourceCompatibility
+        targetCompatibility rootProject.targetCompatibility
     }
     lintOptions {
         abortOnError false

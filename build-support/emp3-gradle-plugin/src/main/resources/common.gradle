@@ -4,7 +4,6 @@ buildscript {
     }
     dependencies {
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
-        classpath "net.researchgate:gradle-release:2.4.1"
     }
 }
 
@@ -14,42 +13,27 @@ apply plugin: io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
-    group = "mil.army.sec.smartClient"
+    //version_nasa_worldwind_sdk = "0.5.2"
+    version_cmapi              = "0.0.6"
+    version_renderer           = "0.1.17"
 
-    description = "Extensible Mapping Platform (EMP)"
-
-    di2eNexusEmpReleaseUrl  = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Releases/"
-    di2eNexusEmpSnapshotUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
-    di2eNexusEmp3rdPartyUrl = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_ThirdParty/"
-
-    nexusPublishUrl   = project.hasProperty('nexusPublishUrl') ? project.property('nexusPublishUrl') : ''
+    android_minSdkVersion     = 19
+    android_targetSdkVersion  = 23
+    android_compileSdkVersion = 23
+    android_buildToolsVersion = "23.0.2"
 }
-group = project.ext.group
+
+group = "mil.army.missioncommand"
 
 repositories {
     mavenLocal()
-
+    jcenter()
     maven {
-        url = di2eNexusEmpReleaseUrl
-        credentials {
-            username empUsername
-            password empPassword
-        }
+        url "file://${System.env['ANDROID_HOME']}/extras/android/m2repository"
     }
-    maven {
-        url = di2eNexusEmpSnapshotUrl
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
-    maven {
-        url = di2eNexusEmp3rdPartyUrl
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
+    /*maven {
+        url "file://${System.env['ANDROID_HOME']}/extras/google/m2repository"
+    }*/
     maven {
         url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
         credentials {
@@ -57,40 +41,35 @@ repositories {
             password empPassword
         }
     }
-
-    jcenter()
-}
-
-dependencyManagement {
-    imports {
-        mavenBom 'mil.army.sec.smartClient:emp3-android-bom:19'
+    maven {
+        url "https://oss.jfrog.org/artifactory/libs-snapshot"
     }
 }
 
-configure(rootProject) {
-    if (!rootProject.hasProperty('isRootConfigured')) {
-        apply plugin: 'base'
-        apply plugin: net.researchgate.release.ReleasePlugin
+dependencyManagement {
+    dependencies {
+        // MISSION_COMMAND-related
+        dependency ("org.cmapi.primitives:common-map-geospatial-notation:${version_cmapi}")
+        dependency ("sec.web.renderer:mil-sym-android-renderer:${version_renderer}")
 
-        release {
-            buildTasks = ['releaseBuild']
-            tagTemplate = 'v${version}'
+        // ANDROID-related
+        dependency ("com.android.support:appcompat-v7:23.2.1")
+        dependency ("com.android.support:support-annotations:23.1.1")
+        dependency ("com.android.support:design:23.2.1")
 
-            git {
-                requireBranch = project.hasProperty('release_requireBranch') ? project.property('release_requireBranch') : 'FAIL'
-            }
-        }
+        // OTHER
+        dependency ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
 
-        task releaseBuild {
-            dependsOn allprojects.collect { it.tasks.withType(PublishToMavenRepository) }
-        }
-
-        rootProject.ext.isRootConfigured = true
+        // TEST-related
+        dependency ("junit:junit:4.12")
+        dependency ("org.mockito:mockito-core:2.0.43-beta")
+        dependency ("org.powermock:powermock-api-mockito:1.6.2")
+        dependency ("org.powermock:powermock-module-junit4:1.6.2")
     }
 }
 
 task wrapper(type: Wrapper, description: "Generates gradlew[.bat] scripts") {
-    gradleVersion = '3.1'
+    gradleVersion = '3.4'
 }
 
 if (JavaVersion.current().isJava8Compatible()) { // disable lint for java8
@@ -124,7 +103,7 @@ void nextMinorVersion() {
         version['version'] = "${versionMajor}.${versionMinor}.${versionPatch}".toString()
     }
 
-    println "Set version to: ${version['version']}"
+    println "Setting version to: ${version['version']}"
 
     def stream = new FileOutputStream(versionFile)
     try {
@@ -147,18 +126,3 @@ Properties readVersion() {
     }
     return version
 }
-
-/*task removeMavenLocalRepo {
-    doLast {
-        for (def repo : repositories) {
-            if (repo instanceof org.gradle.api.internal.artifacts.repositories.DefaultMavenLocalArtifactRepository) {
-                repositories.remove (repo);
-                break;
-            }
-        }
-    }
-}*/
-
-/*dependencyManagement.importedProperties.each { key, value ->
-    project.ext.set(key, value) // inject properties to project
-}*/
