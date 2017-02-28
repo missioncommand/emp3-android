@@ -12,6 +12,7 @@ import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 import mil.emp3.test.emp3vv.navItems.AddRemoveGetTest;
 import mil.emp3.test.emp3vv.navItems.FreehandDrawTest;
 import mil.emp3.test.emp3vv.navItems.LaunchMap;
+import mil.emp3.test.emp3vv.navItems.geoJSON_test.GeoJSONTest;
 import mil.emp3.test.emp3vv.navItems.performance_test.PerformanceTest;
 import mil.emp3.test.emp3vv.navItems.basic_capability_test.BasicShapeTest;
 
@@ -31,8 +32,10 @@ import mil.emp3.test.emp3vv.optItems.Map;
 import mil.emp3.test.emp3vv.optItems.MapBrightness;
 import mil.emp3.test.emp3vv.optItems.RemoveGeoPackageSettings;
 import mil.emp3.test.emp3vv.optItems.RemoveWmsSettings;
+import mil.emp3.test.emp3vv.optItems.RemoveWmtsSettings;
 import mil.emp3.test.emp3vv.optItems.ScreenCaptureAction;
 import mil.emp3.test.emp3vv.optItems.WmsSettings;
+import mil.emp3.test.emp3vv.optItems.WmtsSettings;
 
 public class ExecuteTest {
 
@@ -58,6 +61,7 @@ public class ExecuteTest {
         capabilityTests.put("Basic Shapes Editors", BasicShapesEditorsTest.class);
         capabilityTests.put("Basic Shape", BasicShapeTest.class);
         capabilityTests.put("Freehand Draw", FreehandDrawTest.class);
+        capabilityTests.put("GeoJSON Test", GeoJSONTest.class);
         capabilityTests.put("Performance", PerformanceTest.class);
 
         optionSettings = new HashMap<>();
@@ -67,6 +71,8 @@ public class ExecuteTest {
         optionSettings.put("Map", Map.class);
         optionSettings.put("Add WMS", WmsSettings.class);
         optionSettings.put("Remove WMS", RemoveWmsSettings.class);
+        optionSettings.put("Add WMTS", WmtsSettings.class);
+        optionSettings.put("Remove WMTS", RemoveWmtsSettings.class);
         optionSettings.put("Add GeoPackage", GeoPackageSettings.class);
         optionSettings.put("Remove GeoPackage", RemoveGeoPackageSettings.class);
         optionSettings.put("Editor Mode", EditorMode.class);
