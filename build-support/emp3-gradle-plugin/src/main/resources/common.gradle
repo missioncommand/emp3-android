@@ -41,6 +41,11 @@ repositories {
             password empPassword
         }
     }
+    repositories {
+        maven {
+            url "https://dl.bintray.com/missioncommand/maven/"
+        }
+    }
     maven {
         url "https://oss.jfrog.org/artifactory/libs-snapshot"
     }
