@@ -23,47 +23,47 @@ import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 
 /**
- * Dialog for removing WMS service(s).
+ * Dialog for removing WMTS service(s).
  */
 
 public class WmtsRemoveDialog extends Emp3TesterDialogBase {
 
-    private List<String> wmsNames;
+    private List<String> wmtsNames;
 
     public WmtsRemoveDialog() {
 
     }
 
     public static WmtsRemoveDialog newInstance(String title, WmtsRemoveDialog.IWmtsRemoveDialogListener listener,
-                                              IMap map, List<String> wmsNames) {
-        WmtsRemoveDialog wmsRemoveDialog = new WmtsRemoveDialog();
+                                              IMap map, List<String> wmtsNames) {
+        WmtsRemoveDialog wmtsRemoveDialog = new WmtsRemoveDialog();
         Bundle args = new Bundle();
         args.putString("title", title);
-        wmsRemoveDialog.setArguments(args);
-        wmsRemoveDialog.init(map, listener);
-        wmsRemoveDialog.setWmtsNames(wmsNames);
-        return wmsRemoveDialog;
+        wmtsRemoveDialog.setArguments(args);
+        wmtsRemoveDialog.init(map, listener);
+        wmtsRemoveDialog.setWmtsNames(wmtsNames);
+        return wmtsRemoveDialog;
     }
 
     public static WmtsRemoveDialog newInstanceForOptItem(String title, WmtsRemoveDialog.IWmtsRemoveDialogListener listener,
-                                                        IMap map, List<String> wmsNames) {
-        WmtsRemoveDialog wmsRemoveDialog = new WmtsRemoveDialog();
+                                                        IMap map, List<String> wmtsNames) {
+        WmtsRemoveDialog wmtsRemoveDialog = new WmtsRemoveDialog();
         Bundle args = new Bundle();
         args.putString("title", title);
-        wmsRemoveDialog.setArguments(args);
-        wmsRemoveDialog.initForOptItem(map, listener);
-        wmsRemoveDialog.setWmtsNames(wmsNames);
-        return wmsRemoveDialog;
+        wmtsRemoveDialog.setArguments(args);
+        wmtsRemoveDialog.initForOptItem(map, listener);
+        wmtsRemoveDialog.setWmtsNames(wmtsNames);
+        return wmtsRemoveDialog;
     }
 
-    public void setWmtsNames(List<String> wmsNames) {
-        this.wmsNames = wmsNames;
+    public void setWmtsNames(List<String> wmtsNames) {
+        this.wmtsNames = wmtsNames;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.wms_remove_dialog, container);
+        View view = inflater.inflate(R.layout.wmts_remove_dialog, container);
         setDialogPosition();
         return view;
     }
@@ -74,7 +74,7 @@ public class WmtsRemoveDialog extends Emp3TesterDialogBase {
 
         final ListView listView = (ListView) view.findViewById(R.id.listview);
         final ArrayAdapter adapter = new ArrayAdapter(getActivity(),
-                android.R.layout.simple_list_item_multiple_choice, wmsNames);
+                android.R.layout.simple_list_item_multiple_choice, wmtsNames);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
