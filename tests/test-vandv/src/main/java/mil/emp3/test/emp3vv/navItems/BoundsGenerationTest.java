@@ -23,6 +23,7 @@ import mil.emp3.api.events.CameraEvent;
 import mil.emp3.api.events.MapUserInteractionEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 
@@ -72,13 +73,14 @@ public class BoundsGenerationTest extends NavItemBase {
 
     @Override
     public String[] getSupportedUserActions() {
-        String[] actions = {"Start", "Get Emp Bounds", "Get Geo Bounds", "Show Corners" };
+        String[] actions = {"Start", "Show Emp Area", "Get Geo Bounds", "Get Emp Bounds" };
         return actions;
     }
 
     @Override
     public String[] getMoreActions() {
-        return null;
+        String[] actions = { "Show Corners" };
+        return actions;
     }
 
     protected void test0() {
@@ -178,7 +180,7 @@ public class BoundsGenerationTest extends NavItemBase {
                     maps[whichMap].removeEventListener(mapInteractionHandle[whichMap]);
                     mapInteractionHandle[whichMap] = null;
                 }
-            } else if (userAction.equals("Get Emp Bounds")) {
+            } else if (userAction.equals("Show Emp Area")) {
                 IGeoLabelStyle labelStyle = new GeoLabelStyle();
                 labelStyle.setColor(new EmpGeoColor(1, 255, 0, 0));
 
@@ -190,9 +192,9 @@ public class BoundsGenerationTest extends NavItemBase {
                 boundingFeatures[whichMap].clear();
 
                 IGeoBounds geoBounds = maps[whichMap].getBounds();
-                if(geoBounds instanceof EmpBoundingBox) {
-                    EmpBoundingBox empBoundingBox = (EmpBoundingBox) geoBounds;
-                    IGeoPosition[] positions = empBoundingBox.getBounds();
+                if(geoBounds instanceof IEmpBoundingArea) {
+                    IEmpBoundingArea empBoundingArea = (IEmpBoundingArea) geoBounds;
+                    IGeoPosition[] positions = empBoundingArea.getBoundingVertices();
                     Polygon p = new Polygon();
                     p.setStrokeStyle(strokeStyle);
                     boundingFeatures[whichMap].add(p);
@@ -219,7 +221,7 @@ public class BoundsGenerationTest extends NavItemBase {
                     }
                     overlay[whichMap].addFeatures(boundingFeatures[whichMap], true);
                 }
-            }  else if (userAction.equals("Get Geo Bounds")) {
+            } else if (userAction.equals("Get Geo Bounds")) {
 
                 final IGeoBounds geoBounds = maps[whichMap].getBounds();
                 Thread t = new Thread(new Runnable() {
@@ -231,6 +233,22 @@ public class BoundsGenerationTest extends NavItemBase {
                     }
                 });
                 t.start();
+            } else if (userAction.equals("Get Emp Bounds")) {
+
+                final IGeoBounds geoBounds = maps[whichMap].getBounds();
+                if(geoBounds instanceof IEmpBoundingArea) {
+                    IEmpBoundingArea empBoundingArea = (IEmpBoundingArea) geoBounds;
+                    final EmpBoundingBox empBoundingBox = empBoundingArea.getEmpBoundingBox();
+                    Thread t = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String formattedLatLong = String.format(Locale.US, "NEWS %1$6.3f %2$6.3f %3$6.3f %4$6.3f",
+                                    empBoundingBox.north(), empBoundingBox.east(), empBoundingBox.west(), empBoundingBox.south());
+                            ErrorDialog.showMessageWaitForConfirm(activity, formattedLatLong);
+                        }
+                    });
+                    t.start();
+                }
             }
         } catch (Exception e) {
             updateStatus(TAG, e.getMessage());

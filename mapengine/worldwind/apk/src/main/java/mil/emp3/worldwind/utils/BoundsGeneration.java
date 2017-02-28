@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Set;
 
 import gov.nasa.worldwind.geom.Position;
-import mil.emp3.api.utils.EmpBoundingBox;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
+import mil.emp3.api.utils.EmpBoundingArea;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
@@ -36,6 +37,21 @@ public class BoundsGeneration {
 
     private static List<GridPoints> gridPoints = new ArrayList<>();
 
+    /**
+     * Made this a method to allow for any adjustments in future.
+     * @return
+     */
+    private static int getOriginX() {
+        return 0;
+    }
+
+    /**
+     * Made this a method to allow for any adjustments in future.
+     * @return
+     */
+    private static int getOriginY() {
+        return 0;
+    }
     /**
      * When stepping through the view space we need to select the size of the step. lc defines the percentage of
      * width or height as size of the step.
@@ -63,15 +79,15 @@ public class BoundsGeneration {
         return (int) (mapInstance.getWW().getHeight() * getLc());
     }
 
-    public static EmpBoundingBox getBounds(MapInstance mapInstance) {
+    public static IEmpBoundingArea getBounds(MapInstance mapInstance) {
         try {
             List<IGeoPosition> list = getBoundingPolygon(mapInstance);
-            if ((null != list) && (EmpBoundingBox.REQUIRED_VERTICES == list.size())) {
-                EmpBoundingBox boundingBox = new EmpBoundingBox(mapInstance.getCamera(), list.get(0), list.get(1), list.get(2), list.get(3));
-                return boundingBox;
+            if ((null != list) && (EmpBoundingArea.REQUIRED_VERTICES == list.size())) {
+                IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), list.get(0), list.get(1), list.get(2), list.get(3));
+                return boundingArea;
             }
         } catch (Exception e) {
-            Log.e(TAG, "getBoundingBox " + e.getMessage(), e);
+            Log.e(TAG, "getBounds " + e.getMessage(), e);
         }
         return null;
     }
@@ -505,7 +521,7 @@ public class BoundsGeneration {
             IGeoPosition center = GeoLibrary.getCenter(cornersFound);
 
             // Convert the center to geo point and traverse out diagonally to locate the desired polygon vertices.
-            // We don't short circuit this by simply traversiong from center of the sides initially as globe may not be
+            // We don't short circuit this by simply traversing from center of the sides initially as globe may not be
             // exactly at the center.
 
             Point result = new Point();
@@ -514,12 +530,12 @@ public class BoundsGeneration {
                 corners[NE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, -delta_y, width, height);
                 corners[SE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, delta_y, width, height);
                 corners[SW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, delta_y, width, height);
+                return true;
             }
         } else {
             Log.e(TAG, "processGlobeInCenter couldn't find ANY point");
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -543,7 +559,10 @@ public class BoundsGeneration {
 
         List<IGeoPosition> cornersFound = new ArrayList<>();
         IGeoPosition corner;
-        Set<Point> points = getGridPoints(width, height);
+
+        // Checking at (x, height) and (width, y) will NOT yield a geographical point so must subtract one.
+        // This is NOT an issue when you are looking at the corners themselves.
+        Set<Point> points = getGridPoints(width-1, height-1);
 
         Point result = new Point();
         Position pos = new Position();
@@ -583,7 +602,7 @@ public class BoundsGeneration {
         return false;
     }
 
-    private static Set<Point> getGridPoints(int height, int width) {
+    private static Set<Point> getGridPoints(int width, int height) {
         for(GridPoints gp: gridPoints) {
             if((height == gp.height) && (width == gp.width)) {
                 return gp.points;
@@ -612,7 +631,9 @@ public class BoundsGeneration {
 
             List<RectangleView> rcViews = new ArrayList<>();
 
-            RectangleView level0 = new RectangleView(0, 0, width, 0, width, height, 0, height);
+            // Checking (0, y) and (x, 0) will not yield a geographical point hence start with 1 for outermost/level0
+            // rectangle. This is NOT an issue when you are looking at the corners themselves.
+            RectangleView level0 = new RectangleView(1, 1, width, 1, width, height, 1, height);
             Log.d(TAG, "level0 rectangle");
             level0.printRectangle();
 
