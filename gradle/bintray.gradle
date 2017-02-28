@@ -3,7 +3,7 @@ artifactory {
 
     publish {
         repository {
-            repoKey = 'oss-snapshot-local'
+            repoKey  = 'oss-snapshot-local'
             username = bintrayUser
             password = bintrayKey
         }
