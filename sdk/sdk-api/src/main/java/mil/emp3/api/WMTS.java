@@ -11,8 +11,7 @@ import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ManagerFactory;
 
 /**
- * This feature is not ready for use.  It is waiting on NASA WorldWind to complete the
- * implementation of WMTS.
+ * Enables use of WMTS services.
  */
 public class WMTS extends MapService implements IWMTS {
     final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
