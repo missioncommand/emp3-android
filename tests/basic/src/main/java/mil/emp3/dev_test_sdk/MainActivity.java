@@ -86,6 +86,8 @@ import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.WMS;
+import mil.emp3.api.WMTS;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapStateEnum;
@@ -137,7 +139,8 @@ public class MainActivity extends AppCompatActivity
     protected Overlay oRootOverlay;
     private ICamera oCamera;
     private ILookAt oLookAt;
-    private mil.emp3.api.WMS wmsService;
+    private WMS wmsService;
+    private WMTS wmtsService;
     private mil.emp3.api.GeoPackage geoPackage;
     protected java.util.HashMap<java.util.UUID, IFeature> oFeatureHash = new java.util.HashMap<>();
     private IFeature oCurrentSelectedFeature;
@@ -1703,6 +1706,37 @@ public class MainActivity extends AppCompatActivity
                     this.finishAndRemoveTask();
                 } else {
                     this.finish();
+                }
+                return true;
+            case R.id.action_addWMTS:
+                ArrayList<String> layers = new ArrayList<>();
+                layers.add("matrikkel_bakgrunn");
+                try {
+                    wmtsService = new WMTS(
+                            "http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts",
+                            null, null, layers);
+                    map.addMapService(MainActivity.this.wmtsService);
+                    ICamera camera = this.map.getCamera();
+                    camera.setLatitude(64.27);
+                    camera.setLongitude(10.12);
+                    camera.setAltitude(225000);
+                    camera.apply(false);
+                    MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWMTS);
+                    oItem.setEnabled(true);
+                    oItem = MainActivity.this.oMenu.findItem(R.id.action_addWMTS);
+                    oItem.setEnabled(false);
+                } catch (MalformedURLException | EMP_Exception m) {
+                    m.printStackTrace();
+                }
+                return true;
+            case R.id.action_removeWMTS:
+                try {
+                    map.removeMapService(this.wmtsService);
+                    MenuItem oItem = this.oMenu.findItem(R.id.action_removeWMTS);
+                    oItem.setEnabled(false);
+                    oItem = this.oMenu.findItem(R.id.action_addWMTS);
+                    oItem.setEnabled(true);
+                } catch (EMP_Exception ex) {
                 }
                 return true;
             case R.id.action_addWMS:

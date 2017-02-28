@@ -1,9 +1,8 @@
-apply plugin: 'emp3AndroidLib'
+apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-lib.gradle"
 
 dependencies {
     provided project (":sdk:emp3-android-sdk")
     provided         ("org.cmapi.primitives:common-map-geospatial-notation")
 
     provided         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
-    provided         ("android:android")
 }
