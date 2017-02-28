@@ -32,7 +32,6 @@ public class BoundsGeneration {
     private final static int SE = 2;       // x = width, y = height
     private final static int NE = 3;       // x = width, y = 0;
 
-    private final static int cc = 0;       // Corner correction. This is no longer an issue
     private final static double lc = 0.05;  // Least Count on the grid. (5 percent of width/height
 
     private static List<GridPoints> gridPoints = new ArrayList<>();
@@ -174,16 +173,16 @@ public class BoundsGeneration {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
-        int origin_x = 0;   // This is the NW corner when heading is zero
-        int origin_y = 0;   // This is the NW corner when heading is zero
+        int origin_x = getOriginX();   // This is the NW corner when heading is zero
+        int origin_y = getOriginY();   // This is the NW corner when heading is zero
         int cornersFound = 0;
 
         android.graphics.Point[] vertices = new android.graphics.Point[CORNERS];
 
-        vertices[NW] = new android.graphics.Point(origin_x+cc, origin_y+cc);
-        vertices[SW] = new android.graphics.Point(origin_x+cc, origin_y + height - cc);
-        vertices[SE] = new android.graphics.Point(origin_x + width - cc, origin_y + height - cc);
-        vertices[NE] = new android.graphics.Point(origin_x + width - cc, origin_y + cc);
+        vertices[NW] = new android.graphics.Point(origin_x, origin_y);
+        vertices[SW] = new android.graphics.Point(origin_x, origin_y + height);
+        vertices[SE] = new android.graphics.Point(origin_x + width, origin_y + height);
+        vertices[NE] = new android.graphics.Point(origin_x + width , origin_y);
 
         // Now fetch the geographical points for the corners of the relevant rectangle.
         // There is an issue with underlying NASA methods where it reports a geographical point where there is actually
@@ -217,6 +216,8 @@ public class BoundsGeneration {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
+        int origin_x = getOriginX();
+        int origin_y = getOriginY();
 
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
@@ -226,20 +227,20 @@ public class BoundsGeneration {
         // Traverse from the opposite corner towards this corner (findSky2EarthTransition) looking for the place where there is a transition
         // from sky to map (earth) and this will give you the third point of the polygon.
         if(corners[NW] != null) {
-            corners[NE] = findEarth2SkyTransition(mapController, 0, 0, delta_x, 0, width, height);
+            corners[NE] = findEarth2SkyTransition(mapController, origin_x, origin_y, delta_x, 0, width, height);
             corners[SE] = findSky2EarthTransition(mapController, width, height, -delta_x, -delta_y, width, height);
-            corners[SW] = findEarth2SkyTransition(mapController, 0, 0, 0, delta_y, width, height);
+            corners[SW] = findEarth2SkyTransition(mapController, origin_x, origin_y, 0, delta_y, width, height);
         } else if(corners[SW] != null) {
-            corners[NW] = findEarth2SkyTransition(mapController, 0, height, 0, -delta_y, width, height);
-            corners[NE] = findSky2EarthTransition(mapController, width, 0, -delta_x, delta_y, width, height);
-            corners[SE] = findEarth2SkyTransition(mapController, 0, height, delta_x, 0, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, origin_x, height, 0, -delta_y, width, height);
+            corners[NE] = findSky2EarthTransition(mapController, width, origin_y, -delta_x, delta_y, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, origin_x, height, delta_x, 0, width, height);
         } else if(corners[NE] != null) {
-            corners[SE] = findEarth2SkyTransition(mapController, width, 0, 0, delta_y, width, height);
-            corners[SW] = findSky2EarthTransition(mapController, 0, height, delta_x, -delta_y, width, height);
-            corners[NW] = findEarth2SkyTransition(mapController, width, 0, -delta_x, 0, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, width, origin_y, 0, delta_y, width, height);
+            corners[SW] = findSky2EarthTransition(mapController, origin_x, height, delta_x, -delta_y, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, width, origin_y, -delta_x, 0, width, height);
         } else if(corners[SE] != null) {
             corners[SW] = findEarth2SkyTransition(mapController, width, height, -delta_x, 0, width, height);
-            corners[NW] = findSky2EarthTransition(mapController, 0, 0, delta_x, delta_y, width, height);
+            corners[NW] = findSky2EarthTransition(mapController, origin_x, origin_y, delta_x, delta_y, width, height);
             corners[NE] = findEarth2SkyTransition(mapController, width, height, 0, -delta_y, width, height);
         } else {
             Log.e(TAG, "NO CORNER FOUND");
@@ -340,7 +341,8 @@ public class BoundsGeneration {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
-
+        int origin_x = getOriginX();
+        int origin_y = getOriginY();
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
 
@@ -348,17 +350,17 @@ public class BoundsGeneration {
         // from earth to sky.
 
         if((corners[NW] != null) && (corners[NE] != null)){
-            corners[SE] = findEarth2SkyTransition(mapController, width, 0, 0, delta_y, width, height);
-            corners[SW] = findEarth2SkyTransition(mapController, 0, 0, 0, delta_y, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, width, origin_y, 0, delta_y, width, height);
+            corners[SW] = findEarth2SkyTransition(mapController, origin_x, origin_y, 0, delta_y, width, height);
         } else if((corners[SW] != null) && (corners[SE] != null)) {
             corners[NE] = findEarth2SkyTransition(mapController, width, height, 0, -delta_y, width, height);
-            corners[NW] = findEarth2SkyTransition(mapController, 0, height, 0, -delta_y, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, origin_x, height, 0, -delta_y, width, height);
         } else if((corners[NE] != null) && (corners[SE] != null)) {
-            corners[NW] = findEarth2SkyTransition(mapController, width, 0, -delta_x, 0, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, width, origin_y, -delta_x, 0, width, height);
             corners[SW] = findEarth2SkyTransition(mapController, width, height, -delta_x, 0, width, height);
         } else if((corners[SW] != null) && (corners[NW] != null)) {
-            corners[NE] = findEarth2SkyTransition(mapController, 0, 0, delta_x, 0, width, height);
-            corners[SE] = findEarth2SkyTransition(mapController, 0, height, delta_x, 0, width, height);
+            corners[NE] = findEarth2SkyTransition(mapController, origin_x, origin_y, delta_x, 0, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, origin_x, height, delta_x, 0, width, height);
         } else {
             Log.e(TAG, "processTwoCorners TWO CORNERS NOT FOUND");
             return false;
@@ -459,17 +461,19 @@ public class BoundsGeneration {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
+        int origin_x = getOriginX();
+        int origin_y = getOriginY();
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
 
         // Locate the corner that is showing the sky and traverse from that corner towards the opposite corner looking for a
         // transition from sky to earth.
         if(corners[NW] == null) {
-            corners[NW] = findSky2EarthTransition(mapController, 0, 0, delta_x, delta_y, width, height);
+            corners[NW] = findSky2EarthTransition(mapController, origin_x, origin_y, delta_x, delta_y, width, height);
         } else if(corners[SW] == null) {
-            corners[SW] = findSky2EarthTransition(mapController, 0, height, delta_x, -delta_y, width, height);
+            corners[SW] = findSky2EarthTransition(mapController, origin_x, height, delta_x, -delta_y, width, height);
         } else if(corners[NE] == null) {
-            corners[NE] = findSky2EarthTransition(mapController, width, 0, -delta_x, delta_y, width, height);
+            corners[NE] = findSky2EarthTransition(mapController, width, origin_y, -delta_x, delta_y, width, height);
         } else if(corners[SE] == null) {
             corners[SE] = findSky2EarthTransition(mapController, width, height, -delta_x, -delta_y, width, height);
         } else {
@@ -490,6 +494,8 @@ public class BoundsGeneration {
         PickNavigateController mapController = mapInstance.getMapController();
         int width = mapInstance.getWW().getWidth();
         int height = mapInstance.getWW().getHeight();
+        int origin_x = getOriginX();
+        int origin_y = getOriginY();
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
 
@@ -499,7 +505,7 @@ public class BoundsGeneration {
         // Traverse from each corner towards the center of the view, find the transition from sky to earth and you have found one
         // point. Repeat this for all four corners.
 
-        if(null != (corner = findSky2EarthTransition(mapController, width/2, 0, 0, delta_y, width, height))) {
+        if(null != (corner = findSky2EarthTransition(mapController, width/2, origin_y, 0, delta_y, width, height))) {
             cornersFound.add(corner);
         }
         if(null != (corner = findSky2EarthTransition(mapController, width, height/2, -delta_x, 0, width, height)))  {
@@ -508,7 +514,7 @@ public class BoundsGeneration {
         if(null != (corner = findSky2EarthTransition(mapController, width/2, height, 0, -delta_y, width, height))) {
             cornersFound.add(corner);
         }
-        if(null != (corner = corners[SE] = findSky2EarthTransition(mapController, 0, height/2, delta_x, 0, width, height))) {
+        if(null != (corner = corners[SE] = findSky2EarthTransition(mapController, origin_x, height/2, delta_x, 0, width, height))) {
             cornersFound.add(corner);
         }
 

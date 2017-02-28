@@ -224,19 +224,21 @@ public class BoundsGenerationTest extends NavItemBase {
             } else if (userAction.equals("Get Geo Bounds")) {
 
                 final IGeoBounds geoBounds = maps[whichMap].getBounds();
-                Thread t = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String formattedLatLong = String.format(Locale.US, "NEWS %1$6.3f %2$6.3f %3$6.3f %4$6.3f",
-                                geoBounds.getNorth(), geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth());
-                        ErrorDialog.showMessageWaitForConfirm(activity, formattedLatLong);
-                    }
-                });
-                t.start();
+                if(null != geoBounds) {
+                    Thread t = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String formattedLatLong = String.format(Locale.US, "NEWS %1$6.3f %2$6.3f %3$6.3f %4$6.3f",
+                                    geoBounds.getNorth(), geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth());
+                            ErrorDialog.showMessageWaitForConfirm(activity, formattedLatLong);
+                        }
+                    });
+                    t.start();
+                }
             } else if (userAction.equals("Get Emp Bounds")) {
 
                 final IGeoBounds geoBounds = maps[whichMap].getBounds();
-                if(geoBounds instanceof IEmpBoundingArea) {
+                if((null != geoBounds) && (geoBounds instanceof IEmpBoundingArea)) {
                     IEmpBoundingArea empBoundingArea = (IEmpBoundingArea) geoBounds;
                     final EmpBoundingBox empBoundingBox = empBoundingArea.getEmpBoundingBox();
                     Thread t = new Thread(new Runnable() {
