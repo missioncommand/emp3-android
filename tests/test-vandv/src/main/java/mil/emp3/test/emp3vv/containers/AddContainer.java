@@ -23,6 +23,7 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.test.emp3vv.common.StyleManager;
 import mil.emp3.test.emp3vv.containers.dialogs.AddFeatureDialog;
+import mil.emp3.test.emp3vv.containers.dialogs.AddGeoJSONDialog;
 import mil.emp3.test.emp3vv.containers.dialogs.AddOverlayDialog;
 import mil.emp3.test.emp3vv.utils.MapNamesUtility;
 
@@ -32,7 +33,8 @@ import mil.emp3.test.emp3vv.utils.MapNamesUtility;
  *     You can model these after {@link AddEllipseFeature} and {@link mil.emp3.test.emp3vv.containers.dialogs.EllipsePropertiesDialog} classes
  *     update the entityClass table below with feature type and AddNewFeatureFeature class.
  */
-public class AddContainer extends AddEntityBase implements AddOverlayDialog.IAddOverlayDialogListener, AddFeatureDialog.IAddFeatureDialogListener {
+public class AddContainer extends AddEntityBase implements AddOverlayDialog.IAddOverlayDialogListener, AddFeatureDialog.IAddFeatureDialogListener,
+AddGeoJSONDialog.IAddGeoJSONDialogListener{
 
     private static Map<FeatureTypeEnum, Class<? extends AddEntityBase>> entityClasses;
     static {
@@ -52,6 +54,7 @@ public class AddContainer extends AddEntityBase implements AddOverlayDialog.IAdd
     
     public static final String addOverlayFragment = "fragment_add_overlay_dialog";
     public static final String addFeatureFragment = "fragment_add_feature_dialog";
+    public static final String addGeoJSONFragment = "fragment_add_geoJSON_dialog";
 
     public AddContainer(Activity activity, IMap map, IStatusListener statusListener, StyleManager styleManager) {
         super(activity, map, statusListener, styleManager);
@@ -144,6 +147,30 @@ public class AddContainer extends AddEntityBase implements AddOverlayDialog.IAdd
         return;
     }
 
+    public void showAddGeoJSONDialog() {
+        Handler mainHandler = new Handler(activity.getMainLooper());
+
+        final List<String> parentList = MapNamesUtility.getNames(map, false, true, true);
+        final List<String> namesInUse = MapNamesUtility.getNames(map, true, true, true);
+
+        if(parentList.size() == 0) {
+            statusListener.updateStatus(TAG, "You need at least one overlay to add a feature");
+            return;
+        }
+
+        Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+                FragmentManager fm = ((AppCompatActivity)activity).getSupportFragmentManager();
+                AddGeoJSONDialog addGeoJSONDialogFragment = AddGeoJSONDialog.newInstance("Add GeoJSON", map, parentList, AddContainer.this, namesInUse);
+                addGeoJSONDialogFragment.show(fm, addGeoJSONFragment);
+            }
+        };
+        mainHandler.post(myRunnable);
+
+        return;
+    }
+
     @Override
     public boolean featureSet(AddFeatureDialog dialog) {
 
@@ -177,6 +204,11 @@ public class AddContainer extends AddEntityBase implements AddOverlayDialog.IAdd
                 statusListener.updateStatus(TAG, featureTypeEnum.toString() + " is NOT yet supported");
             }
         }
+        return false;
+    }
+
+    @Override
+    public boolean featureSet(AddGeoJSONDialog dialog) {
         return false;
     }
 }
