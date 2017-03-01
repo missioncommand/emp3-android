@@ -216,14 +216,14 @@ public abstract class Emp3TesterDialogBase extends DialogFragment {
     }
 
     protected String getSelectedFromSingleChoiceList(ListView singleChoiceList) {
-        Log.d(TAG, "getSelectedFromSingleChoiceList getSelectedItemPosition " + singleChoiceList.getSelectedItemPosition());
+        Log.d(TAG, "getSelectedFromSingleChoiceList getCheckedItemPosition " + singleChoiceList.getCheckedItemPosition());
 
-        if(singleChoiceList.getSelectedItemPosition() < 0) {
+        if(singleChoiceList.getCheckedItemPosition() < 0) {
             return null;
         } else {
             Log.d(TAG, "getSelectedFromSingleChoiceList selected " +
-                    singleChoiceList.getAdapter().getItem(singleChoiceList.getSelectedItemPosition()).toString());
-            return singleChoiceList.getAdapter().getItem(singleChoiceList.getSelectedItemPosition()).toString();
+                    singleChoiceList.getAdapter().getItem(singleChoiceList.getCheckedItemPosition()).toString());
+            return singleChoiceList.getAdapter().getItem(singleChoiceList.getCheckedItemPosition()).toString();
         }
     }
 }

@@ -73,7 +73,7 @@ public class AddGeoJSONDialog extends Emp3TesterDialogBase {
         return geoJSONName.getText().toString();
     }
 
-    public String getSelectedParentList() {
+    public String getSelectedParent() {
         return getSelectedFromSingleChoiceList(geoJSONParentList);
     }
 
@@ -131,10 +131,6 @@ public class AddGeoJSONDialog extends Emp3TesterDialogBase {
                         ErrorDialog.showError(getContext(),"Please pick a geoJSON file ");
                         return;
                     }
-
-                    // Always coming in as -1
-
-                    int sel = fileList.getSelectedItemPosition();
 
                     AddGeoJSONDialog.this.dismiss();
                     if(((IAddGeoJSONDialogListener)AddGeoJSONDialog.this.listener).featureSet(AddGeoJSONDialog.this)) {
