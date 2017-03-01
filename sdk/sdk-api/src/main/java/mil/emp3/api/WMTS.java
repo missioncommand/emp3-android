@@ -11,8 +11,7 @@ import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ManagerFactory;
 
 /**
- * This feature is not ready for use.  It is waiting on NASA WorldWind to complete the
- * implementation of WMTS.
+ * Enables use of WMTS services.
  */
 public class WMTS extends MapService implements IWMTS {
     final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
@@ -97,6 +96,8 @@ public class WMTS extends MapService implements IWMTS {
      * @param newLayers A list of string. The list is ignored if its null or empty.
      * @throws EMP_Exception
      */
+
+    @Override
     public void setLayers(List<String> newLayers) throws EMP_Exception {
         if ((newLayers != null) && !newLayers.isEmpty()) {
             this.oLayers = newLayers;
@@ -108,6 +109,7 @@ public class WMTS extends MapService implements IWMTS {
      * This method retrieves the current layer list.
      * @return A list of String values.
      */
+    @Override
     public List<String> getLayers() {
         return this.oLayers;
     }

@@ -12,40 +12,15 @@ dependencies {
     provided         ("org.cmapi.primitives:common-map-geospatial-notation")
 
     provided         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
-    provided         ("android:android")
 }
 
 publishing.publications {
     nebula(MavenPublication) {
-        groupId    = project.ext.group
         artifactId = "emp3-android-sdk-core"
-        version    = project.version
 
         artifacts = [
             "$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar",
             "$buildDir/../apk/build/outputs/apk/emp3-android-sdk-core-apk-debug.apk"
         ]
-    }
-}
-publishing.repositories {
-    maven {
-        url = nexusPublishUrl
-
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
-}
-if (project.hasProperty('di2eNexusReleaseUrl')) {
-    publishing.repositories {
-        maven {
-            url = project.property('di2eNexusReleaseUrl')
-
-            credentials {
-                username empUsername
-                password empPassword
-            }
-        }
     }
 }
