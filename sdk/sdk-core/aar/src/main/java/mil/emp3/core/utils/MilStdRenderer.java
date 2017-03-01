@@ -33,6 +33,7 @@ import mil.emp3.api.Text;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.EmpGeoColor;
@@ -794,7 +795,14 @@ public class MilStdRenderer implements IMilStdRenderer {
         }
 
         String coordinateStr = this.convertToStringPosition(symbol.getPositions());
-        String boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
+        String boundingBoxStr;
+        if(bounds instanceof IEmpBoundingArea) {
+            boundingBoxStr = bounds.toString();
+        } else {
+            boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
+        }
+
+        Log.d(TAG, "bounds " + boundingBoxStr);
         double scale = camera.getAltitude() * 6.36;
         SparseArray<String> modifiers = this.getTGModifiers(mapInstance, symbol);
         SparseArray<String> attributes = this.getAttributes(mapInstance, symbol, selected);

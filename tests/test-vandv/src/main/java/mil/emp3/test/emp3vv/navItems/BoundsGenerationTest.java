@@ -37,6 +37,8 @@ import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.NavItemBase;
+import mil.emp3.test.emp3vv.common.StyleManager;
+import mil.emp3.test.emp3vv.containers.AddContainer;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 
 
@@ -62,13 +64,14 @@ public class BoundsGenerationTest extends NavItemBase {
     EventListenerHandle mapInteractionHandle[] = new EventListenerHandle[ExecuteTest.MAX_MAPS];
 
     List<IFeature> boundingFeatures[] = new List[ExecuteTest.MAX_MAPS];
-
+    private final StyleManager styleManager;
     public BoundsGenerationTest(Activity activity, IMap map1, IMap map2) {
         super(activity, map1, map2, TAG);
 
         for(int ii = 0; ii < ExecuteTest.MAX_MAPS; ii++) {
             boundingFeatures[ii] = new ArrayList<>();
         }
+        styleManager = new StyleManager(activity, maps);
     }
 
     @Override
@@ -79,7 +82,7 @@ public class BoundsGenerationTest extends NavItemBase {
 
     @Override
     public String[] getMoreActions() {
-        String[] actions = { "Show Corners" };
+        String[] actions = { "Add Feature", "Show Corners" };
         return actions;
     }
 
@@ -148,6 +151,7 @@ public class BoundsGenerationTest extends NavItemBase {
                 ICamera camera = maps[whichMap].getCamera();
                 if(cameraListener[whichMap] == null) {
                     overlay[whichMap] = new Overlay();
+                    overlay[whichMap].setName("Overlay Map " + whichMap);
                     maps[whichMap].addOverlay(overlay[whichMap], true);
                     cameraPoint[whichMap] = new Point();
                     cameraPoint[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
@@ -251,6 +255,9 @@ public class BoundsGenerationTest extends NavItemBase {
                     });
                     t.start();
                 }
+            }   else if(userAction.equals("Add Feature")) {
+                AddContainer addContainer = new AddContainer(activity, maps[whichMap], this, styleManager);
+                addContainer.showAddFeatureDialog();
             }
         } catch (Exception e) {
             updateStatus(TAG, e.getMessage());

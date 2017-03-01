@@ -214,8 +214,12 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     @Override
     public String toString() {
         adjustVertices();
-        String value = "";
-        return value;
+        StringBuilder builder = new StringBuilder();
+        for(int ii = vertices.length - 1; ii >= 0 ; ii--) {
+            builder.append(vertices[ii].getLatitude() + "," + vertices[ii].getLongitude() + " ");
+        }
+        builder.append(vertices[vertices.length - 1].getLatitude() + "," + vertices[vertices.length - 1].getLongitude());
+        return builder.toString();
     }
 
     /**
