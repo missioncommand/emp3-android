@@ -35,6 +35,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     private static String TAG = EmpBoundingBox.class.getSimpleName();
     public final static int REQUIRED_VERTICES = 4;
     private final IGeoPosition[] vertices;
+
     private final ICamera camera;              // Camera when vertices were calculated, we will need this for
                                                // adjusting the distance.
 
@@ -45,7 +46,10 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     // by SEC Military Symbol renderer. We will do the adjustment only when user tries to retrieve anything related
     // to the vertices.
 
-    private boolean verticesAdjusted = false;
+    private final static double MAX_DISTANCE_FROM_CENTER = 4000000; // Maximum distance from center of four vertices.
+
+    private IGeoPosition[] adjustedVertices = null;   // Approximate the vertices to keep longitude range to 180 degrees.
+
     /**
      * All parameters must be non-null and have valid values.
      * @param currentCamera - Camera object when the vertices were calculated.
@@ -155,69 +159,50 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         }
     }
 
-    /**
-     * We want to limit the area of the quadrilateral such that the Military Symbol renderer has to render objects that are within specific
-     * distance from the camera. We will 'pull' in the two vertices that are furthes.
-     */
-    private void adjustVertices() {
+    private void adjustVerticesByDistance() {
+        if(null != adjustedVertices) return;
 
-        if(!verticesAdjusted) {
+        // Find the center of the four vertices.
+        List<IGeoPosition> cornersFound = new ArrayList<>();
+        for(int ii = 0; ii < vertices.length; ii++) {
+            cornersFound.add(vertices[ii]);
+        }
+        IGeoPosition center = GeoLibrary.getCenter(cornersFound);
+
+        adjustedVertices = new IGeoPosition[vertices.length];
+        double distance;
+
+        // If distance from center is more than 4000,000 meters then clip it.
+        for (int ii = 0; ii < vertices.length; ii++) {
             try {
-                double[] distance = new double[vertices.length];
-
-                IGeoPosition cameraPosition = new GeoPosition();
-                cameraPosition.setLatitude(camera.getLatitude());
-                cameraPosition.setLongitude(camera.getLongitude());
-
-                int closestDistanceIndex = -1;
-                int longestDistanceIndex = -1;
-                int nextToLongestDistanceIndex = -1;
-                for (int ii = 0; ii < vertices.length; ii++) {
-                    distance[ii] = GeoLibrary.computeDistanceBetween(cameraPosition, vertices[ii]);
-                    if (-1 == closestDistanceIndex) {
-                        closestDistanceIndex = ii;
-                        longestDistanceIndex = ii;
-                        nextToLongestDistanceIndex = ii;
-                    } else {
-                        if (distance[ii] < distance[closestDistanceIndex]) {
-                            closestDistanceIndex = ii;
-                        } else if (distance[ii] > distance[longestDistanceIndex]) {
-                            nextToLongestDistanceIndex = longestDistanceIndex;
-                            longestDistanceIndex = ii;
-                        } else if (distance[ii] > distance[nextToLongestDistanceIndex]) {
-                            nextToLongestDistanceIndex = ii;
-                        }
-                    }
+                distance = GeoLibrary.computeDistanceBetween(center, vertices[ii]);
+                Log.d(TAG, "distance " + ii + " " + distance);
+                if (distance > MAX_DISTANCE_FROM_CENTER) {
+                    double bearing = GeoLibrary.computeBearing(center, vertices[ii]);
+                    adjustedVertices[ii] = GeoLibrary.computePositionAt(bearing, MAX_DISTANCE_FROM_CENTER, center);
+                } else {
+                    adjustedVertices[ii] = vertices[ii];
                 }
-
-                for(int ii = 0; ii < distance.length; ii++) {
-                    Log.d(TAG, "distance " + ii + " " + distance[ii]);
-                }
-
-                if(distance[closestDistanceIndex] > 0) {
-                    Log.d(TAG, "longest " + distance[longestDistanceIndex]/distance[closestDistanceIndex] + " next " +
-                        distance[nextToLongestDistanceIndex]/distance[closestDistanceIndex]);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "adjustVertices " + e.getMessage(), e);
+            } catch(Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+                adjustedVertices[ii] = vertices[ii];
             }
         }
-        verticesAdjusted = true;
-
     }
-
     /**
-     * Converts vertices to a String to a format required by Military Symbol render-er.
+     * Converts vertices to a String to a format required by Military Symbol render-er. It returns a string based on adjustedVertices that
+     * meets the SEC Render-er requirement of 180 degrees max span of longitude. This calculation is very much approximate and may need
+     * more work in future.
      * @return
      */
     @Override
     public String toString() {
-        adjustVertices();
+        adjustVerticesByDistance();
         StringBuilder builder = new StringBuilder();
-        for(int ii = vertices.length - 1; ii >= 0 ; ii--) {
-            builder.append(vertices[ii].getLongitude() + "," + vertices[ii].getLatitude() + " ");
+        for(int ii = adjustedVertices.length - 1; ii >= 0 ; ii--) {
+            builder.append(adjustedVertices[ii].getLongitude() + "," + adjustedVertices[ii].getLatitude() + " ");
         }
-        builder.append(vertices[vertices.length - 1].getLongitude() + "," + vertices[vertices.length - 1].getLatitude());
+        builder.append(adjustedVertices[adjustedVertices.length - 1].getLongitude() + "," + adjustedVertices[adjustedVertices.length - 1].getLatitude());
         return builder.toString();
     }
 
@@ -226,7 +211,6 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
      * @return
      */
     public IGeoPosition[] getBoundingVertices() {
-        adjustVertices();
         IGeoPosition[] bounds = new IGeoPosition[REQUIRED_VERTICES];
         for(int ii = 0; ii < vertices.length; ii++) {
             bounds[ii] = new GeoPosition();

@@ -202,46 +202,10 @@ public class BoundsGenerationTest extends NavItemBase {
                     mapInteractionHandle[whichMap] = null;
                 }
             } else if (userAction.equals("Show Emp Area")) {
-                IGeoLabelStyle labelStyle = new GeoLabelStyle();
-                labelStyle.setColor(new EmpGeoColor(1, 255, 0, 0));
-
-                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
-                strokeStyle.setStrokeColor(new EmpGeoColor(1, 0, 255, 255));
-                strokeStyle.setStrokeWidth(5);
-
-                overlay[whichMap].removeFeatures(boundingFeatures[whichMap]);
-                boundingFeatures[whichMap].clear();
 
                 IGeoBounds geoBounds = maps[whichMap].getBounds();
-                if(geoBounds instanceof IEmpBoundingArea) {
-                    IEmpBoundingArea empBoundingArea = (IEmpBoundingArea) geoBounds;
-                    IGeoPosition[] positions = empBoundingArea.getBoundingVertices();
-                    Polygon p = new Polygon();
-                    p.setStrokeStyle(strokeStyle);
-                    boundingFeatures[whichMap].add(p);
-                    for (IGeoPosition position : positions) {
-                        Text text = new Text();
+                updateBoundsMarkers(whichMap, geoBounds);
 
-                    /*
-                    sMessage = String.format(Locale.US, "%1s L:N:A %2$6.3f %3$6.3f %4$6.0f F:M %5$6.1f %6$6.1f %7$d ", oMap.getName(),
-                            oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(),
-                            oMap.getFarDistanceThreshold(), oMap.getMidDistanceThreshold(),
-                            iCount);
-                     */
-                        String formattedLatLong = String.format(Locale.US, "%1$6.3f %2$6.3f", position.getLatitude(), position.getLongitude());
-                        text.setText(formattedLatLong);
-                        text.setLabelStyle(labelStyle);
-                        text.getPositions().add(position);
-                        boundingFeatures[whichMap].add(text);
-
-                        Point point = new Point();
-                        point.getPositions().add(position);
-                        boundingFeatures[whichMap].add(point);
-
-                        p.getPositions().add(position);
-                    }
-                    overlay[whichMap].addFeatures(boundingFeatures[whichMap], true);
-                }
             } else if (userAction.equals("Get Geo Bounds")) {
 
                 final IGeoBounds geoBounds = maps[whichMap].getBounds();
@@ -315,7 +279,7 @@ public class BoundsGenerationTest extends NavItemBase {
             overlay[whichMap].removeFeatures(boundingFeatures[whichMap]);
             boundingFeatures[whichMap].clear();
 
-            if (geoBounds instanceof IEmpBoundingArea) {
+            if((null != geoBounds) && (geoBounds instanceof IEmpBoundingArea)) {
                 IEmpBoundingArea empBoundingArea = (IEmpBoundingArea) geoBounds;
                 IGeoPosition[] positions = empBoundingArea.getBoundingVertices();
                 Polygon p = new Polygon();
@@ -358,8 +322,8 @@ public class BoundsGenerationTest extends NavItemBase {
         @Override
         public void onEvent(MapViewChangeEvent event) {
             if(event.getEvent().equals(MapViewEventEnum.VIEW_MOTION_STOPPED)) {
-                if(event.getBounds() != null) {
-                    updateBoundsMarkers(whichMap, event.getBounds());
+                if(event.getBoundingArea() != null) {
+                    updateBoundsMarkers(whichMap, event.getBoundingArea());
                 } else {
                     Log.e(TAG, "VIEW_MOTION_STOPPED bounds is NULL");
                 }
