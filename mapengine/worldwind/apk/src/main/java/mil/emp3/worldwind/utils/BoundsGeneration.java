@@ -1,6 +1,7 @@
 package mil.emp3.worldwind.utils;
 
 import android.graphics.Point;
+import android.os.Looper;
 import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import gov.nasa.worldwind.geom.Position;
 import mil.emp3.api.interfaces.IEmpBoundingArea;
@@ -21,6 +23,16 @@ import mil.emp3.worldwind.controller.PickNavigateController;
 
 /**
  * Generates a bounding polygon for the visible map. Aim is to return four points defining a quadrilateral.
+ *
+ * Here is how this should work:
+ *
+ * When camera is moved (pan/zoom/rotate/tilt etc) the Emp3NavigationListener will generate a viewChangeEvent with 'bounds' parameter
+ * set to null. The 'core' (MapStatus) will detect the null value in setBounds and post a request to the UI thread to calculate
+ * bounds via MapInstance.getMapBounds().
+ *
+ * In the 'core' MilStdRenderer.java will fetch the bounds via the IMap API. There will be no recalculation of the bounds at that point.
+ * We are presuming that when view is changed the bounds will get calculated before NASA code invokes the renderer to redraw the
+ * symbols on the map. If that assumption is incorrect then we will have to devise a different method.
  */
 public class BoundsGeneration {
 
@@ -35,6 +47,17 @@ public class BoundsGeneration {
     private final static double lc = 0.05;  // Least Count on the grid. (5 percent of width/height
 
     private static List<GridPoints> gridPoints = new ArrayList<>();
+
+    /**
+     * Make creation of GridPoints thread safe. Is this really required, we allow getBounds on UI thread only?
+     */
+    private static ReentrantLock lock = new ReentrantLock();
+
+    /**
+     * If the view hodling the Map is being resized then we may end up with GridPoints for many different width and height, so
+     * we must clean up if we have more than max allowed.
+     */
+    private static int MAX_GRID_POINTS = 10;
 
     /**
      * Made this a method to allow for any adjustments in future.
@@ -80,14 +103,20 @@ public class BoundsGeneration {
 
     public static IEmpBoundingArea getBounds(MapInstance mapInstance) {
         try {
-            List<IGeoPosition> list = getBoundingPolygon(mapInstance);
-            if ((null != list) && (EmpBoundingArea.REQUIRED_VERTICES == list.size())) {
-                IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), list.get(0), list.get(1), list.get(2), list.get(3));
-                return boundingArea;
+            if(Looper.myLooper() == Looper.getMainLooper()) {
+                List<IGeoPosition> list = getBoundingPolygon(mapInstance);
+                if ((null != list) && (EmpBoundingArea.REQUIRED_VERTICES == list.size())) {
+                    IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), list.get(0), list.get(1), list.get(2), list.get(3));
+                    return boundingArea;
+                }
+            } else {
+                Log.e(TAG, "This method must be invoked on UI thread");
             }
         } catch (Exception e) {
             Log.e(TAG, "getBounds " + e.getMessage(), e);
         }
+
+        Log.e(TAG, "a null value is being returned for bounds, this is NOT necessarily an error, tilt > 45 ?");
         return null;
     }
     /**
@@ -96,7 +125,7 @@ public class BoundsGeneration {
      * @param mapInstance
      * @return
      */
-    public static List<IGeoPosition> getBoundingPolygon(MapInstance mapInstance) {
+    private static List<IGeoPosition> getBoundingPolygon(MapInstance mapInstance) {
         int cornersFound = 0;
         try {
             IGeoPosition corners[] = new IGeoPosition[CORNERS];
@@ -609,17 +638,37 @@ public class BoundsGeneration {
     }
 
     private static Set<Point> getGridPoints(int width, int height) {
+
         for(GridPoints gp: gridPoints) {
             if((height == gp.height) && (width == gp.width)) {
                 return gp.points;
             }
         }
 
-        GridPoints newGridPoints = new GridPoints(width, height);
-        gridPoints.add(newGridPoints);
-        return newGridPoints.points;
+        lock.lock();
+        try {
+            for(GridPoints gp: gridPoints) {
+                if((height == gp.height) && (width == gp.width)) {
+                    return gp.points;
+                }
+            }
+
+            if(gridPoints.size() > MAX_GRID_POINTS) {
+                Log.e(TAG, "We need to cleanup the GridPoints, this can happen if view size is changed many times");
+                gridPoints.clear();
+            }
+
+            GridPoints newGridPoints = new GridPoints(width, height);
+            gridPoints.add(newGridPoints);
+            return newGridPoints.points;
+        } finally {
+            lock.unlock();
+        }
     }
 
+    /**
+     * Class holds generated Grid Points for a view of size width x height
+     */
     static class GridPoints {
         final int width;
         final int height;

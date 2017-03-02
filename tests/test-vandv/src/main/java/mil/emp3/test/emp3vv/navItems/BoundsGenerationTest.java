@@ -19,8 +19,10 @@ import mil.emp3.api.Overlay;
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Text;
+import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.events.CameraEvent;
 import mil.emp3.api.events.MapUserInteractionEvent;
+import mil.emp3.api.events.MapViewChangeEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IEmpBoundingArea;
@@ -32,6 +34,8 @@ import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ICameraEventListener;
 
 import mil.emp3.api.listeners.IMapInteractionEventListener;
+import mil.emp3.api.listeners.IMapViewChangeEventListener;
+import mil.emp3.api.utils.EmpBoundingArea;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
@@ -47,6 +51,7 @@ public class BoundsGenerationTest extends NavItemBase {
 
     EventListenerHandle listenerHandle[] = new EventListenerHandle[ExecuteTest.MAX_MAPS];
     ICameraEventListener cameraListener[] = new ICameraEventListener[ExecuteTest.MAX_MAPS];
+    EventListenerHandle mapEventHandle[] = new EventListenerHandle[ExecuteTest.MAX_MAPS];
 
     IOverlay overlay[] = new IOverlay[ExecuteTest.MAX_MAPS];
     Point cameraPoint[] = new Point[ExecuteTest.MAX_MAPS];
@@ -120,6 +125,11 @@ public class BoundsGenerationTest extends NavItemBase {
                     if (mapInteractionHandle[ii] != null) {
                         maps[ii].removeEventListener(mapInteractionHandle[ii]);
                     }
+
+                    if(mapEventHandle[ii] != null) {
+                        maps[ii].removeEventListener(mapEventHandle[ii]);
+                        mapEventHandle[ii] = null;
+                    }
                 }
                 testThread.interrupt();
             } else if (userAction.equals("ClearMap")) {
@@ -145,6 +155,11 @@ public class BoundsGenerationTest extends NavItemBase {
                         maps[ii].removeEventListener(mapInteractionHandle[ii]);
                         mapInteractionHandle[ii] = null;
                     }
+
+                    if(mapEventHandle[ii] != null) {
+                        maps[ii].removeEventListener(mapEventHandle[ii]);
+                        mapEventHandle[ii] = null;
+                    }
                 }
                 clearMaps();
             } else if (userAction.equals("Start")) {
@@ -168,6 +183,8 @@ public class BoundsGenerationTest extends NavItemBase {
 
                     cameraListener[whichMap] = new CameraListener(whichMap);
                     listenerHandle[whichMap] = maps[whichMap].addCameraEventListener(cameraListener[whichMap]);
+
+                    mapEventHandle[whichMap] = maps[whichMap].addMapViewChangeEventListener(new MapViewChangeEventListener(whichMap));
                 } else {
                     cameraPoint[whichMap].getPositions().clear();
                     cameraPoint[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
@@ -283,6 +300,76 @@ public class BoundsGenerationTest extends NavItemBase {
             setLatitude(latitude);
             setLongitude(longitude);
             setAltitude(altitude);
+        }
+    }
+
+    void updateBoundsMarkers(int whichMap, IGeoBounds geoBounds) {
+        try {
+            IGeoLabelStyle labelStyle = new GeoLabelStyle();
+            labelStyle.setColor(new EmpGeoColor(1, 255, 0, 0));
+
+            IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+            strokeStyle.setStrokeColor(new EmpGeoColor(1, 0, 255, 255));
+            strokeStyle.setStrokeWidth(5);
+
+            overlay[whichMap].removeFeatures(boundingFeatures[whichMap]);
+            boundingFeatures[whichMap].clear();
+
+            if (geoBounds instanceof IEmpBoundingArea) {
+                IEmpBoundingArea empBoundingArea = (IEmpBoundingArea) geoBounds;
+                IGeoPosition[] positions = empBoundingArea.getBoundingVertices();
+                Polygon p = new Polygon();
+                p.setStrokeStyle(strokeStyle);
+                boundingFeatures[whichMap].add(p);
+                for (IGeoPosition position : positions) {
+                    Text text = new Text();
+
+                    /*
+                    sMessage = String.format(Locale.US, "%1s L:N:A %2$6.3f %3$6.3f %4$6.0f F:M %5$6.1f %6$6.1f %7$d ", oMap.getName(),
+                            oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(),
+                            oMap.getFarDistanceThreshold(), oMap.getMidDistanceThreshold(),
+                            iCount);
+                     */
+                    String formattedLatLong = String.format(Locale.US, "%1$6.3f %2$6.3f", position.getLatitude(), position.getLongitude());
+                    text.setText(formattedLatLong);
+                    text.setLabelStyle(labelStyle);
+                    text.getPositions().add(position);
+                    boundingFeatures[whichMap].add(text);
+
+                    Point point = new Point();
+                    point.getPositions().add(position);
+                    boundingFeatures[whichMap].add(point);
+
+                    p.getPositions().add(position);
+                }
+                overlay[whichMap].addFeatures(boundingFeatures[whichMap], true);
+            }
+        } catch(EMP_Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
+
+    class MapViewChangeEventListener implements IMapViewChangeEventListener {
+        int whichMap;
+        MapViewChangeEventListener(int whichMap) {
+            this.whichMap = whichMap;
+        }
+
+        @Override
+        public void onEvent(MapViewChangeEvent event) {
+            if(event.getEvent().equals(MapViewEventEnum.VIEW_MOTION_STOPPED)) {
+                if(event.getBounds() != null) {
+                    updateBoundsMarkers(whichMap, event.getBounds());
+                } else {
+                    Log.e(TAG, "VIEW_MOTION_STOPPED bounds is NULL");
+                }
+            } else if (event.getEvent().equals(MapViewEventEnum.VIEW_IN_MOTION)) {
+                if(event.getBounds() != null) {
+                    updateBoundsMarkers(whichMap, event.getBounds());
+                } else {
+                    Log.e(TAG, "VIEW_IN_MOTION bounds is NULL");
+                }
+            }
         }
     }
 

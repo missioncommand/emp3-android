@@ -188,14 +188,14 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         IMap clientMap = this.getClientMap();
         ICamera mapCamera = this.getCamera();
         ILookAt mapLookAt = this.getLookAt();
-        //ICamera eventCamera = event.getCamera();
         IGeoBounds oBounds = event.getBounds();
         storageManager.setBounds(clientMap, oBounds);
         this.setMapViewWidth(event.getMapViewWidth());
         this.setMapViewHeight(event.getMapViewHeight());
 
-        //mapCamera.copySettingsFrom(eventCamera);
-        eventManager.generateMapViewChangeEvent(event.getEvent(), mapCamera, mapLookAt, oBounds, clientMap);
+        // setBounds will calculate bounds on UI thread if null and then raise the view change event
+        Log.d(TAG, "MapInstanceViewChangeEvent " + event.getEvent());
+        setBounds(eventManager, event.getEvent(), mapCamera, mapLookAt, oBounds, clientMap);
         switch (event.getEvent()) {
             case VIEW_IN_MOTION:
                 eventManager.generateMapCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, clientMap, mapCamera, false);

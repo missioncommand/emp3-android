@@ -1,6 +1,8 @@
 package mil.emp3.core.storage;
 
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -25,6 +27,7 @@ import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
+import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
@@ -32,6 +35,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
+import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.interfaces.core.storage.IMapStatus;
 import mil.emp3.api.listeners.IDrawEventListener;
@@ -59,6 +63,11 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 public abstract class MapStatus implements IMapStatus {
 
     private static String TAG = MapStatus.class.getSimpleName();
+
+    // handler is used to post requests to the UI thread for calculating bounds. It can be used for any other functionality
+    // that required UI thread. This handler is shared by all instances of the Map.
+
+    private static Handler handler = new Handler(Looper.getMainLooper());
 
     // The value is the current lock mode set on th map.
     private MapMotionLockEnum eLockMode = MapMotionLockEnum.UNLOCKED;
@@ -494,9 +503,47 @@ public abstract class MapStatus implements IMapStatus {
         return this.dMidDistanceThreshold;
     }
 
+    /**
+     * If bounds is null then we will kick-off a calculation of bounds on the UI thread.
+     * @param bounds
+     */
     @Override
     public void setBounds(IGeoBounds bounds) {
-        oBounds = bounds;
+        if(null == bounds) {
+            if(Looper.myLooper() == Looper.getMainLooper()) {
+                Log.e(TAG, "setBounds on UI thread - How did that happen");
+                oBounds = this.getMapInstance().getMapBounds();
+            } else {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        oBounds = getMapInstance().getMapBounds();
+                    }
+                });
+            }
+        } else {
+            oBounds = bounds;
+        }
+    }
+
+    protected void setBounds(final IEventManager eventManager, final MapViewEventEnum event, final ICamera camera, final ILookAt lookAt, final IGeoBounds bounds, final IMap clientMap) {
+        if(null == bounds) {
+            if(Looper.myLooper() == Looper.getMainLooper()) {
+                Log.e(TAG, "setBounds on UI thread - How did that happen");
+                oBounds = this.getMapInstance().getMapBounds();
+            } else {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        oBounds = getMapInstance().getMapBounds();
+                        eventManager.generateMapViewChangeEvent(event, camera, lookAt, oBounds, clientMap);
+                    }
+                });
+            }
+        } else {
+            oBounds = bounds;
+            eventManager.generateMapViewChangeEvent(event, camera, lookAt, bounds, clientMap);
+        }
     }
 
     @Override

@@ -46,7 +46,6 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     // to the vertices.
 
     private boolean verticesAdjusted = false;
-
     /**
      * All parameters must be non-null and have valid values.
      * @param currentCamera - Camera object when the vertices were calculated.
@@ -216,9 +215,9 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         adjustVertices();
         StringBuilder builder = new StringBuilder();
         for(int ii = vertices.length - 1; ii >= 0 ; ii--) {
-            builder.append(vertices[ii].getLatitude() + "," + vertices[ii].getLongitude() + " ");
+            builder.append(vertices[ii].getLongitude() + "," + vertices[ii].getLatitude() + " ");
         }
-        builder.append(vertices[vertices.length - 1].getLatitude() + "," + vertices[vertices.length - 1].getLongitude());
+        builder.append(vertices[vertices.length - 1].getLongitude() + "," + vertices[vertices.length - 1].getLatitude());
         return builder.toString();
     }
 

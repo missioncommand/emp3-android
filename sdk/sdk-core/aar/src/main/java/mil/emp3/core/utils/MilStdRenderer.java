@@ -779,7 +779,7 @@ public class MilStdRenderer implements IMilStdRenderer {
 
     private void renderTacticalGraphic(List<IFeature> featureList, IMapInstance mapInstance, MilStdSymbol symbol, boolean selected) {
         ICamera camera = mapInstance.getCamera();
-        IGeoBounds bounds = mapInstance.getMapBounds();
+        IGeoBounds bounds = storageManager.getBounds(storageManager.getMapMapping(mapInstance).getClientMap());
 
         if ((camera == null) || (bounds == null)) {
             return;
@@ -795,6 +795,7 @@ public class MilStdRenderer implements IMilStdRenderer {
         }
 
         String coordinateStr = this.convertToStringPosition(symbol.getPositions());
+        Log.d(TAG, "Symbol Code " + symbol.getSymbolCode() + " coordinateStr " + coordinateStr);
         String boundingBoxStr;
         if(bounds instanceof IEmpBoundingArea) {
             boundingBoxStr = bounds.toString();
@@ -804,6 +805,7 @@ public class MilStdRenderer implements IMilStdRenderer {
 
         Log.d(TAG, "bounds " + boundingBoxStr);
         double scale = camera.getAltitude() * 6.36;
+
         SparseArray<String> modifiers = this.getTGModifiers(mapInstance, symbol);
         SparseArray<String> attributes = this.getAttributes(mapInstance, symbol, selected);
         String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(symbol.getAltitudeMode());
@@ -812,9 +814,10 @@ public class MilStdRenderer implements IMilStdRenderer {
                 symbol.getGeoId().toString(), symbol.getName(), symbol.getDescription(),
                 symbol.getSymbolCode(), coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, milstdVersion);
-
+        Log.d(TAG, "After RenderMultiPointAsMilStdSymbol renderSymbolgetSymbolShapes().size() " + renderSymbol.getSymbolShapes().size());
         // Retrieve the list of shapes.
         this.renderShapeParser(featureList, mapInstance, renderSymbol, symbol, selected);
+
     }
 
     @Override
