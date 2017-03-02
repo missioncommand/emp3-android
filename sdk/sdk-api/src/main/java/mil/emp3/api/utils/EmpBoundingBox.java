@@ -225,7 +225,7 @@ public class EmpBoundingBox extends GeoBounds {
         IGeoPosition pos = new GeoPosition();
 
         pos.setAltitude(0);
-        pos.setLatitude((north() - south()) / 2.0);
+        pos.setLatitude(centerLatitude());
         pos.setLongitude(west());
         return pos;
     }
@@ -238,8 +238,34 @@ public class EmpBoundingBox extends GeoBounds {
         IGeoPosition pos = new GeoPosition();
 
         pos.setAltitude(0);
-        pos.setLatitude((north() - south()) / 2.0);
+        pos.setLatitude(centerLatitude());
         pos.setLongitude(east());
+        return pos;
+    }
+
+    /**
+     * This method returns the coordinate of the middle of the north edge of the boundary.
+     * @return
+     */
+    public IGeoPosition centerNorth() {
+        IGeoPosition pos = new GeoPosition();
+
+        pos.setAltitude(0);
+        pos.setLatitude(getNorth());
+        pos.setLongitude(centerLongitude());
+        return pos;
+    }
+
+    /**
+     * This method returns the coordinate of the middle of the south edge of the boundary.
+     * @return
+     */
+    public IGeoPosition centerSouth() {
+        IGeoPosition pos = new GeoPosition();
+
+        pos.setAltitude(0);
+        pos.setLatitude(getSouth());
+        pos.setLongitude(centerLongitude());
         return pos;
     }
 
@@ -282,11 +308,22 @@ public class EmpBoundingBox extends GeoBounds {
     }
 
     /**
+     * This method returns the height in meters of the bounding box across the center.
+     * @return The Height in meters.
+     */
+    public double heightAcrossCenter() {
+        IGeoPosition pos1 = centerNorth();
+        IGeoPosition pos2 = centerSouth();
+
+        return GeoLibrary.computeDistanceBetween(pos1, pos2);
+    }
+
+    /**
      * This method returns the latitude of the center of the bounding area.
      * @return Center latitude in degrees.
      */
     public double centerLatitude() {
-        return (this.north() - this.south()) / 2.0;
+        return (this.north() + this.south()) / 2.0;
     }
 
     /**
@@ -298,7 +335,7 @@ public class EmpBoundingBox extends GeoBounds {
             return (((this.west() + (this.deltaLongitude() / 2.0)) + 180.0) % 360.0) - 180.0;
         }
 
-        return (this.east() - this.west()) / 2.0;
+        return (this.east() + this.west()) / 2.0;
     }
 
     /**

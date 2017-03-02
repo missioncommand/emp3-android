@@ -17,7 +17,6 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
-import mil.emp3.core.mapgridlines.coordinates.UTMCoordainte;
 import mil.emp3.core.mapgridlines.utils.GridLineUtils;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 

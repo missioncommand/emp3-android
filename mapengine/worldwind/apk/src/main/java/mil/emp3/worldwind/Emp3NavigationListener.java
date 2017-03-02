@@ -63,7 +63,7 @@ public class Emp3NavigationListener implements NavigatorListener {
         }
         public gov.nasa.worldwind.geom.LookAt getLookAt() { return this.oWWLookAT; }
     }
-    private class EventProcessingThread extends java.lang.Thread{
+    protected class EventProcessingThread extends java.lang.Thread{
         private final BlockingQueue<EventQueueItem> qEventEnumQueue = new LinkedBlockingQueue<>();
         private final Emp3NavigationListener oCameraHandler;
         private final long iEventWaitDelay = 500; // msec
@@ -184,8 +184,8 @@ public class Emp3NavigationListener implements NavigatorListener {
             }
         }
     }
-    
-    private final EventProcessingThread oEventProcessingThread;
+
+    protected final EventProcessingThread oEventProcessingThread;
     
     public Emp3NavigationListener(MapInstance mapInstance, WorldWindow ww) {
         this.ww = ww;

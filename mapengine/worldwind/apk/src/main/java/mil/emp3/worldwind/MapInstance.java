@@ -429,6 +429,13 @@ public class MapInstance extends CoreMapInstance {
                 oThis.getCamera();
                 Log.d(TAG, "Map Ready firing.");
                 oThis.generateStateChangeEvent(MapStateEnum.MAP_READY);
+                // the forllowing code forces a view change event to be generated.
+                gov.nasa.worldwind.geom.Camera oWWCamera = new gov.nasa.worldwind.geom.Camera();
+                gov.nasa.worldwind.geom.LookAt oWWLookAt = new gov.nasa.worldwind.geom.LookAt();
+
+                oThis.ww.getNavigator().getAsCamera(oThis.ww.getGlobe(), oWWCamera);
+                oThis.ww.getNavigator().getAsLookAt(oThis.ww.getGlobe(), oWWLookAt);
+                oThis.oMapViewController.oEventProcessingThread.queueEvent(MapViewEventEnum.VIEW_MOTION_STOPPED, oWWCamera, oWWLookAt);
             }
         }, 500);
 

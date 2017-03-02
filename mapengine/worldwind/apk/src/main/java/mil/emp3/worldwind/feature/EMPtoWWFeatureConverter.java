@@ -398,7 +398,8 @@ public class EMPtoWWFeatureConverter {
         wwPath.setPositions(wwPositionList);
         wwPath.setAttributes(shapeAttribute);
         wwPath.setHighlighted(false);
-        wwPath.setPathType(WorldWind.GREAT_CIRCLE);
+        //wwPath.setPathType(WorldWind.GREAT_CIRCLE);
+        wwPath.setPathType(WorldWind.RHUMB_LINE);
 
         if (feature.getExtrude()) {
             wwPath.setExtrude(true);

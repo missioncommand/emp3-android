@@ -2,6 +2,7 @@ package mil.emp3.core.mapgridlines;
 
 import android.util.Log;
 
+import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
@@ -31,6 +32,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
     private Date lastUpdated;
     private final List<IFeature> featureList = new ArrayList<>();
+    private final List<IFeature> returnList = new ArrayList<>();
     protected final ICamera currentCamera;
     protected final ICamera previousCamera;
     private final EmpBoundingBox boundingBox;
@@ -105,12 +107,22 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
     @Override
     public List<IFeature> getGridFeatures() {
-        return this.featureList;
+        // We need to return the feature in the return list so the map can loop thru it with out us
+        // runing into a multi threading issue.
+        synchronized (this.featureList) {
+            this.returnList.clear();
+            if (!this.featureList.isEmpty()) {
+                this.returnList.addAll(this.featureList);
+            }
+        }
+        return this.returnList;
     }
 
     protected void clearFeatureList() {
         boolean resetTime = (this.featureList.size() > 0);
-        this.featureList.clear();
+        synchronized (this.featureList) {
+            this.featureList.clear();
+        }
 
         if (resetTime) {
             this.lastUpdated.setTime(System.currentTimeMillis());
@@ -121,7 +133,9 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         if (null == feature) {
             throw new InvalidParameterException("feature is null.");
         }
-        this.featureList.add(feature);
+        synchronized (this.featureList) {
+            this.featureList.add(feature);
+        }
         this.lastUpdated.setTime(System.currentTimeMillis());
     }
 
@@ -157,6 +171,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     protected IFeature createPathFeature(List<IGeoPosition> positionList, String gridObjectType) {
         Path path = new Path(positionList);
 
+        path.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
         setPathAttributes(path, gridObjectType);
 
         return path;
@@ -166,6 +181,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         Text label = new Text(text);
 
         label.setPosition(position);
+        label.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
         setLabelAttributes(label, gridObjectType);
         return label;
     }

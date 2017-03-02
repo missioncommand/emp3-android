@@ -529,4 +529,11 @@ public class UTMCoordinate {
         }
         return (getZoneLetter().charAt(0) >= 'N');
     }
+
+    public void copyFrom(UTMCoordinate from) {
+        this.setZoneNumber(from.getZoneNumber());
+        this.setZoneLetter(from.getZoneLetter());
+        this.setNorthing(from.getNorthing());
+        this.setEasting(from.getEasting());
+    }
 }
