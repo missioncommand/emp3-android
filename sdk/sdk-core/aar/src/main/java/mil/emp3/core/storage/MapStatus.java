@@ -1,8 +1,6 @@
 package mil.emp3.core.storage;
 
 import android.content.res.Resources;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -27,7 +25,6 @@ import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
-import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
@@ -35,7 +32,6 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
-import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.interfaces.core.storage.IMapStatus;
 import mil.emp3.api.listeners.IDrawEventListener;

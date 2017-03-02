@@ -3,7 +3,6 @@ package mil.emp3.worldwind;
 import android.util.Log;
 
 import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoBounds;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
