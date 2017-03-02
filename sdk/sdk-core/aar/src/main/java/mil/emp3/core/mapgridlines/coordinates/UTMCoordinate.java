@@ -11,8 +11,8 @@ import java.security.InvalidParameterException;
  * This class represent a UTM coordinate.
  */
 
-public class UTMCoordainte {
-    final static private String TAG = UTMCoordainte.class.getSimpleName();
+public class UTMCoordinate {
+    final static private String TAG = UTMCoordinate.class.getSimpleName();
 
     // Latitude bands letters - from south to north
     private static final String latBands = "CDEFGHJKLMNPQRSTUVWX";
@@ -22,10 +22,10 @@ public class UTMCoordainte {
     double eastingValue;
     double northingValue;
 
-    public UTMCoordainte() {
+    public UTMCoordinate() {
     }
 
-    public UTMCoordainte(int zoneNumber, String zoneLetter, double easting, double northing) {
+    public UTMCoordinate(int zoneNumber, String zoneLetter, double easting, double northing) {
         zoneNumberValue = zoneNumber;
         zoneLetterValue = zoneLetter;
         eastingValue = easting;
@@ -113,11 +113,11 @@ public class UTMCoordainte {
         return ((iLatIndex < latBands.length())? latBands.charAt(iLatIndex) + "": "");
     }
 
-    public static UTMCoordainte fromLatLong(double latitude, double longitude) {
-        return fromLatLong(latitude, longitude, new UTMCoordainte());
+    public static UTMCoordinate fromLatLong(double latitude, double longitude) {
+        return fromLatLong(latitude, longitude, new UTMCoordinate());
     }
 
-    public static UTMCoordainte fromLatLong(double latitude, double longitude, UTMCoordainte result) {
+    public static UTMCoordinate fromLatLong(double latitude, double longitude, UTMCoordinate result) {
         double a = 6378137.0; //ellip.radius;
         double eccSquared = 0.00669438; //ellip.eccsq;
         double k0 = 0.9996;
@@ -133,8 +133,8 @@ public class UTMCoordainte {
         result.setZoneNumber(ZoneNumber);
         result.setZoneLetter(getZoneLetter(latitude, longitude));
 
-        //LongOrigin = (ZoneNumber - 1) * 6 - 180 + 3; //+3 puts origin
-        LongOrigin = (ZoneNumber - 1) * 6 - 180 + (getGridZoneWidthInDegrees(ZoneNumber, result.getZoneLetter()) / 2.0);
+        LongOrigin = (ZoneNumber - 1) * 6 - 180 + 3; //+3 puts origin
+        //LongOrigin = (ZoneNumber - 1) * 6 - 180 + (getGridZoneWidthInDegrees(ZoneNumber, result.getZoneLetter()) / 2.0);
         // in middle of
         // zone
         LongOriginRad = Math.toRadians(LongOrigin);
@@ -193,6 +193,7 @@ public class UTMCoordainte {
 
         // There are 60 zones with zone 1 being at West -180 to -174
         LongOrigin = (zoneNumberValue - 1) * 6 - 180 + 3; // +3 puts origin
+        //LongOrigin = (zoneNumberValue - 1) * 6 - 180 + (getGridZoneWidthInDegrees() / 2);
         // in middle of
         // zone
 
@@ -218,6 +219,7 @@ public class UTMCoordainte {
 
         result.setLatitude(lat);
         result.setLongitude(lon);
+        result.setAltitude(0);
 
         return result;
     }
