@@ -363,12 +363,6 @@ public class BoundsGenerationTest extends NavItemBase {
                 } else {
                     Log.e(TAG, "VIEW_MOTION_STOPPED bounds is NULL");
                 }
-            } else if (event.getEvent().equals(MapViewEventEnum.VIEW_IN_MOTION)) {
-                if(event.getBounds() != null) {
-                    updateBoundsMarkers(whichMap, event.getBounds());
-                } else {
-                    Log.e(TAG, "VIEW_IN_MOTION bounds is NULL");
-                }
             }
         }
     }

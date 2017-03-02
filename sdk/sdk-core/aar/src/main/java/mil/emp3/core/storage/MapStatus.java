@@ -64,11 +64,6 @@ public abstract class MapStatus implements IMapStatus {
 
     private static String TAG = MapStatus.class.getSimpleName();
 
-    // handler is used to post requests to the UI thread for calculating bounds. It can be used for any other functionality
-    // that required UI thread. This handler is shared by all instances of the Map.
-
-    private static Handler handler = new Handler(Looper.getMainLooper());
-
     // The value is the current lock mode set on th map.
     private MapMotionLockEnum eLockMode = MapMotionLockEnum.UNLOCKED;
     // This value is the map's current state.
@@ -503,47 +498,9 @@ public abstract class MapStatus implements IMapStatus {
         return this.dMidDistanceThreshold;
     }
 
-    /**
-     * If bounds is null then we will kick-off a calculation of bounds on the UI thread.
-     * @param bounds
-     */
     @Override
     public void setBounds(IGeoBounds bounds) {
-        if(null == bounds) {
-            if(Looper.myLooper() == Looper.getMainLooper()) {
-                Log.e(TAG, "setBounds on UI thread - How did that happen");
-                oBounds = this.getMapInstance().getMapBounds();
-            } else {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        oBounds = getMapInstance().getMapBounds();
-                    }
-                });
-            }
-        } else {
-            oBounds = bounds;
-        }
-    }
-
-    protected void setBounds(final IEventManager eventManager, final MapViewEventEnum event, final ICamera camera, final ILookAt lookAt, final IGeoBounds bounds, final IMap clientMap) {
-        if(null == bounds) {
-            if(Looper.myLooper() == Looper.getMainLooper()) {
-                Log.e(TAG, "setBounds on UI thread - How did that happen");
-                oBounds = this.getMapInstance().getMapBounds();
-            } else {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        oBounds = getMapInstance().getMapBounds();
-                        eventManager.generateMapViewChangeEvent(event, camera, lookAt, oBounds, clientMap);
-                    }
-                });
-            }
-        } else {
-            oBounds = bounds;
-            eventManager.generateMapViewChangeEvent(event, camera, lookAt, bounds, clientMap);
-        }
+        oBounds = bounds;
     }
 
     @Override

@@ -60,6 +60,11 @@ public class BoundsGeneration {
     private static int MAX_GRID_POINTS = 10;
 
     /**
+     * We will store the previously calculated bounding area that can be returned with things like VIEW_IN_MOTION.
+     * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated.
+     */
+    private static IEmpBoundingArea currentBoundingArea;
+    /**
      * Made this a method to allow for any adjustments in future.
      * @return
      */
@@ -101,12 +106,19 @@ public class BoundsGeneration {
         return (int) (mapInstance.getWW().getHeight() * getLc());
     }
 
+    public static IEmpBoundingArea getCurrentBoundingArea() {
+        return currentBoundingArea;
+    }
+
     public static IEmpBoundingArea getBounds(MapInstance mapInstance) {
         try {
             if(Looper.myLooper() == Looper.getMainLooper()) {
                 List<IGeoPosition> list = getBoundingPolygon(mapInstance);
                 if ((null != list) && (EmpBoundingArea.REQUIRED_VERTICES == list.size())) {
                     IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), list.get(0), list.get(1), list.get(2), list.get(3));
+                    if(null != boundingArea) {
+                        currentBoundingArea = boundingArea;
+                    }
                     return boundingArea;
                 }
             } else {
