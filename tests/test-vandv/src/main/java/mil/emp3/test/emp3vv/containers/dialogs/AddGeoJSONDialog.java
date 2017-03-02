@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -25,9 +26,9 @@ import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 public class AddGeoJSONDialog extends Emp3TesterDialogBase {
     private static String TAG = AddGeoJSONDialog.class.getSimpleName();
 
-    private EditText geoJSONName;
     private ListView geoJSONParentList;
     private ListView fileList;
+    private CheckBox geoJSONVisible;
 
     private List<String> parentList;
 
@@ -35,7 +36,6 @@ public class AddGeoJSONDialog extends Emp3TesterDialogBase {
     ArrayAdapter<String> geoJSONAdapter;
     private List<String> namesInUse;
     private File downloadFolder = new File("/sdcard/Download/");
-    private String geoJSONPick;
     private static final String SUFFIX = ".geojson";
 
 
@@ -69,12 +69,10 @@ public class AddGeoJSONDialog extends Emp3TesterDialogBase {
         return frag;
     }
 
-    public String getGeoJSONName() {
-        return geoJSONName.getText().toString();
-    }
+    public boolean getGeoJSONVisible() { return geoJSONVisible.isChecked(); }
 
-    public String getSelectedParent() {
-        return getSelectedFromSingleChoiceList(geoJSONParentList);
+    public List<String> getSelectedParentList() {
+        return getSelectedFromMultiChoiceList(geoJSONParentList);
     }
 
     public String getSelectedGeoJSON() {
@@ -93,10 +91,11 @@ public class AddGeoJSONDialog extends Emp3TesterDialogBase {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        geoJSONName = (EditText) view.findViewById(R.id.geojson_name);
+        geoJSONVisible = (CheckBox)view.findViewById(R.id.geojson_visible);
+        geoJSONVisible.setChecked(true);
         geoJSONParentList = (ListView) view.findViewById(R.id.geojson_parent_list);
         fileList = (ListView) view.findViewById(R.id.geojson_list);
-        geoJSONParentListAdapter = setupSingleChoiceList("Choose Parent", geoJSONParentList, parentList);
+        geoJSONParentListAdapter = setupMultiChoiceList("Choose Parent", geoJSONParentList, parentList);
         geoJSONAdapter = setupSingleChoiceList("Choose File", fileList, getGeoJSONList());
 
         Button doneButton = (Button) view.findViewById(R.id.done);
@@ -112,16 +111,6 @@ public class AddGeoJSONDialog extends Emp3TesterDialogBase {
             @Override
             public void onClick(View v) {
                 if (null != AddGeoJSONDialog.this.listener) {
-                    if((geoJSONName.getText().toString() == null) || (geoJSONName.getText().toString().trim().length() == 0)) {
-                        ErrorDialog.showError(getContext(), "Please enter a GeoJSON name");
-                        return;
-                    }
-
-                    if((parentList.contains(geoJSONName.getText().toString())) || (namesInUse.contains(geoJSONName.getText().toString()))) {
-                        ErrorDialog.showError(getContext(), "GeoJSON name " + geoJSONName.getText().toString() + " is already in use");
-                        return;
-                    }
-
                     if(geoJSONParentList.getCheckedItemCount() == 0) {
                         ErrorDialog.showError(getContext(),"Please pick a parent");
                         return;
@@ -132,9 +121,10 @@ public class AddGeoJSONDialog extends Emp3TesterDialogBase {
                         return;
                     }
 
+                    String geoJSONName = getSelectedGeoJSON().split("\\.")[0];
                     AddGeoJSONDialog.this.dismiss();
                     if(((IAddGeoJSONDialogListener)AddGeoJSONDialog.this.listener).featureSet(AddGeoJSONDialog.this)) {
-                        parentList.add(geoJSONName.getText().toString());
+                        parentList.add(geoJSONName);
                         geoJSONParentListAdapter.notifyDataSetChanged();
                     }
                 }

@@ -10,6 +10,10 @@ import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -19,12 +23,15 @@ import java.util.Map;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.json.geoJson.GeoJsonParser;
 import mil.emp3.test.emp3vv.common.StyleManager;
 import mil.emp3.test.emp3vv.containers.dialogs.AddFeatureDialog;
 import mil.emp3.test.emp3vv.containers.dialogs.AddGeoJSONDialog;
 import mil.emp3.test.emp3vv.containers.dialogs.AddOverlayDialog;
+import mil.emp3.test.emp3vv.navItems.geoJSON_test.GeoJSONTest;
 import mil.emp3.test.emp3vv.utils.MapNamesUtility;
 
 /**
@@ -209,6 +216,24 @@ AddGeoJSONDialog.IAddGeoJSONDialogListener{
 
     @Override
     public boolean featureSet(AddGeoJSONDialog dialog) {
+
+        IMap map = dialog.getMap();
+        List<String> parentNames = dialog.getSelectedParentList();
+        boolean visible = dialog.getGeoJSONVisible();
+        String fileName = "/sdcard/Download/" + dialog.getSelectedGeoJSON();
+        Log.i(TAG, "GeoJSON file " + fileName);
+        List<IFeature> featureList = null;
+        try {
+            InputStream stream = new FileInputStream(fileName);
+            featureList = GeoJsonParser.parse(stream);
+            for (String parentName : parentNames) {
+                Overlay overlay = (Overlay) MapNamesUtility.getContainer(map, parentName);
+                overlay.addFeatures(featureList, visible);
+            }
+            return true;
+        } catch (EMP_Exception | IOException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 }
