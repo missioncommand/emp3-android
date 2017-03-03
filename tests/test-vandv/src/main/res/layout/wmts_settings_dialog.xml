@@ -9,77 +9,60 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
-            android:id="@+id/WmsParametersLayout"
+            android:id="@+id/WmtsParametersLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <EditText
-                android:id="@+id/NameText"
+                android:id="@+id/WmtsNameText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Name(required)"/>
 
             <EditText
-                android:id="@+id/UrlText"
+                android:id="@+id/WmtsUrlText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Service"
-                android:text="@string/UrlDefault" />
+                android:text="@string/WmtsUrlDefault" />
 
             <Spinner
-                android:id="@+id/VersionText"
+                android:id="@+id/WmtsVersionText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="WMS Version"
+                android:hint="WMTS Version"
                 android:spinnerMode="dropdown"
                 style="@style/Widget.AppCompat.Spinner.Underlined" />
 
             <Spinner
-                android:id="@+id/TileFormatText"
+                android:id="@+id/WmtsTileFormatText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Tile Format"
                 android:spinnerMode="dropdown"
                 style="@style/Widget.AppCompat.Spinner.Underlined" />
 
-            <Spinner
-                android:id="@+id/TransparentText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Transparent"
-                android:spinnerMode="dropdown"
-                style="@style/Widget.AppCompat.Spinner.Underlined" />
-
             <EditText
-                android:id="@+id/Layer1Text"
+                android:id="@+id/WmtsLayer1Text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Layer"
-                android:text="@string/Layer1Default" />
+                android:text="@string/WmtsLayer1Default" />
 
             <EditText
-                android:id="@+id/Layer2Text"
+                android:id="@+id/WmtsLayer2Text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Layer"
-                android:text="@string/Layer2Default" />
+                android:text="@string/WmtsLayer2Default" />
 
             <EditText
-                android:id="@+id/Layer3Text"
+                android:id="@+id/WmtsLayer3Text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Layer"
-                android:text="@string/Layer3Default" />
-
-
-            <EditText
-                android:id="@+id/ResolutionText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Meters per pixel"
-                android:inputType="numberDecimal"
-                android:text="@string/ResolutionDefault" />
+                android:text="@string/WmtsLayer3Default" />
 
             <include android:id="@+id/fill_style_apply_done" layout="@layout/apply_done" />
         </LinearLayout>
