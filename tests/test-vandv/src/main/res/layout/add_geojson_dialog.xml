@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <CheckBox
+        android:text="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/geojson_visible" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="horizontal"  >
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/geojson_parent_list"
+            android:listSelector="@android:color/darker_gray"
+            android:layout_weight="1"/>
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/geojson_list"
+            android:listSelector="@android:color/darker_gray"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+
+    <include android:id="@+id/fill_style_apply_done" layout="@layout/apply_done" />
+</LinearLayout>

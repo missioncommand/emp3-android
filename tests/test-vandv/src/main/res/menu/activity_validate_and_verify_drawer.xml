@@ -34,6 +34,8 @@
         <menu>
             <item android:id="@+id/nav_performance"
                 android:title="Performance" />
+            <item android:id="@+id/geojson_test"
+                android:title="GeoJSON Test"/>
         </menu>
     </item>
 </menu>

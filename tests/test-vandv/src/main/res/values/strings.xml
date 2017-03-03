@@ -57,7 +57,7 @@
     <string name="Layer3Default">imagery_part3-2.0.0.1-apg.gpkg</string>
     <string name="ResolutionDefault">1.0</string>
     <string name="WmtsUrlDefault">http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts</string>
-    <string name="WmtsVersionDefault">1.0</string>
+    <string name="WmtsVersionDefault">1.0.0</string>
     <string name="WmtsTileFormatDefault"></string>
     <string name="WmtsLayer1Default">matrikkel_bakgrunn</string>
     <string name="WmtsLayer2Default"></string>
@@ -70,7 +70,7 @@
         <item>VERSION_1_1_1</item>
     </string-array>
     <string-array name="wmts_versions">
-        <item>1.0</item>
+        <item>VERSION_1_0_0</item>
     </string-array>
     <string-array name="boolean_values">
         <item>true</item>

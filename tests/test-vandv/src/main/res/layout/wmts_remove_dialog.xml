@@ -11,24 +11,5 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true" />
 
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true">
-
-        <Button
-            android:id="@+id/apply"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Apply" />
-
-
-        <Button
-            android:id="@+id/done"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Done" />
-    </LinearLayout>
+    <include android:id="@+id/fill_style_apply_done" layout="@layout/apply_done" />
 </RelativeLayout>
