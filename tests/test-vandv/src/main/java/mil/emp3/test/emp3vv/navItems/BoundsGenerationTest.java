@@ -88,7 +88,7 @@ public class BoundsGenerationTest extends NavItemBase {
     @Override
     public String[] getMoreActions() {
         String[] actions = { "Add Feature", "Show Corners" };
-        return actions;
+        return styleManager.getMoreActions(actions);
     }
 
     protected void test0() {
@@ -236,9 +236,11 @@ public class BoundsGenerationTest extends NavItemBase {
                     });
                     t.start();
                 }
-            }   else if(userAction.equals("Add Feature")) {
+            } else if(userAction.equals("Add Feature")) {
                 AddContainer addContainer = new AddContainer(activity, maps[whichMap], this, styleManager);
                 addContainer.showAddFeatureDialog();
+            } else {
+                styleManager.actOn(userAction);
             }
         } catch (Exception e) {
             updateStatus(TAG, e.getMessage());
@@ -267,6 +269,39 @@ public class BoundsGenerationTest extends NavItemBase {
         }
     }
 
+    List<IGeoPosition> fetchPositionsFromString(IEmpBoundingArea empBoundingArea) {
+        List<IGeoPosition> positions = new ArrayList<>();
+        if(null != empBoundingArea) {
+            String strPos = empBoundingArea.toString();
+            Log.d(TAG, "Pos String " + strPos);
+            String[] pairs = strPos.split(" ");
+            if((pairs != null) && (pairs.length == 5)) {
+                for(String pair: pairs) {
+                    if(positions.size() == 4) {
+                        break;
+                    }
+                    String[] latLon = pair.split(",");
+                    if((null != latLon) && (2 == latLon.length)) {
+                        Double longitude = Double.parseDouble(latLon[0]);
+                        Double latitude = Double.parseDouble(latLon[1]);
+                        IGeoPosition position = new GeoPosition();
+                        position.setLatitude(latitude);
+                        position.setLongitude(longitude);
+                        positions.add(position);
+                    } else {
+                        Log.e(TAG, "fetchPositionsFromString invalid pair " + pair);
+                    }
+                }
+            } else {
+                Log.e(TAG, "fetchPositionsFromString not enough pairs " + pairs.length);
+            }
+        } else {
+            Log.e(TAG, "fetchPositionsFromString empBoundingArea is null");
+        }
+
+        return positions;
+    }
+
     void updateBoundsMarkers(int whichMap, IGeoBounds geoBounds) {
         try {
             IGeoLabelStyle labelStyle = new GeoLabelStyle();
@@ -276,6 +311,10 @@ public class BoundsGenerationTest extends NavItemBase {
             strokeStyle.setStrokeColor(new EmpGeoColor(1, 0, 255, 255));
             strokeStyle.setStrokeWidth(5);
 
+            IGeoStrokeStyle strokeStyle2 = new GeoStrokeStyle();
+            strokeStyle2.setStrokeColor(new EmpGeoColor(1, 0, 128, 128));
+            strokeStyle2.setStrokeWidth(5);
+
             overlay[whichMap].removeFeatures(boundingFeatures[whichMap]);
             boundingFeatures[whichMap].clear();
 
@@ -284,6 +323,10 @@ public class BoundsGenerationTest extends NavItemBase {
                 IGeoPosition[] positions = empBoundingArea.getBoundingVertices();
                 Polygon p = new Polygon();
                 p.setStrokeStyle(strokeStyle);
+
+                Polygon innerPolygon = new Polygon();
+                innerPolygon.setStrokeStyle(strokeStyle2);
+
                 boundingFeatures[whichMap].add(p);
                 for (IGeoPosition position : positions) {
                     Text text = new Text();
@@ -305,6 +348,12 @@ public class BoundsGenerationTest extends NavItemBase {
                     boundingFeatures[whichMap].add(point);
 
                     p.getPositions().add(position);
+                }
+
+                List<IGeoPosition> innerPositions = fetchPositionsFromString(empBoundingArea);
+                if((null != innerPositions) && (4 == innerPositions.size())) {
+                    innerPolygon.getPositions().addAll(innerPositions);
+                    boundingFeatures[whichMap].add(innerPolygon);
                 }
                 overlay[whichMap].addFeatures(boundingFeatures[whichMap], true);
             }

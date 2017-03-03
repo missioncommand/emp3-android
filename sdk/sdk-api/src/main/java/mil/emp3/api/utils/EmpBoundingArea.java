@@ -46,7 +46,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     // by SEC Military Symbol renderer. We will do the adjustment only when user tries to retrieve anything related
     // to the vertices.
 
-    private final static double MAX_DISTANCE_FROM_CENTER = 4000000; // Maximum distance from center of four vertices.
+    private final static double MAX_DISTANCE_FROM_CENTER = 5000000; // Maximum distance from center of four vertices.
 
     private IGeoPosition[] adjustedVertices = null;   // Approximate the vertices to keep longitude range to 180 degrees.
 
