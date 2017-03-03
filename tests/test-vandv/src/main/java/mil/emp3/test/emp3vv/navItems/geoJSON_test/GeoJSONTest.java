@@ -25,6 +25,7 @@ public class GeoJSONTest extends NavItemBase {
 
     @Override
     protected void test0() {
+
         try {
             while (!Thread.interrupted()) {
                 try {
