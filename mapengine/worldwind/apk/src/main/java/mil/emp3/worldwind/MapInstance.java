@@ -88,6 +88,7 @@ import mil.emp3.worldwind.controller.PickNavigateController;
 import mil.emp3.worldwind.feature.FeatureRenderableMapping;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
 import mil.emp3.worldwind.layer.EmpLayer;
+import mil.emp3.worldwind.layer.GeoJSONLayer;
 import mil.emp3.worldwind.layer.IconLayer;
 import mil.emp3.worldwind.layer.KMLLayer;
 import mil.emp3.worldwind.layer.PathLayer;
@@ -301,6 +302,10 @@ public class MapInstance extends CoreMapInstance {
         empLayer = new KMLLayer(this);
         ww.getLayers().addLayer(empLayer);
         empLayerMap.put(FeatureTypeEnum.KML, empLayer);
+
+        empLayer = new GeoJSONLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEOJSON, empLayer);
 
         empLayer = new MilStdSymbolLayer(this);
         ww.getLayers().addLayer(empLayer);

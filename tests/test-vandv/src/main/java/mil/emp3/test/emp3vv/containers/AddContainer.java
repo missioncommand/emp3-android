@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mil.emp3.api.GeoJSON;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -222,13 +223,12 @@ AddGeoJSONDialog.IAddGeoJSONDialogListener{
         boolean visible = dialog.getGeoJSONVisible();
         String fileName = "/sdcard/Download/" + dialog.getSelectedGeoJSON();
         Log.i(TAG, "GeoJSON file " + fileName);
-        List<IFeature> featureList = null;
         try {
             InputStream stream = new FileInputStream(fileName);
-            featureList = GeoJsonParser.parse(stream);
+            IFeature feature = new GeoJSON(stream);
             for (String parentName : parentNames) {
                 Overlay overlay = (Overlay) MapNamesUtility.getContainer(map, parentName);
-                overlay.addFeatures(featureList, visible);
+                overlay.addFeature(feature, visible);
             }
             return true;
         } catch (EMP_Exception | IOException e) {
