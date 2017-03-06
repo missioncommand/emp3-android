@@ -20,7 +20,7 @@ ext {
     android_minSdkVersion     = 19
     android_targetSdkVersion  = 23
     android_compileSdkVersion = 23
-    android_buildToolsVersion = "23.0.2"
+    android_buildToolsVersion = "25.0.2"
 }
 
 group = "mil.army.missioncommand"
@@ -41,10 +41,8 @@ repositories {
             password empPassword
         }
     }
-    repositories {
-        maven {
-            url "https://dl.bintray.com/missioncommand/maven/"
-        }
+    maven {
+        url "https://dl.bintray.com/missioncommand/maven/"
     }
     maven {
         url "https://oss.jfrog.org/artifactory/libs-snapshot"
@@ -74,7 +72,7 @@ dependencyManagement {
 }
 
 task wrapper(type: Wrapper, description: "Generates gradlew[.bat] scripts") {
-    gradleVersion = '3.4'
+    gradleVersion = '3.4.1'
 }
 
 if (JavaVersion.current().isJava8Compatible()) { // disable lint for java8

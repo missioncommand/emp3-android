@@ -3,11 +3,9 @@ language: android
 android:
   components:
     - tools
-    #- platform-tools
-    - build-tools-23.0.2
+    - build-tools-25.0.2
     - android-23
     - extra-android-m2repository
-    #- extra-google-m2repository
 
 jdk:
   - oraclejdk8
@@ -27,10 +25,7 @@ cache:
     - $HOME/.android/build-cache
 
 before_install:
-  - chmod +x gradlew
-  - chmod +x travis/snapshot.sh
-  - chmod +x travis/release.sh
-  - export GRADLE_OPTS="-Dorg.gradle.daemon=false -XX:MaxPermSize=512m -Xmx2048m $GRADLE_OPTS"
+  - export GRADLE_OPTS="-Dorg.gradle.daemon=false -Xmx3072m $GRADLE_OPTS"
   - export DEFAULT_JVM_OPTS=
 
 install: true
