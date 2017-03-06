@@ -1213,7 +1213,7 @@ public class MainActivity extends AppCompatActivity
                     ICamera camera = MainActivity.this.oCamera;
                     double initAltitude = camera.getAltitude();
                     // lowest possible camera altitude set to 100 meters
-                    if (initAltitude >= 120) {
+                    if (initAltitude >= 10) {
                         initAltitude /= 1.2;
                         camera.setAltitude(initAltitude);
                         camera.apply(false);
@@ -1369,6 +1369,24 @@ public class MainActivity extends AppCompatActivity
                         } else {
                             //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        ImageButton resetCameraBtn = (ImageButton) findViewById(R.id.reset);
+        if (resetCameraBtn != null) {
+            resetCameraBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ICamera camera = MainActivity.this.oCamera;
+                    try {
+                        camera.setHeading(0);
+                        camera.setTilt(0);
+                        camera.setRoll(0);
+                        camera.apply(false);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

@@ -36,7 +36,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     protected final ICamera currentCamera;
     protected final ICamera previousCamera;
     private final EmpBoundingBox boundingBox;
-    private final IMapInstance mapInstance;
+    protected final IMapInstance mapInstance;
     private int viewWidth;
     private int viewHeight;
     private GridLineGenerationThread generationThread;

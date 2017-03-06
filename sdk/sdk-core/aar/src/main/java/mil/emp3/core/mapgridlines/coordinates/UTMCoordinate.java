@@ -330,61 +330,61 @@ public class UTMCoordinate {
 
         switch (letter) {
             case "C":
-                northing = 2000000.0 - 1.0;
+                northing = 2000000.0 - Double.MIN_VALUE;
                 break;
             case "D":
-                northing = 2800000.0 - 1.0;
+                northing = 2800000.0 - Double.MIN_VALUE;
                 break;
             case "E":
-                northing = 3700000.0 - 1.0;
+                northing = 3700000.0 - Double.MIN_VALUE;
                 break;
             case "F":
-                northing = 4600000.0 - 1.0;
+                northing = 4600000.0 - Double.MIN_VALUE;
                 break;
             case "G":
-                northing = 5500000.0 - 1.0;
+                northing = 5500000.0 - Double.MIN_VALUE;
                 break;
             case "H":
-                northing = 6400000.0 - 1.0;
+                northing = 6400000.0 - Double.MIN_VALUE;
                 break;
             case "J":
-                northing = 7300000.0 - 1.0;
+                northing = 7300000.0 - Double.MIN_VALUE;
                 break;
             case "K":
-                northing = 8200000.0 - 1.0;
+                northing = 8200000.0 - Double.MIN_VALUE;
                 break;
             case "L":
-                northing = 9100000.0 - 1.0;
+                northing = 9100000.0 - Double.MIN_VALUE;
                 break;
             case "M":
-                northing = 10000000.0 - 1.0;
+                northing = 10000000.0 - Double.MIN_VALUE;
                 break;
             case "N":
-                northing = 800000.0 - 1.0;
+                northing = 800000.0 - Double.MIN_VALUE;
                 break;
             case "P":
-                northing = 1700000.0 - 1.0;
+                northing = 1700000.0 - Double.MIN_VALUE;
                 break;
             case "Q":
-                northing = 2600000.0 - 1.0;
+                northing = 2600000.0 - Double.MIN_VALUE;
                 break;
             case "R":
-                northing = 3500000.0 - 1;
+                northing = 3500000.0 - Double.MIN_VALUE;
                 break;
             case "S":
-                northing = 4400000.0 - 1.0;
+                northing = 4400000.0 - Double.MIN_VALUE;
                 break;
             case "T":
-                northing = 5300000.0 - 1.0;
+                northing = 5300000.0 - Double.MIN_VALUE;
                 break;
             case "U":
-                northing = 6200000.0 - 1.0;
+                northing = 6200000.0 - Double.MIN_VALUE;
                 break;
             case "V":
-                northing = 7000000.0 - 1.0;
+                northing = 7000000.0 - Double.MIN_VALUE;
                 break;
             case "W":
-                northing = 7900000.0 - 1.0;
+                northing = 7900000.0 - Double.MIN_VALUE;
                 break;
             case "X":
                 northing = 9328195.0;

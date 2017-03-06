@@ -254,5 +254,6 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
     @Override
     protected void setLabelAttributes(Text label, String gridObjectType) {
         label.setLabelStyle(this.meridianLabelStyle);
+        label.setAzimuth(label.getAzimuth() - this.currentCamera.getHeading());
     }
 }
