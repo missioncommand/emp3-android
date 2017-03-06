@@ -53,13 +53,10 @@ publishing {
 }
 
 android {
-    def version_sec_renderer = dependencyManagement.importedProperties['version_renderer']
-    def version_sec_cmapi = dependencyManagement.importedProperties['version_cmapi']
-
     // Add sec renderer id and version information to BuildConfig to be retrieved by About class.
     buildTypes.each {
-        it.buildConfigField "String", "Implementation_Sec_Renderer_Id", "\"sec.web.renderer:mil-sym-android-renderer ${version_sec_renderer}\""
-        it.buildConfigField "String", "Implementation_Sec_Cmapi_Id", "\"org.cmapi.primitives:common-map-geospatial-notation ${version_sec_cmapi}\""
+        it.buildConfigField "String", "Implementation_Sec_Renderer_Id", "\"sec.web.renderer:mil-sym-android-renderer ${version_renderer}\""
+        it.buildConfigField "String", "Implementation_Sec_Cmapi_Id", "\"org.cmapi.primitives:common-map-geospatial-notation ${version_cmapi}\""
     }
 
     lintOptions {
