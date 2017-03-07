@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
@@ -87,7 +88,7 @@ public class BoundsGenerationTest extends NavItemBase {
 
     @Override
     public String[] getMoreActions() {
-        String[] actions = { "Add Feature", "Show Corners" };
+        String[] actions = { "Add Feature", "Show Corners", "Test Case"};
         return styleManager.getMoreActions(actions);
     }
 
@@ -239,6 +240,23 @@ public class BoundsGenerationTest extends NavItemBase {
             } else if(userAction.equals("Add Feature")) {
                 AddContainer addContainer = new AddContainer(activity, maps[whichMap], this, styleManager);
                 addContainer.showAddFeatureDialog();
+            } else if(userAction.equals("Test Case")) {
+                MilStdSymbol symbol = new MilStdSymbol();
+                symbol.setName("Test Case");
+                symbol.setSymbolCode("GFG*GLF---****X");
+                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                strokeStyle.setStrokeColor(new EmpGeoColor(1, 0, 255, 255));
+                strokeStyle.setStrokeWidth(5);
+                symbol.setStrokeStyle(strokeStyle);
+                symbol.getPositions().add(new MyGeoPosition(51.71890155127165, -115.98336399953365, 0 ));
+                symbol.getPositions().add(new MyGeoPosition(52.64436742922938, -104.25681924615716, 0 ));
+                symbol.getPositions().add(new MyGeoPosition(52.17390465118869, -94.5947905827707, 0 ));
+
+                symbol.getPositions().add(new MyGeoPosition(50.34258657086281, -81.94509827090853, 0 ));
+                symbol.getPositions().add(new MyGeoPosition(47.709296820694576, -73.15852091105798, 0 ));
+                symbol.getPositions().add(new MyGeoPosition(44.662370012492, -60.4663988644806, 0 ));
+
+                overlay[whichMap].addFeature(symbol, true);
             } else {
                 styleManager.actOn(userAction);
             }
