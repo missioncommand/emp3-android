@@ -17,6 +17,7 @@ import mil.emp3.api.listeners.ICameraEventListener;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.dialogs.utils.CameraComponents;
+import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 
 public class CameraDialog extends Emp3TesterDialogBase implements ICameraEventListener {
 
@@ -98,8 +99,13 @@ public class CameraDialog extends Emp3TesterDialogBase implements ICameraEventLi
         applyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (null != CameraDialog.this.listener) {
-                    ((ICameraDialogListener)CameraDialog.this.listener).cameraSet(CameraDialog.this);
+                String isValid = cameraComponents.validate();
+                if(isValid.equals(CameraComponents.isValid)) {
+                    if (null != CameraDialog.this.listener) {
+                        ((ICameraDialogListener) CameraDialog.this.listener).cameraSet(CameraDialog.this);
+                    }
+                } else {
+                    ErrorDialog.showError(getContext(), isValid);
                 }
             }
         });
