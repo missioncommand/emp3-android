@@ -46,6 +46,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         private boolean NotDone = true;
 
         protected GridLineGenerationThread() {
+            this.setName("GridLineGenerationThread");
             this.processEvent = new Semaphore(0);
         }
 

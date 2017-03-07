@@ -325,7 +325,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         eastUTMCoord.setNorthing(westUTMCoord.getNorthing());
         WestPos = westUTMCoord.toLatLong();
 
-        while (latitude < drawBounds.getNorth()) {
+        while (latitude <= drawBounds.getNorth()) {
             positionList = new ArrayList<>();
             positionList.add(WestPos);
             EastPos = eastUTMCoord.toLatLong();
@@ -342,248 +342,112 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
             }
 
             addFeature(gridObject);
+
             westUTMCoord.setNorthing(westUTMCoord.getNorthing() + gridSize);
-            // Now we must make sure we didn't move onto the next grid zone.
-            if (westUTMCoord.getNorthing() > westUTMCoord.getMaxNorthingForZone()) {
-                if (northernHemesphere) {
-                    letter = westUTMCoord.getNextLetter();
-                } else {
-                    letter = westUTMCoord.getPreviousLetter();
-                }
-                if (null == letter) {
-                    break;
-                }
-                westUTMCoord.setZoneLetter(letter);
-                eastUTMCoord.setZoneLetter(letter);
-            }
             eastUTMCoord.setNorthing(westUTMCoord.getNorthing());
             WestPos = westUTMCoord.toLatLong();
             latitude = WestPos.getLatitude();
         }
     }
 
-    private void createMGRSGridMeridians(UTMCoordinate gridZoneUTMCoord, UTMCoordinate[] tempUTMCoordList, EmpBoundingBox drawBounds, int gridSize) {
-        double longitude;
+    private void createMGRSGridMeridians(UTMCoordinate gridZoneUTMCoord, EmpBoundingBox GridZoneBounds, UTMCoordinate[] tempUTMCoordList, EmpBoundingBox drawBounds, int gridSize) {
         List<IGeoPosition> positionList;
         IFeature gridObject;
         int tempValue;
-        IGeoPosition TopPos = null;
-        IGeoPosition BottomPos = null;
+        double tempNorthing;
+        IGeoPosition TopPos = new GeoPosition();
+        IGeoPosition BottomPos = new GeoPosition();
+        IGeoPosition tempPos = new GeoPosition();
         UTMCoordinate tempUTMCoord1 = tempUTMCoordList[0];
         UTMCoordinate tempUTMCoord2 = tempUTMCoordList[1];
+        EmpBoundingBox tempBounds = new EmpBoundingBox();
         int parentGridSize = ((gridSize != MGRS_100K_METER_GRID)? gridSize * 10: MGRS_100K_METER_GRID);
 
-        longitude = drawBounds.getWest();
+        UTMCoordinate.fromLatLong(drawBounds.getNorth(), drawBounds.getWest(), tempUTMCoord1);
+        UTMCoordinate.fromLatLong(drawBounds.getSouth(), drawBounds.getWest(), tempUTMCoord2);
 
-        UTMCoordinate.fromLatLong(drawBounds.getNorth(),longitude, tempUTMCoord1);
-        UTMCoordinate.fromLatLong(drawBounds.getSouth(), longitude, tempUTMCoord2);
-
-        // Make sure that the easting value is a multiple of 100K.
-        tempValue = (int) Math.floor(tempUTMCoord1.getEasting() / gridSize) * gridSize;
-        if ((int) tempUTMCoord1.getEasting() != tempValue) {
-            tempUTMCoord1.setEasting(tempValue);
-        }
-        tempUTMCoord2.setEasting(tempUTMCoord1.getEasting());
-        TopPos = tempUTMCoord1.toLatLong();
-        longitude = TopPos.getLongitude();
-
-        while (longitude < drawBounds.getEast()) {
-            if (longitude > drawBounds.getWest()) {
-                positionList = new ArrayList<>();
-                positionList.add(TopPos);
-                BottomPos = tempUTMCoord2.toLatLong();
-                positionList.add(BottomPos);
-                if (gridSize == MGRS_100K_METER_GRID) {
-                    gridObject = createPathFeature(positionList, MGRS_GRID_BOX_MERIDIAN);
-                } else if ((Math.floor(tempUTMCoord1.getEasting() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID) == tempUTMCoord1.getEasting()) {
-                    gridObject = createPathFeature(positionList, MGRS_GRID_BOX_MERIDIAN);
-                } else if ((Math.floor(tempUTMCoord1.getEasting() / parentGridSize) * parentGridSize) == tempUTMCoord1.getEasting()) {
-                    gridObject = createPathFeature(positionList, MGRS_GRID_LINE_MAJOR_MERIDIAN);
-                } else {
-                    gridObject = createPathFeature(positionList, MGRS_GRID_LINE_MINOR_MERIDIAN);
-                }
-                addFeature(gridObject);
+        // Make sure that the easting value is a multiple of grid size.
+        if (gridZoneUTMCoord.getZoneLetter().charAt(0) < 'N') {
+            // We are in the southern hemisphere so we adjust the northern coordinate because it is wider.
+            tempValue = (int) Math.floor(tempUTMCoord1.getEasting() / gridSize) * gridSize;
+            if ((int) tempUTMCoord1.getEasting() != tempValue) {
+                tempUTMCoord1.setEasting(tempValue);
             }
             tempUTMCoord1.setEasting(tempUTMCoord1.getEasting() + gridSize);
             tempUTMCoord2.setEasting(tempUTMCoord1.getEasting());
-            TopPos = tempUTMCoord1.toLatLong();
-            longitude = TopPos.getLongitude();
-        }
-    }
-
-    /**
-     * This method create the feature for the grid line values.
-     * @param gridZoneBounds
-     * @param mgrsGridUTMCoord      The UTM coordinate of the south west corner of the MGRS grid box. The entire box may not be displayed in the grid zone.
-     * @param mgrs100KGridBounds    The bounding box of the MGRS 100K clipped by the west and east of the grid zone.
-     * @param mapBounds             The bounding box of the map viewing area.
-     * @param gridSize              The MGRS grid size.
-     * @param tempUTMCoordList      The list of temp UTM coordinates.
-     */
-    private void createMGRSGirdValues(EmpBoundingBox gridZoneBounds, UTMCoordinate mgrsGridUTMCoord, EmpBoundingBox mgrs100KGridBounds,
-            EmpBoundingBox mapBounds, int gridSize, double metersPerPixel, double metersInOneEighthOfAnInch, UTMCoordinate[] tempUTMCoordList) {
-        int northValue;
-        int eastValue;
-        int tempValue;
-        String strValue;
-        double metersNorth;
-        double metersEast;
-        int startEasting;
-        int startNorthing;
-        IFeature gridObject;
-        IGeoPosition valuePos = new GeoPosition();
-        UTMCoordinate northValueUTMCoord = tempUTMCoordList[2]; // We use 2. The caller uses 0 & 1.
-        UTMCoordinate eastValueUTMCoord = tempUTMCoordList[3];
-        UTMCoordinate tempUTMCoord = tempUTMCoordList[4];
-        UTMCoordinate drawMGRSGridUTMCoord;
-        int parentGridSize = gridSize * 10;
-        EmpBoundingBox drawBounds = new EmpBoundingBox();
-        int displayDigits;
-        boolean displayDetailValues = metersInOneEighthOfAnInch < (gridSize * 2 / 3);
-
-        if (null == mgrs100KGridBounds.intersection(mapBounds, drawBounds)) {
-            // Nothing to draw.
-            return;
-        }
-
-        if ((gridSize == MGRS_10K_METER_GRID) && !displayDetailValues) {
-            displayDetailValues = true;
-        }
-
-        displayDigits = this.gridValueDigits.get(gridSize);
-
-        drawMGRSGridUTMCoord = UTMCoordinate.fromLatLong(drawBounds.getSouth(), drawBounds.getWest());
-
-        northValueUTMCoord.copyFrom(drawMGRSGridUTMCoord);
-        eastValueUTMCoord.copyFrom(drawMGRSGridUTMCoord);
-
-        if (displayDetailValues) {
-            // Make sure that the north value northing is at a grid size value.
-            tempValue = (int) Math.floor(northValueUTMCoord.getNorthing() / gridSize) * gridSize;
-            if ((int) northValueUTMCoord.getNorthing() != tempValue) {
-                northValueUTMCoord.setNorthing(tempValue);
-            }
-            northValueUTMCoord.setNorthing(northValueUTMCoord.getNorthing() + (gridSize / 2));
-
-            // Make sure that the north value easting is at a parent grid size value.
-            tempValue = (int) Math.floor(northValueUTMCoord.getEasting() / parentGridSize) * parentGridSize;
-            if ((int) northValueUTMCoord.getEasting() != tempValue) {
-                northValueUTMCoord.setEasting(tempValue);
-            }
         } else {
-            // Make sure that the north value northing is at a parent grid size value.
-            tempValue = (int) Math.floor(northValueUTMCoord.getNorthing() / parentGridSize) * parentGridSize;
-            if ((int) northValueUTMCoord.getNorthing() != tempValue) {
-                northValueUTMCoord.setNorthing(tempValue);
+            // We are in the northern hemisphere so we adjust the southern coordinate because it is wider.
+            tempValue = (int) Math.floor(tempUTMCoord2.getEasting() / gridSize) * gridSize;
+            if ((int) tempUTMCoord2.getEasting() != tempValue) {
+                tempUTMCoord2.setEasting(tempValue);
             }
-
-            // Make sure that the north value easting is at a parent grid size value.
-            tempValue = (int) Math.floor(northValueUTMCoord.getEasting() / parentGridSize) * parentGridSize;
-            if ((int) northValueUTMCoord.getEasting() != tempValue) {
-                northValueUTMCoord.setEasting(tempValue);
-            }
-            northValueUTMCoord.setEasting(northValueUTMCoord.getEasting() + (parentGridSize / 2));
-        }
-        startNorthing = (int) northValueUTMCoord.getNorthing();
-
-        if (displayDetailValues) {
-            // Make sure that the east value easting is at a grid size value.
-            tempValue = (int) Math.floor(eastValueUTMCoord.getEasting() / gridSize) * gridSize;
-            if ((int) eastValueUTMCoord.getEasting() != tempValue) {
-                eastValueUTMCoord.setEasting(tempValue);
-            }
-            eastValueUTMCoord.setEasting(eastValueUTMCoord.getEasting() + (gridSize / 2));
-
-            // Make sure that the east value northing is at a parent grid size value.
-            tempValue = (int) Math.floor(eastValueUTMCoord.getNorthing() / parentGridSize) * parentGridSize;
-            if ((int) eastValueUTMCoord.getNorthing() != tempValue) {
-                eastValueUTMCoord.setNorthing(tempValue);
-            }
-        } else {
-            // Make sure that the east value easting is at a parent grid size value.
-            tempValue = (int) Math.floor(eastValueUTMCoord.getEasting() / parentGridSize) * parentGridSize;
-            if ((int) eastValueUTMCoord.getEasting() != tempValue) {
-                eastValueUTMCoord.setEasting(tempValue);
-            }
-
-            // Make sure that the east value northing is at a parent grid size value.
-            tempValue = (int) Math.floor(eastValueUTMCoord.getNorthing() / parentGridSize) * parentGridSize;
-            if ((int) eastValueUTMCoord.getNorthing() != tempValue) {
-                eastValueUTMCoord.setNorthing(tempValue);
-            }
-            eastValueUTMCoord.setNorthing(eastValueUTMCoord.getNorthing() + (parentGridSize / 2));
-        }
-        startEasting = (int) eastValueUTMCoord.getEasting();
-
-        // Add the northing values.
-        tempUTMCoord.copyFrom(northValueUTMCoord);
-        tempUTMCoord.toLatLong(valuePos);
-        while (valuePos.getLongitude() < drawBounds.getEast()) {
-            while (valuePos.getLatitude() < drawBounds.getNorth()) {
-                metersNorth = (tempUTMCoord.getNorthing() - mgrsGridUTMCoord.getNorthing());
-                if (metersNorth >= 0) {
-                    if (displayDetailValues) {
-                        northValue = (int) Math.floor(metersNorth / gridSize);
-                    } else {
-                        northValue = (int) Math.floor(metersNorth / parentGridSize) * 10;
-                    }
-                    if (northValue >= (MGRS_100K_METER_GRID / gridSize)) {
-                        break;
-                    }
-                    // we use the gird zone center latitude to just check the position longitude.
-                    if (gridZoneBounds.contains(gridZoneBounds.centerLatitude(), valuePos.getLongitude())) {
-                        strValue = String.format("%0" + displayDigits + "d", northValue);
-                        gridObject = createLabelFeature(GridLineUtils.newPosition(valuePos.getLatitude(), valuePos.getLongitude(), 0.0), strValue, MGRS_GRID_BOX_NORTH_VALUE);
-                        addFeature(gridObject);
-                    }
-                }
-                if (displayDetailValues) {
-                    tempUTMCoord.setNorthing(tempUTMCoord.getNorthing() + gridSize);
-                } else {
-                    tempUTMCoord.setNorthing(tempUTMCoord.getNorthing() + parentGridSize);
-                }
-                tempUTMCoord.toLatLong(valuePos);
-            }
-
-            tempUTMCoord.setNorthing(startNorthing);
-            tempUTMCoord.setEasting(tempUTMCoord.getEasting() + parentGridSize);
-            tempUTMCoord.toLatLong(valuePos);
+            tempUTMCoord2.setEasting(tempUTMCoord2.getEasting() + gridSize);
+            tempUTMCoord1.setEasting(tempUTMCoord2.getEasting());
         }
 
-        // Add the easting values.
-        tempUTMCoord.copyFrom(eastValueUTMCoord);
-        tempUTMCoord.toLatLong(valuePos);
-        while (valuePos.getLatitude() < drawBounds.getNorth()) {
-            while (valuePos.getLongitude() < drawBounds.getEast()) {
-                metersEast = (tempUTMCoord.getEasting() - mgrsGridUTMCoord.getEasting());
-                if (metersEast >= 0) {
-                    if (displayDetailValues) {
-                        eastValue = (int) Math.floor(metersEast / gridSize);
-                    } else {
-                        eastValue = (int) Math.floor(metersEast / parentGridSize) * 10;
-                    }
-                    if (eastValue >= (MGRS_100K_METER_GRID / gridSize)) {
-                        break;
-                    }
+        tempPos.setAltitude(0.0);
 
-                    // we use the gird zone center latitude to just check the position longitude.
-                    if (gridZoneBounds.contains(gridZoneBounds.centerLatitude(), valuePos.getLongitude())) {
-                        strValue = String.format("%0" + displayDigits + "d", eastValue);
-                        gridObject = createLabelFeature(GridLineUtils.newPosition(valuePos.getLatitude(), valuePos.getLongitude(), 0.0), strValue, MGRS_GRID_BOX_EAST_VALUE);
-                        addFeature(gridObject);
-                    }
+        tempUTMCoord1.toLatLong(TopPos);
+        tempUTMCoord2.toLatLong(BottomPos);
+        tempBounds.setNorth(TopPos.getLatitude());
+        tempBounds.setSouth(BottomPos.getLatitude());
+        tempBounds.setWest(Math.min(TopPos.getLongitude(), BottomPos.getLongitude()));
+        tempBounds.setEast(Math.max(TopPos.getLongitude(), BottomPos.getLongitude()));
+
+        while (drawBounds.intersects(tempBounds)) {
+            // The first and last meridian in a grid zone may not extend from the north to the south of the grid zone.
+            if (!GridZoneBounds.contains(GridZoneBounds.centerLatitude(), TopPos.getLongitude())) {
+                // This one does not reach the northern latitude of the grid zone.
+                // Adjust the latitude.
+                tempNorthing = tempUTMCoord1.getNorthing();
+                tempPos.setLatitude(TopPos.getLatitude());
+                tempPos.setLongitude(TopPos.getLongitude());
+                while (!GridZoneBounds.contains(tempPos.getLatitude(), tempPos.getLongitude()) && (tempPos.getLatitude() > GridZoneBounds.getSouth())) {
+                    tempUTMCoord1.setNorthing((Math.floor(tempUTMCoord1.getNorthing() / gridSize) - 1) * gridSize);
+                    tempUTMCoord1.toLatLong(tempPos);
                 }
-                if (displayDetailValues) {
-                    tempUTMCoord.setEasting(tempUTMCoord.getEasting() + gridSize);
-                } else {
-                    tempUTMCoord.setEasting(tempUTMCoord.getEasting() + parentGridSize);
-                }
-                tempUTMCoord.toLatLong(valuePos);
+                TopPos.setLatitude(tempPos.getLatitude());
+                TopPos.setLongitude(tempPos.getLongitude());
+                tempUTMCoord1.setNorthing(tempNorthing);
             }
+            if (!GridZoneBounds.contains(GridZoneBounds.centerLatitude(), BottomPos.getLongitude())) {
+                // This one does not reach the southern latitude of the grid zone.
+                // Adjust the latitude.
+                tempNorthing = tempUTMCoord2.getNorthing();
+                tempPos.setLatitude(BottomPos.getLatitude());
+                tempPos.setLongitude(BottomPos.getLongitude());
+                while (!GridZoneBounds.contains(tempPos.getLatitude(), tempPos.getLongitude()) && (tempPos.getLatitude() < GridZoneBounds.getNorth())) {
+                    tempUTMCoord2.setNorthing((Math.floor(tempUTMCoord2.getNorthing() / gridSize) + 1) * gridSize);
+                    tempUTMCoord2.toLatLong(tempPos);
+                }
+                BottomPos.setLatitude(tempPos.getLatitude());
+                BottomPos.setLongitude(tempPos.getLongitude());
+                tempUTMCoord2.setNorthing(tempNorthing);
+            }
+            positionList = new ArrayList<>();
+            positionList.add(GridLineUtils.newPosition(TopPos.getLatitude(), TopPos.getLongitude(), 0.0));
+            positionList.add(GridLineUtils.newPosition(BottomPos.getLatitude(), BottomPos.getLongitude(), 0.0));
+            if (gridSize == MGRS_100K_METER_GRID) {
+                gridObject = createPathFeature(positionList, MGRS_GRID_BOX_MERIDIAN);
+            } else if ((Math.floor(tempUTMCoord1.getEasting() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID) == tempUTMCoord1.getEasting()) {
+                gridObject = createPathFeature(positionList, MGRS_GRID_BOX_MERIDIAN);
+            } else if ((Math.floor(tempUTMCoord1.getEasting() / parentGridSize) * parentGridSize) == tempUTMCoord1.getEasting()) {
+                gridObject = createPathFeature(positionList, MGRS_GRID_LINE_MAJOR_MERIDIAN);
+            } else {
+                gridObject = createPathFeature(positionList, MGRS_GRID_LINE_MINOR_MERIDIAN);
+            }
+            addFeature(gridObject);
 
-            tempUTMCoord.setEasting(startEasting);
-            tempUTMCoord.setNorthing(tempUTMCoord.getNorthing() + parentGridSize);
-            tempUTMCoord.toLatLong(valuePos);
+            tempUTMCoord1.setEasting(tempUTMCoord1.getEasting() + gridSize);
+            tempUTMCoord2.setEasting(tempUTMCoord2.getEasting() + gridSize);
+
+            tempUTMCoord1.toLatLong(TopPos);
+            tempUTMCoord2.toLatLong(BottomPos);
+
+            tempBounds.setNorth(TopPos.getLatitude());
+            tempBounds.setSouth(BottomPos.getLatitude());
+            tempBounds.setWest(Math.min(TopPos.getLongitude(), BottomPos.getLongitude()));
+            tempBounds.setEast(Math.max(TopPos.getLongitude(), BottomPos.getLongitude()));
         }
     }
 
@@ -599,16 +463,11 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         UTMCoordinate northValueUTMCoord = tempUTMCoordList[0];
         UTMCoordinate gridZoneUTMCoord = tempUTMCoordList[1];
         UTMCoordinate tempUTMCoord = tempUTMCoordList[2];
-        int parentGridSize = gridSize * 10;
+        int gridIncrement = ((gridSize == MGRS_10K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
         int displayDigits;
         int mgrsGridBoxNorthingStart;
-        boolean displayDetailValues = metersInOneEighthOfAnInch < gridSize;
         EmpBoundingBox gridZoneBounds = new EmpBoundingBox();
         EmpBoundingBox gridZoneInMapViewBounds = new EmpBoundingBox();
-
-        if ((gridSize == MGRS_10K_METER_GRID) && !displayDetailValues) {
-            displayDetailValues = true;
-        }
 
         displayDigits = this.gridValueDigits.get(gridSize);
 
@@ -636,35 +495,15 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         // Make sure that the mgrs grid box start is a multiple of 100K.
         mgrsGridBoxNorthingStart = (int) Math.floor(gridZoneUTMCoord.getNorthing() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID;
 
-
         northValueUTMCoord.copyFrom(gridZoneUTMCoord);
 
-        if (displayDetailValues) {
-            // Make sure that the north value northing is at a grid size value.
-            tempValue = (int) Math.floor(northValueUTMCoord.getNorthing() / gridSize) * gridSize;
-            if ((int) northValueUTMCoord.getNorthing() != tempValue) {
-                northValueUTMCoord.setNorthing(tempValue);
-            }
-
-            //tempValue = (int) Math.floor(northValueUTMCoord.getEasting() / gridSize) * gridSize;
-            //if ((int) northValueUTMCoord.getEasting() != tempValue) {
-            //    northValueUTMCoord.setEasting(tempValue);
-            //}
-            northValueUTMCoord.setEasting(northValueUTMCoord.getEasting() + (metersInOneEighthOfAnInch * 2));
-        } else {
-            // Make sure that the north value northing is at a parent grid size value.
-            tempValue = (int) Math.floor(northValueUTMCoord.getNorthing() / parentGridSize) * parentGridSize;
-            if ((int) northValueUTMCoord.getNorthing() != tempValue) {
-                northValueUTMCoord.setNorthing(tempValue);
-            }
-
-            // Make sure that the north value easting is at a parent grid size value.
-            //tempValue = (int) Math.floor(northValueUTMCoord.getEasting() / gridSize) * gridSize;
-            //if ((int) northValueUTMCoord.getEasting() != tempValue) {
-            //    northValueUTMCoord.setEasting(tempValue);
-            //}
-            northValueUTMCoord.setEasting(northValueUTMCoord.getEasting() + (metersInOneEighthOfAnInch * 2));
+        // Make sure that the north value northing is at a grid increment value.
+        tempValue = (int) Math.floor(northValueUTMCoord.getNorthing() / gridIncrement) * gridIncrement;
+        if ((int) northValueUTMCoord.getNorthing() != tempValue) {
+            northValueUTMCoord.setNorthing(tempValue);
         }
+
+        northValueUTMCoord.setEasting(northValueUTMCoord.getEasting() + (metersInOneEighthOfAnInch * 2));
         tempUTMCoord.copyFrom(northValueUTMCoord);
 
         tempUTMCoord.toLatLong(valuePos);
@@ -673,11 +512,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         while (valuePos.getLatitude() < mapBounds.getNorth()) {
             metersNorth = (northValueUTMCoord.getNorthing() - mgrsGridBoxNorthingStart);
             if (metersNorth >= 0) {
-                if (displayDetailValues) {
-                    northValue = (int) Math.floor(metersNorth / gridSize);
-                } else {
-                    northValue = (int) Math.floor(metersNorth / parentGridSize) * 10;
-                }
+                northValue = (int) Math.floor(metersNorth / gridIncrement);
 
                 if (northValue >= (MGRS_100K_METER_GRID / gridSize)) {
                     break;
@@ -690,13 +525,9 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                     addFeature(gridObject);
                 }
             }
-            if (displayDetailValues) {
-                tempUTMCoord.setNorthing(tempUTMCoord.getNorthing() + gridSize);
-                northValueUTMCoord.setNorthing(northValueUTMCoord.getNorthing() + gridSize);
-            } else {
-                tempUTMCoord.setNorthing(tempUTMCoord.getNorthing() + parentGridSize);
-                northValueUTMCoord.setNorthing(northValueUTMCoord.getNorthing() + parentGridSize);
-            }
+
+            tempUTMCoord.setNorthing(tempUTMCoord.getNorthing() + gridIncrement);
+            northValueUTMCoord.setNorthing(northValueUTMCoord.getNorthing() + gridIncrement);
 
             if (((int) northValueUTMCoord.getNorthing() % MGRS_100K_METER_GRID) == 0) {
                 mgrsGridBoxNorthingStart = (int) northValueUTMCoord.getNorthing();
@@ -712,10 +543,14 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         String strValue;
         double metersEast;
         double labelLatitude;
+        double widthOfGridZoneAtLabelLat;
+        double runningMeterCount;
+        double northingValue;
         IFeature gridObject;
         int zoneNumber;
         String zoneLetter;
         IGeoPosition valuePos = new GeoPosition();
+        IGeoPosition tempPos = new GeoPosition();
         UTMCoordinate eastValueUTMCoord = tempUTMCoordList[0];
         UTMCoordinate gridZoneUTMCoord = tempUTMCoordList[1];
         int gridIncrement = ((gridSize == MGRS_10K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
@@ -727,6 +562,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         displayDigits = this.gridValueDigits.get(gridSize);
 
         UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), -80.0), mapBounds.getWest(), gridZoneUTMCoord);
+        eastValueUTMCoord.copyFrom(gridZoneUTMCoord);
 
         gridZoneBounds.setSouth(gridZoneUTMCoord.getZoneSouthLatitude());
         gridZoneBounds.setNorth(gridZoneBounds.getSouth() + gridZoneUTMCoord.getGridZoneHeightInDegrees());
@@ -748,13 +584,9 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                 gridZoneBounds.setEast(gridZoneBounds.getWest() + gridZoneUTMCoord.getGridZoneWidthInDegrees());
 
                 UTMCoordinate.fromLatLong(gridZoneBounds.getSouth(), mapBounds.getWest(), gridZoneUTMCoord);
+                eastValueUTMCoord.copyFrom(gridZoneUTMCoord);
             }
         }
-
-        // Make sure that the mgrs grid box start is a multiple of 100K.
-        mgrsGridBoxEastingStart = (int) Math.floor(gridZoneUTMCoord.getEasting() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID;
-
-        eastValueUTMCoord.copyFrom(gridZoneUTMCoord);
 
         // Make sure that the east value easting is at a multiple of the increment value.
         tempValue = (int) Math.floor(eastValueUTMCoord.getEasting() / gridIncrement) * gridIncrement;
@@ -771,6 +603,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
         eastValueUTMCoord.toLatLong(valuePos);
 
+        // Make sure that the initial position is in the map view area.
         if (!mapBounds.contains(valuePos.getLatitude(), valuePos.getLongitude())) {
             if (gridIncrement != gridSize) {
                 tempValue = (int) Math.floor(eastValueUTMCoord.getEasting() / gridIncrement) * gridIncrement;
@@ -780,8 +613,18 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
             }
             eastValueUTMCoord.toLatLong(valuePos);
         }
+        // Make sure that the mgrs grid box start is a multiple of 100K.
+        mgrsGridBoxEastingStart = (int) Math.floor(eastValueUTMCoord.getEasting() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID;
 
+        // All easting label will be placed at this latitude.
         labelLatitude = valuePos.getLatitude();
+        northingValue = eastValueUTMCoord.getNorthing();
+
+        tempPos.setLatitude(labelLatitude);
+        tempPos.setLongitude(gridZoneBounds.getWest() + gridZoneUTMCoord.getGridZoneWidthInDegrees());
+        tempPos.setAltitude(0.0);
+        widthOfGridZoneAtLabelLat = GeoLibrary.computeDistanceBetween(valuePos, tempPos) + eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
+        runningMeterCount = eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
 
         while (mapBounds.contains(labelLatitude, valuePos.getLongitude())) {
             metersEast = (eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart);
@@ -796,51 +639,73 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                 }
             }
             eastValueUTMCoord.setEasting(eastValueUTMCoord.getEasting() + gridIncrement);
+            runningMeterCount += gridIncrement;
 
             if (((int) eastValueUTMCoord.getEasting() % MGRS_100K_METER_GRID) == 0) {
                 mgrsGridBoxEastingStart = (int) eastValueUTMCoord.getEasting();
             }
-            eastValueUTMCoord.toLatLong(valuePos);
 
+            //eastValueUTMCoord.toLatLong(valuePos);
             // Now check to see if we crossed the zone.
-            zoneNumber = UTMCoordinate.getZoneNumber(valuePos.getLatitude(), valuePos.getLongitude());
-            if  (eastValueUTMCoord.getZoneNumber() != zoneNumber) {
-                zoneLetter = UTMCoordinate.getZoneLetter(valuePos.getLatitude(), valuePos.getLongitude());
-                UTMCoordinate.fromLatLong(valuePos.getLatitude(), UTMCoordinate.getZoneWestLongitude(zoneNumber, zoneLetter), gridZoneUTMCoord);
+            //zoneNumber = UTMCoordinate.getZoneNumber(valuePos.getLatitude(), valuePos.getLongitude());
+            //if  (eastValueUTMCoord.getZoneNumber() != zoneNumber) {
+            if  (runningMeterCount >= widthOfGridZoneAtLabelLat) {
+                gridZoneUTMCoord.setZoneNumber((gridZoneUTMCoord.getZoneNumber() % 60) + 1);
+                UTMCoordinate.fromLatLong(labelLatitude, gridZoneUTMCoord.getZoneWestLongitude(), gridZoneUTMCoord);
+
+                eastValueUTMCoord.copyFrom(gridZoneUTMCoord);
 
                 gridZoneBounds.setSouth(gridZoneUTMCoord.getZoneSouthLatitude());
                 gridZoneBounds.setNorth(gridZoneBounds.getSouth() + gridZoneUTMCoord.getGridZoneHeightInDegrees());
                 gridZoneBounds.setWest(gridZoneUTMCoord.getZoneWestLongitude());
                 gridZoneBounds.setEast(gridZoneBounds.getWest() + gridZoneUTMCoord.getGridZoneWidthInDegrees());
 
-                eastValueUTMCoord.copyFrom(gridZoneUTMCoord);
+                //eastValueUTMCoord.setNorthing(northingValue);
 
+                mgrsGridBoxEastingStart = (int) Math.floor(eastValueUTMCoord.getEasting() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID;
                 tempValue = (int) Math.floor(eastValueUTMCoord.getEasting() / gridIncrement) * gridIncrement;
                 if ((int) eastValueUTMCoord.getEasting() != tempValue) {
-                    eastValueUTMCoord.setEasting(tempValue + gridIncrement);
+                    eastValueUTMCoord.setEasting(tempValue);
                 }
+                eastValueUTMCoord.setEasting(eastValueUTMCoord.getEasting() + gridIncrement);
 
                 eastValueUTMCoord.toLatLong(valuePos);
-                mgrsGridBoxEastingStart = (int) Math.floor(gridZoneUTMCoord.getEasting() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID;
+                if (!mapBounds.contains(labelLatitude, valuePos.getLongitude())) {
+                    if (gridIncrement != gridSize) {
+                        tempValue = (int) Math.floor(eastValueUTMCoord.getEasting() / gridIncrement) * gridIncrement;
+                        eastValueUTMCoord.setEasting(tempValue + gridIncrement);
+                    } else {
+                        eastValueUTMCoord.setEasting(eastValueUTMCoord.getEasting() + gridSize);
+                    }
+                    eastValueUTMCoord.toLatLong(valuePos);
+                }
+
+                tempPos.setLatitude(labelLatitude);
+                tempPos.setLongitude(gridZoneBounds.getWest() + gridZoneUTMCoord.getGridZoneWidthInDegrees());
+                tempPos.setAltitude(0.0);
+                widthOfGridZoneAtLabelLat = GeoLibrary.computeDistanceBetween(valuePos, tempPos) + eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
+                runningMeterCount = eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
+            } else {
+                eastValueUTMCoord.toLatLong(valuePos);
             }
         }
     }
 
     private void createMGRSGridLabels(UTMCoordinate gridZoneUTMCoord, EmpBoundingBox gridZoneBounds, UTMCoordinate[] tempUTMCoordList,
             EmpBoundingBox mapBounds, EmpBoundingBox drawBounds, int gridSize, double metersPerPixel, double metersInOneEighthOfAnInch) {
-        double latitude;
         IFeature gridObject;
         String mgrsGridLabel;
         IGeoPosition labelPos;
         IGeoPosition mgrs100KGridBoxSWPos = new GeoPosition();
         IGeoPosition tempPos = new GeoPosition();
         double initialEasting;
-        int tempValue;
         UTMCoordinate mgrsGridBoxCoord = tempUTMCoordList[0];
         UTMCoordinate mgrsGridBoxInZoneWEUTMCoord = tempUTMCoordList[1];
+        UTMCoordinate tempUTMCoord = tempUTMCoordList[2];
         EmpBoundingBox mgrs100KGridBounds = new EmpBoundingBox();
         EmpBoundingBox labelBounds = new EmpBoundingBox();
         double gridLabelPixelWidth = (getCharacterPixelWidth(MGRS_GRID_BOX_LABEL_CENTERED) * 2.0);
+        double gridLabelPixelHeight = getCharacterPixelWidth(MGRS_GRID_BOX_LABEL_CENTERED);
         double gridZoneLabelPixelWidth = (getCharacterPixelWidth(MGRS_GRID_ZONE_LABEL) * 3.0);
 
         UTMCoordinate.fromLatLong(drawBounds.getSouth(), drawBounds.getWest(), mgrsGridBoxCoord);
@@ -848,36 +713,37 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         if (null != gridZoneBounds.intersection(drawBounds, labelBounds)) {
             if ((labelBounds.heightAcrossCenter() / metersPerPixel) > gridZoneLabelPixelWidth) {
                 if ((labelBounds.widthAcrossCenter() / metersPerPixel) > gridZoneLabelPixelWidth) {
-                    labelPos = GridLineUtils.newPosition(labelBounds.centerLatitude(), labelBounds.centerLongitude(), 0);
+                    labelPos = GridLineUtils.newPosition((labelBounds.getNorth() + labelBounds.centerLatitude()) / 2.0, labelBounds.centerLongitude(), 0);
                     gridObject = createLabelFeature(labelPos, gridZoneUTMCoord.getZoneNumber() + gridZoneUTMCoord.getZoneLetter(), MGRS_GRID_ZONE_LABEL);
                     addFeature(gridObject);
                 }
             }
         }
-        // Make sure that the northing value is a multiple of 100K.
-        tempValue = (int) Math.floor(mgrsGridBoxCoord.getNorthing() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID;
-        mgrsGridBoxCoord.setNorthing(tempValue);
-
-        // Make sure that the easting value is a multiple of 100K.
-        tempValue = (int) Math.floor(mgrsGridBoxCoord.getEasting() / MGRS_100K_METER_GRID) * MGRS_100K_METER_GRID;
-        mgrsGridBoxCoord.setEasting(tempValue);
 
         initialEasting = mgrsGridBoxCoord.getEasting();
-        mgrsGridBoxCoord.toLatLong(mgrs100KGridBoxSWPos);
-        latitude = mgrs100KGridBoxSWPos.getLatitude();
+        mgrs100KGridBoxSWPos.setLatitude(drawBounds.getSouth());
+        mgrs100KGridBoxSWPos.setLongitude(drawBounds.getWest());
+        mgrs100KGridBoxSWPos.setAltitude(0.0);
 
-        while (latitude < mapBounds.getNorth()) {
-            while (mgrs100KGridBoxSWPos.getLongitude() < drawBounds.getEast()) {
+        while (mgrs100KGridBoxSWPos.getLatitude() <= drawBounds.getNorth()) {
+            while (drawBounds.contains(mgrs100KGridBoxSWPos.getLatitude(), mgrs100KGridBoxSWPos.getLongitude())) {
+                // Copy the UTM coordinate.
                 mgrsGridBoxInZoneWEUTMCoord.copyFrom(mgrsGridBoxCoord);
 
+                // Get the lat/lon of the south west of the 100K area.
                 mgrsGridBoxInZoneWEUTMCoord.toLatLong(tempPos);
+                // Set the south of area.
                 mgrs100KGridBounds.setSouth(tempPos.getLatitude());
                 // Make sure that the west is the larger of the 100KGrid and Grid zone west value.
                 mgrs100KGridBounds.setWest(Math.max(tempPos.getLongitude(), gridZoneBounds.getWest()));
-                mgrsGridBoxInZoneWEUTMCoord.setNorthing(mgrsGridBoxInZoneWEUTMCoord.getNorthing() + MGRS_100K_METER_GRID);
-                mgrsGridBoxInZoneWEUTMCoord.setEasting(mgrsGridBoxInZoneWEUTMCoord.getEasting() + MGRS_100K_METER_GRID);
+                // Increase the northing and easting by 100K
+                mgrsGridBoxInZoneWEUTMCoord.setNorthing((Math.floor(mgrsGridBoxInZoneWEUTMCoord.getNorthing() / MGRS_100K_METER_GRID) + 1) * MGRS_100K_METER_GRID);
+                mgrsGridBoxInZoneWEUTMCoord.setEasting((Math.floor(mgrsGridBoxInZoneWEUTMCoord.getEasting() / MGRS_100K_METER_GRID) + 1) * MGRS_100K_METER_GRID);
+                // Get the lat/lon of the north east of the 100K area.
                 mgrsGridBoxInZoneWEUTMCoord.toLatLong(tempPos);
-                mgrs100KGridBounds.setNorth(tempPos.getLatitude());
+                // Set the north of the area as the smaller of the pos latitude and the draw area north.
+                mgrs100KGridBounds.setNorth(Math.min(tempPos.getLatitude(), drawBounds.getNorth()));
+                //mgrs100KGridBounds.setNorth(tempPos.getLatitude());
                 // Make sure that the east is the smaller of the 100KGrid and Grid zone east value.
                 mgrs100KGridBounds.setEast(Math.min(tempPos.getLongitude(), gridZoneBounds.getEast()));
 
@@ -886,8 +752,15 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                 // Make sure that the east is the smaller of the 100KGrid, draw bound or Grid zone east value.
                 mgrs100KGridBounds.setEast(Math.min(mgrs100KGridBounds.getEast(), drawBounds.getEast()));
 
+                // In some cases the mgrs100KGridBounds get a west > than the east
+                if (mgrs100KGridBounds.getWest() > mgrs100KGridBounds.getEast()) {
+                    // So we set them equal.
+                    mgrs100KGridBounds.setWest(mgrs100KGridBounds.getEast());
+                }
+                // If the 100K grid bound intersects with the map bounds place it in label bounds.
                 if (null != mgrs100KGridBounds.intersection(mapBounds, labelBounds)) {
-                    if ((labelBounds.heightAcrossCenter() / metersPerPixel) > gridLabelPixelWidth) {
+                    // If the label fits in the bounds, create the label.
+                    if ((labelBounds.heightAcrossCenter() / metersPerPixel) > gridLabelPixelHeight) {
                         if ((labelBounds.widthAcrossCenter() / metersPerPixel) > gridLabelPixelWidth) {
                             labelPos = GridLineUtils.newPosition(labelBounds.centerLatitude(), labelBounds.centerLongitude(), 0);
                             mgrsGridLabel = get100kID(mgrsGridBoxCoord.getEasting(), mgrsGridBoxCoord.getNorthing(), mgrsGridBoxCoord.getZoneNumber());
@@ -898,13 +771,15 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                     }
                 }
 
-                mgrsGridBoxCoord.setEasting(mgrsGridBoxCoord.getEasting() + MGRS_100K_METER_GRID);
+                mgrsGridBoxCoord.setEasting((Math.floor(mgrsGridBoxCoord.getEasting() / MGRS_100K_METER_GRID) + 1) * MGRS_100K_METER_GRID);
                 mgrsGridBoxCoord.toLatLong(mgrs100KGridBoxSWPos);
             }
-            mgrsGridBoxCoord.setNorthing(mgrsGridBoxCoord.getNorthing() + MGRS_100K_METER_GRID);
+            mgrsGridBoxCoord.setNorthing((Math.floor(mgrsGridBoxCoord.getNorthing() / MGRS_100K_METER_GRID) + 1) * MGRS_100K_METER_GRID);
             mgrsGridBoxCoord.setEasting(initialEasting);
             mgrsGridBoxCoord.toLatLong(mgrs100KGridBoxSWPos);
-            latitude = mgrs100KGridBoxSWPos.getLatitude();
+            mgrs100KGridBoxSWPos.setLongitude(drawBounds.getWest());
+            UTMCoordinate.fromLatLong(mgrs100KGridBoxSWPos.getLatitude(), mgrs100KGridBoxSWPos.getLongitude(), tempUTMCoord);
+            mgrsGridBoxCoord.setEasting(tempUTMCoord.getEasting());
         }
     }
 
@@ -919,7 +794,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         createMGRSGridParallels(gridZoneUTMCoord, tempUTMCoordList, drawBounds, gridSize);
 
         // Generate the meridian lines of the box (the vertical lines).
-        createMGRSGridMeridians(gridZoneUTMCoord, tempUTMCoordList, drawBounds, gridSize);
+        createMGRSGridMeridians(gridZoneUTMCoord, GridZoneBounds, tempUTMCoordList, drawBounds, gridSize);
 
         // Now generate the MGRS grid IDs.
         createMGRSGridLabels(gridZoneUTMCoord, GridZoneBounds, tempUTMCoordList, mapBounds, drawBounds, gridSize, metersPerPixel, metersInOneEighthOfAnInch);
@@ -1103,7 +978,13 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                     label.setAzimuth(-90.0);
                     break;
             }
-            label.setAzimuth(label.getAzimuth() - this.currentCamera.getHeading());
+            double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
+            if (azimuth < -360.0) {
+                azimuth += 360;
+            } else if (azimuth > 360.0) {
+                azimuth -= 360.0;
+            }
+            label.setAzimuth(azimuth);
         } else {
             super.setLabelAttributes(label, gridObjectType);
         }

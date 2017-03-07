@@ -95,8 +95,10 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         double minLongitude = (double) ((startZoneIndex * 6) - 180);
         double maxLongitude = (double) ((endZoneIndex * 6) - 180);
 
+        endZoneIndex = ++endZoneIndex % 60;
+
         zoneIndex = startZoneIndex;
-        while (zoneIndex != (endZoneIndex + 1)) {
+        while (zoneIndex != endZoneIndex) {
             intLon = (zoneIndex * 6) - 180;
             longitude = (double) intLon;
             positionList = new ArrayList<>();
