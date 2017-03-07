@@ -178,8 +178,8 @@ public class EmpBoundingBox extends GeoBounds {
 
         boolean bRet = false;
 
-        // If their north and south dont intersect they don't intersect.
-        if ((this.south() < northDeg) && (this.north() > southDeg)) {
+        // If their north and south don't intersect they don't intersect.
+        if ((this.south() <= northDeg) && (this.north() >= southDeg)) {
             if (this.containsIDL()) {
                 // This bounding box contains the IDL.
                 if (westDeg > eastDeg) {
@@ -187,16 +187,16 @@ public class EmpBoundingBox extends GeoBounds {
                     bRet = true;
                 } else {
                     // The coordinates provided do not contains the IDL;
-                    bRet = ((this.west() < eastDeg) && (180 > westDeg)) || ((-180 < eastDeg) && (this.east() > westDeg));
+                    bRet = ((this.west() <= eastDeg) && (180 >= westDeg)) || ((-180 <= eastDeg) && (this.east() >= westDeg));
                 }
             } else {
                 // This bounding box does not contains the IDL.
                 if (westDeg > eastDeg) {
                     // The coordinates provided contains the IDL;
-                    bRet = ((this.west() < eastDeg) && (this.east() < westDeg) || (this.east() > westDeg) && (this.west() > eastDeg));
+                    bRet = ((this.getWest() <= eastDeg) && (this.getEast() <= westDeg)) || ((this.getEast() >= westDeg) && (this.getWest() >= eastDeg));
                 } else {
                     // The coordinates provided do not contains the IDL;
-                    bRet = ((this.south() < northDeg) && (this.north() > southDeg) && (this.west() < eastDeg) && (this.east() > westDeg));
+                    bRet = ((this.getWest() <= eastDeg) && (this.getEast() >= westDeg));
                 }
             }
         }
