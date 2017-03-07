@@ -43,27 +43,11 @@ public class GeoJSONFeature extends FeatureRenderableMapping<IGeoJSON> {
     protected void generateRenderables() {
         Renderable tempRenderable;
         List<IFeature> featureList = getFeature().getFeatureList();
-        List<IImageLayer> imageLayerList = getFeature().getImageLayerList();
 
         this.getRenderableList().clear();
         pointRenderableList.clear();
         lineRenderableList.clear();
         polygonRenderableList.clear();
-
-        for (IImageLayer imageLayer: imageLayerList) {
-            SurfaceImage surfaceImage = this.createWWSurfaceImage(imageLayer);
-
-            surfaceImage.setPickDelegate(getFeature());
-            this.addRenderable(surfaceImage);
-
-            if (isSelected()) {
-                tempRenderable = this.createWWSurfaceImageSelect(imageLayer);
-                if (tempRenderable != null) {
-                    tempRenderable.setPickDelegate(getFeature());
-                    this.polygonRenderableList.add(tempRenderable);
-                }
-            }
-        }
 
         for (IFeature subFeature: featureList) {
             if (subFeature instanceof Point) {

@@ -27,7 +27,6 @@ public class GeoJSON extends Feature<IGeoRenderable> implements IGeoJSON {
 
     final static int BUFFERSIZE = 1024;
     private List<IFeature> featureList = new ArrayList<>();
-    private List<IImageLayer> imageLayerList = new ArrayList<>();
     private final IGeoDocument geoDocument;
 
     public GeoJSON(String input) throws EMP_Exception {
@@ -37,12 +36,6 @@ public class GeoJSON extends Feature<IGeoRenderable> implements IGeoJSON {
         geoDocument.setDocumentURI(input);
         geoDocument.setDocumentMIMEType("application/vnd.geo+json");
         IGeoBounds bBox = new GeoBounds();
-        try {
-            IImageLayer imageLayer = new ImageLayer(input, bBox);
-            imageLayerList.add(imageLayer);
-        } catch (MalformedURLException url) {
-            url.printStackTrace();
-        }
     }
 
     public GeoJSON(InputStream stream) throws EMP_Exception {
@@ -52,13 +45,6 @@ public class GeoJSON extends Feature<IGeoRenderable> implements IGeoJSON {
         geoDocument = new GeoDocument();
         geoDocument.setDocumentURI(input);
         geoDocument.setDocumentMIMEType("application/vnd.geo+json");
-        IGeoBounds bBox = new GeoBounds();
-        try {
-            IImageLayer imageLayer = new ImageLayer(input, bBox);
-            imageLayerList.add(imageLayer);
-        } catch (MalformedURLException url) {
-            url.printStackTrace();
-        }
     }
 
     private String streamToString(InputStream stream) {
@@ -80,11 +66,6 @@ public class GeoJSON extends Feature<IGeoRenderable> implements IGeoJSON {
     @Override
     public List<IFeature> getFeatureList() {
         return featureList;
-    }
-
-    @Override
-    public List<IImageLayer> getImageLayerList() {
-        return this.imageLayerList;
     }
 
     @Override
