@@ -655,11 +655,17 @@ public class MilStdRenderer implements IMilStdRenderer {
                 }
             }
 
+            // There is an issue in version 0.1.20 of mission command mil sym render-er where fillColor is not properly set as it
+            // used to be in 0.1.17. So as a work-around we will set currentFillStyle to features Fill Style. This can be undone
+            // once render-er is fixed.
+
             fillColor = shapeInfo.getFillColor();
             if (fillColor != null) {
                 geoFillColor = new EmpGeoColor((double) fillColor.getAlpha() / 255.0, fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue());
                 currentFillStyle = new GeoFillStyle();
                 currentFillStyle.setFillColor(geoFillColor);
+            } else {
+                currentFillStyle = renderFeature.getFillStyle();
             }
 
             switch (shapeInfo.getShapeType()) {

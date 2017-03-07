@@ -16,7 +16,7 @@ if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
 
     RELEASE_BRANCH=release/$TRAVIS_TAG
 
-    git config user.name "Travis CI"
+    git config user.name "missioncommand-bot"
     git config user.email "builds@travis-ci.com"
     git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 
