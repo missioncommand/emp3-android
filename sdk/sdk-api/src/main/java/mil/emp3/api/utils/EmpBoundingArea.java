@@ -51,6 +51,8 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
 
     private IGeoPosition[] adjustedVertices = null;   // Approximate the vertices to keep longitude range to 180 degrees.
 
+    private String boundingAreaString = null;                // Stores bounding area String that was created in toString operation.
+
     /**
      * All parameters must be non-null and have valid values.
      * @param currentCamera - Camera object when the vertices were calculated.
@@ -205,15 +207,20 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
      * more work in future.
      * @return
      */
+
     @Override
     public String toString() {
+        if(null != boundingAreaString) {
+            return boundingAreaString;
+        }
         adjustVerticesByDistance();
         StringBuilder builder = new StringBuilder();
         for(int ii = adjustedVertices.length - 1; ii >= 0 ; ii--) {
             builder.append(adjustedVertices[ii].getLongitude() + "," + adjustedVertices[ii].getLatitude() + " ");
         }
         builder.append(adjustedVertices[adjustedVertices.length - 1].getLongitude() + "," + adjustedVertices[adjustedVertices.length - 1].getLatitude());
-        return builder.toString();
+        boundingAreaString = builder.toString();
+        return boundingAreaString;
     }
 
     /**

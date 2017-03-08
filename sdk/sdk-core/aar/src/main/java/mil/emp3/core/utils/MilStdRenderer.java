@@ -57,6 +57,7 @@ public class MilStdRenderer implements IMilStdRenderer {
     public static final String METOC_PRESSURE_SHEAR_LINE = "WA-DPXSH---L---";
     public static final String METOC_BOUNDED_AREAS_OF_WEATHER_LIQUID_PRECIPITATION_NON_CONVECTIVE_CONTINUOUS_OR_INTERMITTENT = "WA-DBALPC---A--";
     public static final String METOC_ATMOSPHERIC_BOUNDED_AREAS_OF_WEATHER_THUNDERSTORMS = "WA-DBAT-----A--";
+    private final static int DEFAULT_STROKE_WIDTH = 3;
 
     private IStorageManager storageManager;
 
@@ -655,17 +656,11 @@ public class MilStdRenderer implements IMilStdRenderer {
                 }
             }
 
-            // There is an issue in version 0.1.20 of mission command mil sym render-er where fillColor is not properly set as it
-            // used to be in 0.1.17. So as a work-around we will set currentFillStyle to features Fill Style. This can be undone
-            // once render-er is fixed.
-
             fillColor = shapeInfo.getFillColor();
             if (fillColor != null) {
                 geoFillColor = new EmpGeoColor((double) fillColor.getAlpha() / 255.0, fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue());
                 currentFillStyle = new GeoFillStyle();
                 currentFillStyle.setFillColor(geoFillColor);
-            } else {
-                currentFillStyle = renderFeature.getFillStyle();
             }
 
             switch (shapeInfo.getShapeType()) {
@@ -932,14 +927,20 @@ public class MilStdRenderer implements IMilStdRenderer {
         String symbolCode = "";
         List<IFeature> oList = new ArrayList<>();
         ICamera camera = mapInstance.getCamera();
-        IGeoBounds bounds = mapInstance.getMapBounds();
+        IGeoBounds bounds = storageManager.getBounds(storageManager.getMapMapping(mapInstance).getClientMap());
 
         if ((camera == null) || (bounds == null)) {
             return oList;
         }
 
         String coordinateStr = this.convertToStringPosition(feature.getPositions());
-        String boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
+        String boundingBoxStr;
+        if(bounds instanceof IEmpBoundingArea) {
+            boundingBoxStr = bounds.toString();
+        } else {
+            boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
+        }
+
         double scale = camera.getAltitude() * 6.36;
         String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
         SparseArray<String> modifiers = new SparseArray<>();
@@ -978,8 +979,115 @@ public class MilStdRenderer implements IMilStdRenderer {
                 modifiers, attributes, 1);
 
         // Retrieve the list of shapes.
-        this.renderShapeParser(oList, mapInstance, renderSymbol, feature, selected);
+        this.renderBasicShapeParser(oList, mapInstance, renderSymbol, feature, selected);
 
         return oList;
+    }
+
+    /**
+     *
+     * @param featureList - This is the output feature list that will be displayed on the map
+     * @param mapInstance - Underlying mapInstance
+     * @param renderSymbol - This is the value returned by mission command render-er.
+     * @param renderFeature - This is the Feature created by the application that needs to be rendered
+     * @param selected - Is the feature in a selected state?
+     */
+    private void renderBasicShapeParser(List<IFeature> featureList,
+                                   IMapInstance mapInstance,
+                                   armyc2.c2sd.renderer.utilities.MilStdSymbol renderSymbol,
+                                   IFeature renderFeature,
+                                   boolean selected) {
+        //
+        // The mission command render-er will return two shapes in response to a request to render a
+        // Circle, Ellipse, Square or a Rectangle. One shape will be POLYLINE and other will be FILL.
+        // We will pick up the right shape based on the FillStyle specified by the application in the
+        // 'renderFeature'. This logic is dependent on fillStyle being null by default in basic shapes.
+        // The constructor of basic shapes ensures this.
+        //
+        int shapeTypeToUse = ShapeInfo.SHAPE_TYPE_FILL;
+        if(null == renderFeature.getFillStyle()) {
+            shapeTypeToUse = ShapeInfo.SHAPE_TYPE_POLYLINE;
+        }
+
+        for(ShapeInfo shapeInfo: renderSymbol.getSymbolShapes()) {
+            if(shapeInfo.getShapeType() != shapeTypeToUse) {
+                continue;
+            }
+
+            //
+            // If line color is not specified by the application then we want to use whatever default was returned by
+            // the renderer. We also need to override with 'selected' stroke color if feature is in selected state.
+            //
+
+            IGeoStrokeStyle currentStrokeStyle = renderFeature.getStrokeStyle();
+
+            if(selected) {
+                if(null == currentStrokeStyle) {
+                    currentStrokeStyle = storageManager.getSelectedStrokeStyle(mapInstance);
+                } else {
+                    currentStrokeStyle.setStrokeColor(storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor());
+                }
+            }
+
+            if((null == currentStrokeStyle) || (null == currentStrokeStyle.getStrokeColor())) {
+                // Get the line/stroke color from the renderer.
+                if(null != shapeInfo.getLineColor()) {
+                    EmpGeoColor rendererStrokeColor = new EmpGeoColor((double) shapeInfo.getLineColor().getAlpha() / 255.0,
+                            shapeInfo.getLineColor().getRed(), shapeInfo.getLineColor().getGreen(), shapeInfo.getLineColor().getBlue());
+                    if(null == currentStrokeStyle) {
+                        currentStrokeStyle = new GeoStrokeStyle();
+                        currentStrokeStyle.setStrokeWidth(DEFAULT_STROKE_WIDTH);
+                    }
+                    currentStrokeStyle.setStrokeColor(rendererStrokeColor);
+                }
+            }
+
+            //
+            // If fill color is not specified by the application then we want to use whatever default was returned by
+            // the renderer.
+            //
+            IGeoFillStyle currentFillStyle = renderFeature.getFillStyle();
+
+            if((null == currentFillStyle) || (null == currentFillStyle.getFillColor())) {
+                // Get the fill color from the renderer.
+                if(null != shapeInfo.getFillColor()) {
+                    EmpGeoColor rendererFillColor = new EmpGeoColor((double) shapeInfo.getFillColor().getAlpha() / 255.0,
+                            shapeInfo.getFillColor().getRed(), shapeInfo.getFillColor().getGreen(), shapeInfo.getFillColor().getBlue());
+                    if(null == currentFillStyle) {
+                        currentFillStyle = new GeoFillStyle();
+                    }
+                    currentFillStyle.setFillColor(rendererFillColor);
+                }
+            }
+
+            switch (shapeInfo.getShapeType()) {
+                case ShapeInfo.SHAPE_TYPE_POLYLINE: {
+                    List<List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
+
+                    for (List<IGeoPosition> posList : listOfPosList) {
+                        IFeature feature = new Path(posList);
+                        feature.setStrokeStyle(currentStrokeStyle);
+                        feature.setAltitudeMode(renderFeature.getAltitudeMode());
+                        featureList.add(feature);
+                    }
+                    break;
+                }
+                case ShapeInfo.SHAPE_TYPE_FILL: {
+                    List<List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
+
+                    for (List<IGeoPosition> posList : listOfPosList) {
+                        IFeature feature = new Polygon(posList);
+                        feature.setStrokeStyle(currentStrokeStyle);
+                        feature.setFillStyle(currentFillStyle);
+                        feature.setAltitudeMode(renderFeature.getAltitudeMode());
+                        featureList.add(feature);
+                    }
+                    break;
+                }
+                default:
+                    Log.e(TAG, "Unhandled Shape type " + shapeInfo.getShapeType());
+                    break;
+            }
+        }
     }
 }

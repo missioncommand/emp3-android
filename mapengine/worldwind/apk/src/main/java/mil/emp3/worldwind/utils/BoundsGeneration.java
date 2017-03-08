@@ -9,8 +9,10 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -74,7 +76,7 @@ public class BoundsGeneration {
      * We will store the previously calculated bounding area that can be returned with things like VIEW_IN_MOTION.
      * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated.
      */
-    private static IEmpBoundingArea currentBoundingArea;
+    private static Map<MapInstance, IEmpBoundingArea> currentBoundingArea = new HashMap<>();
     /**
      * Made this a method to allow for any adjustments in future.
      * @return
@@ -124,8 +126,26 @@ public class BoundsGeneration {
         return (int) (mapInstance.getWW().getHeight() * getLc());
     }
 
-    public static IEmpBoundingArea getCurrentBoundingArea() {
-        return currentBoundingArea;
+    /**
+     * Map is in motion, stored Bounding Area is no longer valid, it will have to be recalculated when map motion is stopped.
+     * @param mapInstance
+     */
+    public static void mapInMotion(MapInstance mapInstance) {
+        currentBoundingArea.put(mapInstance, null);
+    }
+
+    /**
+     * This is invoked when MAP is READY by the MapInstance object to force initial bounds generation. We could initialize
+     * other dat here if required. If in future we need to create a BoundsGeneration object per MapEngine then this would be
+     * a good place to do that, ofcourse then all those static would go away.
+     * @param mapInstance
+     * @return
+     */
+    public static void initialize(MapInstance mapInstance) {
+        getBounds(mapInstance);
+    }
+    public static IEmpBoundingArea getCurrentBoundingArea(MapInstance mapInstance) {
+        return currentBoundingArea.get(mapInstance);
     }
 
     public static IEmpBoundingArea getBounds(MapInstance mapInstance) {
@@ -145,9 +165,9 @@ public class BoundsGeneration {
                     }
                     IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), cameraOnScreen,
                             list.get(0), list.get(1), list.get(2), list.get(3));
-                    if(null != boundingArea) {
-                        currentBoundingArea = boundingArea;
-                    }
+
+                    currentBoundingArea.put(mapInstance, boundingArea);
+
                     return boundingArea;
                 }
             } else {
