@@ -56,6 +56,7 @@ AddGeoJSONDialog.IAddGeoJSONDialogListener{
         entityClasses.put(FeatureTypeEnum.GEO_PATH, AddPathFeature.class);
         entityClasses.put(FeatureTypeEnum.GEO_POINT, AddPointFeature.class);
         entityClasses.put(FeatureTypeEnum.GEO_SQUARE, AddSquareFeature.class);
+        entityClasses.put(FeatureTypeEnum.GEOJSON, AddGeoJSONFeature.class);
     }
 
     private static String TAG = AddContainer.class.getSimpleName();
