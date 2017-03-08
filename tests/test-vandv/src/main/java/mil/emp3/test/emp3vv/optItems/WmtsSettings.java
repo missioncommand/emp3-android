@@ -12,24 +12,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import mil.emp3.api.WMS;
-import mil.emp3.api.enums.WMSVersionEnum;
+import mil.emp3.api.WMTS;
+import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.OptItemBase;
-import mil.emp3.test.emp3vv.dialogs.WmsRemoveDialog;
-import mil.emp3.test.emp3vv.dialogs.WmsSettingsDialog;
+import mil.emp3.test.emp3vv.dialogs.WmtsRemoveDialog;
+import mil.emp3.test.emp3vv.dialogs.WmtsSettingsDialog;
 
-public class WmsSettings extends OptItemBase implements WmsSettingsDialog.IWmsSettingsDialogListener,
-        WmsRemoveDialog.IWmsRemoveDialogListener {
+public class WmtsSettings extends OptItemBase implements WmtsSettingsDialog.IWmtsSettingsDialogListener,
+        WmtsRemoveDialog.IWmtsRemoveDialogListener {
 
-    final private static String TAG = WmsSettings.class.getSimpleName();
+    final private static String TAG = WmtsSettings.class.getSimpleName();
     private boolean actionSet = true;
     private int currentMap = 0;
-    private static HashMap<String, WMS> wmsMap = new HashMap<>();
+    private static HashMap<String, WMTS> wmtsMap = new HashMap<>();
 
-    public WmsSettings(Activity activity, IMap map1, IMap map2){
+    public WmtsSettings(Activity activity, IMap map1, IMap map2){
         super(activity, map1, map2, TAG, true);
         this.currentMap = ExecuteTest.getCurrentMap();
     }
@@ -45,63 +45,61 @@ public class WmsSettings extends OptItemBase implements WmsSettingsDialog.IWmsSe
     @Override
     public void run() {
         if (actionSet) {
-            showWmsSettingsDialog();
+            showWmtsSettingsDialog();
         } else {
-            removeWms();
+            removeWmts();
         }
     }
 
-    private void removeWms() {
+    private void removeWmts() {
         Handler mainHandler = new Handler(activity.getMainLooper());
 
         Runnable myRunnable = new Runnable() {
             @Override
             public void run() {
                 FragmentManager fm = ((AppCompatActivity) activity).getSupportFragmentManager();
-                List<String> wmsNames = new ArrayList(wmsMap.keySet());
-                WmsRemoveDialog wmsRemoveDialogFragment = WmsRemoveDialog.newInstance("WmsRemove",
-                        WmsSettings.this, maps[currentMap], wmsNames);
-                wmsRemoveDialogFragment.show(fm, "fm_wmsRemove");
+                List<String> wmtsNames = new ArrayList(wmtsMap.keySet());
+                WmtsRemoveDialog wmtsRemoveDialogFragment = WmtsRemoveDialog.newInstance("WmtsRemove",
+                        WmtsSettings.this, maps[currentMap], wmtsNames);
+                wmtsRemoveDialogFragment.show(fm, "fm_wmtsRemove");
             }
         };
         mainHandler.post(myRunnable);
     }
 
-    private void showWmsSettingsDialog() {
+    private void showWmtsSettingsDialog() {
         Handler mainHandler = new Handler(activity.getMainLooper());
 
         Runnable myRunnable = new Runnable() {
             @Override
             public void run() {
                 FragmentManager fm = ((AppCompatActivity) activity).getSupportFragmentManager();
-                WmsSettingsDialog wmsSettingsDialogFragment = WmsSettingsDialog.newInstance("WmsSettings",
-                        WmsSettings.this, maps[currentMap]);
-                wmsSettingsDialogFragment.show(fm, "fm_wmsSettings");
+                WmtsSettingsDialog wmtsSettingsDialogFragment = WmtsSettingsDialog.newInstance("WmtsSettings",
+                        WmtsSettings.this, maps[currentMap]);
+                wmtsSettingsDialogFragment.show(fm, "fm_wmtsSettings");
             }
         };
         mainHandler.post(myRunnable);
     }
 
     @Override
-    public void addWmsService(IMap map, String name, String url, WMSVersionEnum wmsVersion, String tileFormat,
-                              boolean transparent, List<String> layers, double resolution) {
+    public void addWmtsService(IMap map, String name, String url, WMTSVersionEnum wmtsVersion, String tileFormat,
+                               List<String> layers) {
         try {
-            WMS wmsService = wmsMap.get(name);
-            if (wmsService == null) {
-                wmsService = new mil.emp3.api.WMS(
+            WMTS wmtsService = wmtsMap.get(name);
+            if (wmtsService == null) {
+                wmtsService = new mil.emp3.api.WMTS(
                         url,
-                        wmsVersion,
+                        wmtsVersion,
                         tileFormat,
-                        transparent,
                         layers
                 );
-                wmsService.setLayerResolution(resolution);
-                map.addMapService(wmsService);
-                wmsMap.put(name, wmsService);
+                map.addMapService(wmtsService);
+                wmtsMap.put(name, wmtsService);
             } else {
                 new AlertDialog.Builder(activity)
                         .setTitle("ERROR")
-                        .setMessage("WMS with that name exists")
+                        .setMessage("WMTS with that name exists")
                         .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface arg0, int arg1) {
                             }
@@ -113,23 +111,24 @@ public class WmsSettings extends OptItemBase implements WmsSettingsDialog.IWmsSe
     }
 
     @Override
-    public void removeWmsService(IMap map, String name) {
+    public void removeWmtsService(IMap map, String name) {
         try {
-            WMS wmsToRemove = wmsMap.get(name);
-            if (wmsToRemove == null) {
+            WMTS wmtsToRemove = wmtsMap.get(name);
+            if (wmtsToRemove == null) {
                 new AlertDialog.Builder(activity)
                         .setTitle("ERROR")
-                        .setMessage("No WMS with that name")
+                        .setMessage("No WMTS with that name")
                         .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface arg0, int arg1) {
                             }
                         }).create().show();
             } else {
-                map.removeMapService(wmsToRemove);
-                wmsMap.remove(name);
+                map.removeMapService(wmtsToRemove);
+                wmtsMap.remove(name);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+

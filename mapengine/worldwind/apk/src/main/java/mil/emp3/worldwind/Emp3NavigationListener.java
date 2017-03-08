@@ -2,29 +2,27 @@ package mil.emp3.worldwind;
 
 import android.util.Log;
 
-import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoBounds;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import gov.nasa.worldwind.Navigator;
 import gov.nasa.worldwind.NavigatorEvent;
 import gov.nasa.worldwind.NavigatorListener;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.WorldWindow;
-import gov.nasa.worldwind.geom.Location;
 import mil.emp3.api.Camera;
 import mil.emp3.api.LookAt;
 import mil.emp3.api.enums.MapViewEventEnum;
 
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.ILookAt;
 
 import mil.emp3.mapengine.events.MapInstanceViewChangeEvent;
+import mil.emp3.worldwind.utils.BoundsGeneration;
 import mil.emp3.worldwind.utils.SystemUtils;
 
 public class Emp3NavigationListener implements NavigatorListener {
@@ -46,12 +44,14 @@ public class Emp3NavigationListener implements NavigatorListener {
         private final MapViewEventEnum eEvent;
         private final gov.nasa.worldwind.geom.Camera oWWCamera;
         private final gov.nasa.worldwind.geom.LookAt oWWLookAT;
+        private final IEmpBoundingArea empBoundingArea;
 
         public EventQueueItem(MapViewEventEnum eventEnum, gov.nasa.worldwind.geom.Camera camera,
-                              gov.nasa.worldwind.geom.LookAt lookAt) {
+                              gov.nasa.worldwind.geom.LookAt lookAt, IEmpBoundingArea empBoundingArea) {
             this.eEvent = eventEnum;
             this.oWWCamera = camera;
             this.oWWLookAT = lookAt;
+            this.empBoundingArea = empBoundingArea;
         }
 
         public MapViewEventEnum getEvent() {
@@ -62,13 +62,14 @@ public class Emp3NavigationListener implements NavigatorListener {
             return this.oWWCamera;
         }
         public gov.nasa.worldwind.geom.LookAt getLookAt() { return this.oWWLookAT; }
+        public IEmpBoundingArea getEmpBoundingArea() { return this.empBoundingArea; }
     }
     protected class EventProcessingThread extends java.lang.Thread{
         private final BlockingQueue<EventQueueItem> qEventEnumQueue = new LinkedBlockingQueue<>();
         private final Emp3NavigationListener oCameraHandler;
         private final long iEventWaitDelay = 500; // msec
         private MapViewEventEnum ePreviousEventSent = MapViewEventEnum.VIEW_MOTION_STOPPED;
-        private EventQueueItem oWaitingQueueItem = new EventQueueItem(MapViewEventEnum.VIEW_MOTION_STOPPED, null, null);
+        private EventQueueItem oWaitingQueueItem = new EventQueueItem(MapViewEventEnum.VIEW_MOTION_STOPPED, null, null, null);
 
         public EventProcessingThread(Emp3NavigationListener oHandler) {
             this.oCameraHandler = oHandler;
@@ -94,18 +95,17 @@ public class Emp3NavigationListener implements NavigatorListener {
                     if (bTimedWait) {
                         lWaitTime = Math.max(nextEventTime - System.currentTimeMillis(), 1);
                         oQueueItem = this.qEventEnumQueue.poll(lWaitTime, TimeUnit.MILLISECONDS);
+                        bTimedWait = false;
                         if ((oQueueItem == null) && (this.oWaitingQueueItem != null)) {
                             // We timed out
                             // Lets process the waiting event.
                             //Log.d(TAG, "  Timed out " + this.eWaitingEvent.name());
-                            this.oCameraHandler.generateViewChangeEvent(this.oWaitingQueueItem.getEvent(), this.oWaitingQueueItem.getCamera());
+                            this.oCameraHandler.generateViewChangeEvent(this.oWaitingQueueItem.getEvent(), this.oWaitingQueueItem.getCamera(), oWaitingQueueItem.getEmpBoundingArea());
                             this.ePreviousEventSent = this.oWaitingQueueItem.getEvent();
                             nextEventTime = System.currentTimeMillis() + this.iEventWaitDelay;
                             this.oWaitingQueueItem = null;
-                            bTimedWait = false;
                             continue;
                         }
-                        bTimedWait = false;
                     } else {
                         oQueueItem = this.qEventEnumQueue.take();
                     }
@@ -124,12 +124,12 @@ public class Emp3NavigationListener implements NavigatorListener {
                     continue;
                 }
 
-                // Log.d(TAG, "  Processing " + eEvent.name());
+                // Log.d(TAG, "  MOTION Processing " + oQueueItem.getEvent() + " Previous " + this.ePreviousEventSent);
                 switch (oQueueItem.getEvent()) {
                     case VIEW_IN_MOTION:
                         if (this.ePreviousEventSent == MapViewEventEnum.VIEW_MOTION_STOPPED) {
                             // Its the first in motion event. Dont wait just send it.
-                            this.oCameraHandler.generateViewChangeEvent(oQueueItem.getEvent(), oQueueItem.getCamera());
+                            this.oCameraHandler.generateViewChangeEvent(oQueueItem.getEvent(), oQueueItem.getCamera(), oQueueItem.getEmpBoundingArea());
                             this.ePreviousEventSent = oQueueItem.getEvent();
                             nextEventTime = System.currentTimeMillis() + this.iEventWaitDelay;
                             bTimedWait = false;
@@ -144,7 +144,7 @@ public class Emp3NavigationListener implements NavigatorListener {
                         // I removed the if to force it to send all the stop events we get.
                         //if (this.ePreviousEventSent == MapViewEventEnum.VIEW_IN_MOTION) {
                             // Its the first in motion stopped event. Dont wait just send it.
-                            this.oCameraHandler.generateViewChangeEvent(oQueueItem.getEvent(), oQueueItem.getCamera());
+                            this.oCameraHandler.generateViewChangeEvent(oQueueItem.getEvent(), oQueueItem.getCamera(), oQueueItem.getEmpBoundingArea());
                             this.ePreviousEventSent = oQueueItem.getEvent();
                             nextEventTime = System.currentTimeMillis() + this.iEventWaitDelay;
 
@@ -172,8 +172,8 @@ public class Emp3NavigationListener implements NavigatorListener {
         }
         
         public void queueEvent(MapViewEventEnum eEvent, gov.nasa.worldwind.geom.Camera oWWCamera,
-                               gov.nasa.worldwind.geom.LookAt oWWLookAt) {
-            this.qEventEnumQueue.add(new EventQueueItem(eEvent, oWWCamera, oWWLookAt));
+                               gov.nasa.worldwind.geom.LookAt oWWLookAt, IEmpBoundingArea empBoundingArea) {
+            this.qEventEnumQueue.add(new EventQueueItem(eEvent, oWWCamera, oWWLookAt, empBoundingArea));
         }
         
         public void exitThread() {
@@ -409,41 +409,13 @@ public class Emp3NavigationListener implements NavigatorListener {
         }
     }
 
-    public IGeoBounds getBounds() {
-        IGeoBounds oBounds = new GeoBounds();
-        Navigator oNav = this.ww.getNavigator();
-        double dAlt = oNav.getAltitude();
-        Location oCenterLatLon = Location.fromDegrees(oNav.getLatitude(), oNav.getLongitude());
-        double metersPerPixel = this.ww.pixelSizeAtDistance(dAlt);
-        int mapWidth = this.ww.getWidth();
-        int mapHeight = this.ww.getHeight();
-        double dRadius = this.ww.getGlobe().getRadiusAt(oNav.getLatitude(), oNav.getLongitude());
-        double verticalHalf = mapHeight / 2.0 * metersPerPixel / dRadius;
-        double horizontalHalf = mapWidth / 2.0 * metersPerPixel / dRadius;
-
-        Location oLatLon = new Location();
-        oCenterLatLon.greatCircleLocation(90.0, horizontalHalf, oLatLon);
-        oBounds.setEast(Location.normalizeLongitude(oLatLon.longitude));
-
-        oCenterLatLon.greatCircleLocation(-90.0, horizontalHalf, oLatLon);
-        oBounds.setWest(Location.normalizeLongitude(oLatLon.longitude));
-
-        oCenterLatLon.greatCircleLocation(0.0, verticalHalf, oLatLon);
-        oBounds.setNorth(Location.normalizeLatitude(oLatLon.latitude));
-
-        oCenterLatLon.greatCircleLocation(180.0, verticalHalf, oLatLon);
-        oBounds.setSouth(Location.normalizeLatitude(oLatLon.latitude));
-
-        return oBounds;
-    }
-
-    private void generateViewChangeEvent(MapViewEventEnum eEvent, gov.nasa.worldwind.geom.Camera oWWCamera) {
+    private void generateViewChangeEvent(MapViewEventEnum eEvent, gov.nasa.worldwind.geom.Camera oWWCamera, IEmpBoundingArea empBoundingArea) {
         Log.d(TAG, "   View Change event sent " + eEvent.name());
         WorldWindow wwd = this.ww.getWorldWindowController().getWorldWindow();
         this.updateCamera(this.currentCamera, oWWCamera);
-        IGeoBounds oBounds = this.getBounds();
+
         MapInstanceViewChangeEvent oEvent = new MapInstanceViewChangeEvent(this.mapInstance, eEvent,
-                this.currentCamera, this.currentLookAt, oBounds, wwd.getWidth(), wwd.getHeight());
+                this.currentCamera, this.currentLookAt, empBoundingArea, wwd.getWidth(), wwd.getHeight());
         this.mapInstance.generateViewChangeEvent(oEvent);
     }
 
@@ -457,10 +429,11 @@ public class Emp3NavigationListener implements NavigatorListener {
         this.ww.getNavigator().getAsLookAt(this.ww.getGlobe(), oWWLookAt);
 
         this.mapInstance.updateMiniMapCamera();
+        IEmpBoundingArea empBoundingArea = null;
 
         switch (navigatorEvent.getAction()) {
             case WorldWind.NAVIGATOR_MOVED:
-                //Log.d(TAG, "Navigation Moved.");
+                // Log.d(TAG, "Navigation Moved. MOTION");
                 eEvent = MapViewEventEnum.VIEW_IN_MOTION;
 
                 // TODO If we decide to go into LookAt mode and stay there until setCamera or applyCamera then following is
@@ -468,8 +441,9 @@ public class Emp3NavigationListener implements NavigatorListener {
 //                if(bLookAtUpdated) return;
                 break;
             case WorldWind.NAVIGATOR_STOPPED:
-                //Log.d(TAG, "Navigation Stopped.");
+                // Log.d(TAG, "Navigation Stopped. MOTION");
                 eEvent = MapViewEventEnum.VIEW_MOTION_STOPPED;
+                empBoundingArea = BoundsGeneration.getBounds(mapInstance);
                 this.mapInstance.reRenderMPTacticalGraphics();
                 // TODO If we decide to go into LookAt mode and stay there until setCamera or applyCamera then following is
                 //   required to stop event triggering going into infinite motion as we recalculate and rest LookAt on the Map
@@ -482,7 +456,7 @@ public class Emp3NavigationListener implements NavigatorListener {
                 return;
         }
 
-        this.oEventProcessingThread.queueEvent(eEvent, oWWCamera, oWWLookAt);
+        this.oEventProcessingThread.queueEvent(eEvent, oWWCamera, oWWLookAt, empBoundingArea);
         if (bLookAtSet && navigatorEvent.getAction() == WorldWind.NAVIGATOR_STOPPED) {
             // TODO Uncommenting following line had no effect on the Map Behavior, this needs further discussion
             // Emp3NavigationListener.this.ww.getNavigator().setAsCamera(Emp3NavigationListener.this.ww.getGlobe(), oWWCamera);

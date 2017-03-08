@@ -280,10 +280,12 @@ public abstract class CoreMapInstance implements IMapInstance {
     @Override
     public Point geoToScreen(IGeoPosition pos){
         Point point = this.geoToContainer(pos);
-        int [] loc = new int[2];
-        this.getMapInstanceAndroidView().getLocationOnScreen(loc);
-        point.x += loc[0];
-        point.y += loc[1];
+        if (null != point) {
+            int[] loc = new int[2];
+            this.getMapInstanceAndroidView().getLocationOnScreen(loc);
+            point.x += loc[0];
+            point.y += loc[1];
+        }
         return point;
     }
 

@@ -85,6 +85,7 @@ import mil.emp3.worldwind.controller.PickNavigateController;
 import mil.emp3.worldwind.feature.FeatureRenderableMapping;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
 import mil.emp3.worldwind.layer.EmpLayer;
+import mil.emp3.worldwind.layer.GeoJSONLayer;
 import mil.emp3.worldwind.layer.IconLayer;
 import mil.emp3.worldwind.layer.KMLLayer;
 import mil.emp3.worldwind.layer.MapGridLayer;
@@ -93,6 +94,7 @@ import mil.emp3.worldwind.layer.PolygonLayer;
 import mil.emp3.worldwind.layer.RenderedFeatureLayer;
 import mil.emp3.worldwind.layer.MilStdSymbolLayer;
 import mil.emp3.worldwind.layer.TextLayer;
+import mil.emp3.worldwind.utils.BoundsGeneration;
 import mil.emp3.worldwind.utils.ConfigChooser;
 import mil.emp3.worldwind.utils.EmpSurfaceImage;
 import mil.emp3.worldwind.utils.MapEngineProperties;
@@ -303,6 +305,10 @@ public class MapInstance extends CoreMapInstance {
         empLayer = new KMLLayer(this);
         ww.getLayers().addLayer(empLayer);
         empLayerMap.put(FeatureTypeEnum.KML, empLayer);
+
+        empLayer = new GeoJSONLayer(this);
+        ww.getLayers().addLayer(empLayer);
+        empLayerMap.put(FeatureTypeEnum.GEOJSON, empLayer);
 
         empLayer = new MilStdSymbolLayer(this);
         ww.getLayers().addLayer(empLayer);
@@ -1021,11 +1027,19 @@ public class MapInstance extends CoreMapInstance {
 
     @Override
     public IGeoBounds getMapBounds() {
-        return this.oMapViewController.getBounds();
+        return BoundsGeneration.getBounds(this);
     }
 
+    /**
+     * Caller must be on UI thread.
+     * @param pos
+     * @return
+     */
     @Override
     public Point geoToContainer(IGeoPosition pos) {
+        if(!SystemUtils.isCurrentThreadUIThread()) {
+            Log.w(TAG, "geoToContainer not on UI thread, result may not be correct");
+        }
         Point result = new Point();
         if (mapController.groundPositionToScreenPoint(pos.getLatitude(), pos.getLongitude(), result)) {
             return result;
@@ -1033,8 +1047,16 @@ public class MapInstance extends CoreMapInstance {
         return null;
     }
 
+    /**
+     * Caller must be on UI thread
+     * @param point
+     * @return
+     */
     @Override
     public IGeoPosition containerToGeo(Point point) {
+        if(!SystemUtils.isCurrentThreadUIThread()) {
+            Log.w(TAG, "containerToGeo not on UI thread, result may not be correct");
+        }
         IGeoPosition geoPosition = null;
         Position pos = new Position();
         if (mapController.screenPointToGroundPosition(point.x, point.y, pos)) {
@@ -1344,6 +1366,8 @@ public class MapInstance extends CoreMapInstance {
         }
     }
 
+    public PickNavigateController getMapController() {
+        return mapController;
     @Override
     public void setMapGridGenerator(IMapGridLines gridGenerator) {
         if (null != this.gridLayer) {
