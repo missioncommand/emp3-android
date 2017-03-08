@@ -22,9 +22,19 @@ public class UTMCoordinate {
     double eastingValue;
     double northingValue;
 
+    /**
+     * The default constructor.
+     */
     public UTMCoordinate() {
     }
 
+    /**
+     * Constructor
+     * @param zoneNumber    The zone number of the coordinate.
+     * @param zoneLetter    The zone letter of the coordinate.
+     * @param easting       The easting value of the coordinate.
+     * @param northing      The northing value of the coordinate.
+     */
     public UTMCoordinate(int zoneNumber, String zoneLetter, double easting, double northing) {
         zoneNumberValue = zoneNumber;
         zoneLetterValue = zoneLetter;
@@ -32,26 +42,53 @@ public class UTMCoordinate {
         northingValue = northing;
     }
 
+    /**
+     * This method retrieves the zone number of the coordinate.
+     * @return int
+     */
     public int getZoneNumber() {
         return zoneNumberValue;
     }
 
+    /**
+     * This method retrieves the zone letter of the coordinate.
+     * @return String
+     */
     public String getZoneLetter() {
         return zoneLetterValue;
     }
 
+    /**
+     * This method retrieves the northing value of the coordinate.
+     * @return double
+     */
     public double getNorthing() {
         return northingValue;
     }
 
+    /**
+     * This method retrieves the easting value of the coordinate.
+     * @return double
+     */
     public double getEasting() {
         return eastingValue;
     }
 
+    /**
+     * This method sets the zone number for the coordinate.
+     * @param value
+     */
     public void setZoneNumber(int value) {
+        if ((value < 1) || (value > 60)) {
+            throw new InvalidParameterException("The zone number must be between 1 and 60 inclusive.");
+        }
         zoneNumberValue = value;
     }
 
+    /**
+     * This method set the zone letter for the coordinate.
+     * @param value    String value
+     */
     public void setZoneLetter(String value) {
         if ((null == value) || (value.length() > 1) || value.isEmpty() || !latBands.contains(value)) {
             Log.e(TAG, "Invalid Zone letter: " + value);
@@ -60,14 +97,28 @@ public class UTMCoordinate {
         zoneLetterValue = value;
     }
 
+    /**
+     * This method sets the northing value for the coordinate.
+     * @param value
+     */
     public void setNorthing(double value) {
         northingValue = value;
     }
 
+    /**
+     * This method sets the easting value for the coordinate.
+     * @param value
+     */
     public void setEasting(double value) {
         eastingValue = value;
     }
 
+    /**
+     * This static method calculates the zone number for the lat / long coordinate.
+     * @param latitude     The latitude in degrees.
+     * @param longitude    The longitude in degrees.
+     * @return int
+     */
     public static int getZoneNumber(double latitude, double longitude) {
         if ((latitude > 84.0) || (latitude < -80)) {
             return 0;
@@ -94,29 +145,53 @@ public class UTMCoordinate {
             } else if ((longitude >= 21.0) && (longitude < 33.0)) {
                 startZoneIndex = 35;
             } else if ((longitude >= 33.0) && (longitude < 42.0)) {
-                startZoneIndex = 35;
+                startZoneIndex = 37;
             }
         }
 
         return startZoneIndex;
     }
 
-    public static String getZoneLetter(double latitude, double longitude) {
+    /**
+     * This static method calculates the zone letter for the lat provided.
+     * @param latitude     The latitude in degrees.
+     * @return String
+     */
+    public static String getZoneLetter(double latitude) {
         if (latitude >= 84.0) {
             return "X";
         } else if (latitude < -80) {
             return "C";
         }
 
-        int iLatIndex = (int) Math.floor((Math.max(latitude, -80.0) + 80.0) / 8.0);
+        int iLatIndex;
+
+        if ((latitude < 84.0) && (latitude >= 72)) {
+            iLatIndex = 19;
+        } else {
+            iLatIndex = (int) Math.floor((Math.max(latitude, -80.0) + 80.0) / 8.0);
+        }
 
         return ((iLatIndex < latBands.length())? latBands.charAt(iLatIndex) + "": "");
     }
 
+    /**
+     * This static method computes the UTM Coordinate for the specified lat / long coordinate.
+     * @param latitude     The latitude in degrees.
+     * @param longitude    The longitude in degrees.
+     * @return UTMCoordinate
+     */
     public static UTMCoordinate fromLatLong(double latitude, double longitude) {
         return fromLatLong(latitude, longitude, new UTMCoordinate());
     }
 
+    /**
+     * This static method computes the UTM Coordinate for the specified lat / long coordinate.
+     * @param latitude     The latitude in degrees.
+     * @param longitude    The longitude in degrees.
+     * @param result       A UTMCoordinate object in which to place the UTM coordinate.
+     * @return UTMCoordinate.
+     */
     public static UTMCoordinate fromLatLong(double latitude, double longitude, UTMCoordinate result) {
         double a = 6378137.0; //ellip.radius;
         double eccSquared = 0.00669438; //ellip.eccsq;
@@ -131,10 +206,13 @@ public class UTMCoordinate {
 
         ZoneNumber = getZoneNumber(latitude, longitude);
         result.setZoneNumber(ZoneNumber);
-        result.setZoneLetter(getZoneLetter(latitude, longitude));
+        result.setZoneLetter(getZoneLetter(latitude));
 
-        LongOrigin = (ZoneNumber - 1) * 6 - 180 + 3; //+3 puts origin
-        //LongOrigin = (ZoneNumber - 1) * 6 - 180 + (getGridZoneWidthInDegrees(ZoneNumber, result.getZoneLetter()) / 2.0);
+        //if ((ZoneNumber >= 31) && (ZoneNumber <= 37) && (result.getZoneLetter().equals("X"))) {
+        //    LongOrigin = getZoneWestLongitude(ZoneNumber, result.getZoneLetter()) + (getGridZoneWidthInDegrees(ZoneNumber, result.getZoneLetter()) / 2.0);
+        //} else {
+            LongOrigin = (ZoneNumber - 1) * 6 - 180 + 3; //+3 puts origin
+        //}
         // in middle of
         // zone
         LongOriginRad = Math.toRadians(LongOrigin);
@@ -157,17 +235,26 @@ public class UTMCoordinate {
         }
 
         result.setZoneNumber(ZoneNumber);
-        result.setZoneLetter(getZoneLetter(latitude, longitude));
+        result.setZoneLetter(getZoneLetter(latitude));
         result.setEasting(Math.floor(UTMEasting));
         result.setNorthing(Math.floor(UTMNorthing));
 
         return result;
     }
 
+    /**
+     * This method converts the UTM coordinate to a lat / long coordinate.
+     * @return IGeoPosition.
+     */
     public IGeoPosition toLatLong() {
         return toLatLong(new GeoPosition());
     }
 
+    /**
+     * This method converts the UTM coordinate to a lat / long coordinate.
+     * @param result    A GeoPosition object to store the result.
+     * @return IGeoPosition.
+     */
     public IGeoPosition toLatLong(IGeoPosition result) {
         double k0 = 0.9996;
         double a = 6378137.0; //ellip.radius;
@@ -192,8 +279,11 @@ public class UTMCoordinate {
         }
 
         // There are 60 zones with zone 1 being at West -180 to -174
-        LongOrigin = (zoneNumberValue - 1) * 6 - 180 + 3; // +3 puts origin
-        //LongOrigin = (zoneNumberValue - 1) * 6 - 180 + (getGridZoneWidthInDegrees() / 2);
+        //if ((getZoneNumber() >= 31) && (getZoneNumber() <= 37) && (getZoneLetter().equals("X"))) {
+        //    LongOrigin = getZoneWestLongitude() + (getGridZoneWidthInDegrees() / 2);
+        //} else {
+            LongOrigin = (zoneNumberValue - 1) * 6 - 180 + 3; // +3 puts origin
+        //}
         // in middle of
         // zone
 
@@ -224,6 +314,10 @@ public class UTMCoordinate {
         return result;
     }
 
+    /**
+     * This method retrieves the zone letter before the current one.
+     * @return String or null if the current one is "C".
+     */
     public String getPreviousLetter() {
         int iIndex = latBands.indexOf(zoneLetterValue);
 
@@ -235,6 +329,11 @@ public class UTMCoordinate {
         return latBands.charAt(iIndex) + "";
     }
 
+
+    /**
+     * This method retrieves the zone letter after the current one.
+     * @return String or null if the current one is "X".
+     */
     public String getNextLetter() {
         int iIndex = latBands.indexOf(zoneLetterValue);
 
@@ -246,10 +345,19 @@ public class UTMCoordinate {
         return latBands.charAt(iIndex) + "";
     }
 
+    /**
+     * This method retrieves the min northing value for the grid zone.
+     * @return
+     */
     public double getMinNorthingForZone() {
         return getMinNorthingForZone(this.zoneLetterValue);
     }
 
+    /**
+     * This static method retrieves the min northing value for the zone letter specified.
+     * @param letter The zone letter
+     * @return double
+     */
     public static double getMinNorthingForZone(String letter) {
         double northing;
 
@@ -321,10 +429,19 @@ public class UTMCoordinate {
         return northing;
     }
 
+    /**
+     * This method retrieves the max northing value for the grid zone.
+     * @return
+     */
     public double getMaxNorthingForZone() {
         return getMaxNorthingForZone(this.zoneLetterValue);
     }
 
+    /**
+     * This static method retrieves the max northing value for the zone letter specified.
+     * @param letter The zone letter
+     * @return double
+     */
     public static double getMaxNorthingForZone(String letter) {
         double northing;
 
@@ -396,10 +513,18 @@ public class UTMCoordinate {
         return northing;
     }
 
+    /**
+     * This method calculates the width of the grid zone in degrees.
+     * @return int width in degrees.
+     */
     public int getGridZoneWidthInDegrees() {
         return getGridZoneWidthInDegrees(getZoneNumber(), getZoneLetter());
     }
 
+    /**
+     * This static method calculates the width of the indicated grid zone in degrees.
+     * @return int width in degrees.
+     */
     public static int getGridZoneWidthInDegrees(int zoneNumber, String zoneLetter) {
         int zoneWidth = 6;
 
@@ -448,10 +573,18 @@ public class UTMCoordinate {
         return zoneWidth;
     }
 
+    /**
+     * This method calculates the height of the grid zone in degrees.
+     * @return int height in degrees.
+     */
     public int getGridZoneHeightInDegrees() {
         return getGridZoneHeightInDegrees(getZoneNumber(), getZoneLetter());
     }
 
+    /**
+     * This static method calculates the height of the indicated grid zone in degrees.
+     * @return int height in degrees.
+     */
     public static int getGridZoneHeightInDegrees(int zoneNumber, String zoneLetter) {
         int zoneHeight = 8;
 
@@ -472,10 +605,20 @@ public class UTMCoordinate {
         return zoneHeight;
     }
 
+    /**
+     * This method calculates the west longitude of the grid zone.
+     * @return int
+     */
     public int getZoneWestLongitude() {
         return getZoneWestLongitude(getZoneNumber(), getZoneLetter());
     }
 
+    /**
+     * This static method calculates the west longitude of the indicated grid zone.
+     * @param zoneNumber The zone number.
+     * @param zoneLetter The zone letter
+     * @return int
+     */
     public static int getZoneWestLongitude(int zoneNumber, String zoneLetter) {
         if (0 == zoneNumber) {
             return 0;
@@ -510,10 +653,20 @@ public class UTMCoordinate {
         return longitude;
     }
 
+    /**
+     * This method calculates the gird zone most southern latitude.
+     * @return latitude in degrees.
+     */
     public int getZoneSouthLatitude() {
         return getZoneSouthLatitude(this.getZoneNumber(), getZoneLetter());
     }
 
+    /**
+     * This static method calculates the gird zone most southern latitude.
+     * @param zoneNumber The zone number.
+     * @param zoneLetter The zone letter
+     * @return latitude in degrees.
+     */
     public static int getZoneSouthLatitude(int zoneNumber, String zoneLetter) {
         if (0 == zoneNumber) {
             return 0;
@@ -523,6 +676,10 @@ public class UTMCoordinate {
         return -80 + (index * 8);
     }
 
+    /**
+     * This method verifies if the coordinate is in the northern hemisphere.
+     * @return true if it is in the northern hemisphere and false otherwise.
+     */
     public boolean isNorthernHemisphere() {
         if (null == getZoneLetter()) {
             throw new InvalidParameterException("Zone letter not set.");
@@ -530,6 +687,10 @@ public class UTMCoordinate {
         return (getZoneLetter().charAt(0) >= 'N');
     }
 
+    /**
+     * This method copies the coordinate vales from the from parameters to this one.
+     * @param from    A UTMCoordinate object to copy the values from.
+     */
     public void copyFrom(UTMCoordinate from) {
         this.setZoneNumber(from.getZoneNumber());
         this.setZoneLetter(from.getZoneLetter());
