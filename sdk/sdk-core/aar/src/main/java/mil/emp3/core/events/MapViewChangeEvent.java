@@ -2,6 +2,7 @@ package mil.emp3.core.events;
 
 import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import org.cmapi.primitives.IGeoBounds;
@@ -32,7 +33,18 @@ public class MapViewChangeEvent extends mil.emp3.api.events.MapViewChangeEvent {
 
     @Override
     public IGeoBounds getBounds() {
+        if((null != oBounds) && (oBounds instanceof IEmpBoundingArea)) {
+            return ((IEmpBoundingArea) oBounds).getGeoBounds();
+        }
         return this.oBounds;
+    }
+
+    @Override
+    public IEmpBoundingArea getBoundingArea() {
+        if((null != oBounds) && (oBounds instanceof IEmpBoundingArea)) {
+            return (IEmpBoundingArea) oBounds;
+        }
+        return null;
     }
 
     @Override

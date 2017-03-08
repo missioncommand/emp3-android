@@ -25,6 +25,7 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.dialogs.utils.CameraComponents;
+import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 import mil.emp3.test.emp3vv.utils.MapNamesUtility;
 
 /**
@@ -151,7 +152,12 @@ public class CameraAndLookAtDialog extends Emp3TesterDialogBase {
         applyCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).applyCamera(CameraAndLookAtDialog.this);
+                String isValid = cameraComponents.validate();
+                if(isValid.equals(CameraComponents.isValid)) {
+                    ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).applyCamera(CameraAndLookAtDialog.this);
+                } else {
+                    ErrorDialog.showError(getContext(), isValid);
+                }
             }
         });
 

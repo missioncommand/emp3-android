@@ -33,6 +33,7 @@ import mil.emp3.api.Text;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.EmpGeoColor;
@@ -654,11 +655,17 @@ public class MilStdRenderer implements IMilStdRenderer {
                 }
             }
 
+            // There is an issue in version 0.1.20 of mission command mil sym render-er where fillColor is not properly set as it
+            // used to be in 0.1.17. So as a work-around we will set currentFillStyle to features Fill Style. This can be undone
+            // once render-er is fixed.
+
             fillColor = shapeInfo.getFillColor();
             if (fillColor != null) {
                 geoFillColor = new EmpGeoColor((double) fillColor.getAlpha() / 255.0, fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue());
                 currentFillStyle = new GeoFillStyle();
                 currentFillStyle.setFillColor(geoFillColor);
+            } else {
+                currentFillStyle = renderFeature.getFillStyle();
             }
 
             switch (shapeInfo.getShapeType()) {
@@ -778,7 +785,7 @@ public class MilStdRenderer implements IMilStdRenderer {
 
     private void renderTacticalGraphic(List<IFeature> featureList, IMapInstance mapInstance, MilStdSymbol symbol, boolean selected) {
         ICamera camera = mapInstance.getCamera();
-        IGeoBounds bounds = mapInstance.getMapBounds();
+        IGeoBounds bounds = storageManager.getBounds(storageManager.getMapMapping(mapInstance).getClientMap());
 
         if ((camera == null) || (bounds == null)) {
             return;
@@ -794,8 +801,17 @@ public class MilStdRenderer implements IMilStdRenderer {
         }
 
         String coordinateStr = this.convertToStringPosition(symbol.getPositions());
-        String boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
+        Log.d(TAG, "Symbol Code " + symbol.getSymbolCode() + " coordinateStr " + coordinateStr);
+        String boundingBoxStr;
+        if(bounds instanceof IEmpBoundingArea) {
+            boundingBoxStr = bounds.toString();
+        } else {
+            boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
+        }
+
+        Log.d(TAG, "bounds " + boundingBoxStr);
         double scale = camera.getAltitude() * 6.36;
+
         SparseArray<String> modifiers = this.getTGModifiers(mapInstance, symbol);
         SparseArray<String> attributes = this.getAttributes(mapInstance, symbol, selected);
         String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(symbol.getAltitudeMode());
@@ -804,9 +820,10 @@ public class MilStdRenderer implements IMilStdRenderer {
                 symbol.getGeoId().toString(), symbol.getName(), symbol.getDescription(),
                 symbol.getSymbolCode(), coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, milstdVersion);
-
+        Log.d(TAG, "After RenderMultiPointAsMilStdSymbol renderSymbolgetSymbolShapes().size() " + renderSymbol.getSymbolShapes().size());
         // Retrieve the list of shapes.
         this.renderShapeParser(featureList, mapInstance, renderSymbol, symbol, selected);
+
     }
 
     @Override
