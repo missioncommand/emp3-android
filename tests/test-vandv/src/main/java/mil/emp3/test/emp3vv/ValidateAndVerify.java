@@ -102,8 +102,8 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
                         } else {
                             testStatus.setText("map: Map Status Changed to " + mapStateChangeEvent.getNewState());
                         }
-                        map.setCamera(CameraUtility.buildCamera(33.9424368, -118.4081222, 2000000.0), false);
-                    } catch (EMP_Exception e) {
+                        // map.setCamera(CameraUtility.buildCamera(33.9424368, -118.4081222, 2000000.0), false);
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }

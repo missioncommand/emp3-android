@@ -1,5 +1,4 @@
 package mil.emp3.worldwind;
-
 import android.util.Log;
 
 import org.cmapi.primitives.IGeoAltitudeMode;
@@ -435,7 +434,7 @@ public class Emp3NavigationListener implements NavigatorListener {
             case WorldWind.NAVIGATOR_MOVED:
                 // Log.d(TAG, "Navigation Moved. MOTION");
                 eEvent = MapViewEventEnum.VIEW_IN_MOTION;
-
+                BoundsGeneration.mapInMotion(mapInstance);  // This will invalidate the current bounding area
                 // TODO If we decide to go into LookAt mode and stay there until setCamera or applyCamera then following is
                 //   required to stop event triggering going into infinite motion as we recalculate and rest LookAt on the Map
 //                if(bLookAtUpdated) return;
@@ -443,7 +442,7 @@ public class Emp3NavigationListener implements NavigatorListener {
             case WorldWind.NAVIGATOR_STOPPED:
                 // Log.d(TAG, "Navigation Stopped. MOTION");
                 eEvent = MapViewEventEnum.VIEW_MOTION_STOPPED;
-                empBoundingArea = BoundsGeneration.getBounds(mapInstance);
+                empBoundingArea = BoundsGeneration.getBounds(mapInstance); // recalculate the bounding area
                 this.mapInstance.reRenderMPTacticalGraphics();
                 // TODO If we decide to go into LookAt mode and stay there until setCamera or applyCamera then following is
                 //   required to stop event triggering going into infinite motion as we recalculate and rest LookAt on the Map
