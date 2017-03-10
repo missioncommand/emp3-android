@@ -35,7 +35,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 public class MGRSMapGridLine extends UTMBaseMapGridLine {
     private static final String TAG = MGRSMapGridLine.class.getSimpleName();
 
-    private static final int PIXELS_PER_INCH = Resources.getSystem().getDisplayMetrics().densityDpi;
     private static final int MGRS_100K_METER_GRID = 100000;
     private static final int MGRS_10K_METER_GRID = 10000;
     private static final int MGRS_1K_METER_GRID = 1000;
@@ -43,10 +42,10 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
     private static final int MGRS_10_METER_GRID = 10;
     private static final int MGRS_1_METER_GRID = 1;
 
-    // The object types for the MGRS grid Zonwe meridian, parallels, and labels.
-    private static final String MGRS_GRID_ZONE_MERIDIAN = "gridzone.meridian";
-    private static final String MGRS_GRID_ZONE_PARALLELS = "gridzone.parallels";
-    private static final String MGRS_GRID_ZONE_LABEL = "gridzone.label";
+    // The object types for the MGRS grid Zone meridian, parallels, and labels.
+    //private static final String MGRS_GRID_ZONE_MERIDIAN = "MGRS.gridzone.meridian";
+    //private static final String MGRS_GRID_ZONE_PARALLELS = "MGRS.gridzone.parallels";
+    //private static final String MGRS_GRID_ZONE_LABEL = "MGRS.gridzone.label";
 
     // The object types for the MGRS grid components.
     private static final String MGRS_GRID_LABEL = "MGRS.grid.label";
@@ -60,10 +59,6 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
     private static final String MGRS_GRID_BOX_NORTH_VALUE = "MGRS.north.values";
     private static final String MGRS_GRID_BOX_EAST_VALUE = "MGRS.east.values";
 
-    // Map list that hold the stroke style used by the grid lines.
-    private final Map<String, IGeoStrokeStyle> strokeStyleMap;
-    // Map list that hold the label styles used by the grid labels.
-    private final Map<String, IGeoLabelStyle> labelStyleMap;
     // Map list holding the number of digits used for the northing and easting values of the MGRS grid.
     private final Map<Integer, Integer> gridValueDigits;
 
@@ -93,8 +88,6 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
     public MGRSMapGridLine(IMapInstance mapInstance) {
         super(mapInstance);
-        this.strokeStyleMap = new HashMap<>();
-        this.labelStyleMap = new HashMap<>();
         setStyles();
         this.gridValueDigits = new HashMap<>();
         this.gridValueDigits.put(MGRS_10K_METER_GRID, 1);
@@ -104,28 +97,11 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         this.gridValueDigits.put(MGRS_1_METER_GRID, 5);
     }
 
-    // This methos loads the style lists.
+    // This method loads the styles.
     private void setStyles() {
         EmpGeoColor color;
         IGeoStrokeStyle strokeStyle;
         IGeoLabelStyle labelStyle;
-
-        // Grid zone styles.
-        color = new EmpGeoColor(0.6, 255, 255, 0);
-        strokeStyle = new GeoStrokeStyle();
-        strokeStyle.setStrokeColor(color);
-        strokeStyle.setStrokeWidth(3.0);
-        strokeStyleMap.put(MGRS_GRID_ZONE_MERIDIAN, strokeStyle);
-        strokeStyleMap.put(MGRS_GRID_ZONE_PARALLELS, strokeStyle);
-
-        labelStyle = new GeoLabelStyle();
-        color = new EmpGeoColor(1.0, 255, 255, 0);
-        labelStyle.setColor(color);
-        labelStyle.setSize(12.0);
-        labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
-        labelStyle.setFontFamily("Ariel");
-        labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
-        labelStyleMap.put(MGRS_GRID_ZONE_LABEL, labelStyle);
 
         // MGRS Grid Label
         labelStyle = new GeoLabelStyle();
@@ -135,31 +111,31 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
         labelStyle.setFontFamily("Ariel");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
-        labelStyleMap.put(MGRS_GRID_LABEL, labelStyle);
+        addLabelStyle(MGRS_GRID_LABEL, labelStyle);
 
         // MGRS Grid Box
         color = new EmpGeoColor(0.7, 0, 0, 255);
         strokeStyle = new GeoStrokeStyle();
         strokeStyle.setStrokeColor(color);
         strokeStyle.setStrokeWidth(4.0);
-        strokeStyleMap.put(MGRS_GRID_BOX_MERIDIAN, strokeStyle);
-        strokeStyleMap.put(MGRS_GRID_BOX_PARALLELS, strokeStyle);
+        addStrokeStyle(MGRS_GRID_BOX_MERIDIAN, strokeStyle);
+        addStrokeStyle(MGRS_GRID_BOX_PARALLELS, strokeStyle);
 
         // MGRS Grid Lines Major
         color = new EmpGeoColor(0.5, 75, 75, 255);
         strokeStyle = new GeoStrokeStyle();
         strokeStyle.setStrokeColor(color);
         strokeStyle.setStrokeWidth(3.0);
-        strokeStyleMap.put(MGRS_GRID_LINE_MAJOR_MERIDIAN, strokeStyle);
-        strokeStyleMap.put(MGRS_GRID_LINE_MAJOR_PARALLELS, strokeStyle);
+        addStrokeStyle(MGRS_GRID_LINE_MAJOR_MERIDIAN, strokeStyle);
+        addStrokeStyle(MGRS_GRID_LINE_MAJOR_PARALLELS, strokeStyle);
 
         // MGRS Grid Lines Minor
         color = new EmpGeoColor(0.5, 150, 150, 255);
         strokeStyle = new GeoStrokeStyle();
         strokeStyle.setStrokeColor(color);
         strokeStyle.setStrokeWidth(1.0);
-        strokeStyleMap.put(MGRS_GRID_LINE_MINOR_MERIDIAN, strokeStyle);
-        strokeStyleMap.put(MGRS_GRID_LINE_MINOR_PARALLELS, strokeStyle);
+        addStrokeStyle(MGRS_GRID_LINE_MINOR_MERIDIAN, strokeStyle);
+        addStrokeStyle(MGRS_GRID_LINE_MINOR_PARALLELS, strokeStyle);
 
         // MGRS ID
         // Centered
@@ -170,7 +146,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
         labelStyle.setFontFamily("Ariel");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.BOLD);
-        labelStyleMap.put(MGRS_GRID_BOX_LABEL_CENTERED, labelStyle);
+        addLabelStyle(MGRS_GRID_BOX_LABEL_CENTERED, labelStyle);
 
         // MGRS northing values
         labelStyle = new GeoLabelStyle();
@@ -180,7 +156,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
         labelStyle.setFontFamily("Ariel");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
-        labelStyleMap.put(MGRS_GRID_BOX_NORTH_VALUE, labelStyle);
+        addLabelStyle(MGRS_GRID_BOX_NORTH_VALUE, labelStyle);
 
         // MGRS easting values.
         labelStyle = new GeoLabelStyle();
@@ -189,58 +165,57 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
         labelStyle.setFontFamily("Ariel");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
-        labelStyleMap.put(MGRS_GRID_BOX_EAST_VALUE, labelStyle);
+        addLabelStyle(MGRS_GRID_BOX_EAST_VALUE, labelStyle);
     }
 
     @Override
-    protected void processViewChange(EmpBoundingBox mapBounds, ICamera camera, int viewWidth, int viewHeight) {
-        double viewWidthInMeters = mapBounds.widthAcrossCenter();
-        double metersPerPixel = viewWidthInMeters / viewWidth;
-        double metersInOneEighthOfAnInch = metersPerPixel * PIXELS_PER_INCH / 8.0;
+    protected void processViewChange(EmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
+        double metersInOneEighthOfAnInch;
+        metersInOneEighthOfAnInch = metersPerPixel * PIXELS_PER_INCH / 8.0;
 
         clearFeatureList();
 
         try {
-            // The MGRS grid setting is based on the distance (mters) in 1/8 of an inch on the display device based on the screen density.
+            // The MGRS grid setting is based on the distance (meters) in 1/8 of an inch on the display device based on the screen density.
             if (metersInOneEighthOfAnInch <= 2) {
                 Log.i(TAG, "1 threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_1_METER_GRID);
-                createMGRSGridZones(mapBounds, camera, viewWidth, viewHeight, false);
-                displayGridLabel("MGRS 1m Grid", mapBounds, metersPerPixel);
+                createUTMGridZones(mapBounds, metersPerPixel);
+                displayGridLabel("MGRS 1m Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 17) {
                 Log.i(TAG, "10 threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_10_METER_GRID);
-                createMGRSGridZones(mapBounds, camera, viewWidth, viewHeight, false);
-                displayGridLabel("MGRS 10m Grid", mapBounds, metersPerPixel);
+                createUTMGridZones(mapBounds, metersPerPixel);
+                displayGridLabel("MGRS 10m Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 160) {
                 Log.i(TAG, "100 threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_100_METER_GRID);
-                createMGRSGridZones(mapBounds, camera, viewWidth, viewHeight, false);
-                displayGridLabel("MGRS 100m Grid", mapBounds, metersPerPixel);
+                createUTMGridZones(mapBounds, metersPerPixel);
+                displayGridLabel("MGRS 100m Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 1600) {
                 Log.i(TAG, "1K threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_1K_METER_GRID);
-                createMGRSGridZones(mapBounds, camera, viewWidth, viewHeight, false);
-                displayGridLabel("MGRS 1Km Grid", mapBounds, metersPerPixel);
+                createUTMGridZones(mapBounds, metersPerPixel);
+                displayGridLabel("MGRS 1Km Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 7500) {
                 Log.i(TAG, "10K threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_10K_METER_GRID);
-                createMGRSGridZones(mapBounds, camera, viewWidth, viewHeight, false);
-                displayGridLabel("MGRS 10Km Grid", mapBounds, metersPerPixel);
-            } else if ((metersInOneEighthOfAnInch * 3) <= MGRS_100K_METER_GRID) {
+                createUTMGridZones(mapBounds, metersPerPixel);
+                displayGridLabel("MGRS 10Km Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+            } else if (metersInOneEighthOfAnInch <= 40000) {
                 Log.i(TAG, "100K threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_100K_METER_GRID);
-                createMGRSGridZones(mapBounds, camera, viewWidth, viewHeight, false);
-                displayGridLabel("MGRS 100Km Grid", mapBounds, metersPerPixel);
-            } else if (metersInOneEighthOfAnInch <= MGRS_100K_METER_GRID) {
+                createUTMGridZones(mapBounds, metersPerPixel);
+                displayGridLabel("MGRS 100Km Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+            } else if (metersInOneEighthOfAnInch <= 250000) {
                 Log.i(TAG, "GZD threshold. " + metersInOneEighthOfAnInch);
-                createMGRSGridZones(mapBounds, camera, viewWidth, viewHeight, true);
-                displayGridLabel("MGRS GZD", mapBounds, metersPerPixel);
-            } else if ((metersInOneEighthOfAnInch * 4) <= (MGRS_100K_METER_GRID * 7)) {
+                createUTMGridZones(mapBounds, metersPerPixel);
+                displayGridLabel("MGRS GZD", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+            } else if (metersInOneEighthOfAnInch <= 500000) {
                 Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
-                super.processViewChange(mapBounds, camera, viewWidth, viewHeight);
+                super.processViewChange(mapBounds, camera, metersPerPixel);
             } else {
-                Log.i(TAG, "Grid off. " + viewWidthInMeters);
+                Log.i(TAG, "Grid off. " + metersInOneEighthOfAnInch);
                 // The grid turns off.
             }
         } catch (Exception Ex) {
@@ -772,21 +747,8 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         EmpBoundingBox labelBounds = new EmpBoundingBox();
         double gridLabelPixelWidth = (getCharacterPixelWidth(MGRS_GRID_BOX_LABEL_CENTERED) * 2.0);
         double gridLabelPixelHeight = getCharacterPixelWidth(MGRS_GRID_BOX_LABEL_CENTERED);
-        double gridZoneLabelPixelWidth = (getCharacterPixelWidth(MGRS_GRID_ZONE_LABEL) * 3.0);
-        double gridZoneLabelPixelHeight = getCharacterPixelWidth(MGRS_GRID_ZONE_LABEL);
 
         UTMCoordinate.fromLatLong(drawBounds.getSouth(), drawBounds.getWest(), mgrsGridBoxCoord);
-
-        // Place the grid zone label if it fits.
-        if (null != gridZoneBounds.intersection(drawBounds, labelBounds)) {
-            if ((labelBounds.heightAcrossCenter() / metersPerPixel) > gridZoneLabelPixelHeight) {
-                if ((labelBounds.widthAcrossCenter() / metersPerPixel) > gridZoneLabelPixelWidth) {
-                    labelPos = GridLineUtils.newPosition((labelBounds.getNorth() + labelBounds.centerLatitude()) / 2.0, labelBounds.centerLongitude(), 0);
-                    gridObject = createLabelFeature(labelPos, gridZoneUTMCoord.getZoneNumber() + gridZoneUTMCoord.getZoneLetter(), MGRS_GRID_ZONE_LABEL);
-                    addFeature(gridObject);
-                }
-            }
-        }
 
         initialEasting = mgrsGridBoxCoord.getEasting();
         mgrs100KGridBoxSWPos.setLatitude(drawBounds.getSouth());
@@ -879,207 +841,10 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         createMGRSGridLabels(gridZoneUTMCoord, GridZoneBounds, tempUTMCoordList, mapBounds, drawBounds, gridSize, metersPerPixel, metersInOneEighthOfAnInch);
     }
 
-    /**
-     * This method places the MGRS grid zone lines on the map.
-     * @param mapBounds        The bounding area of the map's viewing area.
-     * @param camera           The current camera.
-     * @param viewWidth        The width of the map in pixels.
-     * @param viewHeight       The height of th map in pixels.
-     * @param displayLabels    Set to true if th labels are to be created, false otherwise.
-     */
-    private void createMGRSGridZones(EmpBoundingBox mapBounds, ICamera camera, int viewWidth, int viewHeight, boolean displayLabels) {
-        double longitude;
-        double latitude;
-        int intLongitude;
-        int startZoneIndex;
-        int endZoneIndex;
-        int zoneIndex;
-        int minRow;
-        int maxRow;
-        int iIndex;
-        List<IGeoPosition> positionList;
-        IFeature gridObject;
-        EmpBoundingBox labelBounds = new EmpBoundingBox();
-        double metersPerPixel = mapBounds.widthAcrossCenter() / viewWidth;
-        double gridZoneLableHeight = getCharacterPixelWidth(MGRS_GRID_ZONE_LABEL);
-        double gridZoneLabelWidth = getCharacterPixelWidth(MGRS_GRID_ZONE_LABEL) * 3;
-
-        double minLatitude = Math.max(Math.floor(mapBounds.getSouth()), -80.0);
-        double maxLatitude = Math.min(Math.ceil((mapBounds.getNorth())), 84.0);
-
-        if ((minLatitude >= 84.0) || (maxLatitude <= -80.0)) {
-            // The bounding box is in one of the poles. UPS
-            // TODO add UPS.
-            return;
-        }
-
-        startZoneIndex = (int) Math.floor((mapBounds.west() + 180) / 6.0);
-        endZoneIndex = (int) Math.ceil((mapBounds.east() + 180) / 6.0);
-
-        double minLongitude = (double) ((startZoneIndex * 6) - 180);
-        double maxLongitude = (double) ((endZoneIndex * 6) - 180);
-
-        endZoneIndex = ++endZoneIndex % 60;
-        zoneIndex = startZoneIndex;
-        //zoneIndex = (startZoneIndex + 59) % 60;
-        while (zoneIndex != endZoneIndex) {
-            //zoneIndex = ++zoneIndex % 60;
-            intLongitude = (zoneIndex * 6) - 180;
-            longitude = (double) intLongitude;
-            positionList = new ArrayList<>();
-
-            // Meridian
-            latitude = Math.max(minLatitude, -80.0);
-            positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
-
-            if (intLongitude < 6 || intLongitude > 36) {
-                latitude = Math.min(maxLatitude, 84.0);
-                positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
-            } else if (intLongitude == 6) {
-                latitude = Math.min(maxLatitude, 56.0);
-                positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
-
-                if (maxLatitude > 56.0) {
-                    gridObject = createPathFeature(positionList, MGRS_GRID_ZONE_MERIDIAN);
-                    addFeature(gridObject);
-
-                    latitude = Math.min(maxLatitude, 64.0);
-                    positionList = new ArrayList<>();
-                    positionList.add(GridLineUtils.newPosition(56.0, longitude - 3.0, 0));
-                    positionList.add(GridLineUtils.newPosition(latitude, longitude -3.0, 0));
-
-                    if (maxLatitude > 64.0) {
-                        gridObject = createPathFeature(positionList, MGRS_GRID_ZONE_MERIDIAN);
-                        addFeature(gridObject);
-
-                        latitude = Math.min(maxLatitude, 72.0);
-                        positionList = new ArrayList<>();
-                        positionList.add(GridLineUtils.newPosition(64.0, longitude, 0));
-                        positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
-
-                        if (maxLatitude > 72.0) {
-                            gridObject = createPathFeature(positionList, MGRS_GRID_ZONE_MERIDIAN);
-                            addFeature(gridObject);
-
-                            latitude = Math.min(maxLatitude, 84.0);
-                            positionList = new ArrayList<>();
-                            positionList.add(GridLineUtils.newPosition(72.0, longitude + 3.0, 0));
-                            positionList.add(GridLineUtils.newPosition(latitude, longitude + 3.0, 0));
-                        }
-                    }
-                }
-            } else {
-                latitude = Math.min(maxLatitude, 72.0);
-                positionList.add(GridLineUtils.newPosition(latitude, longitude, 0));
-
-                if (maxLatitude > 72.0) {
-                    switch (intLongitude) {
-                        case 18:
-                        case 30:
-                            gridObject = createPathFeature(positionList, MGRS_GRID_ZONE_MERIDIAN);
-                            addFeature(gridObject);
-
-                            latitude = Math.min(maxLatitude, 84.0);
-                            positionList = new ArrayList<>();
-                            positionList.add(GridLineUtils.newPosition(72.0, longitude + 3.0, 0));
-                            positionList.add(GridLineUtils.newPosition(latitude, longitude + 3.0, 0));
-                            break;
-                    }
-                }
-            }
-
-            gridObject = createPathFeature(positionList, MGRS_GRID_ZONE_MERIDIAN);
-            addFeature(gridObject);
-            zoneIndex = ++zoneIndex % 60;
-        };
-
-        // Generate parallels
-        minRow = (int) Math.floor((Math.max(minLatitude, -80.0) + 80.0) / 8.0);
-        maxRow = (int) Math.floor((Math.min(maxLatitude, 72.0) + 80.0) / 8.0);
-
-        for (iIndex = minRow; iIndex <= maxRow; iIndex++) {
-            latitude = (double) ((iIndex * 8) - 80);
-            positionList = new ArrayList<>();
-            positionList.add(GridLineUtils.newPosition(latitude, minLongitude, 0));
-            positionList.add(GridLineUtils.newPosition(latitude, maxLongitude, 0));
-            gridObject = createPathFeature(positionList, MGRS_GRID_ZONE_PARALLELS);
-            addFeature(gridObject);
-        }
-        if ((maxLatitude >= 84.0) && (minLatitude < 84.0)) {
-            positionList = new ArrayList<>();
-            positionList.add(GridLineUtils.newPosition(84.0, minLongitude, 0));
-            positionList.add(GridLineUtils.newPosition(84.0, maxLongitude, 0));
-            gridObject = createPathFeature(positionList, MGRS_GRID_ZONE_PARALLELS);
-            addFeature(gridObject);
-        }
-
-        if (displayLabels) {
-            // Add The grid zone labels
-            zoneIndex = startZoneIndex;
-            String zoneLetter;
-
-            if ((maxLatitude >= 84.0) && (minLatitude < 84.0)) {
-                maxRow = 19;
-            }
-            while (zoneIndex != endZoneIndex) {
-                for (iIndex = minRow; iIndex <= maxRow; iIndex++) {
-                    if (iIndex < latBands.length()) {
-                        zoneLetter = latBands.charAt(iIndex) + "";
-                        if (zoneLetter.equals("X")) {
-                            switch (zoneIndex + 1) {
-                                case 32:
-                                case 34:
-                                case 36:
-                                    continue;
-                            }
-                        }
-                        labelBounds.setSouth(UTMCoordinate.getZoneSouthLatitude(zoneIndex + 1, zoneLetter));
-                        labelBounds.setWest(UTMCoordinate.getZoneWestLongitude(zoneIndex + 1, zoneLetter));
-                        labelBounds.setNorth(labelBounds.getSouth() + UTMCoordinate.getGridZoneHeightInDegrees(zoneIndex + 1, zoneLetter));
-                        labelBounds.setEast(labelBounds.getWest() + UTMCoordinate.getGridZoneWidthInDegrees(zoneIndex + 1, zoneLetter));
-
-                        // Create the label if it fits.
-                        if (null != mapBounds.intersection(labelBounds, labelBounds)) {
-                            if ((labelBounds.widthAcrossCenter() / metersPerPixel) >= gridZoneLabelWidth) {
-                                if ((labelBounds.heightAcrossCenter() / metersPerPixel) >= gridZoneLableHeight) {
-                                    gridObject = createLabelFeature(GridLineUtils.newPosition(labelBounds.centerLatitude(), labelBounds.centerLongitude(), 0), "" + (zoneIndex + 1) + zoneLetter, MGRS_GRID_ZONE_LABEL);
-                                    addFeature(gridObject);
-                                }
-                            }
-                        }
-                    }
-                }
-                zoneIndex = ++zoneIndex % 60;
-            }
-
-            // See if the south UPS is visible.
-            if (mapBounds.contains(-85.0, -90.0)) {
-                gridObject = createLabelFeature(GridLineUtils.newPosition(-85.0, -90.0, 0), "A", MGRS_GRID_ZONE_LABEL);
-                addFeature(gridObject);
-            }
-            if (mapBounds.contains(-85.0, 90.0)) {
-                // Add the south UPS.
-                gridObject = createLabelFeature(GridLineUtils.newPosition(-85.0, 90.0, 0), "B", MGRS_GRID_ZONE_LABEL);
-                addFeature(gridObject);
-            }
-
-            // See if the north UPS is visible.
-            if (mapBounds.contains(87.0, -90.0)) {
-                gridObject = createLabelFeature(GridLineUtils.newPosition(87.0, -90.0, 0), "Y", MGRS_GRID_ZONE_LABEL);
-                addFeature(gridObject);
-            }
-            if (mapBounds.contains(87.0, 90.0)) {
-                // Add the north UPS.
-                gridObject = createLabelFeature(GridLineUtils.newPosition(87.0, 90.0, 0), "Z", MGRS_GRID_ZONE_LABEL);
-                addFeature(gridObject);
-            }
-        }
-    }
-
     @Override
     protected void setPathAttributes(Path path, String gridObjectType) {
-        if (strokeStyleMap.containsKey(gridObjectType)) {
-            path.setStrokeStyle(strokeStyleMap.get(gridObjectType));
+        if (gridObjectType.startsWith("MGRS")) {
+            // These lines must be greater circle.
         } else {
             super.setPathAttributes(path, gridObjectType);
         }
@@ -1087,8 +852,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
     @Override
     protected void setLabelAttributes(Text label, String gridObjectType) {
-        if (labelStyleMap.containsKey(gridObjectType)) {
-            label.setLabelStyle(labelStyleMap.get(gridObjectType));
+        if (gridObjectType.startsWith("MGRS")) {
             switch (gridObjectType) {
                 case MGRS_GRID_BOX_EAST_VALUE:
                     label.setAzimuth(-90.0);
@@ -1211,28 +975,5 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         //String twoLetter = String.fromCharCode(colInt) + String.fromCharCode(rowInt);
         String twoLetter = Character.toString((char) colInt) + Character.toString((char) rowInt);
         return twoLetter;
-    }
-
-    private int getCharacterPixelWidth(String featureType) {
-        IGeoLabelStyle labelStyle = this.labelStyleMap.get(featureType);
-
-        if (null == labelStyle) {
-            return 0;
-        }
-
-        return FontUtilities.fontPointsToPixels((int) labelStyle.getSize());
-    }
-
-    private void displayGridLabel(String label, EmpBoundingBox mapBounds, double metersPerPixel) {
-        IGeoPosition labelPos = this.mapInstance.containerToGeo(new Point(PIXELS_PER_INCH / 8, PIXELS_PER_INCH / 8));
-        if (null == labelPos) {
-            double charPixelWidth = getCharacterPixelWidth(MGRS_GRID_LABEL) * metersPerPixel;
-            labelPos = new GeoPosition();
-            labelPos.setLatitude(mapBounds.getNorth());
-            labelPos.setLongitude(mapBounds.getWest());
-            GeoLibrary.computePositionAt(135.0, charPixelWidth, labelPos, labelPos);
-        }
-
-        addFeature(createLabelFeature(labelPos, label, MGRS_GRID_LABEL));
     }
 }
