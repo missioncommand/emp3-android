@@ -340,6 +340,8 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
 
         minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
         maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        maxLongitude = ((maxLongitude == 180.0)? maxLongitude - Double.MIN_VALUE: maxLongitude);
+
         UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), utmZoneCoord.getZoneSouthLatitude()),
                 minLogintude, westUTMCoord);
 
