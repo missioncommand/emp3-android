@@ -38,3 +38,51 @@ ext {
 allprojects {
     apply plugin: 'emp3AndroidCommon'
 }
+
+
+task nextPatchVersion(description: "Increments the version property in ${versionFile}.") {
+    doFirst {
+        nextPatchVersion()
+    }
+}
+
+void nextPatchVersion() {
+    def version = readVersion()
+
+    def octet = version['version'].split("\\.|-")
+
+    def versionMajor = octet[0] as int
+    def versionMinor = octet[1] as int
+    def versionPatch = octet[2] as int
+
+    versionPatch++
+
+    if (project.hasProperty('isSnapshot')) {
+        version['version'] = "${versionMajor}.${versionMinor}.${versionPatch}-SNAPSHOT".toString()
+    } else {
+        version['version'] = "${versionMajor}.${versionMinor}.${versionPatch}".toString()
+    }
+
+    println "Setting version to: ${version['version']}"
+
+    def stream = new FileOutputStream(versionFile)
+    try {
+        version.store(stream, null)
+    } finally {
+        stream.close()
+    }
+}
+
+Properties readVersion() {
+    def version = new Properties()
+    def stream
+    try {
+        stream = new FileInputStream(versionFile)
+        version.load(stream)
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
+    } finally {
+        if (stream != null) stream.close()
+    }
+    return version
+}
