@@ -38,6 +38,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
 
     private final ICamera camera;              // Camera when vertices were calculated, we will need this for
                                                // adjusting the distance.
+    private final boolean cameraOnScreen;      // True if camera position is on screen.
 
     // We will calculate the bounds required for the GeoBounds class only when application tries to get them.
     private boolean boundsCalculated = false;
@@ -50,6 +51,8 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
 
     private IGeoPosition[] adjustedVertices = null;   // Approximate the vertices to keep longitude range to 180 degrees.
 
+    private String boundingAreaString = null;                // Stores bounding area String that was created in toString operation.
+
     /**
      * All parameters must be non-null and have valid values.
      * @param currentCamera - Camera object when the vertices were calculated.
@@ -58,7 +61,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
      * @param v3
      * @param v4
      */
-    public EmpBoundingArea(ICamera currentCamera, IGeoPosition v1, IGeoPosition v2, IGeoPosition v3, IGeoPosition v4) {
+    public EmpBoundingArea(ICamera currentCamera, boolean cameraOnScreen, IGeoPosition v1, IGeoPosition v2, IGeoPosition v3, IGeoPosition v4) {
 
         if((null == v1) || (null == v2) || (null == v3) || (null == v4)) {
             throw new IllegalArgumentException("All vertices must be non-null");
@@ -83,6 +86,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
 
         camera = new Camera();
         camera.copySettingsFrom(currentCamera);
+        this.cameraOnScreen = cameraOnScreen;
     }
 
     /**
@@ -162,12 +166,20 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     private void adjustVerticesByDistance() {
         if(null != adjustedVertices) return;
 
-        // Find the center of the four vertices.
-        List<IGeoPosition> cornersFound = new ArrayList<>();
-        for(int ii = 0; ii < vertices.length; ii++) {
-            cornersFound.add(vertices[ii]);
+        IGeoPosition center;
+
+        if(!cameraOnScreen) {
+            // Find the center of the four vertices.
+            List<IGeoPosition> cornersFound = new ArrayList<>();
+            for (int ii = 0; ii < vertices.length; ii++) {
+                cornersFound.add(vertices[ii]);
+            }
+            center = GeoLibrary.getCenter(cornersFound);
+        } else {
+            center = new GeoPosition();
+            center.setLatitude(camera.getLatitude());
+            center.setLongitude(camera.getLongitude());
         }
-        IGeoPosition center = GeoLibrary.getCenter(cornersFound);
 
         adjustedVertices = new IGeoPosition[vertices.length];
         double distance;
@@ -195,15 +207,20 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
      * more work in future.
      * @return
      */
+
     @Override
     public String toString() {
+        if(null != boundingAreaString) {
+            return boundingAreaString;
+        }
         adjustVerticesByDistance();
         StringBuilder builder = new StringBuilder();
         for(int ii = adjustedVertices.length - 1; ii >= 0 ; ii--) {
             builder.append(adjustedVertices[ii].getLongitude() + "," + adjustedVertices[ii].getLatitude() + " ");
         }
         builder.append(adjustedVertices[adjustedVertices.length - 1].getLongitude() + "," + adjustedVertices[adjustedVertices.length - 1].getLatitude());
-        return builder.toString();
+        boundingAreaString = builder.toString();
+        return boundingAreaString;
     }
 
     /**
