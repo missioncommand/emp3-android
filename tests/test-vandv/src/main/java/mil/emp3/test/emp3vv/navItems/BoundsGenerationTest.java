@@ -55,6 +55,8 @@ public class BoundsGenerationTest extends NavItemBase {
     EventListenerHandle mapEventHandle[] = new EventListenerHandle[ExecuteTest.MAX_MAPS];
 
     IOverlay overlay[] = new IOverlay[ExecuteTest.MAX_MAPS];
+    IOverlay geoBoundsOverlay[] = new IOverlay[ExecuteTest.MAX_MAPS];
+
     Point cameraPoint[] = new Point[ExecuteTest.MAX_MAPS];
     Point swPoint[] = new Point[ExecuteTest.MAX_MAPS];
     Point sePoint[] = new Point[ExecuteTest.MAX_MAPS];
@@ -169,6 +171,11 @@ public class BoundsGenerationTest extends NavItemBase {
                     overlay[whichMap] = new Overlay();
                     overlay[whichMap].setName("Overlay Map " + whichMap);
                     maps[whichMap].addOverlay(overlay[whichMap], true);
+
+                    geoBoundsOverlay[whichMap] = new Overlay();
+                    geoBoundsOverlay[whichMap].setName("GeoBounds Overlay " + whichMap);
+                    maps[whichMap].addOverlay(geoBoundsOverlay[whichMap], true);
+
                     cameraPoint[whichMap] = new Point();
                     cameraPoint[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
                     overlay[whichMap].addFeature(cameraPoint[whichMap], true);
@@ -210,6 +217,20 @@ public class BoundsGenerationTest extends NavItemBase {
             } else if (userAction.equals("Get Geo Bounds")) {
 
                 final IGeoBounds geoBounds = maps[whichMap].getBounds();
+                geoBoundsOverlay[whichMap].removeFeatures(geoBoundsOverlay[whichMap].getFeatures());
+                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                strokeStyle.setStrokeColor(new EmpGeoColor(1, 255, 0, 255));
+                strokeStyle.setStrokeWidth(5);
+
+                Polygon p = new Polygon();
+                p.setStrokeStyle(strokeStyle);
+
+                p.getPositions().add(new MyGeoPosition(geoBounds.getNorth(), geoBounds.getWest(), 0));
+                p.getPositions().add(new MyGeoPosition(geoBounds.getNorth(), geoBounds.getEast(), 0));
+                p.getPositions().add(new MyGeoPosition(geoBounds.getSouth(), geoBounds.getEast(), 0));
+                p.getPositions().add(new MyGeoPosition(geoBounds.getSouth(), geoBounds.getWest(), 0));
+                geoBoundsOverlay[whichMap].addFeature(p, true);
+
                 if(null != geoBounds) {
                     Thread t = new Thread(new Runnable() {
                         @Override
