@@ -154,7 +154,9 @@ public class BoundsGeneration {
     public static IEmpBoundingArea getBounds(MapInstance mapInstance) {
         try {
             if(Looper.myLooper() == Looper.getMainLooper()) {
-                IGeoPosition[] corners = getBoundingPolygon(mapInstance);
+                int[] cornersTouched = new int[1];
+                cornersTouched[0] = 0;
+                IGeoPosition[] corners = getBoundingPolygon(mapInstance, cornersTouched);
                 if ((null != corners) && (EmpBoundingArea.REQUIRED_VERTICES == corners.length)) {
 
                     Point cameraPoint = new Point();
@@ -168,7 +170,7 @@ public class BoundsGeneration {
                     }
 
                     IGeoBounds geoBounds = new GeoBounds();
-                    BoundingBoxGeneration.buildBoundingBox(mapInstance, corners, geoBounds, cameraOnScreen);
+                    BoundingBoxGeneration.buildBoundingBox(mapInstance, corners, geoBounds, cameraOnScreen, cornersTouched[0]);
                     IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), cameraOnScreen,
                             corners[0], corners[1], corners[2], corners[3], geoBounds);
 
@@ -192,7 +194,7 @@ public class BoundsGeneration {
      * @param mapInstance
      * @return
      */
-    private static IGeoPosition[] getBoundingPolygon(MapInstance mapInstance) {
+    private static IGeoPosition[] getBoundingPolygon(MapInstance mapInstance, int[] cornersTouched) {
         int cornersFound = 0;
         try {
             IGeoPosition corners[] = new IGeoPosition[CORNERS];
@@ -200,6 +202,7 @@ public class BoundsGeneration {
 
             // Check how many corners we have a map rather than sky/space
             cornersFound = getCornersTouched(mapInstance, corners);
+            cornersTouched[0] = cornersFound;
             Log.d(TAG, "getBoundingPolygon cornersFound " + cornersFound);
             switch(cornersFound) {
                 case CORNERS:

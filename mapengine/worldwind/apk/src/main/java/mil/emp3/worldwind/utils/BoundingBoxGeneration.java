@@ -24,23 +24,25 @@ public class BoundingBoxGeneration {
     private final int height;
     private final boolean cameraOnScreen;
     private final ICamera camera;
-
-    private final static int MAX_LAT_LONG_ITERATIONS = 5;
+    private final int cornersTouched;
+    private final static int MAX_LAT_LONG_ITERATIONS = 10;
     private final static int MAX_CORNER_ITERATIONS = 20;
     private final static double INCREMENT_FACTOR = 0.05;
     private final static double MAX_LATITUDE_SPAN = 120.0;
     private final static double MAX_LONGITUDE_SPAN = 120.0;
 
-    private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen) {
+    private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen, int cornersTouched) {
         mapController = mapInstance.getMapController();
         width = mapInstance.getWW().getWidth();
         height = mapInstance.getWW().getHeight();
         this.cameraOnScreen = cameraOnScreen;
         camera = mapInstance.getCamera();
+        this.cornersTouched = cornersTouched;
     }
 
-    public static void buildBoundingBox(MapInstance mapInstance, IGeoPosition[] vertices, IGeoBounds geoBounds, boolean cameraOnScreen) {
-        BoundingBoxGeneration bbg = new BoundingBoxGeneration(mapInstance, cameraOnScreen);
+    public static void buildBoundingBox(MapInstance mapInstance, IGeoPosition[] vertices, IGeoBounds geoBounds,
+                                        boolean cameraOnScreen, int cornersTouched) {
+        BoundingBoxGeneration bbg = new BoundingBoxGeneration(mapInstance, cameraOnScreen, cornersTouched);
         bbg.buildBoundingBox_(vertices, geoBounds);
     }
     /**
@@ -116,6 +118,10 @@ public class BoundingBoxGeneration {
             increment_lon_f = (double) width / (double) height;
             Log.d(TAG, "increment_lon_f " + increment_lon_f);
         }
+        if((cornersTouched > 0) && (cornersTouched <= 2)) {
+            increment_lon_f *= 2;
+            Log.d(TAG, "increment_lon_f " + increment_lon_f);
+        }
 
         double increment_lat_f = 1.0;
         if(height > width) {
@@ -146,6 +152,14 @@ public class BoundingBoxGeneration {
             if(west < global.LONGITUDE_MINIMUM) { west += 360.0; }
             if(east > global.LONGITUDE_MAXIMUM) { east -= 360.0; }
 
+            // We are purposely doing the updates before the screen checks are made as we want to maximize the
+            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
+            // following four checks.
+            geoBounds.setNorth(north);
+            geoBounds.setSouth(south);
+            geoBounds.setEast(east);
+            geoBounds.setWest(west);
+
             // Check each corner. Any single violation stops the corner stretching process.
             if (!mapController.groundPositionToScreenPoint(north, west, result) ||
                     result.x < 0 || result.x > width || result.y < 0 || result.y > height) {
@@ -166,12 +180,6 @@ public class BoundingBoxGeneration {
                     result.x < 0 || result.x > width || result.y < 0 || result.y > height) {
                 break;
             }
-
-            // All constraints met, update the bounding box with incremented values.
-            geoBounds.setNorth(north);
-            geoBounds.setSouth(south);
-            geoBounds.setEast(east);
-            geoBounds.setWest(west);
         }
 
         // Following is the refinement where we try to stretch each edge as much as possible to make the bounding box
@@ -216,6 +224,11 @@ public class BoundingBoxGeneration {
                 if(longitude > global.LONGITUDE_MAXIMUM) { longitude -= 360.0; }
             }
 
+            // We are purposely doing the update before the screen checks are made as we want to maximize the
+            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
+            // following two checks.
+            updatedLongitude = longitude;
+
             if (!mapController.groundPositionToScreenPoint(north, longitude, result) ||
                     result.x < 0 || result.x > width || result.y < 0 || result.y > height) {
                 break;
@@ -225,8 +238,6 @@ public class BoundingBoxGeneration {
                     result.x < 0 || result.x > width || result.y < 0 || result.y > height) {
                 break;
             }
-
-            updatedLongitude = longitude;
         }
         return updatedLongitude;
     }
@@ -263,6 +274,11 @@ public class BoundingBoxGeneration {
                 break;
             }
 
+            // We are purposely doing the update before the screen checks are made as we want to maximize the
+            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
+            // following two checks.
+            updatedLatitude = latitude;
+
             if (!mapController.groundPositionToScreenPoint(latitude, east, result) ||
                     result.x < 0 || result.x > width || result.y < 0 || result.y > height) {
                 break;
@@ -272,8 +288,6 @@ public class BoundingBoxGeneration {
                     result.x < 0 || result.x > width || result.y < 0 || result.y > height) {
                 break;
             }
-
-            updatedLatitude = latitude;
         }
         return updatedLatitude;
     }
