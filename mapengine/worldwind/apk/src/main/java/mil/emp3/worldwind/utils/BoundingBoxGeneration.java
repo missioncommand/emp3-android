@@ -211,6 +211,11 @@ public class BoundingBoxGeneration {
             geoBounds.setNorth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth(), geoBounds.getNorth(), increment, false));
         }
 
+        if((geoBounds.getNorth() - geoBounds.getSouth()) >= 15.0) {
+            geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .05));
+        } else {
+            geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .1));
+        }
         Log.d(TAG, "adjustEastAndWest Out Iterations NEWS " + ii + " " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
 
@@ -245,12 +250,8 @@ public class BoundingBoxGeneration {
             // following two checks.
             updatedLongitude = longitude;
 
-            if (!mapController.groundPositionToScreenPoint(north, longitude, result) ||
-                    result.x < 0 || result.x > width || result.y < 0 || result.y > height) {
-                break;
-            }
-
-            if (!mapController.groundPositionToScreenPoint(south, longitude, result) ||
+            double middleLatitude = (south + (north - south)/2);
+            if (!mapController.groundPositionToScreenPoint(middleLatitude, longitude, result) ||
                     result.x < 0 || result.x > width || result.y < 0 || result.y > height) {
                 break;
             }

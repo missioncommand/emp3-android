@@ -443,8 +443,10 @@ public class BoundsGeneration {
      * @return
      */
     private static boolean processTwoCornersAdjustmentRequired(int polygonBaseLength, int polygonLeftLength, int polygonRightLength) {
-        if(((polygonBaseLength / polygonLeftLength) > W2H_RATIO_TOLERANCE) && ((polygonBaseLength / polygonRightLength) > W2H_RATIO_TOLERANCE)) {
-            return true;
+        if((polygonLeftLength > 0) && (polygonRightLength > 0)) {
+            if (((polygonBaseLength / polygonLeftLength) > W2H_RATIO_TOLERANCE) && ((polygonBaseLength / polygonRightLength) > W2H_RATIO_TOLERANCE)) {
+                return true;
+            }
         }
         return false;
     }
