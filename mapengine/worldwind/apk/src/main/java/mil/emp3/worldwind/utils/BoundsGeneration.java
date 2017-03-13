@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import gov.nasa.worldwind.geom.Position;
-import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.utils.EmpBoundingArea;
 import mil.emp3.api.utils.GeoLibrary;
@@ -77,7 +76,8 @@ public class BoundsGeneration {
 
     /**
      * We will store the previously calculated bounding area that can be returned with things like VIEW_IN_MOTION.
-     * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated.
+     * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated. This Map is always accessed on UI thread so
+     * no need to make it a ConcurrentHashMap.
      */
     private static Map<MapInstance, IEmpBoundingArea> currentBoundingArea = new HashMap<>();
     /**

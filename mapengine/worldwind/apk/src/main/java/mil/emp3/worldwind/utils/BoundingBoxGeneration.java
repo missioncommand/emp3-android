@@ -16,6 +16,22 @@ import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
 
+/**
+ * Generates a bounding box from the vertices of Bounding Area. It is presumed that there are four vertices and they have
+ * valid data.
+ *
+ * Basic algorithm goes like this:
+ *    - Get a center location to begin with (some combination of Camera and four vertices)
+ *    - Start at that center position and stretch in all four directions as much as possible avoid going beyond visible portion of the View
+ *    - Now stretch on each edge with same constraint
+ *    - In reality once the bounds are calculated one or more corner may be of the screen, this is desired to cover as much area as
+ *        possible in the center.
+ *    - This was tuned for MGRS lines.
+ *    - If there is a Mathematical way of figuring this out with help of some utilities from the underlying engine thaen that should be
+ *        investigated.
+ *    - We must also consider the performance implication as every time map movement stops this algorithm is executed.
+ *
+ */
 public class BoundingBoxGeneration {
 
     private static String TAG = BoundingBoxGeneration.class.getSimpleName();
@@ -90,7 +106,7 @@ public class BoundingBoxGeneration {
      */
     private void buildBoundingBox_(IGeoPosition[] vertices, IGeoBounds geoBounds) {
 
-        setNorthAndSouth(vertices, geoBounds);
+        setNorthAndSouth(vertices, geoBounds);  // Simply to figure out value for increment based on span.
         IGeoPosition center;
 
         // Find the point that will be used as center.
