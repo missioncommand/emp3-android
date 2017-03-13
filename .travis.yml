@@ -20,7 +20,7 @@ env:
     - secure: m1tUjzOXTKIkFwYWnVrO9NQas2ypyqQAqbv6hdCtm2IYOjQ4TjlCoiuhity3yyfwZxc2ArCYSYRTjGUdKE6GKj1JrPyI+GqMBIBrpuj6ldixOpqvjKEPBZPPth+sOdkQTYR9c3ZEoZ8Vep1e+TLN8TiL2om41K/cZKwayLH6560K5bsp765/dyyVh4T9U8s5rFivws21/63yisy3zAEd01LJAFhF6/EzLg02Jmm4UgkrQvPvcAwncIYdQWdtTO5vwYZgsxJaDESreDwyT+HSVOKT2DvJ9wGlaZ+7WH5rRhwXDEdfZg9q9bRv4mkGnvVTSrvmzMBU+PJLBTsX9b8TX/V62WkEsPMUGqqAK+Q/JOYvk6k0WqM53lK+mG2VIE7pLSFR/Uc9EbZBJxC0ec2BWK29yfyVDdTwopLboZuxViG7bPdyJ0XD/tZoJ5/O3GwB8YIv0AwhCY6jJOzQJqGSB/ChKIWYv2StaTHOvwNqTMP69BE/NAEzUhpWVLjeunRjYAUKfzP2s4KUo9xvoVe7Lv/RnEXaCa4WOpfMyIE6Kr0f41kwPVABNcsxT09e9UsRzd6TUDg23Q/rmaJjJfl7tJMf9HFC3QWPKStxnZxhZoOeedAvJhEtOb+CqI1Lf6zGi4BALBJmQlu8nyKO71kjEE8QW3q+nnY2xBOPKSFxS0M=
     - secure: K8k0ngvRuKkapF5ziXB3aGy1DSitGqi2yCCQjGv/3SCXhE3R+dcgDlvYDxJ7KmYEUfuq4osLH1x9v+DJ0ALb9pXMUVt3fkum7sGqPNbppC6G6xqND+BP8roOcuPgdxDRfZHx40tcXzhx3KX8xb+zcaA/yfCtGDH9Qkbyr5Q0WOUGpzArflYr1SpwO3l9JGL4kQWhg/bJbjy0Adp1H8TsXv2KmwQAkX+prTLHaAdvC2cGqZLaYC9/8z9gx2gEoOD48bl/SW/NUMLHt/NFJY+Z2ZGTlRmg5zKVN1CyAxYuDJ8DDQM7hZaeHx7tfAN2vtZpnZX3J4D4b0pF84mR+G5PnbT38ssNfV0/uQaavB+CkjucfTp9KJucKW6DHjOCvFROZ9Hz7Nrpedt+hSm25QI4H9H6lB0gAzEBjU2m3lwkD+E8Aga7paiMAsUS5uEhisQo2aNWUqX8fKz7yLNdUOx0XSYAeLWUx6jnLOnyo3xj7pXnMiKVIKG7tpXOnbtNkJgBYmHPmRA192t4r0CCWsHZ0ur0Z1FTA2HQQVKX+R+8iGeLGdv6nyW8l7WGQWPMlD2r0tzEoOeZsMSdLtvkOLVF71lvf8I9ggnGGfnwpsdEWS1JHZrelWhOuvzpmNpy424hh2pT/kCIHMEZC9evb8m6vgU7C29+Iw+LbIXt3TBjcxw=
     - secure: cN/YPAcC7RbIbhVutqmVLQ0+r8O/IMU2vHcbAJU8lf0fZXs0gMtjjqwkoiaQ+NkTsHPNytpCHwJt3797a9/nNuiVdPnHBSv603hgzGlvL01q2yxTJNyAc8MhjE8iCEKPHWz50h+p9rFvGQj8RPRRmqq1oGGlKfrNtFwAImDXXwZCwSMRbzSph87IXSTG5IfsKSrpii8He0ZK0qOAzaqjCrmBrQPtMo6HD+aW/PasCrgiQEVPeQQiKYZAoSWZtmKtrzZcKegdZojE8hGYUTLxx/erzctvPXNwGeGoJdFQpx34WM83LrfdzWWY2rlpiVBg/tIV1VW+u1uWMIRRPnHI2NoTV5e8l5KGbZuO2lOBPNIGkS92FUbcKwPE4W0pWR2aY+ONS1K0ONAEl5hnY9zoIjNzFCOKmMUCuMUVg+hOUmXdxWT1tz/1NVOmAwcIwOA7YnbP3TJyxD+4ZCFQqljG8q0IHdjduX+VqHhqVxMJuOqi8vbOHJa/1yxk9dFsI+uKrDxzlO3RAUZYkukBw3M0HbRbNqqSodzzntpBKpQ80z+XczLwZPlxyRy9EtuDkQtG4Xkql2/SS19toBmYpHCDvuWMrprw73HfJA1zIffUnbiHTq4HYdx/ET9Wj51fko8IgQErquIs3v7+/lIic5JtBTAGgMxznUKA0um84dORYvg=
-    - secure: xUsX8kEDFQAb5Ce3kqWX/cWTYp+zApRA4IHqnci6nGoFHYnOsMO4+eujnp332bVoKAa32yD5GwLzotystWsdGlklqm0ga6fnnxJw1U1J6exyiyzcmJ+crWQ1xA1YwuTey2yA8eDGpOZBSqU8wOulWNx+2ebidiIk7UuzqeZ2TLRrknA6dO7F2C5Tyuja0nqKtBk5AEyloszoo8dhNA91mQlL6j5ewlIJx+vWYuIhOs4oXITFFZqwyai4IshNg3kQWyHV5VHJGOHietDIw5a+gvnFd+0Z1CrtgFQqhXXjPYb3qWWo+zEUq0g5sLHDKjCzHkQN7T2f64JIKpzZdHLlSUALWYyjlYgIoxa7WnzhyphTgxlS1AW2aVBrxzZVth/irLutjRc3xQf3Taw1O4fEOICAdhac3251QdPqwpvOktHeraix5pfvbY2nTE1dfpkOJjj4KMgsuG7SFWmjN7PUXn0mrqBBY1Pz//iFSbVwquTpbq4bAVLCL0Srg+FbCNWnedMTVTgH228b9k8ESM1+jktNv7zLlIRnAbnHvjyIEbTMDG/nTsl7YqqJRyc9YH74j1Dz33xqFuvMuBTAYEdUR6LDfe2PZL+RTfRrRzPrxJm6lYPl0yVHTx8XnqSBT9CEBBVzIZLvmxnh0939J22cR4I20hv8eElPIiF/4NcCEu0=
+    - secure: 3pmA/YQ7CKdko7k3v+PZf3PR7y0JCprC/M3Ik7RQ1LEFq0AWxuvoh3D6zCcpkOnKpBuonBhSEJ/nkeKH5kVHT3kWiufIqLCbDBKr9ppPFVabZF+t4fefk/90td2luZwhp7pLf6EkCHsaKV2gIJ82MFnWUYvtO29bPjKdzKR71cDqIstidv/OwMdAI4YBm/JGU4PACVojf9Wgex9V5vuK9wnRdmJ1BX2wJFEtdWLBUu8h+AhTJCG56cVKB9JdpZHj61MyC9c3ENJBKDcqFG7oU8hyDDMIzIEDkYU4RArwCHuuXtVGl+Ix1GavU1rLHTiIqaBdLF4BNYaPT/JShrrC3luIHmn0/CoBgqG5Q8CCQgOAmVhOIhI1xf+kKg6exVg7K+CnqxcVu6p/4VzrSZGzLg3e5RLyDa8u68geEViK+C3Ydsc3xQAlbwl9kSu6IcteQjkCBubGNH+ItuZWVJFFIjOisSluXicnhv6dnkDiith6ePdwoGkunCaVdWKWZEiS1jNbIt8nygZmFcukRSLn3PiHUfZbc24U45vvXIrlmMzWM0UlLovnvqkJ6RrOZNkne2l4Tr7nx71kBuEgFMgFYAnh0YArF16ynE0qw6L8pZzHAaRZpR2nOOcC3+OTvpWwMnIfcQnmyqlAymQFRJk9NWy7TmxLkmOPylC/xNec5BY=
 
 cache:
   directories:
@@ -32,7 +32,8 @@ before_install:
   - chmod +x gradlew
   - chmod +x travis/snapshot.sh
   - chmod +x travis/release.sh
-  - export GRADLE_OPTS="-Dorg.gradle.daemon=false -XX:MaxPermSize=512m -Xmx2048m $GRADLE_OPTS"
+  - chmod +x travis/release-support.sh
+  - export GRADLE_OPTS="-Dorg.gradle.daemon=false -Xmx3072m $GRADLE_OPTS"
   - export DEFAULT_JVM_OPTS=
 
 install: echo "skip 'gradle assemble' step"
@@ -53,7 +54,19 @@ deploy: # travis by default will not invoke this step for PRs
         - development
   - provider: script
     skip_cleanup: true
+    script: travis/snapshot.sh $CI_SNAPSHOT_URL
+    on:
+      branch:
+        - support/v1.4.x
+  - provider: script
+    skip_cleanup: true
     script: travis/release.sh $CI_RELEASE_URL $CI_RELEASE_DI2E_URL
     on:
       tags: true
       condition: "$TRAVIS_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$"
+  - provider: script
+    skip_cleanup: true
+    script: travis/release-support.sh $CI_RELEASE_URL $CI_RELEASE_DI2E_URL support/v1.4.x
+    on:
+      tags: true
+      condition: "$TRAVIS_TAG =~ ^support-v1.4.[0-9]+$"
