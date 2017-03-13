@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity
     private Menu oMenu = null;
     private RelativeLayout oPerformanceDlg;
     private Button oStartBtn;
+    private Button oTrackBtn;
     private Button oStopBtn;
     private Button oCloseBtn;
     private EditText oCountTb;
@@ -1124,6 +1125,7 @@ public class MainActivity extends AppCompatActivity
         }
         this.oPerformanceDlg = (RelativeLayout) this.findViewById(R.id.performance_dialog);
         this.oStartBtn = (Button) this.findViewById(R.id.prf_start);
+        this.oTrackBtn = (Button) this.findViewById(R.id.prf_track);
         this.oStopBtn = (Button) this.findViewById(R.id.prf_stop);
         this.oCloseBtn = (Button) this.findViewById(R.id.prf_close);
         this.oCountTb = (EditText) this.findViewById(R.id.prf_count);
@@ -1132,7 +1134,7 @@ public class MainActivity extends AppCompatActivity
         this.oResults = (TextView) this.findViewById(R.id.prf_results);
 
         if ((oStartBtn == null) || (oStopBtn == null) || (oCloseBtn == null) ||
-                (oCountTb == null) || (oAffiliationCkb == null)) {
+                (oCountTb == null) || (oAffiliationCkb == null) || (null == oTrackBtn)) {
             Log.e(TAG, "Button not found.");
         }
 
@@ -1140,6 +1142,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 MainActivity.this.oStartBtn.setEnabled(false);
+                MainActivity.this.oTrackBtn.setEnabled(true);
                 MainActivity.this.oStopBtn.setEnabled(true);
                 MainActivity.this.oCloseBtn.setEnabled(false);
                 int iCount = 5000;
@@ -1157,6 +1160,15 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        this.oTrackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (MainActivity.this.oPerformanceTestThread != null) {
+                    MainActivity.this.oPerformanceTestThread.toggleTrackingMode();
+                }
+            }
+        });
+
         this.oStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1165,6 +1177,7 @@ public class MainActivity extends AppCompatActivity
                     MainActivity.this.oPerformanceTestThread = null;
 
                     MainActivity.this.oStartBtn.setEnabled(true);
+                    MainActivity.this.oTrackBtn.setEnabled(false);
                     MainActivity.this.oStopBtn.setEnabled(false);
                     MainActivity.this.oCloseBtn.setEnabled(true);
                 }
@@ -1205,7 +1218,7 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "Zoom out button not found");
         }
         // The Zoom+ button zooms 20% each time it is pressed
-        // The altitude is limited to 1 km
+        // The altitude is limited to 10 m
         ImageButton zoomInButton = (ImageButton) findViewById(R.id.ZoomIn);
         if (zoomInButton != null) {
             zoomInButton.setOnClickListener(new View.OnClickListener() {
@@ -1213,8 +1226,8 @@ public class MainActivity extends AppCompatActivity
                 public void onClick(View view) {
                     ICamera camera = MainActivity.this.oCamera;
                     double initAltitude = camera.getAltitude();
-                    // lowest possible camera altitude set to 100 meters
-                    if (initAltitude >= 10) {
+                    // lowest possible camera altitude set to 10 meters
+                    if (initAltitude > 10) {
                         initAltitude /= 1.2;
                         camera.setAltitude(initAltitude);
                         camera.apply(false);
@@ -3154,5 +3167,9 @@ public class MainActivity extends AppCompatActivity
     public void onSymbolPropertiesCancelClick(SymbolPropertiesDialog dialog) {
         Log.d(TAG, "Feature properties Cancel Btn");
         this.ePlotMode = MainActivity.PlotModeEnum.IDLE;
+    }
+
+    public ICamera getCamera() {
+        return this.oCamera;
     }
 }
