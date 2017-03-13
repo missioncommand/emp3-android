@@ -10,8 +10,6 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import java.util.ArrayList;
 import java.util.List;
 
-import mil.emp3.api.Path;
-import mil.emp3.api.Text;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
@@ -264,24 +262,6 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         }
     }
 
-    @Override
-    protected void setPathAttributes(Path path, String gridObjectType) {
-        // Lines must be rhumb lines.
-    }
-
-    @Override
-    protected void setLabelAttributes(Text label, String gridObjectType) {
-        if (gridObjectType.startsWith("UTMBase")) {
-            double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
-            if (azimuth < -360.0) {
-                azimuth += 360;
-            } else if (azimuth > 360.0) {
-                azimuth -= 360.0;
-            }
-            label.setAzimuth(azimuth);
-        }
-    }
-
     /**
      * This method places the UTM grid zone lines on the map.
      * @param mapBounds        The bounding area of the map's viewing area.
@@ -300,8 +280,8 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         List<IGeoPosition> positionList;
         IFeature gridObject;
         EmpBoundingBox labelBounds = new EmpBoundingBox();
-        double gridZoneLableHeight = getCharacterPixelWidth(UTM_GRID_ZONE_LABEL_CENTER);
-        double gridZoneLabelWidth = getCharacterPixelWidth(UTM_GRID_ZONE_LABEL_CENTER) * 1.5;
+        double gridZoneLableHeight = getCharacterPixelWidth(UTM_GRID_ZONE_LABEL_CENTER) * metersPerPixel;
+        double gridZoneLabelWidth = getCharacterPixelWidth(UTM_GRID_ZONE_LABEL_CENTER) * 1.5 * metersPerPixel;
 
         double minLatitude = Math.max(mapBounds.getSouth(), -80.0);
         double maxLatitude = Math.min(mapBounds.getNorth(), 84.0);
@@ -439,9 +419,9 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
 
                     // Create the label if it fits.
                     if (null != mapBounds.intersection(labelBounds, labelBounds)) {
-                        if ((labelBounds.widthAcrossCenter() / metersPerPixel) >= gridZoneLabelWidth) {
+                        if (labelBounds.widthAcrossCenter() >= gridZoneLabelWidth) {
                             String objectStyleType = UTM_GRID_ZONE_LABEL_CENTER;
-                            if ((labelBounds.heightAcrossCenter() / metersPerPixel) >= gridZoneLableHeight) {
+                            if (labelBounds.heightAcrossCenter() >= gridZoneLableHeight) {
                                 double labelLatitude;
                                 double labelLongitude;
                                 double offsetLatitude = labelBounds.deltaLatitude() / 18.0;
@@ -456,18 +436,17 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
                                             if (labelBounds.getSouth() == mapBounds.getSouth()) {
                                                 // The grid zone is against all four edges of the map viewing area.
                                                 labelLatitude = labelBounds.getNorth() - offsetLatitude;
-                                                labelLongitude = labelBounds.getWest() + offsetLongitude;
-                                                objectStyleType = UTM_GRID_ZONE_LABEL_LEFT;
+                                                labelLongitude = labelBounds.centerLongitude();
                                             } else {
                                                 labelLatitude = labelBounds.getSouth() + (offsetLatitude * 2);
-                                                labelLongitude = labelBounds.getWest() + offsetLongitude;
-                                                objectStyleType = UTM_GRID_ZONE_LABEL_LEFT;
+                                                labelLongitude = labelBounds.getEast() - offsetLongitude;
+                                                objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
                                             }
                                         } else if (labelBounds.getSouth() == mapBounds.getSouth()) {
                                             // The grid zone is against the west, east, and south edge the of the map viewing area.
                                             labelLatitude = labelBounds.getNorth() - offsetLatitude;
-                                            labelLongitude = labelBounds.getWest() + offsetLongitude;
-                                            objectStyleType = UTM_GRID_ZONE_LABEL_LEFT;
+                                            labelLongitude = labelBounds.getEast() - offsetLongitude;
+                                            objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
                                         } else {
                                             // I don't think this can ever happen.
                                             labelLatitude = labelBounds.centerLatitude();
@@ -476,13 +455,13 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
                                     } else if (labelBounds.getNorth() == mapBounds.getNorth()) {
                                         // The grid zone is against the north west of the map viewing area.
                                         labelLatitude = labelBounds.getNorth() - offsetLatitude;
-                                        labelLongitude = labelBounds.getWest() + offsetLongitude;
-                                        objectStyleType = UTM_GRID_ZONE_LABEL_LEFT;
+                                        labelLongitude = labelBounds.centerLongitude();
+                                        //objectStyleType = UTM_GRID_ZONE_LABEL_LEFT;
                                     } else if (labelBounds.getSouth() == mapBounds.getSouth()) {
                                         // The grid zone is against the south west edges of the map viewing area.
                                         labelLatitude = labelBounds.getSouth() + (offsetLatitude * 2);
-                                        labelLongitude = labelBounds.getWest() + offsetLongitude;
-                                        objectStyleType = UTM_GRID_ZONE_LABEL_LEFT;
+                                        labelLongitude = labelBounds.centerLongitude();
+                                        //objectStyleType = UTM_GRID_ZONE_LABEL_LEFT;
                                     } else {
                                         // I don't think this can ever happen.
                                         labelLatitude = labelBounds.centerLatitude();
@@ -493,18 +472,18 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
                                     if (labelBounds.getNorth() == mapBounds.getNorth()) {
                                         // The grid zone is against the north east edges of the map viewing area.
                                         labelLatitude = labelBounds.getNorth() - offsetLatitude;
-                                        labelLongitude = labelBounds.getEast() - offsetLongitude;
-                                        objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
+                                        labelLongitude = labelBounds.centerLongitude();
+                                        //objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
                                     } else if (labelBounds.getSouth() == mapBounds.getSouth()) {
-                                        // The grid zone is against the west, east, and south edge the of the map viewing area.
+                                        // The grid zone is against the east, and south edge the of the map viewing area.
                                         labelLatitude = labelBounds.getSouth() + (offsetLatitude * 2);
-                                        labelLongitude = labelBounds.getEast() - offsetLongitude;
-                                        objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
+                                        labelLongitude = labelBounds.centerLongitude();
+                                        //objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
                                     } else {
                                         // I don't think this can ever happen.
                                         labelLatitude = labelBounds.centerLatitude();
-                                        labelLongitude = labelBounds.getEast() - offsetLongitude;
-                                        objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
+                                        labelLongitude = labelBounds.centerLongitude();
+                                        //objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
                                     }
                                 } else if (labelBounds.getNorth() == mapBounds.getNorth()) {
                                     // The grid zone is against the north east edges of the map viewing area.

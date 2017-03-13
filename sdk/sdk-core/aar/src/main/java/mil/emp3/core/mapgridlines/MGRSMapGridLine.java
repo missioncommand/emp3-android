@@ -1,7 +1,5 @@
 package mil.emp3.core.mapgridlines;
 
-import android.content.res.Resources;
-import android.graphics.Point;
 import android.util.Log;
 
 import org.cmapi.primitives.GeoLabelStyle;
@@ -22,7 +20,6 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
-import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.core.mapgridlines.coordinates.UTMCoordinate;
 import mil.emp3.core.mapgridlines.utils.GridLineUtils;
@@ -181,36 +178,36 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                 Log.i(TAG, "1 threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_1_METER_GRID);
                 createUTMGridZones(mapBounds, metersPerPixel);
-                displayGridLabel("MGRS 1m Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+                displayGridLabel("MGRS 1m Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 17) {
                 Log.i(TAG, "10 threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_10_METER_GRID);
                 createUTMGridZones(mapBounds, metersPerPixel);
-                displayGridLabel("MGRS 10m Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+                displayGridLabel("MGRS 10m Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 160) {
                 Log.i(TAG, "100 threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_100_METER_GRID);
                 createUTMGridZones(mapBounds, metersPerPixel);
-                displayGridLabel("MGRS 100m Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+                displayGridLabel("MGRS 100m Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 1600) {
                 Log.i(TAG, "1K threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_1K_METER_GRID);
                 createUTMGridZones(mapBounds, metersPerPixel);
-                displayGridLabel("MGRS 1Km Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+                displayGridLabel("MGRS 1Km Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 7500) {
                 Log.i(TAG, "10K threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_10K_METER_GRID);
                 createUTMGridZones(mapBounds, metersPerPixel);
-                displayGridLabel("MGRS 10Km Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+                displayGridLabel("MGRS 10Km Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 40000) {
                 Log.i(TAG, "100K threshold. " + metersInOneEighthOfAnInch);
                 createMGRSGrid(mapBounds, camera, metersPerPixel, metersInOneEighthOfAnInch, MGRS_100K_METER_GRID);
                 createUTMGridZones(mapBounds, metersPerPixel);
-                displayGridLabel("MGRS 100Km Grid", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+                displayGridLabel("MGRS 100Km Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 250000) {
                 Log.i(TAG, "GZD threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
-                displayGridLabel("MGRS GZD", mapBounds, MGRS_GRID_LABEL, metersPerPixel);
+                displayGridLabel("MGRS GZD", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 500000) {
                 Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
                 super.processViewChange(mapBounds, camera, metersPerPixel);
@@ -858,13 +855,6 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                     label.setAzimuth(-90.0);
                     break;
             }
-            double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
-            if (azimuth < -360.0) {
-                azimuth += 360;
-            } else if (azimuth > 360.0) {
-                azimuth -= 360.0;
-            }
-            label.setAzimuth(azimuth);
         } else {
             super.setLabelAttributes(label, gridObjectType);
         }

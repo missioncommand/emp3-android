@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.graphics.Point;
 import android.util.Log;
 
+import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoBounds;
@@ -25,9 +26,9 @@ import mil.emp3.api.Text;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
+import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.GeoLibrary;
-import mil.emp3.mapengine.events.MapInstanceViewChangeEvent;
 import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
 import mil.emp3.mapengine.interfaces.IMapGridLines;
 import mil.emp3.mapengine.interfaces.IMapInstance;
@@ -41,6 +42,9 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
     // The pixel density of the device.
     protected static final int PIXELS_PER_INCH = Resources.getSystem().getDisplayMetrics().densityDpi;
+
+    // Object type for abstract components.
+    private static final String MAIN_GRID_TYPE_LABEL = "MAIN.gridtype.label";
 
     // The map instance where the map grid is displayed.
     protected final IMapInstance mapInstance;
@@ -120,6 +124,24 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         this.generationThread = new GridLineGenerationThread();
         this.generationThread.setPriority(this.generationThread.getPriority() + 1);
         this.generationThread.start();
+
+        setStyles();
+    }
+
+    // This method loads the styles.
+    private void setStyles() {
+        EmpGeoColor color;
+        IGeoLabelStyle labelStyle;
+
+        // MGRS Grid Label
+        labelStyle = new GeoLabelStyle();
+        color = new EmpGeoColor(0.6, 200, 200, 200);
+        labelStyle.setColor(color);
+        labelStyle.setSize(8.0);
+        labelStyle.setJustification(IGeoLabelStyle.Justification.RIGHT);
+        labelStyle.setFontFamily("Ariel");
+        labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
+        addLabelStyle(MAIN_GRID_TYPE_LABEL, labelStyle);
     }
 
     @Override
@@ -212,18 +234,22 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     protected abstract void processViewChange(EmpBoundingBox mapBounds, ICamera camera, double metersPerPixel);
 
     /**
-     * The sub class must implement this method to set the attributes of the path.
+     * The sub class must override this method to set the properties of the path. If the grid objject type
+     * was not created by the sub class it must call the parent method.
      * @param path              The path feature created by the sub class.
      * @param gridObjectType    The object type provided by the sub class.
      */
-    protected abstract void setPathAttributes(Path path, String gridObjectType);
+    protected void setPathAttributes(Path path, String gridObjectType) {
+    }
 
     /**
-     * The sub class must implement this method to set the attributes of the label it creates.
+     * The sub class must override this method to set the properties of the label it creates. If the
+     * object class is not created by the sub class it must call the parents method.
      * @param label             The Text feature created by the sub class.
      * @param gridObjectType    The object type indicated by the sub class.
      */
-    protected abstract void setLabelAttributes(Text label, String gridObjectType);
+    protected void setLabelAttributes(Text label, String gridObjectType) {
+    }
 
     /**
      * This method creates a path feature with the positions list provided, then set the path attributes.
@@ -261,6 +287,15 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         }
         label.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
         setLabelAttributes(label, gridObjectType);
+
+        double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
+        if (azimuth < -360.0) {
+            azimuth += 360;
+        } else if (azimuth > 360.0) {
+            azimuth -= 360.0;
+        }
+        label.setAzimuth(azimuth);
+
         return label;
     }
 
@@ -279,17 +314,16 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         return FontUtilities.fontPointsToPixels((int) labelStyle.getSize());
     }
 
-    protected void displayGridLabel(String label, EmpBoundingBox mapBounds, String objectStyleType, double metersPerPixel) {
-        IGeoPosition labelPos = this.mapInstance.containerToGeo(new Point(PIXELS_PER_INCH / 8, PIXELS_PER_INCH / 8));
-        if (null == labelPos) {
-            double charPixelWidth = getCharacterPixelWidth(objectStyleType) * metersPerPixel;
-            labelPos = new GeoPosition();
-            labelPos.setLatitude(mapBounds.getNorth());
-            labelPos.setLongitude(mapBounds.getWest());
-            GeoLibrary.computePositionAt(135.0, charPixelWidth, labelPos, labelPos);
-        }
+    protected void displayGridLabel(String label, EmpBoundingBox mapBounds, double metersPerPixel) {
+        IGeoPosition labelPos;
 
-        addFeature(createLabelFeature(labelPos, label, objectStyleType));
+        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel;
+        labelPos = new GeoPosition();
+        labelPos.setLatitude(mapBounds.getNorth());
+        labelPos.setLongitude(mapBounds.getEast());
+        GeoLibrary.computePositionAt(225.0, charMetersWidth, labelPos, labelPos);
+
+        addFeature(createLabelFeature(labelPos, label, MAIN_GRID_TYPE_LABEL));
     }
 
     protected boolean containsStrokeStyle(String styleType) {

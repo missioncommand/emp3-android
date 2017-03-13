@@ -1,6 +1,5 @@
 package mil.emp3.core.mapgridlines;
 
-import android.graphics.Point;
 import android.util.Log;
 
 import org.cmapi.primitives.GeoLabelStyle;
@@ -19,7 +18,6 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
-import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.core.mapgridlines.coordinates.UTMCoordinate;
 import mil.emp3.core.mapgridlines.utils.GridLineUtils;
 import mil.emp3.mapengine.interfaces.IMapInstance;
@@ -126,36 +124,36 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
                 Log.i(TAG, "1 threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 createUTMGrid(mapBounds, metersPerPixel, metersInOneEighthOfAnInch, UTM_1_METER_GRID);
-                displayGridLabel("UTM 1m Grid", mapBounds, UTM_GRID_LABEL, metersPerPixel);
+                displayGridLabel("UTM 1m Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 17) {
                 Log.i(TAG, "10 threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 createUTMGrid(mapBounds, metersPerPixel, metersInOneEighthOfAnInch, UTM_10_METER_GRID);
-                displayGridLabel("UTM 10m Grid", mapBounds, UTM_GRID_LABEL, metersPerPixel);
+                displayGridLabel("UTM 10m Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 160) {
                 Log.i(TAG, "100 threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 createUTMGrid(mapBounds, metersPerPixel, metersInOneEighthOfAnInch, UTM_100_METER_GRID);
-                displayGridLabel("UTM 100m Grid", mapBounds, UTM_GRID_LABEL, metersPerPixel);
+                displayGridLabel("UTM 100m Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 1600) {
                 Log.i(TAG, "1K threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 createUTMGrid(mapBounds, metersPerPixel, metersInOneEighthOfAnInch, UTM_1K_METER_GRID);
-                displayGridLabel("UTM 1Km Grid", mapBounds, UTM_GRID_LABEL, metersPerPixel);
+                displayGridLabel("UTM 1Km Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 14000) {
                 Log.i(TAG, "10K threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 createUTMGrid(mapBounds, metersPerPixel, metersInOneEighthOfAnInch, UTM_10K_METER_GRID);
-                displayGridLabel("UTM 10Km Grid", mapBounds, UTM_GRID_LABEL, metersPerPixel);
+                displayGridLabel("UTM 10Km Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 39000) {
                 Log.i(TAG, "100K threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 createUTMGrid(mapBounds, metersPerPixel, metersInOneEighthOfAnInch, UTM_100K_METER_GRID);
-                displayGridLabel("UTM 100Km Grid", mapBounds, UTM_GRID_LABEL, metersPerPixel);
+                displayGridLabel("UTM 100Km Grid", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 250000) {
                 Log.i(TAG, "Grid Zones threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
-                displayGridLabel("UTM Grid Zones", mapBounds, UTM_GRID_LABEL, metersPerPixel);
+                displayGridLabel("UTM Grid Zones", mapBounds, metersPerPixel);
             } else if (metersInOneEighthOfAnInch <= 500000) {
                 Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
                 super.processViewChange(mapBounds, camera, metersPerPixel);
@@ -171,7 +169,8 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
     @Override
     protected void setPathAttributes(Path path, String gridObjectType) {
         if (gridObjectType.startsWith("UTM")) {
-            // These lines should not be rhumb lines.
+        } else {
+            super.setPathAttributes(path, gridObjectType);
         }
     }
 
@@ -183,13 +182,8 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
                     label.setAzimuth(-90.0);
                     break;
             }
-            double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
-            if (azimuth < -360.0) {
-                azimuth += 360;
-            } else if (azimuth > 360.0) {
-                azimuth -= 360.0;
-            }
-            label.setAzimuth(azimuth);
+        } else {
+            super.setLabelAttributes(label, gridObjectType);
         }
     }
 
@@ -333,7 +327,8 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         List<IGeoPosition> positionList;
         IFeature gridObject;
         UTMCoordinate westUTMCoord = tempUTMCoordList[0];
-        UTMCoordinate labelUTMCoord = tempUTMCoordList[1];
+        UTMCoordinate eastUTMCoord = tempUTMCoordList[1];
+        UTMCoordinate labelUTMCoord = tempUTMCoordList[2];
         double labelHeightMeters = getCharacterPixelWidth(UTM_GRID_NORTHING_VALUE) * metersPerPixel;
         boolean labelDetail = ((labelHeightMeters * 2) < metersInOneEighthOfAnInch);
         int majorGridSize = ((gridSize == UTM_100K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
@@ -344,20 +339,22 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
 
         UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), utmZoneCoord.getZoneSouthLatitude()),
                 minLogintude, westUTMCoord);
+        UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), utmZoneCoord.getZoneSouthLatitude()),
+                maxLongitude, eastUTMCoord);
 
         // Set the northing value to a multiple of the grid size.
         tempValue = (int) Math.floor(westUTMCoord.getNorthing() / gridSize) * gridSize;
         if ((int) westUTMCoord.getNorthing() != tempValue) {
             westUTMCoord.setNorthing(tempValue + gridSize);
         }
+        eastUTMCoord.setNorthing(westUTMCoord.getNorthing());
 
         westUTMCoord.toLatLong(westPos);
 
         if (westPos.getLongitude() < minLogintude) {
             westPos.setLongitude(minLogintude);
         }
-        eastPos.setLatitude(westPos.getLatitude());
-        eastPos.setLongitude(maxLongitude);
+        eastUTMCoord.toLatLong(eastPos);
 
         maxLatitude = Math.min(mapBounds.getNorth(), utmZoneCoord.getZoneSouthLatitude() + utmZoneCoord.getGridZoneHeightInDegrees());
 
@@ -399,13 +396,10 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             // Increment the northing.
             westUTMCoord.setNorthing((int) westUTMCoord.getNorthing() + gridSize);
             westUTMCoord.toLatLong(westPos);
+            eastUTMCoord.setNorthing((int) eastUTMCoord.getNorthing() + gridSize);
+            eastUTMCoord.toLatLong(eastPos);
 
-            // Make sure its to the east of the of the grid zone west.
-            if (westPos.getLongitude() < minLogintude) {
-                westPos.setLongitude(minLogintude);
-            }
-            // Calculate the east position.
-            eastPos.setLatitude(westPos.getLatitude());
+            westPos.setLongitude(minLogintude);
             eastPos.setLongitude(maxLongitude);
         }
     }
