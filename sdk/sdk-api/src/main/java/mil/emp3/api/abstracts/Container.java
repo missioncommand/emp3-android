@@ -358,7 +358,7 @@ public class Container implements IContainer, IKMLExportable {
 
                 xmlSerializer.startTag(null, "name");
                 if ((null != this.getName()) && !this.getName().isEmpty()) {
-                    xmlSerializer.text(this.getName() + "- Children");
+                    xmlSerializer.text(this.getName() + " - Children");
                 } else {
                     xmlSerializer.text("EMP feature Children");
                 }
