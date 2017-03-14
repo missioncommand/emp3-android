@@ -88,6 +88,8 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                     this.processEvent.acquire();
 
                     long startTS = System.currentTimeMillis();
+                    String temp = String.format("North: %1$10.8f South: %2$10.8f West: %3$10.8f East: %4$10.8f", boundingBox.getNorth(), boundingBox.getSouth(), boundingBox.getWest(), boundingBox.getEast());
+                    Log.i(TAG, temp);
                     processViewChange(boundingBox, currentCamera, metersPerPixel);
                     Log.i(TAG, "feature generation in " + (System.currentTimeMillis() - startTS) + " ms. " + featureList.size() + " features.");
                     previousCamera.copySettingsFrom(currentCamera);
@@ -138,7 +140,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         color = new EmpGeoColor(0.6, 200, 200, 200);
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
-        labelStyle.setJustification(IGeoLabelStyle.Justification.RIGHT);
+        labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
         labelStyle.setFontFamily("Ariel");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(MAIN_GRID_TYPE_LABEL, labelStyle);
@@ -320,8 +322,8 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel;
         labelPos = new GeoPosition();
         labelPos.setLatitude(mapBounds.getNorth());
-        labelPos.setLongitude(mapBounds.getEast());
-        GeoLibrary.computePositionAt(225.0, charMetersWidth, labelPos, labelPos);
+        labelPos.setLongitude(mapBounds.centerLongitude());
+        GeoLibrary.computePositionAt(180.0, charMetersWidth, labelPos, labelPos);
 
         addFeature(createLabelFeature(labelPos, label, MAIN_GRID_TYPE_LABEL));
     }

@@ -1564,7 +1564,7 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 // PNG is a loss less format, the compression factor (100) is ignored
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                Log.e(TAG, "screen shot failed.", e);
                             } finally {
                                 try {
                                     if (out != null) {
