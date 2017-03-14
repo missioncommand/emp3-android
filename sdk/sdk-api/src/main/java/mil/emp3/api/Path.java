@@ -9,6 +9,7 @@ import java.util.List;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 
 import org.cmapi.primitives.GeoRenderable;
@@ -91,5 +92,32 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
         });
 
         super.exportEmpObjectToKML(xmlSerializer);
+    }
+
+    @Override
+    protected void appendGeoJSONProperties(StringBuffer buffer) {
+        buffer.append("\"properties\": ");
+        buffer.append("{\"style\": ");
+        buffer.append("{\"lineStyle\": ");
+        EmpGeoColor color = (EmpGeoColor)this.getStrokeStyle().getStrokeColor();
+        buffer.append(color.toGeoJSON());
+        buffer.append("}"); // lineStyle
+        buffer.append("}"); // style
+        buffer.append(",\"name\":");
+        buffer.append("\"" + this.getName() + "\",");
+        buffer.append(",\"id\":");
+        buffer.append("\"" + this.getGeoId() + "\",");
+        buffer.append(",\"description\":");
+        buffer.append("\"" + this.getDescription() + "\"");
+        buffer.append("}");
+    }
+
+    @Override
+    protected void appendGeoJSONGeometry(StringBuffer buffer) {
+        buffer.append("\"geometry\":  {\"type\": \"LineString\",");
+        buffer.append("\"coordinates\":  [");
+        appendGeoJSONPositions(buffer);
+        buffer.append("]");// end of coordinates
+        buffer.append("}");// end of geometry
     }
 }

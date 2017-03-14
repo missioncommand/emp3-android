@@ -18,6 +18,7 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.utils.EmpGeoColor;
 
 /**
  * All single point and multi point shapes and symbols that are displayed on the Map use Feature as their base class. Feature class provides for
@@ -360,4 +361,70 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
             oList.add(oPosition);
         }
     }
+
+    /*
+        The default implementation is for polygonal features:
+        Polygon, Rectangle, Square.
+
+        Others must implement their own GeoJSON writers.
+     */
+
+    protected void appendGeoJSONPositions(StringBuffer buffer) {
+        List<IGeoPosition> positions = this.getPositions();
+        int i = 0;
+        while (true) {
+            IGeoPosition position = positions.get(i++);
+            buffer.append("[");
+            buffer.append(position.getLatitude());
+            buffer.append(", ");
+            buffer.append(position.getLatitude());
+            buffer.append("]");
+            if (i == positions.size() - 1) break;
+            buffer.append(", ");
+        }
+    }
+
+    protected void appendGeoJSONProperties(StringBuffer buffer) {
+        buffer.append("\"properties\": ");
+        buffer.append("{\"style\": ");
+        buffer.append("{\"lineStyle\": ");
+        EmpGeoColor color = (EmpGeoColor)this.getStrokeStyle().getStrokeColor();
+        buffer.append(color.toGeoJSON());
+        buffer.append("}"); // end of lineStyle
+        buffer.append("{\"polyStyle\": ");
+        color = (EmpGeoColor)this.getStrokeStyle().getStrokeColor();
+        buffer.append(color.toGeoJSON());
+        buffer.append("}"); // end of polyStyle
+        buffer.append("}"); // end of style
+        buffer.append(",\"name\":");
+        buffer.append("\"" + this.getName() + "\",");
+        buffer.append(",\"id\":");
+        buffer.append("\"" + this.getGeoId() + "\",");
+        buffer.append(",\"description\":");
+        buffer.append("\"" + this.getDescription() + "\"");
+        buffer.append("}");
+    }
+
+    protected void appendGeoJSONGeometry(StringBuffer buffer) {
+        buffer.append("\"geometry\":  {\"type\": \"Polygon\",");
+        buffer.append("\"coordinates\":  [[");
+        appendGeoJSONPositions(buffer);
+        buffer.append("]]");// end of coordinates
+        buffer.append("}");// end of geometry
+    }
+
+
+    /**
+     * Converts this object to a geoJSON string
+     */
+
+    public String toGeoJSON() {
+        StringBuffer buffer = new StringBuffer("{\"type\":  \"Feature\",");
+        appendGeoJSONGeometry(buffer);
+        buffer.append(", ");
+        appendGeoJSONProperties(buffer);
+        buffer.append("}");
+        return buffer.toString();
+    }
+
 }

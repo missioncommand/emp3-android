@@ -15,6 +15,7 @@ import org.cmapi.primitives.GeoPosition;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * This class implements the Point feature that encapsulates a GeoPoint object.
@@ -188,4 +189,35 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint, IKMLExportab
 
         super.exportEmpObjectToKML(xmlSerializer);
     }
+
+    @Override
+    protected void appendGeoJSONProperties(StringBuffer buffer) {
+        buffer.append("\"properties\": ");
+        buffer.append("{\"style\": ");
+        buffer.append("{\"iconStyle\": ");
+        buffer.append("{\"url\": ");
+        buffer.append("\""+ this.getIconURI() + "\"");
+        buffer.append("}"); // url
+        buffer.append("}"); // iconStyle
+        buffer.append("}"); // style
+        buffer.append(",\"name\":");
+        buffer.append("\"" + this.getName() + "\",");
+        buffer.append(",\"id\":");
+        buffer.append("\"" + this.getGeoId() + "\",");
+        buffer.append(",\"description\":");
+        buffer.append("\"" + this.getDescription() + "\"");
+        buffer.append("}");
+    }
+
+    @Override
+    protected void appendGeoJSONGeometry(StringBuffer buffer) {
+        buffer.append("\"geometry\":  {\"type\": \"Point\",");
+        buffer.append("\"coordinates\":  [");
+        buffer.append(this.getPosition().getLatitude());
+        buffer.append(", ");
+        buffer.append(this.getPosition().getLatitude());
+        buffer.append("]");// end of coordinates
+        buffer.append("}");// end of geometry
+    }
+
 }

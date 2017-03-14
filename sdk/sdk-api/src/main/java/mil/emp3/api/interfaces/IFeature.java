@@ -90,4 +90,10 @@ public interface IFeature<T extends IGeoRenderable> extends IContainer, IGeoRend
      * This method validates the feature.  It throws an unchecked exception if validation fails.
      */
     void validate();
+
+    /**
+     * Converts this object to a geoJSON string
+     */
+
+    String toGeoJSON();
 }

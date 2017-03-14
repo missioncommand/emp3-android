@@ -32,4 +32,19 @@ public class EmpGeoColor extends GeoColor {
         super.setGreen(green);
         super.setBlue(blue);
     }
+
+    public String toGeoJSON() {
+
+        StringBuffer geoJSON = new StringBuffer("{\"color\": {");
+        geoJSON.append("\"r\":");
+        geoJSON.append(super.getRed());
+        geoJSON.append("\"g\":");
+        geoJSON.append(super.getGreen());
+        geoJSON.append("\"b\":");
+        geoJSON.append(super.getBlue());
+        geoJSON.append("\"a\":");
+        geoJSON.append(super.getAlpha());
+        geoJSON.append("}}");
+        return geoJSON.toString();
+    }
 }
