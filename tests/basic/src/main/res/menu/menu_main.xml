@@ -459,6 +459,14 @@
                           android:title="@string/action_mapgridutm"
                           android:orderInCategory="100"
                           app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridDMS"
+                          android:title="@string/action_mapgridDMS"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridDD"
+                          android:title="@string/action_mapgridDD"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
                 </menu>
             </item>
 

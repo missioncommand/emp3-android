@@ -16,5 +16,13 @@ public enum MapGridTypeEnum {
     /**
      * This enumerated value indicates that the map will display UTM grid lines.
      */
-    UTM
+    UTM,
+    /**
+     * This enumerated value indicates that the map will display Degree, Minute and seconds grid lines.
+     */
+    DMS,
+    /**
+     * This enumerated value indicates that the map will display decimal degrees grid lines.
+     */
+    DD
 }

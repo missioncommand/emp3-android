@@ -159,8 +159,11 @@
     <string name="action_minimap">Toggle Mini Map</string>
     <string name="action_brightnessLabel">Brightness:</string>
     <string name="action_screenShot">Screen Shot</string>
+
     <string name="action_mapgrid">Map Grid</string>
     <string name="action_mapgridnone">None</string>
     <string name="action_mapgridmgrs">MGRS</string>
     <string name="action_mapgridutm">UTM</string>
+    <string name="action_mapgridDMS">DMS</string>
+    <string name="action_mapgridDD">DD</string>
 </resources>

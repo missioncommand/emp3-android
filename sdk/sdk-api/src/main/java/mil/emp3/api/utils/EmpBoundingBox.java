@@ -105,17 +105,17 @@ public class EmpBoundingBox extends GeoBounds {
 
     @Override
     public void setNorth(double value) {
-        super.setNorth(((value + 90.0) % 180.0) - 90.0);
+        super.setNorth(((((value + 90.0) % 180.0) + 180.0) % 180.0) - 90.0);
     }
 
     @Override
     public void setSouth(double value) {
-        super.setSouth(((value + 90.0) % 180.0) - 90.0);
+        super.setSouth(((((value + 90.0) % 180.0) + 180.0) % 180.0) - 90.0);
     }
 
     @Override
     public void setWest(double value) {
-        super.setWest(((value + 180.0) % 360.0) - 180.0);
+        super.setWest(((((value + 180.0) % 360.0) + 360.0) % 360.0) - 180.0);
         if (getWest() == 180.0) {
             super.setWest(-180.0);
         }
@@ -123,7 +123,7 @@ public class EmpBoundingBox extends GeoBounds {
 
     @Override
     public void setEast(double value) {
-        super.setEast(((value + 180.0) % 360.0) - 180.0);
+        super.setEast(((((value + 180.0) % 360.0) + 360.0) % 360.0) - 180.0);
         if (getEast() == -180.0) {
             super.setEast(180.0);
         }
@@ -327,12 +327,12 @@ public class EmpBoundingBox extends GeoBounds {
     }
 
     /**
-     * This method returns the logitude of the center of the bounding area.
+     * This method returns the longitude of the center of the bounding area.
      * @return Center longitude in degrees.
      */
     public double centerLongitude() {
         if (this.containsIDL()) {
-            return (((this.west() + (this.deltaLongitude() / 2.0)) + 180.0) % 360.0) - 180.0;
+            return (((((this.west() + (this.deltaLongitude() / 2.0)) + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
         return (this.east() + this.west()) / 2.0;

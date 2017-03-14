@@ -1506,7 +1506,27 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_mapgridutm: {
-                this.map.setGridType(MapGridTypeEnum.UTM);
+                try {
+                    this.map.setGridType(MapGridTypeEnum.UTM);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "setGridType failed.", Ex);
+                }
+                return true;
+            }
+            case R.id.action_mapgridDMS: {
+                try {
+                    this.map.setGridType(MapGridTypeEnum.DMS);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "setGridType failed.", Ex);
+                }
+                return true;
+            }
+            case R.id.action_mapgridDD: {
+                try {
+                    this.map.setGridType(MapGridTypeEnum.DD);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "setGridType failed.", Ex);
+                }
                 return true;
             }
             case R.id.action_minimap: {

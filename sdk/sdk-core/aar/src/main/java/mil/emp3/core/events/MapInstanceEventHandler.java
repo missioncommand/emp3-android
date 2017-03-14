@@ -281,6 +281,8 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
                 break;
             case NONE:
                 break;
+            default:
+                throw new InvalidParameterException(gridType.name() + " grid type is currently not supported.");
         }
 
         this.getMapInstance().setMapGridGenerator(gridLineGenerator);
