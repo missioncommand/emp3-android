@@ -40,9 +40,6 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
                                                // adjusting the distance.
     private final boolean cameraOnScreen;      // True if camera position is on screen.
 
-    // We will calculate the bounds required for the GeoBounds class only when application tries to get them.
-    private boolean boundsCalculated = false;
-
     // We will adjust vertices to restrict the distance from the camera. Purpose is to reduce the size of resources used
     // by SEC Military Symbol renderer. We will do the adjustment only when user tries to retrieve anything related
     // to the vertices.
@@ -61,7 +58,8 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
      * @param v3
      * @param v4
      */
-    public EmpBoundingArea(ICamera currentCamera, boolean cameraOnScreen, IGeoPosition v1, IGeoPosition v2, IGeoPosition v3, IGeoPosition v4) {
+    public EmpBoundingArea(ICamera currentCamera, boolean cameraOnScreen, IGeoPosition v1, IGeoPosition v2, IGeoPosition v3, IGeoPosition v4,
+                           IGeoBounds geoBounds) {
 
         if((null == v1) || (null == v2) || (null == v3) || (null == v4)) {
             throw new IllegalArgumentException("All vertices must be non-null");
@@ -87,80 +85,11 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         camera = new Camera();
         camera.copySettingsFrom(currentCamera);
         this.cameraOnScreen = cameraOnScreen;
-    }
 
-    /**
-     * Sets North boundary to the highest latitude
-     * Sets South boundary to the smallest latitude.
-     */
-    private void setNorthAndSouth() {
-        double tmpNorth = 91.0;
-        double tmpSouth = -91.0;
-        for(int ii = 0; ii < vertices.length; ii++) {
-            if(tmpNorth > 90.0) {
-                tmpNorth = vertices[ii].getLatitude();
-                tmpSouth = vertices[ii].getLatitude();
-            } else {
-                if(vertices[ii].getLatitude() > tmpNorth) {
-                    tmpNorth = vertices[ii].getLatitude();
-                } else if(vertices[ii].getLatitude() < tmpSouth) {
-                    tmpSouth = vertices[ii].getLatitude();
-                }
-            }
-        }
-
-        super.setNorth(tmpNorth);
-        super.setSouth(tmpSouth);
-    }
-
-    /**
-     * This methods finds APPROXIMATE east/west boundaries for the underlying GeoBounds object.
-     *    - Get the center of the vertices.
-     *    - Find the bearing of each vertex from center to the vertex.
-     *    - Set East boundary to the longitude of the vertex with smallest bearing
-     *    - Set West boundary to the longitude of the vertex with highest bearing.
-     */
-    private void setEastAndWest() {
-
-        // Get the center
-        List<IGeoPosition> positionList = new ArrayList<>();
-        for(int ii = 0; ii < vertices.length; ii++) {
-            positionList.add(vertices[ii]);
-        }
-        IGeoPosition center = GeoLibrary.getCenter(positionList);
-
-        // Now compute bearing of each vertex and figure out vertex with smallest and highest bearing.
-        double[] bearing = new double[vertices.length];
-        double smallestBearing = -361.0;
-        double highestBearing = 361.0;
-        int smallestBearingIndex = -1;
-        int highestBearingIndex = -1;
-        for(int ii = 0; ii < vertices.length; ii++) {
-            bearing[ii] = GeoLibrary.computeBearing(center, vertices[ii]);
-            Log.d(TAG, "bearing " + bearing[ii] + " " + vertices[ii].getLatitude() + " " + vertices[ii].getLongitude());
-            if(smallestBearing < -360.0) {
-                smallestBearingIndex = ii;
-                highestBearingIndex = ii;
-                smallestBearing = bearing[ii];
-                highestBearing = bearing[ii];
-            } else {
-                if(bearing[ii] < smallestBearing) {
-                    smallestBearing = bearing[ii];
-                    smallestBearingIndex = ii;
-                } else if(bearing[ii] > highestBearing) {
-                    highestBearing = bearing[ii];
-                    highestBearingIndex = ii;
-                }
-            }
-        }
-
-        // Set east and west.
-        if(smallestBearingIndex >= 0) {
-            super.setEast(vertices[smallestBearingIndex].getLongitude());
-        }
-        if(highestBearingIndex >= 0) {
-            super.setWest(vertices[highestBearingIndex].getLongitude());
-        }
+        super.setEast(geoBounds.getEast());
+        super.setWest(geoBounds.getWest());
+        super.setNorth(geoBounds.getNorth());
+        super.setSouth(geoBounds.getSouth());
     }
 
     private void adjustVerticesByDistance() {
@@ -275,58 +204,6 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     @Override
     public void setSouth(double south){
         throw new IllegalStateException("Cannot set on " + this.getClass().getSimpleName());
-    }
-
-    /**
-     * Calculates (Approximate) North and South Bounds using the four vertices.
-     */
-    private void calculateBounds() {
-        if(!boundsCalculated) {
-            // Set approximate North, south, east and west.
-            setNorthAndSouth();
-            setEastAndWest();
-            boundsCalculated = true;
-        }
-    }
-
-    /**
-     * Get the approximate West bound
-     * @return
-     */
-    @Override
-    public double getWest() {
-        calculateBounds();
-        return super.getWest();
-    }
-
-    /**
-     * Get the approximate East bound
-     * @return
-     */
-    @Override
-    public double getEast() {
-        calculateBounds();
-        return super.getEast();
-    }
-
-    /**
-     * Get the approximate North bound
-     * @return
-     */
-    @Override
-    public double getNorth() {
-        calculateBounds();
-        return super.getNorth();
-    }
-
-    /**
-     * Get the approximate South bound
-     * @return
-     */
-    @Override
-    public double getSouth() {
-        calculateBounds();
-        return super.getSouth();
     }
 
     /**
