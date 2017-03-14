@@ -70,15 +70,12 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
 
-        IGeoPosition centerPos = new GeoPosition();
+        IGeoPosition centerPos = getCenter();
         ICamera camera = oClientMap.getCamera();
 
         currentWidth = 2 * camera.getAltitude() * widthMultiplier;
         currentHeight = 2 * camera.getAltitude() * heightMultiplier;
         currentBearing = 0.0;
-
-        centerPos.setLatitude(camera.getLatitude());
-        centerPos.setLongitude(camera.getLongitude());
 
         this.oFeature.setPosition(centerPos);
         this.oFeature.setWidth(currentWidth);

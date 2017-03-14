@@ -1,5 +1,8 @@
 package mil.emp3.core.editors;
 
+import android.util.Log;
+
+import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
@@ -7,6 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 import mil.emp3.api.enums.EditorMode;
+import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.IEventManager;
@@ -22,6 +27,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  */
 public abstract class AbstractEditor<T extends IFeature> {
 
+    private static String TAG = AbstractEditor.class.getSimpleName();
     final protected IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
     final protected IEventManager eventManager     = ManagerFactory.getInstance().getEventManager();
 
@@ -117,4 +123,30 @@ public abstract class AbstractEditor<T extends IFeature> {
      * @return
      */
     public abstract boolean isFinishing();
+
+    /**
+     * Some editors start by adding the feature at the center. Depending on the value of Tilt/Roll it is possible
+     * that Camera position is not in the visible section of the view, in that case we will return center of the
+     * EmpBoundingArea
+     * @return
+     */
+    protected IGeoPosition getCenter() {
+        IGeoPosition center;
+        IGeoBounds bounds = mapInstance.getMapBounds();
+        if((null != bounds) && (bounds instanceof IEmpBoundingArea) && !((IEmpBoundingArea) bounds).cameraPositionIsVisible()) {
+            IEmpBoundingArea area = (IEmpBoundingArea) bounds;
+            center = area.getCenter();
+        } else {
+            ICamera camera = mapInstance.getCamera();
+            if(null != camera) {
+                center = new GeoPosition();
+                center.setLatitude(camera.getLatitude());
+                center.setLongitude(camera.getLongitude());
+            } else {
+                center = new GeoPosition();
+                Log.e(TAG, "getCenter return 0, 0 camera is null");
+            }
+        }
+        return center;
+    }
 }

@@ -229,4 +229,36 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         EmpBoundingBox empBoundingBox = new EmpBoundingBox(getNorth(), getSouth(), getEast(), getWest());
         return empBoundingBox;
     }
+
+    @Override
+    public IGeoPosition getCenter() {
+        List<IGeoPosition> cornersFound = new ArrayList<>();
+
+        IGeoPosition nw = new GeoPosition();
+        nw.setLatitude(getNorth());
+        nw.setLongitude(getWest());
+        cornersFound.add(nw);
+
+        IGeoPosition ne = new GeoPosition();
+        ne.setLatitude(getNorth());
+        ne.setLongitude(getEast());
+        cornersFound.add(ne);
+
+        IGeoPosition se = new GeoPosition();
+        se.setLatitude(getSouth());
+        se.setLongitude(getEast());
+        cornersFound.add(se);
+
+        IGeoPosition sw = new GeoPosition();
+        sw.setLatitude(getSouth());
+        sw.setLongitude(getWest());
+        cornersFound.add(sw);
+
+        return GeoLibrary.getCenter(cornersFound);
+    }
+
+    @Override
+    public boolean cameraPositionIsVisible() {
+        return cameraOnScreen;
+    }
 }
