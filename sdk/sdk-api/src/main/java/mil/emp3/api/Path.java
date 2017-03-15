@@ -120,4 +120,14 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
         buffer.append("]");// end of coordinates
         buffer.append("}");// end of geometry
     }
+
+    @Override
+    public String toGeoJSON() {
+        StringBuffer buffer = new StringBuffer("{\"type\":  \"Feature\",");
+        appendGeoJSONGeometry(buffer);
+        buffer.append(", ");
+        appendGeoJSONProperties(buffer);
+        buffer.append("}");
+        return buffer.toString();
+    }
 }

@@ -393,21 +393,21 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     }
 
     protected void appendGeoJSONProperties(StringBuffer buffer) {
-        buffer.append("\"properties\": ");
-        buffer.append("{\"style\": ");
-        buffer.append("{\"lineStyle\": ");
+        buffer.append("\"properties\": {");
+        buffer.append("\"style\": {");
+        buffer.append("\"lineStyle\": {");
         EmpGeoColor color = (EmpGeoColor)this.getStrokeStyle().getStrokeColor();
         buffer.append(color.toGeoJSON());
         buffer.append("}"); // end of lineStyle
-        buffer.append("{\"polyStyle\": ");
+        buffer.append(",\"polyStyle\": {");
         color = (EmpGeoColor)this.getStrokeStyle().getStrokeColor();
         buffer.append(color.toGeoJSON());
         buffer.append("}"); // end of polyStyle
         buffer.append("}"); // end of style
         buffer.append(",\"name\":");
-        buffer.append("\"" + this.getName() + "\",");
+        buffer.append("\"" + this.getName() + "\"");
         buffer.append(",\"id\":");
-        buffer.append("\"" + this.getGeoId() + "\",");
+        buffer.append("\"" + this.getGeoId() + "\"");
         buffer.append(",\"description\":");
         buffer.append("\"" + this.getDescription() + "\"");
         buffer.append("}");

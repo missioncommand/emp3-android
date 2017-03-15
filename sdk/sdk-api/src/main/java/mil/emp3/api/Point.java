@@ -220,4 +220,13 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint, IKMLExportab
         buffer.append("}");// end of geometry
     }
 
+    @Override
+    public String toGeoJSON() {
+        StringBuffer buffer = new StringBuffer("{\"type\":  \"Feature\",");
+        appendGeoJSONGeometry(buffer);
+        buffer.append(", ");
+        appendGeoJSONProperties(buffer);
+        buffer.append("}");
+        return buffer.toString();
+    }
 }
