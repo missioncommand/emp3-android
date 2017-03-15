@@ -1,5 +1,7 @@
 package mil.emp3.api.abstracts;
 
+import android.util.Log;
+
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -13,6 +15,7 @@ import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.ArrayList;
 
+import mil.emp3.api.GeoJSON;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Path;
 import mil.emp3.api.Point;
@@ -22,6 +25,8 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.utils.EmpGeoColor;
 
+import static android.content.ContentValues.TAG;
+
 /**
  * All single point and multi point shapes and symbols that are displayed on the Map use Feature as their base class. Feature class provides for
  * graphical properties, hierarchy placement and geo spatial positions among other attributes. Feature is a Container and as such it can contain
@@ -30,6 +35,7 @@ import mil.emp3.api.utils.EmpGeoColor;
  */
 public class Feature<T extends IGeoRenderable> extends Container implements IFeature<T> {
 
+    public static final String TAG = Feature.class.getSimpleName();
     private final FeatureTypeEnum eFeatureType;
 
     protected Feature(T oRenderable, FeatureTypeEnum eFeatureType) {
@@ -442,13 +448,25 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
                 case GEO_POINT:
                     geoJSON = ((Point) this).toGeoJSON();
                     buffer.append(geoJSON);
+                    break;
+                case GEOJSON:
+                    List<IFeature> featureList = ((GeoJSON)this).getFeatureList();
+                    buffer.append("\"Features\":[{");
+                    for (IFeature feature : featureList) {
+                        geoJSON = feature.toGeoJSON();
+                        buffer.append(geoJSON);
+                    }
+                    buffer.append("}]");
                 case GEO_ACM:
                 case GEO_CIRCLE:
                 case GEO_ELLIPSE:
                 case GEO_TEXT:
                 default:
+                    buffer.append("}");
             }
-            return buffer.toString();
+            geoJSON = buffer.toString();
+            Log.i(TAG, geoJSON);
+            return geoJSON;
         } else {
             StringBuffer buffer = new StringBuffer("{\"type\":  \"FeatureCollection\",");
             buffer.append("\"Features\":[{");
@@ -457,7 +475,9 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
                 buffer.append(geoJSON);
             }
             buffer.append("}]");
-            return buffer.toString();
+            String geoJSON = buffer.toString();
+            Log.i(TAG, geoJSON);
+            return geoJSON;
         }
     }
 
