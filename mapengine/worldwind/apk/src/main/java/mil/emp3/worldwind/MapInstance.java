@@ -19,13 +19,6 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,14 +38,11 @@ import gov.nasa.worldwind.layer.BackgroundLayer;
 import gov.nasa.worldwind.layer.Layer;
 import gov.nasa.worldwind.layer.LayerFactory;
 import gov.nasa.worldwind.layer.RenderableLayer;
-import gov.nasa.worldwind.ogc.WmsLayer;
-import gov.nasa.worldwind.ogc.WmsLayerConfig;
-import gov.nasa.worldwind.render.ImageOptions;
+
 import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderResourceCache;
 import gov.nasa.worldwind.shape.SurfaceImage;
 import gov.nasa.worldwind.util.Logger;
-import gov.nasa.worldwind.util.WWUtil;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
@@ -61,7 +51,6 @@ import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IGeoPackage;
 import mil.emp3.api.interfaces.IImageLayer;
@@ -72,7 +61,6 @@ import mil.emp3.api.interfaces.IWMS;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.interfaces.IWMTS;
 import mil.emp3.api.interfaces.core.IStorageManager;
-import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.mapengine.abstracts.CoreMapInstance;
@@ -83,7 +71,6 @@ import mil.emp3.mapengine.interfaces.IEmpResources;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
-import mil.emp3.mapengine.interfaces.ISetVisibilityList;
 import mil.emp3.worldwind.controller.PickNavigateController;
 import mil.emp3.worldwind.feature.FeatureRenderableMapping;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
@@ -431,6 +418,9 @@ public class MapInstance extends CoreMapInstance {
             @Override
             public void run() {
                 oThis.getCamera();
+                // MAP is ready core and engine cameras are synced, so calculate the initial bounds.
+                BoundsGeneration.initialize(MapInstance.this);
+
                 Log.d(TAG, "Map Ready firing.");
                 oThis.generateStateChangeEvent(MapStateEnum.MAP_READY);
             }
@@ -1016,9 +1006,15 @@ public class MapInstance extends CoreMapInstance {
         }
     }
 
+    /**
+     * Don't recalculate the bounding area, it is calculated when MAP MOTION is STOPPED. Return what was calculated.
+     * This could be null if map is in motion. You can look at Emp3navigationListener to see when bounding area is
+     * recalculated.
+     * @return
+     */
     @Override
     public IGeoBounds getMapBounds() {
-        return BoundsGeneration.getBounds(this);
+        return BoundsGeneration.getCurrentBoundingArea(this);
     }
 
     /**

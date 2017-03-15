@@ -4,13 +4,17 @@ import android.graphics.Point;
 import android.os.Looper;
 import android.util.Log;
 
+import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -60,10 +64,22 @@ public class BoundsGeneration {
     private static int MAX_GRID_POINTS = 10;
 
     /**
-     * We will store the previously calculated bounding area that can be returned with things like VIEW_IN_MOTION.
-     * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated.
+     * In the case where two corners of the view show sky, we may have to make an adjustment to the calculated polygon
+     * based on the ration of the side that is on the edge to the two adjacent perpandicular sides.
      */
-    private static IEmpBoundingArea currentBoundingArea;
+    private static int W2H_RATIO_TOLERANCE = 2;
+
+    /**
+     * if W2H_RATIO_TOLERANCE is not met then we try to make the adjustments to reach ratio of .8
+     */
+    private static double HEIGHT_ADJUSTMENT_FACTOR = .8;
+
+    /**
+     * We will store the previously calculated bounding area that can be returned with things like VIEW_IN_MOTION.
+     * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated. This Map is always accessed on UI thread so
+     * no need to make it a ConcurrentHashMap.
+     */
+    private static Map<MapInstance, IEmpBoundingArea> currentBoundingArea = new HashMap<>();
     /**
      * Made this a method to allow for any adjustments in future.
      * @return
@@ -79,6 +95,13 @@ public class BoundsGeneration {
     private static int getOriginY() {
         return 0;
     }
+
+    /**
+     * Need to figure out why this is required ....
+     * @return
+     */
+    private static int getOriginXForGrid() { return 1; }
+    private static int getOriginYForGrid() { return 1; }
     /**
      * When stepping through the view space we need to select the size of the step. lc defines the percentage of
      * width or height as size of the step.
@@ -106,19 +129,53 @@ public class BoundsGeneration {
         return (int) (mapInstance.getWW().getHeight() * getLc());
     }
 
-    public static IEmpBoundingArea getCurrentBoundingArea() {
-        return currentBoundingArea;
+    /**
+     * Map is in motion, stored Bounding Area is no longer valid, it will have to be recalculated when map motion is stopped.
+     * @param mapInstance
+     */
+    public static void mapInMotion(MapInstance mapInstance) {
+        currentBoundingArea.put(mapInstance, null);
+    }
+
+    /**
+     * This is invoked when MAP is READY by the MapInstance object to force initial bounds generation. We could initialize
+     * other dat here if required. If in future we need to create a BoundsGeneration object per MapEngine then this would be
+     * a good place to do that, ofcourse then all those static would go away.
+     * @param mapInstance
+     * @return
+     */
+    public static void initialize(MapInstance mapInstance) {
+        getBounds(mapInstance);
+    }
+    public static IEmpBoundingArea getCurrentBoundingArea(MapInstance mapInstance) {
+        return currentBoundingArea.get(mapInstance);
     }
 
     public static IEmpBoundingArea getBounds(MapInstance mapInstance) {
         try {
             if(Looper.myLooper() == Looper.getMainLooper()) {
-                List<IGeoPosition> list = getBoundingPolygon(mapInstance);
-                if ((null != list) && (EmpBoundingArea.REQUIRED_VERTICES == list.size())) {
-                    IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), list.get(0), list.get(1), list.get(2), list.get(3));
-                    if(null != boundingArea) {
-                        currentBoundingArea = boundingArea;
+                int[] cornersTouched = new int[1];
+                cornersTouched[0] = 0;
+                IGeoPosition[] corners = getBoundingPolygon(mapInstance, cornersTouched);
+                if ((null != corners) && (EmpBoundingArea.REQUIRED_VERTICES == corners.length)) {
+
+                    Point cameraPoint = new Point();
+                    boolean cameraOnScreen = false;
+                    if(mapInstance.getMapController().groundPositionToScreenPoint(mapInstance.getCamera().getLatitude(), mapInstance.getCamera().getLongitude(),
+                            cameraPoint)) {
+                        if((cameraPoint.x > 0 && cameraPoint.x < mapInstance.getWW().getWidth() &&
+                                cameraPoint.y > 0 && cameraPoint.y < mapInstance.getWW().getHeight())) {
+                            cameraOnScreen = true;
+                        }
                     }
+
+                    IGeoBounds geoBounds = new GeoBounds();
+                    BoundingBoxGeneration.buildBoundingBox(mapInstance, corners, geoBounds, cameraOnScreen, cornersTouched[0]);
+                    IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), cameraOnScreen,
+                            corners[0], corners[1], corners[2], corners[3], geoBounds);
+
+                    currentBoundingArea.put(mapInstance, boundingArea);
+
                     return boundingArea;
                 }
             } else {
@@ -137,7 +194,7 @@ public class BoundsGeneration {
      * @param mapInstance
      * @return
      */
-    private static List<IGeoPosition> getBoundingPolygon(MapInstance mapInstance) {
+    private static IGeoPosition[] getBoundingPolygon(MapInstance mapInstance, int[] cornersTouched) {
         int cornersFound = 0;
         try {
             IGeoPosition corners[] = new IGeoPosition[CORNERS];
@@ -145,6 +202,7 @@ public class BoundsGeneration {
 
             // Check how many corners we have a map rather than sky/space
             cornersFound = getCornersTouched(mapInstance, corners);
+            cornersTouched[0] = cornersFound;
             Log.d(TAG, "getBoundingPolygon cornersFound " + cornersFound);
             switch(cornersFound) {
                 case CORNERS:
@@ -175,31 +233,12 @@ public class BoundsGeneration {
             }
 
             if(status) {
-                List<IGeoPosition> boundingPolygon = new ArrayList<>();
-                for (int ii = 0; ii < corners.length; ii++) {
-                    if (null != corners[ii]) {
-                        boundingPolygon.add(corners[ii]);
-                    }
-                }
-
-                if (-1.0 > mapInstance.getCamera().getTilt() || mapInstance.getCamera().getTilt() > 1.0) {
-                    // Globe is at the center of the view but roll and heading may not be zero.
-                    adjustPolygon(boundingPolygon);
-                }
-
-                if (CORNERS != boundingPolygon.size()) {
-                    Log.e(TAG, "Return bounding polygon with size " + boundingPolygon.size());
-                }
-                return boundingPolygon;
+                return corners;
             }
         } catch (Exception e) {
             Log.e(TAG, "cornersFound " + cornersFound + " " + e.getMessage(), e);
         }
         return null;
-    }
-
-    private static void adjustPolygon(List<IGeoPosition> boundingPolygon) {
-
     }
 
     /**
@@ -301,9 +340,10 @@ public class BoundsGeneration {
      * @param delta_y - Step size
      * @param width - width of the view
      * @param height - height of the view.
+     * @param positionPoint - x, y for returned GeoPosition
      * @return
      */
-    private static IGeoPosition findEarth2SkyTransition(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
+    private static IGeoPosition findEarth2SkyTransition(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height, Point positionPoint) {
 
         IGeoPosition corner = null;
         boolean found = false;
@@ -325,6 +365,7 @@ public class BoundsGeneration {
                     prevPos.longitude = pos.longitude;
                     prevPos.altitude = pos.altitude;
                 }
+                positionPoint.set(start_x, start_y);
             }
 
             int current_x = start_x + delta_x;
@@ -348,6 +389,7 @@ public class BoundsGeneration {
                             prevPos.longitude = pos.longitude;
                             prevPos.altitude = pos.altitude;
                         }
+                        positionPoint.set(result.x, result.y);
                     } else {
                         if(prevPos != null) {
                             corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
@@ -372,8 +414,51 @@ public class BoundsGeneration {
     }
 
     /**
+     * Finds a point on the map where there is a transition from earth to sky. Values of delta_x & delta_y decide the
+     * direction of search and size of the step.
+     *
+     *
+     * @param mapController
+     * @param start_x - Starting position
+     * @param start_y - Starting position
+     * @param delta_x - Step size
+     * @param delta_y - Step size
+     * @param width - width of the view
+     * @param height - height of the view.
+     * @return
+     */
+    private static IGeoPosition findEarth2SkyTransition(PickNavigateController mapController, int start_x, int start_y, int delta_x, int delta_y, int width, int height) {
+        Point positionPoint = new Point();
+        return findEarth2SkyTransition(mapController, start_x, start_y, delta_x, delta_y, width, height, positionPoint);
+    }
+
+    /**
+     * If a side of the 'quadrilateral' is more than twice the length of two adjacent sides then make an adjustment.
+     * This happens when the globe is on one of the edges of the view. In this case two corners are showing the earth and globe
+     * intersects the two edges very close to the corners that are showing the earth.
+     *
+     * @param polygonBaseLength
+     * @param polygonLeftLength
+     * @param polygonRightLength
+     * @return
+     */
+    private static boolean processTwoCornersAdjustmentRequired(int polygonBaseLength, int polygonLeftLength, int polygonRightLength) {
+        if((polygonLeftLength > 0) && (polygonRightLength > 0)) {
+            if (((polygonBaseLength / polygonLeftLength) > W2H_RATIO_TOLERANCE) && ((polygonBaseLength / polygonRightLength) > W2H_RATIO_TOLERANCE)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Tow view corners are showing sky and two are showing earth. Considering the geometry of the earth these have to be
      * adjacent corners.
+     *
+     * For each two corner case there is a special adjustment based on the height and width of the quadrilateral created. If the
+     * width is more that two times the height then we adjust the coordinates to balance this out. Code contains the required
+     * camera coordinates to reproduce this case.
+     *
      * @param mapInstance
      * @param corners
      * @return
@@ -387,21 +472,72 @@ public class BoundsGeneration {
         int delta_x = getDeltaX(mapInstance);
         int delta_y = getDeltaY(mapInstance);
 
+        Point positionPoint_1 = new Point();
+        Point positionPoint_2 = new Point();
+
         // Locate the two adjacent corners that show the earth. Then traverse along the x or the y axis to find transition
         // from earth to sky.
 
         if((corners[NW] != null) && (corners[NE] != null)){
-            corners[SE] = findEarth2SkyTransition(mapController, width, origin_y, 0, delta_y, width, height);
-            corners[SW] = findEarth2SkyTransition(mapController, origin_x, origin_y, 0, delta_y, width, height);
+            corners[SE] = findEarth2SkyTransition(mapController, width, origin_y, 0, delta_y, width, height, positionPoint_1);
+            corners[SW] = findEarth2SkyTransition(mapController, origin_x, origin_y, 0, delta_y, width, height, positionPoint_2);
+
+            /*
+             * This code is repeated for each of the four cases but no method was created because very specific actions are
+             * required for each case.
+             * To test set camera Camera 40.169, -114.001, 12558210, 10.791, 16.627, 179.9
+             */
+
+            if(processTwoCornersAdjustmentRequired(width, positionPoint_2.y, positionPoint_1.y)) {
+                findEarth2SkyTransition(mapController, width/2 , 0, 0, delta_y, width, height, positionPoint_1);
+                int newHeight = (int) (positionPoint_1.y * HEIGHT_ADJUSTMENT_FACTOR);
+                corners[SE] = findEarth2SkyTransition(mapController, width/2, newHeight, delta_x, 0, width, height);
+                corners[SW] = findEarth2SkyTransition(mapController, width/2, newHeight, -delta_x, 0, width, height);
+            }
         } else if((corners[SW] != null) && (corners[SE] != null)) {
-            corners[NE] = findEarth2SkyTransition(mapController, width, height, 0, -delta_y, width, height);
-            corners[NW] = findEarth2SkyTransition(mapController, origin_x, height, 0, -delta_y, width, height);
+            corners[NE] = findEarth2SkyTransition(mapController, width, height, 0, -delta_y, width, height, positionPoint_1);
+            corners[NW] = findEarth2SkyTransition(mapController, origin_x, height, 0, -delta_y, width, height, positionPoint_2);
+
+            /*
+             * Please see comments in the previous if block.
+             * To test set camera Camera 40.169, -114.001, 12558210, 10.791, 16.627, 0
+             */
+            if(processTwoCornersAdjustmentRequired(width, height - positionPoint_2.y, height - positionPoint_1.y)) {
+                findEarth2SkyTransition(mapController, width/2 , height, 0, -delta_y, width, height, positionPoint_1);
+                int newHeight = (int) ((height - positionPoint_1.y) * HEIGHT_ADJUSTMENT_FACTOR);
+                corners[NW] = findEarth2SkyTransition(mapController, width/2, height - newHeight, -delta_x, 0, width, height);
+                corners[NE] = findEarth2SkyTransition(mapController, width/2, height - newHeight, delta_x, 0, width, height);
+            }
         } else if((corners[NE] != null) && (corners[SE] != null)) {
-            corners[NW] = findEarth2SkyTransition(mapController, width, origin_y, -delta_x, 0, width, height);
-            corners[SW] = findEarth2SkyTransition(mapController, width, height, -delta_x, 0, width, height);
+            corners[NW] = findEarth2SkyTransition(mapController, width, origin_y, -delta_x, 0, width, height, positionPoint_1);
+            corners[SW] = findEarth2SkyTransition(mapController, width, height, -delta_x, 0, width, height, positionPoint_2);
+
+            /*
+             * Please see comments in the first if block.
+             * Camera 42.379, -112.363, 9835007, 11.944, 25.0 -90 set to test the following code.
+             * Pass Right edge of the view, Bottom edge of the view, Top edge of the view
+             */
+            if(processTwoCornersAdjustmentRequired(height, width - positionPoint_2.x, width - positionPoint_1.x)) {
+                findEarth2SkyTransition(mapController, width , height/2, -delta_x, 0, width, height, positionPoint_1);
+                int newHeight = (int) ((width - positionPoint_1.x) * HEIGHT_ADJUSTMENT_FACTOR);
+                corners[NW] = findEarth2SkyTransition(mapController, width - newHeight, height/2, 0, -delta_y, width, height);
+                corners[SW] = findEarth2SkyTransition(mapController, width - newHeight, height/2, 0, delta_y, width, height);
+            }
         } else if((corners[SW] != null) && (corners[NW] != null)) {
-            corners[NE] = findEarth2SkyTransition(mapController, origin_x, origin_y, delta_x, 0, width, height);
-            corners[SE] = findEarth2SkyTransition(mapController, origin_x, height, delta_x, 0, width, height);
+            corners[NE] = findEarth2SkyTransition(mapController, origin_x, origin_y, delta_x, 0, width, height, positionPoint_1);
+            corners[SE] = findEarth2SkyTransition(mapController, origin_x, height, delta_x, 0, width, height, positionPoint_2);
+
+            /*
+             * Please see comments in the first if block.
+             * Camera 42.379, -112.363, 9835007, 11.944, 25.0 90 set to test the following code.
+             * Left edge of the view, Top edge of the view and Bottom edge of the view
+             */
+            if(processTwoCornersAdjustmentRequired(height, positionPoint_1.x, positionPoint_2.x)) {
+                findEarth2SkyTransition(mapController, 0 , height/2, delta_x, 0, width, height, positionPoint_1);
+                int newHeight = (int) (positionPoint_1.x * HEIGHT_ADJUSTMENT_FACTOR);
+                corners[NE] = findEarth2SkyTransition(mapController, newHeight, height/2, 0, -delta_y, width, height);
+                corners[SE] = findEarth2SkyTransition(mapController, newHeight, height/2, 0, delta_y, width, height);
+            }
         } else {
             Log.e(TAG, "processTwoCorners TWO CORNERS NOT FOUND");
             return false;
@@ -586,6 +722,61 @@ public class BoundsGeneration {
     }
 
     /**
+     * Check if specified point is on one of the view edges, this is part of Grid processing. Currently not used.
+     * @param point
+     * @param width
+     * @param height
+     * @return
+     */
+    private static boolean pointOnGridEdge(Point point, int width, int height) {
+        if((getOriginXForGrid() == point.x) || (width == point.x) || (getOriginYForGrid() == point.y) || (height == point.y)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * If globe is intersecting one of the edges then this method tries to move those points as far as possible. But it was discovered
+     * that result actually reduces the Bounding Area as earth is tilted and latitude at the end is less than that in the middle.
+     * So method is NOT used but kept here for future reference.
+     *
+     * processGrid will need to be updated if you want to make use of this method.
+     * @param mapInstance
+     * @param corners
+     * @param cornerPoints
+     * @param pointsOnEdge
+     */
+    private static void processGridPointOnEdge(MapInstance mapInstance, IGeoPosition corners[], Point cornerPoints[], List<Point> pointsOnEdge) {
+        PickNavigateController mapController = mapInstance.getMapController();
+        boolean pointsOnNWNEEdge = false;
+        boolean pointsOnNESEEdge = false;
+        boolean pointsOnSESWEdge = false;
+        boolean pointsOnSWNWEdge = false;
+
+        int origin_x = getOriginXForGrid();
+        int origin_y = getOriginYForGrid();
+        int width = mapInstance.getWW().getWidth();
+        int height = mapInstance.getWW().getHeight();
+        int delta_x = (int) (getDeltaX(mapInstance) * .25);
+        int delta_y = (int) (getDeltaY(mapInstance) * .25);
+
+        for(Point point: pointsOnEdge) {
+            if(origin_x == point.x) pointsOnSWNWEdge = true;
+            if(origin_y == point.y) pointsOnNWNEEdge = true;
+            if(width == point.x)  pointsOnNESEEdge = true;
+            if(height == point.y)  pointsOnSESWEdge = true;
+            if(!(pointsOnNWNEEdge ^ pointsOnNESEEdge ^ pointsOnSESWEdge ^ pointsOnSWNWEdge)) {
+                return;
+            }
+        }
+
+        if(pointsOnSESWEdge) {
+            corners[SE] = findEarth2SkyTransition(mapController, cornerPoints[SE].x, cornerPoints[SE].y, delta_x, 0, width, height);
+            corners[SW] = findEarth2SkyTransition(mapController, cornerPoints[SW].x, cornerPoints[SW].y, -delta_x, 0, width, height);
+        }
+    }
+    /**
+     *
      * There is sky in the four corners and tilt is outside the range so now we will build a grid of points and figure out
      * points near the border of the earth/sky boundary. We will use these points to arrive at four points that best
      * represent the bounding polygon.
@@ -700,7 +891,9 @@ public class BoundsGeneration {
 
             // Checking (0, y) and (x, 0) will not yield a geographical point hence start with 1 for outermost/level0
             // rectangle. This is NOT an issue when you are looking at the corners themselves.
-            RectangleView level0 = new RectangleView(1, 1, width, 1, width, height, 1, height);
+            RectangleView level0 = new RectangleView(getOriginXForGrid(), getOriginYForGrid(), width, getOriginYForGrid(),
+                    width, height, getOriginXForGrid(), height);
+            // RectangleView level0 = new RectangleView(0, 0, width, 0, width, height, 0, height);
             Log.d(TAG, "level0 rectangle");
             level0.printRectangle();
 
@@ -788,4 +981,5 @@ public class BoundsGeneration {
             setLongitude(longitude);
         }
     }
+
 }
