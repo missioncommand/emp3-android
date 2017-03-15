@@ -96,20 +96,20 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
 
     @Override
     protected void appendGeoJSONProperties(StringBuffer buffer) {
-        buffer.append("\"properties\": ");
-        buffer.append("{\"style\": ");
-        buffer.append("{\"lineStyle\": ");
+        buffer.append("\"properties\": {");
+        buffer.append("\"style\": {");
+        buffer.append("\"lineStyle\": {");
         EmpGeoColor color = (EmpGeoColor)this.getStrokeStyle().getStrokeColor();
         buffer.append(color.toGeoJSON());
         buffer.append("}"); // lineStyle
         buffer.append("}"); // style
         buffer.append(",\"name\":");
-        buffer.append("\"" + this.getName() + "\",");
+        buffer.append("\"" + this.getName() + "\"");
         buffer.append(",\"id\":");
-        buffer.append("\"" + this.getGeoId() + "\",");
+        buffer.append("\"" + this.getGeoId() + "\"");
         buffer.append(",\"description\":");
         buffer.append("\"" + this.getDescription() + "\"");
-        buffer.append("}");
+        buffer.append("}");// properties
     }
 
     @Override

@@ -192,21 +192,21 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint, IKMLExportab
 
     @Override
     protected void appendGeoJSONProperties(StringBuffer buffer) {
-        buffer.append("\"properties\": ");
-        buffer.append("{\"style\": ");
-        buffer.append("{\"iconStyle\": ");
-        buffer.append("{\"url\": ");
+        buffer.append("\"properties\": {");
+        buffer.append("\"style\": {");
+        buffer.append("\"iconStyle\": {");
+        buffer.append("\"url\": {");
         buffer.append("\""+ this.getIconURI() + "\"");
         buffer.append("}"); // url
         buffer.append("}"); // iconStyle
         buffer.append("}"); // style
         buffer.append(",\"name\":");
-        buffer.append("\"" + this.getName() + "\",");
+        buffer.append("\"" + this.getName() + "\"");
         buffer.append(",\"id\":");
-        buffer.append("\"" + this.getGeoId() + "\",");
+        buffer.append("\"" + this.getGeoId() + "\"");
         buffer.append(",\"description\":");
         buffer.append("\"" + this.getDescription() + "\"");
-        buffer.append("}");
+        buffer.append("}");//properties
     }
 
     @Override
