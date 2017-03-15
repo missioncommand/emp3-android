@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 import mil.emp3.api.MilStdSymbol;
+import mil.emp3.api.Path;
+import mil.emp3.api.Point;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
@@ -416,15 +418,47 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
 
     /**
      * Converts this object to a geoJSON string
+     * Recursive method goes down through child features till
+     * it finds a node
      */
 
     public String toGeoJSON() {
-        StringBuffer buffer = new StringBuffer("{\"type\":  \"Feature\",");
-        appendGeoJSONGeometry(buffer);
-        buffer.append(", ");
-        appendGeoJSONProperties(buffer);
-        buffer.append("}");
-        return buffer.toString();
+        if (getChildFeatures().isEmpty()) {
+            StringBuffer buffer = new StringBuffer("{\"type\":  \"Feature\",");
+            String geoJSON = null;
+            switch (eFeatureType) {
+                case GEO_POLYGON:
+                case GEO_RECTANGLE:
+                case GEO_SQUARE:
+                    appendGeoJSONGeometry(buffer);
+                    buffer.append(", ");
+                    appendGeoJSONProperties(buffer);
+                    buffer.append("}");
+                    break;
+                case GEO_PATH:
+                    geoJSON = ((Path) this).toGeoJSON();
+                    buffer.append(geoJSON);
+                    break;
+                case GEO_POINT:
+                    geoJSON = ((Point) this).toGeoJSON();
+                    buffer.append(geoJSON);
+                case GEO_ACM:
+                case GEO_CIRCLE:
+                case GEO_ELLIPSE:
+                case GEO_TEXT:
+                default:
+            }
+            return buffer.toString();
+        } else {
+            StringBuffer buffer = new StringBuffer("{\"type\":  \"FeatureCollection\",");
+            buffer.append("\"Features\":[{");
+            for (IFeature feature : getChildFeatures()) {
+                String geoJSON = feature.toGeoJSON();
+                buffer.append(geoJSON);
+            }
+            buffer.append("}]");
+            return buffer.toString();
+        }
     }
 
 }
