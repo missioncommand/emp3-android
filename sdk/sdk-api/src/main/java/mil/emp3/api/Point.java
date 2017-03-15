@@ -200,6 +200,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint, IKMLExportab
         buffer.append("}"); // url
         buffer.append("}"); // iconStyle
         buffer.append("}"); // style
+        appendGeoJSONTimes(buffer);
         buffer.append(",\"name\":");
         buffer.append("\"" + this.getName() + "\"");
         buffer.append(",\"id\":");

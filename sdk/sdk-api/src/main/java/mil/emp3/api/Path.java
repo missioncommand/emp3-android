@@ -103,6 +103,7 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
         buffer.append(color.toGeoJSON());
         buffer.append("}"); // lineStyle
         buffer.append("}"); // style
+        appendGeoJSONTimes(buffer);
         buffer.append(",\"name\":");
         buffer.append("\"" + this.getName() + "\"");
         buffer.append(",\"id\":");

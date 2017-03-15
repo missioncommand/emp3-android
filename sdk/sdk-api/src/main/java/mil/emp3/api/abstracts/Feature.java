@@ -2,6 +2,7 @@ package mil.emp3.api.abstracts;
 
 import android.util.Log;
 
+import org.cmapi.primitives.GeoTimeSpan;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -12,6 +13,8 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoTimeSpan;
 
 import java.security.InvalidParameterException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -36,6 +39,7 @@ import static android.content.ContentValues.TAG;
 public class Feature<T extends IGeoRenderable> extends Container implements IFeature<T> {
 
     public static final String TAG = Feature.class.getSimpleName();
+    private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
     private final FeatureTypeEnum eFeatureType;
 
     protected Feature(T oRenderable, FeatureTypeEnum eFeatureType) {
@@ -377,6 +381,35 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         Others must implement their own GeoJSON writers.
      */
 
+    protected void appendGeoJSONTimes(StringBuffer buffer) {
+        boolean haveTimeSpan = false;
+        if (this.getTimeSpans().size() > 0) {
+            haveTimeSpan = true;
+            buffer.append(",\"timePrimitive\": {");
+            buffer.append("\"timeSpan\": {");
+            IGeoTimeSpan timeSpan = this.getTimeSpans().get(0);
+            buffer.append("\"begin\": {");
+            buffer.append(zonedDate.format(timeSpan.getBegin()));
+            buffer.append("}");
+            buffer.append("\"end\": {");
+            buffer.append(zonedDate.format(timeSpan.getEnd()));
+            buffer.append("}");
+            buffer.append("}");// time span
+        }
+        if (this.getTimeStamp() != null) {
+            if (!haveTimeSpan) {
+                buffer.append(",\"timePrimitive\": {");
+                haveTimeSpan = true;
+            }
+            buffer.append("\"timeStamp\": {");
+            buffer.append(zonedDate.format(getTimeStamp()));
+            buffer.append("}");// time stamp
+        }
+        if (haveTimeSpan) {
+            buffer.append("}");// time primitive
+        }
+    }
+
     protected void appendGeoJSONPositions(StringBuffer buffer) {
         List<IGeoPosition> positions = this.getPositions();
         int i = 0;
@@ -404,6 +437,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         buffer.append(color.toGeoJSON());
         buffer.append("}"); // end of polyStyle
         buffer.append("}"); // end of style
+        appendGeoJSONTimes(buffer);
         buffer.append(",\"name\":");
         buffer.append("\"" + this.getName() + "\"");
         buffer.append(",\"id\":");
