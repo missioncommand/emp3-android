@@ -6,7 +6,7 @@ dependencies {
     compile project     (":service:mirrorcache:service-mirrorcache-api")
     compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
     compile             ("com.android.support:appcompat-v7")
-    compile             ("sec.web.renderer:mil-sym-android-renderer")
+    compile             ("mil.army.missioncommand:mil-sym-android-renderer")
 
     provided            ("org.cmapi.primitives:common-map-geospatial-notation")
     
