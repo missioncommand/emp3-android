@@ -21,6 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import gov.nasa.worldwind.geom.Position;
 import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.utils.EmpBoundingArea;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
@@ -319,7 +320,7 @@ public class BoundsGeneration {
         for (int ii = 0; ii < vertices.length; ii++) {
             if (mapController.screenPointToGroundPosition(vertices[ii].x, vertices[ii].y, pos)) {
                 if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)) {
-                    corners[ii] = new MyGeoPosition(pos.latitude, pos.longitude);
+                    corners[ii] = new EmpGeoPosition(pos.latitude, pos.longitude);
                     Log.v(TAG, "x/y/l/n " + vertices[ii].x + " " + vertices[ii].y + " " + pos.latitude + " " + pos.longitude);
                     cornersFound++;
                 }
@@ -418,7 +419,7 @@ public class BoundsGeneration {
                  current_x += delta_x, current_y += delta_y) {
                 if (!mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
                     if(prevPos != null) {
-                        corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                        corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
                         Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                         found = true;
                     }
@@ -436,7 +437,7 @@ public class BoundsGeneration {
                         positionPoint.set(result.x, result.y);
                     } else {
                         if(prevPos != null) {
-                            corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                            corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
                             Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                             found = true;
                         }
@@ -447,7 +448,7 @@ public class BoundsGeneration {
             // Following takes care of the condition where transition occurs before the first increment. lower the value of
             // lc less the probability of that happening, but that will affect the performance.
             if((null == corner) && (prevPos != null)) {
-                corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
                 Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
             }
 
@@ -660,7 +661,7 @@ public class BoundsGeneration {
                 // Note that we are checking the reverse to work around the NASA issue mentioned in getCornersTouched method.
                 if (mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
                     if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)) {
-                        corner = new MyGeoPosition(pos.latitude, pos.longitude);
+                        corner = new EmpGeoPosition(pos.latitude, pos.longitude);
                         Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                         found = true;
                     }
@@ -1016,14 +1017,4 @@ public class BoundsGeneration {
             return rectangleViews;
         }
     }
-    /**
-     * Convenience class.
-     */
-    private static class MyGeoPosition extends GeoPosition {
-        MyGeoPosition(double latitude, double longitude) {
-            setLatitude(latitude);
-            setLongitude(longitude);
-        }
-    }
-
 }

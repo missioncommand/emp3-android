@@ -17,6 +17,7 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.mapengine.events.MapInstanceFeatureUserInteractionEvent;
 import mil.emp3.mapengine.events.MapInstanceUserInteractionEvent;
@@ -139,11 +140,9 @@ public abstract class AbstractEditor<T extends IFeature> {
         } else {
             ICamera camera = mapInstance.getCamera();
             if(null != camera) {
-                center = new GeoPosition();
-                center.setLatitude(camera.getLatitude());
-                center.setLongitude(camera.getLongitude());
+                center = new EmpGeoPosition(camera.getLatitude(), camera.getLongitude());
             } else {
-                center = new GeoPosition();
+                center = new EmpGeoPosition();
                 Log.e(TAG, "getCenter return 0, 0 camera is null");
             }
         }

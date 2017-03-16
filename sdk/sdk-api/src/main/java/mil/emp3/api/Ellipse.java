@@ -25,6 +25,9 @@ import mil.emp3.api.utils.kml.EmpKMLExporter;
  */
 public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
 
+    public final static double MINIMUM_SEMI_MAJOR = 0.1D;
+    public final static double MINIMUM_SEMI_MINOR = 0.1D;
+
     /**
      * This constructor creates an ellipse with default dimensions.
      */
@@ -78,7 +81,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         if (value < 0.0) {
             value = Math.abs(value);
         }
-        if (value < 1.0D) {
+        if (value < MINIMUM_SEMI_MAJOR) {
             throw new InvalidParameterException("Semi Major must be >= 1.0");
         }
         this.getRenderable().setSemiMajor(value);
@@ -102,7 +105,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         if (value < 0.0) {
             value = Math.abs(value);
         }
-        if (value < 1.0D) {
+        if (value < MINIMUM_SEMI_MINOR) {
             throw new InvalidParameterException("The Semi Minor must be >= 1.0.");
         }
         this.getRenderable().setSemiMinor(value);

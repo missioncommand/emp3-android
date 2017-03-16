@@ -14,6 +14,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -60,12 +61,6 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
         this.initializeDraw();
     }
 
-    class EmpGeoPosition extends GeoPosition {
-        EmpGeoPosition(double latitude, double longitude) {
-            setLatitude(latitude);
-            setLongitude(longitude);
-        }
-    }
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
@@ -74,8 +69,8 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
         IGeoBounds bounds = mapInstance.getMapBounds();
         if (null != bounds) {
             currentHeight = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
-                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * .10;
-            currentWidth = 2 * currentHeight;
+                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * heightMultiplier;
+            currentWidth = (widthMultiplier/heightMultiplier) * currentHeight;
         } else {
             ICamera camera = oClientMap.getCamera();
             currentWidth = 2 * camera.getAltitude() * widthMultiplier;
@@ -185,6 +180,21 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
         getCP(ControlPoint.CPTypeEnum.WIDTH_CP, center, false);
         getCP(ControlPoint.CPTypeEnum.HEIGHT_CP, center, false);
         getCP(ControlPoint.CPTypeEnum.AZIMUTH_CP, center, false);
+    }
+
+    @Override
+    protected double getMinDistance(double multiplier) {
+        double minDistance = -1.0;
+
+        IGeoBounds bounds = mapInstance.getMapBounds();
+        if(null != bounds) {
+            minDistance = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
+                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * multiplier;
+            if(mapInstance.getCamera().getTilt() > 30) {
+                minDistance *= 3;
+            }
+        }
+        return minDistance;
     }
 
     private void adjustWidth(ControlPoint oCP, IGeoPosition oLatLon) {

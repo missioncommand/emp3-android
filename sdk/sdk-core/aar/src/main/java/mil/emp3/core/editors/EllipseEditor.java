@@ -1,10 +1,11 @@
 package mil.emp3.core.editors;
 
+import android.util.Log;
+
 import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.Ellipse;
@@ -13,6 +14,7 @@ import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -21,12 +23,15 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  */
 
 public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
+    private final static String TAG = EllipseEditor.class.getSimpleName();
+
     private static final int SEMI_MAJOR_CP_INDEX = 0;
     private static final int SEMI_MINOR_CP_INDEX = 1;
 
     private double semiMajor;
     private double semiMinor;
     private double originalAzimuth;
+    private static double radiusMultiplier = 0.20;
 
     public EllipseEditor(IMapInstance map, Ellipse feature, IEditEventListener oEventListener)
             throws EMP_Exception {
@@ -45,17 +50,30 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        IGeoPosition cameraPos = this.getMapCameraPosition();
         super.prepareForDraw();
 
-        float tempRadius = (float) Math.rint(cameraPos.getAltitude() / 6.0);
+        double tempRadius;
+        IGeoPosition centerPos = getCenter();
+        IGeoBounds bounds = mapInstance.getMapBounds();
+        if (null != bounds) {
+            tempRadius = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
+                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * radiusMultiplier;
+            if(tempRadius < ( 2 * Ellipse.MINIMUM_SEMI_MAJOR)) {
+                tempRadius = Ellipse.MINIMUM_SEMI_MAJOR * 2;
+            }
+        } else {
+            IGeoPosition cameraPos = this.getMapCameraPosition();
+            tempRadius = (float) Math.rint(cameraPos.getAltitude() / 6.0);
 
-        if (tempRadius > 10000) {
-            // we can change this later.
-            // Make sure its not greater than some threshold.
-            tempRadius = 10000;
+            if (tempRadius > 10000) {
+                // we can change this later.
+                // Make sure its not greater than some threshold.
+                tempRadius = 10000;
+            }
         }
 
+        Log.d(TAG, "PrepareForDraw semiMajor " + tempRadius);
+        this.oFeature.setPosition(centerPos);
         this.oFeature.setSemiMajor(tempRadius);
         this.oFeature.setSemiMinor(tempRadius / 2.0);
         this.oFeature.setAzimuth(0);

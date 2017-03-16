@@ -39,6 +39,7 @@ import mil.emp3.api.listeners.IMapViewChangeEventListener;
 import mil.emp3.api.utils.EmpBoundingArea;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.NavItemBase;
@@ -177,7 +178,7 @@ public class BoundsGenerationTest extends NavItemBase {
                     maps[whichMap].addOverlay(geoBoundsOverlay[whichMap], true);
 
                     cameraPoint[whichMap] = new Point();
-                    cameraPoint[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
+                    cameraPoint[whichMap].getPositions().add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
                     overlay[whichMap].addFeature(cameraPoint[whichMap], true);
 
                     IGeoLabelStyle labelStyle = new GeoLabelStyle();
@@ -186,7 +187,7 @@ public class BoundsGenerationTest extends NavItemBase {
                     cameraText[whichMap] = new Text();
                     cameraText[whichMap].setText("Camera");
                     cameraText[whichMap].setLabelStyle(labelStyle);
-                    cameraText[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
+                    cameraText[whichMap].getPositions().add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
                     overlay[whichMap].addFeature(cameraText[whichMap], true);
 
                     cameraListener[whichMap] = new CameraListener(whichMap);
@@ -195,11 +196,11 @@ public class BoundsGenerationTest extends NavItemBase {
                     mapEventHandle[whichMap] = maps[whichMap].addMapViewChangeEventListener(new MapViewChangeEventListener(whichMap));
                 } else {
                     cameraPoint[whichMap].getPositions().clear();
-                    cameraPoint[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
+                    cameraPoint[whichMap].getPositions().add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
                     cameraPoint[whichMap].apply();
 
                     cameraText[whichMap].getPositions().clear();
-                    cameraText[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
+                    cameraText[whichMap].getPositions().add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
                     cameraText[whichMap].apply();
                 }
             } else if (userAction.equals("Show Corners")) {
@@ -225,10 +226,10 @@ public class BoundsGenerationTest extends NavItemBase {
                 Polygon p = new Polygon();
                 p.setStrokeStyle(strokeStyle);
 
-                p.getPositions().add(new MyGeoPosition(geoBounds.getNorth(), geoBounds.getWest(), 0));
-                p.getPositions().add(new MyGeoPosition(geoBounds.getNorth(), geoBounds.getEast(), 0));
-                p.getPositions().add(new MyGeoPosition(geoBounds.getSouth(), geoBounds.getEast(), 0));
-                p.getPositions().add(new MyGeoPosition(geoBounds.getSouth(), geoBounds.getWest(), 0));
+                p.getPositions().add(new EmpGeoPosition(geoBounds.getNorth(), geoBounds.getWest(), 0));
+                p.getPositions().add(new EmpGeoPosition(geoBounds.getNorth(), geoBounds.getEast(), 0));
+                p.getPositions().add(new EmpGeoPosition(geoBounds.getSouth(), geoBounds.getEast(), 0));
+                p.getPositions().add(new EmpGeoPosition(geoBounds.getSouth(), geoBounds.getWest(), 0));
                 geoBoundsOverlay[whichMap].addFeature(p, true);
 
                 if(null != geoBounds) {
@@ -269,13 +270,13 @@ public class BoundsGenerationTest extends NavItemBase {
                 strokeStyle.setStrokeColor(new EmpGeoColor(1, 0, 255, 255));
                 strokeStyle.setStrokeWidth(5);
                 symbol.setStrokeStyle(strokeStyle);
-                symbol.getPositions().add(new MyGeoPosition(51.71890155127165, -115.98336399953365, 0 ));
-                symbol.getPositions().add(new MyGeoPosition(52.64436742922938, -104.25681924615716, 0 ));
-                symbol.getPositions().add(new MyGeoPosition(52.17390465118869, -94.5947905827707, 0 ));
+                symbol.getPositions().add(new EmpGeoPosition(51.71890155127165, -115.98336399953365, 0 ));
+                symbol.getPositions().add(new EmpGeoPosition(52.64436742922938, -104.25681924615716, 0 ));
+                symbol.getPositions().add(new EmpGeoPosition(52.17390465118869, -94.5947905827707, 0 ));
 
-                symbol.getPositions().add(new MyGeoPosition(50.34258657086281, -81.94509827090853, 0 ));
-                symbol.getPositions().add(new MyGeoPosition(47.709296820694576, -73.15852091105798, 0 ));
-                symbol.getPositions().add(new MyGeoPosition(44.662370012492, -60.4663988644806, 0 ));
+                symbol.getPositions().add(new EmpGeoPosition(50.34258657086281, -81.94509827090853, 0 ));
+                symbol.getPositions().add(new EmpGeoPosition(47.709296820694576, -73.15852091105798, 0 ));
+                symbol.getPositions().add(new EmpGeoPosition(44.662370012492, -60.4663988644806, 0 ));
 
                 overlay[whichMap].addFeature(symbol, true);
             } else {
@@ -298,14 +299,6 @@ public class BoundsGenerationTest extends NavItemBase {
     protected boolean exitTest() {
         String userAction = "Exit";
         return (actOn(userAction));
-    }
-
-    class MyGeoPosition extends GeoPosition {
-        MyGeoPosition(double latitude, double longitude, double altitude) {
-            setLatitude(latitude);
-            setLongitude(longitude);
-            setAltitude(altitude);
-        }
     }
 
     List<IGeoPosition> fetchPositionsFromString(IEmpBoundingArea empBoundingArea) {
@@ -428,11 +421,11 @@ public class BoundsGenerationTest extends NavItemBase {
         public void onEvent(CameraEvent event) {
             ICamera camera = event.getCamera();
             cameraPoint[whichMap].getPositions().clear();
-            cameraPoint[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
+            cameraPoint[whichMap].getPositions().add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
             cameraPoint[whichMap].apply();
 
             cameraText[whichMap].getPositions().clear();
-            cameraText[whichMap].getPositions().add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
+            cameraText[whichMap].getPositions().add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude(), 0));
             cameraText[whichMap].apply();
         }
     }

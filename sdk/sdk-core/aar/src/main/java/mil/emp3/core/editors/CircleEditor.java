@@ -2,6 +2,7 @@ package mil.emp3.core.editors;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import java.util.List;
 import mil.emp3.api.Circle;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.enums.FeaturePropertyChangedEnum;
+import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
@@ -21,6 +24,9 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  */
 
 public class CircleEditor extends AbstractSinglePointEditor<Circle> {
+
+    private static double radiusMultiplier = 0.15;
+
     private double originalRadius;
     private double originalAzimuth;
 
@@ -40,18 +46,30 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        IGeoPosition cameraPos = this.getMapCameraPosition();
         super.prepareForDraw();
 
-        float tempRadius = (float) Math.rint(cameraPos.getAltitude() / 6.0);
+        double tempRadius;
+        IGeoPosition centerPos = getCenter();
+        IGeoBounds bounds = mapInstance.getMapBounds();
+        if (null != bounds) {
+            tempRadius = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
+                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * radiusMultiplier;
+            if(tempRadius < Circle.MINIMUM_RADIUS) { // Circle class prohibits circle with radius less than 1.
+                tempRadius = Circle.MINIMUM_RADIUS;
+            }
+        } else {
+            IGeoPosition cameraPos = this.getMapCameraPosition();
+            tempRadius = (float) Math.rint(cameraPos.getAltitude() / 6.0);
 
-        if (tempRadius > 10000) {
-            // we can change this later.
-            // Make sure its not greater than some threshold.
-            tempRadius = 10000;
+            if (tempRadius > 10000) {
+                // we can change this later.
+                // Make sure its not greater than some threshold.
+                tempRadius = 10000;
+            }
         }
 
         this.oFeature.setRadius(tempRadius);
+        this.oFeature.setPosition(centerPos);
         this.oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
     }
 

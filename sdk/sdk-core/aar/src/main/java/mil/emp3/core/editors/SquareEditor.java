@@ -5,27 +5,33 @@ import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mil.emp3.api.Square;
-import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
     private static String TAG = RectangleEditor.class.getSimpleName();
 
+    // All the following multiplier are based experimenting with various camera setting. There was no mathematical
+    // formulae for arriving at these numbers.
+
+    // Following two are used if bounds is null, which should never happen???
     private final double lengthMultiplier = .20;    // When drawing first time used to multiply camera altitude to get width
     private final double minLengthMultiplier = (lengthMultiplier/5);
 
+    // Following is used when bounds are used to calculate initial lenght and minimum length
+    private final double boundsLenghtMultiplier = 0.10;
+    private final double boundsScaleFatcor = 1.5;
+    private final double boundsMinLenghtMultiplier = (boundsLenghtMultiplier/5);
     private double currentLength = 0;
 
     // Following are used to restore the feature state. Note that base class will restore the position.
@@ -44,13 +50,17 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
-        IGeoPosition centerPos = new GeoPosition();
-        ICamera camera = oClientMap.getCamera();
 
-        currentLength = 2 * camera.getAltitude() * lengthMultiplier;
+        IGeoPosition centerPos = getCenter();
+        IGeoBounds bounds = mapInstance.getMapBounds();
+        if (null != bounds) {
+            currentLength = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
+                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * .10 * 1.5;
+        } else {
+            ICamera camera = oClientMap.getCamera();
+            currentLength = 2 * camera.getAltitude() * lengthMultiplier;
+        }
         currentBearing = 0.0;
-        centerPos.setLatitude(camera.getLatitude());
-        centerPos.setLongitude(camera.getLongitude());
 
         this.oFeature.setPosition(centerPos);
         this.oFeature.setWidth(currentLength);
@@ -145,6 +155,21 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
     protected void recompute(IGeoPosition center ) {
         getCP(ControlPoint.CPTypeEnum.LENGTH_CP, center, false);
         getCP(ControlPoint.CPTypeEnum.AZIMUTH_CP, center, false);
+    }
+
+    @Override
+    protected double getMinDistance(double multiplier) {
+        double minDistance = -1.0;
+
+        IGeoBounds bounds = mapInstance.getMapBounds();
+        if(null != bounds) {
+            minDistance = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
+                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * boundsMinLenghtMultiplier;
+            if(mapInstance.getCamera().getTilt() > 30) {
+                minDistance *= 3;
+            }
+        }
+        return minDistance;
     }
 
     private void adjustWidth(ControlPoint oCP, IGeoPosition oLatLon) {
