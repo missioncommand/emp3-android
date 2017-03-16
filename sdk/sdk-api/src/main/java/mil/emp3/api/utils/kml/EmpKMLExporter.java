@@ -314,7 +314,7 @@ public class EmpKMLExporter {
                 xmlSerializer.text("" + feature.getIconScale());
                 xmlSerializer.endTag(null, "scale");
             }
-
+/*
             if ((null != feature.getIconURI()) && !feature.getIconURI().isEmpty()) {
                 xmlSerializer.startTag(null, "Icon");
                 serializeHRef(feature.getIconURI(), xmlSerializer);
@@ -322,7 +322,7 @@ public class EmpKMLExporter {
 
                 serializeIconHotSpot(feature.getIconStyle(), xmlSerializer);
             }
-
+*/
             xmlSerializer.endTag(null, "IconStyle");
             xmlSerializer.endTag(null, "Style");
         } else if (polygonNeedStyle(feature)) {

@@ -94,36 +94,4 @@ public class GeoJSON extends Feature<IGeoRenderable> implements IGeoJSON {
     public String getDocumentMIMEType() {
         return geoDocument.getDocumentMIMEType();
     }
-
-
-    @Override
-    public void exportStylesToKML(XmlSerializer xmlSerializer) throws IOException {
-        if ((null != this.getFeatureList()) && !this.getFeatureList().isEmpty()) {
-            for (IFeature feature: this.getFeatureList()) {
-                if (feature instanceof IKMLExportable) {
-                    ((IKMLExportable) feature).exportStylesToKML(xmlSerializer);
-                }
-            }
-        }
-
-        super.exportStylesToKML(xmlSerializer);
-    }
-
-    @Override
-    public void exportEmpObjectToKML(XmlSerializer xmlSerializer) throws IOException {
-        EmpKMLExporter.serializePlacemark(this, xmlSerializer, new EmpKMLExporter.ISerializePlacemarkGeometry() {
-            @Override
-            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
-                if ((null != GeoJSON.this.getFeatureList()) && !GeoJSON.this.getFeatureList().isEmpty()) {
-                    for (IFeature feature: GeoJSON.this.getFeatureList()) {
-                        if (feature instanceof IKMLExportable) {
-                            ((IKMLExportable) feature).exportEmpObjectToKML(xmlSerializer);
-                        }
-                    }
-                }
-            }
-        });
-
-        super.exportEmpObjectToKML(xmlSerializer);
-    }
 }
