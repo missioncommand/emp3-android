@@ -8,7 +8,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.core.editors.AbstractDrawEditEditor;
-import mil.emp3.core.utils.milstd2525.MilStdUtilities;
+import mil.emp3.api.utils.MilStdUtilities;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**

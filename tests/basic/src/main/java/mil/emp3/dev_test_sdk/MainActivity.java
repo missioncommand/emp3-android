@@ -122,6 +122,7 @@ import mil.emp3.api.listeners.IMapViewChangeEventListener;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.kml.EmpKMLExporter;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
 import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
@@ -1473,6 +1474,14 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     this.miniMapDialog.dismiss();
                     this.miniMapDialog = null;
+                }
+                return true;
+            }
+            case R.id.action_exportMapToKML: {
+                try {
+                    EmpKMLExporter.export(this.map);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "Map export to KML failed.", Ex);
                 }
                 return true;
             }

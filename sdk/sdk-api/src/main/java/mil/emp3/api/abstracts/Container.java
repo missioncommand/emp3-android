@@ -3,20 +3,15 @@ package mil.emp3.api.abstracts;
 
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoContainer;
-import org.xmlpull.v1.XmlSerializer;
 
-import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import mil.emp3.api.Overlay;
-import mil.emp3.api.Point;
 import mil.emp3.api.enums.EventListenerTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IContainer;
-import mil.emp3.api.interfaces.IKMLExportable;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.listeners.EventListenerHandle;
@@ -26,7 +21,6 @@ import mil.emp3.api.listeners.IFeatureEventListener;
 import mil.emp3.api.listeners.IFeatureInteractionEventListener;
 import mil.emp3.api.listeners.IVisibilityEventListener;
 import mil.emp3.api.utils.ManagerFactory;
-import mil.emp3.api.utils.kml.EmpKMLExporter;
 
 /**
  * Container class serves as a base class for the Map objects including Map, Overlay and Feature. It implements some basic capabilities
@@ -37,7 +31,7 @@ import mil.emp3.api.utils.kml.EmpKMLExporter;
  * to these objects. In many cases 'apply' methods are provided in the interface to allow the applications to control when a change is reflected
  * on the map.
  */
-public class Container implements IContainer, IKMLExportable {
+public class Container implements IContainer{
 
     final protected IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
     final protected IEventManager eventManager = ManagerFactory.getInstance().getEventManager();
@@ -322,76 +316,5 @@ public class Container implements IContainer, IKMLExportable {
         }
 
         return retValue;
-    }
-
-    protected String callKMLExporter() throws IOException {
-        return EmpKMLExporter.export(this);
-    }
-
-    @Override
-    public String exportToKML() throws IOException {
-        return "";
-    }
-
-    @Override
-    public void exportStylesToKML(XmlSerializer xmlSerializer) throws IOException {
-        for (IGeoBase geoObject : this.getChildren()) {
-            if (geoObject instanceof IKMLExportable) {
-                ((IKMLExportable) geoObject).exportStylesToKML(xmlSerializer);
-            }
-        }
-    }
-
-    @Override
-    public void exportEmpObjectToKML(XmlSerializer xmlSerializer) throws IOException {
-        if (this.getChildren().size() > 0) {
-            xmlSerializer.startTag(null, "Folder");
-
-            if (this instanceof Feature) {
-                // If we are exporting a feature, this folder contains the features children.
-                // We set the targetId to the id of the parent feature.
-                if ((null != this.getDataProviderId()) && !this.getDataProviderId().isEmpty()) {
-                    xmlSerializer.attribute(null, "targetId", this.getDataProviderId());
-                } else {
-                    xmlSerializer.attribute(null, "targetId", this.getGeoId().toString());
-                }
-
-                xmlSerializer.startTag(null, "name");
-                if ((null != this.getName()) && !this.getName().isEmpty()) {
-                    xmlSerializer.text(this.getName() + " - Children");
-                } else {
-                    xmlSerializer.text("EMP feature Children");
-                }
-                xmlSerializer.endTag(null, "name");
-            } else {
-                if ((null != this.getDataProviderId()) && !this.getDataProviderId().isEmpty()) {
-                    xmlSerializer.attribute(null, "id", this.getDataProviderId());
-                } else {
-                    xmlSerializer.attribute(null, "id", this.getGeoId().toString());
-                }
-
-                xmlSerializer.startTag(null, "name");
-                if ((null != this.getName()) && !this.getName().isEmpty()) {
-                    xmlSerializer.text(this.getName());
-                } else {
-                    xmlSerializer.text("EMP Untitled Overlay");
-                }
-                xmlSerializer.endTag(null, "name");
-
-                if ((null != this.getDescription()) && !this.getDescription().isEmpty()) {
-                    xmlSerializer.startTag(null, "description");
-                    xmlSerializer.text(this.getDescription());
-                    xmlSerializer.endTag(null, "description");
-                }
-            }
-
-            for (IGeoBase geoObject : this.getChildren()) {
-                if (geoObject instanceof IKMLExportable) {
-                    ((IKMLExportable) geoObject).exportEmpObjectToKML(xmlSerializer);
-                }
-            }
-
-            xmlSerializer.endTag(null, "Folder");
-        }
     }
 }
