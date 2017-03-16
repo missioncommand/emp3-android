@@ -169,10 +169,15 @@ public class BoundsGeneration {
                         }
                     }
 
+                    // Find geometric center of the vertices and then the corresponding HeoPosition. Store this GeoPosition
+                    // in the EmpBoundingArea as it will be required by the emp-core to support Draw capability.
+                    IGeoPosition geometricCenter = getGeometricCenter(mapInstance, corners);
+
                     IGeoBounds geoBounds = new GeoBounds();
-                    BoundingBoxGeneration.buildBoundingBox(mapInstance, corners, geoBounds, cameraOnScreen, cornersTouched[0]);
+                    BoundingBoxGeneration.buildBoundingBox(mapInstance, corners, geoBounds, cameraOnScreen, cornersTouched[0], geometricCenter);
+
                     IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), cameraOnScreen,
-                            corners[0], corners[1], corners[2], corners[3], geoBounds);
+                            corners[0], corners[1], corners[2], corners[3], geoBounds, geometricCenter);
 
                     currentBoundingArea.put(mapInstance, boundingArea);
 
@@ -188,6 +193,45 @@ public class BoundsGeneration {
         Log.e(TAG, "a null value is being returned for bounds, this is NOT necessarily an error, tilt > 45 ?");
         return null;
     }
+
+    /**
+     * Finds the geometric center of the four vertices. Then finds the Geographic Position of that point.
+     * @param mapInstance
+     * @param vertices
+     * @return
+     */
+    private static IGeoPosition getGeometricCenter(MapInstance mapInstance, IGeoPosition[] vertices) {
+
+        PickNavigateController mapController = mapInstance.getMapController();
+        Point centerPoint = new Point();
+        IGeoPosition geometricCenter = new GeoPosition();
+
+        int count = 0;
+        for(int ii = 0; ii < vertices.length; ii++) {
+            Point vPoint = new Point();
+            if(mapController.groundPositionToScreenPoint(vertices[ii].getLatitude(), vertices[ii].getLongitude(), vPoint)) {
+                centerPoint.x += vPoint.x;
+                centerPoint.y += vPoint.y;
+                count++;
+                Log.v(TAG, "vPoint " + vPoint.x + " " + vPoint.y);
+            }
+        }
+
+        if(count > 0) {
+            centerPoint.x /= count;
+            centerPoint.y /= count;
+            Log.v(TAG, "centerPoint count " + centerPoint.x + " " + centerPoint.y + " " + count);
+            Position positionAtCenterPoint = new Position();
+            if(mapController.screenPointToGroundPosition(centerPoint.x, centerPoint.y, positionAtCenterPoint)) {
+                geometricCenter.setLatitude(positionAtCenterPoint.latitude);
+                geometricCenter.setLongitude(positionAtCenterPoint.longitude);
+                Log.v(TAG, "center " + geometricCenter.getLatitude() + " " + geometricCenter.getLongitude());
+            }
+        }
+
+        return geometricCenter;
+    }
+
     /**
      * Figures out how many corners of the view show a sky. Based on that information invokes appropriate method to calculate the
      * polygon.

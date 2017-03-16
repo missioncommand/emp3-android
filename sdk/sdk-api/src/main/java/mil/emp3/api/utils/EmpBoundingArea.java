@@ -40,6 +40,8 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
                                                // adjusting the distance.
     private final boolean cameraOnScreen;      // True if camera position is on screen.
 
+    private final IGeoPosition geometricCenter; // Position corresponding to the geometric center of the vertices.
+
     // We will adjust vertices to restrict the distance from the camera. Purpose is to reduce the size of resources used
     // by SEC Military Symbol renderer. We will do the adjustment only when user tries to retrieve anything related
     // to the vertices.
@@ -59,7 +61,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
      * @param v4
      */
     public EmpBoundingArea(ICamera currentCamera, boolean cameraOnScreen, IGeoPosition v1, IGeoPosition v2, IGeoPosition v3, IGeoPosition v4,
-                           IGeoBounds geoBounds) {
+                           IGeoBounds geoBounds, IGeoPosition geometricCenter) {
 
         if((null == v1) || (null == v2) || (null == v3) || (null == v4)) {
             throw new IllegalArgumentException("All vertices must be non-null");
@@ -85,6 +87,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         camera = new Camera();
         camera.copySettingsFrom(currentCamera);
         this.cameraOnScreen = cameraOnScreen;
+        this.geometricCenter = geometricCenter;
 
         super.setEast(geoBounds.getEast());
         super.setWest(geoBounds.getWest());
@@ -260,5 +263,10 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     @Override
     public boolean cameraPositionIsVisible() {
         return cameraOnScreen;
+    }
+
+    @Override
+    public IGeoPosition getGeometricCenter() {
+        return geometricCenter;
     }
 }

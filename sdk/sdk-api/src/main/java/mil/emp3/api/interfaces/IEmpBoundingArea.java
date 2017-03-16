@@ -56,4 +56,10 @@ public interface IEmpBoundingArea extends IGeoBounds {
      * @return
      */
     boolean cameraPositionIsVisible();
+
+    /**
+     * Returns geographic position corresponding to geometric center of the vertices.
+     * @return
+     */
+    IGeoPosition getGeometricCenter();
 }

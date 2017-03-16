@@ -135,7 +135,7 @@ public abstract class AbstractEditor<T extends IFeature> {
         IGeoBounds bounds = mapInstance.getMapBounds();
         if((null != bounds) && (bounds instanceof IEmpBoundingArea) && !((IEmpBoundingArea) bounds).cameraPositionIsVisible()) {
             IEmpBoundingArea area = (IEmpBoundingArea) bounds;
-            center = area.getCenter();
+            center = area.getGeometricCenter();
         } else {
             ICamera camera = mapInstance.getCamera();
             if(null != camera) {

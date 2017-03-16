@@ -4,27 +4,21 @@ import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mil.emp3.api.Rectangle;
-import mil.emp3.api.abstracts.Feature;
-import mil.emp3.api.enums.EditorMode;
-import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
+
 import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.utils.GeoLibrary;
-import mil.emp3.core.events.EditUpdateData;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
- * Implements editor for Rectangle with six posible control points that allow the user to position and size the rectangle on
+ * Implements editor for Rectangle with six three control points that allow the user to position and size of the rectangle on
  * the map.
  *
  * * NOTES
@@ -66,15 +60,27 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
         this.initializeDraw();
     }
 
+    class EmpGeoPosition extends GeoPosition {
+        EmpGeoPosition(double latitude, double longitude) {
+            setLatitude(latitude);
+            setLongitude(longitude);
+        }
+    }
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
 
         IGeoPosition centerPos = getCenter();
-        ICamera camera = oClientMap.getCamera();
-
-        currentWidth = 2 * camera.getAltitude() * widthMultiplier;
-        currentHeight = 2 * camera.getAltitude() * heightMultiplier;
+        IGeoBounds bounds = mapInstance.getMapBounds();
+        if (null != bounds) {
+            currentHeight = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
+                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * .10;
+            currentWidth = 2 * currentHeight;
+        } else {
+            ICamera camera = oClientMap.getCamera();
+            currentWidth = 2 * camera.getAltitude() * widthMultiplier;
+            currentHeight = 2 * camera.getAltitude() * heightMultiplier;
+        }
         currentBearing = 0.0;
 
         this.oFeature.setPosition(centerPos);
