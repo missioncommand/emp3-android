@@ -1,6 +1,9 @@
 package mil.emp3.api.utils;
 
+import android.util.Log;
+
 import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.IGeoPosition;
 
 import mil.emp3.api.global;
 
@@ -9,6 +12,7 @@ import mil.emp3.api.global;
  */
 
 public class EmpGeoPosition extends GeoPosition {
+    private final static String TAG = EmpGeoPosition.class.getSimpleName();
     /**
      * Creates EmpGeoPosition object from latitude and longitude. Sets altitude to 0.
      * @param latitude
@@ -47,12 +51,26 @@ public class EmpGeoPosition extends GeoPosition {
     }
 
     public boolean isValid() {
-        if(getLatitude() < global.LATITUDE_MINIMUM || getLatitude() > global.LATITUDE_MAXIMUM) {
+        return validate(getLatitude(), getLongitude(), getAltitude());
+    }
+
+    public static boolean validate(double latitude, double longitude, double altitude) {
+        if(Double.isNaN(latitude) || latitude < global.LATITUDE_MINIMUM || latitude > global.LATITUDE_MAXIMUM) {
+            Log.e(TAG, "Invalid Latitude " + latitude);
             return false;
         }
-        if(getLongitude() < global.LONGITUDE_MINIMUM || getLongitude() > global.LONGITUDE_MAXIMUM) {
+        if(Double.isNaN(longitude) || longitude < global.LONGITUDE_MINIMUM || longitude > global.LONGITUDE_MAXIMUM) {
+            Log.e(TAG, "Invalid Longitude " + longitude);
+            return false;
+        }
+        if(Double.isNaN(altitude)) {
+            Log.e(TAG, "Invalid altitude " + altitude);
             return false;
         }
         return true;
+    }
+
+    public static boolean validate(IGeoPosition position) {
+        return validate(position.getLatitude(), position.getLongitude(), position.getAltitude());
     }
 }

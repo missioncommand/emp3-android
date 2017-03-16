@@ -15,6 +15,7 @@ import java.util.List;
 import mil.emp3.api.abstracts.Feature;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 
@@ -23,6 +24,9 @@ import mil.emp3.api.utils.kml.EmpKMLExporter;
  * center of the rectangle. The rectangle's width and height are centered at the coordinate.
  */
 public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
+
+    private final static double MINIMUM_WIDTH = global.MINIMUM_DISTANCE;
+    private final static double MINIMUM_HEIGHT = global.MINIMUM_DISTANCE;
 
     /**
      * This constructor creates a default rectangle feature.
@@ -33,14 +37,15 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
     }
 
     /**
-     * This constructor creates a default rectangle feature centered at the coordinate provided.
+     * This constructor creates a default rectangle feature centered at the coordinate provided. If specified coordinate is null
+     * or has invalid members then an exception is thrown.
      * @param oCenter
      */
     public Rectangle(IGeoPosition oCenter) {
         super(new GeoRectangle(), FeatureTypeEnum.GEO_RECTANGLE);
 
-        if (null == oCenter) {
-            throw new InvalidParameterException("The coordiante can NOT be null.");
+        if ((null == oCenter) || (!EmpGeoPosition.validate(oCenter))) {
+            throw new InvalidParameterException("The coordinate can NOT be null and must have valid values");
         }
         this.getRenderable().getPositions().add(oCenter);
         this.setFillStyle(null);
@@ -48,6 +53,8 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
 
     /**
      * This constructor creates a rectangle feature centered at the coordinate provided with the width and height provided.
+     * If coordinates for the center, width or height is invalid an exception is thrown. The width and height must be greater
+     * than 1 meter.
      * @param oCenter {@link IGeoPosition}
      * @param dWidth The width in meters.
      * @param dHeight The height in meters.
@@ -55,8 +62,15 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
     public Rectangle(IGeoPosition oCenter, double dWidth, double dHeight) {
         super(new GeoRectangle(), FeatureTypeEnum.GEO_RECTANGLE);
 
-        if (null == oCenter) {
-            throw new InvalidParameterException("The coordiante can NOT be null.");
+        if (null == oCenter || !EmpGeoPosition.validate(oCenter)) {
+            throw new InvalidParameterException("The coordinate can NOT be null and must have valid values");
+        }
+        dWidth = makePositive(dWidth, "Width is invalid. NaN");
+        dHeight = makePositive(dHeight, "Height is invalid. NaN");
+
+        if(dWidth < MINIMUM_WIDTH || dHeight < MINIMUM_HEIGHT) {
+            throw new InvalidParameterException("Invalid height or width. " + dHeight + " " +  dWidth + " Minimum supported " +
+                MINIMUM_HEIGHT + " " + MINIMUM_WIDTH);
         }
 
         this.getRenderable().getPositions().add(oCenter);
@@ -66,23 +80,39 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
     }
 
     /**
-     * This constructor creates a rectangle feature from the geo rectangle provided.
+     * This constructor creates a rectangle feature from the geo rectangle provided. If provided geo rectangle is null or has
+     * invalid members then an exception is thrown.
      * @param oRenderable {@link IGeoRectangle}
      */
     public Rectangle(IGeoRectangle oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_RECTANGLE);
+
+        if(null == oRenderable) {
+            throw new InvalidParameterException("Encapsulated Rectangle must be non-null");
+        }
+        this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
+        this.setHeight(makePositive(this.getHeight(), "Invalid Height. NaN"));
+
+        if(this.getWidth() < MINIMUM_WIDTH || this.getHeight() < MINIMUM_HEIGHT) {
+            throw new InvalidParameterException("Invalid height or width. " + this.getHeight() + " " +  this.getWidth() + " Minimum supported " +
+                    MINIMUM_HEIGHT + " " + MINIMUM_WIDTH);
+        }
+
+        this.setAzimuth(this.getAzimuth());  // For validation.
     }
 
     /**
-     * This method overrides the default width of a rectangular feature.
-     * @param fValue The width in meters.
+     * This method overrides the default width of a rectangular feature. If width is invalid then an exception is thrown. Width
+     * must be greater than 1.0 meter.
+     * @param dWidth The width in meters.
      */
     @Override
-    public void setWidth(double fValue) {
-        if ((fValue == 0.0) || (Double.isNaN(fValue))) {
+    public void setWidth(double dWidth) {
+        dWidth = makePositive(dWidth, "Invalid Width. NaN");
+        if (dWidth < MINIMUM_WIDTH) {
             throw new InvalidParameterException("Invalid width.");
         }
-        this.getRenderable().setWidth(Math.abs(fValue));
+        this.getRenderable().setWidth(Math.abs(dWidth));
     }
 
     /**
@@ -96,14 +126,15 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
 
     /**
      * This method overrides the default height of a rectangular feature.
-     * @param fValue The width in meters.
+     * @param dHeight The height in meters must be greater than 1 meter.
      */
     @Override
-    public void setHeight(double fValue) {
-        if ((fValue == 0.0) || (Double.isNaN(fValue))) {
+    public void setHeight(double dHeight) {
+        dHeight = makePositive(dHeight, "Invalid Height. NaN");
+        if (dHeight < MINIMUM_HEIGHT) {
             throw new InvalidParameterException("Invalid height.");
         }
-        this.getRenderable().setHeight(Math.abs(fValue));
+        this.getRenderable().setHeight(Math.abs(dHeight));
     }
 
     /**
