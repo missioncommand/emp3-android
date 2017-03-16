@@ -87,7 +87,7 @@ public class GeoJsonExporter {
         buffer.append("}");
     }
 
-    private void appendGeoJSONGeometry(IFeature feature, StringBuffer buffer) {
+    private void appendGeoJSONPolygon(IFeature feature, StringBuffer buffer) {
         buffer.append("\"geometry\":  {\"type\": \"Polygon\",");
         buffer.append("\"coordinates\":  [[");
         appendGeoJSONPositions(feature, buffer);
@@ -95,6 +95,41 @@ public class GeoJsonExporter {
         buffer.append("}");// end of geometry
     }
 
+    private void appendGeoJSONPath(IFeature feature, StringBuffer buffer) {
+        buffer.append("\"geometry\":  {\"type\": \"Polygon\",");
+        buffer.append("\"coordinates\":  [");
+        appendGeoJSONPositions(feature, buffer);
+        buffer.append("]");// end of coordinates
+        buffer.append("}");// end of geometry
+    }
+
+    private void appendGeoJSONPoint(IFeature feature, StringBuffer buffer) {
+        buffer.append("\"geometry\":  {\"type\": \"Polygon\",");
+        buffer.append("\"coordinates\":  ");
+        IGeoPosition position = feature.getPositions().get(0);
+        buffer.append("[");
+        buffer.append(position.getLatitude());
+        buffer.append(", ");
+        buffer.append(position.getLatitude());
+        buffer.append("]");
+        buffer.append("}");// end of geometry
+        buffer.append("\"properties\": {");
+        buffer.append("\"style\": {");
+        buffer.append("\"iconStyle\": {");
+        buffer.append("\"url\": {");
+        buffer.append("\""+ ((Point)feature).getIconURI() + "\"");
+        buffer.append("}"); // url
+        buffer.append("}"); // iconStyle
+        buffer.append("}"); // style
+        appendGeoJSONTimes(feature, buffer);
+        buffer.append(",\"name\":");
+        buffer.append("\"" + feature.getName() + "\"");
+        buffer.append(",\"id\":");
+        buffer.append("\"" + feature.getGeoId() + "\"");
+        buffer.append(",\"description\":");
+        buffer.append("\"" + feature.getDescription() + "\"");
+        buffer.append("}");//properties
+    }
 
     /**
      * Converts this object to a geoJSON string
@@ -110,7 +145,7 @@ public class GeoJsonExporter {
             case GEO_POLYGON:
             case GEO_RECTANGLE:
             case GEO_SQUARE:
-                appendGeoJSONGeometry(feature, buffer);
+                appendGeoJSONPolygon(feature, buffer);
                 buffer.append(", ");
                 appendGeoJSONProperties(feature, buffer);
                 buffer.append("}");
@@ -120,8 +155,7 @@ public class GeoJsonExporter {
                 buffer.append(geoJSON);
                 break;
             case GEO_POINT:
-                geoJSON = ((Point) feature).toGeoJSON();
-                buffer.append(geoJSON);
+                appendGeoJSONPoint(feature, buffer);
                 break;
             case GEOJSON:
                 Log.i(TAG, "Child feature can't be GEOJSON type");
