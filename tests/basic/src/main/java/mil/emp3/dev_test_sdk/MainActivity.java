@@ -76,6 +76,7 @@ import armyc2.c2sd.renderer.utilities.UnitDefTable;
 import mil.emp3.api.Circle;
 import mil.emp3.api.Ellipse;
 import mil.emp3.api.Emp3LifeCycleManager;
+import mil.emp3.api.GeoJSON;
 import mil.emp3.api.GeoPackage;
 import mil.emp3.api.ImageLayer;
 import mil.emp3.api.KML;
@@ -1641,32 +1642,22 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_addGeoJSON:
-//                String simpleGeoJsonString =
-//                "{\"type\": \"Feature\",\"geometry\": {\"type\": \"Point\",\"coordinates\": [125.6, 10.1]}," +
-//                "\"properties\": {\"name\": \"Dinagat Islands\"}}";
                 InputStream stream = null;
                 try {
-                    // Sample geoJSON from CMAPI 1.2 document, edited for correctness
                     stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
-                    List<IFeature> featureList = GeoJsonParser.parse(stream);
-                    for (IFeature feature : featureList) {
-                        this.oRootOverlay.addFeature(feature, true);
-                        this.oFeatureHash.put(feature.getGeoId(), feature);
-                    }
+                    IFeature feature = new GeoJSON(stream);
+                    this.oRootOverlay.addFeature(feature, true);
+                    this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
-                    featureList = GeoJsonParser.parse(stream);
-                    for (IFeature feature : featureList) {
-                        this.oRootOverlay.addFeature(feature, true);
-                        this.oFeatureHash.put(feature.getGeoId(), feature);
-                    }
+                    feature = new GeoJSON(stream);
+                    this.oRootOverlay.addFeature(feature, true);
+                    this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
-                    featureList = GeoJsonParser.parse(stream);
-                    for (IFeature feature : featureList) {
-                        this.oRootOverlay.addFeature(feature, true);
-                        this.oFeatureHash.put(feature.getGeoId(), feature);
-                    }
+                    feature = new GeoJSON(stream);
+                    this.oRootOverlay.addFeature(feature, true);
+                    this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     ICamera camera = this.map.getCamera();
                     camera.setLatitude(44.5);

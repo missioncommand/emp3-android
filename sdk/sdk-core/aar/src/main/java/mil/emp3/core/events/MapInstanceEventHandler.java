@@ -23,6 +23,7 @@ import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.ManagerFactory;
+import mil.emp3.core.storage.ClientMapToMapInstance;
 import mil.emp3.core.storage.MapStatus;
 import mil.emp3.mapengine.events.MapInstanceFeatureAddedEvent;
 import mil.emp3.mapengine.events.MapInstanceFeatureRemovedEvent;
@@ -126,7 +127,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
                 if ((null != cmrd) && (null != cmrd.getCamera())) {
                     try {
                         if (null != cmrd.getCamera()) {
-                            coreManager.setCamera(oClientMap, cmrd.getCamera(), false);
+                            coreManager.setCamera(oClientMap, cmrd.getCamera(), false); // This will trigger bounds generation
                         }
                         if (null != cmrd.getMapServiceHash()) {
                             for (IMapService mapService : cmrd.getMapServiceHash().values()) {
@@ -137,10 +138,23 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
                         Log.e(TAG, "Cannot restore camera or mapService", e);
                     }
                 } else {
-                    // We are not restoring. Set the current camera.
+                    // We are not restoring. Set the current camera. and bounds
                     try {
-                        coreManager.setCamera(oClientMap, this.getCamera(), false);
-                    } catch (EMP_Exception e) {
+                        // When map engine is started it has a default camera (WW does). We need to fetch that camera
+                        // and set it as the core currentCamera. Otherwise we have to expect the application to set
+                        // a valid camera before any valid operation can be performed. This also allows us to calculate
+                        // bounds at the start time.
+
+                        IClientMapToMapInstance mapping = storageManager.getMapMapping(oClientMap);
+                        if((null != mapping) && (null != mapping.getMapInstance())) {
+                            this.setCamera(mapping.getMapInstance().getCamera());
+                            this.setBounds(mapping.getMapInstance().getMapBounds());
+                            Log.d(TAG, "Synced Camera and Bounds on MAP_READY");
+                        } else {
+                            Log.e(TAG, "Cannot sync cameras on MAP_READY");
+                        }
+                        // coreManager.setCamera(oClientMap, this.getCamera(), false);
+                    } catch (Exception e) {
                         Log.e(TAG, "Failed to set the initial camera.", e);
                     }
                 }
@@ -188,13 +202,11 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         IMap clientMap = this.getClientMap();
         ICamera mapCamera = this.getCamera();
         ILookAt mapLookAt = this.getLookAt();
-        //ICamera eventCamera = event.getCamera();
         IGeoBounds oBounds = event.getBounds();
         storageManager.setBounds(clientMap, oBounds);
         this.setMapViewWidth(event.getMapViewWidth());
         this.setMapViewHeight(event.getMapViewHeight());
 
-        //mapCamera.copySettingsFrom(eventCamera);
         eventManager.generateMapViewChangeEvent(event.getEvent(), mapCamera, mapLookAt, oBounds, clientMap);
         switch (event.getEvent()) {
             case VIEW_IN_MOTION:

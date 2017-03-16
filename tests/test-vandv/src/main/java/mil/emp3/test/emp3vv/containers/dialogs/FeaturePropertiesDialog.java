@@ -40,6 +40,7 @@ public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends 
     protected boolean featureVisible;
 
     protected View oDialogView;
+    protected boolean isFeaturePositionSettable = true;
     private PositionUtility positionUtility;
     EditText bufferValue;
 
@@ -201,12 +202,16 @@ public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends 
 
     @Override
     public void newPosition(IGeoPosition geoPosition, String stringPosition) {
-        TextView view = (TextView) getView().findViewById(R.id.position);
-        view.setText(stringPosition);
+        if (isFeaturePositionSettable) {
+            TextView view = (TextView) getView().findViewById(R.id.position);
+            view.setText(stringPosition);
+        }
     }
 
     public void setPosition(IFeature feature) {
-        feature.getPositions().clear();
-        feature.getPositions().addAll(positionUtility.getPositionList());
+        if (isFeaturePositionSettable) {
+            feature.getPositions().clear();
+            feature.getPositions().addAll(positionUtility.getPositionList());
+        }
     }
 }

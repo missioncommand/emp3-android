@@ -81,23 +81,7 @@
                 android:inputType="numberDecimal"
                 android:text="@string/ResolutionDefault" />
 
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent" android:layout_height="match_parent"
-                android:layout_gravity="center" android:orientation="horizontal"  >
-
-                <Button
-                    android:id="@+id/apply"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Apply" />
-
-
-                <Button
-                    android:id="@+id/done"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Done" />
-            </LinearLayout>
+            <include android:id="@+id/fill_style_apply_done" layout="@layout/apply_done" />
         </LinearLayout>
     </ScrollView>
 

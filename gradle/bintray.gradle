@@ -16,7 +16,7 @@ artifactory {
 
 bintray {
     dryRun   = false
-    publish  = false
+    publish  = true
     override = false
 
     user = bintrayUser

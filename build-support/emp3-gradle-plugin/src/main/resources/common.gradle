@@ -15,12 +15,12 @@ ext {
 
     //version_nasa_worldwind_sdk = "0.5.2"
     version_cmapi              = "0.0.6"
-    version_renderer           = "0.1.17"
+    version_renderer           = "0.1.22"
 
     android_minSdkVersion     = 19
     android_targetSdkVersion  = 23
     android_compileSdkVersion = 23
-    android_buildToolsVersion = "23.0.2"
+    android_buildToolsVersion = "25.0.2"
 }
 
 group = "mil.army.missioncommand"
@@ -41,10 +41,8 @@ repositories {
             password empPassword
         }
     }
-    repositories {
-        maven {
-            url "https://dl.bintray.com/missioncommand/maven/"
-        }
+    maven {
+        url "https://dl.bintray.com/missioncommand/maven/"
     }
     maven {
         url "https://oss.jfrog.org/artifactory/libs-snapshot"
@@ -55,7 +53,7 @@ dependencyManagement {
     dependencies {
         // MISSION_COMMAND-related
         dependency ("org.cmapi.primitives:common-map-geospatial-notation:${version_cmapi}")
-        dependency ("sec.web.renderer:mil-sym-android-renderer:${version_renderer}")
+        dependency ("mil.army.missioncommand:mil-sym-android-renderer:${version_renderer}")
 
         // ANDROID-related
         dependency ("com.android.support:appcompat-v7:23.2.1")
@@ -74,7 +72,7 @@ dependencyManagement {
 }
 
 task wrapper(type: Wrapper, description: "Generates gradlew[.bat] scripts") {
-    gradleVersion = '3.4'
+    gradleVersion = '3.4.1'
 }
 
 if (JavaVersion.current().isJava8Compatible()) { // disable lint for java8

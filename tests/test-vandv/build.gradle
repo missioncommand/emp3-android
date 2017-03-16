@@ -15,7 +15,7 @@ dependencies {
     compile project (":sdk:emp3-android-sdk-view")
     compile project (":mapengine:worldwind:mapengine-worldwind-aar")
 
-    compile         (group: 'sec.web.renderer', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
+    compile         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
     compile         ("org.cmapi.primitives:common-map-geospatial-notation")
 
     testCompile     ("junit:junit")

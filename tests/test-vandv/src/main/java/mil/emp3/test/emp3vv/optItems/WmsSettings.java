@@ -21,10 +21,6 @@ import mil.emp3.test.emp3vv.common.OptItemBase;
 import mil.emp3.test.emp3vv.dialogs.WmsRemoveDialog;
 import mil.emp3.test.emp3vv.dialogs.WmsSettingsDialog;
 
-/**
- * Created by raju on 11/15/2016.
- */
-
 public class WmsSettings extends OptItemBase implements WmsSettingsDialog.IWmsSettingsDialogListener,
         WmsRemoveDialog.IWmsRemoveDialogListener {
 
