@@ -10,6 +10,7 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+import mil.emp3.api.Path;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
@@ -528,6 +529,19 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
             // Add the north UPS.
             gridObject = createLabelFeature(GridLineUtils.newPosition(87.0, 90.0, 0), "Z", UTM_GRID_ZONE_LABEL_CENTER);
             addFeature(gridObject);
+        }
+    }
+
+    @Override
+    protected void setPathAttributes(Path path, String gridObjectType) {
+        if (gridObjectType.startsWith("UTMBase")) {
+            switch (gridObjectType) {
+                case UTM_GRID_ZONE_MERIDIAN:
+                case UTM_GRID_ZONE_PARALLELS:
+                    break;
+            }
+        } else {
+            super.setPathAttributes(path, gridObjectType);
         }
     }
 }
