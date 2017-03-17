@@ -5,6 +5,7 @@ import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
+import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
@@ -538,6 +539,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
             switch (gridObjectType) {
                 case UTM_GRID_ZONE_MERIDIAN:
                 case UTM_GRID_ZONE_PARALLELS:
+                    path.setPathType(IGeoRenderable.PathType.RHUMB_LINE);
                     break;
             }
         } else {

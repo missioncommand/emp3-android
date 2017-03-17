@@ -12,6 +12,7 @@ import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
+import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
@@ -398,8 +399,17 @@ public class EMPtoWWFeatureConverter {
         wwPath.setPositions(wwPositionList);
         wwPath.setAttributes(shapeAttribute);
         wwPath.setHighlighted(false);
-        //wwPath.setPathType(WorldWind.GREAT_CIRCLE);
-        wwPath.setPathType(WorldWind.RHUMB_LINE);
+        switch (feature.getPathType()) {
+            case GREAT_CIRCLE:
+                wwPath.setPathType(WorldWind.GREAT_CIRCLE);
+                break;
+            case LINEAR:
+                wwPath.setPathType(WorldWind.LINEAR);
+                break;
+            case RHUMB_LINE:
+                wwPath.setPathType(WorldWind.RHUMB_LINE);
+                break;
+        }
 
         if (feature.getExtrude()) {
             wwPath.setExtrude(true);
@@ -484,6 +494,18 @@ public class EMPtoWWFeatureConverter {
 
         if (feature.getExtrude()) {
             wwPolygon.setExtrude(true);
+        }
+
+        switch (feature.getPathType()) {
+            case GREAT_CIRCLE:
+                wwPolygon.setPathType(WorldWind.GREAT_CIRCLE);
+                break;
+            case LINEAR:
+                wwPolygon.setPathType(WorldWind.LINEAR);
+                break;
+            case RHUMB_LINE:
+                wwPolygon.setPathType(WorldWind.RHUMB_LINE);
+                break;
         }
     }
 }

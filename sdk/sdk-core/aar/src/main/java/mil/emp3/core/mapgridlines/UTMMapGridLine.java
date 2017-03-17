@@ -7,6 +7,7 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
+import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
@@ -169,6 +170,16 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
     @Override
     protected void setPathAttributes(Path path, String gridObjectType) {
         if (gridObjectType.startsWith("UTM")) {
+            switch (gridObjectType) {
+                case UTM_GRID_LINE_100K_MERIDIAN:
+                case UTM_GRID_LINE_100K_PARALLEL:
+                case UTM_GRID_LINE_MAJOR_MERIDIAN:
+                case UTM_GRID_LINE_MAJOR_PARALLEL:
+                case UTM_GRID_LINE_MINOR_MERIDIAN:
+                case UTM_GRID_LINE_MINOR_PARALLEL:
+                    path.setPathType(IGeoRenderable.PathType.GREAT_CIRCLE);
+                    break;
+            }
         } else {
             super.setPathAttributes(path, gridObjectType);
         }

@@ -54,6 +54,7 @@ import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IGeoPackage;
 import mil.emp3.api.interfaces.IImageLayer;
@@ -428,16 +429,33 @@ public class MapInstance extends CoreMapInstance {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                oThis.getCamera();
                 // MAP is ready core and engine cameras are synced, so calculate the initial bounds.
                 BoundsGeneration.initialize(MapInstance.this);
+                ICamera tempCamera = MapInstance.this.getCamera();
+                tempCamera.setAltitude(100000.0);
+                MapInstance.this.setCamera(tempCamera, false);
 
-                Log.d(TAG, "Map Ready firing.");
-                oThis.generateStateChangeEvent(MapStateEnum.MAP_READY);
+                MapInstance.this.checkForMapReady();
             }
         }, 500);
 
         return ww;
+    }
+
+    private void checkForMapReady() {
+        IEmpBoundingArea bounds = BoundsGeneration.getBounds(this);
+
+        if (null == bounds) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    MapInstance.this.checkForMapReady();
+                }
+            }, 500);
+        } else {
+            Log.d(TAG, "Map Ready firing.");
+            MapInstance.this.generateStateChangeEvent(MapStateEnum.MAP_READY);
+        }
     }
 
     @Override

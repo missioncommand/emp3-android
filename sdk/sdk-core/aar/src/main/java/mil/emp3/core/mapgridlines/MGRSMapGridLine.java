@@ -7,6 +7,7 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
+import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
@@ -841,7 +842,16 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
     @Override
     protected void setPathAttributes(Path path, String gridObjectType) {
         if (gridObjectType.startsWith("MGRS")) {
-            // These lines must be greater circle.
+            switch (gridObjectType) {
+                case MGRS_GRID_BOX_MERIDIAN:
+                case MGRS_GRID_BOX_PARALLELS:
+                case MGRS_GRID_LINE_MAJOR_MERIDIAN:
+                case MGRS_GRID_LINE_MAJOR_PARALLELS:
+                case MGRS_GRID_LINE_MINOR_MERIDIAN:
+                case MGRS_GRID_LINE_MINOR_PARALLELS:
+                    path.setPathType(IGeoRenderable.PathType.GREAT_CIRCLE);
+                    break;
+            }
         } else {
             super.setPathAttributes(path, gridObjectType);
         }
