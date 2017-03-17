@@ -219,9 +219,14 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
         westPoint = this.mapInstance.geoToContainer(centerWest);
         eastPoint = this.mapInstance.geoToContainer(centerEast);
+        int deltaX = eastPoint.x - westPoint.x;
+        int deltaY = eastPoint.y - westPoint.y;
+        double deltaXe2 = deltaX * deltaX;
+        double deltaYe2 = deltaY * deltaY;
+        double pixelDistance = Math.sqrt(deltaXe2 + deltaYe2);
 
-        viewWidthInMeters = GeoLibrary.computeRhumbDistance(centerWest, centerEast);
-        this.metersPerPixel = viewWidthInMeters / (eastPoint.x - westPoint.x);
+        viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+        this.metersPerPixel = viewWidthInMeters / pixelDistance;
 
         this.generationThread.scheduleProcessing();
     }
@@ -290,13 +295,12 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         label.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
         setLabelAttributes(label, gridObjectType);
 
-        double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
-        if (azimuth < -360.0) {
-            azimuth += 360;
-        } else if (azimuth > 360.0) {
-            azimuth -= 360.0;
+        if (this.currentCamera.getHeading() != 0.0) {
+            double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
+
+            azimuth = ((((azimuth + 180) % 360.0) + 360.0) % 360.0) - 180.0;
+            label.setAzimuth(azimuth);
         }
-        label.setAzimuth(azimuth);
 
         return label;
     }
@@ -319,7 +323,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     protected void displayGridLabel(String label, EmpBoundingBox mapBounds, double metersPerPixel) {
         IGeoPosition labelPos;
 
-        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel;
+        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel / 4.0;
         labelPos = new GeoPosition();
         labelPos.setLatitude(mapBounds.getNorth());
         labelPos.setLongitude(mapBounds.centerLongitude());

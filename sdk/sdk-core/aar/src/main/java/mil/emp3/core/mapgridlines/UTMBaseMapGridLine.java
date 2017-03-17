@@ -397,11 +397,13 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         // Add The grid zone labels
         zoneIndex = startZoneIndex;
         String zoneLetter;
+        int tempZoneNumber;
 
         if ((maxLatitude >= 84.0) && (minLatitude < 84.0)) {
             maxRow = 19;
         }
         while (zoneIndex != endZoneIndex) {
+            tempZoneNumber = zoneIndex + 1;
             for (iIndex = minRow; iIndex <= maxRow; iIndex++) {
                 if (iIndex < latBands.length()) {
                     zoneLetter = latBands.charAt(iIndex) + "";
@@ -414,10 +416,10 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
                                 continue;
                         }
                     }
-                    labelBounds.setSouth(UTMCoordinate.getZoneSouthLatitude(zoneIndex + 1, zoneLetter));
-                    labelBounds.setWest(UTMCoordinate.getZoneWestLongitude(zoneIndex + 1, zoneLetter));
-                    labelBounds.setNorth(labelBounds.getSouth() + UTMCoordinate.getGridZoneHeightInDegrees(zoneIndex + 1, zoneLetter));
-                    labelBounds.setEast(labelBounds.getWest() + UTMCoordinate.getGridZoneWidthInDegrees(zoneIndex + 1, zoneLetter));
+                    labelBounds.setSouth(UTMCoordinate.getZoneSouthLatitude(tempZoneNumber, zoneLetter));
+                    labelBounds.setWest(UTMCoordinate.getZoneWestLongitude(tempZoneNumber, zoneLetter));
+                    labelBounds.setNorth(labelBounds.getSouth() + UTMCoordinate.getGridZoneHeightInDegrees(tempZoneNumber, zoneLetter));
+                    labelBounds.setEast(labelBounds.getWest() + UTMCoordinate.getGridZoneWidthInDegrees(tempZoneNumber, zoneLetter));
 
                     // Create the label if it fits.
                     if (null != mapBounds.intersection(labelBounds, labelBounds)) {
@@ -446,7 +448,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
                                             }
                                         } else if (labelBounds.getSouth() == mapBounds.getSouth()) {
                                             // The grid zone is against the west, east, and south edge the of the map viewing area.
-                                            labelLatitude = labelBounds.getNorth() - offsetLatitude;
+                                            labelLatitude = labelBounds.getNorth() - (offsetLatitude * 2);
                                             labelLongitude = labelBounds.getEast() - offsetLongitude;
                                             objectStyleType = UTM_GRID_ZONE_LABEL_RIGHT;
                                         } else {
@@ -500,7 +502,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
                                     labelLongitude = labelBounds.centerLongitude();
                                 }
 
-                                gridObject = createLabelFeature(GridLineUtils.newPosition(labelLatitude, labelLongitude, 0.0), "" + (zoneIndex + 1) + zoneLetter, objectStyleType);
+                                gridObject = createLabelFeature(GridLineUtils.newPosition(labelLatitude, labelLongitude, 0.0), "" + tempZoneNumber + zoneLetter, objectStyleType);
                                 addFeature(gridObject);
                             }
                         }
