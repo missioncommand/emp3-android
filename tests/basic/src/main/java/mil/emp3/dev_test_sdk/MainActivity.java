@@ -122,11 +122,13 @@ import mil.emp3.api.listeners.IMapViewChangeEventListener;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.kml.EmpKMLExporter;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
 import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
+import mil.emp3.json.geoJson.GeoJsonExporter;
 import mil.emp3.json.geoJson.GeoJsonParser;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -1476,6 +1478,14 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            case R.id.action_exportMapToKML: {
+                try {
+                    EmpKMLExporter.export(this.map);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "Map export to KML failed.", Ex);
+                }
+                return true;
+            }
             case R.id.action_screenShot: {
                 this.map.getScreenCapture(new IScreenCaptureCallback() {
                     @Override
@@ -1649,16 +1659,22 @@ public class MainActivity extends AppCompatActivity
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
+                    String geoJSON = GeoJsonExporter.export(feature);
+                    Log.i(TAG, geoJSON);
                     stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
                     feature = new GeoJSON(stream);
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
+                    geoJSON = GeoJsonExporter.export(feature);
+                    Log.i(TAG, geoJSON);
                     stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
                     feature = new GeoJSON(stream);
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
+                    geoJSON = GeoJsonExporter.export(feature);
+                    Log.i(TAG, geoJSON);
                     ICamera camera = this.map.getCamera();
                     camera.setLatitude(44.5);
                     camera.setLongitude(1);
