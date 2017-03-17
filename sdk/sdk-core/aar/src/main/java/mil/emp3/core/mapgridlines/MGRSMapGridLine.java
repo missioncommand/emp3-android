@@ -298,65 +298,42 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
     private void createMGRSGridParallels(UTMCoordinate gridZoneUTMCoord, EmpBoundingBox gridZoneBounds,
             UTMCoordinate[] tempUTMCoordList, EmpBoundingBox mapBounds, EmpBoundingBox drawBounds, int gridSize) {
         double latitude;
+        double longitude;
+        double tempNorthing;
         IGeoPosition WestPos = null;
         IGeoPosition EastPos = null;
         List<IGeoPosition> positionList;
         IFeature gridObject;
         UTMCoordinate westUTMCoord = tempUTMCoordList[0];
         UTMCoordinate eastUTMCoord = tempUTMCoordList[1];
-        UTMCoordinate zoneMiddleUTMCoord = tempUTMCoordList[2];
         int parentGridSize = ((gridSize != MGRS_100K_METER_GRID)? gridSize * 10: MGRS_100K_METER_GRID);
         int tempValue;
 
         latitude = drawBounds.getSouth();
 
-        switch (gridZoneUTMCoord.getZoneLetter()) {
-            case "V":
-                switch (gridZoneUTMCoord.getZoneNumber()) {
-                    case 32:
-                        UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 6.0, zoneMiddleUTMCoord);
-                        break;
-                    default:
-                        UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 3.0, zoneMiddleUTMCoord);
-                        break;
-                }
-                break;
-            case "X":
-                switch (gridZoneUTMCoord.getZoneNumber()) {
-                    case 33:
-                    case 35:
-                    case 37:
-                        UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 6.0, zoneMiddleUTMCoord);
-                        break;
-                    default:
-                        UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 3.0, zoneMiddleUTMCoord);
-                        break;
-                }
-                break;
-            default:
-                UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 3.0, zoneMiddleUTMCoord);
-                break;
+        longitude = ((drawBounds.getEast() == 180.0)? 179.99999999: drawBounds.getEast());
+        if ((gridZoneUTMCoord.getZoneNumber() == 31) && (gridZoneUTMCoord.getZoneLetter().equals("V"))) {
+            longitude = longitude - 0.00000001;
         }
-        // Make sure that the northing value is a multiple of gridSize.
-        tempValue = (((int) Math.floor(zoneMiddleUTMCoord.getNorthing() / gridSize)) * gridSize);
-        if ((int) zoneMiddleUTMCoord.getNorthing() != tempValue) {
-            zoneMiddleUTMCoord.setNorthing(tempValue);
-        }
-
         // Generate the parallel lines of the box (the horizontal lines).
         UTMCoordinate.fromLatLong(latitude, drawBounds.getWest(), westUTMCoord);
         // An east value of 180 must be set to a hair less because the method would set the zone number to 1.
-        UTMCoordinate.fromLatLong(latitude, ((drawBounds.getEast() == 180.0)? 179.99999999: drawBounds.getEast()), eastUTMCoord);
+        UTMCoordinate.fromLatLong(latitude, longitude, eastUTMCoord);
 
-        westUTMCoord.setNorthing(zoneMiddleUTMCoord.getNorthing());
+        // Make sure that the northing value is a multiple of gridSize.
+        tempValue = (((int) Math.floor(westUTMCoord.getNorthing() / gridSize)) * gridSize);
+        if ((int) westUTMCoord.getNorthing() != tempValue) {
+            westUTMCoord.setNorthing(tempValue);
+        }
+        //westUTMCoord.setNorthing(zoneMiddleUTMCoord.getNorthing());
         // set the east coordinate to the same northing value.
-        eastUTMCoord.setNorthing(zoneMiddleUTMCoord.getNorthing());
+        eastUTMCoord.setNorthing(westUTMCoord.getNorthing());
         WestPos = westUTMCoord.toLatLong();
+        EastPos = eastUTMCoord.toLatLong();
 
         while (latitude <= drawBounds.getNorth()) {
             positionList = new ArrayList<>();
             positionList.add(WestPos);
-            EastPos = eastUTMCoord.toLatLong();
             positionList.add(EastPos);
 
             if (gridSize == MGRS_100K_METER_GRID) {
@@ -376,8 +353,20 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
             addFeature(gridObject);
 
             westUTMCoord.setNorthing(westUTMCoord.getNorthing() + gridSize);
+            tempNorthing = westUTMCoord.getNorthing();
             eastUTMCoord.setNorthing(westUTMCoord.getNorthing());
+
             WestPos = westUTMCoord.toLatLong();
+            EastPos = eastUTMCoord.toLatLong();
+
+            UTMCoordinate.fromLatLong(WestPos.getLatitude(), drawBounds.getWest(), westUTMCoord);
+            UTMCoordinate.fromLatLong(EastPos.getLatitude(), longitude, eastUTMCoord);
+
+            westUTMCoord.setNorthing(tempNorthing);
+            eastUTMCoord.setNorthing(tempNorthing);
+
+            WestPos = westUTMCoord.toLatLong();
+            EastPos = eastUTMCoord.toLatLong();
             latitude = WestPos.getLatitude();
         }
     }
@@ -872,7 +861,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
     @Override
     protected void setPathAttributes(Path path, String gridObjectType) {
-        if (gridObjectType.startsWith("MGRS")) {
+        if (gridObjectType.startsWith("MGRS.")) {
             switch (gridObjectType) {
                 case MGRS_GRID_BOX_MERIDIAN:
                 case MGRS_GRID_BOX_PARALLELS:
@@ -890,7 +879,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
     @Override
     protected void setLabelAttributes(Text label, String gridObjectType) {
-        if (gridObjectType.startsWith("MGRS")) {
+        if (gridObjectType.startsWith("MGRS.")) {
             switch (gridObjectType) {
                 case MGRS_GRID_BOX_EAST_VALUE:
                     label.setAzimuth(-90.0);

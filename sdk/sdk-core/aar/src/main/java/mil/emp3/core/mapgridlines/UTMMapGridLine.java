@@ -169,7 +169,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
 
     @Override
     protected void setPathAttributes(Path path, String gridObjectType) {
-        if (gridObjectType.startsWith("UTM")) {
+        if (gridObjectType.startsWith("UTM.")) {
             switch (gridObjectType) {
                 case UTM_GRID_LINE_100K_MERIDIAN:
                 case UTM_GRID_LINE_100K_PARALLEL:
@@ -187,7 +187,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
 
     @Override
     protected void setLabelAttributes(Text label, String gridObjectType) {
-        if (gridObjectType.startsWith("UTM")) {
+        if (gridObjectType.startsWith("UTM.")) {
             switch (gridObjectType) {
                 case UTM_GRID_EASTING_VALUE:
                     label.setAzimuth(-90.0);
@@ -334,6 +334,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         double maxLatitude;
         double minLogintude;
         double maxLongitude;
+        double tempNorthing;
         int tempValue;
         List<IGeoPosition> positionList;
         IFeature gridObject;
@@ -346,7 +347,11 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
 
         minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
         maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
-        maxLongitude = ((maxLongitude == 180.0)? maxLongitude - Double.MIN_VALUE: maxLongitude);
+        maxLongitude = ((maxLongitude == 180.0)? maxLongitude - 0.00000001: maxLongitude);
+
+        if ((utmZoneCoord.getZoneNumber() == 31) && (utmZoneCoord.getZoneLetter().equals("V"))) {
+            maxLongitude = maxLongitude - 0.00000001;
+        }
 
         UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), utmZoneCoord.getZoneSouthLatitude()),
                 minLogintude, westUTMCoord);
@@ -406,12 +411,20 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
 
             // Increment the northing.
             westUTMCoord.setNorthing((int) westUTMCoord.getNorthing() + gridSize);
+            tempNorthing = westUTMCoord.getNorthing();
+            eastUTMCoord.setNorthing((int) westUTMCoord.getNorthing());
+
             westUTMCoord.toLatLong(westPos);
-            eastUTMCoord.setNorthing((int) eastUTMCoord.getNorthing() + gridSize);
             eastUTMCoord.toLatLong(eastPos);
 
-            westPos.setLongitude(minLogintude);
-            eastPos.setLongitude(maxLongitude);
+            UTMCoordinate.fromLatLong(westPos.getLatitude(), minLogintude, westUTMCoord);
+            UTMCoordinate.fromLatLong(eastPos.getLatitude(), maxLongitude, eastUTMCoord);
+
+            westUTMCoord.setNorthing(tempNorthing);
+            eastUTMCoord.setNorthing(tempNorthing);
+
+            westPos = westUTMCoord.toLatLong();
+            eastPos = eastUTMCoord.toLatLong();
         }
     }
 

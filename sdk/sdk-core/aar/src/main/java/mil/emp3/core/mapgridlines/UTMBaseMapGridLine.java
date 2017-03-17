@@ -537,7 +537,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
 
     @Override
     protected void setPathAttributes(Path path, String gridObjectType) {
-        if (gridObjectType.startsWith("UTMBase")) {
+        if (gridObjectType.startsWith("UTMBase.")) {
             switch (gridObjectType) {
                 case UTM_GRID_ZONE_MERIDIAN:
                 case UTM_GRID_ZONE_PARALLELS:
