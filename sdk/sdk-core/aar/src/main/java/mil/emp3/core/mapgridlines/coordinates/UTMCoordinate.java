@@ -203,15 +203,41 @@ public class UTMCoordinate {
         double LongRad = Math.toRadians(longitude);
         double LongOriginRad;
         int ZoneNumber;
+        String zoneLetter = getZoneLetter(latitude);
 
         ZoneNumber = getZoneNumber(latitude, longitude);
-        result.setZoneNumber(ZoneNumber);
-        result.setZoneLetter(getZoneLetter(latitude));
+        switch (zoneLetter) {
+            case "V":
+                switch (ZoneNumber) {
+                    case 32:
+                        LongOrigin = UTMCoordinate.getZoneWestLongitude(ZoneNumber, zoneLetter) + 6.0;
+                        break;
+                    default:
+                        LongOrigin = UTMCoordinate.getZoneWestLongitude(ZoneNumber, zoneLetter) + 3.0;
+                        break;
+                }
+                break;
+            case "X":
+                switch (ZoneNumber) {
+                    case 33:
+                    case 35:
+                    case 37:
+                        LongOrigin = UTMCoordinate.getZoneWestLongitude(ZoneNumber, zoneLetter) + 6.0;
+                        break;
+                    default:
+                        LongOrigin = UTMCoordinate.getZoneWestLongitude(ZoneNumber, zoneLetter) + 3.0;
+                        break;
+                }
+                break;
+            default:
+                LongOrigin = UTMCoordinate.getZoneWestLongitude(ZoneNumber, zoneLetter) + 3.0;
+                break;
+        }
 
         //if ((ZoneNumber >= 31) && (ZoneNumber <= 37) && (result.getZoneLetter().equals("X"))) {
         //    LongOrigin = getZoneWestLongitude(ZoneNumber, result.getZoneLetter()) + (getGridZoneWidthInDegrees(ZoneNumber, result.getZoneLetter()) / 2.0);
         //} else {
-            LongOrigin = (ZoneNumber - 1) * 6 - 180 + 3; //+3 puts origin
+        //    LongOrigin = (ZoneNumber * 6) - 180 + 3; //+3 puts origin
         //}
         // in middle of
         // zone
@@ -235,7 +261,7 @@ public class UTMCoordinate {
         }
 
         result.setZoneNumber(ZoneNumber);
-        result.setZoneLetter(getZoneLetter(latitude));
+        result.setZoneLetter(zoneLetter);
         result.setEasting(Math.floor(UTMEasting));
         result.setNorthing(Math.floor(UTMNorthing));
 

@@ -63,7 +63,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         addStrokeStyle(UTM_GRID_ZONE_MERIDIAN, strokeStyle);
         addStrokeStyle(UTM_GRID_ZONE_PARALLELS, strokeStyle);
 
-        color = new EmpGeoColor(1.0, 255, 255, 0);
+        color = new EmpGeoColor(0.5, 255, 255, 0);
         labelStyle = new GeoLabelStyle();
         labelStyle.setColor(color);
         labelStyle.setSize(12.0);

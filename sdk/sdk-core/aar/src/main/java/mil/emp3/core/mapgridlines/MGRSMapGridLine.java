@@ -103,7 +103,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
         // MGRS Grid Label
         labelStyle = new GeoLabelStyle();
-        color = new EmpGeoColor(0.6, 200, 200, 200);
+        color = new EmpGeoColor(0.5, 200, 200, 200);
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
@@ -112,7 +112,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         addLabelStyle(MGRS_GRID_LABEL, labelStyle);
 
         // MGRS Grid Box
-        color = new EmpGeoColor(0.7, 0, 0, 255);
+        color = new EmpGeoColor(0.5, 0, 0, 255);
         strokeStyle = new GeoStrokeStyle();
         strokeStyle.setStrokeColor(color);
         strokeStyle.setStrokeWidth(4.0);
@@ -138,7 +138,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         // MGRS ID
         // Centered
         labelStyle = new GeoLabelStyle();
-        color = new EmpGeoColor(0.7, 100, 100, 255);
+        color = new EmpGeoColor(0.5, 100, 100, 255);
         labelStyle.setColor(color);
         labelStyle.setSize(12.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
@@ -148,7 +148,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
         // MGRS northing values
         labelStyle = new GeoLabelStyle();
-        color = new EmpGeoColor(1.0, 0, 0, 0);
+        color = new EmpGeoColor(0.5, 0, 0, 0);
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
@@ -289,37 +289,68 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
     /**
      * This method places all the parallel grid lines on the map.
      * @param gridZoneUTMCoord    The UTM coordinate of the south west corner of the grid zone.
+     * @param gridZoneBounds      The bounding box of the grid zone.
      * @param tempUTMCoordList    A list of UTMCoordinate variable that the method can use.
+     * @param mapBounds           The bounding box of the map viewing area.
      * @param drawBounds          The bounding box of the area to draw in.
      * @param gridSize            The MGRS grid size.
      */
-    private void createMGRSGridParallels(UTMCoordinate gridZoneUTMCoord, UTMCoordinate[] tempUTMCoordList, EmpBoundingBox drawBounds, int gridSize) {
+    private void createMGRSGridParallels(UTMCoordinate gridZoneUTMCoord, EmpBoundingBox gridZoneBounds,
+            UTMCoordinate[] tempUTMCoordList, EmpBoundingBox mapBounds, EmpBoundingBox drawBounds, int gridSize) {
         double latitude;
         IGeoPosition WestPos = null;
         IGeoPosition EastPos = null;
         List<IGeoPosition> positionList;
         IFeature gridObject;
-        String letter;
         UTMCoordinate westUTMCoord = tempUTMCoordList[0];
         UTMCoordinate eastUTMCoord = tempUTMCoordList[1];
-        boolean northernHemesphere = gridZoneUTMCoord.isNorthernHemisphere();
+        UTMCoordinate zoneMiddleUTMCoord = tempUTMCoordList[2];
         int parentGridSize = ((gridSize != MGRS_100K_METER_GRID)? gridSize * 10: MGRS_100K_METER_GRID);
         int tempValue;
 
         latitude = drawBounds.getSouth();
 
+        switch (gridZoneUTMCoord.getZoneLetter()) {
+            case "V":
+                switch (gridZoneUTMCoord.getZoneNumber()) {
+                    case 32:
+                        UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 6.0, zoneMiddleUTMCoord);
+                        break;
+                    default:
+                        UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 3.0, zoneMiddleUTMCoord);
+                        break;
+                }
+                break;
+            case "X":
+                switch (gridZoneUTMCoord.getZoneNumber()) {
+                    case 33:
+                    case 35:
+                    case 37:
+                        UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 6.0, zoneMiddleUTMCoord);
+                        break;
+                    default:
+                        UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 3.0, zoneMiddleUTMCoord);
+                        break;
+                }
+                break;
+            default:
+                UTMCoordinate.fromLatLong(latitude, gridZoneUTMCoord.getZoneWestLongitude() + 3.0, zoneMiddleUTMCoord);
+                break;
+        }
+        // Make sure that the northing value is a multiple of gridSize.
+        tempValue = (((int) Math.floor(zoneMiddleUTMCoord.getNorthing() / gridSize)) * gridSize);
+        if ((int) zoneMiddleUTMCoord.getNorthing() != tempValue) {
+            zoneMiddleUTMCoord.setNorthing(tempValue);
+        }
+
         // Generate the parallel lines of the box (the horizontal lines).
         UTMCoordinate.fromLatLong(latitude, drawBounds.getWest(), westUTMCoord);
         // An east value of 180 must be set to a hair less because the method would set the zone number to 1.
-        UTMCoordinate.fromLatLong(latitude, ((drawBounds.getEast() == 180.0)? 180.0 - Double.MIN_VALUE: drawBounds.getEast()), eastUTMCoord);
+        UTMCoordinate.fromLatLong(latitude, ((drawBounds.getEast() == 180.0)? 179.99999999: drawBounds.getEast()), eastUTMCoord);
 
-        // Make sure that the northing value is a multiple of gridSize.
-        tempValue = (((int) Math.floor(westUTMCoord.getNorthing() / gridSize)) * gridSize);
-        if ((int) westUTMCoord.getNorthing() != tempValue) {
-            westUTMCoord.setNorthing(tempValue);
-        }
+        westUTMCoord.setNorthing(zoneMiddleUTMCoord.getNorthing());
         // set the east coordinate to the same northing value.
-        eastUTMCoord.setNorthing(westUTMCoord.getNorthing());
+        eastUTMCoord.setNorthing(zoneMiddleUTMCoord.getNorthing());
         WestPos = westUTMCoord.toLatLong();
 
         while (latitude <= drawBounds.getNorth()) {
@@ -830,7 +861,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         }
 
         // Within the UTM grid zone we draw the MGRS grid parallels first, then meridians, then the ID from the left to right, bottom up.
-        createMGRSGridParallels(gridZoneUTMCoord, tempUTMCoordList, drawBounds, gridSize);
+        createMGRSGridParallels(gridZoneUTMCoord, GridZoneBounds, tempUTMCoordList, mapBounds, drawBounds, gridSize);
 
         // Generate the meridian lines of the box (the vertical lines).
         createMGRSGridMeridians(gridZoneUTMCoord, GridZoneBounds, tempUTMCoordList, drawBounds, gridSize);

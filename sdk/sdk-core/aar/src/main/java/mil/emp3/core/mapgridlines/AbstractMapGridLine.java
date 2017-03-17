@@ -2,6 +2,8 @@ package mil.emp3.core.mapgridlines;
 
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import org.cmapi.primitives.GeoLabelStyle;
@@ -48,6 +50,8 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
     // The map instance where the map grid is displayed.
     protected final IMapInstance mapInstance;
+
+    private static final Handler uiLooper = new Handler(Looper.getMainLooper());
 
     // The most recent time the grid was updated.
     private Date lastUpdated;
@@ -137,12 +141,12 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
         // MGRS Grid Label
         labelStyle = new GeoLabelStyle();
-        color = new EmpGeoColor(0.6, 200, 200, 200);
+        color = new EmpGeoColor(1.0, 200, 200, 200);
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
         labelStyle.setFontFamily("Ariel");
-        labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
+        labelStyle.setTypeface(IGeoLabelStyle.Typeface.BOLD);
         addLabelStyle(MAIN_GRID_TYPE_LABEL, labelStyle);
     }
 
@@ -200,35 +204,41 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
             this.mapInstance.scheduleMapRedraw();
             return;
         }
-        Point westPoint;
-        Point eastPoint;
-        double viewWidthInMeters;
-        IGeoPosition centerWest = new GeoPosition();
-        IGeoPosition centerEast = new GeoPosition();
 
         this.boundingBox.copyFrom(mapBounds);
         this.currentCamera.copySettingsFrom(camera);
 
-        centerWest.setLatitude(this.boundingBox.centerLatitude());
-        centerWest.setLongitude(this.boundingBox.getWest());
-        centerWest.setAltitude(0.0);
+        uiLooper.post(new Runnable() {
+            @Override
+            public void run() {
+                double viewWidthInMeters;
+                Point westPoint;
+                Point eastPoint;
+                IGeoPosition centerWest = new GeoPosition();
+                IGeoPosition centerEast = new GeoPosition();
 
-        centerEast.setLatitude(centerWest.getLatitude());
-        centerEast.setLongitude(mapBounds.getEast());
-        centerEast.setAltitude(0.0);
+                centerWest.setLatitude(AbstractMapGridLine.this.boundingBox.centerLatitude());
+                centerWest.setLongitude(AbstractMapGridLine.this.boundingBox.getWest());
+                centerWest.setAltitude(0.0);
 
-        westPoint = this.mapInstance.geoToContainer(centerWest);
-        eastPoint = this.mapInstance.geoToContainer(centerEast);
-        int deltaX = eastPoint.x - westPoint.x;
-        int deltaY = eastPoint.y - westPoint.y;
-        double deltaXe2 = deltaX * deltaX;
-        double deltaYe2 = deltaY * deltaY;
-        double pixelDistance = Math.sqrt(deltaXe2 + deltaYe2);
+                centerEast.setLatitude(centerWest.getLatitude());
+                centerEast.setLongitude(AbstractMapGridLine.this.boundingBox.getEast());
+                centerEast.setAltitude(0.0);
 
-        viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
-        this.metersPerPixel = viewWidthInMeters / pixelDistance;
+                westPoint = AbstractMapGridLine.this.mapInstance.geoToContainer(centerWest);
+                eastPoint = AbstractMapGridLine.this.mapInstance.geoToContainer(centerEast);
+                int deltaX = eastPoint.x - westPoint.x;
+                int deltaY = eastPoint.y - westPoint.y;
+                double deltaXe2 = deltaX * deltaX;
+                double deltaYe2 = deltaY * deltaY;
+                double pixelDistance = Math.sqrt(deltaXe2 + deltaYe2);
 
-        this.generationThread.scheduleProcessing();
+                viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+                AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
+
+                AbstractMapGridLine.this.generationThread.scheduleProcessing();
+            }
+        });
     }
 
     /**
