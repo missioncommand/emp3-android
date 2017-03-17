@@ -8,6 +8,8 @@ import org.cmapi.primitives.IGeoTimeSpan;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import mil.emp3.api.Circle;
+import mil.emp3.api.Ellipse;
 import mil.emp3.api.GeoJSON;
 import mil.emp3.api.KML;
 import mil.emp3.api.Path;
@@ -22,7 +24,29 @@ public class GeoJsonExporter {
     private static final String TAG = GeoJsonExporter.class.getSimpleName();
     private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
 
-    private void appendGeoJSONTimes(IFeature feature, StringBuffer buffer) {
+    private void appendGeoJSONPositions(IFeature feature, StringBuffer buffer) {
+        List<IGeoPosition> positions = null;
+        if (feature.getFeatureType() == GEO_CIRCLE) {
+            positions = ((Circle)feature).getPolygonPositionList();
+        } else if (feature.getFeatureType() == GEO_ELLIPSE) {
+            positions = ((Ellipse)feature).getPolygonPositionList();
+        } else {
+            positions = feature.getPositions();
+        }
+        int i = 0;
+        while (true) {
+            IGeoPosition position = positions.get(i++);
+            buffer.append("[");
+            buffer.append(position.getLatitude());
+            buffer.append(", ");
+            buffer.append(position.getLatitude());
+            buffer.append("]");
+            if (i == positions.size() - 1) break;
+            buffer.append(", ");
+        }
+    }
+
+    private void appendGeoJSONOtherProperties(IFeature feature, StringBuffer buffer) {
         boolean haveTimeSpan = false;
         if (feature.getTimeSpans().size() > 0) {
             haveTimeSpan = true;
@@ -49,36 +73,6 @@ public class GeoJsonExporter {
         if (haveTimeSpan) {
             buffer.append("}");// time primitive
         }
-    }
-
-    private void appendGeoJSONPositions(IFeature feature, StringBuffer buffer) {
-        List<IGeoPosition> positions = feature.getPositions();
-        int i = 0;
-        while (true) {
-            IGeoPosition position = positions.get(i++);
-            buffer.append("[");
-            buffer.append(position.getLatitude());
-            buffer.append(", ");
-            buffer.append(position.getLatitude());
-            buffer.append("]");
-            if (i == positions.size() - 1) break;
-            buffer.append(", ");
-        }
-    }
-
-    private void appendGeoJSONProperties(IFeature feature, StringBuffer buffer) {
-        buffer.append("\"properties\": {");
-        buffer.append("\"style\": {");
-        buffer.append("\"lineStyle\": {");
-        EmpGeoColor color = (EmpGeoColor) feature.getStrokeStyle().getStrokeColor();
-        buffer.append(color.toGeoJSON());
-        buffer.append("}"); // end of lineStyle
-        buffer.append(",\"polyStyle\": {");
-        color = (EmpGeoColor) feature.getStrokeStyle().getStrokeColor();
-        buffer.append(color.toGeoJSON());
-        buffer.append("}"); // end of polyStyle
-        buffer.append("}"); // end of style
-        appendGeoJSONTimes(feature, buffer);
         buffer.append(",\"name\":");
         buffer.append("\"" + feature.getName() + "\"");
         buffer.append(",\"id\":");
@@ -94,6 +88,20 @@ public class GeoJsonExporter {
         appendGeoJSONPositions(feature, buffer);
         buffer.append("]]");// end of coordinates
         buffer.append("}");// end of geometry
+        buffer.append(", ");
+        buffer.append("\"properties\": {");
+        buffer.append("\"style\": {");
+        buffer.append("\"lineStyle\": {");
+        EmpGeoColor color = (EmpGeoColor) feature.getStrokeStyle().getStrokeColor();
+        buffer.append(color.toGeoJSON());
+        buffer.append("}"); // end of lineStyle
+        buffer.append(",\"polyStyle\": {");
+        color = (EmpGeoColor) feature.getStrokeStyle().getStrokeColor();
+        buffer.append(color.toGeoJSON());
+        buffer.append("}"); // end of polyStyle
+        buffer.append("}"); // end of style
+        appendGeoJSONOtherProperties(feature, buffer);
+        buffer.append("}");
     }
 
     private void appendGeoJSONPath(IFeature feature, StringBuffer buffer) {
@@ -109,14 +117,7 @@ public class GeoJsonExporter {
         buffer.append(color.toGeoJSON());
         buffer.append("}"); // lineStyle
         buffer.append("}"); // style
-        appendGeoJSONTimes(feature, buffer);
-        buffer.append(",\"name\":");
-        buffer.append("\"" + feature.getName() + "\"");
-        buffer.append(",\"id\":");
-        buffer.append("\"" + feature.getGeoId() + "\"");
-        buffer.append(",\"description\":");
-        buffer.append("\"" + feature.getDescription() + "\"");
-        buffer.append("}");// properties
+        appendGeoJSONOtherProperties(feature, buffer);
         buffer.append("}");
     }
 
@@ -138,14 +139,7 @@ public class GeoJsonExporter {
         buffer.append("}"); // url
         buffer.append("}"); // iconStyle
         buffer.append("}"); // style
-        appendGeoJSONTimes(feature, buffer);
-        buffer.append(",\"name\":");
-        buffer.append("\"" + feature.getName() + "\"");
-        buffer.append(",\"id\":");
-        buffer.append("\"" + feature.getGeoId() + "\"");
-        buffer.append(",\"description\":");
-        buffer.append("\"" + feature.getDescription() + "\"");
-        buffer.append("}");//properties
+        appendGeoJSONOtherProperties(feature, buffer);
         buffer.append("}");
     }
 
@@ -158,30 +152,27 @@ public class GeoJsonExporter {
     public void appendFeature(IFeature feature, StringBuffer buffer) {
 
         buffer.append("{\"type\":  \"Feature\",");
-        String geoJSON = null;
         switch (feature.getFeatureType()) {
             case GEO_POLYGON:
             case GEO_RECTANGLE:
             case GEO_SQUARE:
+            case GEO_CIRCLE:
+            case GEO_ELLIPSE:
                 appendGeoJSONPolygon(feature, buffer);
-                buffer.append(", ");
-                appendGeoJSONProperties(feature, buffer);
-                buffer.append("}");
                 break;
             case GEO_PATH:
-                geoJSON = ((Path) feature).toGeoJSON();
-                buffer.append(geoJSON);
+                appendGeoJSONPath(feature, buffer);
                 break;
             case GEO_POINT:
                 appendGeoJSONPoint(feature, buffer);
                 break;
             case GEOJSON:
+            case KML:
                 Log.i(TAG, "Child feature can't be GEOJSON type");
                 break;
             case GEO_ACM:
-            case GEO_CIRCLE:
-            case GEO_ELLIPSE:
             case GEO_TEXT:
+            case GEO_MIL_SYMBOL:
             default:
                 buffer.append("}");
         }
