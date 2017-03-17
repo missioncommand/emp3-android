@@ -2,6 +2,7 @@ package mil.emp3.json.geoJson;
 
 import android.util.Log;
 
+import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoTimeSpan;
 
@@ -11,11 +12,9 @@ import java.util.List;
 import mil.emp3.api.Circle;
 import mil.emp3.api.Ellipse;
 import mil.emp3.api.GeoJSON;
-import mil.emp3.api.KML;
-import mil.emp3.api.Path;
+import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Point;
 import mil.emp3.api.interfaces.IFeature;
-import mil.emp3.api.utils.EmpGeoColor;
 
 import static mil.emp3.api.enums.FeatureTypeEnum.*;
 
@@ -23,6 +22,18 @@ public class GeoJsonExporter {
 
     private static final String TAG = GeoJsonExporter.class.getSimpleName();
     private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
+
+    public void appendGeoJSONColor(IGeoColor color, StringBuffer buffer) {
+        buffer.append("\"color\": {\"r\":");
+        buffer.append(color.getRed());
+        buffer.append(", \"g\":");
+        buffer.append(color.getGreen());
+        buffer.append(", \"b\":");
+        buffer.append(color.getBlue());
+        buffer.append(", \"a\":");
+        buffer.append(color.getAlpha());
+        buffer.append("}");
+    }
 
     private void appendGeoJSONPositions(IFeature feature, StringBuffer buffer) {
         List<IGeoPosition> positions = null;
@@ -33,16 +44,18 @@ public class GeoJsonExporter {
         } else {
             positions = feature.getPositions();
         }
-        int i = 0;
-        while (true) {
-            IGeoPosition position = positions.get(i++);
+        boolean addComma = false;
+        for (IGeoPosition position : positions) {
+            if (addComma) {
+                buffer.append(",\n");
+            } else {
+                addComma = true;
+            }
             buffer.append("[");
             buffer.append(position.getLatitude());
             buffer.append(", ");
             buffer.append(position.getLatitude());
             buffer.append("]");
-            if (i == positions.size() - 1) break;
-            buffer.append(", ");
         }
     }
 
@@ -50,7 +63,7 @@ public class GeoJsonExporter {
         boolean haveTimeSpan = false;
         if (feature.getTimeSpans().size() > 0) {
             haveTimeSpan = true;
-            buffer.append(",\"timePrimitive\": {");
+            buffer.append(",\n\"timePrimitive\": {");
             buffer.append("\"timeSpan\": {");
             IGeoTimeSpan timeSpan = feature.getTimeSpans().get(0);
             buffer.append("\"begin\": {");
@@ -73,11 +86,11 @@ public class GeoJsonExporter {
         if (haveTimeSpan) {
             buffer.append("}");// time primitive
         }
-        buffer.append(",\"name\":");
+        buffer.append(",\n\"name\":");
         buffer.append("\"" + feature.getName() + "\"");
-        buffer.append(",\"id\":");
+        buffer.append(",\n\"id\":");
         buffer.append("\"" + feature.getGeoId() + "\"");
-        buffer.append(",\"description\":");
+        buffer.append(",\n\"description\":");
         buffer.append("\"" + feature.getDescription() + "\"");
         buffer.append("}");
     }
@@ -88,16 +101,15 @@ public class GeoJsonExporter {
         appendGeoJSONPositions(feature, buffer);
         buffer.append("]]");// end of coordinates
         buffer.append("}");// end of geometry
-        buffer.append(", ");
-        buffer.append("\"properties\": {");
+        buffer.append(",\n\"properties\": {");
         buffer.append("\"style\": {");
         buffer.append("\"lineStyle\": {");
-        EmpGeoColor color = (EmpGeoColor) feature.getStrokeStyle().getStrokeColor();
-        buffer.append(color.toGeoJSON());
+        IGeoColor color = feature.getStrokeStyle().getStrokeColor();
+        appendGeoJSONColor(color, buffer);
         buffer.append("}"); // end of lineStyle
         buffer.append(",\"polyStyle\": {");
-        color = (EmpGeoColor) feature.getStrokeStyle().getStrokeColor();
-        buffer.append(color.toGeoJSON());
+        color = feature.getFillStyle().getFillColor();
+        appendGeoJSONColor(color, buffer);
         buffer.append("}"); // end of polyStyle
         buffer.append("}"); // end of style
         appendGeoJSONOtherProperties(feature, buffer);
@@ -110,11 +122,11 @@ public class GeoJsonExporter {
         appendGeoJSONPositions(feature, buffer);
         buffer.append("]");// end of coordinates
         buffer.append("}");// end of geometry
-        buffer.append(",\"properties\": {");
+        buffer.append(",\n\"properties\": {");
         buffer.append("\"style\": {");
         buffer.append("\"lineStyle\": {");
-        EmpGeoColor color = (EmpGeoColor)feature.getStrokeStyle().getStrokeColor();
-        buffer.append(color.toGeoJSON());
+        IGeoColor color = feature.getStrokeStyle().getStrokeColor();
+        appendGeoJSONColor(color, buffer);
         buffer.append("}"); // lineStyle
         buffer.append("}"); // style
         appendGeoJSONOtherProperties(feature, buffer);
@@ -131,7 +143,7 @@ public class GeoJsonExporter {
         buffer.append(position.getLatitude());
         buffer.append("]");
         buffer.append("}");// end of geometry
-        buffer.append(",\"properties\": {");
+        buffer.append(",\n\"properties\": {");
         buffer.append("\"style\": {");
         buffer.append("\"iconStyle\": {");
         buffer.append("\"url\": {");
@@ -151,7 +163,7 @@ public class GeoJsonExporter {
 
     public void appendFeature(IFeature feature, StringBuffer buffer) {
 
-        buffer.append("{\"type\":  \"Feature\",");
+        buffer.append("{\"type\":  \"Feature\",\n");
         switch (feature.getFeatureType()) {
             case GEO_POLYGON:
             case GEO_RECTANGLE:
@@ -173,18 +185,28 @@ public class GeoJsonExporter {
             case GEO_ACM:
             case GEO_TEXT:
             case GEO_MIL_SYMBOL:
+                if(((MilStdSymbol)feature).isSinglePoint()) {
+                    appendGeoJSONPoint(feature, buffer);
+                }
+                break;
             default:
                 buffer.append("}");
         }
     }
 
     private void appendFeatureList(List<IFeature> featureList, StringBuffer buffer) {
-        buffer.append("{\"type\":  \"FeatureCollection\",");
-        buffer.append("\"Features\":[{");
+        buffer.append("{\"type\":  \"FeatureCollection\",\n");
+        buffer.append("\"features\":[\n");
+        boolean addComma = false;
         for (IFeature feature : featureList) {
+            if (addComma) {
+                buffer.append(",\n");
+            } else {
+                addComma = true;
+            }
             appendFeature(feature, buffer);
         }
-        buffer.append("}]");
+        buffer.append("]\n}\n");
     }
 
     private void export(IFeature feature, StringBuffer buffer) {
