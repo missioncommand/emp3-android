@@ -126,6 +126,10 @@ public class BoundingBoxGeneration {
     private boolean checkResult(Point result) {
         return result.x < (0 + lr_margin) || result.x > (width - lr_margin) || result.y < (0 + tb_margin) || result.y > (height - tb_margin);
     }
+
+    private boolean checkResultNoMargin(Point result) {
+        return result.x < 0 || result.x > width || result.y < 0 || result.y > height;
+    }
     /**
      * Calculates a bounding box using the previously calculated vertices of the bounding area. There are multiple steps involved.
      *
@@ -320,7 +324,16 @@ public class BoundingBoxGeneration {
                 break;
             }
 
-            if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResult(result)) {
+            if(isSouth) {
+                if (!mapController.groundPositionToScreenPoint(latitude, east, result) || checkResultNoMargin(result)) {
+                    break;
+                }
+
+                if (!mapController.groundPositionToScreenPoint(latitude, west, result) || checkResultNoMargin(result)) {
+                    break;
+                }
+            }
+            else if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResult(result)) {
                 break;
             }
 //            if (!mapController.groundPositionToScreenPoint(latitude, east, result) || checkResult(result)) {
