@@ -840,11 +840,20 @@ public class MainActivity extends AppCompatActivity
                     try {
                         if (event.getNewState() == MapStateEnum.MAP_READY) {
                             MainActivity.this.map.addOverlay(MainActivity.this.oRootOverlay, true);
-                            MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
                             MainActivity.this.setEventListeners();
 
                             MainActivity.this.createCrossHair();
                             //Log.i(TAG, "Map State: " + MainActivity.this.map.getState().name());
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
+                                    } catch (EMP_Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
 
                             map.addCameraEventListener(new ICameraEventListener() {
                                 @Override
