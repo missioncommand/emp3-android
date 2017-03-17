@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import mil.emp3.api.GeoJSON;
+import mil.emp3.api.KML;
 import mil.emp3.api.Path;
 import mil.emp3.api.Point;
 import mil.emp3.api.interfaces.IFeature;
@@ -96,15 +97,31 @@ public class GeoJsonExporter {
     }
 
     private void appendGeoJSONPath(IFeature feature, StringBuffer buffer) {
-        buffer.append("\"geometry\":  {\"type\": \"Polygon\",");
+        buffer.append("\"geometry\":  {\"type\": \"LineString\",");
         buffer.append("\"coordinates\":  [");
         appendGeoJSONPositions(feature, buffer);
         buffer.append("]");// end of coordinates
         buffer.append("}");// end of geometry
+        buffer.append(",\"properties\": {");
+        buffer.append("\"style\": {");
+        buffer.append("\"lineStyle\": {");
+        EmpGeoColor color = (EmpGeoColor)feature.getStrokeStyle().getStrokeColor();
+        buffer.append(color.toGeoJSON());
+        buffer.append("}"); // lineStyle
+        buffer.append("}"); // style
+        appendGeoJSONTimes(feature, buffer);
+        buffer.append(",\"name\":");
+        buffer.append("\"" + feature.getName() + "\"");
+        buffer.append(",\"id\":");
+        buffer.append("\"" + feature.getGeoId() + "\"");
+        buffer.append(",\"description\":");
+        buffer.append("\"" + feature.getDescription() + "\"");
+        buffer.append("}");// properties
+        buffer.append("}");
     }
 
     private void appendGeoJSONPoint(IFeature feature, StringBuffer buffer) {
-        buffer.append("\"geometry\":  {\"type\": \"Polygon\",");
+        buffer.append("\"geometry\":  {\"type\": \"Point\",");
         buffer.append("\"coordinates\":  ");
         IGeoPosition position = feature.getPositions().get(0);
         buffer.append("[");
@@ -113,7 +130,7 @@ public class GeoJsonExporter {
         buffer.append(position.getLatitude());
         buffer.append("]");
         buffer.append("}");// end of geometry
-        buffer.append("\"properties\": {");
+        buffer.append(",\"properties\": {");
         buffer.append("\"style\": {");
         buffer.append("\"iconStyle\": {");
         buffer.append("\"url\": {");
@@ -129,6 +146,7 @@ public class GeoJsonExporter {
         buffer.append(",\"description\":");
         buffer.append("\"" + feature.getDescription() + "\"");
         buffer.append("}");//properties
+        buffer.append("}");
     }
 
     /**
@@ -183,13 +201,15 @@ public class GeoJsonExporter {
         if (feature.getFeatureType() == GEOJSON) {
             featureList = ((GeoJSON) feature).getFeatureList();
             appendFeatureList(featureList, buffer);
+        } else if (feature.getFeatureType() == KML) {
+            featureList = ((mil.emp3.api.KML) feature).getFeatureList();
+            appendFeatureList(featureList, buffer);
         } else if (feature.getChildFeatures().size() > 0) {
             featureList = feature.getChildFeatures();
             appendFeatureList(featureList, buffer);
         } else {
             appendFeature(feature, buffer);
         }
-
     }
 
     public final static String export(IFeature feature) {
