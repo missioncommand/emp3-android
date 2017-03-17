@@ -14,6 +14,8 @@ import mil.emp3.api.Ellipse;
 import mil.emp3.api.GeoJSON;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Point;
+import mil.emp3.api.Rectangle;
+import mil.emp3.api.Square;
 import mil.emp3.api.interfaces.IFeature;
 
 import static mil.emp3.api.enums.FeatureTypeEnum.*;
@@ -41,6 +43,10 @@ public class GeoJsonExporter {
             positions = ((Circle)feature).getPolygonPositionList();
         } else if (feature.getFeatureType() == GEO_ELLIPSE) {
             positions = ((Ellipse)feature).getPolygonPositionList();
+        } else if (feature.getFeatureType() == GEO_RECTANGLE) {
+            positions = ((Rectangle)feature).getCorners();
+        } else if (feature.getFeatureType() == GEO_SQUARE) {
+            positions = ((Square)feature).getCorners();
         } else {
             positions = feature.getPositions();
         }
