@@ -5,7 +5,7 @@ import android.graphics.Typeface;
 import org.cmapi.primitives.IGeoMilSymbol;
 
 import armyc2.c2sd.renderer.utilities.RendererSettings;
-import mil.emp3.core.utils.milstd2525.MilStdUtilities;
+import mil.emp3.api.utils.MilStdUtilities;
 
 /**
  * This will create the BitmapCache that you want to deploy.

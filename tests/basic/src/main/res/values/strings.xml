@@ -159,4 +159,8 @@
     <string name="action_minimap">Toggle Mini Map</string>
     <string name="action_brightnessLabel">Brightness:</string>
     <string name="action_screenShot">Screen Shot</string>
+    <string name="action_exportMapToKML">Export Map</string>
+    <string name="action_exportOverlayToKML">Export Overlay</string>
+    <string name="action_exportFeatureToKML">Export Feature</string>
+    <string name="action_exportToKML">Export To KML</string>
 </resources>
