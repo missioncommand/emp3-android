@@ -325,12 +325,14 @@ public class BoundingBoxGeneration {
             }
 
             if(isSouth) {
-                if (!mapController.groundPositionToScreenPoint(latitude, east, result) || checkResultNoMargin(result)) {
-                    break;
-                }
+                if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResultNoMargin(result)) {
+                    if (!mapController.groundPositionToScreenPoint(latitude, east, result) || checkResultNoMargin(result)) {
+                        break;
+                    }
 
-                if (!mapController.groundPositionToScreenPoint(latitude, west, result) || checkResultNoMargin(result)) {
-                    break;
+                    if (!mapController.groundPositionToScreenPoint(latitude, west, result) || checkResultNoMargin(result)) {
+                        break;
+                    }
                 }
             }
             else if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResult(result)) {
