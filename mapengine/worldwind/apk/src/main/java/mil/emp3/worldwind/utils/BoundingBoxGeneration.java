@@ -3,7 +3,6 @@ package mil.emp3.worldwind.utils;
 import android.graphics.Point;
 import android.util.Log;
 
-import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
@@ -49,6 +48,8 @@ public class BoundingBoxGeneration {
     private final static double INCREMENT_FACTOR = 0.05;
     private final static double MAX_LATITUDE_SPAN = 120.0;
     private final static double MAX_LONGITUDE_SPAN = 120.0;
+    private final static double USE_GEOMETRIC_CENTER_FOR_TILT_GT = 45.0;
+    private final static double LATITUDE_SPAN_FOR_ADJUSTING_SOUTH = 15.0;
 
     private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen, int cornersTouched) {
         mapController = mapInstance.getMapController();
@@ -127,6 +128,11 @@ public class BoundingBoxGeneration {
     private boolean checkResult(Point result) {
         return result.x < (0 + lr_margin) || result.x > (width - lr_margin) || result.y < (0 + tb_margin) || result.y > (height - tb_margin);
     }
+
+    private boolean checkResultNoMargin(Point result) {
+        return result.x < 0 || result.x > width || result.y < 0 || result.y > height;
+    }
+
     /**
      * Calculates a bounding box using the previously calculated vertices of the bounding area. There are multiple steps involved.
      *
@@ -159,9 +165,12 @@ public class BoundingBoxGeneration {
         }
 
         Log.d(TAG, "adjustEastAndWest In NEWS " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
-        Point result = new Point();
 
         double increment = (geoBounds.getNorth() - geoBounds.getSouth()) * INCREMENT_FACTOR;
+
+        // Depending on height, width and number of corners that show earth adjust the increment factor.
+        // This logic really needs to be vetted as it is based purely on experimentation. I am working on
+        // a 9 inch tablet.
         double increment_lon_f = 1.0;
         if(width > height) {
             increment_lon_f = (double) width / (double) height;
@@ -179,9 +188,11 @@ public class BoundingBoxGeneration {
         }
 
         // Need to investigate if we can always use the geometric Center
-        if(camera.getTilt() > 45.0) {
+        if(camera.getTilt() > USE_GEOMETRIC_CENTER_FOR_TILT_GT) {
             center = geometricCenter;
         }
+
+        // Stretch along all four corners
         stretch(center, geoBounds, increment * increment_lat_f, increment * increment_lon_f);
 
         // Following is the refinement where we try to stretch each edge as much as possible to make the bounding box
@@ -197,7 +208,8 @@ public class BoundingBoxGeneration {
             geoBounds.setNorth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth(), geoBounds.getNorth(), increment, false));
         }
 
-        if((geoBounds.getNorth() - geoBounds.getSouth()) >= 15.0) {
+        // Depending on LATITUDE SPAN adjust south bounds.
+        if((geoBounds.getNorth() - geoBounds.getSouth()) >= LATITUDE_SPAN_FOR_ADJUSTING_SOUTH) {
             geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .05));
         } else {
             geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .1));
@@ -205,6 +217,13 @@ public class BoundingBoxGeneration {
         Log.d(TAG, "buildBoundingBox_ Out NEWS " + ii + " " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
 
+    /**
+     * Stretched all four corners out equally until visibility criteria is met.
+     * @param center
+     * @param geoBounds
+     * @param lat_increment
+     * @param lon_increment
+     */
     private void stretch(IGeoPosition center, IGeoBounds geoBounds, double lat_increment, double lon_increment) {
 
         geoBounds.setNorth(center.getLatitude());
@@ -332,7 +351,18 @@ public class BoundingBoxGeneration {
                 break;
             }
 
-            if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResult(result)) {
+            if(isSouth) {
+                if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResultNoMargin(result)) {
+                    if (!mapController.groundPositionToScreenPoint(latitude, east, result) || checkResultNoMargin(result)) {
+                        break;
+                    }
+
+                    if (!mapController.groundPositionToScreenPoint(latitude, west, result) || checkResultNoMargin(result)) {
+                        break;
+                    }
+                }
+            }
+            else if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResult(result)) {
                 break;
             }
 //            if (!mapController.groundPositionToScreenPoint(latitude, east, result) || checkResult(result)) {
