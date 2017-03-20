@@ -1000,4 +1000,14 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             throw new IllegalStateException("Invalid operation. Symbol code is not set");
         }
     }
+
+    public String getMilSymServiceURL() {
+        if (!this.isSinglePoint()) {
+            return null;
+        }
+
+        String url = "";
+
+        return url;
+    }
 }

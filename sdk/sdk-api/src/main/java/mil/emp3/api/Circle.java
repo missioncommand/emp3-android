@@ -89,110 +89,63 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         return this.getRenderable().getRadius();
     }
 
-    private boolean needStyle() {
-        return (null != this.getStrokeStyle()) || (null != this.getFillStyle());
-    }
+    public List<IGeoPosition> getPolygonPositionList() {
+        double distanceFromCenter = this.getRadius();
+        double deltaBearing = Math.toDegrees(Math.atan2(0.005, 1.0));
+        List<IGeoPosition> posList = new ArrayList<>();
+        IGeoPosition center = this.getPosition();
+        IGeoPosition zerozero = new GeoPosition();
+        IGeoPosition pos1, pos, tempPos;
+        int pointsPerQuadrant;
 
-    @Override
-    public void exportStylesToKML(XmlSerializer xmlSerializer) throws IOException {
-        if (this.needStyle()) {
-            IGeoStrokeStyle strokeStyle = this.getStrokeStyle();
+        zerozero.setLatitude(0.0);
+        zerozero.setLongitude(0.0);
 
-            xmlSerializer.startTag(null, "Style");
-            xmlSerializer.attribute(null, "id", EmpKMLExporter.getStyleId(this));
-
-            if (null != this.getStrokeStyle()) {
-                EmpKMLExporter.serializeStrokeStyle(this.getStrokeStyle(), xmlSerializer);
-            }
-
-            if (null != this.getFillStyle()) {
-                EmpKMLExporter.serializeFillStyle(this.getFillStyle(), (null != this.getStrokeStyle()), xmlSerializer);
-            }
-            xmlSerializer.endTag(null, "Style");
+        // Generate the coordinates for the perimeter.
+        pos1 = GeoLibrary.computePositionAt(0, distanceFromCenter, zerozero);
+        posList.add(pos1);
+        // Create position for the top right quadrant.
+        for (double bearing = deltaBearing; bearing < 90.0; bearing += deltaBearing) {
+            pos = GeoLibrary.computePositionAt(bearing, distanceFromCenter, zerozero);
+            posList.add(pos);
         }
 
-        super.exportStylesToKML(xmlSerializer);
-    }
+        pointsPerQuadrant = posList.size();
 
-    @Override
-    public void exportEmpObjectToKML(XmlSerializer xmlSerializer) throws IOException {
-        EmpKMLExporter.serializePlacemark(this, xmlSerializer, new EmpKMLExporter.ISerializePlacemarkGeometry() {
-            @Override
-            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
-                double distanceFromCenter = Circle.this.getRadius();
-                double deltaBearing = Math.toDegrees(Math.atan2(0.005, 1.0));
-                List<IGeoPosition> posList = new ArrayList<>();
-                IGeoPosition center = Circle.this.getPosition();
-                IGeoPosition zerozero = new GeoPosition();
-                IGeoPosition pos1, pos, tempPos;
-                int pointsPerQuadrant;
+        // Now shadow the top right quadrant onto the bottom right quadrant and offset it by the center coordinate.
+        for (int iIndex = pointsPerQuadrant - 1; iIndex >= 0; iIndex--) {
+            tempPos = posList.get(iIndex);
+            pos = new GeoPosition();
+            pos.setLatitude((tempPos.getLatitude() * -1.0) + center.getLatitude());
+            pos.setLongitude(tempPos.getLongitude() + center.getLongitude());
+            posList.add(pos);
+        }
 
-                zerozero.setLatitude(0.0);
-                zerozero.setLongitude(0.0);
+        // Now shadow the top right quadrant onto the bottom left quadrant and offset it by the center coordinate.
+        for (int iIndex = 0; iIndex < pointsPerQuadrant; iIndex++) {
+            tempPos = posList.get(iIndex);
+            pos = new GeoPosition();
+            pos.setLatitude((tempPos.getLatitude() * -1.0) + center.getLatitude());
+            pos.setLongitude((tempPos.getLongitude() * -1.0) + center.getLongitude());
+            posList.add(pos);
+        }
 
-                // Generate the coordinates for the perimeter.
-                pos1 = GeoLibrary.computePositionAt(0, distanceFromCenter, zerozero);
-                posList.add(pos1);
-                // Create position for the top right quadrant.
-                for (double bearing = deltaBearing; bearing < 90.0; bearing += deltaBearing) {
-                    pos = GeoLibrary.computePositionAt(bearing, distanceFromCenter, zerozero);
-                    posList.add(pos);
-                }
+        // Now shadow the top right quadrant onto the top left quadrant and offset it by the center coordinate.
+        for (int iIndex = pointsPerQuadrant - 1; iIndex >= 0; iIndex--) {
+            tempPos = posList.get(iIndex);
+            pos = new GeoPosition();
+            pos.setLatitude(tempPos.getLatitude() + center.getLatitude());
+            pos.setLongitude((tempPos.getLongitude() * -1.0) + center.getLongitude());
+            posList.add(pos);
+        }
 
-                pointsPerQuadrant = posList.size();
+        // Now offset the top right quadrant by the center coordinate.
+        for (int iIndex = 0; iIndex < pointsPerQuadrant; iIndex++) {
+            pos = posList.get(iIndex);
+            pos.setLatitude(pos.getLatitude() + center.getLatitude());
+            pos.setLongitude(pos.getLongitude() + center.getLongitude());
+        }
 
-                // Now shadow the top right quadrant onto the bottom right quadrant and offset it by the center coordinate.
-                for (int iIndex = pointsPerQuadrant - 1; iIndex >= 0; iIndex--) {
-                    tempPos = posList.get(iIndex);
-                    pos = new GeoPosition();
-                    pos.setLatitude((tempPos.getLatitude() * -1.0) + center.getLatitude());
-                    pos.setLongitude(tempPos.getLongitude() + center.getLongitude());
-                    posList.add(pos);
-                }
-
-                // Now shadow the top right quadrant onto the bottom left quadrant and offset it by the center coordinate.
-                for (int iIndex = 0; iIndex < pointsPerQuadrant; iIndex++) {
-                    tempPos = posList.get(iIndex);
-                    pos = new GeoPosition();
-                    pos.setLatitude((tempPos.getLatitude() * -1.0) + center.getLatitude());
-                    pos.setLongitude((tempPos.getLongitude() * -1.0) + center.getLongitude());
-                    posList.add(pos);
-                }
-
-                // Now shadow the top right quadrant onto the top left quadrant and offset it by the center coordinate.
-                for (int iIndex = pointsPerQuadrant - 1; iIndex >= 0; iIndex--) {
-                    tempPos = posList.get(iIndex);
-                    pos = new GeoPosition();
-                    pos.setLatitude(tempPos.getLatitude() + center.getLatitude());
-                    pos.setLongitude((tempPos.getLongitude() * -1.0) + center.getLongitude());
-                    posList.add(pos);
-                }
-
-                // Now offset the top right quadrant by the center coordinate.
-                for (int iIndex = 0; iIndex < pointsPerQuadrant; iIndex++) {
-                    pos = posList.get(iIndex);
-                    pos.setLatitude(pos.getLatitude() + center.getLatitude());
-                    pos.setLongitude(pos.getLongitude() + center.getLongitude());
-                }
-
-                if  (Circle.this.needStyle()){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + EmpKMLExporter.getStyleId(Circle.this));
-                    xmlSerializer.endTag(null, "styleUrl");
-                }
-
-                xmlSerializer.startTag(null, "Polygon");
-                EmpKMLExporter.serializeExtrude(Circle.this, xmlSerializer);
-                EmpKMLExporter.serializeAltitudeMode(Circle.this, xmlSerializer);
-                xmlSerializer.startTag(null, "outerBoundaryIs");
-                xmlSerializer.startTag(null, "LinearRing");
-                EmpKMLExporter.serializeCoordinates(posList, xmlSerializer);
-                xmlSerializer.endTag(null, "LinearRing");
-                xmlSerializer.endTag(null, "outerBoundaryIs");
-                xmlSerializer.endTag(null, "Polygon");
-            }
-        });
-
-        super.exportEmpObjectToKML(xmlSerializer);
+        return posList;
     }
 }

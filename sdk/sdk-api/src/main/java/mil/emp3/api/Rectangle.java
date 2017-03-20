@@ -115,80 +115,62 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         return this.getRenderable().getHeight();
     }
 
-    @Override
-    public String exportToKML() throws IOException {
-        return callKMLExporter();
-    }
+    public List<IGeoPosition> getCorners() {
+        IGeoPosition pos;
+        double halfHeightE2;
+        double halfWidthE2;
+        double distanceToCorner;
+        double bearingToTopRightCorner;
+        double bearing;
+        double azimuth = this.getAzimuth();
+        List<IGeoPosition> posList = new ArrayList<>();
 
-    private boolean needStyle() {
-        return (null != this.getStrokeStyle()) || (null != this.getFillStyle());
-    }
+        halfHeightE2 = this.getHeight() / 2.0;
+        halfWidthE2 = this.getWidth() / 2.0;
 
-    @Override
-    public void exportStylesToKML(XmlSerializer xmlSerializer) throws IOException {
-        if (this.needStyle()) {
-            IGeoStrokeStyle strokeStyle = this.getStrokeStyle();
-
-            xmlSerializer.startTag(null, "Style");
-            xmlSerializer.attribute(null, "id", EmpKMLExporter.getStyleId(this));
-
-            if (null != this.getStrokeStyle()) {
-                EmpKMLExporter.serializeStrokeStyle(this.getStrokeStyle(), xmlSerializer);
-            }
-
-            if (null != this.getFillStyle()) {
-                EmpKMLExporter.serializeFillStyle(this.getFillStyle(), (null != this.getStrokeStyle()), xmlSerializer);
-            }
-            xmlSerializer.endTag(null, "Style");
+        bearingToTopRightCorner = Math.toDegrees(Math.atan2(halfWidthE2, halfHeightE2));
+        if (azimuth != 0.0) {
+            bearing = ((((bearingToTopRightCorner + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
+        } else {
+            bearing = bearingToTopRightCorner;
         }
 
-        super.exportStylesToKML(xmlSerializer);
-    }
+        halfHeightE2 = halfHeightE2 * halfHeightE2;
+        halfWidthE2 = halfWidthE2 * halfWidthE2;
 
-    @Override
-    public void exportEmpObjectToKML(XmlSerializer xmlSerializer) throws IOException {
-        EmpKMLExporter.serializePlacemark(this, xmlSerializer, new EmpKMLExporter.ISerializePlacemarkGeometry() {
-            @Override
-            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
-                double halfHeight = Rectangle.this.getHeight() / 2;
-                double halfWidth = Rectangle.this.getWidth() / 2;
-                double azimuth = Rectangle.this.getAzimuth();
-                double distanceFromCenter = Math.sqrt((halfHeight * halfHeight) + (halfWidth * halfWidth));
-                double bearingFromCenter = Math.toDegrees(Math.atan2(halfWidth, halfHeight));
-                List<IGeoPosition> posList = new ArrayList<>();
-                IGeoPosition center = Rectangle.this.getPosition();
-                IGeoPosition pos1, pos;
+        distanceToCorner = Math.sqrt(halfHeightE2 + halfWidthE2);
 
-                // Generate the 4 corners of the rectangle.
-                pos1 = GeoLibrary.computePositionAt(bearingFromCenter + azimuth, distanceFromCenter, center);
-                posList.add(pos1);
-                pos = GeoLibrary.computePositionAt(180.0 - bearingFromCenter + azimuth, distanceFromCenter, center);
-                posList.add(pos);
-                pos = GeoLibrary.computePositionAt(180.0 + bearingFromCenter + azimuth, distanceFromCenter, center);
-                posList.add(pos);
-                pos = GeoLibrary.computePositionAt(azimuth - bearingFromCenter, distanceFromCenter, center);
-                posList.add(pos);
-                // KML needs the first and last position to be equal.
-                posList.add(pos1);
+        // Calculate the top right position.
+        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
+        posList.add(pos);
 
-                if  (Rectangle.this.needStyle()){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + EmpKMLExporter.getStyleId(Rectangle.this));
-                    xmlSerializer.endTag(null, "styleUrl");
-                }
+        // Calculate the bottom right position.
+        bearing = (bearingToTopRightCorner * -1.0) + 180.0;
+        if (azimuth != 0.0) {
+            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
+        }
 
-                xmlSerializer.startTag(null, "Polygon");
-                EmpKMLExporter.serializeExtrude(Rectangle.this, xmlSerializer);
-                EmpKMLExporter.serializeAltitudeMode(Rectangle.this, xmlSerializer);
-                xmlSerializer.startTag(null, "outerBoundaryIs");
-                xmlSerializer.startTag(null, "LinearRing");
-                EmpKMLExporter.serializeCoordinates(posList, xmlSerializer);
-                xmlSerializer.endTag(null, "LinearRing");
-                xmlSerializer.endTag(null, "outerBoundaryIs");
-                xmlSerializer.endTag(null, "Polygon");
-            }
-        });
+        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
+        posList.add(pos);
 
-        super.exportEmpObjectToKML(xmlSerializer);
+        // Calculate the bottom left position.
+        bearing = bearingToTopRightCorner - 180.0;
+        if (azimuth != 0.0) {
+            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
+        }
+
+        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
+        posList.add(pos);
+
+        // Calculate the top left position.
+        bearing = bearingToTopRightCorner * -1.0;
+        if (azimuth != 0.0) {
+            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
+        }
+
+        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
+        posList.add(pos);
+
+        return posList;
     }
 }
