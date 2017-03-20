@@ -431,9 +431,6 @@ public class MapInstance extends CoreMapInstance {
             public void run() {
                 // MAP is ready core and engine cameras are synced, so calculate the initial bounds.
                 BoundsGeneration.initialize(MapInstance.this);
-                ICamera tempCamera = MapInstance.this.getCamera();
-                tempCamera.setAltitude(100000.0);
-                MapInstance.this.setCamera(tempCamera, false);
 
                 MapInstance.this.checkForMapReady();
             }

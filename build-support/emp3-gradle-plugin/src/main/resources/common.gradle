@@ -42,13 +42,6 @@ repositories {
         }
     }
     maven {
-        url = "https://nexus.di2e.net/nexus/content/repositories/Private_EMP_Snapshots/"
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
-    maven {
         url "https://dl.bintray.com/missioncommand/maven/"
     }
     maven {
