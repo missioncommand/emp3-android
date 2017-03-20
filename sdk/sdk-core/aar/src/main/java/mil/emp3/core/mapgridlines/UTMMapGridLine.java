@@ -381,7 +381,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             positionList.add(GridLineUtils.newPosition(westPos.getLatitude(), westPos.getLongitude(), 0.0));
             positionList.add(GridLineUtils.newPosition(eastPos.getLatitude(), eastPos.getLongitude(), 0.0));
 
-            Log.i(TAG, "Northing: " + (int) westUTMCoord.getNorthing());
+            //Log.i(TAG, "Northing: " + (int) westUTMCoord.getNorthing());
             if (gridSize == UTM_100K_METER_GRID) {
                 // The grid size is 100K.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_PARALLEL);
@@ -446,7 +446,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         latitude = mapBounds.getSouth();
         while (mapBounds.contains(latitude, longitude)) {
             while (mapBounds.contains(latitude, longitude)) {
-                Log.i(TAG, utmZoneCoord.getZoneNumber() + utmZoneCoord.getZoneLetter());
+                //Log.i(TAG, utmZoneCoord.getZoneNumber() + utmZoneCoord.getZoneLetter());
                 createUTMParallels(mapBounds, utmZoneCoord, metersPerPixel, metersInOneEighthOfAnInch, gridSize, createNorthingValues, tempUTMCoordList);
                 createNorthingValues = false;
                 createUTMMeridians(mapBounds, utmZoneCoord, metersPerPixel, metersInOneEighthOfAnInch, gridSize, createEastingValues, tempUTMCoordList);
