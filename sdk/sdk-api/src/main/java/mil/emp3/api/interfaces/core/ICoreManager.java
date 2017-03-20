@@ -9,6 +9,7 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import java.util.List;
 
 import mil.emp3.api.enums.EditorMode;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -96,4 +97,10 @@ public interface ICoreManager {
 
     IGeoPosition containerToGeo(IMap clientMap, Point point) throws EMP_Exception;
 
+    /**
+     * This method set the specified map grid on the map specified.
+     * @param clientMap
+     * @param grid
+     */
+    void setMapGridType(IMap clientMap, MapGridTypeEnum grid);
 }

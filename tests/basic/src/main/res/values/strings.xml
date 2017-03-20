@@ -163,4 +163,11 @@
     <string name="action_exportOverlayToKML">Export Overlay</string>
     <string name="action_exportFeatureToKML">Export Feature</string>
     <string name="action_exportToKML">Export To KML</string>
+
+    <string name="action_mapgrid">Map Grid</string>
+    <string name="action_mapgridnone">None</string>
+    <string name="action_mapgridmgrs">MGRS</string>
+    <string name="action_mapgridutm">UTM</string>
+    <string name="action_mapgridDMS">DMS</string>
+    <string name="action_mapgridDD">DD</string>
 </resources>

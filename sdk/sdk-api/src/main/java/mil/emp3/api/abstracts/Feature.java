@@ -343,6 +343,20 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         return this.getRenderable().getAzimuth();
     }
 
+    @Override
+    public void setPathType(PathType pathType) {
+        if (null == pathType) {
+            throw new InvalidParameterException("Paramater ca not be null.");
+        }
+
+        this.getRenderable().setPathType(pathType);
+    }
+
+    @Override
+    public PathType getPathType() {
+        return this.getRenderable().getPathType();
+    }
+
     /**
      * Returns the first position on the position list
      * @return The first position on the list or null.

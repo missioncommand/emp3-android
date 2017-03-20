@@ -20,6 +20,7 @@ import mil.emp3.api.Overlay;
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Text;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.events.CameraEvent;
 import mil.emp3.api.events.MapUserInteractionEvent;
@@ -90,7 +91,7 @@ public class BoundsGenerationTest extends NavItemBase {
 
     @Override
     public String[] getMoreActions() {
-        String[] actions = { "Add Feature", "Show Corners", "Test Case"};
+        String[] actions = { "Add Feature", "Show Corners", "Test Case", "MGRS", "No Grid"};
         return styleManager.getMoreActions(actions);
     }
 
@@ -278,6 +279,10 @@ public class BoundsGenerationTest extends NavItemBase {
                 symbol.getPositions().add(new MyGeoPosition(44.662370012492, -60.4663988644806, 0 ));
 
                 overlay[whichMap].addFeature(symbol, true);
+            } else if(userAction.equals("MGRS")) {
+                maps[whichMap].setGridType(MapGridTypeEnum.MGRS);
+            } else if(userAction.equals("No Grid")) {
+                maps[whichMap].setGridType(MapGridTypeEnum.NONE);
             } else {
                 styleManager.actOn(userAction);
             }

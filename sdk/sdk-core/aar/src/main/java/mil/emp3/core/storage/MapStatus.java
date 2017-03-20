@@ -49,6 +49,7 @@ import mil.emp3.core.editors.RectangleEditor;
 import mil.emp3.core.editors.SquareEditor;
 import mil.emp3.core.editors.TextEditor;
 import mil.emp3.core.editors.milstd.MilStdSinglePointEditor;
+import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.mapengine.interfaces.IMapEngineCapabilities;
 import mil.emp3.mapengine.interfaces.IMapInstance;

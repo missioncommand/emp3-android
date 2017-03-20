@@ -7,11 +7,13 @@ import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 
 import mil.emp3.api.enums.CameraEventEnum;
 import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.LookAtEventEnum;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -405,5 +407,16 @@ public class CoreManager implements ICoreManager {
         }
         IMapInstance oMapInstance = mapMapping.getMapInstance();
         return oMapInstance.containerToGeo(point);
+    }
+
+    @Override
+    public void setMapGridType(IMap clientMap, MapGridTypeEnum gridType) {
+        IClientMapToMapInstance mapMapping = storageManager.getMapMapping(clientMap);
+
+        // Make sure the map exists.
+        if (mapMapping == null) {
+            throw new InvalidParameterException("Map not found.");
+        }
+        mapMapping.setMapGridType(gridType);
     }
 }

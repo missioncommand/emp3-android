@@ -11,7 +11,9 @@ import armyc2.c2sd.renderer.utilities.UnitDef;
 import armyc2.c2sd.renderer.utilities.UnitDefTable;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.utils.GeoLibrary;
 
 /**
@@ -37,6 +39,8 @@ class PerformanceTestThread extends Thread {
     private final MainActivity oMainActivity;
     private String sMessage;
     private boolean bBatchUpdate = false;
+    private boolean trackingMode = false;
+    private EventListenerHandle hTrackingMode = null;
 
     public PerformanceTestThread(MainActivity oMain, int count, boolean bAffChg, boolean bBatch) {
         this.iCount = count;
@@ -150,11 +154,13 @@ class PerformanceTestThread extends Thread {
         long lLastMoved = System.currentTimeMillis();
         long dWaitTime  = this.UPDATE_INTERVAL; // msec
         java.util.List<IFeature> oBatchList = new java.util.ArrayList<>();
+        boolean updateCamera = false;
 
         this.createTracks();
 
         while (bContinue) {
             try {
+                updateCamera = false;
                 oBatchList.clear();
                 sleep(dWaitTime);
                 lStartTimestamp = System.currentTimeMillis();
@@ -197,6 +203,10 @@ class PerformanceTestThread extends Thread {
                         oSPSymbol.apply();
                     }
 
+                    if (trackingMode && (iNextFeature == 0)) {
+                        updateCamera = true;
+                    }
+
                     iNextFeature++;
                     iNextFeature %= this.iCount;
                     if (iNextFeature == 0) {
@@ -217,7 +227,19 @@ class PerformanceTestThread extends Thread {
                         e.printStackTrace();
                     }
                 }
-                    // Cal the time it took to update the COUNT_PER_INTERVAL units.
+
+                if (updateCamera) {
+                    ICamera camera = oMainActivity.getCamera();
+                    IGeoPosition pos = oFeatureList.get(0).getPositions().get(0);
+
+                    camera.setLatitude(pos.getLatitude());
+                    camera.setLongitude(pos.getLongitude());
+                    if (pos.getAltitude() >= camera.getAltitude()) {
+                        camera.setAltitude(pos.getAltitude() * 2.0);
+                    }
+                    camera.apply(false);
+                }
+                // Cal the time it took to update the COUNT_PER_INTERVAL units.
                 lDeltaTime = System.currentTimeMillis() - lStartTimestamp;
                 dWaitTime = (lDeltaTime < this.UPDATE_INTERVAL)? this.UPDATE_INTERVAL - lDeltaTime: 50;
                 if (this.alTimeList[this.iTimelistIndex] != 0) {
@@ -251,5 +273,10 @@ class PerformanceTestThread extends Thread {
     public void stopTest() {
         this.bContinue = false;
         this.interrupt();
+    }
+
+    public boolean toggleTrackingMode() {
+        trackingMode = !trackingMode;
+        return trackingMode;
     }
 }

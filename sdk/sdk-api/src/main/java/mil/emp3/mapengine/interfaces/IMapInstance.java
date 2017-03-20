@@ -12,7 +12,6 @@ import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
 import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
@@ -365,4 +364,15 @@ public interface IMapInstance {
      * @return Return the current value 0 - 100.
      */
     int getBackgroundBrightness();
+
+    /**
+     * This method set the map grid generator on the map.
+     * @param gridGenerator {@link IMapGridLines}
+     */
+    void setMapGridGenerator(IMapGridLines gridGenerator);
+
+    /**
+     * This method causes a draw to be scheduled on the map.
+     */
+    void scheduleMapRedraw();
 }
