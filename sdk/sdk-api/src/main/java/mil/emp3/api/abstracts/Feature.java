@@ -1,5 +1,8 @@
 package mil.emp3.api.abstracts;
 
+import android.util.Log;
+
+import org.cmapi.primitives.GeoTimeSpan;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -10,14 +13,22 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoTimeSpan;
 
 import java.security.InvalidParameterException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
+import mil.emp3.api.GeoJSON;
 import mil.emp3.api.MilStdSymbol;
+import mil.emp3.api.Path;
+import mil.emp3.api.Point;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.utils.EmpGeoColor;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * All single point and multi point shapes and symbols that are displayed on the Map use Feature as their base class. Feature class provides for
@@ -27,6 +38,8 @@ import mil.emp3.api.interfaces.IOverlay;
  */
 public class Feature<T extends IGeoRenderable> extends Container implements IFeature<T> {
 
+    public static final String TAG = Feature.class.getSimpleName();
+    private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
     private final FeatureTypeEnum eFeatureType;
 
     protected Feature(T oRenderable, FeatureTypeEnum eFeatureType) {
@@ -328,6 +341,20 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     @Override
     public double getAzimuth() {
         return this.getRenderable().getAzimuth();
+    }
+
+    @Override
+    public void setPathType(PathType pathType) {
+        if (null == pathType) {
+            throw new InvalidParameterException("Paramater ca not be null.");
+        }
+
+        this.getRenderable().setPathType(pathType);
+    }
+
+    @Override
+    public PathType getPathType() {
+        return this.getRenderable().getPathType();
     }
 
     /**

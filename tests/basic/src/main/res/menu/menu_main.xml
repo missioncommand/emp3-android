@@ -202,6 +202,10 @@
                   app:showAsAction="never" />
         </menu>
     </item>
+    <item android:id="@+id/action_exportFeatureToGeoJSON"
+        android:title="Export Feature To GeoJSON"
+        android:orderInCategory="101"
+        app:showAsAction="never" />
     <item android:id="@+id/action_swapMap"
         android:title="@string/action_swapMap"
         android:orderInCategory="101"
@@ -468,6 +472,34 @@
                           app:showAsAction="never" />
                 </menu>
             </item>
+            <item android:id="@+id/action_mapgrid"
+                  android:title="@string/action_mapgrid"
+                  android:orderInCategory="100"
+                  app:showAsAction="never">
+                <menu>
+                    <item android:id="@+id/action_mapgridnone"
+                          android:title="@string/action_mapgridnone"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridmgrs"
+                          android:title="@string/action_mapgridmgrs"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridutm"
+                          android:title="@string/action_mapgridutm"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridDMS"
+                          android:title="@string/action_mapgridDMS"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridDD"
+                          android:title="@string/action_mapgridDD"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                </menu>
+            </item>
+
             <item android:id="@+id/action_minimap"
                   android:title="@string/action_minimap"
                   android:orderInCategory="100"

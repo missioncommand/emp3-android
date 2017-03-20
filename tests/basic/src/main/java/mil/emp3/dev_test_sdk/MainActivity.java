@@ -91,6 +91,7 @@ import mil.emp3.api.WMS;
 import mil.emp3.api.WMTS;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.enums.Property;
@@ -128,6 +129,7 @@ import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
 import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
+import mil.emp3.json.geoJson.GeoJsonExporter;
 import mil.emp3.json.geoJson.GeoJsonParser;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -154,6 +156,7 @@ public class MainActivity extends AppCompatActivity
     private Menu oMenu = null;
     private RelativeLayout oPerformanceDlg;
     private Button oStartBtn;
+    private Button oTrackBtn;
     private Button oStopBtn;
     private Button oCloseBtn;
     private EditText oCountTb;
@@ -839,11 +842,20 @@ public class MainActivity extends AppCompatActivity
                     try {
                         if (event.getNewState() == MapStateEnum.MAP_READY) {
                             MainActivity.this.map.addOverlay(MainActivity.this.oRootOverlay, true);
-                            MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
                             MainActivity.this.setEventListeners();
 
                             MainActivity.this.createCrossHair();
                             //Log.i(TAG, "Map State: " + MainActivity.this.map.getState().name());
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
+                                    } catch (EMP_Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
 
                             map.addCameraEventListener(new ICameraEventListener() {
                                 @Override
@@ -1124,6 +1136,7 @@ public class MainActivity extends AppCompatActivity
         }
         this.oPerformanceDlg = (RelativeLayout) this.findViewById(R.id.performance_dialog);
         this.oStartBtn = (Button) this.findViewById(R.id.prf_start);
+        this.oTrackBtn = (Button) this.findViewById(R.id.prf_track);
         this.oStopBtn = (Button) this.findViewById(R.id.prf_stop);
         this.oCloseBtn = (Button) this.findViewById(R.id.prf_close);
         this.oCountTb = (EditText) this.findViewById(R.id.prf_count);
@@ -1132,7 +1145,7 @@ public class MainActivity extends AppCompatActivity
         this.oResults = (TextView) this.findViewById(R.id.prf_results);
 
         if ((oStartBtn == null) || (oStopBtn == null) || (oCloseBtn == null) ||
-                (oCountTb == null) || (oAffiliationCkb == null)) {
+                (oCountTb == null) || (oAffiliationCkb == null) || (null == oTrackBtn)) {
             Log.e(TAG, "Button not found.");
         }
 
@@ -1140,6 +1153,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 MainActivity.this.oStartBtn.setEnabled(false);
+                MainActivity.this.oTrackBtn.setEnabled(true);
                 MainActivity.this.oStopBtn.setEnabled(true);
                 MainActivity.this.oCloseBtn.setEnabled(false);
                 int iCount = 5000;
@@ -1157,6 +1171,15 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        this.oTrackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (MainActivity.this.oPerformanceTestThread != null) {
+                    MainActivity.this.oPerformanceTestThread.toggleTrackingMode();
+                }
+            }
+        });
+
         this.oStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1165,6 +1188,7 @@ public class MainActivity extends AppCompatActivity
                     MainActivity.this.oPerformanceTestThread = null;
 
                     MainActivity.this.oStartBtn.setEnabled(true);
+                    MainActivity.this.oTrackBtn.setEnabled(false);
                     MainActivity.this.oStopBtn.setEnabled(false);
                     MainActivity.this.oCloseBtn.setEnabled(true);
                 }
@@ -1205,7 +1229,7 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "Zoom out button not found");
         }
         // The Zoom+ button zooms 20% each time it is pressed
-        // The altitude is limited to 1 km
+        // The altitude is limited to 10 m
         ImageButton zoomInButton = (ImageButton) findViewById(R.id.ZoomIn);
         if (zoomInButton != null) {
             zoomInButton.setOnClickListener(new View.OnClickListener() {
@@ -1213,8 +1237,8 @@ public class MainActivity extends AppCompatActivity
                 public void onClick(View view) {
                     ICamera camera = MainActivity.this.oCamera;
                     double initAltitude = camera.getAltitude();
-                    // lowest possible camera altitude set to 100 meters
-                    if (initAltitude >= 120) {
+                    // lowest possible camera altitude set to 10 meters
+                    if (initAltitude > 10) {
                         initAltitude /= 1.2;
                         camera.setAltitude(initAltitude);
                         camera.apply(false);
@@ -1377,6 +1401,24 @@ public class MainActivity extends AppCompatActivity
             });
         }
 
+        ImageButton resetCameraBtn = (ImageButton) findViewById(R.id.reset);
+        if (resetCameraBtn != null) {
+            resetCameraBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ICamera camera = MainActivity.this.oCamera;
+                    try {
+                        camera.setHeading(0);
+                        camera.setTilt(0);
+                        camera.setRoll(0);
+                        camera.apply(false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
         final TextView brightnessCtrl = (TextView) findViewById(R.id.brightnessValue);
         if (null != brightnessCtrl) {
             brightnessCtrl.setText("" + MainActivity.this.map.getBackgroundBrightness());
@@ -1466,6 +1508,38 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.action_mapgridnone: {
+                this.map.setGridType(MapGridTypeEnum.NONE);
+                return true;
+            }
+            case R.id.action_mapgridmgrs: {
+                this.map.setGridType(MapGridTypeEnum.MGRS);
+                return true;
+            }
+            case R.id.action_mapgridutm: {
+                try {
+                    this.map.setGridType(MapGridTypeEnum.UTM);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "setGridType failed.", Ex);
+                }
+                return true;
+            }
+            case R.id.action_mapgridDMS: {
+                try {
+                    this.map.setGridType(MapGridTypeEnum.DMS);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "setGridType failed.", Ex);
+                }
+                return true;
+            }
+            case R.id.action_mapgridDD: {
+                try {
+                    this.map.setGridType(MapGridTypeEnum.DD);
+                } catch (Exception Ex) {
+                    Log.e(TAG, "setGridType failed.", Ex);
+                }
+                return true;
+            }
             case R.id.action_minimap: {
                 if (null == this.miniMapDialog) {
                     this.miniMapDialog = new MiniMapDialog();
@@ -1485,6 +1559,25 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            case R.id.action_exportFeatureToGeoJSON:
+                try {
+                    List<IFeature> featureList = this.map.getSelected();
+                    String geoJSON = null;
+                    if (featureList.size() == 1) {
+                        geoJSON = GeoJsonExporter.export(featureList.get(0));
+                    } else {
+                        geoJSON = GeoJsonExporter.export(featureList);
+                    }
+
+                    // Quick and dirty way to show the output
+                    String[] splits = geoJSON.split("\n");
+                    for (int i = 0; i < splits.length; i++) {
+                        Log.i(TAG, splits[i]);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return true;
             case R.id.action_screenShot: {
                 this.map.getScreenCapture(new IScreenCaptureCallback() {
                     @Override
@@ -1509,7 +1602,7 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 // PNG is a loss less format, the compression factor (100) is ignored
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                Log.e(TAG, "screen shot failed.", e);
                             } finally {
                                 try {
                                     if (out != null) {
@@ -1658,16 +1751,22 @@ public class MainActivity extends AppCompatActivity
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
+                    String geoJSON = GeoJsonExporter.export(feature);
+                    Log.i(TAG, geoJSON);
                     stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
                     feature = new GeoJSON(stream);
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
+                    geoJSON = GeoJsonExporter.export(feature);
+                    Log.i(TAG, geoJSON);
                     stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
                     feature = new GeoJSON(stream);
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
+                    geoJSON = GeoJsonExporter.export(feature);
+                    Log.i(TAG, geoJSON);
                     ICamera camera = this.map.getCamera();
                     camera.setLatitude(44.5);
                     camera.setLongitude(1);
@@ -3132,5 +3231,9 @@ public class MainActivity extends AppCompatActivity
     public void onSymbolPropertiesCancelClick(SymbolPropertiesDialog dialog) {
         Log.d(TAG, "Feature properties Cancel Btn");
         this.ePlotMode = MainActivity.PlotModeEnum.IDLE;
+    }
+
+    public ICamera getCamera() {
+        return this.oCamera;
     }
 }
