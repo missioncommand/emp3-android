@@ -5,8 +5,11 @@ import android.util.Log;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.security.InvalidParameterException;
+
 import mil.emp3.api.enums.CameraEventEnum;
 import mil.emp3.api.enums.LookAtEventEnum;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
@@ -24,6 +27,9 @@ import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.core.storage.ClientMapToMapInstance;
+import mil.emp3.core.mapgridlines.MGRSMapGridLine;
+import mil.emp3.core.mapgridlines.UTMMapGridLine;
+import mil.emp3.core.mapgridlines.coordinates.UTMCoordinate;
 import mil.emp3.core.storage.MapStatus;
 import mil.emp3.mapengine.events.MapInstanceFeatureAddedEvent;
 import mil.emp3.mapengine.events.MapInstanceFeatureRemovedEvent;
@@ -31,6 +37,8 @@ import mil.emp3.mapengine.events.MapInstanceFeatureUserInteractionEvent;
 import mil.emp3.mapengine.events.MapInstanceStateChangeEvent;
 import mil.emp3.mapengine.events.MapInstanceUserInteractionEvent;
 import mil.emp3.mapengine.events.MapInstanceViewChangeEvent;
+import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
+import mil.emp3.mapengine.interfaces.IMapGridLines;
 
 /**
  * This class handles map events from the map instance.
@@ -42,9 +50,13 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
     final private IEventManager eventManager     = ManagerFactory.getInstance().getEventManager();
     final private ICoreManager coreManager       = ManagerFactory.getInstance().getCoreManager();
 
+    private ICoreMapGridLineGenerator mapGridLineGenerator = null;
+    private MapGridTypeEnum mapGridType = MapGridTypeEnum.NONE;
+
     @Override
     public void copy(IClientMapToMapInstance from) {
         super.copy(from);
+        this.setMapGridType(from.getMapGridType());
     }
 
     private void processDragEvent(android.graphics.Point oPoint, IGeoPosition oEventPosition, IGeoPosition oStartPosition) {
@@ -215,6 +227,9 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
                 eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_IN_MOTION, mapLookAt, false);
                 break;
             case VIEW_MOTION_STOPPED:
+                if (null != this.mapGridLineGenerator) {
+                    this.mapGridLineGenerator.mapViewChange(event.getBounds(), event.getCamera(), event.getMapViewWidth(), event.getMapViewHeight());
+                }
                 eventManager.generateMapCameraEvent(CameraEventEnum.CAMERA_MOTION_STOPPED, clientMap, mapCamera, false);
                 eventManager.generateCameraEvent(CameraEventEnum.CAMERA_MOTION_STOPPED, mapCamera, false);  // TODO This needs to be addressed.
                 eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_MOTION_STOPPED, mapLookAt, false);
@@ -238,5 +253,49 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         if (oClientMap != null) {
             eventManager.generateMapFeatureRemovedEvent(event.getEvent(), oClientMap, event.getFeature());
         }
+    }
+
+    @Override
+    public void setMapGridType(MapGridTypeEnum gridType) {
+        if (null == gridType) {
+            throw new InvalidParameterException("Invalid grid type.");
+        }
+
+        if (null != this.mapGridLineGenerator) {
+            this.mapGridLineGenerator.shutdownGenerator();
+            this.mapGridLineGenerator = null;
+        }
+
+        IMapGridLines gridLineGenerator = null;
+
+        switch (gridType) {
+            case MGRS:
+                MGRSMapGridLine mgrsGridGenerator =  new MGRSMapGridLine(this.getMapInstance());
+                this.mapGridLineGenerator = mgrsGridGenerator;
+                gridLineGenerator = mgrsGridGenerator;
+                break;
+            case UTM:
+                UTMMapGridLine utmGridGenerator = new UTMMapGridLine(this.getMapInstance());
+                this.mapGridLineGenerator = utmGridGenerator;
+                gridLineGenerator = utmGridGenerator;
+                break;
+            case NONE:
+                break;
+            default:
+                throw new InvalidParameterException(gridType.name() + " grid type is currently not supported.");
+        }
+
+        this.getMapInstance().setMapGridGenerator(gridLineGenerator);
+
+        if (null != this.mapGridLineGenerator) {
+            this.mapGridLineGenerator.mapViewChange(this.getBounds(), this.getCamera(), this.getMapViewWidth(), this.getMapViewHeight());
+        } else {
+            this.getMapInstance().scheduleMapRedraw();
+        }
+    }
+
+    @Override
+    public MapGridTypeEnum getMapGridType() {
+        return this.mapGridType;
     }
 }

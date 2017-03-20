@@ -14,6 +14,7 @@ import java.util.concurrent.BlockingQueue;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.enums.WMTSVersionEnum;
@@ -33,6 +34,7 @@ import mil.emp3.mapengine.api.FeatureVisibilityList;
 import mil.emp3.mapengine.interfaces.IMapEngineCapabilities;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
+import mil.emp3.mapengine.interfaces.IMapGridLines;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.mapengine.interfaces.ISetVisibilityList;
 
@@ -274,7 +276,17 @@ public class MockMapInstance_ extends CoreMapInstance {
     public int getBackgroundBrightness() {
         return 50;
     }
-    
+
+    @Override
+    public void setMapGridGenerator(IMapGridLines gridGenerator) {
+
+    }
+
+    @Override
+    public void scheduleMapRedraw() {
+
+    }
+
     @Override
     public android.view.View showMiniMap() {
         return null;
@@ -285,3 +297,4 @@ public class MockMapInstance_ extends CoreMapInstance {
 
     }
 }
+

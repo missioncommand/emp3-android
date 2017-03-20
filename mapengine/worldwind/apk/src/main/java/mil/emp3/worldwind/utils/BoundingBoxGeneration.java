@@ -132,7 +132,6 @@ public class BoundingBoxGeneration {
     private boolean checkResultNoMargin(Point result) {
         return result.x < 0 || result.x > width || result.y < 0 || result.y > height;
     }
-
     /**
      * Calculates a bounding box using the previously calculated vertices of the bounding area. There are multiple steps involved.
      *
@@ -199,8 +198,8 @@ public class BoundingBoxGeneration {
         // as large as possible within the provided constraints.
 
         if(getLongitudeSpan(geoBounds.getEast(), geoBounds.getWest()) < MAX_LONGITUDE_SPAN) {
-            geoBounds.setWest(adjustLongitude(geoBounds.getNorth(), geoBounds.getSouth(), geoBounds.getWest(), increment, true));
-            geoBounds.setEast(adjustLongitude(geoBounds.getNorth(), geoBounds.getSouth(), geoBounds.getEast(), increment, false));
+            geoBounds.setWest(adjustLongitude(geoBounds.getNorth(), geoBounds.getSouth(), geoBounds.getWest(), increment, true, geoBounds.getEast()));
+            geoBounds.setEast(adjustLongitude(geoBounds.getNorth(), geoBounds.getSouth(), geoBounds.getEast(), increment, false, geoBounds.getWest()));
         }
 
         if(geoBounds.getNorth() - geoBounds.getSouth() < MAX_LATITUDE_SPAN) {
@@ -268,9 +267,6 @@ public class BoundingBoxGeneration {
                 break;
             }
 
-            // We are purposely doing the updates before the screen checks are made as we want to maximize the
-            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
-            // following four checks.
             geoBounds.setNorth(north);
             geoBounds.setSouth(south);
             geoBounds.setEast(east);
@@ -288,7 +284,7 @@ public class BoundingBoxGeneration {
      * @param isWest is true if we are adjusting west edge of the box.
      * @return
      */
-    private double adjustLongitude(double north, double south, double longitude, double increment, boolean isWest) {
+    private double adjustLongitude(double north, double south, double longitude, double increment, boolean isWest, double otherLongitude) {
 
         Point result = new Point();
         double updatedLongitude = longitude;
@@ -305,13 +301,19 @@ public class BoundingBoxGeneration {
                 if(longitude > global.LONGITUDE_MAXIMUM) { longitude -= 360.0; }
             }
 
+            if(isWest) {
+                if (getLongitudeSpan(otherLongitude, longitude) > MAX_LONGITUDE_SPAN) {
+                    break;
+                }
+            } else {
+                if (getLongitudeSpan(longitude, otherLongitude) > MAX_LONGITUDE_SPAN) {
+                    break;
+                }
+            }
             if (!mapController.groundPositionToScreenPoint(middleLatitude, longitude, result) || checkResult(result)) {
                 break;
             }
 
-            // We are purposely doing the update before the screen checks are made as we want to maximize the
-            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
-            // following two checks.
             updatedLongitude = longitude;
         }
         return updatedLongitude;
@@ -365,16 +367,6 @@ public class BoundingBoxGeneration {
             else if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResult(result)) {
                 break;
             }
-//            if (!mapController.groundPositionToScreenPoint(latitude, east, result) || checkResult(result)) {
-//                break;
-//            }
-//
-//            if (!mapController.groundPositionToScreenPoint(latitude, west, result) || checkResult(result)) {
-//                break;
-//            }
-            // We are purposely doing the update before the screen checks are made as we want to maximize the
-            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
-            // following two checks.
             updatedLatitude = latitude;
         }
         return updatedLatitude;

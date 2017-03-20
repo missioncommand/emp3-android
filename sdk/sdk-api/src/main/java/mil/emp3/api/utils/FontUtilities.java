@@ -12,16 +12,16 @@ import mil.emp3.api.global;
  */
 
 public class FontUtilities {
-    public static final int DEFAULT_FONT_POINT_SIZE = 10;
+    public static final float DEFAULT_FONT_POINT_SIZE = 10.0f;
     public static final double PIXEL_PER_POINT = Resources.getSystem().getDisplayMetrics().densityDpi / 72.0;
 
     /**
      * This method gives the font size in pixels
-     * @param points
+     * @param pointSize
      * @return
      */
-    public static int fontPointsToPixels(int points) {
-        return (int) (PIXEL_PER_POINT * (double) points);
+    public static int fontPointsToPixels(float pointSize) {
+        return (int) (PIXEL_PER_POINT * pointSize);
     }
 
     /**
@@ -33,10 +33,33 @@ public class FontUtilities {
     public static int getTextPixelSize(IGeoLabelStyle labelStyle, FontSizeModifierEnum fontSizeModifier) {
         float fontScale = fontSizeModifier.getScaleValue();
         int fontSize;
-        int fontPoint;
+        float fontPoint;
 
-        if (null != labelStyle) {
-            fontPoint = (int) labelStyle.getSize();
+        if ((null != labelStyle) && (labelStyle.getSize() > 0.0)) {
+            fontPoint = (float) labelStyle.getSize();
+        } else {
+            fontPoint = FontUtilities.DEFAULT_FONT_POINT_SIZE;
+        }
+
+        fontSize = FontUtilities.fontPointsToPixels(fontPoint);
+        fontSize *= fontScale;
+
+        return fontSize;
+    }
+
+    /**
+     * This method gives the text size in pixels.
+     * @param pointSize
+     * @param fontSizeModifier
+     * @return
+     */
+    public static int getTextPixelSize(float pointSize, FontSizeModifierEnum fontSizeModifier) {
+        float fontScale = fontSizeModifier.getScaleValue();
+        int fontSize;
+        float fontPoint;
+
+        if (pointSize > 0) {
+            fontPoint = pointSize;
         } else {
             fontPoint = FontUtilities.DEFAULT_FONT_POINT_SIZE;
         }

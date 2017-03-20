@@ -31,6 +31,9 @@ import mil.emp3.test.emp3vv.optItems.Locate;
 import mil.emp3.test.emp3vv.optItems.LookAt;
 import mil.emp3.test.emp3vv.optItems.Map;
 import mil.emp3.test.emp3vv.optItems.MapBrightness;
+import mil.emp3.test.emp3vv.optItems.MapGridMGRSAction;
+import mil.emp3.test.emp3vv.optItems.MapGridNoneAction;
+import mil.emp3.test.emp3vv.optItems.MapGridUTMAction;
 import mil.emp3.test.emp3vv.optItems.RemoveGeoPackageSettings;
 import mil.emp3.test.emp3vv.optItems.RemoveWmsSettings;
 import mil.emp3.test.emp3vv.optItems.RemoveWmtsSettings;
@@ -83,6 +86,9 @@ public class ExecuteTest {
         optionSettings.put("Graphics", Graphics.class);
         optionSettings.put("Map Brightness", MapBrightness.class);
         optionSettings.put("Screen Capture", ScreenCaptureAction.class);
+        optionSettings.put("No Grid", MapGridNoneAction.class);
+        optionSettings.put("MGRS Grid", MapGridMGRSAction.class);
+        optionSettings.put("UTM Grid", MapGridUTMAction.class);
     }
 
     public static UserAction getUserActionImpl() {
