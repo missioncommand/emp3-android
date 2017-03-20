@@ -54,13 +54,9 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
 
         double tempRadius;
         IGeoPosition centerPos = getCenter();
-        IGeoBounds bounds = mapInstance.getMapBounds();
-        if (null != bounds) {
-            tempRadius = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
-                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * radiusMultiplier;
-            if(tempRadius < ( 2 * Ellipse.MINIMUM_SEMI_MAJOR)) {
-                tempRadius = Ellipse.MINIMUM_SEMI_MAJOR * 2;
-            }
+        double refDistance = getReferenceDistance();
+        if(refDistance > 0) {
+            tempRadius = refDistance * radiusMultiplier;
         } else {
             IGeoPosition cameraPos = this.getMapCameraPosition();
             tempRadius = (float) Math.rint(cameraPos.getAltitude() / 6.0);
@@ -72,6 +68,9 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
             }
         }
 
+        if(tempRadius < ( 2 * Ellipse.MINIMUM_SEMI_MAJOR)) {
+            tempRadius = Ellipse.MINIMUM_SEMI_MAJOR * 2;
+        }
         Log.d(TAG, "PrepareForDraw semiMajor " + tempRadius);
         this.oFeature.setPosition(centerPos);
         this.oFeature.setSemiMajor(tempRadius);
@@ -163,6 +162,9 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
 
                 switch (oCP.getCPIndex()) {
                     case EllipseEditor.SEMI_MAJOR_CP_INDEX:
+                        if(newRadius < Ellipse.MINIMUM_SEMI_MAJOR) {
+                            newRadius = Ellipse.MINIMUM_SEMI_MAJOR;
+                        }
                         // set the semi major CP new position.
                         GeoLibrary.computePositionAt(azimuth + 90.0, newRadius, centerCP.getPosition(), oCP.getPosition());
                         // Store the new value.
@@ -177,6 +179,9 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
                         this.addUpdateEventData(FeaturePropertyChangedEnum.SEMI_MAJOR_PROPERTY_CHANGED);
                         break;
                     case EllipseEditor.SEMI_MINOR_CP_INDEX:
+                        if(newRadius < Ellipse.MINIMUM_SEMI_MINOR) {
+                            newRadius = Ellipse.MINIMUM_SEMI_MINOR;
+                        }
                         // set the semi major CP new position.
                         GeoLibrary.computePositionAt(azimuth, newRadius, centerCP.getPosition(), oCP.getPosition());
                         // Store the new value.

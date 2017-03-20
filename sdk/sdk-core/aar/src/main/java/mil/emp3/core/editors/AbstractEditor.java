@@ -2,7 +2,6 @@ package mil.emp3.core.editors;
 
 import android.util.Log;
 
-import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import mil.emp3.api.enums.EditorMode;
+import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
@@ -18,6 +18,7 @@ import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.utils.EmpGeoPosition;
+import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.mapengine.events.MapInstanceFeatureUserInteractionEvent;
 import mil.emp3.mapengine.events.MapInstanceUserInteractionEvent;
@@ -147,5 +148,21 @@ public abstract class AbstractEditor<T extends IFeature> {
             }
         }
         return center;
+    }
+
+    /**
+     * When drawing Basic Shapes (Circle, Ellipse ..) We need to start with some value for applicable geometric dimension.
+     * We take the reference distance calculated here and multiply it with some factor.
+     * @return
+     */
+    double getReferenceDistance() {
+        double refDistance = -global.MINIMUM_DISTANCE;
+        IGeoBounds bounds = mapInstance.getMapBounds();
+        if (null != bounds) {
+            EmpGeoPosition centerWest = new EmpGeoPosition((bounds.getNorth() + bounds.getSouth())/2, bounds.getWest());
+            EmpGeoPosition centerEast = new EmpGeoPosition((bounds.getNorth() + bounds.getSouth())/2, bounds.getEast());
+            refDistance = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+        }
+        return refDistance;
     }
 }

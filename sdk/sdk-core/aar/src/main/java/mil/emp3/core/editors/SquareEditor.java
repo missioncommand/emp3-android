@@ -28,10 +28,8 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
     private final double lengthMultiplier = .20;    // When drawing first time used to multiply camera altitude to get width
     private final double minLengthMultiplier = (lengthMultiplier/5);
 
-    // Following is used when bounds are used to calculate initial lenght and minimum length
-    private final double boundsLenghtMultiplier = 0.10;
-    private final double boundsScaleFatcor = 1.5;
-    private final double boundsMinLenghtMultiplier = (boundsLenghtMultiplier/5);
+    private final double minDistanceTiltThreshold = 30.0; // Change minimum distance when camera tilt is above this value
+    private final double minDistanceTiltThresholdMultiplier = 3.0; // multiply minimum distance when tilt threshold is crossed.
     private double currentLength = 0;
 
     // Following are used to restore the feature state. Note that base class will restore the position.
@@ -52,16 +50,18 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
         super.prepareForDraw();
 
         IGeoPosition centerPos = getCenter();
-        IGeoBounds bounds = mapInstance.getMapBounds();
-        if (null != bounds) {
-            currentLength = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
-                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * .10 * 1.5;
+        double refDistance = getReferenceDistance();
+        if(refDistance > 0) {
+            currentLength = refDistance * lengthMultiplier;
         } else {
             ICamera camera = oClientMap.getCamera();
             currentLength = 2 * camera.getAltitude() * lengthMultiplier;
         }
         currentBearing = 0.0;
 
+        if(currentLength < Square.MINIMUM_WIDTH) {
+            currentLength = Square.MINIMUM_WIDTH;
+        }
         this.oFeature.setPosition(centerPos);
         this.oFeature.setWidth(currentLength);
         this.oFeature.setAzimuth(currentBearing);
@@ -161,12 +161,11 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
     protected double getMinDistance(double multiplier) {
         double minDistance = -1.0;
 
-        IGeoBounds bounds = mapInstance.getMapBounds();
-        if(null != bounds) {
-            minDistance = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
-                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * boundsMinLenghtMultiplier;
-            if(mapInstance.getCamera().getTilt() > 30) {
-                minDistance *= 3;
+        double refDistance = getReferenceDistance();
+        if(refDistance > 0) {
+            minDistance = refDistance * minLengthMultiplier;
+            if(mapInstance.getCamera().getTilt() > minDistanceTiltThreshold) {
+                minDistance *= minDistanceTiltThresholdMultiplier;
             }
         }
         return minDistance;
@@ -176,6 +175,9 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
         Log.d(TAG, oCP.getCPType().toString() + " B4 calc " + currentLength + " " + currentBearing);
         currentLength = 2 * GeoLibrary.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
 
+        if(currentLength < Square.MINIMUM_WIDTH) {
+            currentLength = Square.MINIMUM_WIDTH;
+        }
         Log.d(TAG, oCP.getCPType().toString() + currentLength + " " + currentBearing);
         recompute(this.oFeature.getPosition());
         this.oFeature.setWidth(currentLength);

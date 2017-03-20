@@ -266,7 +266,5 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     }
 
     @Override
-    public IGeoPosition getGeometricCenter() {
-        return geometricCenter;
-    }
+    public IGeoPosition getGeometricCenter() { return new EmpGeoPosition(geometricCenter);}
 }

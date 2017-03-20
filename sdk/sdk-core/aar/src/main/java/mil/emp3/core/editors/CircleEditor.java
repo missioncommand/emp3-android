@@ -50,13 +50,9 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
 
         double tempRadius;
         IGeoPosition centerPos = getCenter();
-        IGeoBounds bounds = mapInstance.getMapBounds();
-        if (null != bounds) {
-            tempRadius = GeoLibrary.computeDistanceBetween(new EmpGeoPosition(bounds.getNorth(), bounds.getWest()),
-                    new EmpGeoPosition(bounds.getSouth(), bounds.getEast())) * radiusMultiplier;
-            if(tempRadius < Circle.MINIMUM_RADIUS) { // Circle class prohibits circle with radius less than 1.
-                tempRadius = Circle.MINIMUM_RADIUS;
-            }
+        double refDistance = getReferenceDistance();
+        if(refDistance > 0) {
+            tempRadius = refDistance * radiusMultiplier;
         } else {
             IGeoPosition cameraPos = this.getMapCameraPosition();
             tempRadius = (float) Math.rint(cameraPos.getAltitude() / 6.0);
@@ -68,6 +64,9 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
             }
         }
 
+        if(tempRadius < Circle.MINIMUM_RADIUS) { // Circle class prohibits circle with radius less than 1.
+            tempRadius = Circle.MINIMUM_RADIUS;
+        }
         this.oFeature.setRadius(tempRadius);
         this.oFeature.setPosition(centerPos);
         this.oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
@@ -123,7 +122,9 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
                 // The radius was moved.
                 ControlPoint centerCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
                 double newRadius = Math.rint(GeoLibrary.computeDistanceBetween(centerCP.getPosition(), oLatLon));
-
+                if(newRadius < Circle.MINIMUM_RADIUS) {
+                    newRadius = Circle.MINIMUM_RADIUS;
+                }
                 // set the radius CP new position.
                 GeoLibrary.computePositionAt(90.0, newRadius, centerCP.getPosition(), oCP.getPosition());
 

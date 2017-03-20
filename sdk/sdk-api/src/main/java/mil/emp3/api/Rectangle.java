@@ -25,8 +25,8 @@ import mil.emp3.api.utils.kml.EmpKMLExporter;
  */
 public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
 
-    private final static double MINIMUM_WIDTH = global.MINIMUM_DISTANCE;
-    private final static double MINIMUM_HEIGHT = global.MINIMUM_DISTANCE;
+    public final static double MINIMUM_WIDTH = global.MINIMUM_DISTANCE;
+    public final static double MINIMUM_HEIGHT = global.MINIMUM_DISTANCE;
 
     /**
      * This constructor creates a default rectangle feature.

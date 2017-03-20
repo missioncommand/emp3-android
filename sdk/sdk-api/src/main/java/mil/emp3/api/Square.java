@@ -25,7 +25,7 @@ import mil.emp3.api.utils.kml.EmpKMLExporter;
  * is centered at the coordinate.
  */
 public class Square extends Feature<IGeoSquare> implements IGeoSquare {
-    private final static double MINIMUM_WIDTH = global.MINIMUM_DISTANCE;
+    public final static double MINIMUM_WIDTH = global.MINIMUM_DISTANCE;
     /**
      * This constructor creates a default square feature.
      */

@@ -40,7 +40,7 @@ public class EmpGeoPosition extends GeoPosition {
      * Copies latitude, longitude and altitude.
      * @param geoPosition
      */
-    public EmpGeoPosition(GeoPosition geoPosition) {
+    public EmpGeoPosition(IGeoPosition geoPosition) {
         setLatitude(geoPosition.getLatitude());
         setLongitude(geoPosition.getLongitude());
         setAltitude(geoPosition.getAltitude());
