@@ -4,7 +4,9 @@ import android.graphics.Point;
 import android.os.Looper;
 import android.util.Log;
 
+import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
@@ -74,7 +76,8 @@ public class BoundsGeneration {
 
     /**
      * We will store the previously calculated bounding area that can be returned with things like VIEW_IN_MOTION.
-     * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated.
+     * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated. This Map is always accessed on UI thread so
+     * no need to make it a ConcurrentHashMap.
      */
     private static Map<MapInstance, IEmpBoundingArea> currentBoundingArea = new HashMap<>();
     /**
@@ -151,8 +154,10 @@ public class BoundsGeneration {
     public static IEmpBoundingArea getBounds(MapInstance mapInstance) {
         try {
             if(Looper.myLooper() == Looper.getMainLooper()) {
-                List<IGeoPosition> list = getBoundingPolygon(mapInstance);
-                if ((null != list) && (EmpBoundingArea.REQUIRED_VERTICES == list.size())) {
+                int[] cornersTouched = new int[1];
+                cornersTouched[0] = 0;
+                IGeoPosition[] corners = getBoundingPolygon(mapInstance, cornersTouched);
+                if ((null != corners) && (EmpBoundingArea.REQUIRED_VERTICES == corners.length)) {
 
                     Point cameraPoint = new Point();
                     boolean cameraOnScreen = false;
@@ -163,8 +168,11 @@ public class BoundsGeneration {
                             cameraOnScreen = true;
                         }
                     }
+
+                    IGeoBounds geoBounds = new GeoBounds();
+                    BoundingBoxGeneration.buildBoundingBox(mapInstance, corners, geoBounds, cameraOnScreen, cornersTouched[0]);
                     IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), cameraOnScreen,
-                            list.get(0), list.get(1), list.get(2), list.get(3));
+                            corners[0], corners[1], corners[2], corners[3], geoBounds);
 
                     currentBoundingArea.put(mapInstance, boundingArea);
 
@@ -186,7 +194,7 @@ public class BoundsGeneration {
      * @param mapInstance
      * @return
      */
-    private static List<IGeoPosition> getBoundingPolygon(MapInstance mapInstance) {
+    private static IGeoPosition[] getBoundingPolygon(MapInstance mapInstance, int[] cornersTouched) {
         int cornersFound = 0;
         try {
             IGeoPosition corners[] = new IGeoPosition[CORNERS];
@@ -194,6 +202,7 @@ public class BoundsGeneration {
 
             // Check how many corners we have a map rather than sky/space
             cornersFound = getCornersTouched(mapInstance, corners);
+            cornersTouched[0] = cornersFound;
             Log.d(TAG, "getBoundingPolygon cornersFound " + cornersFound);
             switch(cornersFound) {
                 case CORNERS:
@@ -224,31 +233,12 @@ public class BoundsGeneration {
             }
 
             if(status) {
-                List<IGeoPosition> boundingPolygon = new ArrayList<>();
-                for (int ii = 0; ii < corners.length; ii++) {
-                    if (null != corners[ii]) {
-                        boundingPolygon.add(corners[ii]);
-                    }
-                }
-
-                if (-1.0 > mapInstance.getCamera().getTilt() || mapInstance.getCamera().getTilt() > 1.0) {
-                    // Globe is at the center of the view but roll and heading may not be zero.
-                    adjustPolygon(boundingPolygon);
-                }
-
-                if (CORNERS != boundingPolygon.size()) {
-                    Log.e(TAG, "Return bounding polygon with size " + boundingPolygon.size());
-                }
-                return boundingPolygon;
+                return corners;
             }
         } catch (Exception e) {
             Log.e(TAG, "cornersFound " + cornersFound + " " + e.getMessage(), e);
         }
         return null;
-    }
-
-    private static void adjustPolygon(List<IGeoPosition> boundingPolygon) {
-
     }
 
     /**
@@ -453,8 +443,10 @@ public class BoundsGeneration {
      * @return
      */
     private static boolean processTwoCornersAdjustmentRequired(int polygonBaseLength, int polygonLeftLength, int polygonRightLength) {
-        if(((polygonBaseLength / polygonLeftLength) > W2H_RATIO_TOLERANCE) && ((polygonBaseLength / polygonRightLength) > W2H_RATIO_TOLERANCE)) {
-            return true;
+        if((polygonLeftLength > 0) && (polygonRightLength > 0)) {
+            if (((polygonBaseLength / polygonLeftLength) > W2H_RATIO_TOLERANCE) && ((polygonBaseLength / polygonRightLength) > W2H_RATIO_TOLERANCE)) {
+                return true;
+            }
         }
         return false;
     }
@@ -989,4 +981,5 @@ public class BoundsGeneration {
             setLongitude(longitude);
         }
     }
+
 }
