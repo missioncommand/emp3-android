@@ -51,6 +51,11 @@ public class EmpKMLExporter {
                 throws IOException;
     }
 
+    private interface ISerializeNetworkLink {
+        void serializeNetworkLink(XmlSerializer xmlSerializer)
+                throws IOException;
+    }
+
     private EmpKMLExporter() {
 
     }
@@ -168,6 +173,27 @@ public class EmpKMLExporter {
         callback.serializeGeometry(xmlSerializer);
 
         xmlSerializer.endTag(null, "Placemark");
+    }
+
+    private void serializeNetworkLink(IFeature feature, XmlSerializer xmlSerializer, ISerializeNetworkLink callback)
+            throws IOException {
+        xmlSerializer.startTag(null, "NetworkLink>");
+        if ((null != feature.getDataProviderId()) && !feature.getDataProviderId().isEmpty()) {
+            xmlSerializer.attribute(null, "id", feature.getDataProviderId());
+        } else {
+            xmlSerializer.attribute(null, "id", feature.getGeoId().toString());
+        }
+
+        serializeName(feature, xmlSerializer);
+        serializeDescription(feature, xmlSerializer);
+        serializeVisibility(feature, xmlSerializer);
+
+        if (null == callback) {
+            throw new InvalidParameterException("Invalid ISerializePlacemarkGeometry");
+        }
+        callback.serializeNetworkLink(xmlSerializer);
+
+        xmlSerializer.endTag(null, "NetworkLink>");
     }
 
     private String getStyleId(IFeature feature) {
@@ -314,15 +340,16 @@ public class EmpKMLExporter {
                 xmlSerializer.text("" + feature.getIconScale());
                 xmlSerializer.endTag(null, "scale");
             }
-/*
-            if ((null != feature.getIconURI()) && !feature.getIconURI().isEmpty()) {
-                xmlSerializer.startTag(null, "Icon");
-                serializeHRef(feature.getIconURI(), xmlSerializer);
-                xmlSerializer.endTag(null, "Icon");
+            String iconURL = "[MIL_SYM_SERVICE_URL]/mil-sym-service/renderer/image/" + feature.getSymbolCode();
 
-                serializeIconHotSpot(feature.getIconStyle(), xmlSerializer);
-            }
-*/
+            iconURL += getIconURLParameters(feature);
+
+            xmlSerializer.startTag(null, "Icon");
+            serializeHRef(iconURL, xmlSerializer);
+            xmlSerializer.endTag(null, "Icon");
+
+            //serializeIconHotSpot(feature.getIconStyle(), xmlSerializer);
+
             xmlSerializer.endTag(null, "IconStyle");
             xmlSerializer.endTag(null, "Style");
         } else if (polygonNeedStyle(feature)) {
@@ -559,6 +586,57 @@ public class EmpKMLExporter {
         });
     }
 
+    private void exportEmpObjectToKML(final MilStdSymbol feature, XmlSerializer xmlSerializer) throws IOException {
+
+        if (feature.isSinglePoint()) {
+            serializeNetworkLink(feature, xmlSerializer, new ISerializeNetworkLink() {
+                @Override
+                public void serializeNetworkLink(XmlSerializer xmlSerializer)
+                        throws IOException {
+                    String iconURL = "[MIL_SYM_SERVICE_URL]/mil-sym-service/renderer/image/" + feature.getSymbolCode();
+
+                    iconURL += getIconURLParameters(feature);
+
+                    xmlSerializer.startTag(null, "refreshVisibility");
+                    xmlSerializer.text("false");
+                    xmlSerializer.endTag(null, "refreshVisibility");
+                    xmlSerializer.startTag(null, "flyToView");
+                    xmlSerializer.text("false");
+                    xmlSerializer.endTag(null, "flyToView");
+                    xmlSerializer.startTag(null, "Link");
+                    xmlSerializer.startTag(null, "href");
+                    xmlSerializer.text(iconURL);
+                    xmlSerializer.endTag(null, "href");
+                    xmlSerializer.endTag(null, "Link");
+                }
+            });
+        } else {
+
+        }
+        serializePlacemark(feature, xmlSerializer, new EmpKMLExporter.ISerializePlacemarkGeometry() {
+            @Override
+            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
+
+
+                if  (polygonNeedStyle(feature)){
+                    xmlSerializer.startTag(null, "styleUrl");
+                    xmlSerializer.text("#" + getStyleId(feature));
+                    xmlSerializer.endTag(null, "styleUrl");
+                }
+
+                xmlSerializer.startTag(null, "Polygon");
+                serializeExtrude(feature, xmlSerializer);
+                serializeAltitudeMode(feature, xmlSerializer);
+                xmlSerializer.startTag(null, "outerBoundaryIs");
+                xmlSerializer.startTag(null, "LinearRing");
+                //serializeCoordinates(posList, xmlSerializer);
+                xmlSerializer.endTag(null, "LinearRing");
+                xmlSerializer.endTag(null, "outerBoundaryIs");
+                xmlSerializer.endTag(null, "Polygon");
+            }
+        });
+    }
+
     private void exportEmpObjectToKML(final IContainer container, XmlSerializer xmlSerializer) throws IOException {
         if (container instanceof Point) {
             exportEmpObjectToKML((Point) container, xmlSerializer);
@@ -774,6 +852,11 @@ public class EmpKMLExporter {
         return writer.toString();
     }
 
+    private String getIconURLParameters(final MilStdSymbol feature) {
+        String params = "?";
+
+        return params;
+    }
     public final static String export(IMap map)
             throws IOException {
 
