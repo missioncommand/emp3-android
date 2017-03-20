@@ -87,16 +87,21 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
         @Override
         public void run() {
+            EmpBoundingBox mapBounds = new EmpBoundingBox();
+            ICamera camera = new Camera();
             while (NotDone) {
                 try {
                     this.processEvent.acquire();
 
+                    mapBounds.copyFrom(boundingBox);
+                    camera.copySettingsFrom(currentCamera);
+
                     long startTS = System.currentTimeMillis();
                     String temp = String.format("North: %1$10.8f South: %2$10.8f West: %3$10.8f East: %4$10.8f", boundingBox.getNorth(), boundingBox.getSouth(), boundingBox.getWest(), boundingBox.getEast());
                     Log.i(TAG, temp);
-                    processViewChange(boundingBox, currentCamera, metersPerPixel);
+                    processViewChange(mapBounds, camera, metersPerPixel);
                     Log.i(TAG, "feature generation in " + (System.currentTimeMillis() - startTS) + " ms. " + featureList.size() + " features.");
-                    previousCamera.copySettingsFrom(currentCamera);
+                    previousCamera.copySettingsFrom(camera);
                     mapInstance.scheduleMapRedraw();
 
                 } catch (InterruptedException e) {
@@ -200,6 +205,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     @Override
     public void mapViewChange(IGeoBounds mapBounds, ICamera camera, int viewWidth, int viewHeight) {
         if ((null == mapBounds) || (null == camera)) {
+            // If there is no bounds or camera we remove the grid. The camera may be looking up.
             clearFeatureList();
             this.mapInstance.scheduleMapRedraw();
             return;
@@ -308,6 +314,8 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         if (this.currentCamera.getHeading() != 0.0) {
             double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
 
+            // This operation converts the Double remainder operation to a modulus operation.
+            // It ensures that all label remain aligned with the grid when the heading changes.
             azimuth = ((((azimuth + 180) % 360.0) + 360.0) % 360.0) - 180.0;
             label.setAzimuth(azimuth);
         }

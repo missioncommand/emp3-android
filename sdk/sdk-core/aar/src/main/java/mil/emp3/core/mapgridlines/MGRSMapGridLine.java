@@ -28,6 +28,8 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
  * This class implements the main MGRS grid line generator class.
+ * Parts of this class have been ported from javascript. From
+ * https://github.com/proj4js/mgrs/mgrs.js
  */
 
 public class MGRSMapGridLine extends UTMBaseMapGridLine {

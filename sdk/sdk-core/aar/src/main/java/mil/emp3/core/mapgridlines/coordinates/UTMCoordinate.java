@@ -9,6 +9,8 @@ import java.security.InvalidParameterException;
 
 /**
  * This class represent a UTM coordinate.
+ * Parts of this class have been ported from javascript. From
+ * https://github.com/proj4js/mgrs/mgrs.js
  */
 
 public class UTMCoordinate {
