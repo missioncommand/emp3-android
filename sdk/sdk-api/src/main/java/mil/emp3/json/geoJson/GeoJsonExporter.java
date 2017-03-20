@@ -113,10 +113,12 @@ public class GeoJsonExporter {
         IGeoColor color = feature.getStrokeStyle().getStrokeColor();
         appendGeoJSONColor(color, buffer);
         buffer.append("}"); // end of lineStyle
-        buffer.append(",\"polyStyle\": {");
-        color = feature.getFillStyle().getFillColor();
-        appendGeoJSONColor(color, buffer);
-        buffer.append("}"); // end of polyStyle
+        if (feature.getFillStyle() != null) {
+            buffer.append(",\"polyStyle\": {");
+            color = feature.getFillStyle().getFillColor();
+            appendGeoJSONColor(color, buffer);
+            buffer.append("}"); // end of polyStyle
+        }
         buffer.append("}"); // end of style
         appendGeoJSONOtherProperties(feature, buffer);
         buffer.append("}");
@@ -231,10 +233,21 @@ public class GeoJsonExporter {
         }
     }
 
+    private void export(List<IFeature> featureList, StringBuffer buffer) {
+        appendFeatureList(featureList, buffer);
+    }
+
     public final static String export(IFeature feature) {
         GeoJsonExporter exporter = new GeoJsonExporter();
         StringBuffer buffer = new StringBuffer();
         exporter.export(feature, buffer);
+        return buffer.toString();
+    }
+
+    public final static String export(List<IFeature> featureList) {
+        GeoJsonExporter exporter = new GeoJsonExporter();
+        StringBuffer buffer = new StringBuffer();
+        exporter.export(featureList, buffer);
         return buffer.toString();
     }
 }

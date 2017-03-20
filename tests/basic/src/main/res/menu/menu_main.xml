@@ -202,6 +202,10 @@
                   app:showAsAction="never" />
         </menu>
     </item>
+    <item android:id="@+id/action_exportFeatureToGeoJSON"
+        android:title="Export Feature To GeoJSON"
+        android:orderInCategory="101"
+        app:showAsAction="never" />
     <item android:id="@+id/action_swapMap"
         android:title="@string/action_swapMap"
         android:orderInCategory="101"

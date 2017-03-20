@@ -1486,6 +1486,25 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            case R.id.action_exportFeatureToGeoJSON:
+                try {
+                    List<IFeature> featureList = this.map.getSelected();
+                    String geoJSON = null;
+                    if (featureList.size() == 1) {
+                        geoJSON = GeoJsonExporter.export(featureList.get(0));
+                    } else {
+                        geoJSON = GeoJsonExporter.export(featureList);
+                    }
+
+                    // Quick and dirty way to show the output
+                    String[] splits = geoJSON.split("\n");
+                    for (int i = 0; i < splits.length; i++) {
+                        Log.i(TAG, splits[i]);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return true;
             case R.id.action_screenShot: {
                 this.map.getScreenCapture(new IScreenCaptureCallback() {
                     @Override
