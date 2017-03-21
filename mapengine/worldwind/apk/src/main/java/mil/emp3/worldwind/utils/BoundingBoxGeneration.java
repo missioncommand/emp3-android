@@ -49,7 +49,6 @@ public class BoundingBoxGeneration {
     private final static double MAX_LATITUDE_SPAN = 120.0;
     private final static double MAX_LONGITUDE_SPAN = 120.0;
     private final static double USE_GEOMETRIC_CENTER_FOR_TILT_GT = 45.0;
-    private final static double LATITUDE_SPAN_FOR_ADJUSTING_SOUTH = 15.0;
 
     private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen, int cornersTouched) {
         mapController = mapInstance.getMapController();
@@ -60,7 +59,7 @@ public class BoundingBoxGeneration {
         this.cornersTouched = cornersTouched;
 
         if(camera.getAltitude() < 1000000) {
-            lr_margin = (int) (.025 * width);
+            lr_margin = (int) (.005 * width);
             tb_margin = (int) (.025 * height);
         } else if(camera.getAltitude() < 4000000) {
             lr_margin = (int) (.05 * width);
@@ -207,12 +206,6 @@ public class BoundingBoxGeneration {
             geoBounds.setNorth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth(), geoBounds.getNorth(), increment, false));
         }
 
-        // Depending on LATITUDE SPAN adjust south bounds.
-        if((geoBounds.getNorth() - geoBounds.getSouth()) >= LATITUDE_SPAN_FOR_ADJUSTING_SOUTH) {
-            geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .05));
-        } else {
-            geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .1));
-        }
         Log.d(TAG, "buildBoundingBox_ Out NEWS " + ii + " " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
 

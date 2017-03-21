@@ -29,7 +29,7 @@ public class global {
     public static final double LONGITUDE_MINIMUM = -180.0;
     public static final double LONGITUDE_MAXIMUM = 180.0;
 
-    public static final double HEADING_MINIMUM = -180.0;
+    public static final double HEADING_MINIMUM = -360.0;  // Changed from -180.0 to -360.0 mission command render-er
     public static final double HEADING_MAXIMUM = 360.0;
 
 

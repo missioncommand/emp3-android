@@ -3,7 +3,6 @@ package mil.emp3.core.editors;
 import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
@@ -14,7 +13,6 @@ import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -53,7 +51,6 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
         super.prepareForDraw();
 
         double tempRadius;
-        IGeoPosition centerPos = getCenter();
         double refDistance = getReferenceDistance();
         if(refDistance > 0) {
             tempRadius = refDistance * radiusMultiplier;
@@ -72,7 +69,6 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
             tempRadius = Ellipse.MINIMUM_SEMI_MAJOR * 2;
         }
         Log.d(TAG, "PrepareForDraw semiMajor " + tempRadius);
-        this.oFeature.setPosition(centerPos);
         this.oFeature.setSemiMajor(tempRadius);
         this.oFeature.setSemiMinor(tempRadius / 2.0);
         this.oFeature.setAzimuth(0);
