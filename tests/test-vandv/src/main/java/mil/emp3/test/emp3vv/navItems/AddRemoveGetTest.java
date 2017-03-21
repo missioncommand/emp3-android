@@ -154,22 +154,27 @@ public class AddRemoveGetTest extends NavItemBase {
                             }
                         }).show();
             } else if (userAction.equals("Export features to GeoJSON")) {
-                try {
                 List<IFeature> featureList = maps[whichMap].getAllFeatures();
-                    for (IFeature feature : featureList) {
+                for (IFeature feature : featureList) {
+                    FileOutputStream fos = null;
+                    try {
                         String geoJSON = GeoJsonExporter.export(feature);
                         File file = new File("/sdcard/Download/" + feature.getName() + "Geo.json");
                         if (!file.exists()) {
                             boolean created = file.createNewFile();
                         }
-                        FileOutputStream fos = new FileOutputStream(file);
+                        fos = new FileOutputStream(file);
                         fos.write(geoJSON.getBytes());
-                        fos.close();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    } finally {
+                        try {
+                            fos.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
                 }
-
             } else {
                 styleManager.actOn(userAction);
             }
