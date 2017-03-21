@@ -3,7 +3,6 @@ package mil.emp3.worldwind.utils;
 import android.graphics.Point;
 import android.util.Log;
 
-import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
@@ -12,6 +11,7 @@ import java.util.List;
 
 import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
@@ -48,6 +48,8 @@ public class BoundingBoxGeneration {
     private final static double INCREMENT_FACTOR = 0.05;
     private final static double MAX_LATITUDE_SPAN = 120.0;
     private final static double MAX_LONGITUDE_SPAN = 120.0;
+    private final static double USE_GEOMETRIC_CENTER_FOR_TILT_GT = 45.0;
+    private final static double LATITUDE_SPAN_FOR_ADJUSTING_SOUTH = 15.0;
 
     private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen, int cornersTouched) {
         mapController = mapInstance.getMapController();
@@ -70,9 +72,9 @@ public class BoundingBoxGeneration {
     }
 
     public static void buildBoundingBox(MapInstance mapInstance, IGeoPosition[] vertices, IGeoBounds geoBounds,
-                                        boolean cameraOnScreen, int cornersTouched) {
+                                        boolean cameraOnScreen, int cornersTouched, IGeoPosition geometricCenter) {
         BoundingBoxGeneration bbg = new BoundingBoxGeneration(mapInstance, cameraOnScreen, cornersTouched);
-        bbg.buildBoundingBox_(vertices, geoBounds);
+        bbg.buildBoundingBox_(vertices, geoBounds, geometricCenter);
     }
     /**
      * Sets North boundary to the highest latitude
@@ -140,7 +142,7 @@ public class BoundingBoxGeneration {
      * @param vertices of the bounding area (4)
      * @param geoBounds is the output
      */
-    private void buildBoundingBox_(IGeoPosition[] vertices, IGeoBounds geoBounds) {
+    private void buildBoundingBox_(IGeoPosition[] vertices, IGeoBounds geoBounds, IGeoPosition geometricCenter) {
 
         setNorthAndSouth(vertices, geoBounds);  // Simply to figure out value for increment based on span.
         IGeoPosition center;
@@ -157,14 +159,17 @@ public class BoundingBoxGeneration {
         if(cameraOnScreen) {
             corners.clear();
             corners.add(center);
-            corners.add(new MyGeoPosition(camera.getLatitude(), camera.getLongitude()));
+            corners.add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude()));
             center = GeoLibrary.getCenter(corners);
         }
 
         Log.d(TAG, "adjustEastAndWest In NEWS " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
-        Point result = new Point();
 
         double increment = (geoBounds.getNorth() - geoBounds.getSouth()) * INCREMENT_FACTOR;
+
+        // Depending on height, width and number of corners that show earth adjust the increment factor.
+        // This logic really needs to be vetted as it is based purely on experimentation. I am working on
+        // a 9 inch tablet.
         double increment_lon_f = 1.0;
         if(width > height) {
             increment_lon_f = (double) width / (double) height;
@@ -181,17 +186,58 @@ public class BoundingBoxGeneration {
             Log.d(TAG, "increment_lat_f " + increment_lat_f);
         }
 
+        // Need to investigate if we can always use the geometric Center
+        if(camera.getTilt() > USE_GEOMETRIC_CENTER_FOR_TILT_GT) {
+            center = geometricCenter;
+        }
+
+        // Stretch along all four corners
+        stretch(center, geoBounds, increment * increment_lat_f, increment * increment_lon_f);
+
+        // Following is the refinement where we try to stretch each edge as much as possible to make the bounding box
+        // as large as possible within the provided constraints.
+
+        if(getLongitudeSpan(geoBounds.getEast(), geoBounds.getWest()) < MAX_LONGITUDE_SPAN) {
+            geoBounds.setWest(adjustLongitude(geoBounds.getNorth(), geoBounds.getSouth(), geoBounds.getWest(), increment, true, geoBounds.getEast()));
+            geoBounds.setEast(adjustLongitude(geoBounds.getNorth(), geoBounds.getSouth(), geoBounds.getEast(), increment, false, geoBounds.getWest()));
+        }
+
+        if(geoBounds.getNorth() - geoBounds.getSouth() < MAX_LATITUDE_SPAN) {
+            geoBounds.setSouth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getNorth(), geoBounds.getSouth(), increment, true));
+            geoBounds.setNorth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth(), geoBounds.getNorth(), increment, false));
+        }
+
+        // Depending on LATITUDE SPAN adjust south bounds.
+        if((geoBounds.getNorth() - geoBounds.getSouth()) >= LATITUDE_SPAN_FOR_ADJUSTING_SOUTH) {
+            geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .05));
+        } else {
+            geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .1));
+        }
+        Log.d(TAG, "buildBoundingBox_ Out NEWS " + ii + " " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
+    }
+
+    /**
+     * Stretched all four corners out equally until visibility criteria is met.
+     * @param center
+     * @param geoBounds
+     * @param lat_increment
+     * @param lon_increment
+     */
+    private void stretch(IGeoPosition center, IGeoBounds geoBounds, double lat_increment, double lon_increment) {
+
         geoBounds.setNorth(center.getLatitude());
         geoBounds.setSouth(center.getLatitude());
         geoBounds.setWest(center.getLongitude());
         geoBounds.setEast(center.getLongitude());
 
+        Point result = new Point();
+
         // Stretch all the corners making sure none goes off the screen.
-        for(ii = 0; ii < MAX_CORNER_ITERATIONS; ii++) {
-            double north = geoBounds.getNorth() + (increment * increment_lat_f);
-            double south = geoBounds.getSouth() - (increment * increment_lat_f);
-            double west = geoBounds.getWest() - (increment * increment_lon_f);
-            double east = geoBounds.getEast() + (increment * increment_lon_f);
+        for(int ii = 0; ii < MAX_CORNER_ITERATIONS; ii++) {
+            double north = geoBounds.getNorth() + (lat_increment);
+            double south = geoBounds.getSouth() - (lat_increment);
+            double west = geoBounds.getWest() - (lon_increment);
+            double east = geoBounds.getEast() + (lon_increment);
 
             // Check lat/long constrains and span constraints. Any violation strops the stretching process.
             if(north >= global.LATITUDE_MAXIMUM || south <= global.LATITUDE_MINIMUM) {
@@ -221,34 +267,11 @@ public class BoundingBoxGeneration {
                 break;
             }
 
-            // We are purposely doing the updates before the screen checks are made as we want to maximize the
-            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
-            // following four checks.
             geoBounds.setNorth(north);
             geoBounds.setSouth(south);
             geoBounds.setEast(east);
             geoBounds.setWest(west);
         }
-
-        // Following is the refinement where we try to stretch each edge as much as possible to make the bounding box
-        // as large as possible within the provided constraints.
-
-        if(getLongitudeSpan(geoBounds.getEast(), geoBounds.getWest()) < MAX_LONGITUDE_SPAN) {
-            geoBounds.setWest(adjustLongitude(geoBounds.getNorth(), geoBounds.getSouth(), geoBounds.getWest(), increment, true));
-            geoBounds.setEast(adjustLongitude(geoBounds.getNorth(), geoBounds.getSouth(), geoBounds.getEast(), increment, false));
-        }
-
-        if(geoBounds.getNorth() - geoBounds.getSouth() < MAX_LATITUDE_SPAN) {
-            geoBounds.setSouth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getNorth(), geoBounds.getSouth(), increment, true));
-            geoBounds.setNorth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth(), geoBounds.getNorth(), increment, false));
-        }
-
-        if((geoBounds.getNorth() - geoBounds.getSouth()) >= 15.0) {
-            geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .05));
-        } else {
-            geoBounds.setSouth(geoBounds.getSouth() + ((geoBounds.getNorth() - geoBounds.getSouth()) * .1));
-        }
-        Log.d(TAG, "adjustEastAndWest Out Iterations NEWS " + ii + " " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
 
     /**
@@ -261,7 +284,7 @@ public class BoundingBoxGeneration {
      * @param isWest is true if we are adjusting west edge of the box.
      * @return
      */
-    private double adjustLongitude(double north, double south, double longitude, double increment, boolean isWest) {
+    private double adjustLongitude(double north, double south, double longitude, double increment, boolean isWest, double otherLongitude) {
 
         Point result = new Point();
         double updatedLongitude = longitude;
@@ -278,13 +301,19 @@ public class BoundingBoxGeneration {
                 if(longitude > global.LONGITUDE_MAXIMUM) { longitude -= 360.0; }
             }
 
+            if(isWest) {
+                if (getLongitudeSpan(otherLongitude, longitude) > MAX_LONGITUDE_SPAN) {
+                    break;
+                }
+            } else {
+                if (getLongitudeSpan(longitude, otherLongitude) > MAX_LONGITUDE_SPAN) {
+                    break;
+                }
+            }
             if (!mapController.groundPositionToScreenPoint(middleLatitude, longitude, result) || checkResult(result)) {
                 break;
             }
 
-            // We are purposely doing the update before the screen checks are made as we want to maximize the
-            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
-            // following two checks.
             updatedLongitude = longitude;
         }
         return updatedLongitude;
@@ -338,27 +367,9 @@ public class BoundingBoxGeneration {
             else if (!mapController.groundPositionToScreenPoint(latitude, middleLongitude, result) || checkResult(result)) {
                 break;
             }
-//            if (!mapController.groundPositionToScreenPoint(latitude, east, result) || checkResult(result)) {
-//                break;
-//            }
-//
-//            if (!mapController.groundPositionToScreenPoint(latitude, west, result) || checkResult(result)) {
-//                break;
-//            }
-            // We are purposely doing the update before the screen checks are made as we want to maximize the
-            // Bounding Box for features like MGRS grid lines. If you see any issues you can move this update after the
-            // following two checks.
             updatedLatitude = latitude;
         }
         return updatedLatitude;
     }
-    /**
-     * Convenience class.
-     */
-    class MyGeoPosition extends GeoPosition {
-        MyGeoPosition(double latitude, double longitude) {
-            setLatitude(latitude);
-            setLongitude(longitude);
-        }
-    }
+
 }
