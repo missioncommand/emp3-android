@@ -24,6 +24,7 @@ import mil.emp3.api.Path;
 import mil.emp3.api.Point;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.global;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.utils.EmpGeoColor;
@@ -327,7 +328,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      */
     @Override
     public void setAzimuth(double dValue) {
-        if ((dValue >= -360D) && (dValue <= 360D)) {
+        if (!Double.isNaN(dValue) && dValue >= global.HEADING_MINIMUM && dValue <= global.HEADING_MAXIMUM) {
             this.getRenderable().setAzimuth(dValue);
         } else {
             throw new InvalidParameterException("Value is out of range (" + dValue + ").");
@@ -385,6 +386,22 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
             }
             oList.clear();
             oList.add(oPosition);
+        }
+    }
+
+    /**
+     * Use by sub classes of this class to validate input parameters. If value is not NaN then we return absolute
+     * value else thro an exception.
+     * @param dValue
+     * @param message
+     * @return
+     */
+    protected double makePositive(double dValue, String message) {
+        if(Double.isNaN(dValue)) {
+            throw new InvalidParameterException(message);
+        }
+        else {
+            return Math.abs(dValue);
         }
     }
 }

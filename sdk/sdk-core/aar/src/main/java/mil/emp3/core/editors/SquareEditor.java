@@ -5,27 +5,31 @@ import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mil.emp3.api.Square;
-import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
     private static String TAG = RectangleEditor.class.getSimpleName();
 
+    // All the following multiplier are based experimenting with various camera setting. There was no mathematical
+    // formulae for arriving at these numbers.
+
+    // Following two are used if bounds is null, which should never happen???
     private final double lengthMultiplier = .20;    // When drawing first time used to multiply camera altitude to get width
     private final double minLengthMultiplier = (lengthMultiplier/5);
 
+    private final double minDistanceTiltThreshold = 30.0; // Change minimum distance when camera tilt is above this value
+    private final double minDistanceTiltThresholdMultiplier = 3.0; // multiply minimum distance when tilt threshold is crossed.
     private double currentLength = 0;
 
     // Following are used to restore the feature state. Note that base class will restore the position.
@@ -44,14 +48,20 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
-        IGeoPosition centerPos = new GeoPosition();
-        ICamera camera = oClientMap.getCamera();
 
-        currentLength = 2 * camera.getAltitude() * lengthMultiplier;
+        IGeoPosition centerPos = getCenter();
+        double refDistance = getReferenceDistance();
+        if(refDistance > 0) {
+            currentLength = refDistance * lengthMultiplier;
+        } else {
+            ICamera camera = oClientMap.getCamera();
+            currentLength = 2 * camera.getAltitude() * lengthMultiplier;
+        }
         currentBearing = 0.0;
-        centerPos.setLatitude(camera.getLatitude());
-        centerPos.setLongitude(camera.getLongitude());
 
+        if(currentLength < Square.MINIMUM_WIDTH) {
+            currentLength = Square.MINIMUM_WIDTH;
+        }
         this.oFeature.setPosition(centerPos);
         this.oFeature.setWidth(currentLength);
         this.oFeature.setAzimuth(currentBearing);
@@ -147,10 +157,27 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
         getCP(ControlPoint.CPTypeEnum.AZIMUTH_CP, center, false);
     }
 
+    @Override
+    protected double getMinDistance(double multiplier) {
+        double minDistance = -1.0;
+
+        double refDistance = getReferenceDistance();
+        if(refDistance > 0) {
+            minDistance = refDistance * minLengthMultiplier;
+            if(mapInstance.getCamera().getTilt() > minDistanceTiltThreshold) {
+                minDistance *= minDistanceTiltThresholdMultiplier;
+            }
+        }
+        return minDistance;
+    }
+
     private void adjustWidth(ControlPoint oCP, IGeoPosition oLatLon) {
         Log.d(TAG, oCP.getCPType().toString() + " B4 calc " + currentLength + " " + currentBearing);
         currentLength = 2 * GeoLibrary.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
 
+        if(currentLength < Square.MINIMUM_WIDTH) {
+            currentLength = Square.MINIMUM_WIDTH;
+        }
         Log.d(TAG, oCP.getCPType().toString() + currentLength + " " + currentBearing);
         recompute(this.oFeature.getPosition());
         this.oFeature.setWidth(currentLength);

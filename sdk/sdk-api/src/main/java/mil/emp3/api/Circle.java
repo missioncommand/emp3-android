@@ -23,6 +23,7 @@ import mil.emp3.api.utils.kml.EmpKMLExporter;
  * geographic position of the center of the circle.
  */
 public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
+    public final static double MINIMUM_RADIUS = global.MINIMUM_DISTANCE;
 
     /**
      * This constructor creates a Circle feature with a default radius.
@@ -38,12 +39,12 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
      */
     public Circle(double radius) {
         super(new GeoCircle(), FeatureTypeEnum.GEO_CIRCLE);
+        radius = makePositive(radius, "Invalid radius. NaN");
 
-        if (radius < 0) {
-            radius = Math.abs(radius);
-        }
-        if (radius >= 1.0) {
+        if (radius >= MINIMUM_RADIUS) {
             this.getRenderable().setRadius(radius);
+        } else {
+            throw new InvalidParameterException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
         }
         this.setFillStyle(null);
     }
@@ -55,13 +56,13 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
     public Circle(IGeoCircle renderable) {
         super(renderable, FeatureTypeEnum.GEO_CIRCLE);
 
-        if (this.getRadius() < 0.0) {
-            // If the radius in the geo circle is negative we need to set the absolute value.
-            this.setRadius(Math.abs(this.getRadius()));
+        if(null == renderable) {
+            throw new InvalidParameterException("Encapsulated GeoCircle must be non-null");
         }
-        if (this.getRadius() < 1.0) {
-            // If the radius is between 0 and 1.0. We set it to the default radius.
-            this.setRadius(100.0D);
+        this.setRadius(makePositive(this.getRadius(), "Invalid radius. NaN"));
+
+        if (this.getRadius() < MINIMUM_RADIUS) {
+            throw new InvalidParameterException("Invalid radius. " + this.getRadius() + " Minimum supported " + MINIMUM_RADIUS);
         }
     }
 
@@ -71,11 +72,10 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
      */
     @Override
     public void setRadius(double radius) {
-        if (radius < 0) {
-            radius = Math.abs(radius);
-        }
-        if (radius < 1) {
-            throw new InvalidParameterException("Invalid radius.");
+        radius = makePositive(radius, "Invalid radius. NaN");
+
+        if (radius < MINIMUM_RADIUS) {
+            throw new InvalidParameterException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
         }
         this.getRenderable().setRadius(radius);
     }
