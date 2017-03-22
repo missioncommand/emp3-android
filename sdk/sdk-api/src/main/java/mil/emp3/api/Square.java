@@ -15,6 +15,7 @@ import java.util.List;
 import mil.emp3.api.abstracts.Feature;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 
@@ -24,7 +25,7 @@ import mil.emp3.api.utils.kml.EmpKMLExporter;
  * is centered at the coordinate.
  */
 public class Square extends Feature<IGeoSquare> implements IGeoSquare {
-
+    public final static double MINIMUM_WIDTH = global.MINIMUM_DISTANCE;
     /**
      * This constructor creates a default square feature.
      */
@@ -35,12 +36,13 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
 
     /**
      * This constructor creates a default square feature centered at the coordinate provided.
+     * If specified coordinates are null or invalid an exception is thrown.
      * @param oCenter
      */
     public Square(IGeoPosition oCenter) {
         super(new GeoSquare(), FeatureTypeEnum.GEO_SQUARE);
-        if (null == oCenter) {
-            throw new InvalidParameterException("The coordiante can NOT be null.");
+        if (null == oCenter || !EmpGeoPosition.validate(oCenter)) {
+            throw new InvalidParameterException("The coordinate can NOT be null and must have valid values");
         }
         this.getRenderable().getPositions().add(oCenter);
         this.setFillStyle(null);
@@ -48,15 +50,21 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
 
     /**
      * This constructor creates a square feature centered at the coordinate provided with the width provided.
+     * If specified coordinates are null or invalid an exception is thrown. If width is invalid an exception is thrown.
+     * minimum value for width is 1.0 meters.
      * @param oCenter {@link IGeoPosition}
      * @param dWidth The width in meters.
      */
     public Square(IGeoPosition oCenter, double dWidth) {
         super(new GeoSquare(), FeatureTypeEnum.GEO_SQUARE);
-        if (null == oCenter) {
-            throw new InvalidParameterException("The center coordiante can NOT be null.");
+        if (null == oCenter || !EmpGeoPosition.validate(oCenter)) {
+            throw new InvalidParameterException("The coordinate can NOT be null and must have valid values.");
         }
 
+        dWidth = makePositive(dWidth, "Invalid Width. NaN");
+        if(dWidth < MINIMUM_WIDTH) {
+            throw new InvalidParameterException("Invalid width. " + dWidth + " Minimum supported " + MINIMUM_WIDTH);
+        }
         this.getRenderable().getPositions().add(oCenter);
         this.setWidth(dWidth);
         this.setFillStyle(null);
@@ -64,19 +72,33 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
 
 
     /**
-     * This constructor creates a square feature from the geo square provided.
+     * This constructor creates a square feature from the geo square provided. If provided geo square is null or has
+     * invalid members then an exception is thrown.
      * @param oRenderable {@link IGeoSquare}
      */
     public Square(IGeoSquare oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_SQUARE);
+        if(null == oRenderable) {
+            throw new InvalidParameterException("Encapsulated Square must be non-null");
+        }
+        this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
+
+        if(this.getWidth() < MINIMUM_WIDTH) {
+            throw new InvalidParameterException("Invalid width. " + this.getWidth() + " Minimum supported " + MINIMUM_WIDTH);
+        }
+        this.setAzimuth(this.getAzimuth());  // For validation.
     }
 
     /**
-     * This method overrides the default width of a square feature.
+     * This method overrides the default width of a square feature. If width is invalid an exception is thrown.
      * @param fValue The width in meters.
      */
     @Override
     public void setWidth(double fValue) {
+        fValue = makePositive(fValue, "Invalid width. NaN");
+        if(this.getWidth() < MINIMUM_WIDTH) {
+            throw new InvalidParameterException("Invalid width. " + fValue + " Minimum supported " + MINIMUM_WIDTH);
+        }
         this.getRenderable().setWidth(fValue);
     }
 

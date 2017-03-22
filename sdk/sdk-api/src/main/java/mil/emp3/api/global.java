@@ -11,6 +11,13 @@ import mil.emp3.api.utils.ManagerFactory;
 /**
  *
  * This static class provides global method to retrieve data or configuration setting.
+ *
+ * A Note on Input Validation of double values:
+ *
+ * According to The Java Language Specification (JLS), §4.2.3, "Floating-Point Types, Formats, and Values" [JLS 2015]:
+ * NaN (not-a-number) is unordered, so the numerical comparison operators <, <=, >, and >= return false if either or both
+ * operands are NaN. The equality operator == returns false if either operand is NaN, and the inequality operator != returns true
+ * if either operand is NaN.
  */
 //  This class name is all lower case by design.
 public class global {
@@ -36,7 +43,7 @@ public class global {
     public static final double CAMERA_ROLL_MAXIMUM = 180.0;
     public static final double CAMERA_ROLL_LEVEL = 0.0;
 
-
+    public static final double MINIMUM_DISTANCE = 1.0;   // Used for checking minimum radius, height etc.
 
     /**
      * This method finds a container with the specified ID.

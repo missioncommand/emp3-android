@@ -29,11 +29,13 @@ public class BasicShapeTest extends NavItemBase {
         featureType2Class.put(FeatureTypeEnum.GEO_CIRCLE.toString(), CircleCapabilityTest.class);
         featureType2Class.put(FeatureTypeEnum.GEO_ELLIPSE.toString(), EllipseCapabilityTest.class);
         featureType2Class.put(FeatureTypeEnum.GEO_RECTANGLE.toString(), RectangleCapabilityTest.class);
+        featureType2Class.put(FeatureTypeEnum.GEO_SQUARE.toString(), SquareCapabilityTest.class);
 
         shapeNames = new ArrayList<>();
         shapeNames.add(FeatureTypeEnum.GEO_CIRCLE.toString());
         shapeNames.add(FeatureTypeEnum.GEO_ELLIPSE.toString());
         shapeNames.add(FeatureTypeEnum.GEO_RECTANGLE.toString());
+        shapeNames.add(FeatureTypeEnum.GEO_SQUARE.toString());
     }
 
     SinglePointBasicShapeCapabilityTest shapeTest;

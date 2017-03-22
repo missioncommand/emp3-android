@@ -1,13 +1,8 @@
 package mil.emp3.core.editors;
 
-import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.IGeoPosition;
-
 import mil.emp3.api.exceptions.EMP_Exception;
-import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
@@ -22,5 +17,11 @@ public class PointEditor extends AbstractSinglePointEditor<mil.emp3.api.Point> {
     public PointEditor(IMapInstance map, mil.emp3.api.Point feature, IDrawEventListener oEventListener) throws EMP_Exception {
         super(map, feature, oEventListener, false);
         this.initializeDraw();
+    }
+
+    @Override
+    protected void prepareForDraw() throws EMP_Exception {
+        super.prepareForDraw();
+        this.oFeature.setPosition(getCenter());
     }
 }
