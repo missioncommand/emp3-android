@@ -100,18 +100,62 @@
                     </item>
                 </menu>
             </item>
-            <item android:id="@+id/action_plotText"
-                  android:title="@string/action_plotText"
+            <item android:id="@+id/action_plottest"
+                  android:title="Plot Test"
                   android:orderInCategory="100"
-                  app:showAsAction="never" />
-            <item android:id="@+id/action_plotPoint"
-                  android:title="@string/action_plotPoint"
-                  android:orderInCategory="100"
-                  app:showAsAction="never" />
-            <item android:id="@+id/action_plotUrlPoint"
-                  android:title="@string/action_plotUrlPoint"
-                  android:orderInCategory="100"
-                  app:showAsAction="never" />
+                  app:showAsAction="never">
+                <menu>
+                    <item android:id="@+id/action_plotText"
+                          android:title="@string/action_plotText"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotPoint"
+                          android:title="@string/action_plotPoint"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotUrlPoint"
+                          android:title="@string/action_plotUrlPoint"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plot2units2525B"
+                          android:title="@string/action_plot2units2525B"
+                          android:orderInCategory="100"
+                          android:icon="@android:drawable/ic_dialog_dialer"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotunits2525B"
+                          android:title="@string/action_plotunits2525B"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotunits2525C"
+                          android:title="@string/action_plotunits2525C"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotTG2525C"
+                          android:title="@string/action_plotTG2525C"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotKML"
+                          android:title="@string/action_plotKML"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotRectangle"
+                          android:title="@string/action_plotRectangle"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotSquare"
+                          android:title="@string/action_plotSquare"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotCircle"
+                          android:title="@string/action_plotCircle"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_plotEllipse"
+                          android:title="@string/action_plotEllipse"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                </menu>
+            </item>
             <item android:id="@+id/action_performanceTest"
                   android:title="@string/action_performanceTest"
                   android:orderInCategory="100"
@@ -121,27 +165,6 @@
                 android:orderInCategory="100"
                 android:icon="@android:drawable/ic_menu_edit"
                 app:showAsAction="never" / -->
-            <item android:id="@+id/action_plot2units2525B"
-                android:title="@string/action_plot2units2525B"
-                android:orderInCategory="100"
-                android:icon="@android:drawable/ic_dialog_dialer"
-                app:showAsAction="never" />
-            <item android:id="@+id/action_plotunits2525B"
-                android:title="@string/action_plotunits2525B"
-                android:orderInCategory="100"
-                app:showAsAction="never" />
-            <item android:id="@+id/action_plotunits2525C"
-                android:title="@string/action_plotunits2525C"
-                android:orderInCategory="100"
-                app:showAsAction="never" />
-            <item android:id="@+id/action_plotTG2525C"
-                  android:title="@string/action_plotTG2525C"
-                  android:orderInCategory="100"
-                  app:showAsAction="never" />
-            <item android:id="@+id/action_plotKML"
-                  android:title="@string/action_plotKML"
-                  android:orderInCategory="100"
-                  app:showAsAction="never" />
             <item android:id="@+id/action_removeAll"
                 android:title="@string/action_removeAll"
                 android:orderInCategory="100"
@@ -154,28 +177,35 @@
                   android:title="@string/action_getMapState"
                   android:orderInCategory="100"
                   app:showAsAction="never" />
-            <item android:id="@+id/action_plotRectangle"
-                  android:title="@string/action_plotRectangle"
-                  android:orderInCategory="100"
-                  app:showAsAction="never" />
-            <item android:id="@+id/action_plotSquare"
-                  android:title="@string/action_plotSquare"
-                  android:orderInCategory="100"
-                  app:showAsAction="never" />
-            <item android:id="@+id/action_plotCircle"
-                  android:title="@string/action_plotCircle"
-                  android:orderInCategory="100"
-                  app:showAsAction="never" />
-            <item android:id="@+id/action_plotEllipse"
-                  android:title="@string/action_plotEllipse"
-                  android:orderInCategory="100"
-                  app:showAsAction="never" />
         </menu>
     </item>
     <item android:id="@+id/action_screenShot"
           android:title="@string/action_screenShot"
           android:orderInCategory="101"
           app:showAsAction="never" />
+    <item android:id="@+id/action_exportToKML"
+          android:title="@string/action_exportToKML"
+          android:orderInCategory="100"
+          app:showAsAction="never">
+        <menu>
+            <item android:id="@+id/action_exportMapToKML"
+                  android:title="@string/action_exportMapToKML"
+                  android:orderInCategory="101"
+                  app:showAsAction="never" />
+            <item android:id="@+id/action_exportOverlayToKML"
+                  android:title="@string/action_exportOverlayToKML"
+                  android:orderInCategory="101"
+                  app:showAsAction="never" />
+            <item android:id="@+id/action_exportFeatureToKML"
+                  android:title="@string/action_exportFeatureToKML"
+                  android:orderInCategory="101"
+                  app:showAsAction="never" />
+        </menu>
+    </item>
+    <item android:id="@+id/action_exportFeatureToGeoJSON"
+        android:title="Export Feature To GeoJSON"
+        android:orderInCategory="101"
+        app:showAsAction="never" />
     <item android:id="@+id/action_swapMap"
         android:title="@string/action_swapMap"
         android:orderInCategory="101"
@@ -442,6 +472,34 @@
                           app:showAsAction="never" />
                 </menu>
             </item>
+            <item android:id="@+id/action_mapgrid"
+                  android:title="@string/action_mapgrid"
+                  android:orderInCategory="100"
+                  app:showAsAction="never">
+                <menu>
+                    <item android:id="@+id/action_mapgridnone"
+                          android:title="@string/action_mapgridnone"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridmgrs"
+                          android:title="@string/action_mapgridmgrs"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridutm"
+                          android:title="@string/action_mapgridutm"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridDMS"
+                          android:title="@string/action_mapgridDMS"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                    <item android:id="@+id/action_mapgridDD"
+                          android:title="@string/action_mapgridDD"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
+                </menu>
+            </item>
+
             <item android:id="@+id/action_minimap"
                   android:title="@string/action_minimap"
                   android:orderInCategory="100"

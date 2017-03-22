@@ -87,6 +87,29 @@
         android:title="@string/action_brightness"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_mapGrid"
+        android:orderInCategory="3"
+        android:title="@string/action_mapGrid"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/action_mapGridNone"
+                android:orderInCategory="3"
+                android:title="@string/action_mapGridNone"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_mapGridMGRS"
+                android:orderInCategory="3"
+                android:title="@string/action_mapGridMGRS"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_mapGridUTM"
+                android:orderInCategory="3"
+                android:title="@string/action_mapGridUTM"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+    <item
         android:id="@+id/action_screenshot"
         android:orderInCategory="3"
         android:title="@string/action_screenshot"

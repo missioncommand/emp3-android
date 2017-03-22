@@ -17,7 +17,7 @@ import mil.emp3.core.editors.milstd.MilStdDCTwoPointEditor;
 import mil.emp3.core.editors.milstd.MilStdDCTwoPointRectangularParamAutoShape;
 import mil.emp3.core.editors.milstd.MilStdPolygonEditor;
 import mil.emp3.core.editors.milstd.MilStdSinglePointEditor;
-import mil.emp3.core.utils.milstd2525.MilStdUtilities;
+import mil.emp3.api.utils.MilStdUtilities;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**

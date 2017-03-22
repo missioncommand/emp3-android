@@ -38,7 +38,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.FontUtilities;
-import mil.emp3.core.utils.milstd2525.MilStdUtilities;
+import mil.emp3.api.utils.MilStdUtilities;
 import mil.emp3.core.utils.milstd2525.icons.BitmapCacheFactory;
 import mil.emp3.core.utils.milstd2525.icons.IBitmapCache;
 import mil.emp3.mapengine.interfaces.IEmpImageInfo;

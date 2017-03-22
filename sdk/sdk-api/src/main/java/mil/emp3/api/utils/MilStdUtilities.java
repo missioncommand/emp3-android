@@ -1,4 +1,4 @@
-package mil.emp3.core.utils.milstd2525;
+package mil.emp3.api.utils;
 
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoMilSymbol;

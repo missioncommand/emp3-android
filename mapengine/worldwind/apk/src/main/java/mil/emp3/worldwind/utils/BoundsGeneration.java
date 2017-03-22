@@ -21,6 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import gov.nasa.worldwind.geom.Position;
 import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.utils.EmpBoundingArea;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
@@ -169,10 +170,15 @@ public class BoundsGeneration {
                         }
                     }
 
+                    // Find geometric center of the vertices and then the corresponding HeoPosition. Store this GeoPosition
+                    // in the EmpBoundingArea as it will be required by the emp-core to support Draw capability.
+                    IGeoPosition geometricCenter = getGeometricCenter(mapInstance, corners);
+
                     IGeoBounds geoBounds = new GeoBounds();
-                    BoundingBoxGeneration.buildBoundingBox(mapInstance, corners, geoBounds, cameraOnScreen, cornersTouched[0]);
+                    BoundingBoxGeneration.buildBoundingBox(mapInstance, corners, geoBounds, cameraOnScreen, cornersTouched[0], geometricCenter);
+
                     IEmpBoundingArea boundingArea = new EmpBoundingArea(mapInstance.getCamera(), cameraOnScreen,
-                            corners[0], corners[1], corners[2], corners[3], geoBounds);
+                            corners[0], corners[1], corners[2], corners[3], geoBounds, geometricCenter);
 
                     currentBoundingArea.put(mapInstance, boundingArea);
 
@@ -188,6 +194,45 @@ public class BoundsGeneration {
         Log.e(TAG, "a null value is being returned for bounds, this is NOT necessarily an error, tilt > 45 ?");
         return null;
     }
+
+    /**
+     * Finds the geometric center of the four vertices. Then finds the Geographic Position of that point.
+     * @param mapInstance
+     * @param vertices
+     * @return
+     */
+    private static IGeoPosition getGeometricCenter(MapInstance mapInstance, IGeoPosition[] vertices) {
+
+        PickNavigateController mapController = mapInstance.getMapController();
+        Point centerPoint = new Point();
+        IGeoPosition geometricCenter = new GeoPosition();
+
+        int count = 0;
+        for(int ii = 0; ii < vertices.length; ii++) {
+            Point vPoint = new Point();
+            if(mapController.groundPositionToScreenPoint(vertices[ii].getLatitude(), vertices[ii].getLongitude(), vPoint)) {
+                centerPoint.x += vPoint.x;
+                centerPoint.y += vPoint.y;
+                count++;
+                Log.v(TAG, "vPoint " + vPoint.x + " " + vPoint.y);
+            }
+        }
+
+        if(count > 0) {
+            centerPoint.x /= count;
+            centerPoint.y /= count;
+            Log.v(TAG, "centerPoint count " + centerPoint.x + " " + centerPoint.y + " " + count);
+            Position positionAtCenterPoint = new Position();
+            if(mapController.screenPointToGroundPosition(centerPoint.x, centerPoint.y, positionAtCenterPoint)) {
+                geometricCenter.setLatitude(positionAtCenterPoint.latitude);
+                geometricCenter.setLongitude(positionAtCenterPoint.longitude);
+                Log.v(TAG, "center " + geometricCenter.getLatitude() + " " + geometricCenter.getLongitude());
+            }
+        }
+
+        return geometricCenter;
+    }
+
     /**
      * Figures out how many corners of the view show a sky. Based on that information invokes appropriate method to calculate the
      * polygon.
@@ -275,7 +320,7 @@ public class BoundsGeneration {
         for (int ii = 0; ii < vertices.length; ii++) {
             if (mapController.screenPointToGroundPosition(vertices[ii].x, vertices[ii].y, pos)) {
                 if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)) {
-                    corners[ii] = new MyGeoPosition(pos.latitude, pos.longitude);
+                    corners[ii] = new EmpGeoPosition(pos.latitude, pos.longitude);
                     Log.v(TAG, "x/y/l/n " + vertices[ii].x + " " + vertices[ii].y + " " + pos.latitude + " " + pos.longitude);
                     cornersFound++;
                 }
@@ -374,7 +419,7 @@ public class BoundsGeneration {
                  current_x += delta_x, current_y += delta_y) {
                 if (!mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
                     if(prevPos != null) {
-                        corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                        corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
                         Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                         found = true;
                     }
@@ -392,7 +437,7 @@ public class BoundsGeneration {
                         positionPoint.set(result.x, result.y);
                     } else {
                         if(prevPos != null) {
-                            corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                            corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
                             Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                             found = true;
                         }
@@ -403,7 +448,7 @@ public class BoundsGeneration {
             // Following takes care of the condition where transition occurs before the first increment. lower the value of
             // lc less the probability of that happening, but that will affect the performance.
             if((null == corner) && (prevPos != null)) {
-                corner = new MyGeoPosition(prevPos.latitude, prevPos.longitude);
+                corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
                 Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
             }
 
@@ -616,7 +661,7 @@ public class BoundsGeneration {
                 // Note that we are checking the reverse to work around the NASA issue mentioned in getCornersTouched method.
                 if (mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
                     if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)) {
-                        corner = new MyGeoPosition(pos.latitude, pos.longitude);
+                        corner = new EmpGeoPosition(pos.latitude, pos.longitude);
                         Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                         found = true;
                     }
@@ -972,14 +1017,4 @@ public class BoundsGeneration {
             return rectangleViews;
         }
     }
-    /**
-     * Convenience class.
-     */
-    private static class MyGeoPosition extends GeoPosition {
-        MyGeoPosition(double latitude, double longitude) {
-            setLatitude(latitude);
-            setLongitude(longitude);
-        }
-    }
-
 }
