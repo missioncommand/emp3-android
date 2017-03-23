@@ -922,6 +922,7 @@ public class MilStdRenderer implements IMilStdRenderer {
 
     @Override
     public List<IFeature> getFeatureRenderableShapes(IMapInstance mapInstance, IFeature feature, boolean selected) {
+        Log.i(TAG, "start getFeatureRenderableShapes ");
         initCheck();
 
         String symbolCode = "";
@@ -940,6 +941,9 @@ public class MilStdRenderer implements IMilStdRenderer {
         } else {
             boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
         }
+
+        Log.i(TAG, "coordinateStr " + coordinateStr);
+        Log.i(TAG, "boundingBoxStr " + boundingBoxStr);
 
         double scale = camera.getAltitude() * 6.36;
         String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
@@ -979,7 +983,11 @@ public class MilStdRenderer implements IMilStdRenderer {
                 modifiers, attributes, 1);
 
         // Retrieve the list of shapes.
+        Log.i(TAG, "start renderBasicShapeParser ");
+
         this.renderBasicShapeParser(oList, mapInstance, renderSymbol, feature, selected);
+
+        Log.i(TAG, "end getFeatureRenderableShapes ");
 
         return oList;
     }

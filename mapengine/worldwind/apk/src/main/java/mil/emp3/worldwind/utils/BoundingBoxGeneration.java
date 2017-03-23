@@ -142,6 +142,7 @@ public class BoundingBoxGeneration {
      * @param geoBounds is the output
      */
     private void buildBoundingBox_(IGeoPosition[] vertices, IGeoBounds geoBounds, IGeoPosition geometricCenter) {
+        Log.i(TAG, "start buildBoundingBox_ ");
 
         setNorthAndSouth(vertices, geoBounds);  // Simply to figure out value for increment based on span.
         IGeoPosition center;
@@ -162,8 +163,6 @@ public class BoundingBoxGeneration {
             center = GeoLibrary.getCenter(corners);
         }
 
-        Log.d(TAG, "adjustEastAndWest In NEWS " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
-
         double increment = (geoBounds.getNorth() - geoBounds.getSouth()) * INCREMENT_FACTOR;
 
         // Depending on height, width and number of corners that show earth adjust the increment factor.
@@ -172,17 +171,17 @@ public class BoundingBoxGeneration {
         double increment_lon_f = 1.0;
         if(width > height) {
             increment_lon_f = (double) width / (double) height;
-            Log.d(TAG, "increment_lon_f " + increment_lon_f);
+            Log.v(TAG, "increment_lon_f " + increment_lon_f);
         }
         if((cornersTouched > 0) && (cornersTouched <= 2)) {
             increment_lon_f *= 2;
-            Log.d(TAG, "increment_lon_f " + increment_lon_f);
+            Log.v(TAG, "increment_lon_f " + increment_lon_f);
         }
 
         double increment_lat_f = 1.0;
         if(height > width) {
             increment_lat_f = (double) height / (double) width;
-            Log.d(TAG, "increment_lat_f " + increment_lat_f);
+            Log.v(TAG, "increment_lat_f " + increment_lat_f);
         }
 
         // Need to investigate if we can always use the geometric Center
@@ -206,7 +205,7 @@ public class BoundingBoxGeneration {
             geoBounds.setNorth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth(), geoBounds.getNorth(), increment, false));
         }
 
-        Log.d(TAG, "buildBoundingBox_ Out NEWS " + ii + " " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
+        Log.i(TAG, "buildBoundingBox_ Out NEWS " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
 
     /**

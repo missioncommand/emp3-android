@@ -155,6 +155,7 @@ public class BoundsGeneration {
     public static IEmpBoundingArea getBounds(MapInstance mapInstance) {
         try {
             if(Looper.myLooper() == Looper.getMainLooper()) {
+                Log.i(TAG, "Start getBounds");
                 int[] cornersTouched = new int[1];
                 cornersTouched[0] = 0;
                 IGeoPosition[] corners = getBoundingPolygon(mapInstance, cornersTouched);
@@ -182,16 +183,20 @@ public class BoundsGeneration {
 
                     currentBoundingArea.put(mapInstance, boundingArea);
 
+                    Log.i(TAG, "end getBounds " + corners[0].getLatitude() + " " + corners[0].getLongitude() +
+                            corners[1].getLatitude() + " " + corners[1].getLongitude() +
+                            corners[2].getLatitude() + " " + corners[2].getLongitude() +
+                            corners[3].getLatitude() + " " + corners[3].getLongitude());
                     return boundingArea;
                 }
             } else {
-                Log.e(TAG, "This method must be invoked on UI thread");
+                Log.e(TAG, "getBounds This method must be invoked on UI thread");
             }
         } catch (Exception e) {
             Log.e(TAG, "getBounds " + e.getMessage(), e);
         }
 
-        Log.e(TAG, "a null value is being returned for bounds, this is NOT necessarily an error, tilt > 45 ?");
+        Log.e(TAG, "a null value is being returned for getBounds, this is NOT necessarily an error, tilt > 45 ?");
         return null;
     }
 
@@ -420,7 +425,7 @@ public class BoundsGeneration {
                 if (!mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
                     if(prevPos != null) {
                         corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
-                        Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                        Log.v(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                         found = true;
                     }
                 } else {
@@ -438,7 +443,7 @@ public class BoundsGeneration {
                     } else {
                         if(prevPos != null) {
                             corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
-                            Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                            Log.v(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                             found = true;
                         }
                     }
@@ -449,7 +454,7 @@ public class BoundsGeneration {
             // lc less the probability of that happening, but that will affect the performance.
             if((null == corner) && (prevPos != null)) {
                 corner = new EmpGeoPosition(prevPos.latitude, prevPos.longitude);
-                Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                Log.v(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
             }
 
         } else {
@@ -587,50 +592,7 @@ public class BoundsGeneration {
             Log.e(TAG, "processTwoCorners TWO CORNERS NOT FOUND");
             return false;
         }
-
-//        if(mapInstance.getCamera().getAltitude() < 1000) {
-//            refineIt(mapInstance, corners);
-//        }
         return true;
-    }
-
-    /**
-     * This is currently unused.
-     * @param mapInstance
-     * @param corners
-     */
-    private static void refineIt(MapInstance mapInstance, IGeoPosition corners[]) {
-        PickNavigateController mapController = mapInstance.getMapController();
-
-        int width = mapInstance.getWW().getWidth();
-        int height = mapInstance.getWW().getHeight();
-
-        int delta_x = getDeltaX(mapInstance);
-        int delta_y = getDeltaY(mapInstance);
-        List<IGeoPosition> cornersFound = new ArrayList<>();
-
-        for(int ii = 0; ii < corners.length; ii++) {
-            if(null != corners[ii]) {
-                cornersFound.add(corners[ii]);
-            }
-        }
-
-        if(cornersFound.size() > 3) {
-            IGeoPosition center = GeoLibrary.getCenter(cornersFound);
-
-            Point result = new Point();
-            if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result) &&
-                    result.x > 0 && result.y > 0 && result.x < width && result.y < height) {
-                corners[NW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, -delta_y, width, height);
-                corners[NE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, -delta_y, width, height);
-                corners[SE] = findEarth2SkyTransition(mapController, result.x, result.y, delta_x, delta_y, width, height);
-                corners[SW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, delta_y, width, height);
-            } else {
-                Log.d(TAG, "Cannot refine further center is NOT on screen");
-            }
-        } else {
-            Log.d(TAG, "Cannot refine further not enough points " + cornersFound.size());
-        }
     }
 
     /**
@@ -662,7 +624,7 @@ public class BoundsGeneration {
                 if (mapController.screenPointToGroundPosition(current_x, current_y, pos)) {
                     if(mapController.groundPositionToScreenPoint(pos.latitude, pos.longitude, result)) {
                         corner = new EmpGeoPosition(pos.latitude, pos.longitude);
-                        Log.d(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
+                        Log.v(TAG, "corner " + corner.getLatitude() + " " + corner.getLongitude());
                         found = true;
                     }
                 }
@@ -766,60 +728,6 @@ public class BoundsGeneration {
         return false;
     }
 
-    /**
-     * Check if specified point is on one of the view edges, this is part of Grid processing. Currently not used.
-     * @param point
-     * @param width
-     * @param height
-     * @return
-     */
-    private static boolean pointOnGridEdge(Point point, int width, int height) {
-        if((getOriginXForGrid() == point.x) || (width == point.x) || (getOriginYForGrid() == point.y) || (height == point.y)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * If globe is intersecting one of the edges then this method tries to move those points as far as possible. But it was discovered
-     * that result actually reduces the Bounding Area as earth is tilted and latitude at the end is less than that in the middle.
-     * So method is NOT used but kept here for future reference.
-     *
-     * processGrid will need to be updated if you want to make use of this method.
-     * @param mapInstance
-     * @param corners
-     * @param cornerPoints
-     * @param pointsOnEdge
-     */
-    private static void processGridPointOnEdge(MapInstance mapInstance, IGeoPosition corners[], Point cornerPoints[], List<Point> pointsOnEdge) {
-        PickNavigateController mapController = mapInstance.getMapController();
-        boolean pointsOnNWNEEdge = false;
-        boolean pointsOnNESEEdge = false;
-        boolean pointsOnSESWEdge = false;
-        boolean pointsOnSWNWEdge = false;
-
-        int origin_x = getOriginXForGrid();
-        int origin_y = getOriginYForGrid();
-        int width = mapInstance.getWW().getWidth();
-        int height = mapInstance.getWW().getHeight();
-        int delta_x = (int) (getDeltaX(mapInstance) * .25);
-        int delta_y = (int) (getDeltaY(mapInstance) * .25);
-
-        for(Point point: pointsOnEdge) {
-            if(origin_x == point.x) pointsOnSWNWEdge = true;
-            if(origin_y == point.y) pointsOnNWNEEdge = true;
-            if(width == point.x)  pointsOnNESEEdge = true;
-            if(height == point.y)  pointsOnSESWEdge = true;
-            if(!(pointsOnNWNEEdge ^ pointsOnNESEEdge ^ pointsOnSESWEdge ^ pointsOnSWNWEdge)) {
-                return;
-            }
-        }
-
-        if(pointsOnSESWEdge) {
-            corners[SE] = findEarth2SkyTransition(mapController, cornerPoints[SE].x, cornerPoints[SE].y, delta_x, 0, width, height);
-            corners[SW] = findEarth2SkyTransition(mapController, cornerPoints[SW].x, cornerPoints[SW].y, -delta_x, 0, width, height);
-        }
-    }
     /**
      *
      * There is sky in the four corners and tilt is outside the range so now we will build a grid of points and figure out
