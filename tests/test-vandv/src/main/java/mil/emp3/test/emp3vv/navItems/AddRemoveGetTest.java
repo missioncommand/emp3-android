@@ -10,10 +10,13 @@ import android.widget.ArrayAdapter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.json.geoJson.GeoJsonCaller;
 import mil.emp3.json.geoJson.GeoJsonExporter;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
@@ -155,16 +158,28 @@ public class AddRemoveGetTest extends NavItemBase {
                         }).show();
             } else if (userAction.equals("Export features to GeoJSON")) {
                 List<IFeature> featureList = maps[whichMap].getAllFeatures();
+                final List<String> ret = new ArrayList<>();
                 for (IFeature feature : featureList) {
                     FileOutputStream fos = null;
+                    ret.clear();
                     try {
-                        String geoJSON = GeoJsonExporter.export(feature);
+                        GeoJsonCaller.exportToString(maps[whichMap], feature, false, new IEmpExportToStringCallback() {
+                            @Override
+                            public void exportSuccess(String geoJSON) {
+                                ret.add(geoJSON);
+                            }
+
+                            @Override
+                            public void exportFailed(Exception e) {
+                                Log.i(TAG, "geojson export failed", e);
+                            }
+                        });
                         File file = new File("/sdcard/Download/" + feature.getName() + "Geo.json");
                         if (!file.exists()) {
                             boolean created = file.createNewFile();
                         }
                         fos = new FileOutputStream(file);
-                        fos.write(geoJSON.getBytes());
+                        fos.write((ret.get(0)).getBytes());
                     } catch (IOException ioe) {
                         ioe.printStackTrace();
                     } finally {

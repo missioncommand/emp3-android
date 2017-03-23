@@ -1,14 +1,20 @@
 package mil.emp3.json.geoJson;
 
 import android.util.Log;
+import android.util.SparseArray;
+import android.util.Xml;
 
+import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.IGeoColor;
+import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoTimeSpan;
+import org.xmlpull.v1.XmlSerializer;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import armyc2.c2sd.renderer.MilStdIconRenderer;
 import mil.emp3.api.Circle;
 import mil.emp3.api.Ellipse;
 import mil.emp3.api.GeoJSON;
@@ -16,14 +22,36 @@ import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Point;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.enums.MilStdLabelSettingEnum;
+import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.interfaces.core.ICoreManager;
+import mil.emp3.api.interfaces.core.IStorageManager;
+import mil.emp3.api.utils.ManagerFactory;
 
 import static mil.emp3.api.enums.FeatureTypeEnum.*;
 
-public class GeoJsonExporter {
+public class GeoJsonExporter extends Thread{
 
     private static final String TAG = GeoJsonExporter.class.getSimpleName();
     private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
+    static final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
+    static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
+
+
+    private static final String TEMP_DATAURL_STRING = "temp.dataURL";
+
+    private final boolean addExtendedData;
+    private final IMap map;
+    private final IFeature feature;
+    private final List<IFeature> featureList;
+    private final IEmpExportToStringCallback callback;
+    private final MilStdLabelSettingEnum eLabelSetting;
+    private final static MilStdIconRenderer oIconRenderer = MilStdIconRenderer.getInstance();
+    private final static SparseArray<String> emptyArray = new SparseArray<>();
+    private IGeoIconStyle tempIconStyle = new GeoIconStyle();
 
     public void appendGeoJSONColor(IGeoColor color, StringBuffer buffer) {
         buffer.append("\"color\": {\"r\":");
@@ -237,17 +265,36 @@ public class GeoJsonExporter {
         appendFeatureList(featureList, buffer);
     }
 
-    public final static String export(IFeature feature) {
-        GeoJsonExporter exporter = new GeoJsonExporter();
-        StringBuffer buffer = new StringBuffer();
-        exporter.export(feature, buffer);
-        return buffer.toString();
+    @Override
+    public void run() {
+        try {
+            StringBuffer buffer = new StringBuffer();
+            if (feature != null) {
+                export(feature, buffer);
+            } else {
+                export(featureList, buffer);
+            }
+            this.callback.exportSuccess(buffer.toString());
+        } catch (Exception Ex) {
+            this.callback.exportFailed(Ex);
+        }
     }
 
-    public final static String export(List<IFeature> featureList) {
-        GeoJsonExporter exporter = new GeoJsonExporter();
-        StringBuffer buffer = new StringBuffer();
-        exporter.export(featureList, buffer);
-        return buffer.toString();
+    protected GeoJsonExporter(IMap map, IFeature feature, boolean extendedData, IEmpExportToStringCallback callback) {
+        this.map = map;
+        this.feature = feature;
+        this.featureList = null;
+        this.callback = callback;
+        this.addExtendedData = extendedData;
+        this.eLabelSetting = storageManager.getMilStdLabels(this.map);
+    }
+
+    protected GeoJsonExporter(IMap map, List<IFeature> featureList, boolean extendedData, IEmpExportToStringCallback callback) {
+        this.map = map;
+        this.featureList = featureList;
+        this.feature = null;
+        this.callback = callback;
+        this.addExtendedData = extendedData;
+        this.eLabelSetting = storageManager.getMilStdLabels(this.map);
     }
 }
