@@ -106,6 +106,7 @@ import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IEditUpdateData;
+import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
@@ -1553,7 +1554,58 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_exportMapToKML: {
                 try {
-                    EmpKMLExporter.export(this.map);
+                    EmpKMLExporter.exportToString(this.map, true, new IEmpExportToStringCallback() {
+
+                        @Override
+                        public void exportSuccess(String kmlString) {
+                            Log.i(TAG, kmlString);
+                        }
+
+                        @Override
+                        public void exportFailed(Exception Ex) {
+                            Log.e(TAG, "Map export to KML failed.", Ex);
+                        }
+                    });
+                } catch (Exception Ex) {
+                    Log.e(TAG, "Map export to KML failed.", Ex);
+                }
+                return true;
+            }
+            case R.id.action_exportOverlayToKML: {
+                try {
+                    EmpKMLExporter.exportToString(this.map, this.oRootOverlay, true, new IEmpExportToStringCallback() {
+
+                        @Override
+                        public void exportSuccess(String kmlString) {
+                            Log.i(TAG, kmlString);
+                        }
+
+                        @Override
+                        public void exportFailed(Exception Ex) {
+                            Log.e(TAG, "Map export to KML failed.", Ex);
+                        }
+                    });
+                } catch (Exception Ex) {
+                    Log.e(TAG, "Map export to KML failed.", Ex);
+                }
+                return true;
+            }
+            case R.id.action_exportFeatureToKML: {
+                try {
+                    if (null != this.oCurrentSelectedFeature) {
+                        EmpKMLExporter.exportToString(this.map, this.oCurrentSelectedFeature, true, new IEmpExportToStringCallback() {
+
+                            @Override
+                            public void exportSuccess(String kmlString) {
+                                Log.i(TAG, kmlString);
+                            }
+
+                            @Override
+                            public void exportFailed(Exception Ex) {
+                                Log.e(TAG, "Map export to KML failed.", Ex);
+                            }
+                        });
+                    }
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
                 }

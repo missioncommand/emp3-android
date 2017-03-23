@@ -1,4 +1,4 @@
-package mil.emp3.core.utils;
+package mil.emp3.api.utils;
 
 import org.cmapi.primitives.IGeoColor;
 

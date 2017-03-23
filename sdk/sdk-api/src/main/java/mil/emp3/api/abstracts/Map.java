@@ -6,6 +6,8 @@ import android.view.View;
 
 import org.cmapi.primitives.GeoContainer;
 import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoFillStyle;
+import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
@@ -650,5 +652,30 @@ public abstract class Map extends Container implements IMap {
     @Override
     public void setGridType(MapGridTypeEnum gridType) {
         coreManager.setMapGridType(this, gridType);
+    }
+
+    @Override
+    public double getSelectedIconScale() {
+        return storageManager.getSelectedIconScale(this);
+    }
+
+    @Override
+    public IGeoLabelStyle getSelectedLabelStyle() {
+        return storageManager.getSelectedLabelStyle(this);
+    }
+
+    @Override
+    public IGeoStrokeStyle getSelectedStrokeStyle() {
+        return storageManager.getSelectedStrokeStyle(this);
+    }
+
+    @Override
+    public IGeoFillStyle getBufferFillStyle() {
+        return storageManager.getBufferFillStyle(this);
+    }
+
+    @Override
+    public int getIconPixelSize() {
+        return storageManager.getIconPixelSize(this);
     }
 }

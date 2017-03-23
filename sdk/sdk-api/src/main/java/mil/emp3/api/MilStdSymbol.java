@@ -1,22 +1,39 @@
 package mil.emp3.api;
 
+import android.util.SparseArray;
+
 import org.cmapi.primitives.GeoMilSymbol;
+import org.cmapi.primitives.IGeoColor;
+import org.cmapi.primitives.IGeoFillStyle;
+import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoMilSymbol;
+import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
 
+import armyc2.c2sd.renderer.utilities.MilStdAttributes;
+import armyc2.c2sd.renderer.utilities.ModifiersTG;
+import armyc2.c2sd.renderer.utilities.RendererSettings;
 import armyc2.c2sd.renderer.utilities.SymbolDef;
 import armyc2.c2sd.renderer.utilities.SymbolDefTable;
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
+import armyc2.c2sd.renderer.utilities.ModifiersUnits;
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.enums.FontSizeModifierEnum;
+import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.core.ICoreManager;
+import mil.emp3.api.utils.ColorUtils;
+import mil.emp3.api.utils.FontUtilities;
+import mil.emp3.api.utils.ManagerFactory;
 
 
 /**
  * This class encapsulates a GeoMilSymbol. It provides additional functionality.
  */
 public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbol {
+    static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
 
     /**
      * This enumeration class defines the MilStd unit affiliation values.
@@ -1009,5 +1026,394 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         String url = "";
 
         return url;
+    }
+
+    /**
+     * This method returns the list of modifiers provided in the symbol that match the modifiers
+     * listed in the label settings. The return list can be used to call the MilStd icon renderer.
+     * @param eLabelSetting The label inclusion setting. {@link MilStdLabelSettingEnum}
+     * @return A SpareArry of the modifiers and values.
+     */
+    public SparseArray<String> getUnitModifiers(MilStdLabelSettingEnum eLabelSetting) {
+        String UniqueDesignator1 = null;
+        SparseArray<String> oArray = new SparseArray<>();
+        java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = getModifiers();
+        java.util.Set<IGeoMilSymbol.Modifier> oLabels = coreManager.getMilStdModifierLabelList(eLabelSetting);
+
+        if ((geoModifiers != null) && !geoModifiers.isEmpty()) {
+            java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
+
+            for (IGeoMilSymbol.Modifier eModifier: oModifierList) {
+                if ((oLabels != null) && !oLabels.contains(eModifier)) {
+                    // Its not on the list.
+                    continue;
+                }
+                switch (eModifier) {
+                    case SYMBOL_ICON:
+                        oArray.put(ModifiersUnits.A_SYMBOL_ICON, geoModifiers.get(eModifier));
+                        break;
+                    case ECHELON:
+                        oArray.put(ModifiersUnits.B_ECHELON, geoModifiers.get(eModifier));
+                        break;
+                    case QUANTITY:
+                        oArray.put(ModifiersUnits.C_QUANTITY, geoModifiers.get(eModifier));
+                        break;
+                    case TASK_FORCE_INDICATOR:
+                        oArray.put(ModifiersUnits.D_TASK_FORCE_INDICATOR, geoModifiers.get(eModifier));
+                        break;
+                    case FRAME_SHAPE_MODIFIER:
+                        oArray.put(ModifiersUnits.E_FRAME_SHAPE_MODIFIER, geoModifiers.get(eModifier));
+                        break;
+                    case REDUCED_OR_REINFORCED:
+                        oArray.put(ModifiersUnits.F_REINFORCED_REDUCED, geoModifiers.get(eModifier));
+                        break;
+                    case STAFF_COMMENTS:
+                        oArray.put(ModifiersUnits.G_STAFF_COMMENTS, geoModifiers.get(eModifier));
+                        break;
+                    case ADDITIONAL_INFO_1:
+                        oArray.put(ModifiersUnits.H_ADDITIONAL_INFO_1, geoModifiers.get(eModifier));
+                        break;
+                    case ADDITIONAL_INFO_2:
+                        oArray.put(ModifiersUnits.H1_ADDITIONAL_INFO_2, geoModifiers.get(eModifier));
+                        break;
+                    case ADDITIONAL_INFO_3:
+                        oArray.put(ModifiersUnits.H2_ADDITIONAL_INFO_3, geoModifiers.get(eModifier));
+                        break;
+                    case EVALUATION_RATING:
+                        oArray.put(ModifiersUnits.J_EVALUATION_RATING, geoModifiers.get(eModifier));
+                        break;
+                    case COMBAT_EFFECTIVENESS:
+                        oArray.put(ModifiersUnits.K_COMBAT_EFFECTIVENESS, geoModifiers.get(eModifier));
+                        break;
+                    case SIGNATURE_EQUIPMENT:
+                        oArray.put(ModifiersUnits.L_SIGNATURE_EQUIP, geoModifiers.get(eModifier));
+                        break;
+                    case HIGHER_FORMATION:
+                        oArray.put(ModifiersUnits.M_HIGHER_FORMATION, geoModifiers.get(eModifier));
+                        break;
+                    case HOSTILE:
+                        oArray.put(ModifiersUnits.N_HOSTILE, geoModifiers.get(eModifier));
+                        break;
+                    case IFF_SIF:
+                        oArray.put(ModifiersUnits.P_IFF_SIF, geoModifiers.get(eModifier));
+                        break;
+                    case DIRECTION_OF_MOVEMENT:
+                        oArray.put(ModifiersUnits.Q_DIRECTION_OF_MOVEMENT, geoModifiers.get(eModifier));
+                        break;
+                    case MOBILITY_INDICATOR:
+                        oArray.put(ModifiersUnits.R_MOBILITY_INDICATOR, geoModifiers.get(eModifier));
+                        break;
+                    case SIGINT_MOBILITY_INDICATOR:
+                        oArray.put(ModifiersUnits.R2_SIGNIT_MOBILITY_INDICATOR, geoModifiers.get(eModifier));
+                        break;
+                    case OFFSET_INDICATOR:
+                        oArray.put(ModifiersUnits.S_HQ_STAFF_OR_OFFSET_INDICATOR, geoModifiers.get(eModifier));
+                        break;
+                    case UNIQUE_DESIGNATOR_1:
+                        UniqueDesignator1 = geoModifiers.get(eModifier);
+                        oArray.put(ModifiersUnits.T_UNIQUE_DESIGNATION_1, UniqueDesignator1);
+                        break;
+                    case UNIQUE_DESIGNATOR_2:
+                        oArray.put(ModifiersUnits.T1_UNIQUE_DESIGNATION_2, geoModifiers.get(eModifier));
+                        break;
+                    case EQUIPMENT_TYPE:
+                        oArray.put(ModifiersUnits.V_EQUIP_TYPE, geoModifiers.get(eModifier));
+                        break;
+                    case DATE_TIME_GROUP:
+                        oArray.put(ModifiersUnits.W_DTG_1, geoModifiers.get(eModifier));
+                        break;
+                    case DATE_TIME_GROUP_2:
+                        oArray.put(ModifiersUnits.W1_DTG_2, geoModifiers.get(eModifier));
+                        break;
+                    case ALTITUDE_DEPTH:
+                        oArray.put(ModifiersUnits.X_ALTITUDE_DEPTH, geoModifiers.get(eModifier));
+                        break;
+                    case LOCATION:
+                        oArray.put(ModifiersUnits.Y_LOCATION, geoModifiers.get(eModifier));
+                        break;
+                    case SPEED:
+                        oArray.put(ModifiersUnits.Z_SPEED, geoModifiers.get(eModifier));
+                        break;
+                    case SPECIAL_C2_HEADQUARTERS:
+                        oArray.put(ModifiersUnits.AA_SPECIAL_C2_HQ, geoModifiers.get(eModifier));
+                        break;
+                    case FEINT_DUMMY_INDICATOR:
+                        oArray.put(ModifiersUnits.AB_FEINT_DUMMY_INDICATOR, geoModifiers.get(eModifier));
+                        break;
+                    case INSTALLATION:
+                        oArray.put(ModifiersUnits.AC_INSTALLATION, geoModifiers.get(eModifier));
+                        break;
+                    case PLATFORM_TYPE:
+                        oArray.put(ModifiersUnits.AD_PLATFORM_TYPE, geoModifiers.get(eModifier));
+                        break;
+                    case EQUIPMENT_TEARDOWN_TIME:
+                        oArray.put(ModifiersUnits.AE_EQUIPMENT_TEARDOWN_TIME, geoModifiers.get(eModifier));
+                        break;
+                    case COMMON_IDENTIFIER:
+                        oArray.put(ModifiersUnits.AF_COMMON_IDENTIFIER, geoModifiers.get(eModifier));
+                        break;
+                    case AUXILIARY_EQUIPMENT_INDICATOR:
+                        oArray.put(ModifiersUnits.AG_AUX_EQUIP_INDICATOR, geoModifiers.get(eModifier));
+                        break;
+                    case AREA_OF_UNCERTAINTY:
+                        oArray.put(ModifiersUnits.AH_AREA_OF_UNCERTAINTY, geoModifiers.get(eModifier));
+                        break;
+                    case DEAD_RECKONING:
+                        oArray.put(ModifiersUnits.AI_DEAD_RECKONING_TRAILER, geoModifiers.get(eModifier));
+                        break;
+                    case SPEED_LEADER:
+                        oArray.put(ModifiersUnits.AJ_SPEED_LEADER, geoModifiers.get(eModifier));
+                        break;
+                    case PAIRING_LINE:
+                        oArray.put(ModifiersUnits.AK_PAIRING_LINE, geoModifiers.get(eModifier));
+                        break;
+                    case OPERATIONAL_CONDITION:
+                        oArray.put(ModifiersUnits.AL_OPERATIONAL_CONDITION, geoModifiers.get(eModifier));
+                        break;
+                    case DISTANCE:
+                        break;
+                    case AZIMUTH:
+                        break;
+                    case ENGAGEMENT_BAR:
+                        oArray.put(ModifiersUnits.AO_ENGAGEMENT_BAR, geoModifiers.get(eModifier));
+                        break;
+                    case COUNTRY_CODE:
+                        oArray.put(ModifiersUnits.CC_COUNTRY_CODE, geoModifiers.get(eModifier));
+                        break;
+                    case SONAR_CLASSIFICATION_CONFIDENCE:
+                        oArray.put(ModifiersUnits.SCC_SONAR_CLASSIFICATION_CONFIDENCE, geoModifiers.get(eModifier));
+                        break;
+                }
+            }
+        }
+
+        if ((getName() != null) && !getName().isEmpty()) {
+            if (eLabelSetting != null) {
+                switch (eLabelSetting) {
+                    case REQUIRED_LABELS:
+                        break;
+                    case COMMON_LABELS:
+                    case ALL_LABELS:
+                        if ((UniqueDesignator1 == null) || UniqueDesignator1.isEmpty() || !UniqueDesignator1.toUpperCase().equals(getName().toUpperCase())) {
+                            oArray.put(ModifiersUnits.CN_CPOF_NAME_LABEL, getName());
+                        }
+                        break;
+                }
+            }
+        }
+        return oArray;
+    }
+
+    /**
+     * This method returns the list of modifiers provided in the symbol that match the modifiers
+     * listed in the label settings. The return list can be used to call the MilStd renderer.
+     * @param eLabelSetting The label inclusion setting. {@link MilStdLabelSettingEnum}
+     * @return A SpareArry of the modifiers and values.
+     */
+    public SparseArray<String> getTGModifiers(MilStdLabelSettingEnum eLabelSetting) {
+        String UniqueDesignator1 = null;
+        SparseArray<String> oArray = new SparseArray<>();
+        java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = getModifiers();
+
+        if ((geoModifiers != null) && !geoModifiers.isEmpty()) {
+            java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
+
+            for (IGeoMilSymbol.Modifier eModifier: oModifierList) {
+
+                switch (eModifier) {
+                    case SYMBOL_ICON:
+                        oArray.put(ModifiersTG.A_SYMBOL_ICON, geoModifiers.get(eModifier));
+                        break;
+                    case ECHELON:
+                        oArray.put(ModifiersTG.B_ECHELON, geoModifiers.get(eModifier));
+                        break;
+                    case QUANTITY:
+                        oArray.put(ModifiersTG.C_QUANTITY, geoModifiers.get(eModifier));
+                        break;
+                    case TASK_FORCE_INDICATOR:
+                        break;
+                    case FRAME_SHAPE_MODIFIER:
+                        break;
+                    case REDUCED_OR_REINFORCED:
+                        break;
+                    case STAFF_COMMENTS:
+                        break;
+                    case ADDITIONAL_INFO_1:
+                        oArray.put(ModifiersTG.H_ADDITIONAL_INFO_1, geoModifiers.get(eModifier));
+                        break;
+                    case ADDITIONAL_INFO_2:
+                        oArray.put(ModifiersTG.H1_ADDITIONAL_INFO_2, geoModifiers.get(eModifier));
+                        break;
+                    case ADDITIONAL_INFO_3:
+                        oArray.put(ModifiersTG.H2_ADDITIONAL_INFO_3, geoModifiers.get(eModifier));
+                        break;
+                    case EVALUATION_RATING:
+                        break;
+                    case COMBAT_EFFECTIVENESS:
+                        break;
+                    case SIGNATURE_EQUIPMENT:
+                        break;
+                    case HIGHER_FORMATION:
+                        break;
+                    case HOSTILE:
+                        oArray.put(ModifiersTG.N_HOSTILE, geoModifiers.get(eModifier));
+                        break;
+                    case IFF_SIF:
+                        break;
+                    case DIRECTION_OF_MOVEMENT:
+                        oArray.put(ModifiersTG.Q_DIRECTION_OF_MOVEMENT, geoModifiers.get(eModifier));
+                        break;
+                    case MOBILITY_INDICATOR:
+                        break;
+                    case SIGINT_MOBILITY_INDICATOR:
+                        break;
+                    case OFFSET_INDICATOR:
+                        break;
+                    case UNIQUE_DESIGNATOR_1:
+                        UniqueDesignator1 = geoModifiers.get(eModifier);
+                        oArray.put(ModifiersTG.T_UNIQUE_DESIGNATION_1, UniqueDesignator1);
+                        break;
+                    case UNIQUE_DESIGNATOR_2:
+                        oArray.put(ModifiersTG.T1_UNIQUE_DESIGNATION_2, geoModifiers.get(eModifier));
+                        break;
+                    case EQUIPMENT_TYPE:
+                        oArray.put(ModifiersTG.V_EQUIP_TYPE, geoModifiers.get(eModifier));
+                        break;
+                    case DATE_TIME_GROUP:
+                        oArray.put(ModifiersTG.W_DTG_1, geoModifiers.get(eModifier));
+                        break;
+                    case DATE_TIME_GROUP_2:
+                        oArray.put(ModifiersTG.W1_DTG_2, geoModifiers.get(eModifier));
+                        break;
+                    case ALTITUDE_DEPTH:
+                        oArray.put(ModifiersTG.X_ALTITUDE_DEPTH, geoModifiers.get(eModifier));
+                        break;
+                    case LOCATION:
+                        oArray.put(ModifiersTG.Y_LOCATION, geoModifiers.get(eModifier));
+                        break;
+                    case SPEED:
+                        break;
+                    case SPECIAL_C2_HEADQUARTERS:
+                        break;
+                    case FEINT_DUMMY_INDICATOR:
+                        break;
+                    case INSTALLATION:
+                        break;
+                    case PLATFORM_TYPE:
+                        break;
+                    case EQUIPMENT_TEARDOWN_TIME:
+                        break;
+                    case COMMON_IDENTIFIER:
+                        break;
+                    case AUXILIARY_EQUIPMENT_INDICATOR:
+                        break;
+                    case AREA_OF_UNCERTAINTY:
+                        break;
+                    case DEAD_RECKONING:
+                        break;
+                    case SPEED_LEADER:
+                        break;
+                    case PAIRING_LINE:
+                        break;
+                    case OPERATIONAL_CONDITION:
+                        break;
+                    case DISTANCE:
+                        oArray.put(ModifiersTG.AM_DISTANCE, geoModifiers.get(eModifier));
+                        break;
+                    case AZIMUTH:
+                        oArray.put(ModifiersTG.AN_AZIMUTH, geoModifiers.get(eModifier));
+                        break;
+                    case ENGAGEMENT_BAR:
+                        break;
+                    case COUNTRY_CODE:
+                        break;
+                    case SONAR_CLASSIFICATION_CONFIDENCE:
+                        break;
+                }
+            }
+        }
+
+        if ((getName() != null) && !getName().isEmpty()) {
+            if (eLabelSetting != null) {
+                switch (eLabelSetting) {
+                    case REQUIRED_LABELS:
+                        break;
+                    case COMMON_LABELS:
+                    case ALL_LABELS:
+                        if ((UniqueDesignator1 == null) || UniqueDesignator1.isEmpty() || !UniqueDesignator1.toUpperCase().equals(getName().toUpperCase())) {
+                            oArray.put(ModifiersUnits.CN_CPOF_NAME_LABEL, getName());
+                        }
+                        break;
+                }
+            }
+        }
+
+        return oArray;
+    }
+
+    public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor, IGeoColor selectedTextColor) {
+        IGeoColor strokeColor = null;
+        IGeoColor textColor = null;
+        SparseArray<String> oArray = new SparseArray<>();
+        IGeoFillStyle oFillStyle = getFillStyle();
+        IGeoStrokeStyle oStrokeStyle = getStrokeStyle();
+        IGeoLabelStyle labelStyle = getLabelStyle();
+
+
+        oArray.put(MilStdAttributes.SymbologyStandard, "" + geoMilStdVersionToRendererVersion());
+        oArray.put(MilStdAttributes.PixelSize, "" + iIconSize);
+        oArray.put(MilStdAttributes.KeepUnitRatio, "true");
+        oArray.put(MilStdAttributes.UseDashArray, "true");
+
+        if (selected) {
+            strokeColor = selectedStrokeColor;
+            textColor = selectedTextColor;
+        } else {
+            if (oStrokeStyle != null) {
+                strokeColor = oStrokeStyle.getStrokeColor();
+            }
+            if (labelStyle != null) {
+                textColor = labelStyle.getColor();
+            }
+        }
+
+        if (oFillStyle != null) {
+            oArray.put(MilStdAttributes.FillColor, "#" + ColorUtils.colorToString(oFillStyle.getFillColor()));
+        }
+
+        if (oStrokeStyle != null) {
+            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(oStrokeStyle.getStrokeColor()));
+            oArray.put(MilStdAttributes.LineWidth, "" + (int) oStrokeStyle.getStrokeWidth());
+        }
+
+        if (strokeColor != null) {
+            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(strokeColor));
+        }
+
+        if (textColor != null) {
+            oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
+            // There is currently no way to change the font.
+        }
+
+        if (isSinglePoint()) {
+            oArray.put(MilStdAttributes.FontSize, "" + FontUtilities.getTextPixelSize(labelStyle, FontSizeModifierEnum.NORMAL));
+        }
+
+        return oArray;
+    }
+
+    public int geoMilStdVersionToRendererVersion() {
+        int iVersion = RendererSettings.Symbology_2525C;
+
+        switch (this.getSymbolStandard()) {
+            case MIL_STD_2525C:
+                iVersion = RendererSettings.Symbology_2525C;
+                break;
+            case MIL_STD_2525B :
+                iVersion = RendererSettings.Symbology_2525Bch2_USAS_13_14;
+                break;
+        }
+
+        return iVersion;
     }
 }

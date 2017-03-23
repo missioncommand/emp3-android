@@ -4,6 +4,8 @@ import android.graphics.Point;
 import android.view.View;
 
 import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoFillStyle;
+import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
@@ -714,4 +716,34 @@ public interface IMap extends IContainer {
      * @param grid {@link MapGridTypeEnum}
      */
     void setGridType(MapGridTypeEnum grid);
+
+    /**
+     * This method returns the select icon scale for the map.
+     * @return
+     */
+    double getSelectedIconScale();
+
+    /**
+     * This method returns the select label style for the map.
+     * @return {@link IGeoLabelStyle}
+     */
+    IGeoLabelStyle getSelectedLabelStyle();
+
+    /**
+     * This method returns the select stroke style for the map.
+     * @return {@link IGeoStrokeStyle}
+     */
+    IGeoStrokeStyle getSelectedStrokeStyle();
+
+    /**
+     * Returns fill style used for the buffer drawn around a basic shape
+     * @return
+     */
+    IGeoFillStyle getBufferFillStyle();
+
+    /**
+     * This method retrieves the icon pixel size for the map.
+     * @return
+     */
+    int getIconPixelSize();
 }
