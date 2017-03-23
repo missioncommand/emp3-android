@@ -119,7 +119,7 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
     @Test (expected=InvalidParameterException.class)
     public void invalidGeoEllipse() {
         IGeoEllipse geoEllipse = new GeoEllipse();
-        geoEllipse.setAzimuth(-240.0);
+        geoEllipse.setAzimuth(-361.0);
         Ellipse ellipse = new Ellipse(geoEllipse);
     }
 
@@ -130,7 +130,7 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
 
     @Test (expected=InvalidParameterException.class)
     public void ellipseInvalidAzimuth() {
-        Ellipse ellispe = new Ellipse(400.0, 200.0, -181);
+        Ellipse ellispe = new Ellipse(400.0, 200.0, 381);
     }
 
     // Rectangle
@@ -156,7 +156,7 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
     @Test (expected=InvalidParameterException.class)
     public void invalidGeoRectangle() {
         IGeoRectangle geoRectangle = new GeoRectangle();
-        geoRectangle.setAzimuth(-240);
+        geoRectangle.setAzimuth(-400);
         Rectangle rectangle = new Rectangle(geoRectangle);
     }
 
@@ -187,7 +187,7 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
     @Test (expected=InvalidParameterException.class)
     public void invalidGeoSquare() {
         IGeoSquare geoSquare = new GeoSquare();
-        geoSquare.setAzimuth(-240);
+        geoSquare.setAzimuth(361);
         Square square = new Square(geoSquare);
     }
 

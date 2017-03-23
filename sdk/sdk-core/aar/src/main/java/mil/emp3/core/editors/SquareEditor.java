@@ -5,7 +5,6 @@ import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import mil.emp3.api.Square;
@@ -14,7 +13,6 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -49,7 +47,6 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
 
-        IGeoPosition centerPos = getCenter();
         double refDistance = getReferenceDistance();
         if(refDistance > 0) {
             currentLength = refDistance * lengthMultiplier;
@@ -62,7 +59,6 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
         if(currentLength < Square.MINIMUM_WIDTH) {
             currentLength = Square.MINIMUM_WIDTH;
         }
-        this.oFeature.setPosition(centerPos);
         this.oFeature.setWidth(currentLength);
         this.oFeature.setAzimuth(currentBearing);
         this.oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);

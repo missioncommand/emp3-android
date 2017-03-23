@@ -2,17 +2,13 @@ package mil.emp3.core.editors;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.Circle;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.enums.FeaturePropertyChangedEnum;
-import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
@@ -49,7 +45,6 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
         super.prepareForDraw();
 
         double tempRadius;
-        IGeoPosition centerPos = getCenter();
         double refDistance = getReferenceDistance();
         if(refDistance > 0) {
             tempRadius = refDistance * radiusMultiplier;
@@ -68,7 +63,6 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
             tempRadius = Circle.MINIMUM_RADIUS;
         }
         this.oFeature.setRadius(tempRadius);
-        this.oFeature.setPosition(centerPos);
         this.oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
     }
 
