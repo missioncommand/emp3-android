@@ -95,44 +95,121 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         super.setSouth(geoBounds.getSouth());
     }
 
+    private boolean isLongitudeSpanLessThan180() {
+        // If all vertices are either positive or negative then span is less tha or equal to 180
+        if(adjustedVertices[0].getLongitude() >= 0 && adjustedVertices[1].getLongitude() >= 0 &&
+                adjustedVertices[2].getLongitude() >= 0 && adjustedVertices[3].getLongitude() >= 0) {
+            return true;
+        } else if(adjustedVertices[0].getLongitude() <= 0 && adjustedVertices[1].getLongitude() <= 0 &&
+                adjustedVertices[2].getLongitude() <= 0 && adjustedVertices[3].getLongitude() <= 0) {
+            return true;
+        } else {
+            // Find the lowest longitude and highest longitude
+            double lowest = 181.0;
+            double highest = -181.0;
+            for (int ii = 0; ii < adjustedVertices.length; ii++) {
+                if(adjustedVertices[ii].getLongitude() < lowest) {
+                    lowest = adjustedVertices[ii].getLongitude();
+                }
+                if(adjustedVertices[ii].getLongitude() > highest) {
+                    highest = adjustedVertices[ii].getLongitude();
+                }
+            }
+
+            // check around longitude 0 if span is less than 180
+            if((Math.abs(lowest) + highest) <=180.0) {
+                return true;
+            }
+
+            // Find the lowest positive and highest negative longitude
+            double lowestPositive = 181.0;
+            double highestNegative = -181.0;
+            for (int ii = 0; ii < adjustedVertices.length; ii++) {
+                if(adjustedVertices[ii].getLongitude() >= 0 && adjustedVertices[ii].getLongitude() < lowestPositive) {
+                    lowestPositive = adjustedVertices[ii].getLongitude();
+                }
+                if(adjustedVertices[ii].getLongitude() <= 0 && adjustedVertices[ii].getLongitude() > highestNegative) {
+                    highestNegative = adjustedVertices[ii].getLongitude();
+                }
+            }
+
+            // check around longitude 180 if span is less than 180
+            if(((180.0 - lowestPositive) + (180.0 - Math.abs(highestNegative))) <= 180.0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void adjustVerticesByDistance() {
         if(null != adjustedVertices) return;
 
-        IGeoPosition center;
-
-        if(!cameraOnScreen) {
-            // Find the center of the four vertices.
-            List<IGeoPosition> cornersFound = new ArrayList<>();
-            for (int ii = 0; ii < vertices.length; ii++) {
-                cornersFound.add(vertices[ii]);
-            }
-            center = GeoLibrary.getCenter(cornersFound);
-        } else {
-            center = new GeoPosition();
-            center.setLatitude(camera.getLatitude());
-            center.setLongitude(camera.getLongitude());
+        List<IGeoPosition> cornersFound = new ArrayList<>();
+        for (int ii = 0; ii < vertices.length; ii++) {
+            cornersFound.add(vertices[ii]);
         }
+        IGeoPosition center = GeoLibrary.getCenter(cornersFound);
 
         adjustedVertices = new IGeoPosition[vertices.length];
-        double distance;
-
-        // If distance from center is more than 5,000,000 meters then clip it.
         for (int ii = 0; ii < vertices.length; ii++) {
-            try {
-                distance = GeoLibrary.computeDistanceBetween(center, vertices[ii]);
-                Log.d(TAG, "distance " + ii + " " + distance);
-                if (distance > MAX_DISTANCE_FROM_CENTER) {
-                    double bearing = GeoLibrary.computeBearing(center, vertices[ii]);
-                    adjustedVertices[ii] = GeoLibrary.computePositionAt(bearing, MAX_DISTANCE_FROM_CENTER, center);
-                } else {
-                    adjustedVertices[ii] = vertices[ii];
+            adjustedVertices[ii] = new EmpGeoPosition(vertices[ii]);
+        }
+
+        double distance;
+        int iteration = 0;
+        while(!isLongitudeSpanLessThan180() && iteration < 10) {
+            Log.i(TAG, "Adjusting vertices for span iteration " + iteration);
+            iteration++;
+            for (int ii = 0; ii < adjustedVertices.length; ii++) {
+                try {
+                    distance = GeoLibrary.computeDistanceBetween(center, adjustedVertices[ii]) * .9;
+                    double bearing = GeoLibrary.computeBearing(center, adjustedVertices[ii]);
+                    adjustedVertices[ii] = GeoLibrary.computePositionAt(bearing, distance, center);
+                } catch(Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
                 }
-            } catch(Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-                adjustedVertices[ii] = vertices[ii];
             }
         }
     }
+
+//    private void adjustVerticesByDistance() {
+//        if(null != adjustedVertices) return;
+//
+//        IGeoPosition center;
+//
+//        if(!cameraOnScreen) {
+//            // Find the center of the four vertices.
+//            List<IGeoPosition> cornersFound = new ArrayList<>();
+//            for (int ii = 0; ii < vertices.length; ii++) {
+//                cornersFound.add(vertices[ii]);
+//            }
+//            center = GeoLibrary.getCenter(cornersFound);
+//        } else {
+//            center = new GeoPosition();
+//            center.setLatitude(camera.getLatitude());
+//            center.setLongitude(camera.getLongitude());
+//        }
+//
+//        adjustedVertices = new IGeoPosition[vertices.length];
+//        double distance;
+//
+//        // If distance from center is more than 5,000,000 meters then clip it.
+//        for (int ii = 0; ii < vertices.length; ii++) {
+//            try {
+//                distance = GeoLibrary.computeDistanceBetween(center, vertices[ii]);
+//                Log.d(TAG, "distance " + ii + " " + distance);
+//                if (distance > MAX_DISTANCE_FROM_CENTER) {
+//                    double bearing = GeoLibrary.computeBearing(center, vertices[ii]);
+//                    adjustedVertices[ii] = GeoLibrary.computePositionAt(bearing, MAX_DISTANCE_FROM_CENTER, center);
+//                } else {
+//                    adjustedVertices[ii] = vertices[ii];
+//                }
+//            } catch(Exception e) {
+//                Log.e(TAG, e.getMessage(), e);
+//                adjustedVertices[ii] = vertices[ii];
+//            }
+//        }
+//    }
     /**
      * Converts vertices to a String to a format required by Military Symbol render-er. It returns a string based on adjustedVertices that
      * meets the SEC Render-er requirement of 180 degrees max span of longitude. This calculation is very much approximate and may need

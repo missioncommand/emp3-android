@@ -148,19 +148,23 @@ public class BoundingBoxGeneration {
         IGeoPosition center;
 
         // Find the point that will be used as center.
-        List<IGeoPosition> corners = new ArrayList<>();
-        int ii;
-        for(ii = 0; ii < vertices.length; ii++) {
-            corners.add(vertices[ii]);
-        }
-
-        center = GeoLibrary.getCenter(corners);
-
-        if(cameraOnScreen) {
-            corners.clear();
-            corners.add(center);
-            corners.add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude()));
+        // Need to investigate if we can always use the geometric Center
+        if (camera.getTilt() > USE_GEOMETRIC_CENTER_FOR_TILT_GT) {
+            center = geometricCenter;
+        } else {
+            List<IGeoPosition> corners = new ArrayList<>();
+            int ii;
+            for (ii = 0; ii < vertices.length; ii++) {
+                corners.add(vertices[ii]);
+            }
             center = GeoLibrary.getCenter(corners);
+
+            if (cameraOnScreen) { // then take the center of the vertices and camera.
+                corners.clear();
+                corners.add(center);
+                corners.add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude()));
+                center = GeoLibrary.getCenter(corners);
+            }
         }
 
         double increment = (geoBounds.getNorth() - geoBounds.getSouth()) * INCREMENT_FACTOR;
@@ -182,11 +186,6 @@ public class BoundingBoxGeneration {
         if(height > width) {
             increment_lat_f = (double) height / (double) width;
             Log.v(TAG, "increment_lat_f " + increment_lat_f);
-        }
-
-        // Need to investigate if we can always use the geometric Center
-        if(camera.getTilt() > USE_GEOMETRIC_CENTER_FOR_TILT_GT) {
-            center = geometricCenter;
         }
 
         // Stretch along all four corners
