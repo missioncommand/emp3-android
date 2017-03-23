@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import mil.emp3.api.Rectangle;
@@ -14,7 +13,6 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -67,7 +65,6 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
 
-        IGeoPosition centerPos = getCenter();
         double refDistance = getReferenceDistance();
         if(refDistance > 0) {
             currentHeight = refDistance * heightMultiplier;
@@ -85,7 +82,6 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
             currentWidth = Rectangle.MINIMUM_WIDTH;
         }
         Log.d(TAG, "currentHeight " + currentHeight + " currentWidth " + currentWidth);
-        this.oFeature.setPosition(centerPos);
         this.oFeature.setWidth(currentWidth);
         this.oFeature.setHeight(currentHeight);
         this.oFeature.setAzimuth(currentBearing);
