@@ -977,6 +977,21 @@ public class MilStdRenderer implements IMilStdRenderer {
             return oList;
         }
 
+        Log.i(TAG, "Symbol Code " + symbolCode);
+        for(int i = 0; i < attributes.size(); i++) {
+            int key = attributes.keyAt(i);
+            // get the object by the key.
+            Object obj = attributes.get(key);
+            Log.i(TAG, "Attribute " + key + " " + obj.toString());
+        }
+
+        for(int i = 0; i < modifiers.size(); i++) {
+            int key = modifiers.keyAt(i);
+            // get the object by the key.
+            Object obj = modifiers.get(key);
+            Log.i(TAG, "Modifiers " + key + " " + obj.toString());
+        }
+
         armyc2.c2sd.renderer.utilities.MilStdSymbol renderSymbol = SECWebRenderer.RenderMultiPointAsMilStdSymbol(
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 symbolCode, coordinateStr, altitudeModeStr, scale, boundingBoxStr,
