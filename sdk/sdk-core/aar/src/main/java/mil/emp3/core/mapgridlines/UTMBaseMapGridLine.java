@@ -13,6 +13,7 @@ import java.util.List;
 
 import mil.emp3.api.Path;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
@@ -21,7 +22,7 @@ import mil.emp3.core.mapgridlines.utils.GridLineUtils;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
- * this class implements the top level UTM map grid line generator. It is the base class for other grid line generators.
+ * This class implements the top level UTM map grid line generator. It is the base class for other grid line generators.
  */
 
 public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
@@ -90,7 +91,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
     }
 
     @Override
-    protected void processViewChange(EmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
+    protected void processViewChange(IEmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
         double longitude;
         double latitude;
         int intLon;
@@ -269,7 +270,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
      * @param mapBounds        The bounding area of the map's viewing area.
      * @param metersPerPixel   Meters per pixel across the center of the map.
      */
-    protected void createUTMGridZones(EmpBoundingBox mapBounds, double metersPerPixel) {
+    protected void createUTMGridZones(IEmpBoundingBox mapBounds, double metersPerPixel) {
         double longitude;
         double latitude;
         int intLongitude;
@@ -281,7 +282,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         int iIndex;
         List<IGeoPosition> positionList;
         IFeature gridObject;
-        EmpBoundingBox labelBounds = new EmpBoundingBox();
+        IEmpBoundingBox labelBounds = new EmpBoundingBox();
         double gridZoneLableHeight = getCharacterPixelWidth(UTM_GRID_ZONE_LABEL_CENTER) * metersPerPixel;
         double gridZoneLabelWidth = getCharacterPixelWidth(UTM_GRID_ZONE_LABEL_CENTER) * 1.5 * metersPerPixel;
 

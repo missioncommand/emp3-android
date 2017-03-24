@@ -7,16 +7,21 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.security.InvalidParameterException;
 
+import mil.emp3.api.interfaces.IEmpBoundingBox;
+
 /**
  * This class defines a bounded box.
  */
 
-public class EmpBoundingBox extends GeoBounds {
+public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     /**
      * This is the default constructor.
      */
     public EmpBoundingBox() {
-
+        super.setEast(Double.NaN);
+        super.setNorth(Double.NaN);
+        super.setSouth(Double.NaN);
+        super.setWest(Double.NaN);
     }
 
     /**
@@ -75,6 +80,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the northern latitude.
      * @return The north latitude in degrees.
      */
+    @Override
     public double north() {
         return this.getNorth();
     }
@@ -83,6 +89,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the southern latitude.
      * @return The southern latitude in degrees.
      */
+    @Override
     public double south() {
         return this.getSouth();
     }
@@ -91,6 +98,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the eastern longitude.
      * @return The eastern longitude in degrees.
      */
+    @Override
     public double east() {
         return this.getEast();
     }
@@ -99,22 +107,32 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the western longitude.
      * @return The western logintude in degrees.
      */
+    @Override
     public double west() {
         return this.getWest();
     }
 
     @Override
     public void setNorth(double value) {
+        if (Double.isNaN(value)) {
+            throw new InvalidParameterException("value is not a number.");
+        }
         super.setNorth(((((value + 90.0) % 180.0) + 180.0) % 180.0) - 90.0);
     }
 
     @Override
     public void setSouth(double value) {
+        if (Double.isNaN(value)) {
+            throw new InvalidParameterException("value is not a number.");
+        }
         super.setSouth(((((value + 90.0) % 180.0) + 180.0) % 180.0) - 90.0);
     }
 
     @Override
     public void setWest(double value) {
+        if (Double.isNaN(value)) {
+            throw new InvalidParameterException("value is not a number.");
+        }
         super.setWest(((((value + 180.0) % 360.0) + 360.0) % 360.0) - 180.0);
         if (getWest() == 180.0) {
             super.setWest(-180.0);
@@ -123,6 +141,9 @@ public class EmpBoundingBox extends GeoBounds {
 
     @Override
     public void setEast(double value) {
+        if (Double.isNaN(value)) {
+            throw new InvalidParameterException("value is not a number.");
+        }
         super.setEast(((((value + 180.0) % 360.0) + 360.0) % 360.0) - 180.0);
         if (getEast() == -180.0) {
             super.setEast(180.0);
@@ -133,6 +154,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the delta of the north and south latitudes.
      * @return Degrees
      */
+    @Override
     public double deltaLatitude() {
         return Math.abs(this.north() - this.south());
     }
@@ -141,6 +163,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the delta between the west and east longitudes.
      * @return degrees.
      */
+    @Override
     public double deltaLongitude() {
 
         if (containsIDL()) {
@@ -153,10 +176,12 @@ public class EmpBoundingBox extends GeoBounds {
      * This method check if the international date line is within the bounding box.
      * @return True if the IDL is contained in the bounding box, false if not.
      */
+    @Override
     public boolean containsIDL() {
         return (this.west() > this.east());
     }
 
+    @Override
     public void copyFrom(IGeoBounds geoBounds) {
         this.setEast(geoBounds.getEast());
         this.setSouth(geoBounds.getSouth());
@@ -164,13 +189,15 @@ public class EmpBoundingBox extends GeoBounds {
         this.setNorth(geoBounds.getNorth());
     }
 
-    public void copyFrom(EmpBoundingBox empBounds) {
+    @Override
+    public void copyFrom(IEmpBoundingBox empBounds) {
         this.setEast(empBounds.east());
         this.setSouth(empBounds.south());
         this.setWest(empBounds.west());
         this.setNorth(empBounds.north());
     }
 
+    @Override
     public boolean intersects(double northDeg, double southDeg, double eastDeg, double westDeg) {
         if ((northDeg == Double.NaN) || (southDeg == Double.NaN) || (eastDeg == Double.NaN) || (westDeg == Double.NaN)) {
             throw new InvalidParameterException("invalid coordinate.");
@@ -203,6 +230,7 @@ public class EmpBoundingBox extends GeoBounds {
         return bRet;
     }
 
+    @Override
     public boolean intersects(IGeoBounds bounds) {
         if (bounds == null) {
             throw new InvalidParameterException("null bounds.");
@@ -210,7 +238,8 @@ public class EmpBoundingBox extends GeoBounds {
         return this.intersects(bounds.getNorth(), bounds.getSouth(), bounds.getEast(), bounds.getWest());
     }
 
-    public boolean intersects(EmpBoundingBox bounds) {
+    @Override
+    public boolean intersects(IEmpBoundingBox bounds) {
         if (bounds == null) {
             throw new InvalidParameterException("null bounds.");
         }
@@ -221,6 +250,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the coordinate of the middle of the west edge of the boundary.
      * @return
      */
+    @Override
     public IGeoPosition centerWest() {
         IGeoPosition pos = new GeoPosition();
 
@@ -234,6 +264,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the coordinate of the middle of the east edge of the boundary.
      * @return
      */
+    @Override
     public IGeoPosition centerEast() {
         IGeoPosition pos = new GeoPosition();
 
@@ -247,6 +278,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the coordinate of the middle of the north edge of the boundary.
      * @return
      */
+    @Override
     public IGeoPosition centerNorth() {
         IGeoPosition pos = new GeoPosition();
 
@@ -260,6 +292,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the coordinate of the middle of the south edge of the boundary.
      * @return
      */
+    @Override
     public IGeoPosition centerSouth() {
         IGeoPosition pos = new GeoPosition();
 
@@ -275,6 +308,7 @@ public class EmpBoundingBox extends GeoBounds {
      * @param longitude
      * @return If if it is contained in the bounding box, false otherwise.
      */
+    @Override
     public boolean contains(double latitude, double longitude) {
         if (latitude > this.north()) {
             return false;
@@ -300,6 +334,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the width in meters of the bounding box across the center.
      * @return The Width in meters.
      */
+    @Override
     public double widthAcrossCenter() {
         IGeoPosition pos1 = this.centerWest();
         IGeoPosition pos2 = this.centerEast();
@@ -311,6 +346,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the height in meters of the bounding box across the center.
      * @return The Height in meters.
      */
+    @Override
     public double heightAcrossCenter() {
         IGeoPosition pos1 = centerNorth();
         IGeoPosition pos2 = centerSouth();
@@ -322,6 +358,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the latitude of the center of the bounding area.
      * @return Center latitude in degrees.
      */
+    @Override
     public double centerLatitude() {
         return (this.north() + this.south()) / 2.0;
     }
@@ -330,6 +367,7 @@ public class EmpBoundingBox extends GeoBounds {
      * This method returns the longitude of the center of the bounding area.
      * @return Center longitude in degrees.
      */
+    @Override
     public double centerLongitude() {
         if (this.containsIDL()) {
             return (((((this.west() + (this.deltaLongitude() / 2.0)) + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
@@ -345,7 +383,8 @@ public class EmpBoundingBox extends GeoBounds {
      * @param result A bounding box to place the result.
      * @return The result parameter with the intersecting bounds or null if the two bounding boxes do not intersect.
      */
-    public EmpBoundingBox intersection(EmpBoundingBox with, EmpBoundingBox result) {
+    @Override
+    public IEmpBoundingBox intersection(IEmpBoundingBox with, IEmpBoundingBox result) {
         if (null == with) {
             throw new InvalidParameterException("The with parameters can not be null.");
         }
@@ -401,7 +440,66 @@ public class EmpBoundingBox extends GeoBounds {
      * @param with The bounding box to intersect with.
      * @return The resulting bounding box. Or null if the two bounding boxes do not intersect.
      */
-    public EmpBoundingBox intersection(EmpBoundingBox with) {
+    @Override
+    public IEmpBoundingBox intersection(IEmpBoundingBox with) {
         return intersection(with, new EmpBoundingBox());
+    }
+
+    @Override
+    public void includePosition(double latitude, double longitude) {
+        if (Double.isNaN(latitude)) {
+            throw new InvalidParameterException("Ivalid latitude.");
+        }
+        if (Double.isNaN(longitude)) {
+            throw new InvalidParameterException("Ivalid longitude.");
+        }
+
+        if (Double.isNaN(getEast()) || Double.isNaN(getNorth()) || Double.isNaN(getSouth()) || Double.isNaN(getWest())) {
+            // The bounding box is new.
+            setNorth(latitude);
+            setSouth(latitude);
+            setWest(longitude);
+            setEast(longitude);
+        } else {
+            if (latitude > getNorth()) {
+                // Expand the north
+                setNorth(latitude);
+            }
+            if (latitude < getSouth()) {
+                // Expand the south.
+                setSouth(latitude);
+            }
+
+            if (containsIDL()) {
+                // the current box contains the IDL.
+                if ((longitude < getWest()) && (longitude > getEast())) {
+                    // Its outside of the current box.
+                    if (longitude > 0.0) {
+                        // Its closer to the west edge.
+                        setWest(longitude);
+                    } else {
+                        // Its closer to the east edge.
+                        setEast(longitude);
+                    }
+                }
+            } else {
+                if (longitude < getWest()) {
+                    if (Math.abs(getEast() - longitude) > 180.0) {
+                        // This point forces it to cross the IDL.
+                        setEast(longitude);
+                    } else {
+                        setWest(longitude);
+                    }
+                }
+                if (longitude > getEast()) {
+                    if (Math.abs(getWest() - longitude) > 180.0) {
+                        // This point forces it to cross the IDL.
+                        setWest(longitude);
+                    } else {
+                        setEast(longitude);
+                    }
+                }
+            }
+        }
     }
 }

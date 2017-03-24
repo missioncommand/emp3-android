@@ -27,6 +27,7 @@ import mil.emp3.api.Path;
 import mil.emp3.api.Text;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.FontUtilities;
@@ -65,7 +66,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     // The camera setting of the previous view change.
     protected final ICamera previousCamera;
     // The bounding box of the map.
-    private final EmpBoundingBox boundingBox;
+    private final IEmpBoundingBox boundingBox;
     // The meters per pixel across the center.
     private double metersPerPixel;
     // The generation thread.
@@ -87,7 +88,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
         @Override
         public void run() {
-            EmpBoundingBox mapBounds = new EmpBoundingBox();
+            IEmpBoundingBox mapBounds = new EmpBoundingBox();
             ICamera camera = new Camera();
             while (NotDone) {
                 try {
@@ -254,7 +255,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
      * @param camera         The current camera.
      * @param metersPerPixel The meters per pixel across the center of the map.
      */
-    protected abstract void processViewChange(EmpBoundingBox mapBounds, ICamera camera, double metersPerPixel);
+    protected abstract void processViewChange(IEmpBoundingBox mapBounds, ICamera camera, double metersPerPixel);
 
     /**
      * The sub class must override this method to set the properties of the path. If the grid objject type
@@ -338,7 +339,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         return FontUtilities.fontPointsToPixels((int) labelStyle.getSize());
     }
 
-    protected void displayGridLabel(String label, EmpBoundingBox mapBounds, double metersPerPixel) {
+    protected void displayGridLabel(String label, IEmpBoundingBox mapBounds, double metersPerPixel) {
         IGeoPosition labelPos;
 
         double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel / 4.0;

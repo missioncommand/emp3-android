@@ -57,6 +57,7 @@ import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -852,6 +853,12 @@ public class MainActivity extends AppCompatActivity
                                 public void run() {
                                     try {
                                         MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
+                                        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,
+                                                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                        if (permissionCheck !=  PERMISSION_GRANTED) {
+                                            ActivityCompat.requestPermissions(MainActivity.this,
+                                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                                        }
                                     } catch (EMP_Exception e) {
                                         e.printStackTrace();
                                     }
@@ -1558,12 +1565,36 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void exportSuccess(String kmlString) {
-                            Log.i(TAG, kmlString);
+                            //Log.i(TAG, kmlString);
+                            FileOutputStream out = null;
+                            File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                            File dest = new File(sd, "mapexport.kml");
+                            if (dest.exists()) {
+                                dest.delete();
+                            }
+                            try {
+                                out = new FileOutputStream(dest);
+                                out.write(kmlString.getBytes(), 0, kmlString.length());
+                                out.flush();
+                                MainActivity.this.makeToast("Export complete");
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to save kml file.", e);
+                                MainActivity.this.makeToast("Export failed");
+                            } finally {
+                                try {
+                                    if (out != null) {
+                                        out.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
 
                         @Override
                         public void exportFailed(Exception Ex) {
                             Log.e(TAG, "Map export to KML failed.", Ex);
+                            MainActivity.this.makeToast("Export failed");
                         }
                     });
                 } catch (Exception Ex) {
@@ -2801,6 +2832,7 @@ public class MainActivity extends AppCompatActivity
 
     private void plot2525CTG() {
         int tgCount = 0;
+        String name;
         int countPerLine = 0;
         ICamera camera = this.map.getCamera();
         IGeoPosition position = new GeoPosition();
@@ -2824,7 +2856,7 @@ public class MainActivity extends AppCompatActivity
             tgCount++;
 
             countPerLine++;
-            this.plotTacticalGraphic("TG-" + tgCount, oSymbolDef, position);
+            this.plotTacticalGraphic("TG-" + String.format("%04d", tgCount), oSymbolDef, position);
             if (countPerLine == 20) {
                 position.setLongitude(camera.getLongitude());
                 GeoLibrary.computePositionAt(180.0, 2500.0, position, position);
@@ -3287,5 +3319,15 @@ public class MainActivity extends AppCompatActivity
 
     public ICamera getCamera() {
         return this.oCamera;
+    }
+
+
+    private void makeToast(final String text) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
