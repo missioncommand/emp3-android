@@ -355,15 +355,15 @@ public class KMLExportThread extends java.lang.Thread {
     }
 
     private void exportStylesToKML(final GeoJSON geoJSONfeature, XmlSerializer xmlSerializer) throws IOException {
-        for (IFeature feature: geoJSONfeature.getFeatureList()) {
-            exportStylesToKML(feature, xmlSerializer);
-        }
+        //for (IFeature feature: geoJSONfeature.getFeatureList()) {
+        //    exportStylesToKML(feature, xmlSerializer);
+        //}
     }
 
     private void exportStylesToKML(final KML kmlfeature, XmlSerializer xmlSerializer) throws IOException {
-        for (IFeature feature: kmlfeature.getFeatureList()) {
-            exportStylesToKML(feature, xmlSerializer);
-        }
+        //for (IFeature feature: kmlfeature.getFeatureList()) {
+        //    exportStylesToKML(feature, xmlSerializer);
+        //}
     }
 
     private void exportStylesToKML(final MilStdSymbol feature, XmlSerializer xmlSerializer) throws IOException {
@@ -394,6 +394,8 @@ public class KMLExportThread extends java.lang.Thread {
                     this.map.isSelected(feature),
                     this.map.getSelectedStrokeStyle().getStrokeColor(),
                     this.map.getSelectedLabelStyle().getColor());
+
+            saAttr.put(MilStdAttributes.UseDashArray, "false");
 
             iconURL += getIconURLParameters(feature, saAttr);
 
@@ -431,14 +433,14 @@ public class KMLExportThread extends java.lang.Thread {
             //exportPolygonStylesToKML(feature, xmlSerializer);
         }
     }
-
+/*
     private void exportStylesToKML(final IContainer container, XmlSerializer xmlSerializer) throws IOException {
         if (container instanceof Point) {
             exportStylesToKML((Point) container, xmlSerializer);
         } else if (container instanceof Path) {
             exportStylesToKML((Path) container, xmlSerializer);
         } else if (container instanceof Polygon) {
-            exportStylesToKML((Polygon) container, xmlSerializer);
+            exportPolygonStylesToKML((Polygon) container, xmlSerializer);
         } else if (container instanceof MilStdSymbol) {
             exportStylesToKML((MilStdSymbol) container, xmlSerializer);
         } else if (container instanceof Text) {
@@ -457,15 +459,16 @@ public class KMLExportThread extends java.lang.Thread {
             }
         }
     }
-
+*/
     private void exportEmpObjectToKML(final Point feature, XmlSerializer xmlSerializer) throws IOException {
         serializePlacemark(feature, xmlSerializer, new KMLExportThread.ISerializePlacemarkGeometry() {
             @Override
             public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
                 if  (needStyle(feature)){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
                 }
                 xmlSerializer.startTag(null, "Point");
                 serializeExtrude(feature, xmlSerializer);
@@ -481,9 +484,10 @@ public class KMLExportThread extends java.lang.Thread {
             @Override
             public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
                 if  (needStyle(feature)){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
                 }
                 xmlSerializer.startTag(null, "LineString");
                 serializeExtrude(feature, xmlSerializer);
@@ -499,9 +503,10 @@ public class KMLExportThread extends java.lang.Thread {
             @Override
             public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
                 if  (needStyle(feature)){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
                 }
 
                 xmlSerializer.startTag(null, "Point");
@@ -523,9 +528,10 @@ public class KMLExportThread extends java.lang.Thread {
                 posList.add(feature.getPositions().get(0));
 
                 if  (polygonNeedStyle(feature)){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportPolygonStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
                 }
 
                 xmlSerializer.startTag(null, "Polygon");
@@ -551,9 +557,10 @@ public class KMLExportThread extends java.lang.Thread {
                 posList.add(feature.getPositions().get(0));
 
                 if  (polygonNeedStyle(feature)){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportPolygonStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
                 }
 
                 xmlSerializer.startTag(null, "Polygon");
@@ -574,9 +581,10 @@ public class KMLExportThread extends java.lang.Thread {
             @Override
             public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
                 if  (polygonNeedStyle(feature)){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportPolygonStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
                 }
                 List<IGeoPosition> posList = new ArrayList<>();
 
@@ -619,9 +627,10 @@ public class KMLExportThread extends java.lang.Thread {
                 posList.add(feature.getPositions().get(0));
 
                 if  (polygonNeedStyle(feature)){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportPolygonStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
                 }
 
                 xmlSerializer.startTag(null, "Polygon");
@@ -647,9 +656,10 @@ public class KMLExportThread extends java.lang.Thread {
                 posList.add(feature.getPositions().get(0));
 
                 if  (polygonNeedStyle(feature)){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportPolygonStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
                 }
 
                 xmlSerializer.startTag(null, "Polygon");
@@ -774,9 +784,10 @@ public class KMLExportThread extends java.lang.Thread {
             serializePlacemark(feature, xmlSerializer, new KMLExportThread.ISerializePlacemarkGeometry() {
                 @Override
                 public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + getStyleId(feature));
-                    xmlSerializer.endTag(null, "styleUrl");
+                    exportStylesToKML(feature, xmlSerializer);
+                    //xmlSerializer.startTag(null, "styleUrl");
+                    //xmlSerializer.text("#" + getStyleId(feature));
+                    //xmlSerializer.endTag(null, "styleUrl");
 
                     if (KMLExportThread.this.addExtendedData) {
                         xmlSerializer.startTag(null, "ExtendedData");
@@ -824,6 +835,9 @@ public class KMLExportThread extends java.lang.Thread {
                     KMLExportThread.this.map.isSelected(feature), KMLExportThread.this.map.getSelectedStrokeStyle().getStrokeColor(),
                     KMLExportThread.this.map.getSelectedLabelStyle().getColor());
             String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+
+            attributes.put(MilStdAttributes.UseDashArray, "false");
+
 
             String kmlTG = SECWebRenderer.RenderSymbol(
                     feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
@@ -956,7 +970,7 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.endTag(null, "description");
         }
 
-        exportStylesToKML(map, xmlSerializer);
+        //exportStylesToKML(map, xmlSerializer);
 
         for (IGeoBase geoObject : map.getChildren()) {
             if (geoObject instanceof IContainer) {
@@ -1007,7 +1021,7 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.endTag(null, "description");
         }
 
-        exportStylesToKML(overlay, xmlSerializer);
+        //exportStylesToKML(overlay, xmlSerializer);
 
         for (IGeoBase geoObject : overlay.getChildren()) {
             if (geoObject instanceof IContainer) {
@@ -1058,7 +1072,7 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.endTag(null, "description");
         }
 
-        exportStylesToKML(feature, xmlSerializer);
+        //exportStylesToKML(feature, xmlSerializer);
         exportEmpObjectToKML(feature, xmlSerializer);
 
         xmlSerializer.endTag(null, "Document");
