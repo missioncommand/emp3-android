@@ -93,7 +93,7 @@ public class GeoJsonExporter extends Thread{
                 addComma = true;
             }
             buffer.append("[");
-            buffer.append(position.getLatitude());
+            buffer.append(position.getLongitude());
             buffer.append(", ");
             buffer.append(position.getLatitude());
             buffer.append("]");
