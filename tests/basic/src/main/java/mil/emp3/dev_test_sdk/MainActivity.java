@@ -611,7 +611,7 @@ public class MainActivity extends AppCompatActivity
                                 iCount++;
 
                                 // Give the feature a name.
-                                oSPSymbol.setName("Unit " + iCount);
+                                oSPSymbol.setName(String.format("Unit-%04d", iCount));
 
                                 if ((iCount % 2) == 0) {
                                     oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSPSymbol.getName());
@@ -1611,7 +1611,30 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void exportSuccess(String kmlString) {
-                            Log.i(TAG, kmlString);
+                            FileOutputStream out = null;
+                            File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                            File dest = new File(sd, "overlayexport.kml");
+                            if (dest.exists()) {
+                                dest.delete();
+                            }
+                            try {
+                                out = new FileOutputStream(dest);
+                                byte[] byteArray = kmlString.getBytes();
+                                out.write(byteArray, 0, byteArray.length);
+                                out.flush();
+                                MainActivity.this.makeToast("Export complete");
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to save kml file.", e);
+                                MainActivity.this.makeToast("Export failed");
+                            } finally {
+                                try {
+                                    if (out != null) {
+                                        out.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
 
                         @Override
@@ -1631,7 +1654,31 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             public void exportSuccess(String kmlString) {
-                                Log.i(TAG, kmlString);
+                                //Log.i(TAG, kmlString);
+                                FileOutputStream out = null;
+                                File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                                File dest = new File(sd, "featureexport.kml");
+                                if (dest.exists()) {
+                                    dest.delete();
+                                }
+                                try {
+                                    out = new FileOutputStream(dest);
+                                    byte[] byteArray = kmlString.getBytes();
+                                    out.write(byteArray, 0, byteArray.length);
+                                    out.flush();
+                                    MainActivity.this.makeToast("Export complete");
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Failed to save kml file.", e);
+                                    MainActivity.this.makeToast("Export failed");
+                                } finally {
+                                    try {
+                                        if (out != null) {
+                                            out.close();
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
 
                             @Override
