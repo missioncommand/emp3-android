@@ -16,6 +16,7 @@ import java.util.List;
 import mil.emp3.api.Path;
 import mil.emp3.api.Text;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
@@ -114,7 +115,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
     }
 
     @Override
-    protected void processViewChange(EmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
+    protected void processViewChange(IEmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
         double metersInOneEighthOfAnInch = metersPerPixel * PIXELS_PER_INCH / 8.0;
 
         clearFeatureList();
@@ -198,7 +199,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         }
     }
 
-    private void createUTMMeridians(EmpBoundingBox mapBounds, UTMCoordinate utmZoneCoord, double metersPerPixel,
+    private void createUTMMeridians(IEmpBoundingBox mapBounds, UTMCoordinate utmZoneCoord, double metersPerPixel,
             double metersInOneEighthOfAnInch, int gridSize, boolean createValues, UTMCoordinate[] tempUTMCoordList) {
         IGeoPosition southPos = new GeoPosition();
         IGeoPosition northPos = new GeoPosition();
@@ -213,7 +214,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         UTMCoordinate southUTMCoord = tempUTMCoordList[0];
         UTMCoordinate northUTMCoord = tempUTMCoordList[1];
         UTMCoordinate labelUTMCoord = tempUTMCoordList[2];
-        EmpBoundingBox gridZoneBounds = new EmpBoundingBox();
+        IEmpBoundingBox gridZoneBounds = new EmpBoundingBox();
         double labelHeightMeters = getCharacterPixelWidth(UTM_GRID_NORTHING_VALUE) * metersPerPixel;
         boolean labelDetail = ((labelHeightMeters * 2) < metersInOneEighthOfAnInch);
         int majorGridSize = ((gridSize == UTM_100K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
@@ -325,7 +326,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         }
     }
 
-    private void createUTMParallels(EmpBoundingBox mapBounds, UTMCoordinate utmZoneCoord, double metersPerPixel,
+    private void createUTMParallels(IEmpBoundingBox mapBounds, UTMCoordinate utmZoneCoord, double metersPerPixel,
             double metersInOneEighthOfAnInch, int gridSize, boolean createValues, UTMCoordinate[] tempUTMCoordList) {
         IGeoPosition westPos = new GeoPosition();
         IGeoPosition eastPos = new GeoPosition();
@@ -428,7 +429,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         }
     }
 
-    private void createUTMGrid(EmpBoundingBox mapBounds, double metersPerPixel, double metersInOneEighthOfAnInch, int gridSize) {
+    private void createUTMGrid(IEmpBoundingBox mapBounds, double metersPerPixel, double metersInOneEighthOfAnInch, int gridSize) {
         int westLongitude;
         int eastLongitude;
         double longitude;

@@ -2,6 +2,7 @@ package mil.emp3.api.utils.kml;
 
 import android.graphics.Bitmap;
 import android.util.Base64;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.Xml;
 
@@ -13,6 +14,9 @@ import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.ByteArrayOutputStream;
@@ -25,7 +29,6 @@ import java.util.List;
 import armyc2.c2sd.renderer.MilStdIconRenderer;
 import armyc2.c2sd.renderer.utilities.ImageInfo;
 import armyc2.c2sd.renderer.utilities.MilStdAttributes;
-import armyc2.c2sd.renderer.utilities.ModifiersUnits;
 import mil.emp3.api.Circle;
 import mil.emp3.api.Ellipse;
 import mil.emp3.api.GeoJSON;
@@ -40,14 +43,16 @@ import mil.emp3.api.Text;
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.interfaces.IContainer;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IFeature;
-import mil.emp3.api.interfaces.IKMLExportable;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ManagerFactory;
+import mil.emp3.api.utils.MilStdUtilities;
+import sec.web.render.SECWebRenderer;
 
 /**
  * This class implements the KML export capability in a separate thread.
@@ -67,6 +72,7 @@ public class KMLExportThread extends java.lang.Thread {
     private final IFeature feature;
     private final IEmpExportToStringCallback callback;
     private final MilStdLabelSettingEnum eLabelSetting;
+    private final java.util.Set<IGeoMilSymbol.Modifier> oLabels;
     private final static MilStdIconRenderer oIconRenderer = MilStdIconRenderer.getInstance();
     private final static SparseArray<String> emptyArray = new SparseArray<>();
     private IGeoIconStyle tempIconStyle = new GeoIconStyle();
@@ -85,7 +91,7 @@ public class KMLExportThread extends java.lang.Thread {
             throws IOException {
         if ((null != container.getName()) && !container.getName().isEmpty()) {
             xmlSerializer.startTag(null, "name");
-            xmlSerializer.text(container.getName());
+            xmlSerializer.cdsect(container.getName());
             xmlSerializer.endTag(null, "name");
         }
     }
@@ -94,7 +100,7 @@ public class KMLExportThread extends java.lang.Thread {
             throws IOException {
         if ((null != container.getDescription()) && !container.getDescription().isEmpty()) {
             xmlSerializer.startTag(null, "description");
-            xmlSerializer.text(container.getDescription());
+            xmlSerializer.cdsect(container.getDescription());
             xmlSerializer.endTag(null, "description");
         }
     }
@@ -115,24 +121,34 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void serializeCoordinates(List<IGeoPosition> coorList, XmlSerializer xmlSerializer)
+    private String convertPositionsToString(List<IGeoPosition> posList) {
+        String temp = "";
+
+        if (posList.isEmpty()) {
+            return temp;
+        }
+
+        for (IGeoPosition pos : posList) {
+            if (!temp.isEmpty()) {
+                temp += " ";
+            }
+            temp += pos.getLongitude() + "," + pos.getLatitude() + "," + pos.getAltitude();
+        }
+
+        return temp;
+    }
+
+    private void serializeCoordinates(List<IGeoPosition> posList, XmlSerializer xmlSerializer)
             throws IOException {
         String temp = "";
 
-        if (coorList.isEmpty()) {
+        if (posList.isEmpty()) {
             return;
         }
 
         xmlSerializer.startTag(null, "coordinates");
-        for (IGeoPosition pos : coorList) {
-            if (!temp.isEmpty()) {
-                temp = " ";
-            }
-            temp += pos.getLongitude() + "," + pos.getLatitude() + "," + pos.getAltitude();
-        }
-        xmlSerializer.text(temp);
+        xmlSerializer.text(convertPositionsToString(posList));
         xmlSerializer.endTag(null, "coordinates");
-
     }
 
     private void serializeAltitudeMode(IFeature feature, XmlSerializer xmlSerializer)
@@ -369,7 +385,8 @@ public class KMLExportThread extends java.lang.Thread {
                 xmlSerializer.endTag(null, "heading");
             }
 
-            String iconURL = "[MIL_SYM_SERVICE_URL]/mil-sym-service/renderer/image/" + feature.getSymbolCode();
+            //String iconURL = "[MIL_SYM_SERVICE_URL]/mil-sym-service/renderer/image/" + feature.getSymbolCode();
+            String iconURL = "http://localhost:8080/mil-sym-service/renderer/image/" + feature.getSymbolCode();
 
             ImageInfo oImageInfo = null;
             SparseArray<String> saModifiers = feature.getUnitModifiers(this.map.getMilStdLabels());
@@ -411,7 +428,7 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.endTag(null, "IconStyle");
             xmlSerializer.endTag(null, "Style");
         } else if (polygonNeedStyle(feature)) {
-            exportPolygonStylesToKML(feature, xmlSerializer);
+            //exportPolygonStylesToKML(feature, xmlSerializer);
         }
     }
 
@@ -648,6 +665,109 @@ public class KMLExportThread extends java.lang.Thread {
         });
     }
 
+    private void addMilStdModifierExtendedData(final MilStdSymbol feature, XmlSerializer xmlSerializer) throws IOException {
+        java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = feature.getModifiers();
+        java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
+
+        for (IGeoMilSymbol.Modifier eModifier: oModifierList) {
+            xmlSerializer.startTag(null, "Data");
+            xmlSerializer.attribute(null, "name", "modifier:" + eModifier.valueOf());
+            xmlSerializer.startTag(null, "value");
+            xmlSerializer.text("" + geoModifiers.get(eModifier));
+            xmlSerializer.endTag(null, "value");
+            xmlSerializer.endTag(null, "Data");
+        }
+    }
+
+    private void addPositionsExtendedData(final List<IGeoPosition> coorList, XmlSerializer xmlSerializer) throws IOException {
+        String temp = "";
+
+        if (coorList.isEmpty()) {
+            return;
+        }
+
+        xmlSerializer.startTag(null, "Data");
+        xmlSerializer.attribute(null, "name", "positionList");
+        for (IGeoPosition pos : coorList) {
+            if (!temp.isEmpty()) {
+                temp += " ";
+            }
+            temp += pos.getLongitude() + "," + pos.getLatitude() + "," + pos.getAltitude();
+        }
+        xmlSerializer.startTag(null, "value");
+        xmlSerializer.text(temp);
+        xmlSerializer.endTag(null, "value");
+        xmlSerializer.endTag(null, "Data");
+    }
+
+    private void parseTag(final MilStdSymbol feature, XmlPullParser parser, XmlSerializer xmlSerializer)
+            throws IOException, XmlPullParserException {
+        int eventType = parser.getEventType();
+        String tagName = parser.getName();
+
+        xmlSerializer.startTag(null, tagName);
+        if (parser.getAttributeCount() > 0) {
+            // Transfer all the tags attributes.
+            for (int iIndex = 0; iIndex < parser.getAttributeCount(); iIndex++) {
+                xmlSerializer.attribute(null, parser.getAttributeName(iIndex), parser.getAttributeValue(iIndex));
+            }
+        }
+
+        if (tagName.equals("Folder")) {
+            if (KMLExportThread.this.addExtendedData) {
+                xmlSerializer.startTag(null, "ExtendedData");
+
+                xmlSerializer.startTag(null, "Data");
+                xmlSerializer.attribute(null, "name", "symbolCode");
+                xmlSerializer.startTag(null, "value");
+                xmlSerializer.text(feature.getSymbolCode());
+                xmlSerializer.endTag(null, "value");
+                xmlSerializer.endTag(null, "Data");
+
+                addMilStdModifierExtendedData(feature, xmlSerializer);
+                addPositionsExtendedData(feature.getPositions(), xmlSerializer);
+
+                xmlSerializer.endTag(null, "ExtendedData");
+            }
+        }
+
+        eventType = parser.nextToken();
+        while (!(eventType == XmlPullParser.END_TAG && parser.getName().equals(tagName))) {
+            if (eventType == XmlPullParser.START_TAG) {
+                parseTag(feature, parser, xmlSerializer);
+            } else if (eventType == XmlPullParser.CDSECT) {
+                xmlSerializer.cdsect(parser.getText());
+            } else if (eventType == XmlPullParser.TEXT) {
+                if (!parser.isWhitespace()) {
+                    xmlSerializer.text(parser.getText());
+                }
+            }
+            eventType = parser.nextToken();
+        }
+
+        xmlSerializer.endTag(null, tagName);
+    }
+
+    private void insertXMLString(final MilStdSymbol feature, String xmlString, XmlSerializer xmlSerializer)
+            throws XmlPullParserException, IOException {
+        XmlPullParser parser;
+
+        java.io.StringReader reader = new java.io.StringReader(xmlString);
+        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+
+        factory.setNamespaceAware(true);
+        parser = factory.newPullParser();
+        parser.setInput(reader);
+
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            if (eventType == XmlPullParser.START_TAG) {
+                parseTag(feature, parser, xmlSerializer);
+            }
+            eventType = parser.nextToken();
+        }
+    }
+
     private void exportEmpObjectToKML(final MilStdSymbol feature, XmlSerializer xmlSerializer) throws IOException {
 
         if (feature.isSinglePoint()) {
@@ -658,38 +778,71 @@ public class KMLExportThread extends java.lang.Thread {
                     xmlSerializer.text("#" + getStyleId(feature));
                     xmlSerializer.endTag(null, "styleUrl");
 
+                    if (KMLExportThread.this.addExtendedData) {
+                        xmlSerializer.startTag(null, "ExtendedData");
+
+                        xmlSerializer.startTag(null, "Data");
+                        xmlSerializer.attribute(null, "name", "symbolCode");
+                        xmlSerializer.startTag(null, "value");
+                        xmlSerializer.text(feature.getSymbolCode());
+                        xmlSerializer.endTag(null, "value");
+                        xmlSerializer.endTag(null, "Data");
+
+                        addMilStdModifierExtendedData(feature, xmlSerializer);
+                        addPositionsExtendedData(feature.getPositions(), xmlSerializer);
+/*
+                        if (feature.containsProperty(TEMP_DATAURL_STRING)) {
+                            xmlSerializer.startTag(null, "Data");
+                            xmlSerializer.attribute(null, "name", "dataURL");
+                            xmlSerializer.startTag(null, "value");
+                            xmlSerializer.text(feature.getProperty(TEMP_DATAURL_STRING));
+                            xmlSerializer.endTag(null, "value");
+                            xmlSerializer.endTag(null, "Data");
+
+                            feature.removeProperty(TEMP_DATAURL_STRING);
+                        }
+*/
+                        xmlSerializer.endTag(null, "ExtendedData");
+                    }
+
                     xmlSerializer.startTag(null, "Point");
                     serializeExtrude(feature, xmlSerializer);
                     serializeAltitudeMode(feature, xmlSerializer);
                     serializeCoordinates(feature.getPositions(), xmlSerializer);
                     xmlSerializer.endTag(null, "Point");
-
-                    feature.removeProperty(TEMP_DATAURL_STRING);
                 }
             });
         } else {
-            serializePlacemark(feature, xmlSerializer, new KMLExportThread.ISerializePlacemarkGeometry() {
-                @Override
-                public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
+            IEmpBoundingBox bBox = feature.getTacticalGraphicBoundingBox();
+            String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
+            String coordinateStr = convertPositionsToString(feature.getPositions());
 
+            double scale = 636000.0;
 
-                    if  (polygonNeedStyle(feature)){
-                        xmlSerializer.startTag(null, "styleUrl");
-                        xmlSerializer.text("#" + getStyleId(feature));
-                        xmlSerializer.endTag(null, "styleUrl");
-                    }
+            SparseArray<String> modifiers = feature.getTGModifiers(KMLExportThread.this.eLabelSetting);
+            SparseArray<String> attributes = feature.getAttributes(KMLExportThread.this.map.getIconPixelSize(),
+                    KMLExportThread.this.map.isSelected(feature), KMLExportThread.this.map.getSelectedStrokeStyle().getStrokeColor(),
+                    KMLExportThread.this.map.getSelectedLabelStyle().getColor());
+            String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
 
-                    xmlSerializer.startTag(null, "Polygon");
-                    serializeExtrude(feature, xmlSerializer);
-                    serializeAltitudeMode(feature, xmlSerializer);
-                    xmlSerializer.startTag(null, "outerBoundaryIs");
-                    xmlSerializer.startTag(null, "LinearRing");
-                    //serializeCoordinates(posList, xmlSerializer);
-                    xmlSerializer.endTag(null, "LinearRing");
-                    xmlSerializer.endTag(null, "outerBoundaryIs");
-                    xmlSerializer.endTag(null, "Polygon");
+            String kmlTG = SECWebRenderer.RenderSymbol(
+                    feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
+                    feature.getSymbolCode(), coordinateStr, altitudeModeStr, scale, boundingBoxStr,
+                    modifiers, attributes, 0, feature.geoMilStdVersionToRendererVersion());
+
+            //Log.i(TAG, kmlTG);
+            int iIndex = kmlTG.indexOf("<Folder");
+
+            if (iIndex == -1) {
+                //xmlSerializer.comment("ERROR: " + kmlTG);
+                Log.e(TAG, feature.getName() + " Renderer Error: " + kmlTG);
+            } else {
+                try {
+                    insertXMLString(feature, kmlTG, xmlSerializer);
+                } catch (Exception e) {
+                    throw new IOException("Failed to insert renderer KML output. " + kmlTG, e);
                 }
-            });
+            }
         }
     }
 
@@ -760,8 +913,8 @@ public class KMLExportThread extends java.lang.Thread {
             }
 
             for (IGeoBase geoObject : container.getChildren()) {
-                if (geoObject instanceof IKMLExportable) {
-                    ((IKMLExportable) geoObject).exportEmpObjectToKML(xmlSerializer);
+                if (geoObject instanceof IContainer) {
+                    exportEmpObjectToKML((IContainer) geoObject, xmlSerializer);
                 }
             }
 
@@ -787,9 +940,11 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.attribute(null, "id", map.getGeoId().toString());
         }
 
+        xmlSerializer.comment("This KML document has been generated by the Extensible Mapping Platform V3.");
+
         xmlSerializer.startTag(null, "name");
         if ((null != map.getName()) && !map.getName().isEmpty()) {
-            xmlSerializer.text(map.getName());
+            xmlSerializer.cdsect(map.getName());
         } else {
             xmlSerializer.text("EMP Untitled Map");
         }
@@ -797,7 +952,7 @@ public class KMLExportThread extends java.lang.Thread {
 
         if ((null != map.getDescription()) && !map.getDescription().isEmpty()) {
             xmlSerializer.startTag(null, "description");
-            xmlSerializer.text(map.getDescription());
+            xmlSerializer.cdsect(map.getDescription());
             xmlSerializer.endTag(null, "description");
         }
 
@@ -835,6 +990,8 @@ public class KMLExportThread extends java.lang.Thread {
         } else {
             xmlSerializer.attribute(null, "id", overlay.getGeoId().toString());
         }
+
+        xmlSerializer.comment("This KML document has been generated by the Extensible Mapping Platform V3.");
 
         xmlSerializer.startTag(null, "name");
         if ((null != overlay.getName()) && !overlay.getName().isEmpty()) {
@@ -885,6 +1042,8 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.attribute(null, "id", feature.getGeoId().toString());
         }
 
+        xmlSerializer.comment("This KML document has been generated by the Extensible Mapping Platform V3.");
+
         xmlSerializer.startTag(null, "name");
         if ((null != feature.getName()) && !feature.getName().isEmpty()) {
             xmlSerializer.text(feature.getName());
@@ -916,7 +1075,6 @@ public class KMLExportThread extends java.lang.Thread {
         String UniqueDesignator1 = null;
         String params = "";
         java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = feature.getModifiers();
-        java.util.Set<IGeoMilSymbol.Modifier> oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
 
         if (null != saAttr) {
             for (int iIndex = 0; iIndex < saAttr.size(); iIndex++) {
@@ -971,7 +1129,7 @@ public class KMLExportThread extends java.lang.Thread {
                         if (!params.isEmpty()) {
                             params += "&";
                         }
-                        params += "tfontSize=" + value;
+                        params += "fontSize=" + value;
                         break;
                 }
             }
@@ -1081,7 +1239,11 @@ public class KMLExportThread extends java.lang.Thread {
             } else if (null != this.map) {
                 kmlString = export(this.map, xmlSerializer);
             }
-            this.callback.exportSuccess(kmlString);
+            try {
+                this.callback.exportSuccess(kmlString);
+            } catch (Exception Ex) {
+                Log.e(TAG, "Exception raised in export callback.", Ex);
+            }
         } catch (Exception Ex) {
             this.callback.exportFailed(Ex);
         }
@@ -1094,6 +1256,7 @@ public class KMLExportThread extends java.lang.Thread {
         this.callback = callback;
         this.addExtendedData = extendedData;
         this.eLabelSetting = storageManager.getMilStdLabels(this.map);
+        this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
     }
 
     protected KMLExportThread(IMap map, IOverlay overlay, boolean extendedData, IEmpExportToStringCallback callback) {
@@ -1103,6 +1266,7 @@ public class KMLExportThread extends java.lang.Thread {
         this.callback = callback;
         this.addExtendedData = extendedData;
         this.eLabelSetting = storageManager.getMilStdLabels(this.map);
+        this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
     }
 
     protected KMLExportThread(IMap map, IFeature feature, boolean extendedData, IEmpExportToStringCallback callback) {
@@ -1112,5 +1276,6 @@ public class KMLExportThread extends java.lang.Thread {
         this.callback = callback;
         this.addExtendedData = extendedData;
         this.eLabelSetting = storageManager.getMilStdLabels(this.map);
+        this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
     }
 }
