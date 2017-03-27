@@ -92,66 +92,6 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         return this.getRenderable().getRadius();
     }
 
-    public List<IGeoPosition> getPolygonPositionList() {
-        double distanceFromCenter = this.getRadius();
-        double deltaBearing = Math.toDegrees(Math.atan2(0.005, 1.0));
-        List<IGeoPosition> posList = new ArrayList<>();
-        IGeoPosition center = this.getPosition();
-        IGeoPosition zerozero = new GeoPosition();
-        IGeoPosition pos1, pos, tempPos;
-        int pointsPerQuadrant;
-
-        zerozero.setLatitude(0.0);
-        zerozero.setLongitude(0.0);
-
-        // Generate the coordinates for the perimeter.
-        pos1 = GeoLibrary.computePositionAt(0, distanceFromCenter, zerozero);
-        posList.add(pos1);
-        // Create position for the top right quadrant.
-        for (double bearing = deltaBearing; bearing < 90.0; bearing += deltaBearing) {
-            pos = GeoLibrary.computePositionAt(bearing, distanceFromCenter, zerozero);
-            posList.add(pos);
-        }
-
-        pointsPerQuadrant = posList.size();
-
-        // Now shadow the top right quadrant onto the bottom right quadrant and offset it by the center coordinate.
-        for (int iIndex = pointsPerQuadrant - 1; iIndex >= 0; iIndex--) {
-            tempPos = posList.get(iIndex);
-            pos = new GeoPosition();
-            pos.setLatitude((tempPos.getLatitude() * -1.0) + center.getLatitude());
-            pos.setLongitude(tempPos.getLongitude() + center.getLongitude());
-            posList.add(pos);
-        }
-
-        // Now shadow the top right quadrant onto the bottom left quadrant and offset it by the center coordinate.
-        for (int iIndex = 0; iIndex < pointsPerQuadrant; iIndex++) {
-            tempPos = posList.get(iIndex);
-            pos = new GeoPosition();
-            pos.setLatitude((tempPos.getLatitude() * -1.0) + center.getLatitude());
-            pos.setLongitude((tempPos.getLongitude() * -1.0) + center.getLongitude());
-            posList.add(pos);
-        }
-
-        // Now shadow the top right quadrant onto the top left quadrant and offset it by the center coordinate.
-        for (int iIndex = pointsPerQuadrant - 1; iIndex >= 0; iIndex--) {
-            tempPos = posList.get(iIndex);
-            pos = new GeoPosition();
-            pos.setLatitude(tempPos.getLatitude() + center.getLatitude());
-            pos.setLongitude((tempPos.getLongitude() * -1.0) + center.getLongitude());
-            posList.add(pos);
-        }
-
-        // Now offset the top right quadrant by the center coordinate.
-        for (int iIndex = 0; iIndex < pointsPerQuadrant; iIndex++) {
-            pos = posList.get(iIndex);
-            pos.setLatitude(pos.getLatitude() + center.getLatitude());
-            pos.setLongitude(pos.getLongitude() + center.getLongitude());
-        }
-
-        return posList;
-    }
-
     public IEmpBoundingBox getFeatureBoundingBox() {
         IEmpBoundingBox bBox = null;
         List<IGeoPosition> posList = getPositions();

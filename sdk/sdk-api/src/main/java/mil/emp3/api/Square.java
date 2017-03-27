@@ -114,62 +114,6 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
         return this.getRenderable().getWidth();
     }
 
-    public List<IGeoPosition> getCorners() {
-        IGeoPosition pos;
-        double halfWidthE2;
-        double distanceToCorner;
-        double bearingToTopRightCorner;
-        double bearing;
-        double azimuth = this.getAzimuth();
-        List<IGeoPosition> posList = new ArrayList<>();
-
-        halfWidthE2 = this.getWidth() / 2.0;
-
-        bearingToTopRightCorner = 45.0;
-        if (azimuth != 0.0) {
-            bearing = ((((bearingToTopRightCorner + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
-        } else {
-            bearing = bearingToTopRightCorner;
-        }
-
-        halfWidthE2 = halfWidthE2 * halfWidthE2;
-
-        distanceToCorner = Math.sqrt(2.0 * halfWidthE2);
-
-        // Calculate the top right position.
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
-
-        // Calculate the bottom right position.
-        bearing = (bearingToTopRightCorner * -1.0) + 180.0;
-        if (azimuth != 0.0) {
-            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
-        }
-
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
-
-        // Calculate the bottom left position.
-        bearing = bearingToTopRightCorner - 180.0;
-        if (azimuth != 0.0) {
-            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
-        }
-
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
-
-        // Calculate the top left position.
-        bearing = bearingToTopRightCorner * -1.0;
-        if (azimuth != 0.0) {
-            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
-        }
-
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
-
-        return posList;
-    }
-
     public IEmpBoundingBox getFeatureBoundingBox() {
         double halfWidthE2;
         double distanceToCorner;

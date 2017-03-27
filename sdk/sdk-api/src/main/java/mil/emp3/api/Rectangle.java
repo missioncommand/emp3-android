@@ -149,65 +149,6 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         return this.getRenderable().getHeight();
     }
 
-    public List<IGeoPosition> getCorners() {
-        IGeoPosition pos;
-        double halfHeightE2;
-        double halfWidthE2;
-        double distanceToCorner;
-        double bearingToTopRightCorner;
-        double bearing;
-        double azimuth = this.getAzimuth();
-        List<IGeoPosition> posList = new ArrayList<>();
-
-        halfHeightE2 = this.getHeight() / 2.0;
-        halfWidthE2 = this.getWidth() / 2.0;
-
-        bearingToTopRightCorner = Math.toDegrees(Math.atan2(halfWidthE2, halfHeightE2));
-        if (azimuth != 0.0) {
-            bearing = ((((bearingToTopRightCorner + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
-        } else {
-            bearing = bearingToTopRightCorner;
-        }
-
-        halfHeightE2 = halfHeightE2 * halfHeightE2;
-        halfWidthE2 = halfWidthE2 * halfWidthE2;
-
-        distanceToCorner = Math.sqrt(halfHeightE2 + halfWidthE2);
-
-        // Calculate the top right position.
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
-
-        // Calculate the bottom right position.
-        bearing = (bearingToTopRightCorner * -1.0) + 180.0;
-        if (azimuth != 0.0) {
-            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
-        }
-
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
-
-        // Calculate the bottom left position.
-        bearing = bearingToTopRightCorner - 180.0;
-        if (azimuth != 0.0) {
-            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
-        }
-
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
-
-        // Calculate the top left position.
-        bearing = bearingToTopRightCorner * -1.0;
-        if (azimuth != 0.0) {
-            bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
-        }
-
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
-
-        return posList;
-    }
-
     public IEmpBoundingBox getFeatureBoundingBox() {
         double halfHeightE2;
         double halfWidthE2;
