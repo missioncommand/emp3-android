@@ -113,6 +113,7 @@ public interface IStorageManager {
     IconSizeEnum getIconSize(IMapInstance mapInstance);
 
     int getIconPixelSize(IMapInstance mapInstance);
+    int getIconPixelSize(IMap map);
 
     MilStdLabelSettingEnum getMilStdLabels(IMapInstance mapInstance);
 
@@ -208,11 +209,25 @@ public interface IStorageManager {
     IGeoStrokeStyle getSelectedStrokeStyle(IMapInstance mapInstance);
 
     /**
+     * This method returns the select stroke style for the map.
+     * @param map
+     * @return
+     */
+    IGeoStrokeStyle getSelectedStrokeStyle(IMap map);
+
+    /**
      * This method returns the select label style for the map instance.
      * @param mapInstance
      * @return
      */
     IGeoLabelStyle getSelectedLabelStyle(IMapInstance mapInstance);
+
+    /**
+     * This method returns the select label style for the map instance.
+     * @param map
+     * @return
+     */
+    IGeoLabelStyle getSelectedLabelStyle(IMap map);
 
     /**
      * This method returns the select icon scale for the map instance.
@@ -222,11 +237,26 @@ public interface IStorageManager {
     double getSelectedIconScale(IMapInstance mapInstance);
 
     /**
+     * This method returns the select icon scale for the map.
+     * @param map
+     * @return
+     */
+    double getSelectedIconScale(IMap map);
+
+    /**
      * Returns fill style used for the buffer drawn around a basic shape
      * @param mapInstance
      * @return
      */
     IGeoFillStyle getBufferFillStyle(IMapInstance mapInstance);
+
+    /**
+     * Returns fill style used for the buffer drawn around a basic shape
+     * @param map
+     * @return
+     */
+    IGeoFillStyle getBufferFillStyle(IMap map);
+
     /**
      * This method set the default altitude mode if the feature's altitude mode is not set.
      * @param feature

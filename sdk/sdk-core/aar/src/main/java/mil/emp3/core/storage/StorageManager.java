@@ -1904,6 +1904,16 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
+    public int getIconPixelSize(IMap map) {
+        IClientMapToMapInstance oMapping = this.getMapMapping(map);
+
+        if (oMapping == null) {
+            return 0;
+        }
+        return oMapping.getIconPixelSize();
+    }
+
+    @Override
     public MilStdLabelSettingEnum getMilStdLabels(IMapInstance mapInstance) {
         IClientMapToMapInstance oMapping = this.getMapMapping(mapInstance);
         
@@ -2383,8 +2393,20 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
+    public IGeoStrokeStyle getSelectedStrokeStyle(IMap map) {
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
+        return mapping.getSelectStrokeStyle();
+    }
+
+    @Override
     public IGeoFillStyle getBufferFillStyle(IMapInstance mapInstance) {
         IClientMapToMapInstance mapping = this.getMapMapping(mapInstance);
+        return mapping.getBufferFillStyle();
+    }
+
+    @Override
+    public IGeoFillStyle getBufferFillStyle(IMap map) {
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
         return mapping.getBufferFillStyle();
     }
 
@@ -2399,6 +2421,11 @@ public class StorageManager implements IStorageManager {
         return mapping.getSelectLabelStyle();
     }
 
+    public IGeoLabelStyle getSelectedLabelStyle(IMap map) {
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
+        return mapping.getSelectLabelStyle();
+    }
+
     /**
      * This method returns the select icon scale for the map instance.
      * @param mapInstance
@@ -2407,6 +2434,11 @@ public class StorageManager implements IStorageManager {
     @Override
     public double getSelectedIconScale(IMapInstance mapInstance) {
         IClientMapToMapInstance mapping = this.getMapMapping(mapInstance);
+        return mapping.getSelectIconScale();
+    }
+
+    public double getSelectedIconScale(IMap map) {
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
         return mapping.getSelectIconScale();
     }
 

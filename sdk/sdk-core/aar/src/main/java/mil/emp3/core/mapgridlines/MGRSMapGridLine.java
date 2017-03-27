@@ -17,7 +17,9 @@ import java.util.Map;
 
 import mil.emp3.api.Path;
 import mil.emp3.api.Text;
+import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
@@ -169,7 +171,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
     }
 
     @Override
-    protected void processViewChange(EmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
+    protected void processViewChange(IEmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
         double metersInOneEighthOfAnInch;
         metersInOneEighthOfAnInch = metersPerPixel * PIXELS_PER_INCH / 8.0;
 
@@ -223,16 +225,16 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         }
     }
 
-    private void createMGRSGrid(EmpBoundingBox mapBounds, ICamera camera, double metersPerPixel, double metersInOneEighthOfAnInch, int gridSize) {
+    private void createMGRSGrid(IEmpBoundingBox mapBounds, ICamera camera, double metersPerPixel, double metersInOneEighthOfAnInch, int gridSize) {
         int longitude;
         int latitude;
         int eastZoneNumber;
-        EmpBoundingBox gridZoneBounds = new EmpBoundingBox();
+        IEmpBoundingBox gridZoneBounds = new EmpBoundingBox();
         UTMCoordinate gridZoneUTMCoord = new UTMCoordinate();
         // UTM coordinates are used by the methods called by this method.
         // We allocate this list here so they can be allocated once per execution.
         UTMCoordinate[] tempUTMCoordList = {new UTMCoordinate(), new UTMCoordinate(), new UTMCoordinate(), new UTMCoordinate(), new UTMCoordinate()};
-        EmpBoundingBox tempBoundingBox = new EmpBoundingBox();
+        IEmpBoundingBox tempBoundingBox = new EmpBoundingBox();
 
         double minLatitude = Math.max(mapBounds.getSouth(), -80.0);
         double maxLatitude = Math.min(mapBounds.getNorth(), 84.0);
@@ -297,8 +299,8 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
      * @param drawBounds          The bounding box of the area to draw in.
      * @param gridSize            The MGRS grid size.
      */
-    private void createMGRSGridParallels(UTMCoordinate gridZoneUTMCoord, EmpBoundingBox gridZoneBounds,
-            UTMCoordinate[] tempUTMCoordList, EmpBoundingBox mapBounds, EmpBoundingBox drawBounds, int gridSize) {
+    private void createMGRSGridParallels(UTMCoordinate gridZoneUTMCoord, IEmpBoundingBox gridZoneBounds,
+            UTMCoordinate[] tempUTMCoordList, IEmpBoundingBox mapBounds, IEmpBoundingBox drawBounds, int gridSize) {
         double latitude;
         double longitude;
         double tempNorthing;
@@ -381,7 +383,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
      * @param drawBounds          The bounding box of the area to draw in.
      * @param gridSize            The MGRS grid size.
      */
-    private void createMGRSGridMeridians(UTMCoordinate gridZoneUTMCoord, EmpBoundingBox GridZoneBounds, UTMCoordinate[] tempUTMCoordList, EmpBoundingBox drawBounds, int gridSize) {
+    private void createMGRSGridMeridians(UTMCoordinate gridZoneUTMCoord, IEmpBoundingBox GridZoneBounds, UTMCoordinate[] tempUTMCoordList, IEmpBoundingBox drawBounds, int gridSize) {
         List<IGeoPosition> positionList;
         IFeature gridObject;
         int tempValue;
@@ -391,7 +393,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         IGeoPosition tempPos = new GeoPosition();
         UTMCoordinate tempUTMCoord1 = tempUTMCoordList[0];
         UTMCoordinate tempUTMCoord2 = tempUTMCoordList[1];
-        EmpBoundingBox tempBounds = new EmpBoundingBox();
+        IEmpBoundingBox tempBounds = new EmpBoundingBox();
         int parentGridSize = ((gridSize != MGRS_100K_METER_GRID)? gridSize * 10: MGRS_100K_METER_GRID);
 
         // Get the UTM coordinates of the first grid line.
@@ -495,7 +497,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
      * @param metersInOneEighthOfAnInch    The number of meters in 1/8 of an inch on the screen.
      * @param tempUTMCoordList             A list of UTMCoordinate variable that the method can use.
      */
-    private void createMGRSGirdNorthingValues(EmpBoundingBox mapBounds, int gridSize,
+    private void createMGRSGirdNorthingValues(IEmpBoundingBox mapBounds, int gridSize,
             double metersPerPixel, double metersInOneEighthOfAnInch, UTMCoordinate[] tempUTMCoordList) {
         int northValue;
         double labelLongitude;
@@ -510,8 +512,8 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         int gridIncrement = ((gridSize == MGRS_10K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
         int displayDigits;
         int mgrsGridBoxNorthingStart;
-        EmpBoundingBox gridZoneBounds = new EmpBoundingBox();
-        EmpBoundingBox gridZoneInMapViewBounds = new EmpBoundingBox();
+        IEmpBoundingBox gridZoneBounds = new EmpBoundingBox();
+        IEmpBoundingBox gridZoneInMapViewBounds = new EmpBoundingBox();
 
         displayDigits = this.gridValueDigits.get(gridSize);
 
@@ -569,7 +571,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
             tempUTMCoord.setNorthing(tempUTMCoord.getNorthing() + gridIncrement);
             northValueUTMCoord.setNorthing(northValueUTMCoord.getNorthing() + gridIncrement);
 
-            if (((int) northValueUTMCoord.getNorthing() % MGRS_100K_METER_GRID) == 0) {
+            if ((int) global.modulus(northValueUTMCoord.getNorthing(), MGRS_100K_METER_GRID) == 0) {
                 mgrsGridBoxNorthingStart = (int) northValueUTMCoord.getNorthing();
             }
             tempUTMCoord.toLatLong(valuePos);
@@ -584,7 +586,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
      * @param metersInOneEighthOfAnInch    The number of meters in 1/8 of an inch on the screen.
      * @param tempUTMCoordList             A list of UTMCoordinate variable that the method can use.
      */
-    private void createMGRSGirdEastingValues(EmpBoundingBox mapBounds, int gridSize,
+    private void createMGRSGirdEastingValues(IEmpBoundingBox mapBounds, int gridSize,
             double metersPerPixel, double metersInOneEighthOfAnInch, UTMCoordinate[] tempUTMCoordList) {
         int eastValue;
         int tempValue;
@@ -600,8 +602,8 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         int gridIncrement = ((gridSize == MGRS_10K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
         int displayDigits;
         int mgrsGridBoxEastingStart;
-        EmpBoundingBox gridZoneBounds = new EmpBoundingBox();
-        EmpBoundingBox gridZoneInMapViewBounds = new EmpBoundingBox();
+        IEmpBoundingBox gridZoneBounds = new EmpBoundingBox();
+        IEmpBoundingBox gridZoneInMapViewBounds = new EmpBoundingBox();
 
         displayDigits = this.gridValueDigits.get(gridSize);
 
@@ -680,7 +682,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
             eastValueUTMCoord.setEasting(eastValueUTMCoord.getEasting() + gridIncrement);
             runningMeterCount += gridIncrement;
 
-            if (((int) eastValueUTMCoord.getEasting() % MGRS_100K_METER_GRID) == 0) {
+            if ((int) global.modulus(eastValueUTMCoord.getEasting(), MGRS_100K_METER_GRID) == 0) {
                 // The mgrsGridBoxEastingStart value is reset at every 100K boundray.
                 mgrsGridBoxEastingStart = (int) eastValueUTMCoord.getEasting();
             }
@@ -740,8 +742,8 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
      * @param metersPerPixel               The number of meters per pixel.
      * @param metersInOneEighthOfAnInch    The number of meters in 1/8 of an inch on the screen.
      */
-    private void createMGRSGridLabels(UTMCoordinate gridZoneUTMCoord, EmpBoundingBox gridZoneBounds, UTMCoordinate[] tempUTMCoordList,
-            EmpBoundingBox mapBounds, EmpBoundingBox drawBounds, int gridSize, double metersPerPixel, double metersInOneEighthOfAnInch) {
+    private void createMGRSGridLabels(UTMCoordinate gridZoneUTMCoord, IEmpBoundingBox gridZoneBounds, UTMCoordinate[] tempUTMCoordList,
+            IEmpBoundingBox mapBounds, IEmpBoundingBox drawBounds, int gridSize, double metersPerPixel, double metersInOneEighthOfAnInch) {
         IFeature gridObject;
         String mgrsGridLabel;
         IGeoPosition labelPos;
@@ -751,8 +753,8 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         UTMCoordinate mgrsGridBoxCoord = tempUTMCoordList[0];
         UTMCoordinate mgrsGridBoxInZoneWEUTMCoord = tempUTMCoordList[1];
         UTMCoordinate tempUTMCoord = tempUTMCoordList[2];
-        EmpBoundingBox mgrs100KGridBounds = new EmpBoundingBox();
-        EmpBoundingBox labelBounds = new EmpBoundingBox();
+        IEmpBoundingBox mgrs100KGridBounds = new EmpBoundingBox();
+        IEmpBoundingBox labelBounds = new EmpBoundingBox();
         double gridLabelPixelWidth = (getCharacterPixelWidth(MGRS_GRID_BOX_LABEL_CENTERED) * 2.0);
         double gridLabelPixelHeight = getCharacterPixelWidth(MGRS_GRID_BOX_LABEL_CENTERED);
 
@@ -832,8 +834,8 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
      * @param metersPerPixel               The number of meters per pixel.
      * @param metersInOneEighthOfAnInch    The number of meters in 1/8 of an inch on the screen.
      */
-    private void createMGRSGridsForGridzone(UTMCoordinate gridZoneUTMCoord, EmpBoundingBox GridZoneBounds, UTMCoordinate[] tempUTMCoordList,
-            EmpBoundingBox mapBounds, EmpBoundingBox drawBounds, int gridSize, double metersPerPixel, double metersInOneEighthOfAnInch) {
+    private void createMGRSGridsForGridzone(UTMCoordinate gridZoneUTMCoord, IEmpBoundingBox GridZoneBounds, UTMCoordinate[] tempUTMCoordList,
+            IEmpBoundingBox mapBounds, IEmpBoundingBox drawBounds, int gridSize, double metersPerPixel, double metersInOneEighthOfAnInch) {
 
         if (null == drawBounds) {
             return;
