@@ -320,6 +320,13 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
             label.setAzimuth(azimuth);
         }
 
+        if (this.currentCamera.getRoll() != 0.0) {
+            double azimuth = label.getAzimuth() + this.currentCamera.getRoll();
+
+            azimuth = ((((azimuth + 180) % 360.0) + 360.0) % 360.0) - 180.0;
+            label.setAzimuth(azimuth);
+        }
+
         return label;
     }
 
