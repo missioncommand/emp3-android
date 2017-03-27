@@ -88,4 +88,8 @@ public class global {
     public static void setConfiguration(IEmpPropertyList properties) {
 
     }
+
+    public static double modulus(double value1, double value2) {
+        return ((value1 % value2) + value2) % value2;
+    }
 }

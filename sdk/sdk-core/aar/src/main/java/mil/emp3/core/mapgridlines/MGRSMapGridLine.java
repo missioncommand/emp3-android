@@ -17,6 +17,7 @@ import java.util.Map;
 
 import mil.emp3.api.Path;
 import mil.emp3.api.Text;
+import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IFeature;
@@ -570,7 +571,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
             tempUTMCoord.setNorthing(tempUTMCoord.getNorthing() + gridIncrement);
             northValueUTMCoord.setNorthing(northValueUTMCoord.getNorthing() + gridIncrement);
 
-            if (((int) northValueUTMCoord.getNorthing() % MGRS_100K_METER_GRID) == 0) {
+            if ((int) global.modulus(northValueUTMCoord.getNorthing(), MGRS_100K_METER_GRID) == 0) {
                 mgrsGridBoxNorthingStart = (int) northValueUTMCoord.getNorthing();
             }
             tempUTMCoord.toLatLong(valuePos);
@@ -681,7 +682,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
             eastValueUTMCoord.setEasting(eastValueUTMCoord.getEasting() + gridIncrement);
             runningMeterCount += gridIncrement;
 
-            if (((int) eastValueUTMCoord.getEasting() % MGRS_100K_METER_GRID) == 0) {
+            if ((int) global.modulus(eastValueUTMCoord.getEasting(), MGRS_100K_METER_GRID) == 0) {
                 // The mgrsGridBoxEastingStart value is reset at every 100K boundray.
                 mgrsGridBoxEastingStart = (int) eastValueUTMCoord.getEasting();
             }

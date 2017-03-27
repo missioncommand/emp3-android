@@ -25,6 +25,7 @@ import java.util.concurrent.Semaphore;
 import mil.emp3.api.Camera;
 import mil.emp3.api.Path;
 import mil.emp3.api.Text;
+import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
@@ -317,7 +318,14 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
             // This operation converts the Double remainder operation to a modulus operation.
             // It ensures that all label remain aligned with the grid when the heading changes.
-            azimuth = ((((azimuth + 180) % 360.0) + 360.0) % 360.0) - 180.0;
+            azimuth = global.modulus((azimuth + 180), 360.0) - 180.0;
+            label.setAzimuth(azimuth);
+        }
+
+        if (this.currentCamera.getRoll() != 0.0) {
+            double azimuth = label.getAzimuth() + this.currentCamera.getRoll();
+
+            azimuth = global.modulus((azimuth + 180), 360.0) - 180.0;
             label.setAzimuth(azimuth);
         }
 
