@@ -3,13 +3,16 @@ package mil.emp3.api;
 import android.util.SparseArray;
 
 import org.cmapi.primitives.GeoMilSymbol;
+import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoMilSymbol;
+import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import armyc2.c2sd.renderer.utilities.MilStdAttributes;
 import armyc2.c2sd.renderer.utilities.ModifiersTG;
@@ -23,9 +26,12 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.utils.ColorUtils;
+import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.FontUtilities;
+import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.ManagerFactory;
 
 
@@ -1351,6 +1357,14 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return oArray;
     }
 
+    /**
+     * This method returns a list of attribute which can be used to call the MilStd renderer.
+     * @param iIconSize              The size of the icon
+     * @param selected               True if the feature is currenlt selected.
+     * @param selectedStrokeColor    The stroke color for selected features.
+     * @param selectedTextColor      The text color for selected features.
+     * @return SparseArray of attributes.
+     */
     public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor, IGeoColor selectedTextColor) {
         IGeoColor strokeColor = null;
         IGeoColor textColor = null;
@@ -1402,6 +1416,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return oArray;
     }
 
+    /**
+     * This method converts the features MilStd version to a value suitable for calling the MilStd renderer.
+     * @return
+     */
     public int geoMilStdVersionToRendererVersion() {
         int iVersion = RendererSettings.Symbology_2525C;
 
@@ -1415,5 +1433,201 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         }
 
         return iVersion;
+    }
+
+    /**
+     * This method returns the symbol definition of a tactical graphic feature.
+     * @return a armyc2.c2sd.renderer.utilities.SymbolDef object or null if the feature is NOT a tactical graphic.
+     */
+    public armyc2.c2sd.renderer.utilities.SymbolDef getTacticalGraphicSymbolDefinition() {
+        if (!this.isTacticalGraphic()) {
+            return null;
+        }
+
+        return armyc2.c2sd.renderer.utilities.SymbolDefTable.getInstance().getSymbolDef(this.getBasicSymbol(), this.geoMilStdVersionToRendererVersion());
+    }
+
+    public IEmpBoundingBox getFeatureBoundingBox() {
+        if (!this.isTacticalGraphic()) {
+            return null;
+        }
+
+        IEmpBoundingBox bBox = new EmpBoundingBox();
+        armyc2.c2sd.renderer.utilities.SymbolDef symbolDefinition = getTacticalGraphicSymbolDefinition();
+
+        for (IGeoPosition pos: getPositions()) {
+            bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+        }
+
+        if (getPositions().size() >= symbolDefinition.getMinPoints()) {
+            // We need the minimum number of points.
+            List<IGeoPosition> posList = getPositions();
+
+            switch (symbolDefinition.getDrawCategory()) {
+                /**
+                 * A polyline, a line with n number of points.
+                 * 0 control points
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_LINE:
+                    /**
+                     * A polyline with n points (entered in reverse order)
+                     * 0 control points
+                     */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_ARROW:
+                    break;
+                /**
+                 * TG such as:
+                 * TACGRP.TSK.ISL,
+                 * TACGRP.TSK.OCC,
+                 * TACGRP.TSK.RTN,
+                 * TACGRP.TSK.SCE
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_AUTOSHAPE: {
+                    double dist = GeoLibrary.computeDistanceBetween(posList.get(0), posList.get(1));
+                    IGeoPosition pos = new GeoPosition();
+
+                    // Compute north.
+                    GeoLibrary.computePositionAt(0.0, dist, posList.get(0), pos);
+                    bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                    // Compute east.
+                    GeoLibrary.computePositionAt(90.0, dist, posList.get(0), pos);
+                    bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                    // Compute south.
+                    GeoLibrary.computePositionAt(180.0, dist, posList.get(0), pos);
+                    bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                    // Compute west.
+                    GeoLibrary.computePositionAt(270.0, dist, posList.get(0), pos);
+                    bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                    break;
+                }
+                /**
+                 * An enclosed polygon with n points
+                 * 0 control points
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_POLYGON:
+                    break;
+                /**
+                 * A graphic with n points whose last point defines the width of the graphic.
+                 * 1 control point
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_ROUTE:
+                    break;
+                /**
+                 * A line defined only by 2 points, and cannot have more.
+                 * 0 control points
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_TWOPOINTLINE:
+                    /**
+                     * A polyline with 2 points (entered in reverse order).
+                     * 0 control points
+                     */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_TWOPOINTARROW:
+                    break;
+                /**
+                 * Shape is defined by a single point
+                 * 0 control points
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_POINT:
+                    break;
+                /**
+                 * An animated shape, uses the animate function to draw. Super Autoshape draw
+                 * in 2 phases, usually one to define length, and one to define width.
+                 * 0 control points (every point shapes symbol)
+                 *
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_SUPERAUTOSHAPE:
+                    break;
+                /**
+                 * Circle that requires 1 AM modifier value.
+                 * See ModifiersTG.js for modifier descriptions and constant key strings.
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE:
+                    break;
+                /**
+                 * Rectangle that requires 2 AM modifier values and 1 AN value.";
+                 * See ModifiersTG.js for modifier descriptions and constant key strings.
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE:
+                    break;
+                /**
+                 * Requires 2 AM values and 2 AN values per sector.
+                 * The first sector can have just one AM value although it is recommended
+                 * to always use 2 values for each sector.  X values are not required
+                 * as our rendering is only 2D for the Sector Range Fan symbol.
+                 * See ModifiersTG.js for modifier descriptions and constant key strings.
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE:
+                    break;
+                /**
+                 *  Requires at least 1 distance/AM value"
+                 *  See ModifiersTG.js for modifier descriptions and constant key strings.
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE: {
+                    double dist = getNumericModifier(Modifier.DISTANCE, 0);
+
+                    if (dist != Double.NaN) {
+                        IGeoPosition pos = new GeoPosition();
+
+                        // Compute north.
+                        GeoLibrary.computePositionAt(0.0, dist, posList.get(0), pos);
+                        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                        // Compute east.
+                        GeoLibrary.computePositionAt(90.0, dist, posList.get(0), pos);
+                        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                        // Compute south.
+                        GeoLibrary.computePositionAt(180.0, dist, posList.get(0), pos);
+                        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                        // Compute west.
+                        GeoLibrary.computePositionAt(270.0, dist, posList.get(0), pos);
+                        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                    }
+                    break;
+                }
+                /**
+                 * Requires 1 AM value.
+                 * See ModifiersTG.js for modifier descriptions and constant key strings.
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_TWO_POINT_RECT_PARAMETERED_AUTOSHAPE:
+                    double dist = getNumericModifier(Modifier.DISTANCE, 0);
+
+                    if (dist != Double.NaN) {
+                        IGeoPosition pos = new GeoPosition();
+
+                        // Compute north.
+                        GeoLibrary.computePositionAt(0.0, dist, posList.get(0), pos);
+                        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                        // Compute south.
+                        GeoLibrary.computePositionAt(180.0, dist, posList.get(0), pos);
+                        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+                    }
+                    break;
+                /**
+                 * 3D airspace, not a milstd graphic.
+                 */
+                case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_3D_AIRSPACE:
+                    break;
+            }
+
+            // Now we need to extend the box by ~ 10%.
+            double deltaLat = bBox.deltaLatitude();
+            double deltaLong = bBox.deltaLongitude();
+
+            if (deltaLat == 0.0) {
+                deltaLat = 0.05;
+            }
+            if (deltaLong == 0.0) {
+                deltaLong = 0.05;
+            }
+
+            deltaLat *= 0.05;
+            deltaLong *= 0.05;
+
+            bBox.includePosition(bBox.getNorth() + deltaLat, bBox.getWest());
+            bBox.includePosition(bBox.getSouth() - deltaLat, bBox.getWest());
+            bBox.includePosition(bBox.getNorth(), bBox.getWest() - deltaLong);
+            bBox.includePosition(bBox.getNorth(), bBox.getEast() + deltaLong);
+        }
+
+        return bBox;
     }
 }

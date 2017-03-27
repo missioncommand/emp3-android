@@ -57,6 +57,7 @@ import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -611,7 +612,7 @@ public class MainActivity extends AppCompatActivity
                                 iCount++;
 
                                 // Give the feature a name.
-                                oSPSymbol.setName("Unit " + iCount);
+                                oSPSymbol.setName(String.format("Unit-%04d", iCount));
 
                                 if ((iCount % 2) == 0) {
                                     oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSPSymbol.getName());
@@ -841,8 +842,10 @@ public class MainActivity extends AppCompatActivity
                 public void onEvent(MapStateChangeEvent event) {
                     Log.d(TAG, "mapStateChangeEvent " + event.getNewState());
                     MainActivity.this.oRootOverlay = new Overlay();
+                    MainActivity.this.oRootOverlay.setName("Test Overlay");
                     try {
                         if (event.getNewState() == MapStateEnum.MAP_READY) {
+                            MainActivity.this.map.setName("EMP V3 Map");
                             MainActivity.this.map.addOverlay(MainActivity.this.oRootOverlay, true);
                             MainActivity.this.setEventListeners();
 
@@ -853,6 +856,12 @@ public class MainActivity extends AppCompatActivity
                                 public void run() {
                                     try {
                                         MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
+                                        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,
+                                                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                        if (permissionCheck !=  PERMISSION_GRANTED) {
+                                            ActivityCompat.requestPermissions(MainActivity.this,
+                                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                                        }
                                     } catch (EMP_Exception e) {
                                         e.printStackTrace();
                                     }
@@ -1559,16 +1568,42 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void exportSuccess(String kmlString) {
-                            Log.i(TAG, kmlString);
+                            //Log.i(TAG, kmlString);
+                            FileOutputStream out = null;
+                            File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                            File dest = new File(sd, "mapexport.kml");
+                            if (dest.exists()) {
+                                dest.delete();
+                            }
+                            try {
+                                out = new FileOutputStream(dest);
+                                byte[] byteArray = kmlString.getBytes();
+                                out.write(byteArray, 0, byteArray.length);
+                                out.flush();
+                                MainActivity.this.makeToast("Export complete");
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to save kml file.", e);
+                                MainActivity.this.makeToast("Export failed");
+                            } finally {
+                                try {
+                                    if (out != null) {
+                                        out.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
 
                         @Override
                         public void exportFailed(Exception Ex) {
                             Log.e(TAG, "Map export to KML failed.", Ex);
+                            MainActivity.this.makeToast("Export failed");
                         }
                     });
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
                 }
                 return true;
             }
@@ -1578,16 +1613,41 @@ public class MainActivity extends AppCompatActivity
 
                         @Override
                         public void exportSuccess(String kmlString) {
-                            Log.i(TAG, kmlString);
+                            FileOutputStream out = null;
+                            File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                            File dest = new File(sd, "overlayexport.kml");
+                            if (dest.exists()) {
+                                dest.delete();
+                            }
+                            try {
+                                out = new FileOutputStream(dest);
+                                byte[] byteArray = kmlString.getBytes();
+                                out.write(byteArray, 0, byteArray.length);
+                                out.flush();
+                                MainActivity.this.makeToast("Export complete");
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to save kml file.", e);
+                                MainActivity.this.makeToast("Export failed");
+                            } finally {
+                                try {
+                                    if (out != null) {
+                                        out.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
 
                         @Override
                         public void exportFailed(Exception Ex) {
                             Log.e(TAG, "Map export to KML failed.", Ex);
+                            MainActivity.this.makeToast("Export failed");
                         }
                     });
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
                 }
                 return true;
             }
@@ -1598,17 +1658,43 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             public void exportSuccess(String kmlString) {
-                                Log.i(TAG, kmlString);
+                                //Log.i(TAG, kmlString);
+                                FileOutputStream out = null;
+                                File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                                File dest = new File(sd, "featureexport.kml");
+                                if (dest.exists()) {
+                                    dest.delete();
+                                }
+                                try {
+                                    out = new FileOutputStream(dest);
+                                    byte[] byteArray = kmlString.getBytes();
+                                    out.write(byteArray, 0, byteArray.length);
+                                    out.flush();
+                                    MainActivity.this.makeToast("Export complete");
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Failed to save kml file.", e);
+                                    MainActivity.this.makeToast("Export failed");
+                                } finally {
+                                    try {
+                                        if (out != null) {
+                                            out.close();
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
 
                             @Override
                             public void exportFailed(Exception Ex) {
                                 Log.e(TAG, "Map export to KML failed.", Ex);
+                                MainActivity.this.makeToast("Export failed");
                             }
                         });
                     }
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
                 }
                 return true;
             }
@@ -2220,6 +2306,8 @@ public class MainActivity extends AppCompatActivity
                 labelStyle.setColor(new EmpGeoColor(1.0, 0, 255, 255));
                 labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
                 textFeature.setLabelStyle(labelStyle);
+                textFeature.setName("Text");
+                textFeature.setDescription("Draw Text Feature.");
                 //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
 
                 try {
@@ -2240,6 +2328,8 @@ public class MainActivity extends AppCompatActivity
                 strokeStyle.setStrokeWidth(5);
                 strokeStyle.setStipplingPattern((short) 0);
                 linePath.setStrokeStyle(strokeStyle);
+                linePath.setName("Line");
+                linePath.setDescription("Draw Line Feature.");
                 //linePath.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
 
                 try {
@@ -2266,6 +2356,8 @@ public class MainActivity extends AppCompatActivity
                 fillStyle.setFillColor(geoFillColor);
                 fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
                 polygon.setFillStyle(null); //fillStyle
+                polygon.setName("Polygon");
+                polygon.setDescription("Draw Polygon Feature.");
 
                 //polygon.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 try {
@@ -2292,6 +2384,8 @@ public class MainActivity extends AppCompatActivity
                 fillStyle.setFillColor(geoFillColor);
                 fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
                 //circle.setFillStyle(fillStyle);
+                circle.setName("Circle");
+                circle.setDescription("Draw Circle Feature.");
 
                 circle.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 try {
@@ -2318,6 +2412,8 @@ public class MainActivity extends AppCompatActivity
                 fillStyle.setFillColor(geoFillColor);
                 fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
                 //ellipse.setFillStyle(fillStyle);
+                ellipse.setName("Ellipse");
+                ellipse.setDescription("Draw Ellipse Feature.");
 
                 ellipse.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 try {
@@ -2344,6 +2440,36 @@ public class MainActivity extends AppCompatActivity
                 fillStyle.setFillColor(geoFillColor);
                 fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
                 feature.setFillStyle(null);
+                feature.setName("Rectangle");
+                feature.setDescription("Draw Rectangle Feature.");
+
+                feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                try {
+                    this.map.drawFeature(feature, new FeatureDrawListener(feature));
+                } catch(EMP_Exception Ex) {
+                    Log.e(TAG, "Draw Rectangle failed.");
+                    //oItem.setEnabled(true);
+                }
+
+                return true;
+            }
+            case R.id.action_drawSquare: {
+                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+                IGeoFillStyle fillStyle = new GeoFillStyle();
+                IGeoColor geoColor = new EmpGeoColor(1.0, 0, 255, 255);
+                IGeoColor geoFillColor = new EmpGeoColor(0.5, 255, 0, 0);
+                Square feature = new Square();
+
+                strokeStyle.setStrokeColor(geoColor);
+                strokeStyle.setStrokeWidth(5);
+                strokeStyle.setStipplingPattern((short) 0);
+                feature.setStrokeStyle(strokeStyle);
+
+                fillStyle.setFillColor(geoFillColor);
+                fillStyle.setFillPattern(IGeoFillStyle.FillPattern.hatched);
+                feature.setFillStyle(null);
+                feature.setName("Square");
+                feature.setDescription("Draw Square Feature.");
 
                 feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                 try {
@@ -2817,6 +2943,7 @@ public class MainActivity extends AppCompatActivity
 
     private void plot2525CTG() {
         int tgCount = 0;
+        String name;
         int countPerLine = 0;
         ICamera camera = this.map.getCamera();
         IGeoPosition position = new GeoPosition();
@@ -2840,7 +2967,7 @@ public class MainActivity extends AppCompatActivity
             tgCount++;
 
             countPerLine++;
-            this.plotTacticalGraphic("TG-" + tgCount, oSymbolDef, position);
+            this.plotTacticalGraphic("TG-" + String.format("%04d", tgCount), oSymbolDef, position);
             if (countPerLine == 20) {
                 position.setLongitude(camera.getLongitude());
                 GeoLibrary.computePositionAt(180.0, 2500.0, position, position);
@@ -2859,6 +2986,7 @@ public class MainActivity extends AppCompatActivity
 
             symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSymbolDef.getDescription());
             symbol.setName(name);
+            symbol.setDescription(oSymbolDef.getFullPath());
 
             switch (oSymbolDef.getMinPoints()) {
                 case 1:
@@ -3006,13 +3134,13 @@ public class MainActivity extends AppCompatActivity
                                 symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
                             } else if (CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
                                 symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
-                                symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 1, 20000);
+                                //symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 1, 20000);
                             } else {
                                 symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
                             }
                             break;
                         case "X1":
-                            symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                            //symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
                             symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 1, 20000);
                             break;
                         case "H":
@@ -3303,5 +3431,15 @@ public class MainActivity extends AppCompatActivity
 
     public ICamera getCamera() {
         return this.oCamera;
+    }
+
+
+    private void makeToast(final String text) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

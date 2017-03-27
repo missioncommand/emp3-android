@@ -15,7 +15,9 @@ import java.util.List;
 
 import mil.emp3.api.Path;
 import mil.emp3.api.Text;
+import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
@@ -114,7 +116,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
     }
 
     @Override
-    protected void processViewChange(EmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
+    protected void processViewChange(IEmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
         double metersInOneEighthOfAnInch = metersPerPixel * PIXELS_PER_INCH / 8.0;
 
         clearFeatureList();
@@ -198,7 +200,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         }
     }
 
-    private void createUTMMeridians(EmpBoundingBox mapBounds, UTMCoordinate utmZoneCoord, double metersPerPixel,
+    private void createUTMMeridians(IEmpBoundingBox mapBounds, UTMCoordinate utmZoneCoord, double metersPerPixel,
             double metersInOneEighthOfAnInch, int gridSize, boolean createValues, UTMCoordinate[] tempUTMCoordList) {
         IGeoPosition southPos = new GeoPosition();
         IGeoPosition northPos = new GeoPosition();
@@ -213,7 +215,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         UTMCoordinate southUTMCoord = tempUTMCoordList[0];
         UTMCoordinate northUTMCoord = tempUTMCoordList[1];
         UTMCoordinate labelUTMCoord = tempUTMCoordList[2];
-        EmpBoundingBox gridZoneBounds = new EmpBoundingBox();
+        IEmpBoundingBox gridZoneBounds = new EmpBoundingBox();
         double labelHeightMeters = getCharacterPixelWidth(UTM_GRID_NORTHING_VALUE) * metersPerPixel;
         boolean labelDetail = ((labelHeightMeters * 2) < metersInOneEighthOfAnInch);
         int majorGridSize = ((gridSize == UTM_100K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
@@ -288,10 +290,10 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             if (gridSize == UTM_100K_METER_GRID) {
                 // The grid size is 100K.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_MERIDIAN);
-            } else if (((int) southUTMCoord.getEasting() % UTM_100K_METER_GRID) == 0) {
+            } else if ((int) global.modulus(southUTMCoord.getEasting(), UTM_100K_METER_GRID) == 0) {
                 // The grid size is NOT 100K but we are at a 100K boundary.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_MERIDIAN);
-            } else if (((int) southUTMCoord.getEasting() % majorGridSize) == 0) {
+            } else if ((int) global.modulus(southUTMCoord.getEasting(), majorGridSize) == 0) {
                 // The grid size is not 100K and we are at a boundary of the grid size * 10.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_MAJOR_MERIDIAN);
             } else {
@@ -302,7 +304,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             addFeature(gridObject);
 
             if (createValues) {
-                if (labelDetail || (((int) southUTMCoord.getEasting() % majorGridSize) == 0)) {
+                if (labelDetail || ((int) global.modulus(southUTMCoord.getEasting(), majorGridSize) == 0)) {
                     labelUTMCoord.copyFrom(southUTMCoord);
                     labelUTMCoord.setNorthing((Math.floor(labelUTMCoord.getNorthing() / gridSize) * gridSize) + gridSize);
                     labelPos = labelUTMCoord.toLatLong();
@@ -325,7 +327,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         }
     }
 
-    private void createUTMParallels(EmpBoundingBox mapBounds, UTMCoordinate utmZoneCoord, double metersPerPixel,
+    private void createUTMParallels(IEmpBoundingBox mapBounds, UTMCoordinate utmZoneCoord, double metersPerPixel,
             double metersInOneEighthOfAnInch, int gridSize, boolean createValues, UTMCoordinate[] tempUTMCoordList) {
         IGeoPosition westPos = new GeoPosition();
         IGeoPosition eastPos = new GeoPosition();
@@ -385,10 +387,10 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             if (gridSize == UTM_100K_METER_GRID) {
                 // The grid size is 100K.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_PARALLEL);
-            } else if (((int) westUTMCoord.getNorthing() % UTM_100K_METER_GRID) == 0) {
+            } else if ((int) global.modulus(westUTMCoord.getNorthing(), UTM_100K_METER_GRID) == 0) {
                 // The grid size is NOT 100K but we are at a 100K boundary.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_PARALLEL);
-            } else if (((int) westUTMCoord.getNorthing() % majorGridSize) == 0) {
+            } else if ((int) global.modulus(westUTMCoord.getNorthing(), majorGridSize) == 0) {
                 // The grid size is not 100K and we are at a boundary of the grid size * 10.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_MAJOR_PARALLEL);
             } else {
@@ -399,7 +401,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             addFeature(gridObject);
 
             if (createValues) {
-                if (labelDetail || (((int) westUTMCoord.getNorthing() % majorGridSize) == 0)) {
+                if (labelDetail || ((int) global.modulus(westUTMCoord.getNorthing(), majorGridSize) == 0)) {
                     labelUTMCoord.copyFrom(westUTMCoord);
                     labelUTMCoord.setEasting((Math.floor(labelUTMCoord.getEasting() / gridSize) * gridSize) + gridSize);
                     labelPos = labelUTMCoord.toLatLong();
@@ -428,7 +430,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         }
     }
 
-    private void createUTMGrid(EmpBoundingBox mapBounds, double metersPerPixel, double metersInOneEighthOfAnInch, int gridSize) {
+    private void createUTMGrid(IEmpBoundingBox mapBounds, double metersPerPixel, double metersInOneEighthOfAnInch, int gridSize) {
         int westLongitude;
         int eastLongitude;
         double longitude;
