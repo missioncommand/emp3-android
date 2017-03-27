@@ -359,11 +359,19 @@ public class GeoJsonExporter extends Thread{
                 feature.setProperty(TEMP_DATAURL_STRING, encoded);
             }
 
+            buffer.append("\"url\": {");
             buffer.append(iconURL);
-
-            // Don't know yet where this should go
+            buffer.append("}"); // url
+            buffer.append(",");
             tempIconStyle.setOffSetX(oImageInfo.getCenterPoint().x);
             tempIconStyle.setOffSetY(oImageInfo.getImageBounds().height() - oImageInfo.getCenterPoint().y);
+            buffer.append("\"offsetX\": {");
+            buffer.append(tempIconStyle.getOffSetX());
+            buffer.append("}");
+            buffer.append(",");
+            buffer.append("\"offsetY\": {");
+            buffer.append(tempIconStyle.getOffSetY());
+            buffer.append("}");
         }
     }
 
@@ -380,9 +388,14 @@ public class GeoJsonExporter extends Thread{
         buffer.append(",\n\"properties\": {");
         buffer.append("\"style\": {");
         buffer.append("\"iconStyle\": {");
-        buffer.append("\"url\": {");
-        buffer.append("\""+ ((Point)feature).getIconURI() + "\"");
-        buffer.append("}"); // url
+        if (feature.getFeatureType() == GEO_POINT) {
+            buffer.append("\"url\": {");
+            buffer.append("\"" + ((Point) feature).getIconURI() + "\"");
+            buffer.append("}"); // url
+        } else {
+            // must be single point milstd symbol
+            appendDataURL((MilStdSymbol)feature, buffer);
+        }
         buffer.append("}"); // iconStyle
         buffer.append("}"); // style
         appendGeoJSONOtherProperties(feature, buffer);
