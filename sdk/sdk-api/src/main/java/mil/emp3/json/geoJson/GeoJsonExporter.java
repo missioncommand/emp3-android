@@ -37,6 +37,7 @@ import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ManagerFactory;
+import mil.emp3.api.utils.MilStdUtilities;
 
 import static mil.emp3.api.enums.FeatureTypeEnum.*;
 
@@ -56,6 +57,7 @@ public class GeoJsonExporter extends Thread{
     private final List<IFeature> featureList;
     private final IEmpExportToStringCallback callback;
     private final MilStdLabelSettingEnum eLabelSetting;
+    private final java.util.Set<IGeoMilSymbol.Modifier> oLabels;
     private final static MilStdIconRenderer oIconRenderer = MilStdIconRenderer.getInstance();
     private final static SparseArray<String> emptyArray = new SparseArray<>();
     private IGeoIconStyle tempIconStyle = new GeoIconStyle();
@@ -176,174 +178,25 @@ public class GeoJsonExporter extends Thread{
         buffer.append("}");
     }
 
-    private String getIconURLParameters(final MilStdSymbol feature, SparseArray<String> saAttr) {
-        int iKey;
-        String value;
-        String UniqueDesignator1 = null;
-        String params = "";
-        java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = feature.getModifiers();
-        java.util.Set<IGeoMilSymbol.Modifier> oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
-
-        if (null != saAttr) {
-            for (int iIndex = 0; iIndex < saAttr.size(); iIndex++) {
-                iKey = saAttr.keyAt(iIndex);
-                value = saAttr.valueAt(iIndex);
-                switch (iKey) {
-                    case MilStdAttributes.SymbologyStandard:
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        switch (value) {
-                            case "0":
-                                params += "symStd=2525B";
-                                break;
-                            case "1":
-                            default:
-                                params += "symStd=2525C";
-                                break;
-                        }
-                        break;
-                    case MilStdAttributes.PixelSize:
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        params += "Size=" + value;
-                        break;
-                    case MilStdAttributes.FillColor:
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        params += "fillColor=" + value;
-                        break;
-                    case MilStdAttributes.LineColor:
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        params += "lineColor=" + value;
-                        break;
-                    case MilStdAttributes.IconColor:
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        params += "lineColor=" + value;
-                        break;
-                    case MilStdAttributes.TextColor:
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        params += "textColor=" + value;
-                        break;
-                    case MilStdAttributes.FontSize:
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        params += "tfontSize=" + value;
-                        break;
-                }
-            }
-        }
-        if ((geoModifiers != null) && !geoModifiers.isEmpty()) {
-            java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
-
-            for (IGeoMilSymbol.Modifier eModifier: oModifierList) {
-                if ((oLabels != null) && !oLabels.contains(eModifier)) {
-                    // Its not on the list.
-                    continue;
-                }
-                switch (eModifier) {
-                    case SYMBOL_ICON:
-                    case ECHELON:
-                    case QUANTITY:
-                    case TASK_FORCE_INDICATOR:
-                    case FRAME_SHAPE_MODIFIER:
-                    case REDUCED_OR_REINFORCED:
-                    case STAFF_COMMENTS:
-                    case ADDITIONAL_INFO_1:
-                    case ADDITIONAL_INFO_2:
-                    case ADDITIONAL_INFO_3:
-                    case EVALUATION_RATING:
-                    case COMBAT_EFFECTIVENESS:
-                    case SIGNATURE_EQUIPMENT:
-                    case HIGHER_FORMATION:
-                    case HOSTILE:
-                    case IFF_SIF:
-                    case DIRECTION_OF_MOVEMENT:
-                    case MOBILITY_INDICATOR:
-                    case SIGINT_MOBILITY_INDICATOR:
-                    case OFFSET_INDICATOR:
-                    case UNIQUE_DESIGNATOR_2:
-                    case EQUIPMENT_TYPE:
-                    case DATE_TIME_GROUP:
-                    case DATE_TIME_GROUP_2:
-                    case ALTITUDE_DEPTH:
-                    case LOCATION:
-                    case SPEED:
-                    case SPECIAL_C2_HEADQUARTERS:
-                    case FEINT_DUMMY_INDICATOR:
-                    case INSTALLATION:
-                    case PLATFORM_TYPE:
-                    case EQUIPMENT_TEARDOWN_TIME:
-                    case COMMON_IDENTIFIER:
-                    case AUXILIARY_EQUIPMENT_INDICATOR:
-                    case AREA_OF_UNCERTAINTY:
-                    case DEAD_RECKONING:
-                    case SPEED_LEADER:
-                    case PAIRING_LINE:
-                    case OPERATIONAL_CONDITION:
-                    case ENGAGEMENT_BAR:
-                    case COUNTRY_CODE:
-                    case SONAR_CLASSIFICATION_CONFIDENCE:
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        params += eModifier.valueOf() + "=" + geoModifiers.get(eModifier);
-                        break;
-                    case UNIQUE_DESIGNATOR_1:
-                        UniqueDesignator1 = geoModifiers.get(eModifier);
-                        if (!params.isEmpty()) {
-                            params += "&";
-                        }
-                        params += eModifier.valueOf() + "=" + geoModifiers.get(eModifier);
-                        break;
-                    case DISTANCE:
-                    case AZIMUTH:
-                        break;
-                }
-            }
-        }
-
-        if ((getName() != null) && !getName().isEmpty()) {
-            if (eLabelSetting != null) {
-                switch (eLabelSetting) {
-                    case REQUIRED_LABELS:
-                        break;
-                    case COMMON_LABELS:
-                    case ALL_LABELS:
-                        if ((UniqueDesignator1 == null) || UniqueDesignator1.isEmpty() || !UniqueDesignator1.toUpperCase().equals(getName().toUpperCase())) {
-                            if (!params.isEmpty()) {
-                                params += "&";
-                            }
-                            params += "CN=" + UniqueDesignator1;
-                        }
-                        break;
-                }
-            }
-        }
-
-        return "?" + params;
-    }
-
     private void appendDataURL(MilStdSymbol feature, StringBuffer buffer) {
-        String iconURL = "[MIL_SYM_SERVICE_URL]/mil-sym-service/renderer/image/" + feature.getSymbolCode();
+        //String iconURL = "[MIL_SYM_SERVICE_URL]/mil-sym-service/renderer/image/" + feature.getSymbolCode();
+        String iconURL;
 
         ImageInfo oImageInfo = null;
+        int iconSize = 35; //(int) (this.map.getIconPixelSize() * ratioStdScreenToDeviceDPI);
         SparseArray<String> saModifiers = feature.getUnitModifiers(this.map.getMilStdLabels());
-        SparseArray<String> saAttr = feature.getAttributes(this.map.getIconPixelSize(),
+        SparseArray<String> saAttr = feature.getAttributes(iconSize,
                 this.map.isSelected(feature),
                 this.map.getSelectedStrokeStyle().getStrokeColor(),
                 this.map.getSelectedLabelStyle().getColor());
 
-        iconURL += getIconURLParameters(feature, saAttr);
+        saAttr.put(MilStdAttributes.UseDashArray, "false");
+
+        iconURL = MilStdUtilities.getMilStdSinglePointIconURL(feature, eLabelSetting, oLabels,
+                iconSize,
+                this.map.isSelected(feature),
+                this.map.getSelectedStrokeStyle().getStrokeColor(),
+                this.map.getSelectedLabelStyle().getColor());
 
         oImageInfo = this.oIconRenderer.RenderIcon(feature.getSymbolCode(), ((saModifiers == null) ? this.emptyArray : saModifiers), ((saAttr == null) ? this.emptyArray : saAttr));
 
@@ -485,6 +338,7 @@ public class GeoJsonExporter extends Thread{
         this.callback = callback;
         this.addExtendedData = extendedData;
         this.eLabelSetting = storageManager.getMilStdLabels(this.map);
+        this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
     }
 
     protected GeoJsonExporter(IMap map, List<IFeature> featureList, boolean extendedData, IEmpExportToStringCallback callback) {
@@ -494,5 +348,6 @@ public class GeoJsonExporter extends Thread{
         this.callback = callback;
         this.addExtendedData = extendedData;
         this.eLabelSetting = storageManager.getMilStdLabels(this.map);
+        this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
     }
 }
