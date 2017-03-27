@@ -115,7 +115,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void setNorth(double value) {
         if (Double.isNaN(value)) {
-            throw new InvalidParameterException("value is not a number.");
+            throw new IllegalArgumentException("value is not a number.");
         }
         super.setNorth(((((value + 90.0) % 180.0) + 180.0) % 180.0) - 90.0);
     }
@@ -123,7 +123,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void setSouth(double value) {
         if (Double.isNaN(value)) {
-            throw new InvalidParameterException("value is not a number.");
+            throw new IllegalArgumentException("value is not a number.");
         }
         super.setSouth(((((value + 90.0) % 180.0) + 180.0) % 180.0) - 90.0);
     }
@@ -131,7 +131,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void setWest(double value) {
         if (Double.isNaN(value)) {
-            throw new InvalidParameterException("value is not a number.");
+            throw new IllegalArgumentException("value is not a number.");
         }
         super.setWest(((((value + 180.0) % 360.0) + 360.0) % 360.0) - 180.0);
         if (getWest() == 180.0) {
@@ -142,7 +142,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void setEast(double value) {
         if (Double.isNaN(value)) {
-            throw new InvalidParameterException("value is not a number.");
+            throw new IllegalArgumentException("value is not a number.");
         }
         super.setEast(((((value + 180.0) % 360.0) + 360.0) % 360.0) - 180.0);
         if (getEast() == -180.0) {
