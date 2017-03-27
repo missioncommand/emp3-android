@@ -15,6 +15,7 @@ import java.util.List;
 
 import mil.emp3.api.Path;
 import mil.emp3.api.Text;
+import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
@@ -288,10 +289,10 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             if (gridSize == UTM_100K_METER_GRID) {
                 // The grid size is 100K.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_MERIDIAN);
-            } else if (((int) southUTMCoord.getEasting() % UTM_100K_METER_GRID) == 0) {
+            } else if ((int) global.modulus(southUTMCoord.getEasting(), UTM_100K_METER_GRID) == 0) {
                 // The grid size is NOT 100K but we are at a 100K boundary.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_MERIDIAN);
-            } else if (((int) southUTMCoord.getEasting() % majorGridSize) == 0) {
+            } else if ((int) global.modulus(southUTMCoord.getEasting(), majorGridSize) == 0) {
                 // The grid size is not 100K and we are at a boundary of the grid size * 10.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_MAJOR_MERIDIAN);
             } else {
@@ -302,7 +303,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             addFeature(gridObject);
 
             if (createValues) {
-                if (labelDetail || (((int) southUTMCoord.getEasting() % majorGridSize) == 0)) {
+                if (labelDetail || ((int) global.modulus(southUTMCoord.getEasting(), majorGridSize) == 0)) {
                     labelUTMCoord.copyFrom(southUTMCoord);
                     labelUTMCoord.setNorthing((Math.floor(labelUTMCoord.getNorthing() / gridSize) * gridSize) + gridSize);
                     labelPos = labelUTMCoord.toLatLong();
@@ -385,10 +386,10 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             if (gridSize == UTM_100K_METER_GRID) {
                 // The grid size is 100K.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_PARALLEL);
-            } else if (((int) westUTMCoord.getNorthing() % UTM_100K_METER_GRID) == 0) {
+            } else if ((int) global.modulus(westUTMCoord.getNorthing(), UTM_100K_METER_GRID) == 0) {
                 // The grid size is NOT 100K but we are at a 100K boundary.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_100K_PARALLEL);
-            } else if (((int) westUTMCoord.getNorthing() % majorGridSize) == 0) {
+            } else if ((int) global.modulus(westUTMCoord.getNorthing(), majorGridSize) == 0) {
                 // The grid size is not 100K and we are at a boundary of the grid size * 10.
                 gridObject = createPathFeature(positionList, UTM_GRID_LINE_MAJOR_PARALLEL);
             } else {
@@ -399,7 +400,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             addFeature(gridObject);
 
             if (createValues) {
-                if (labelDetail || (((int) westUTMCoord.getNorthing() % majorGridSize) == 0)) {
+                if (labelDetail || ((int) global.modulus(westUTMCoord.getNorthing(), majorGridSize) == 0)) {
                     labelUTMCoord.copyFrom(westUTMCoord);
                     labelUTMCoord.setEasting((Math.floor(labelUTMCoord.getEasting() / gridSize) * gridSize) + gridSize);
                     labelPos = labelUTMCoord.toLatLong();
