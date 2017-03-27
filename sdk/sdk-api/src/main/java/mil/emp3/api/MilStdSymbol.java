@@ -1613,10 +1613,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             double deltaLong = bBox.deltaLongitude();
 
             if (deltaLat == 0.0) {
-                deltaLat = 6.0;
+                deltaLat = 0.05;
             }
             if (deltaLong == 0.0) {
-                deltaLong = 6.0;
+                deltaLong = 0.05;
             }
 
             deltaLat *= 0.05;
