@@ -4,6 +4,7 @@ import android.graphics.Point;
 import android.util.Log;
 
 import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
@@ -16,6 +17,7 @@ import mil.emp3.api.enums.LookAtEventEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
+import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
@@ -42,6 +44,8 @@ public class CoreManager implements ICoreManager {
     private IStorageManager storageManager;
     private IEventManager eventManager;
 
+    private static java.util.Set<IGeoMilSymbol.Modifier> oRequiredLabels = new java.util.HashSet<>();
+    private static java.util.Set<IGeoMilSymbol.Modifier> oCommonLabels = new java.util.HashSet<>();
 
     @Override
     public void setStorageManager(IStorageManager storageManager) {
@@ -418,5 +422,56 @@ public class CoreManager implements ICoreManager {
             throw new InvalidParameterException("Map not found.");
         }
         mapMapping.setMapGridType(gridType);
+    }
+
+    private void loadMilStdLabelLists() {
+        synchronized (CoreManager.oCommonLabels) {
+            if (CoreManager.oCommonLabels.isEmpty()) {
+                // These modifiers, if provided in the MilStd feature, must be shown
+                // along with the icon. They are the only modifiers displayed when the label setting is REQUIRED.
+                CoreManager.oRequiredLabels.add(IGeoMilSymbol.Modifier.EQUIPMENT_TYPE);
+                CoreManager.oRequiredLabels.add(IGeoMilSymbol.Modifier.SIGNATURE_EQUIPMENT);
+                CoreManager.oRequiredLabels.add(IGeoMilSymbol.Modifier.OFFSET_INDICATOR);
+                CoreManager.oRequiredLabels.add(IGeoMilSymbol.Modifier.SPECIAL_C2_HEADQUARTERS);
+                CoreManager.oRequiredLabels.add(IGeoMilSymbol.Modifier.FEINT_DUMMY_INDICATOR);
+                CoreManager.oRequiredLabels.add(IGeoMilSymbol.Modifier.INSTALLATION);
+
+                // These modifiers, if provided in the MilStd feature, are to be displayed with the icon
+                // when the label setting is COMMON.
+                CoreManager.oCommonLabels.addAll(CoreManager.oRequiredLabels);
+
+                CoreManager.oCommonLabels.add(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_1);
+                CoreManager.oCommonLabels.add(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_2);
+                CoreManager.oCommonLabels.add(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_3);
+                CoreManager.oCommonLabels.add(IGeoMilSymbol.Modifier.HIGHER_FORMATION);
+                CoreManager.oCommonLabels.add(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1);
+                CoreManager.oCommonLabels.add(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_2);
+            }
+        }
+    }
+
+    @Override
+    public java.util.Set<IGeoMilSymbol.Modifier> getMilStdModifierLabelList(MilStdLabelSettingEnum eLabelSetting) {
+        java.util.Set<IGeoMilSymbol.Modifier> set = null;
+
+        if (null == eLabelSetting) {
+            return null;
+        }
+
+        if (CoreManager.oCommonLabels.isEmpty()) {
+            loadMilStdLabelLists();
+        }
+        switch (eLabelSetting) {
+            case ALL_LABELS:
+                break;
+            case COMMON_LABELS:
+                set = CoreManager.oCommonLabels;
+                break;
+            case REQUIRED_LABELS:
+                set = CoreManager.oRequiredLabels;
+                break;
+        }
+
+        return set;
     }
 }

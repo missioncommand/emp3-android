@@ -8,7 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.InvalidParameterException;
+import java.util.IllegalFormatPrecisionException;
 
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 
 /**
@@ -35,14 +37,14 @@ public class EmpBoundingBoxTest {
         try {
             bbox = new EmpBoundingBox(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
             Assert.assertTrue("Constructor didn't generate an exception with NaN values.", false);
-        } catch (InvalidParameterException ex) {
+        } catch (IllegalArgumentException ex) {
             Assert.assertTrue(true);
         }
 
         try {
             bbox = new EmpBoundingBox(null, null);
             Assert.assertTrue("Constructor didn't generate an exception with null coordinates.", false);
-        } catch (InvalidParameterException ex) {
+        } catch (IllegalArgumentException ex) {
             Assert.assertTrue(true);
         }
 
@@ -70,7 +72,7 @@ public class EmpBoundingBoxTest {
 
     @Test
     public void methodsTest() throws InterruptedException {
-        EmpBoundingBox bbox = new EmpBoundingBox(20, -20, -100, -110);
+        IEmpBoundingBox bbox = new EmpBoundingBox(20, -20, -100, -110);
 
         Assert.assertTrue("Delta Latitude Failed.", (bbox.deltaLatitude() == 40.0));
         Assert.assertTrue("Delta Longitude Failed.", (bbox.deltaLongitude() == 10.0));
@@ -80,11 +82,11 @@ public class EmpBoundingBoxTest {
         Assert.assertTrue("west Failed.", (bbox.west() == -110.0));
         Assert.assertTrue("containsIDL Failed.", !bbox.containsIDL());
 
-        EmpBoundingBox bbox2 = new EmpBoundingBox(20, -20, -170, 170);
+        IEmpBoundingBox bbox2 = new EmpBoundingBox(20, -20, -170, 170);
         Assert.assertTrue("containsIDL Failed.", bbox2.containsIDL());
         Assert.assertTrue("Delta Longitude with IDL Failed.", (bbox2.deltaLongitude() == 20.0));
 
-        EmpBoundingBox result = bbox2.intersection(bbox);
+        IEmpBoundingBox result = bbox2.intersection(bbox);
         Assert.assertTrue("EmpBoundingBox intersection when they don't intersect.", result == null);
 
         bbox.setNorth(40);

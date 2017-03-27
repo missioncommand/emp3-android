@@ -24,10 +24,6 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IGeoJSON;
-import mil.emp3.api.interfaces.IImageLayer;
-import mil.emp3.api.interfaces.IKMLExportable;
-import mil.emp3.api.utils.GeoLibrary;
-import mil.emp3.api.utils.kml.EmpKMLExporter;
 import mil.emp3.json.geoJson.GeoJsonParser;
 
 public class GeoJSON extends Feature<IGeoRenderable> implements IGeoJSON {

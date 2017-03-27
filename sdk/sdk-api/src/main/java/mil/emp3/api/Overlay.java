@@ -2,20 +2,14 @@ package mil.emp3.api;
 
 
 import org.cmapi.primitives.GeoContainer;
-import org.cmapi.primitives.GeoMilSymbol;
-import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoContainer;
-import org.xmlpull.v1.XmlSerializer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.abstracts.Container;
-import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
-import mil.emp3.api.interfaces.IKMLExportable;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ManagerFactory;
