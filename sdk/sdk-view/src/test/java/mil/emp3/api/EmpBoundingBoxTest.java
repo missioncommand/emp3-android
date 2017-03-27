@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.InvalidParameterException;
+import java.util.IllegalFormatPrecisionException;
 
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
@@ -36,14 +37,14 @@ public class EmpBoundingBoxTest {
         try {
             bbox = new EmpBoundingBox(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
             Assert.assertTrue("Constructor didn't generate an exception with NaN values.", false);
-        } catch (InvalidParameterException ex) {
+        } catch (IllegalArgumentException ex) {
             Assert.assertTrue(true);
         }
 
         try {
             bbox = new EmpBoundingBox(null, null);
             Assert.assertTrue("Constructor didn't generate an exception with null coordinates.", false);
-        } catch (InvalidParameterException ex) {
+        } catch (IllegalArgumentException ex) {
             Assert.assertTrue(true);
         }
 

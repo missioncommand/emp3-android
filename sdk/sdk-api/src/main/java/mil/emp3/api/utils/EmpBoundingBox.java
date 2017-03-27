@@ -5,7 +5,6 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 
@@ -33,15 +32,15 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
      */
     public EmpBoundingBox(double northValue, double southValue, double eastValue, double westValue) {
         if (Double.isNaN(northValue) || Double.isNaN(southValue) || Double.isNaN(eastValue) || Double.isNaN(westValue)) {
-            throw new InvalidParameterException("Invalid value NaN.");
+            throw new IllegalArgumentException("Invalid value NaN.");
         }
 
         if ((northValue < -90) || (northValue > 90) || (southValue < -90) || (southValue > 90)) {
-            throw new InvalidParameterException("Invalid latitude value.");
+            throw new IllegalArgumentException("Invalid latitude value.");
         }
 
         if ((eastValue < -180) || (eastValue > 180) || (westValue < -180) || (westValue > 180)) {
-            throw new InvalidParameterException("Invalid longitude value.");
+            throw new IllegalArgumentException("Invalid longitude value.");
         }
 
         if (northValue >= southValue) {
@@ -62,7 +61,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
      */
     public EmpBoundingBox(IGeoPosition southWest, IGeoPosition northEast) {
         if ((null == southWest) || (null == northEast)) {
-            throw new InvalidParameterException("Invalid null GeoPosition.");
+            throw new IllegalArgumentException("Invalid null GeoPosition.");
         }
         if (northEast.getLatitude() >= southWest.getLatitude()) {
             this.setNorth(northEast.getLatitude());
@@ -115,7 +114,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void setNorth(double value) {
         if (Double.isNaN(value)) {
-            throw new InvalidParameterException("value is not a number.");
+            throw new IllegalArgumentException("value is not a number.");
         }
         super.setNorth(((((value + 90.0) % 180.0) + 180.0) % 180.0) - 90.0);
     }
@@ -123,7 +122,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void setSouth(double value) {
         if (Double.isNaN(value)) {
-            throw new InvalidParameterException("value is not a number.");
+            throw new IllegalArgumentException("value is not a number.");
         }
         super.setSouth(((((value + 90.0) % 180.0) + 180.0) % 180.0) - 90.0);
     }
@@ -131,7 +130,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void setWest(double value) {
         if (Double.isNaN(value)) {
-            throw new InvalidParameterException("value is not a number.");
+            throw new IllegalArgumentException("value is not a number.");
         }
         super.setWest(((((value + 180.0) % 360.0) + 360.0) % 360.0) - 180.0);
         if (getWest() == 180.0) {
@@ -142,7 +141,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void setEast(double value) {
         if (Double.isNaN(value)) {
-            throw new InvalidParameterException("value is not a number.");
+            throw new IllegalArgumentException("value is not a number.");
         }
         super.setEast(((((value + 180.0) % 360.0) + 360.0) % 360.0) - 180.0);
         if (getEast() == -180.0) {
@@ -200,7 +199,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public boolean intersects(double northDeg, double southDeg, double eastDeg, double westDeg) {
         if ((northDeg == Double.NaN) || (southDeg == Double.NaN) || (eastDeg == Double.NaN) || (westDeg == Double.NaN)) {
-            throw new InvalidParameterException("invalid coordinate.");
+            throw new IllegalArgumentException("invalid coordinate.");
         }
 
         boolean bRet = false;
@@ -233,7 +232,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public boolean intersects(IGeoBounds bounds) {
         if (bounds == null) {
-            throw new InvalidParameterException("null bounds.");
+            throw new IllegalArgumentException("null bounds.");
         }
         return this.intersects(bounds.getNorth(), bounds.getSouth(), bounds.getEast(), bounds.getWest());
     }
@@ -241,7 +240,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public boolean intersects(IEmpBoundingBox bounds) {
         if (bounds == null) {
-            throw new InvalidParameterException("null bounds.");
+            throw new IllegalArgumentException("null bounds.");
         }
         return this.intersects(bounds.north(), bounds.south(), bounds.east(), bounds.west());
     }
@@ -386,10 +385,10 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public IEmpBoundingBox intersection(IEmpBoundingBox with, IEmpBoundingBox result) {
         if (null == with) {
-            throw new InvalidParameterException("The with parameters can not be null.");
+            throw new IllegalArgumentException("The with parameters can not be null.");
         }
         if (null == result) {
-            throw new InvalidParameterException("The result parameters can not be null.");
+            throw new IllegalArgumentException("The result parameters can not be null.");
         }
 
         if (!this.intersects(with)) {
@@ -448,10 +447,10 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void includePosition(double latitude, double longitude) {
         if (Double.isNaN(latitude)) {
-            throw new InvalidParameterException("Ivalid latitude.");
+            throw new IllegalArgumentException("Ivalid latitude.");
         }
         if (Double.isNaN(longitude)) {
-            throw new InvalidParameterException("Ivalid longitude.");
+            throw new IllegalArgumentException("Ivalid longitude.");
         }
 
         if (Double.isNaN(getEast()) || Double.isNaN(getNorth()) || Double.isNaN(getSouth()) || Double.isNaN(getWest())) {
