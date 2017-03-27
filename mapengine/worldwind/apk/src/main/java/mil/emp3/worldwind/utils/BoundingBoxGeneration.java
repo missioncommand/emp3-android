@@ -131,6 +131,36 @@ public class BoundingBoxGeneration {
     private boolean checkResultNoMargin(Point result) {
         return result.x < 0 || result.x > width || result.y < 0 || result.y > height;
     }
+
+    /**
+     * If complete Globe is visible then we build the bounding box using the geometric center and moving 60 degrees out in each direction.
+     *
+     * @param geoBounds
+     * @param geometricCenter
+     * @return
+     */
+    private boolean boundsForEntireGlobeVisible(IGeoBounds geoBounds, IGeoPosition geometricCenter) {
+        if(0 == cornersTouched && cameraOnScreen && -1.0 < camera.getTilt() && camera.getTilt() < 1.0) {
+            geoBounds.setNorth(geometricCenter.getLatitude() + MAX_LATITUDE_SPAN/2);
+            if(geoBounds.getNorth() > global.LATITUDE_MAXIMUM) {
+                geoBounds.setNorth(global.LATITUDE_MAXIMUM);
+            }
+            geoBounds.setEast(geometricCenter.getLongitude() + MAX_LONGITUDE_SPAN/2);
+            if(geoBounds.getEast() > global.LONGITUDE_MAXIMUM) {
+                geoBounds.setEast(global.LONGITUDE_MINIMUM + (geoBounds.getEast() % global.LONGITUDE_MAXIMUM));
+            }
+            geoBounds.setWest(geometricCenter.getLongitude() - MAX_LONGITUDE_SPAN/2);
+            if(geoBounds.getWest() < global.LONGITUDE_MINIMUM) {
+                geoBounds.setWest(geoBounds.getWest() + (2 * global.LONGITUDE_MAXIMUM));
+            }
+            geoBounds.setSouth(geometricCenter.getLatitude() - MAX_LATITUDE_SPAN/2);
+            if(geoBounds.getSouth() < global.LATITUDE_MINIMUM) {
+                geoBounds.setSouth(global.LATITUDE_MINIMUM);
+            }
+            return true;
+        }
+        return false;
+    }
     /**
      * Calculates a bounding box using the previously calculated vertices of the bounding area. There are multiple steps involved.
      *
@@ -143,6 +173,11 @@ public class BoundingBoxGeneration {
      */
     private void buildBoundingBox_(IGeoPosition[] vertices, IGeoBounds geoBounds, IGeoPosition geometricCenter) {
         Log.i(TAG, "start buildBoundingBox_ ");
+
+        // Consider the simple case where the entire globe is visible.
+        if(boundsForEntireGlobeVisible(geoBounds, geometricCenter)) {
+            return;
+        }
 
         setNorthAndSouth(vertices, geoBounds);  // Simply to figure out value for increment based on span.
         IGeoPosition center;
