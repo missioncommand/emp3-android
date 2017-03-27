@@ -62,6 +62,7 @@ public class ManagerFactory {
             coreManager.setEventManager(eventManager);
 
             milStdRenderer.setStorageManager(storageManager);
+            milStdRenderer.setCoreManager(coreManager);
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new IllegalStateException("Unable to initialize ManagerFactory: " + e.getMessage(), e);

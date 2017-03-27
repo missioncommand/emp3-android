@@ -3,6 +3,7 @@ package mil.emp3.api.interfaces.core;
 import android.graphics.Point;
 
 import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
@@ -12,6 +13,7 @@ import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
+import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
@@ -103,4 +105,11 @@ public interface ICoreManager {
      * @param grid
      */
     void setMapGridType(IMap clientMap, MapGridTypeEnum grid);
+
+    /**
+     * This method returns the list of labels to be processed given the label setting.
+     * @param eLabelSetting {@link MilStdLabelSettingEnum}
+     * @return java.util.Set<IGeoMilSymbol.Modifier>
+     */
+    java.util.Set<IGeoMilSymbol.Modifier> getMilStdModifierLabelList(MilStdLabelSettingEnum eLabelSetting);
 }
