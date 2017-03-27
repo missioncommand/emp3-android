@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
+import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 
@@ -220,5 +222,63 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         }
 
         return posList;
+    }
+
+    public IEmpBoundingBox getFeatureBoundingBox() {
+        IEmpBoundingBox bBox = null;
+        List<IGeoPosition> posList = getPositions();
+
+        if ((null != posList) && !posList.isEmpty()) {
+            double majorAxis = this.getSemiMajor();
+            double minorAxis = this.getSemiMinor();
+
+            if (!Double.isNaN(majorAxis) && !Double.isNaN(minorAxis)) {
+                double angle = this.getAzimuth();
+                bBox = new EmpBoundingBox();
+                IGeoPosition pos = new GeoPosition();
+
+                // Compute north.
+                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+
+                // Compute east.
+                angle = this.getAzimuth() + 90.0;
+                angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
+                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+
+                // Compute south.
+                angle = this.getAzimuth() + 180.0;
+                angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
+                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+
+                // Compute west.
+                angle = this.getAzimuth() + 270.0;
+                angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
+                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+
+                // Now we need to extend the box by ~ 10%.
+                double deltaLat = bBox.deltaLatitude();
+                double deltaLong = bBox.deltaLongitude();
+
+                if (deltaLat == 0.0) {
+                    deltaLat = 0.05;
+                }
+                if (deltaLong == 0.0) {
+                    deltaLong = 0.05;
+                }
+
+                deltaLat *= 0.05;
+                deltaLong *= 0.05;
+
+                bBox.includePosition(bBox.getNorth() + deltaLat, bBox.getWest());
+                bBox.includePosition(bBox.getSouth() - deltaLat, bBox.getWest());
+                bBox.includePosition(bBox.getNorth(), bBox.getWest() - deltaLong);
+                bBox.includePosition(bBox.getNorth(), bBox.getEast() + deltaLong);
+            }
+        }
+        return bBox;
     }
 }
