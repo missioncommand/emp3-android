@@ -234,16 +234,19 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
                 westPoint = AbstractMapGridLine.this.mapInstance.geoToContainer(centerWest);
                 eastPoint = AbstractMapGridLine.this.mapInstance.geoToContainer(centerEast);
-                int deltaX = eastPoint.x - westPoint.x;
-                int deltaY = eastPoint.y - westPoint.y;
-                double deltaXe2 = deltaX * deltaX;
-                double deltaYe2 = deltaY * deltaY;
-                double pixelDistance = Math.sqrt(deltaXe2 + deltaYe2);
 
-                viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
-                AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
+                if ((null != westPoint) && (null != eastPoint)) {
+                    int deltaX = eastPoint.x - westPoint.x;
+                    int deltaY = eastPoint.y - westPoint.y;
+                    double deltaXe2 = deltaX * deltaX;
+                    double deltaYe2 = deltaY * deltaY;
+                    double pixelDistance = Math.sqrt(deltaXe2 + deltaYe2);
 
-                AbstractMapGridLine.this.generationThread.scheduleProcessing();
+                    viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+                    AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
+
+                    AbstractMapGridLine.this.generationThread.scheduleProcessing();
+                }
             }
         });
     }
