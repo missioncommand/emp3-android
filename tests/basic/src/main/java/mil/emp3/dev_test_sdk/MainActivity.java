@@ -1602,6 +1602,7 @@ public class MainActivity extends AppCompatActivity
                     });
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
                 }
                 return true;
             }
@@ -1640,10 +1641,12 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void exportFailed(Exception Ex) {
                             Log.e(TAG, "Map export to KML failed.", Ex);
+                            MainActivity.this.makeToast("Export failed");
                         }
                     });
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
                 }
                 return true;
             }
@@ -1684,11 +1687,13 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void exportFailed(Exception Ex) {
                                 Log.e(TAG, "Map export to KML failed.", Ex);
+                                MainActivity.this.makeToast("Export failed");
                             }
                         });
                     }
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
                 }
                 return true;
             }

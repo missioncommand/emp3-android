@@ -1447,7 +1447,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return armyc2.c2sd.renderer.utilities.SymbolDefTable.getInstance().getSymbolDef(this.getBasicSymbol(), this.geoMilStdVersionToRendererVersion());
     }
 
-    public IEmpBoundingBox getTacticalGraphicBoundingBox() {
+    public IEmpBoundingBox getFeatureBoundingBox() {
         if (!this.isTacticalGraphic()) {
             return null;
         }
