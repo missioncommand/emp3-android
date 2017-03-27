@@ -29,18 +29,8 @@ public abstract class AbstractSinglePointEditor<T extends IFeature> extends Abst
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        IGeoPosition oCenterPos = this.getMapCameraPosition();
-        IGeoPosition pos = new GeoPosition();
-        List<IGeoPosition> posList = new ArrayList<>();
-
-        pos.setLatitude(oCenterPos.getLatitude());
-        pos.setLongitude(oCenterPos.getLongitude());
-        pos.setAltitude(0.0);
-
-        posList.add(pos);
-
         this.oFeature.getPositions().clear();
-        this.oFeature.getPositions().addAll(posList);
+        this.oFeature.getPositions().add(getCenter());
     }
 
     @Override

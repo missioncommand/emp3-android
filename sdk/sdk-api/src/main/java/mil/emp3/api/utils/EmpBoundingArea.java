@@ -32,7 +32,7 @@ import mil.emp3.api.interfaces.IEmpBoundingArea;
  */
 
 public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
-    private static String TAG = EmpBoundingBox.class.getSimpleName();
+    private static String TAG = EmpBoundingArea.class.getSimpleName();
     public final static int REQUIRED_VERTICES = 4;
     private final IGeoPosition[] vertices;
 
@@ -116,7 +116,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         adjustedVertices = new IGeoPosition[vertices.length];
         double distance;
 
-        // If distance from center is more than 4000,000 meters then clip it.
+        // If distance from center is more than 5,000,000 meters then clip it.
         for (int ii = 0; ii < vertices.length; ii++) {
             try {
                 distance = GeoLibrary.computeDistanceBetween(center, vertices[ii]);

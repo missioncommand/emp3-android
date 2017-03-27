@@ -46,9 +46,8 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        // we need to remove al positions in the feature.
-        List<IGeoPosition> posList = this.getPositions();
-        posList.clear();
+        this.oFeature.getPositions().clear();
+        this.oFeature.getPositions().add(getCenter());
     }
 
     @Override
