@@ -79,7 +79,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
         @Override
         public boolean onDown(MotionEvent event) {
             boolean retValue = false;
-            Log.d(TAG, "Action onDown " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
+            //Log.d(TAG, "Action onDown " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
 
             // Reset thee previous scroll event.
             PickNavigateController.this.oPointCoordinate.set((int) event.getX(), (int) event.getY());
@@ -99,7 +99,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent event) { //onSingleTapUp
-            Log.d(TAG, "Action onSingleTapConfirmed " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
+            //Log.d(TAG, "Action onSingleTapConfirmed " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
             // The onSingleTapUp single-tap handler has a faster response time than onSingleTapConfirmed.
 
             // We do not consume this event; we allow the "up" event to pass on to the navigation gestures,
@@ -116,25 +116,25 @@ public class PickNavigateController extends BasicWorldWindowController implement
 
         @Override
         public boolean onScroll(MotionEvent downEvent, MotionEvent moveEvent, float distanceX, float distanceY) {
-            Log.d(TAG, "Action onScroll PC " + downEvent.getPointerCount() + " " + moveEvent.getPointerCount());
+            //Log.d(TAG, "Action onScroll PC " + downEvent.getPointerCount() + " " + moveEvent.getPointerCount());
             return PickNavigateController.this.onScrollHandler(downEvent, moveEvent, distanceX, distanceY);
         }
 
         @Override
         public boolean onDoubleTap(MotionEvent event) {
-            Log.d(TAG, "Action onDoubleTap " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
+            //Log.d(TAG, "Action onDoubleTap " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
             return PickNavigateController.this.onDoubleTapHandler(event);
         }
 
         @Override
         public void onLongPress(MotionEvent event) {
-            Log.d(TAG, "Action onLongPress " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
+            //Log.d(TAG, "Action onLongPress " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
             PickNavigateController.this.onLongPressHandler(event);
         }
 
         @Override
         public void onShowPress(MotionEvent event) {
-            Log.d(TAG, "Action onShowPress " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
+            //Log.d(TAG, "Action onShowPress " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
             PickNavigateController.this.onShowPressHandler(event);
         }
     };
@@ -170,12 +170,12 @@ public class PickNavigateController extends BasicWorldWindowController implement
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.d(TAG, "In Action onTouchEvent " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
+        //Log.d(TAG, "In Action onTouchEvent " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
         this.actionUpDetected = false;
         boolean consumed = false;
 
         if(event.getPointerCount() > 1) {
-            Log.d(TAG, "onTouchEvent clear pick list and reset dragging");
+            //Log.d(TAG, "onTouchEvent clear pick list and reset dragging");
             oFeaturePickList.clear();
             isDragging = false;
             dragDownEvent = null;
@@ -203,11 +203,11 @@ public class PickNavigateController extends BasicWorldWindowController implement
         // If event was not consumed by the pick operation, pass it on the globe navigation handlers
         if ((MapMotionLockEnum.UNLOCKED == eLockMode) && !consumed && !dragConsumed) {
             // The super class performs the pan, tilt, rotate and zoom
-            Log.i(TAG, "Forwarding event " + event.getAction() + " to super. Picks " + this.oFeaturePickList.size() + ".");
+            //Log.i(TAG, "Forwarding event " + event.getAction() + " to super. Picks " + this.oFeaturePickList.size() + ".");
             consumed = super.onTouchEvent(event);
         }
 
-        Log.d(TAG, "Out Action onTouchEvent " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount() + " consumed " + consumed);
+        //Log.d(TAG, "Out Action onTouchEvent " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount() + " consumed " + consumed);
 
         return consumed;
     }
@@ -250,11 +250,11 @@ public class PickNavigateController extends BasicWorldWindowController implement
                 }
             }
         }
-        Log.d(TAG, "  Pick " + this.oFeaturePickList.size());
+        //Log.d(TAG, "  Pick " + this.oFeaturePickList.size());
     }
 
     public boolean onSingleTapHandler(MotionEvent oEvent) {
-        Log.d(TAG, "Single Tap " + this.oFeaturePickList.size());
+        //Log.d(TAG, "Single Tap " + this.oFeaturePickList.size());
 
         try {
             this.generateUserInteractionEvent(UserInteractionEventEnum.CLICKED, oEvent);
@@ -278,7 +278,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
     public void onLongPressHandler(MotionEvent oEvent) {
         //this.pick(oEvent);
         
-        Log.d(TAG, "Long Press " + this.oFeaturePickList.size());
+        //Log.d(TAG, "Long Press " + this.oFeaturePickList.size());
         
         this.generateUserInteractionEvent(UserInteractionEventEnum.LONG_PRESS, oEvent);
     }
@@ -387,14 +387,14 @@ public class PickNavigateController extends BasicWorldWindowController implement
 
                 this.mapInstance.generateFeatureUserInteractionEvent(UserInteractionEventEnum.DRAG_COMPLETE,
                         this.oKeys, this.oButton, this.oFeaturePickList, oPointCoordinate, oTempPosition, this.oPreviousScrollEventPosition);
-                Log.d(TAG, "DRAG_COMPLETE generateFeatureUserInteractionEvent consumed " + consumed);
+                //Log.d(TAG, "DRAG_COMPLETE generateFeatureUserInteractionEvent consumed " + consumed);
                 dragConsumed = false;
 
             } else {
                 //Log.i(TAG, "Scroll Evt Drag. Picks " + this.oFeaturePickList.size() + ".");
                 consumed = this.mapInstance.generateFeatureUserInteractionEvent(UserInteractionEventEnum.DRAG,
                         this.oKeys, this.oButton, this.oFeaturePickList, oPointCoordinate, oTempPosition, this.oPreviousScrollEventPosition);
-                Log.d(TAG, "DRAG generateFeatureUserInteractionEvent consumed " + consumed);
+                //Log.d(TAG, "DRAG generateFeatureUserInteractionEvent consumed " + consumed);
                 dragConsumed = consumed;
             }
         }
@@ -470,13 +470,13 @@ public class PickNavigateController extends BasicWorldWindowController implement
         /* not used for current sprint
         v.getX();
         v.getY();*/
-        Log.i(TAG, "got click");
+        //Log.i(TAG, "got click");
         oButton = UserInteractionMouseButtonEnum.NONE;
     }
 
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
-        Log.i(TAG, "Got key event " + keyCode);
+        //Log.i(TAG, "Got key event " + keyCode);
         oKeys = EnumSet.noneOf(UserInteractionKeyEnum.class);
         return false;
     }

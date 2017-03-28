@@ -6,25 +6,18 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mil.emp3.api.Rectangle;
-import mil.emp3.api.abstracts.Feature;
-import mil.emp3.api.enums.EditorMode;
-import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
+
 import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.utils.GeoLibrary;
-import mil.emp3.core.events.EditUpdateData;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
- * Implements editor for Rectangle with six posible control points that allow the user to position and size the rectangle on
+ * Implements editor for Rectangle with six three control points that allow the user to position and size of the rectangle on
  * the map.
  *
  * * NOTES
@@ -48,6 +41,8 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
     private final double minWidthMultiplier = (widthMultiplier/5);
     private final double minHeightMultiplier = (heightMultiplier/5);
 
+    private final double minDistanceTiltThreshold = 30.0; // Change minimum distance when camera tilt is above this value
+    private final double minDistanceTiltThresholdMultiplier = 3.0; // multiply minimum distance when tilt threshold is crossed.
 
     private double currentWidth = 0;
     private double currentHeight = 0;
@@ -70,17 +65,23 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
 
-        IGeoPosition centerPos = new GeoPosition();
-        ICamera camera = oClientMap.getCamera();
-
-        currentWidth = 2 * camera.getAltitude() * widthMultiplier;
-        currentHeight = 2 * camera.getAltitude() * heightMultiplier;
+        double refDistance = getReferenceDistance();
+        if(refDistance > 0) {
+            currentHeight = refDistance * heightMultiplier;
+            currentWidth = (widthMultiplier/heightMultiplier) * currentHeight;
+        } else {
+            ICamera camera = oClientMap.getCamera();
+            currentWidth = 2 * camera.getAltitude() * widthMultiplier;
+            currentHeight = 2 * camera.getAltitude() * heightMultiplier;
+        }
         currentBearing = 0.0;
-
-        centerPos.setLatitude(camera.getLatitude());
-        centerPos.setLongitude(camera.getLongitude());
-
-        this.oFeature.setPosition(centerPos);
+        if(currentHeight < Rectangle.MINIMUM_HEIGHT) {
+            currentHeight = Rectangle.MINIMUM_HEIGHT;
+        }
+        if(currentWidth < Rectangle.MINIMUM_WIDTH) {
+            currentWidth = Rectangle.MINIMUM_WIDTH;
+        }
+        Log.d(TAG, "currentHeight " + currentHeight + " currentWidth " + currentWidth);
         this.oFeature.setWidth(currentWidth);
         this.oFeature.setHeight(currentHeight);
         this.oFeature.setAzimuth(currentBearing);
@@ -184,10 +185,26 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
         getCP(ControlPoint.CPTypeEnum.AZIMUTH_CP, center, false);
     }
 
+    @Override
+    protected double getMinDistance(double multiplier) {
+        double minDistance = -1.0;
+
+        double refDistance = getReferenceDistance();
+        if(refDistance > 0) {
+            minDistance = refDistance * multiplier;
+            if(mapInstance.getCamera().getTilt() > minDistanceTiltThreshold) {
+                minDistance *= minDistanceTiltThresholdMultiplier;
+            }
+        }
+        return minDistance;
+    }
+
     private void adjustWidth(ControlPoint oCP, IGeoPosition oLatLon) {
         Log.d(TAG, oCP.getCPType().toString() + " B4 calc " + currentWidth + " " + currentBearing);
         currentWidth = 2 * GeoLibrary.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
-
+        if(currentWidth < Rectangle.MINIMUM_WIDTH) {
+            currentWidth = Rectangle.MINIMUM_WIDTH;
+        }
         Log.d(TAG, oCP.getCPType().toString() + currentWidth + " " + currentBearing);
         recompute(this.oFeature.getPosition());
         this.oFeature.setWidth(currentWidth);
@@ -201,7 +218,9 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
     private void adjustHeight(ControlPoint oCP, IGeoPosition oLatLon) {
         Log.d(TAG, oCP.getCPType().toString() + " B4 calc " + currentWidth + " " + currentBearing);
         currentHeight = 2 * GeoLibrary.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
-
+        if(currentHeight < Rectangle.MINIMUM_HEIGHT) {
+            currentHeight = Rectangle.MINIMUM_HEIGHT;
+        }
         Log.d(TAG, oCP.getCPType().toString() + currentHeight + " " + currentBearing);
         recompute(this.oFeature.getPosition());
         this.oFeature.setHeight(currentHeight);

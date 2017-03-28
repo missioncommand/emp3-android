@@ -5,6 +5,7 @@ import org.cmapi.primitives.IGeoAltitudeMode;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import gov.nasa.worldwind.NavigatorEvent;
@@ -62,7 +63,7 @@ public class Emp3NavigationListener implements NavigatorListener {
         public gov.nasa.worldwind.geom.LookAt getLookAt() { return this.oWWLookAT; }
         public IEmpBoundingArea getEmpBoundingArea() { return this.empBoundingArea; }
     }
-    private class EventProcessingThread extends java.lang.Thread{
+    protected class EventProcessingThread extends java.lang.Thread{
         private final BlockingQueue<EventQueueItem> qEventEnumQueue = new LinkedBlockingQueue<>();
         private final Emp3NavigationListener oCameraHandler;
         private final long iEventWaitDelay = 500; // msec
@@ -91,7 +92,7 @@ public class Emp3NavigationListener implements NavigatorListener {
             while (!Thread.interrupted()) {
                 try {
                     if (bTimedWait) {
-                        lWaitTime = nextEventTime - System.currentTimeMillis();
+                        lWaitTime = Math.max(nextEventTime - System.currentTimeMillis(), 1);
                         oQueueItem = this.qEventEnumQueue.poll(lWaitTime, TimeUnit.MILLISECONDS);
                         bTimedWait = false;
                         if ((oQueueItem == null) && (this.oWaitingQueueItem != null)) {
@@ -139,7 +140,8 @@ public class Emp3NavigationListener implements NavigatorListener {
                         }
                         break;
                     case VIEW_MOTION_STOPPED:
-                        if (this.ePreviousEventSent == MapViewEventEnum.VIEW_IN_MOTION) {
+                        // I removed the if to force it to send all the stop events we get.
+                        //if (this.ePreviousEventSent == MapViewEventEnum.VIEW_IN_MOTION) {
                             // Its the first in motion stopped event. Dont wait just send it.
                             this.oCameraHandler.generateViewChangeEvent(oQueueItem.getEvent(), oQueueItem.getCamera(), oQueueItem.getEmpBoundingArea());
                             this.ePreviousEventSent = oQueueItem.getEvent();
@@ -154,13 +156,14 @@ public class Emp3NavigationListener implements NavigatorListener {
 //                                applyLookAtChange(currentLookAt, true);
 //                                bLookAtUpdated = true;
 //                            }
+                            this.oWaitingQueueItem = null;
                             bTimedWait = false;
-                        } else {
+                        //} else {
                             // Its another MOTION STOPPED event we wait before we send it.
                             // If another arrives before the wait time expires, we ignore this one.
-                            this.oWaitingQueueItem = oQueueItem;
-                            bTimedWait = true;
-                        }
+                        //    this.oWaitingQueueItem = oQueueItem;
+                        //    bTimedWait = true;
+                        //}
                         break;
                 }
             }
@@ -180,8 +183,8 @@ public class Emp3NavigationListener implements NavigatorListener {
             }
         }
     }
-    
-    private final EventProcessingThread oEventProcessingThread;
+
+    protected final EventProcessingThread oEventProcessingThread;
     
     public Emp3NavigationListener(MapInstance mapInstance, WorldWindow ww) {
         this.ww = ww;

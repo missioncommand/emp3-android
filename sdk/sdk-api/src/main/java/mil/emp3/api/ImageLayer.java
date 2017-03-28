@@ -15,7 +15,7 @@ import mil.emp3.api.interfaces.IImageLayer;
 import mil.emp3.api.utils.EmpBoundingBox;
 
 /**
- * This class implements an image map service layer. It super imposes an image on the map at a specified location
+ * This class implements an image map service layer. It imposes an image on the map at a specified location
  * bounded by the provided bounding box.
  */
 

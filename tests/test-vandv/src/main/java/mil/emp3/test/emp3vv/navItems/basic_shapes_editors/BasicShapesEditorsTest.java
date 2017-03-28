@@ -667,8 +667,26 @@ public class BasicShapesEditorsTest extends NavItemBase {
             styleManager.setStyles(newSymbol);
 
             if(forEdit) {
-                IOverlay overlay = createOverlay(maps[whichMap]);
-                overlay.addFeature(newSymbol, true);
+                // Check if symbol exists, if it does then put it in edit mode else create a new symbol
+                // and put it in edit mode.
+                IFeature existingFeature = null;
+                if(newSymbol instanceof MilStdSymbol) {
+                    List<IFeature> features = maps[whichMap].getAllFeatures();
+                    if (null != features) {
+                        for (IFeature f : features) {
+                            if ((f instanceof MilStdSymbol) && (((MilStdSymbol) f).getSymbolCode().equals(((MilStdSymbol) newSymbol).getSymbolCode()))) {
+                                existingFeature = f;
+                            }
+                        }
+                    }
+                }
+
+                if(null == existingFeature) {
+                    IOverlay overlay = createOverlay(maps[whichMap]);
+                    overlay.addFeature(newSymbol, true);
+                } else {
+                    newSymbol = existingFeature;
+                }
                 if (null != editEventListener[whichMap]) {
                     maps[whichMap].editFeature(newSymbol, editEventListener[whichMap]);
                 } else {

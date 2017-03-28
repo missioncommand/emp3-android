@@ -32,13 +32,15 @@ import mil.emp3.api.interfaces.IEmpBoundingArea;
  */
 
 public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
-    private static String TAG = EmpBoundingBox.class.getSimpleName();
+    private static String TAG = EmpBoundingArea.class.getSimpleName();
     public final static int REQUIRED_VERTICES = 4;
     private final IGeoPosition[] vertices;
 
     private final ICamera camera;              // Camera when vertices were calculated, we will need this for
                                                // adjusting the distance.
     private final boolean cameraOnScreen;      // True if camera position is on screen.
+
+    private final IGeoPosition geometricCenter; // Position corresponding to the geometric center of the vertices.
 
     // We will adjust vertices to restrict the distance from the camera. Purpose is to reduce the size of resources used
     // by SEC Military Symbol renderer. We will do the adjustment only when user tries to retrieve anything related
@@ -59,7 +61,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
      * @param v4
      */
     public EmpBoundingArea(ICamera currentCamera, boolean cameraOnScreen, IGeoPosition v1, IGeoPosition v2, IGeoPosition v3, IGeoPosition v4,
-                           IGeoBounds geoBounds) {
+                           IGeoBounds geoBounds, IGeoPosition geometricCenter) {
 
         if((null == v1) || (null == v2) || (null == v3) || (null == v4)) {
             throw new IllegalArgumentException("All vertices must be non-null");
@@ -85,6 +87,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         camera = new Camera();
         camera.copySettingsFrom(currentCamera);
         this.cameraOnScreen = cameraOnScreen;
+        this.geometricCenter = geometricCenter;
 
         super.setEast(geoBounds.getEast());
         super.setWest(geoBounds.getWest());
@@ -113,7 +116,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         adjustedVertices = new IGeoPosition[vertices.length];
         double distance;
 
-        // If distance from center is more than 4000,000 meters then clip it.
+        // If distance from center is more than 5,000,000 meters then clip it.
         for (int ii = 0; ii < vertices.length; ii++) {
             try {
                 distance = GeoLibrary.computeDistanceBetween(center, vertices[ii]);
@@ -229,4 +232,39 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         EmpBoundingBox empBoundingBox = new EmpBoundingBox(getNorth(), getSouth(), getEast(), getWest());
         return empBoundingBox;
     }
+
+    @Override
+    public IGeoPosition getCenter() {
+        List<IGeoPosition> cornersFound = new ArrayList<>();
+
+        IGeoPosition nw = new GeoPosition();
+        nw.setLatitude(getNorth());
+        nw.setLongitude(getWest());
+        cornersFound.add(nw);
+
+        IGeoPosition ne = new GeoPosition();
+        ne.setLatitude(getNorth());
+        ne.setLongitude(getEast());
+        cornersFound.add(ne);
+
+        IGeoPosition se = new GeoPosition();
+        se.setLatitude(getSouth());
+        se.setLongitude(getEast());
+        cornersFound.add(se);
+
+        IGeoPosition sw = new GeoPosition();
+        sw.setLatitude(getSouth());
+        sw.setLongitude(getWest());
+        cornersFound.add(sw);
+
+        return GeoLibrary.getCenter(cornersFound);
+    }
+
+    @Override
+    public boolean cameraPositionIsVisible() {
+        return cameraOnScreen;
+    }
+
+    @Override
+    public IGeoPosition getGeometricCenter() { return new EmpGeoPosition(geometricCenter);}
 }

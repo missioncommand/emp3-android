@@ -17,6 +17,7 @@ env:
     - secure: 3pmA/YQ7CKdko7k3v+PZf3PR7y0JCprC/M3Ik7RQ1LEFq0AWxuvoh3D6zCcpkOnKpBuonBhSEJ/nkeKH5kVHT3kWiufIqLCbDBKr9ppPFVabZF+t4fefk/90td2luZwhp7pLf6EkCHsaKV2gIJ82MFnWUYvtO29bPjKdzKR71cDqIstidv/OwMdAI4YBm/JGU4PACVojf9Wgex9V5vuK9wnRdmJ1BX2wJFEtdWLBUu8h+AhTJCG56cVKB9JdpZHj61MyC9c3ENJBKDcqFG7oU8hyDDMIzIEDkYU4RArwCHuuXtVGl+Ix1GavU1rLHTiIqaBdLF4BNYaPT/JShrrC3luIHmn0/CoBgqG5Q8CCQgOAmVhOIhI1xf+kKg6exVg7K+CnqxcVu6p/4VzrSZGzLg3e5RLyDa8u68geEViK+C3Ydsc3xQAlbwl9kSu6IcteQjkCBubGNH+ItuZWVJFFIjOisSluXicnhv6dnkDiith6ePdwoGkunCaVdWKWZEiS1jNbIt8nygZmFcukRSLn3PiHUfZbc24U45vvXIrlmMzWM0UlLovnvqkJ6RrOZNkne2l4Tr7nx71kBuEgFMgFYAnh0YArF16ynE0qw6L8pZzHAaRZpR2nOOcC3+OTvpWwMnIfcQnmyqlAymQFRJk9NWy7TmxLkmOPylC/xNec5BY=
     - secure: xn3f4iSAVI/AAQ6K4ebS9bIZe17USPOz1ejm/Cgr4mttO6nzDY3ulJXT+VBLHT0R+ijjnYBuK9WA3LI0kAtgsjdlQI6Ezhxmo6K+S2I05Ef9vWQ42Xe66ebKgLQMdWWnA801UCBfsLXpbnxf8CZyK+ZC3FmMiqAIT8UsZAPXDqzzOoSqTAciTX1QSkIvJeevZpAHrfhmsKviTv74dXgPuGmlestlgEprSMFkJwrTf2iozFRqaG1ZAZGqsx/wV7C0TwSITu89+hCGGzT/S/1+OcXfPWr5ysMTEpd340dYaEXJmNxxLWAa4psdgr5s9v23STzl0kL90t9dA+FCdi4yh4IxvFlvGUHTaKOvC8lQDyLPzfTFC2KHVwwA3RIULUKGhKdqzQ6lGJPsSK89y6K1WyzvJTGP6VWyTKbPNk7DmLuo+RHw+lZSQz0bSZfKhUiV5eGP7zFRql4NKbSOk4zIdKGPzEh+zasKBwtbfITop3r15+1eserVB4y5pjMfG0AS9zg6zwCLG/ri9giaakUT+dTC5UzWTKrew0MLGVJlIZRcnc9v8WVk6pRG/ikFMF6Y7LnNTw/pT5UKd+kKMk3IcaGg5dX1IpgGD20idm3lMCPtvhIyzUJATLyEOQYhl+BCowY+mT9IhwsY309/0dVe9pSsCvr/Z7qwKzFFdX6O2uA=
     - secure: 34sUS/J1lWN0CtDA3wlMO3vO5yu4Q3T3Fk+4kyYRazpdMNj6dRT+9zZzJ5tlpXB4Z78UKJ3YrPkq+qPhr7kecLQg1YnpTGALNDzZsffjX7ib9DTBu++SIZmWFZCsFvIEk+cBcyN25Ofsnwe6Too4LJ8V/LrkODH+wfWQ6XfzbKw0HbAWZ690oPzpNSetqGpDXpaxc7AyjrjkjB8yF+Sgkl0tsFQSvo+SwazmwSN8I+3mrbgjcGhk3NGJPABSJzD6WLo0aoNtO9S+t1tGiAK5T/X/Ehfv/R95nXmfD3wxVKNC/NnZiKv/1sMEIGv7Y5biTYIpPnl9458QebZhC74VBZCwVua4BXTFwRAS5YqHNTDCFjwmrV8c/PQEg1gS3KmfJwqOQrpza0f5TsCCyqmJxt1U83C2vJYtIk+/Ruo05CqYCpK0oPOQxbcLggTjx/MME4wyot3zhxbLR2WlgkPB7GXeXrqTZQ5fImYKcPDMe79Ot85NuMmTBKtO5gJyJXx0tvtEQryiErmILmFrfQXPv91cTvnwizHAn2Aj+UVY7zdbU3Sw0InBPYqndq8rv2IcLD5ET5zgXP3lzSpV3KNDONensTqnj5d8+eN+egf7NMjoKXLmzlvbG5o9kwZp3PcvQ6s3jKvx9pmcPgUwxt5uhFqAQuJBXRNUrQOtEpDhZ7k=
+    - secure: y+395axunjp8fxCPQMDgT4ec8qqsqq1JMpF5N51niHKP/nVnsLo3DGvp0PI62/lLOHwwsG+4iw6DKHKjmSxsunQWe1yUHjjv0BqiyW4eGWsJewZ9tl1f0YUveD/zzCCh2ArAfdk17abi5sboMRFDFTNMCUWHS/K0apKeG5FIblU/x68HwMha1QRMIurF5cjhM3vA2NtTnXF0GZt3hGz1GGkxzrJIaQ0POMT6syNdVoSzNPHHEgla+alFPsAOtDvlRGME5AbR4htBeJ02Fm/I5Blr8VQl01ccXASTlC3DAlknLG+7isbEcx0ahAovetO8NIxBuQT593X2xT4a5WKarfrPbdL+/jY5rqqlvPcZLhhBbeItT5ODgeFECJTAmHciAuYgaH3JDWecJHD3u8FUpJqVLBOdxhr4C/FgOp82t+YXeaSVC5bbQCqsr8wAiRyiE8ZvR8JaTE1OkVdiLiZ0PZsxT3oRxeuPSGd2RFv0c3b8zL/CpUA8tiIF5bEJqVsyf5KMPKtfdZgqIM+Jwi7y4+F8cVF3pqJ/oyEVVL/RbZl/oi8hqzjBHp8L+7TH/KlJc21ESN+Oh7JbN/FxoeCqQAsimI4Aw5pbYqzx8BxVJQswbSMvC2FfJI+OVPZlVbgD8lwKG2T5BNFLlRhTDj1r7T8lJyY4ji2e2oze7KtCv1E=
 
 cache:
   directories:
@@ -31,7 +32,7 @@ before_install:
 install: true
 
 script:
- - ./gradlew build --refresh-dependencies --continue --stacktrace
+ - ./gradlew build publishToMavenLocal --refresh-dependencies --stacktrace
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -44,9 +45,10 @@ deploy: # travis by default will not invoke this step for PRs
     on:
       branch:
         - development
+
   - provider: script
     skip_cleanup: true
-    script: travis/release.sh
+    script: travis/release.sh && travis/ghpages.sh
     on:
       tags: true
       condition: "$TRAVIS_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$"

@@ -34,6 +34,7 @@ import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.Navigator;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
+import gov.nasa.worldwind.layer.AbstractLayer;
 import gov.nasa.worldwind.layer.BackgroundLayer;
 import gov.nasa.worldwind.layer.Layer;
 import gov.nasa.worldwind.layer.LayerFactory;
@@ -46,11 +47,14 @@ import gov.nasa.worldwind.util.Logger;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
+import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IGeoPackage;
 import mil.emp3.api.interfaces.IImageLayer;
@@ -67,9 +71,12 @@ import mil.emp3.mapengine.abstracts.CoreMapInstance;
 import mil.emp3.mapengine.api.Capabilities;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
+import mil.emp3.mapengine.events.MapInstanceViewChangeEvent;
+import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
 import mil.emp3.mapengine.interfaces.IEmpResources;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
+import mil.emp3.mapengine.interfaces.IMapGridLines;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.worldwind.controller.PickNavigateController;
 import mil.emp3.worldwind.feature.FeatureRenderableMapping;
@@ -78,6 +85,7 @@ import mil.emp3.worldwind.layer.EmpLayer;
 import mil.emp3.worldwind.layer.GeoJSONLayer;
 import mil.emp3.worldwind.layer.IconLayer;
 import mil.emp3.worldwind.layer.KMLLayer;
+import mil.emp3.worldwind.layer.MapGridLayer;
 import mil.emp3.worldwind.layer.PathLayer;
 import mil.emp3.worldwind.layer.PolygonLayer;
 import mil.emp3.worldwind.layer.RenderedFeatureLayer;
@@ -126,6 +134,7 @@ public class MapInstance extends CoreMapInstance {
     private android.graphics.Bitmap crossHatchBitmap;
     private ImageSource hatchImageSource;
     private ImageSource crossHatchImageSource;
+    private MapGridLayer gridLayer = null;
 
     private final Map<FeatureTypeEnum, EmpLayer> empLayerMap = new HashMap<>();
 
@@ -272,6 +281,9 @@ public class MapInstance extends CoreMapInstance {
 
         this.surfaceLayerHash = new ConcurrentHashMap<>();
 
+        this.gridLayer = new MapGridLayer("Grid Line Layer", this);
+        ww.getLayers().addLayer(this.gridLayer);
+
         empLayer = new PolygonLayer(this);
         ww.getLayers().addLayer(empLayer);
         empLayerMap.put(FeatureTypeEnum.GEO_POLYGON, empLayer);
@@ -417,16 +429,30 @@ public class MapInstance extends CoreMapInstance {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                oThis.getCamera();
                 // MAP is ready core and engine cameras are synced, so calculate the initial bounds.
                 BoundsGeneration.initialize(MapInstance.this);
 
-                Log.d(TAG, "Map Ready firing.");
-                oThis.generateStateChangeEvent(MapStateEnum.MAP_READY);
+                MapInstance.this.checkForMapReady();
             }
         }, 500);
 
         return ww;
+    }
+
+    private void checkForMapReady() {
+        IEmpBoundingArea bounds = BoundsGeneration.getBounds(this);
+
+        if (null == bounds) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    MapInstance.this.checkForMapReady();
+                }
+            }, 500);
+        } else {
+            Log.d(TAG, "Map Ready firing.");
+            MapInstance.this.generateStateChangeEvent(MapStateEnum.MAP_READY);
+        }
     }
 
     @Override
@@ -1355,5 +1381,22 @@ public class MapInstance extends CoreMapInstance {
 
     public PickNavigateController getMapController() {
         return mapController;
+    }
+    
+    @Override
+    public void setMapGridGenerator(IMapGridLines gridGenerator) {
+        if (null != this.gridLayer) {
+            this.gridLayer.setMapGridGenerator(gridGenerator);
+        }
+    }
+
+    @Override
+    public void scheduleMapRedraw() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                ww.requestRedraw();
+            }
+        });
     }
 }

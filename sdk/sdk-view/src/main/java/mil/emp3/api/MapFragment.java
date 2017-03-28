@@ -16,6 +16,8 @@ import android.widget.FrameLayout;
 
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoFillStyle;
+import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
@@ -27,6 +29,7 @@ import mil.emp3.api.enums.EventListenerTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.EditorMode;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
@@ -858,5 +861,35 @@ public class MapFragment extends Fragment implements IMap {
     @Override
     public double getDoubleProperty(String propertyName) {
         return this.oClientMap.getDoubleProperty(propertyName);
+    }
+
+    @Override
+    public void setGridType(MapGridTypeEnum grid) {
+        this.oClientMap.setGridType(grid);
+    }
+
+    @Override
+    public double getSelectedIconScale() {
+        return this.oClientMap.getSelectedIconScale();
+    }
+
+    @Override
+    public IGeoLabelStyle getSelectedLabelStyle() {
+        return this.oClientMap.getSelectedLabelStyle();
+    }
+
+    @Override
+    public IGeoStrokeStyle getSelectedStrokeStyle() {
+        return this.oClientMap.getSelectedStrokeStyle();
+    }
+
+    @Override
+    public IGeoFillStyle getBufferFillStyle() {
+        return this.oClientMap.getBufferFillStyle();
+    }
+
+    @Override
+    public int getIconPixelSize() {
+        return this.oClientMap.getIconPixelSize();
     }
 }

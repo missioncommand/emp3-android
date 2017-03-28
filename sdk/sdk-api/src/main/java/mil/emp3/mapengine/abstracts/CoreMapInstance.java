@@ -12,6 +12,7 @@ import java.util.List;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MapFeatureEventEnum;
 import mil.emp3.api.enums.MapStateEnum;
+import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
 import mil.emp3.api.enums.UserInteractionKeyEnum;
 import mil.emp3.api.enums.UserInteractionMouseButtonEnum;

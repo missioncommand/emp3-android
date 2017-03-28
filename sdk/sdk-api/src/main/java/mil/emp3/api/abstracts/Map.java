@@ -6,6 +6,8 @@ import android.view.View;
 
 import org.cmapi.primitives.GeoContainer;
 import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoFillStyle;
+import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
@@ -17,6 +19,7 @@ import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.EventListenerTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
+import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
@@ -26,7 +29,6 @@ import mil.emp3.api.enums.VisibilityActionEnum;
 import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IContainerSet;
 import mil.emp3.api.interfaces.IEmpPropertyList;
@@ -645,5 +647,35 @@ public abstract class Map extends Container implements IMap {
     @Override
     public int getBackgroundBrightness() {
         return storageManager.getMapInstance(this).getBackgroundBrightness();
+    }
+
+    @Override
+    public void setGridType(MapGridTypeEnum gridType) {
+        coreManager.setMapGridType(this, gridType);
+    }
+
+    @Override
+    public double getSelectedIconScale() {
+        return storageManager.getSelectedIconScale(this);
+    }
+
+    @Override
+    public IGeoLabelStyle getSelectedLabelStyle() {
+        return storageManager.getSelectedLabelStyle(this);
+    }
+
+    @Override
+    public IGeoStrokeStyle getSelectedStrokeStyle() {
+        return storageManager.getSelectedStrokeStyle(this);
+    }
+
+    @Override
+    public IGeoFillStyle getBufferFillStyle() {
+        return storageManager.getBufferFillStyle(this);
+    }
+
+    @Override
+    public int getIconPixelSize() {
+        return storageManager.getIconPixelSize(this);
     }
 }

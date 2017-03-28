@@ -2,10 +2,14 @@ package mil.emp3.api;
 
 import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoDocument;
+import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoRenderable;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoDocument;
+import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRenderable;
+import org.cmapi.primitives.IGeoStrokeStyle;
+import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +24,6 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IGeoJSON;
-import mil.emp3.api.interfaces.IImageLayer;
 import mil.emp3.json.geoJson.GeoJsonParser;
 
 public class GeoJSON extends Feature<IGeoRenderable> implements IGeoJSON {

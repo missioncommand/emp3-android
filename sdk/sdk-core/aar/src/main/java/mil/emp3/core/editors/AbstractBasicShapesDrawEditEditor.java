@@ -2,6 +2,7 @@ package mil.emp3.core.editors;
 
 import android.util.Log;
 
+import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IEditUpdateData;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
@@ -44,9 +46,8 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        // we need to remove al positions in the feature.
-        List<IGeoPosition> posList = this.getPositions();
-        posList.clear();
+        this.oFeature.getPositions().clear();
+        this.oFeature.getPositions().add(getCenter());
     }
 
     @Override
@@ -113,7 +114,10 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
                 distanceIsAllowed = false;
             } else {
                 double distancetoLatLon = GeoLibrary.computeDistanceBetween(getFeaturePosition(), oLatLon);
-                double minDistance = oClientMap.getCamera().getAltitude() * distanceMultiplier;
+                double minDistance = getMinDistance(distanceMultiplier);
+                if(minDistance < 0) {
+                    minDistance = oClientMap.getCamera().getAltitude() * distanceMultiplier;
+                }
                 Log.d(TAG, "right distance and min distance " + distancetoLatLon + " " + minDistance);
                 if ((distancetoLatLon < minDistance) || (distancetoLatLon - (axisLength / 2) > oClientMap.getCamera().getAltitude())) {
                     distanceIsAllowed = false;
@@ -126,6 +130,9 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
         return distanceIsAllowed;
     }
 
+    protected double getMinDistance(double multiplier) {
+        return -1.0;
+    }
     /**
      * This is null operation as we have sendPositionUpdateEvent being sent.
      */

@@ -6,20 +6,15 @@ import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPosition;
 
-import mil.emp3.api.utils.kml.EmpKMLExporter;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.abstracts.Feature;
-import mil.emp3.api.interfaces.IKMLExportable;
 
 import org.cmapi.primitives.GeoPosition;
-import org.xmlpull.v1.XmlSerializer;
-
-import java.io.IOException;
 
 /**
  * This class implements the Point feature that encapsulates a GeoPoint object.
  */
-public class Point extends Feature<IGeoPoint> implements IGeoPoint, IKMLExportable {
+public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private double dIconScale = 1.0;
     private int resourceId = 0;
 
@@ -130,62 +125,5 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint, IKMLExportab
      */
     public int getResourceId() {
         return this.resourceId;
-    }
-
-    @Override
-    public String exportToKML() throws IOException {
-        return callKMLExporter();
-    }
-
-    private boolean needStyle() {
-        return (((null != this.getIconURI()) && !this.getIconURI().isEmpty()) || (this.getIconScale() != 1.0));
-    }
-
-    @Override
-    public void exportStylesToKML(XmlSerializer xmlSerializer) throws IOException {
-        if  (needStyle()){
-            xmlSerializer.startTag(null, "Style");
-            xmlSerializer.attribute(null, "id", EmpKMLExporter.getStyleId(this));
-            xmlSerializer.startTag(null, "IconStyle");
-
-            if (this.getIconScale() != 1.0) {
-                xmlSerializer.startTag(null, "scale");
-                xmlSerializer.text("" + this.getIconScale());
-                xmlSerializer.endTag(null, "scale");
-            }
-            if ((null != this.getIconURI()) && !this.getIconURI().isEmpty()) {
-                xmlSerializer.startTag(null, "Icon");
-                EmpKMLExporter.serializeHRef(this.getIconURI(), xmlSerializer);
-                xmlSerializer.endTag(null, "Icon");
-
-                EmpKMLExporter.serializeIconHotSpot(this.getIconStyle(), xmlSerializer);
-            }
-
-            xmlSerializer.endTag(null, "IconStyle");
-            xmlSerializer.endTag(null, "Style");
-        }
-
-        super.exportStylesToKML(xmlSerializer);
-    }
-
-    @Override
-    public void exportEmpObjectToKML(XmlSerializer xmlSerializer) throws IOException {
-        EmpKMLExporter.serializePlacemark(this, xmlSerializer, new EmpKMLExporter.ISerializePlacemarkGeometry() {
-            @Override
-            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
-                if  (needStyle()){
-                    xmlSerializer.startTag(null, "styleUrl");
-                    xmlSerializer.text("#" + EmpKMLExporter.getStyleId(Point.this));
-                    xmlSerializer.endTag(null, "styleUrl");
-                }
-                xmlSerializer.startTag(null, "Point");
-                EmpKMLExporter.serializeExtrude(Point.this, xmlSerializer);
-                EmpKMLExporter.serializeAltitudeMode(Point.this, xmlSerializer);
-                EmpKMLExporter.serializeCoordinates(Point.this.getPositions(), xmlSerializer);
-                xmlSerializer.endTag(null, "Point");
-            }
-        });
-
-        super.exportEmpObjectToKML(xmlSerializer);
     }
 }

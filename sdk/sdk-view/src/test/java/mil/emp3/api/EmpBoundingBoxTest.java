@@ -8,7 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.security.InvalidParameterException;
+import java.util.IllegalFormatPrecisionException;
 
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 
 /**
@@ -35,14 +37,14 @@ public class EmpBoundingBoxTest {
         try {
             bbox = new EmpBoundingBox(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
             Assert.assertTrue("Constructor didn't generate an exception with NaN values.", false);
-        } catch (InvalidParameterException ex) {
+        } catch (IllegalArgumentException ex) {
             Assert.assertTrue(true);
         }
 
         try {
             bbox = new EmpBoundingBox(null, null);
             Assert.assertTrue("Constructor didn't generate an exception with null coordinates.", false);
-        } catch (InvalidParameterException ex) {
+        } catch (IllegalArgumentException ex) {
             Assert.assertTrue(true);
         }
 
@@ -70,7 +72,7 @@ public class EmpBoundingBoxTest {
 
     @Test
     public void methodsTest() throws InterruptedException {
-        EmpBoundingBox bbox = new EmpBoundingBox(20, -20, -100, -110);
+        IEmpBoundingBox bbox = new EmpBoundingBox(20, -20, -100, -110);
 
         Assert.assertTrue("Delta Latitude Failed.", (bbox.deltaLatitude() == 40.0));
         Assert.assertTrue("Delta Longitude Failed.", (bbox.deltaLongitude() == 10.0));
@@ -80,8 +82,100 @@ public class EmpBoundingBoxTest {
         Assert.assertTrue("west Failed.", (bbox.west() == -110.0));
         Assert.assertTrue("containsIDL Failed.", !bbox.containsIDL());
 
-        bbox = new EmpBoundingBox(20, -20, -170, 170);
-        Assert.assertTrue("containsIDL Failed.", bbox.containsIDL());
-        Assert.assertTrue("Delta Longitude with IDL Failed.", (bbox.deltaLongitude() == 20.0));
+        IEmpBoundingBox bbox2 = new EmpBoundingBox(20, -20, -170, 170);
+        Assert.assertTrue("containsIDL Failed.", bbox2.containsIDL());
+        Assert.assertTrue("Delta Longitude with IDL Failed.", (bbox2.deltaLongitude() == 20.0));
+
+        IEmpBoundingBox result = bbox2.intersection(bbox);
+        Assert.assertTrue("EmpBoundingBox intersection when they don't intersect.", result == null);
+
+        bbox.setNorth(40);
+        bbox.setSouth(-40);
+        bbox.setWest(175);
+        bbox.setEast(-180);
+        Assert.assertTrue("setEast failed to change -180 to 180.", bbox.getEast() == 180);
+
+        Assert.assertTrue("EmpBoundingBox intersects", bbox2.intersects(bbox));
+
+        result = bbox2.intersection(bbox);
+        Assert.assertTrue("EmpBoundingBox intersection test 1 failed when they do intersect.", result != null);
+
+        Assert.assertTrue("EmpBoundingBox intersection test 1 failed north setting.", result.getNorth() == 20);
+        Assert.assertTrue("EmpBoundingBox intersection test 1 failed south setting.", result.getSouth() == -20);
+        Assert.assertTrue("EmpBoundingBox intersection test 1 failed west setting.", result.getWest() == 175);
+        Assert.assertTrue("EmpBoundingBox intersection test 1 failed east setting.", result.getEast() == 180);
+
+        result = bbox.intersection(bbox2);
+        Assert.assertTrue("EmpBoundingBox intersection test 2 failed when they do intersect.", result != null);
+
+        Assert.assertTrue("EmpBoundingBox intersection test 2 failed north setting.", result.getNorth() == 20);
+        Assert.assertTrue("EmpBoundingBox intersection test 2 failed south setting.", result.getSouth() == -20);
+        Assert.assertTrue("EmpBoundingBox intersection test 2 failed west setting.", result.getWest() == 175);
+        Assert.assertTrue("EmpBoundingBox intersection test 2 failed east setting.", result.getEast() == 180);
+
+        bbox.setEast(-175);
+
+        result = bbox2.intersection(bbox);
+        Assert.assertTrue("EmpBoundingBox intersection test 3 failed when they do intersect.", result != null);
+
+        Assert.assertTrue("EmpBoundingBox intersection test 3 failed north setting.", result.getNorth() == 20);
+        Assert.assertTrue("EmpBoundingBox intersection test 3 failed south setting.", result.getSouth() == -20);
+        Assert.assertTrue("EmpBoundingBox intersection test 3 failed west setting.", result.getWest() == 175);
+        Assert.assertTrue("EmpBoundingBox intersection test 3 failed east setting.", result.getEast() == -175);
+
+        result = bbox.intersection(bbox2);
+        Assert.assertTrue("EmpBoundingBox intersection test 4 failed when they do intersect.", result != null);
+
+        Assert.assertTrue("EmpBoundingBox intersection test 4 failed north setting.", result.getNorth() == 20);
+        Assert.assertTrue("EmpBoundingBox intersection test 4 failed south setting.", result.getSouth() == -20);
+        Assert.assertTrue("EmpBoundingBox intersection test 4 failed west setting.", result.getWest() == 175);
+        Assert.assertTrue("EmpBoundingBox intersection test 4 failed east setting.", result.getEast() == -175);
+
+        bbox.setNorth(20);
+        bbox.setSouth(-20);
+        bbox.setWest(170);
+        bbox.setEast(-170);
+
+        bbox2.setNorth(40);
+        bbox2.setSouth(-40);
+        bbox2.setWest(165);
+        bbox2.setEast(175);
+
+        result = bbox2.intersection(bbox);
+        Assert.assertTrue("EmpBoundingBox intersection test 5 failed when they do intersect.", result != null);
+
+        Assert.assertTrue("EmpBoundingBox intersection test 5 failed north setting.", result.getNorth() == 20);
+        Assert.assertTrue("EmpBoundingBox intersection test 5 failed south setting.", result.getSouth() == -20);
+        Assert.assertTrue("EmpBoundingBox intersection test 5 failed west setting.", result.getWest() == 170);
+        Assert.assertTrue("EmpBoundingBox intersection test 5 failed east setting.", result.getEast() == 175);
+
+        result = bbox.intersection(bbox2);
+        Assert.assertTrue("EmpBoundingBox intersection test 6 failed when they do intersect.", result != null);
+
+        Assert.assertTrue("EmpBoundingBox intersection test 6 failed north setting.", result.getNorth() == 20);
+        Assert.assertTrue("EmpBoundingBox intersection test 6 failed south setting.", result.getSouth() == -20);
+        Assert.assertTrue("EmpBoundingBox intersection test 6 failed west setting.", result.getWest() == 170);
+        Assert.assertTrue("EmpBoundingBox intersection test 6 failed east setting.", result.getEast() == 175);
+
+        bbox2.setNorth(40);
+        bbox2.setSouth(-40);
+        bbox2.setWest(-175);
+        bbox2.setEast(165);
+
+        result = bbox2.intersection(bbox);
+        Assert.assertTrue("EmpBoundingBox intersection test 7 failed when they do intersect.", result != null);
+
+        Assert.assertTrue("EmpBoundingBox intersection test 7 failed north setting.", result.getNorth() == 20);
+        Assert.assertTrue("EmpBoundingBox intersection test 7 failed south setting.", result.getSouth() == -20);
+        Assert.assertTrue("EmpBoundingBox intersection test 7 failed west setting.", result.getWest() == -175);
+        Assert.assertTrue("EmpBoundingBox intersection test 7 failed east setting.", result.getEast() == -170);
+
+        result = bbox.intersection(bbox2);
+        Assert.assertTrue("EmpBoundingBox intersection test 8 failed when they do intersect.", result != null);
+
+        Assert.assertTrue("EmpBoundingBox intersection test 8 failed north setting.", result.getNorth() == 20);
+        Assert.assertTrue("EmpBoundingBox intersection test 8 failed south setting.", result.getSouth() == -20);
+        Assert.assertTrue("EmpBoundingBox intersection test 8 failed west setting.", result.getWest() == -175);
+        Assert.assertTrue("EmpBoundingBox intersection test 8 failed east setting.", result.getEast() == -170);
     }
 }
