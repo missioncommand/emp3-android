@@ -1,6 +1,5 @@
 package mil.emp3.json.geoJson;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
