@@ -3,73 +3,84 @@ rootProject.name = 'emp3-android'
 //
 // 3RD-PARTY LIBRARIES
 //
+include 'google-maps-android-cmgn' // Google Maps android utils
+project(':google-maps-android-cmgn').projectDir = new File(settingsDir, '3rdpartylibrary/google-maps-android-cmgn')
 
-// Google Maps android utils
-include ':3rdpartylibrary:google-maps-android-cmgn'
-project(':3rdpartylibrary:google-maps-android-cmgn').name = 'google-maps-android-cmgn'
+include 'worldwind-release' // NASA WorldWind Android
+project(':worldwind-release').projectDir = new File(settingsDir, '3rdpartylibrary/worldwind-release')
 
-// NASA WorldWind Android
-include ':3rdpartylibrary:worldwind-release'
 
 //
 // SDK
 //
-include ':sdk:sdk-api'
-project(':sdk:sdk-api').name = 'emp3-android-sdk'
+include 'emp3-android-sdk'
+project(':emp3-android-sdk').projectDir = new File(settingsDir, 'sdk/sdk-api')
 
-include ':sdk:sdk-view'
-project(':sdk:sdk-view').name = 'emp3-android-sdk-view'
+include 'emp3-android-sdk-view'
+project(':emp3-android-sdk-view').projectDir = new File(settingsDir, 'sdk/sdk-view')
 
-include ':sdk:sdk-apk'
-project(':sdk:sdk-apk').name = 'emp3-android-sdk-apk'
+include 'emp3-android-sdk-apk'
+project(':emp3-android-sdk-apk').projectDir = new File(settingsDir, 'sdk/sdk-apk')
 
-include ':sdk:sdk-core:aar'
-project(':sdk:sdk-core:aar').name = 'emp3-android-sdk-core-aar'
-include ':sdk:sdk-core:apk'
-project(':sdk:sdk-core:apk').name = 'emp3-android-sdk-core-apk'
 
-//
-// MAPENGINE
-//
-include ':mapengine:worldwind:aar'
-project(':mapengine:worldwind:aar').name = 'mapengine-worldwind-aar'
-include ':mapengine:worldwind:apk'
-project(':mapengine:worldwind:apk').name = 'mapengine-worldwind-apk'
+include 'emp3-android-sdk-core'
+project(':emp3-android-sdk-core').projectDir = new File(settingsDir, 'sdk/sdk-core')
+
+include 'emp3-android-sdk-core-aar'
+project(':emp3-android-sdk-core-aar').projectDir = new File(settingsDir, 'sdk/sdk-core/aar')
+
+include 'emp3-android-sdk-core-apk'
+project(':emp3-android-sdk-core-apk').projectDir = new File(settingsDir, 'sdk/sdk-core/apk')
+
 
 //
-// SERVICE
+// MAP-ENGINE
 //
-include ':service:mirrorcache:api'
-project(':service:mirrorcache:api').name = 'service-mirrorcache-api'
+include 'mapengine-worldwind'
+project(':mapengine-worldwind').projectDir = new File(settingsDir, 'mapengine/worldwind')
 
-include ':service:mirrorcache:mirrorables'
-project(':service:mirrorcache:mirrorables').name = 'service-mirrorcache-mirrorables'
+include 'mapengine-worldwind-aar'
+project(':mapengine-worldwind-aar').projectDir = new File(settingsDir, 'mapengine/worldwind/aar')
 
-include ':service:mirrorcache:service'
-project(':service:mirrorcache:service').name = 'service-mirrorcache-service'
+include 'mapengine-worldwind-apk'
+project(':mapengine-worldwind-apk').projectDir = new File(settingsDir, 'mapengine/worldwind/apk')
 
-include ':service:wallpaper'
-project(':service:wallpaper').name = 'service-wallpaper'
+
+//
+// SERVICES
+//
+//include ':service:mirrorcache:api'
+//project(':service:mirrorcache:api').name = 'service-mirrorcache-api'
+
+//include ':service:mirrorcache:mirrorables'
+//project(':service:mirrorcache:mirrorables').name = 'service-mirrorcache-mirrorables'
+
+//include ':service:mirrorcache:service'
+//project(':service:mirrorcache:service').name = 'service-mirrorcache-service'
+
+//include ':service:wallpaper'
+//project(':service:wallpaper').name = 'service-wallpaper'
+
 
 //
 // TESTS
 //
-include ':tests:basic'
-project(':tests:basic').name = 'test-basic'
+include 'test-basic'
+project(':test-basic').projectDir = new File(settingsDir, 'tests/basic')
 
-include ':tests:mirrorcache-echo'
-project(':tests:mirrorcache-echo').name = 'test-mirrorcache-echo'
-include ':tests:mirrorcache-standout'
-project(':tests:mirrorcache-standout').name = 'test-mirrorcache-standout'
-include ':tests:mirrorcache-joystick'
-project(':tests:mirrorcache-joystick').name = 'test-mirrorcache-joystick'
+include 'test-vandv'
+project(':test-vandv').projectDir = new File(settingsDir, 'tests/test-vandv')
 
-include ':tests:validator'
-project(':tests:validator').name = 'test-validator'
+//include ':tests:mirrorcache-echo'
+//project(':tests:mirrorcache-echo').name = 'test-mirrorcache-echo'
+//include ':tests:mirrorcache-standout'
+//project(':tests:mirrorcache-standout').name = 'test-mirrorcache-standout'
+//include ':tests:mirrorcache-joystick'
+//project(':tests:mirrorcache-joystick').name = 'test-mirrorcache-joystick'
 
-include ':tests:test-vandv'
 
 //
 // BUILD-SUPPORT
 //
-include ':build-support:emp3-gradle-plugin'
+include 'emp3-gradle-plugin'
+project(':emp3-gradle-plugin').projectDir = new File(settingsDir, 'build-support/emp3-gradle-plugin')

@@ -37,7 +37,6 @@ if [[ -n $TRAVIS_TAG ]] && [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
     git commit -m "[travis] Merge branch '$RELEASE_BRANCH' [ci skip]"
 
     echo '[release] Setting next development version..'
-    chmod +x gradlew
     ./gradlew :nextMinorVersion -PisSnapshot
     git commit -am "[travis] Bump version"
     git push --quiet > /dev/null 2>&1

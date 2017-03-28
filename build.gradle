@@ -18,7 +18,7 @@ ext {
     empPassword = System.getenv("CI_PASSWORD") ?: empPassword
 
     bintrayUser = System.getenv("BINTRAY_USER") ?: project.hasProperty('bintrayUser') ? bintrayUser : ''
-    bintrayKey  = System.getenv('BINTRAY_KEY') ?: project.hasProperty('bintrayKey') ? bintrayKey : ''
+    bintrayKey  = System.getenv("BINTRAY_KEY")  ?: project.hasProperty('bintrayKey') ? bintrayKey : ''
 
     description = "Extensible Map Platform (EMP)"
 
@@ -38,17 +38,18 @@ allprojects {
 def publishableModules() {
     //subprojects.findAll { it.pluginManager.hasPlugin('org.gradle.maven-publish') } // MavenPublishPlugin
     [
-          project(":3rdpartylibrary:google-maps-android-cmgn")
-        , project(":3rdpartylibrary:worldwind-release")
-        , project(":build-support:emp3-gradle-plugin")
-        , project(":mapengine:worldwind")
-        , project(":sdk:emp3-android-sdk")
-        , project(":sdk:emp3-android-sdk-apk")
-        , project(":service:mirrorcache:service-mirrorcache-api")
-        , project(":service:mirrorcache:service-mirrorcache-mirrorables")
-        , project(":sdk:emp3-android-sdk-view")
-        , project(":sdk:sdk-core")
-        , project(":service:mirrorcache:service-mirrorcache-service")
+          project(":emp3-android-sdk")
+        , project(":emp3-android-sdk-apk")
+        , project(":emp3-android-sdk-view")
+        , project(":emp3-android-sdk-core")
+        , project(":emp3-gradle-plugin")
+        , project(":mapengine-worldwind")
+        , project(":worldwind-release")
+        , project(":google-maps-android-cmgn")
+
+      //, project(":service:mirrorcache:service-mirrorcache-api")
+      //, project(":service:mirrorcache:service-mirrorcache-mirrorables")
+      //, project(":service:mirrorcache:service-mirrorcache-service")
     ]
 }
 
