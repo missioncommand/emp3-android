@@ -49,6 +49,7 @@ public class BoundingBoxGeneration {
     private final static double MAX_LATITUDE_SPAN = 120.0;
     private final static double MAX_LONGITUDE_SPAN = 120.0;
     private final static double USE_GEOMETRIC_CENTER_FOR_TILT_GT = 45.0;
+    private final static double POLE_OFFEST = 1.0; // setting north/south as 90/-90 causes calculation breakdown in places like MGRS.
 
     private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen, int cornersTouched) {
         mapController = mapInstance.getMapController();
@@ -74,6 +75,7 @@ public class BoundingBoxGeneration {
                                         boolean cameraOnScreen, int cornersTouched, IGeoPosition geometricCenter) {
         BoundingBoxGeneration bbg = new BoundingBoxGeneration(mapInstance, cameraOnScreen, cornersTouched);
         bbg.buildBoundingBox_(vertices, geoBounds, geometricCenter);
+        Log.i(TAG, "buildBoundingBox NEWS " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
     /**
      * Sets North boundary to the highest latitude
@@ -140,10 +142,10 @@ public class BoundingBoxGeneration {
      * @return
      */
     private boolean boundsForEntireGlobeVisible(IGeoBounds geoBounds, IGeoPosition geometricCenter) {
-        if(0 == cornersTouched && cameraOnScreen && -1.0 < camera.getTilt() && camera.getTilt() < 1.0) {
+        if(0 == cornersTouched && cameraOnScreen && -BoundsGeneration.TILT_TOLERANCE < camera.getTilt() && camera.getTilt() < BoundsGeneration.TILT_TOLERANCE) {
             geoBounds.setNorth(geometricCenter.getLatitude() + MAX_LATITUDE_SPAN/2);
             if(geoBounds.getNorth() > global.LATITUDE_MAXIMUM) {
-                geoBounds.setNorth(global.LATITUDE_MAXIMUM);
+                geoBounds.setNorth(global.LATITUDE_MAXIMUM - POLE_OFFEST);
             }
             geoBounds.setEast(geometricCenter.getLongitude() + MAX_LONGITUDE_SPAN/2);
             if(geoBounds.getEast() > global.LONGITUDE_MAXIMUM) {
@@ -155,7 +157,7 @@ public class BoundingBoxGeneration {
             }
             geoBounds.setSouth(geometricCenter.getLatitude() - MAX_LATITUDE_SPAN/2);
             if(geoBounds.getSouth() < global.LATITUDE_MINIMUM) {
-                geoBounds.setSouth(global.LATITUDE_MINIMUM);
+                geoBounds.setSouth(global.LATITUDE_MINIMUM + POLE_OFFEST);
             }
             return true;
         }
@@ -238,8 +240,6 @@ public class BoundingBoxGeneration {
             geoBounds.setSouth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getNorth(), geoBounds.getSouth(), increment, true));
             geoBounds.setNorth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth(), geoBounds.getNorth(), increment, false));
         }
-
-        Log.i(TAG, "buildBoundingBox_ Out NEWS " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
 
     /**

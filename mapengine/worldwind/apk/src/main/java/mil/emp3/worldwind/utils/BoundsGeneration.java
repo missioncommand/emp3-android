@@ -76,6 +76,10 @@ public class BoundsGeneration {
     private static double HEIGHT_ADJUSTMENT_FACTOR = .8;
 
     /**
+     * If tilt is within -1.0 and 1.0 and all corners show sky then entire globe is visible.
+     */
+    protected static double TILT_TOLERANCE = 1.0;
+    /**
      * We will store the previously calculated bounding area that can be returned with things like VIEW_IN_MOTION.
      * We should recalculate bounds only when VIEW_MOTION_STOPPED is generated. This Map is always accessed on UI thread so
      * no need to make it a ConcurrentHashMap.
@@ -271,7 +275,7 @@ public class BoundsGeneration {
                     status = processThreeCorners(mapInstance, corners);
                     break;
                 case 0:
-                    if (-1.0 < mapInstance.getCamera().getTilt() && mapInstance.getCamera().getTilt() < 1.0) {
+                    if (-TILT_TOLERANCE < mapInstance.getCamera().getTilt() && mapInstance.getCamera().getTilt() < TILT_TOLERANCE) {
                         // Globe is at the center of the view but roll and heading may not be zero.
                         status = processGlobeInCenter(mapInstance, corners);
                     } else {
