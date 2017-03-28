@@ -14,6 +14,7 @@ import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoTimeSpan;
+import org.xmlpull.v1.XmlSerializer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,7 +54,6 @@ public class GeoJsonExporter extends Thread{
     private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
     static final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
-
 
     private static final String TEMP_DATAURL_STRING = "temp.dataURL";
 

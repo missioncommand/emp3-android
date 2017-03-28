@@ -1,6 +1,5 @@
 package mil.emp3.json.geoJson;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
@@ -21,7 +20,7 @@ public class GeoJsonCaller {
     public static void exportToString(IMap map, IFeature feature, boolean extendedData, IEmpExportToStringCallback callback) {
 
         if ((null == feature) || (null == callback)) {
-            throw new InvalidParameterException("Parameters can't be null.");
+            throw new IllegalArgumentException("Parameters can't be null.");
         }
 
         GeoJsonExporter exporter = new GeoJsonExporter(map, feature, extendedData, callback);
@@ -31,7 +30,7 @@ public class GeoJsonCaller {
     public static void exportToString(IMap map, List<IFeature> featureList, boolean extendedData, IEmpExportToStringCallback callback) {
 
         if ((null == featureList) || (null == callback)) {
-            throw new InvalidParameterException("Parameters can't be null.");
+            throw new IllegalArgumentException("Parameters can't be null.");
         }
 
         GeoJsonExporter exporter = new GeoJsonExporter(map, featureList, extendedData, callback);
