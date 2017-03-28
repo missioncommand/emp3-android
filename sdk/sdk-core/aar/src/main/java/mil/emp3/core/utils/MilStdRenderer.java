@@ -52,6 +52,7 @@ import sec.web.render.SECWebRenderer;
  */
 public class MilStdRenderer implements IMilStdRenderer {
     private static final String TAG = MilStdRenderer.class.getSimpleName();
+    private static boolean debugMe = true; // Added to debug Issue #92. Will remove when all problems related to it are resolved.
 
     public static final String METOC_PRESSURE_INSTABILITY_LINE = "WA-DPXIL---L---";
     public static final String METOC_PRESSURE_SHEAR_LINE = "WA-DPXSH---L---";
@@ -922,7 +923,9 @@ public class MilStdRenderer implements IMilStdRenderer {
 
     @Override
     public List<IFeature> getFeatureRenderableShapes(IMapInstance mapInstance, IFeature feature, boolean selected) {
-        Log.i(TAG, "start getFeatureRenderableShapes ");
+        if(debugMe) {
+            Log.i(TAG, "start getFeatureRenderableShapes ");
+        }
         initCheck();
 
         String symbolCode = "";
@@ -942,8 +945,10 @@ public class MilStdRenderer implements IMilStdRenderer {
             boundingBoxStr = bounds.getWest() + "," + bounds.getSouth() + "," + bounds.getEast() + "," + bounds.getNorth();
         }
 
-        Log.i(TAG, "coordinateStr " + coordinateStr);
-        Log.i(TAG, "boundingBoxStr " + boundingBoxStr);
+        if(debugMe) {
+            Log.i(TAG, "coordinateStr " + coordinateStr);
+            Log.i(TAG, "boundingBoxStr " + boundingBoxStr);
+        }
 
         double scale = camera.getAltitude() * 6.36;
         String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
@@ -977,32 +982,39 @@ public class MilStdRenderer implements IMilStdRenderer {
             return oList;
         }
 
-        Log.i(TAG, "Symbol Code " + symbolCode);
-        for(int i = 0; i < attributes.size(); i++) {
-            int key = attributes.keyAt(i);
-            // get the object by the key.
-            Object obj = attributes.get(key);
-            Log.i(TAG, "Attribute " + key + " " + obj.toString());
-        }
+        if(debugMe) {
+            Log.i(TAG, "Symbol Code " + symbolCode);
+            for (int i = 0; i < attributes.size(); i++) {
+                int key = attributes.keyAt(i);
+                // get the object by the key.
+                Object obj = attributes.get(key);
+                Log.i(TAG, "Attribute " + key + " " + obj.toString());
+            }
 
-        for(int i = 0; i < modifiers.size(); i++) {
-            int key = modifiers.keyAt(i);
-            // get the object by the key.
-            Object obj = modifiers.get(key);
-            Log.i(TAG, "Modifiers " + key + " " + obj.toString());
-        }
+            for (int i = 0; i < modifiers.size(); i++) {
+                int key = modifiers.keyAt(i);
+                // get the object by the key.
+                Object obj = modifiers.get(key);
+                Log.i(TAG, "Modifiers " + key + " " + obj.toString());
+            }
 
+            Log.i(TAG, "scale " + scale + " altitudeModeStr " + altitudeModeStr + " symStd = 1");
+        }
         armyc2.c2sd.renderer.utilities.MilStdSymbol renderSymbol = SECWebRenderer.RenderMultiPointAsMilStdSymbol(
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 symbolCode, coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 1);
 
         // Retrieve the list of shapes.
-        Log.i(TAG, "start renderBasicShapeParser ");
+        if(debugMe) {
+            Log.i(TAG, "start renderBasicShapeParser ");
+        }
 
         this.renderBasicShapeParser(oList, mapInstance, renderSymbol, feature, selected);
 
-        Log.i(TAG, "end getFeatureRenderableShapes ");
+        if(debugMe) {
+            Log.i(TAG, "end getFeatureRenderableShapes ");
+        }
 
         return oList;
     }
