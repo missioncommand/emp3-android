@@ -7,9 +7,17 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import mil.emp3.api.interfaces.IEmpExportToStringCallback;
+import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.json.geoJson.GeoJsonCaller;
+import mil.emp3.json.geoJson.GeoJsonExporter;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.NavItemBase;
@@ -61,7 +69,7 @@ public class AddRemoveGetTest extends NavItemBase {
 
     @Override
     public String[] getMoreActions() {
-        String[] actions = {"Show Overlay", "Show Feature"};
+        String[] actions = {"Show Overlay", "Show Feature", "Export features to GeoJSON"};
         return styleManager.getMoreActions(actions);
     }
 
@@ -145,9 +153,43 @@ public class AddRemoveGetTest extends NavItemBase {
                             public void onClick(DialogInterface dialog, int which) {
                                 Log.d(TAG, "Selected Feature " + featureNames.get(which));
                                 UpdateContainer updateContainer = new UpdateContainer(activity, maps[whichMap], AddRemoveGetTest.this, styleManager);
-                                updateContainer.showUpdateContainerDialog(maps[whichMap], MapNamesUtility.getContainer(maps[whichMap],featureNames.get(which)), true);
+                                updateContainer.showUpdateContainerDialog(maps[whichMap], MapNamesUtility.getContainer(maps[whichMap], featureNames.get(which)), true);
                             }
                         }).show();
+            } else if (userAction.equals("Export features to GeoJSON")) {
+                List<IFeature> featureList = maps[whichMap].getAllFeatures();
+                final List<String> ret = new ArrayList<>();
+                for (IFeature feature : featureList) {
+                    FileOutputStream fos = null;
+                    ret.clear();
+                    try {
+                        GeoJsonCaller.exportToString(maps[whichMap], feature, false, new IEmpExportToStringCallback() {
+                            @Override
+                            public void exportSuccess(String geoJSON) {
+                                ret.add(geoJSON);
+                            }
+
+                            @Override
+                            public void exportFailed(Exception e) {
+                                Log.i(TAG, "geojson export failed", e);
+                            }
+                        });
+                        File file = new File("/sdcard/Download/" + feature.getName() + "Geo.json");
+                        if (!file.exists()) {
+                            boolean created = file.createNewFile();
+                        }
+                        fos = new FileOutputStream(file);
+                        fos.write((ret.get(0)).getBytes());
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    } finally {
+                        try {
+                            fos.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             } else {
                 styleManager.actOn(userAction);
             }

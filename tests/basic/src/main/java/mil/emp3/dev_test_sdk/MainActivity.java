@@ -131,6 +131,7 @@ import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
 import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
+import mil.emp3.json.geoJson.GeoJsonCaller;
 import mil.emp3.json.geoJson.GeoJsonExporter;
 import mil.emp3.json.geoJson.GeoJsonParser;
 
@@ -1700,17 +1701,38 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_exportFeatureToGeoJSON:
                 try {
                     List<IFeature> featureList = this.map.getSelected();
-                    String geoJSON = null;
                     if (featureList.size() == 1) {
-                        geoJSON = GeoJsonExporter.export(featureList.get(0));
-                    } else {
-                        geoJSON = GeoJsonExporter.export(featureList);
-                    }
+                        GeoJsonCaller.exportToString(map, featureList.get(0), false, new IEmpExportToStringCallback() {
+                            @Override
+                            public void exportSuccess(String geoJSON) {
+                                // Quick and dirty way to show the output
+                                String[] splits = geoJSON.split("\n");
+                                for (int i = 0; i < splits.length; i++) {
+                                    Log.i(TAG, splits[i]);
+                                }
+                            }
 
-                    // Quick and dirty way to show the output
-                    String[] splits = geoJSON.split("\n");
-                    for (int i = 0; i < splits.length; i++) {
-                        Log.i(TAG, splits[i]);
+                            @Override
+                            public void exportFailed(Exception e) {
+                                Log.i(TAG, "geojson export failed", e);
+                            }
+                        });
+                    } else {
+                        GeoJsonCaller.exportToString(map, featureList, false, new IEmpExportToStringCallback() {
+                            @Override
+                            public void exportSuccess(String geoJSON) {
+                                // Quick and dirty way to show the output
+                                String[] splits = geoJSON.split("\n");
+                                for (int i = 0; i < splits.length; i++) {
+                                    Log.i(TAG, splits[i]);
+                                }
+                            }
+
+                            @Override
+                            public void exportFailed(Exception e) {
+                                Log.i(TAG, "geojson export failed", e);
+                            }
+                        });
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -1889,22 +1911,16 @@ public class MainActivity extends AppCompatActivity
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
-                    String geoJSON = GeoJsonExporter.export(feature);
-                    Log.i(TAG, geoJSON);
                     stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
                     feature = new GeoJSON(stream);
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
-                    geoJSON = GeoJsonExporter.export(feature);
-                    Log.i(TAG, geoJSON);
                     stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
                     feature = new GeoJSON(stream);
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
-                    geoJSON = GeoJsonExporter.export(feature);
-                    Log.i(TAG, geoJSON);
                     ICamera camera = this.map.getCamera();
                     camera.setLatitude(44.5);
                     camera.setLongitude(1);
