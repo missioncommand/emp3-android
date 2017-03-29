@@ -71,13 +71,6 @@ project(':test-basic').projectDir = new File(settingsDir, 'tests/basic')
 include 'test-vandv'
 project(':test-vandv').projectDir = new File(settingsDir, 'tests/test-vandv')
 
-//include ':tests:mirrorcache-echo'
-//project(':tests:mirrorcache-echo').name = 'test-mirrorcache-echo'
-//include ':tests:mirrorcache-standout'
-//project(':tests:mirrorcache-standout').name = 'test-mirrorcache-standout'
-//include ':tests:mirrorcache-joystick'
-//project(':tests:mirrorcache-joystick').name = 'test-mirrorcache-joystick'
-
 
 //
 // BUILD-SUPPORT
