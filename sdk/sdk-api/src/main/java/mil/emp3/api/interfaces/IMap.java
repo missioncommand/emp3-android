@@ -160,6 +160,44 @@ public interface IMap extends IContainer {
             throws EMP_Exception;
 
     /**
+     * This method adds an overlay container to the root of the map.
+     * @param overlay This parameter defines the overlay container.
+     * @param visible True if the overlay is to be made visible, false otherwise.
+     * @param object user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void addOverlay(IOverlay overlay, boolean visible, Object object)
+            throws EMP_Exception;
+
+    /**
+     * This method adds the overlay containers on the provided list to the root of the map.
+     * @param overlays This parameters is a java.util.ArrayList of one or more overlay containers.
+     * @param visible True if the overlays are to be made visible, false otherwise.
+     * @param object user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void addOverlays(List<IOverlay> overlays, boolean visible, Object object)
+            throws EMP_Exception;
+
+    /**
+     * This method removes an overlay containers from the root of the map.
+     * @param overlay This parameters defines the overlay that is to be removed from the root of the map.
+     * @param object user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void removeOverlay(IOverlay overlay, Object object)
+            throws EMP_Exception;
+
+    /**
+     * This method removes the overlay containers on the provided list from the root of the map.
+     * @param overlays This parameters is a java.util.ArrayList of one or more overlay containers.
+     * @param object user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void removeOverlays(List<IOverlay> overlays, Object object)
+            throws EMP_Exception;
+
+    /**
      * This method directs the map to utilize the map data provided by the service defined in the parameter.
      * @param mapService This parameter provides the parameters necessary to access the service.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.

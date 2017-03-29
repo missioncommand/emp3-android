@@ -77,7 +77,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     public void validate() {}
 
     @Override
-    public void addFeature(IFeature feature, boolean visible)
+    public void addFeature(IFeature feature, boolean visible, Object object)
             throws EMP_Exception {
         if (feature == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Feature.addFeature can not be null.");
@@ -85,11 +85,11 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         
         ArrayList<IFeature> oList = new ArrayList<>();
         oList.add(feature);
-        this.addFeatures(oList, visible);
+        this.addFeatures(oList, visible, object);
     }
 
     @Override
-    public void addFeatures(List<IFeature> features, boolean visible)
+    public void addFeatures(List<IFeature> features, boolean visible, Object object)
             throws EMP_Exception {
         if (features == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Feature.addFeatures can not be null.");
@@ -97,24 +97,48 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
             for (IFeature feature : features) {
                 feature.validate();
             }
-            storageManager.addFeatures(this, features, visible);
+            storageManager.addFeatures(this, features, visible, object);
         }
+    }
+
+    @Override
+    public void removeFeature(IFeature feature, Object object)
+            throws EMP_Exception {
+        if(null == feature) return;
+        ArrayList<IFeature> oList = new ArrayList<>();
+        oList.add(feature);
+        this.removeFeatures(oList, object);
+    }
+
+    @Override
+    public void removeFeatures(List<IFeature> features, Object object)
+            throws EMP_Exception {
+        if((null == features) || (0 == features.size())) return;
+        storageManager.removeFeatures(this, features, object);
+    }
+
+    @Override
+    public void addFeature(IFeature feature, boolean visible)
+            throws EMP_Exception {
+        addFeature(feature, visible, null);
+    }
+
+    @Override
+    public void addFeatures(List<IFeature> features, boolean visible)
+            throws EMP_Exception {
+        addFeatures(features, visible, null);
     }
 
     @Override
     public void removeFeature(IFeature feature)
             throws EMP_Exception {
-        if(null == feature) return;
-        ArrayList<IFeature> oList = new ArrayList<>();
-        oList.add(feature);
-        this.removeFeatures(oList);
+        removeFeature(feature, null);
     }
 
     @Override
     public void removeFeatures(List<IFeature> features)
             throws EMP_Exception {
-        if((null == features) || (0 == features.size())) return;
-        storageManager.removeFeatures(this, features);
+        removeFeatures(features, null);
     }
 
     /**

@@ -26,4 +26,16 @@ public interface IEvent<T extends IEventEnum, TargetType extends Object> {
      * @return An object derived from {@link org.cmapi.primitives.IGeoBase}
      */
     public TargetType getTarget();
+
+    /**
+     * Sets a user object to let user track own events
+     */
+
+    public void setObject(Object object);
+
+    /**
+     * returns object set by user
+     */
+
+    public Object getObject();
 }

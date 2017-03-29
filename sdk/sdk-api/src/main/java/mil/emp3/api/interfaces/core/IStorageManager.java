@@ -60,7 +60,7 @@ public interface IStorageManager {
 
     VisibilityStateEnum getVisibilityOnMap(IMap map, IContainer target, IContainer parent);
 
-    void addOverlays(IMap map, List<IOverlay> overlays, boolean visible) throws EMP_Exception;
+    void addOverlays(IMap map, List<IOverlay> overlays, boolean visible, Object object) throws EMP_Exception;
 
     void apply(IFeature feature, boolean batch) throws EMP_Exception;
 
@@ -76,19 +76,19 @@ public interface IStorageManager {
 
     List<IFeature> getParentFeatures(IFeature childFeature);
 
-    void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible) throws EMP_Exception;
+    void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible, Object object) throws EMP_Exception;
 
-    void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible) throws EMP_Exception;
+    void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible, Object object) throws EMP_Exception;
 
-    void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible) throws EMP_Exception;
+    void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible, Object object) throws EMP_Exception;
 
-    void removeFeatures(IFeature parentFeature, List<IFeature> features) throws EMP_Exception;
+    void removeFeatures(IFeature parentFeature, List<IFeature> features, Object object) throws EMP_Exception;
 
-    void removeFeatures(IOverlay parentOverlay, List<IFeature> features) throws EMP_Exception;
+    void removeFeatures(IOverlay parentOverlay, List<IFeature> features, Object object) throws EMP_Exception;
 
-    void removeOverlays(IMap clientMap, List<IOverlay> overlays) throws EMP_Exception;
+    void removeOverlays(IMap clientMap, List<IOverlay> overlays, Object object) throws EMP_Exception;
 
-    void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays) throws EMP_Exception;
+    void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays, Object object) throws EMP_Exception;
 
     void removeChildren(IContainer parentContainer) throws EMP_Exception;
 

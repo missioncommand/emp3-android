@@ -45,6 +45,87 @@ public interface IEventManager {
 
     void generateContainerEvent(ContainerEventEnum eEvent,
                                 IContainer oEventedObject,
+                                IGeoBase oChild,
+                                Object object);
+
+    void generateContainerEvent(ContainerEventEnum eEvent,
+                                IContainer oEventedObject,
+                                List<? extends IGeoBase> oList,
+                                Object object);
+
+    void generateFeatureEvent(FeatureEventEnum eEvent, IFeature oTarget,
+                              boolean bSelected,
+                              Object object);
+
+    void  generateFeatureInteractionEvent(UserInteractionEventEnum eEvent,
+                                          EnumSet<UserInteractionKeyEnum> keys,
+                                          UserInteractionMouseButtonEnum button,
+                                          List<IFeature> oTargetList,
+                                          IMap oMap,
+                                          Point oPoint,
+                                          IGeoPosition oPosition,
+                                          IGeoPosition oStartPosition,
+                                          Object object);
+
+    void generateMapStateChangeEvent(MapStateEnum ePreviousState,
+                                     MapStateEnum eNewState,
+                                     IMap oMap,
+                                     Object object);
+
+    void generateMapInteractionEvent(UserInteractionEventEnum eEvent,
+                                     EnumSet<UserInteractionKeyEnum> keys,
+                                     UserInteractionMouseButtonEnum button,
+                                     IMap oMap,
+                                     Point oPoint,
+                                     IGeoPosition oPosition,
+                                     IGeoPosition oStartPosition,
+                                     Object object);
+
+    void generateMapViewChangeEvent(MapViewEventEnum viewEventEnum, ICamera oCamera, ILookAt oLookAt,
+                                    IGeoBounds bounds, IMap oMap, Object object);
+
+    void generateMapFeatureAddedEvent(MapFeatureEventEnum eventEnum,
+                                      IMap map,
+                                      IFeature feature,
+                                      Object object);
+
+    void generateMapFeatureRemovedEvent(MapFeatureEventEnum eventEnum,
+                                        IMap map,
+                                        IFeature feature,
+                                        Object object);
+
+    void generateMapCameraEvent(CameraEventEnum eventEnum,
+                                IMap map,
+                                ICamera camera,
+                                boolean animate,
+                                Object object);
+
+    void generateVisibilityEvent(VisibilityActionEnum eEvent,
+                                 IContainer oTarget,
+                                 IContainer oParent,
+                                 IMap oOnMap,
+                                 Object object);
+
+    void generateCameraEvent(CameraEventEnum eventEnum,
+                             ICamera camera,
+                             boolean animate,
+                             Object object);
+
+    void generateLookAtEvent(LookAtEventEnum eventEnum,
+                             ILookAt lookAt,
+                             boolean animate,
+                             Object object);
+
+    void removeEventHandler(mil.emp3.api.listeners.EventListenerHandle oHandle);
+
+    void generateFeatureEditEvent(FeatureEditEvent oEvent, Object object);
+    void generateFeatureDrawEvent(FeatureDrawEvent oEvent, Object object);
+    void generateFreehandDrawEvent(MapFreehandEvent event, Object object);
+
+    // these methods are kept here for backward compatibility, should eventually be removed
+
+    void generateContainerEvent(ContainerEventEnum eEvent,
+                                IContainer oEventedObject,
                                 IGeoBase oChild);
 
     void generateContainerEvent(ContainerEventEnum eEvent,
@@ -87,9 +168,8 @@ public interface IEventManager {
 
     void generateLookAtEvent(LookAtEventEnum eventEnum, ILookAt lookAt, boolean animate);
 
-    void removeEventHandler(mil.emp3.api.listeners.EventListenerHandle oHandle);
-
     void generateFeatureEditEvent(FeatureEditEvent oEvent);
     void generateFeatureDrawEvent(FeatureDrawEvent oEvent);
     void generateFreehandDrawEvent(MapFreehandEvent event);
+
 }

@@ -81,6 +81,42 @@ public interface IFeature<T extends IGeoRenderable> extends IContainer, IGeoRend
             throws EMP_Exception;
 
     /**
+     * This method adds a child feature to this feature.
+     * @param feature The child to add.
+     * @param visible True if the feature is to be made visible or false otherwise.
+     * @param object user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void addFeature(IFeature feature, boolean visible, Object object)
+            throws EMP_Exception;
+    /**
+     * This method adds one or more child features to this feature.
+     * @param features A list of features to add.
+     * @param visible True if the features are to be made visible or false otherwise.
+     * @param object user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void addFeatures(List<IFeature> features, boolean visible, Object object)
+            throws EMP_Exception;
+
+    /**
+     * This method removes the child feature from this feature.
+     * @param feature The child to remove.
+     * @param object user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void removeFeature(IFeature feature, Object object)
+            throws EMP_Exception;
+    /**
+     * This method removes one or more descendant features from this feature.
+     * @param features A list of features to remove.
+     * @param object user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void removeFeatures(List<IFeature> features, Object object)
+            throws EMP_Exception;
+
+    /**
      * This method triggers an update of the feature. After changing any feature properties, this
      * method MUST be called to force an update to be sent to the map(s).
      */

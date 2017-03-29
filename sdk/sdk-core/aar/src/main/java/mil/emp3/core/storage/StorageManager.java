@@ -869,7 +869,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception 
      */
     @Override
-    public void addOverlays(IMap map, List<IOverlay> overlays, boolean visible) throws EMP_Exception {
+    public void addOverlays(IMap map, List<IOverlay> overlays, boolean visible, Object object) throws EMP_Exception {
         try {
             lock.lock();
             java.util.UUID childId;
@@ -897,7 +897,7 @@ public class StorageManager implements IStorageManager {
             this.executeTransaction(transactionList);
         } finally {
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, map, overlays);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, map, overlays, object);
         }
     }
 
@@ -1291,7 +1291,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible)
+    public void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible, Object object)
              throws EMP_Exception {
         try {
             lock.lock();
@@ -1323,12 +1323,13 @@ public class StorageManager implements IStorageManager {
             this.executeTransaction(transactionList);
         } finally {
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay, overlays);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay,
+                    overlays, object);
         }
     }
 
     @Override
-    public void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible)
+    public void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible, Object object)
              throws EMP_Exception {
         try {
             lock.lock();
@@ -1362,12 +1363,13 @@ public class StorageManager implements IStorageManager {
             this.executeTransaction(transactionList);
         } finally {
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay, featureList);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay,
+                    featureList, object);
         }
     }
 
     @Override
-    public void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible)
+    public void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible, Object object)
              throws EMP_Exception {
         java.util.UUID childId;
         java.util.UUID parentId = parentFeature.getGeoId();
@@ -1400,7 +1402,8 @@ public class StorageManager implements IStorageManager {
             this.executeTransaction(transactionList);
         } finally {
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentFeature, featureList);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentFeature,
+                    featureList, object);
         }
     }
 
@@ -1440,7 +1443,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeFeatures(IFeature parentFeature, List<IFeature> features)
+    public void removeFeatures(IFeature parentFeature, List<IFeature> features, Object object)
             throws EMP_Exception {
         if((null == parentFeature) || (null == features)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentFeature or features list is NULL");
@@ -1479,7 +1482,7 @@ public class StorageManager implements IStorageManager {
         } finally {
             //Log.v(TAG, "after removeFeatures(IFeature parentFeature oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentFeature, features);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentFeature, features, object);
         }
     }
 
@@ -1491,7 +1494,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeFeatures(IOverlay parentOverlay, List<IFeature> features)
+    public void removeFeatures(IOverlay parentOverlay, List<IFeature> features, Object object)
             throws EMP_Exception {
         if((null == parentOverlay) || (null == features)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentOverlay or features list is NULL");
@@ -1530,12 +1533,12 @@ public class StorageManager implements IStorageManager {
         } finally {
             //Log.v(TAG, "after removeFeatures(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, features);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, features, object);
         }
     }
 
     @Override
-    public void removeOverlays(IMap clientMap, List<IOverlay> overlays) throws EMP_Exception {
+    public void removeOverlays(IMap clientMap, List<IOverlay> overlays, Object object) throws EMP_Exception {
         // validate the overlay list to ensure that each of the overlays is a direct child of clientMap
         //Log.d(TAG, "removeOverlays from IMap");
         if((null == clientMap) || (null == overlays)) {
@@ -1568,7 +1571,7 @@ public class StorageManager implements IStorageManager {
         } finally {
             //Log.v(TAG, "after removeOverlays(IMap clientMap oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, clientMap, overlays);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, clientMap, overlays, object);
         }
     }
 
@@ -1581,7 +1584,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays) throws EMP_Exception {
+    public void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays, Object object) throws EMP_Exception {
         if((null == parentOverlay) || (null == overlays)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentOverlay or overlays list is NULL");
         }
@@ -1612,7 +1615,7 @@ public class StorageManager implements IStorageManager {
         } finally {
             //Log.v(TAG, "after removeOverlays(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, overlays);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, overlays, object);
         }
     }
 
