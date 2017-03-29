@@ -1,6 +1,7 @@
 package mil.emp3.api;
 
 
+import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRectangle;
@@ -15,6 +16,8 @@ import java.util.List;
 import mil.emp3.api.abstracts.Feature;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
+import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
@@ -146,15 +149,21 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         return this.getRenderable().getHeight();
     }
 
-    public List<IGeoPosition> getCorners() {
-        IGeoPosition pos;
+    public IEmpBoundingBox getFeatureBoundingBox() {
         double halfHeightE2;
         double halfWidthE2;
         double distanceToCorner;
         double bearingToTopRightCorner;
         double bearing;
         double azimuth = this.getAzimuth();
-        List<IGeoPosition> posList = new ArrayList<>();
+        List<IGeoPosition> posList = this.getPositions();
+
+        if ((null == posList) || posList.isEmpty()) {
+            return null;
+        }
+
+        IEmpBoundingBox bBox = new EmpBoundingBox();
+        IGeoPosition pos = new GeoPosition();
 
         halfHeightE2 = this.getHeight() / 2.0;
         halfWidthE2 = this.getWidth() / 2.0;
@@ -172,8 +181,8 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         distanceToCorner = Math.sqrt(halfHeightE2 + halfWidthE2);
 
         // Calculate the top right position.
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
+        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the bottom right position.
         bearing = (bearingToTopRightCorner * -1.0) + 180.0;
@@ -181,8 +190,8 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
+        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the bottom left position.
         bearing = bearingToTopRightCorner - 180.0;
@@ -190,8 +199,8 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
+        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the top left position.
         bearing = bearingToTopRightCorner * -1.0;
@@ -199,9 +208,9 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
+        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
-        return posList;
+        return bBox;
     }
 }

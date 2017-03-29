@@ -1,6 +1,7 @@
 package mil.emp3.api;
 
 
+import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoSquare;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoSquare;
@@ -15,6 +16,8 @@ import java.util.List;
 import mil.emp3.api.abstracts.Feature;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
+import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
@@ -111,15 +114,20 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
         return this.getRenderable().getWidth();
     }
 
-    public List<IGeoPosition> getCorners() {
-        IGeoPosition pos;
+    public IEmpBoundingBox getFeatureBoundingBox() {
         double halfWidthE2;
         double distanceToCorner;
         double bearingToTopRightCorner;
         double bearing;
         double azimuth = this.getAzimuth();
-        List<IGeoPosition> posList = new ArrayList<>();
+        List<IGeoPosition> posList = this.getPositions();
 
+        if ((null == posList) || posList.isEmpty()) {
+            return null;
+        }
+
+        IEmpBoundingBox bBox = new EmpBoundingBox();
+        IGeoPosition pos = new GeoPosition();
         halfWidthE2 = this.getWidth() / 2.0;
 
         bearingToTopRightCorner = 45.0;
@@ -134,8 +142,8 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
         distanceToCorner = Math.sqrt(2.0 * halfWidthE2);
 
         // Calculate the top right position.
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
+        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the bottom right position.
         bearing = (bearingToTopRightCorner * -1.0) + 180.0;
@@ -143,8 +151,8 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
+        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the bottom left position.
         bearing = bearingToTopRightCorner - 180.0;
@@ -152,8 +160,8 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
+        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the top left position.
         bearing = bearingToTopRightCorner * -1.0;
@@ -161,9 +169,9 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        pos = GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition());
-        posList.add(pos);
+        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
-        return posList;
+        return bBox;
     }
 }

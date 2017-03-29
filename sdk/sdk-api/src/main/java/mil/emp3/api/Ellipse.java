@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
+import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 
@@ -145,80 +147,61 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         return this.getRenderable().getSemiMinor();
     }
 
-    public List<IGeoPosition> getPolygonPositionList() {
-        double semiMajor = this.getSemiMajor();
-        double semiMinor = this.getSemiMinor();
-        double azimuth = this.getAzimuth();
-        double deltaBearing = Math.toDegrees(Math.atan2(0.005, 1.0));
-        List<IGeoPosition> posList = new ArrayList<>();
-        IGeoPosition center = this.getPosition();
-        IGeoPosition zerozero = new GeoPosition();
-        IGeoPosition pos1, pos, tempPos;
-        int pointsPerQuadrant;
-        double radius;
-        double aE2 = semiMajor * semiMajor;
-        double bE2 = semiMinor * semiMinor;
-        double aE2bE2 = aE2 * bE2;
-        double sin;
-        double cos;
+    public IEmpBoundingBox getFeatureBoundingBox() {
+        IEmpBoundingBox bBox = null;
+        List<IGeoPosition> posList = getPositions();
 
-        zerozero.setLatitude(0.0);
-        zerozero.setLongitude(0.0);
+        if ((null != posList) && !posList.isEmpty()) {
+            double majorAxis = this.getSemiMajor();
+            double minorAxis = this.getSemiMinor();
 
-        // Generate the coordinates for the perimeter.
-        pos1 = GeoLibrary.computePositionAt(0, semiMinor, zerozero);
-        posList.add(pos1);
+            if (!Double.isNaN(majorAxis) && !Double.isNaN(minorAxis)) {
+                double angle = this.getAzimuth();
+                bBox = new EmpBoundingBox();
+                IGeoPosition pos = new GeoPosition();
 
-        // Create position for the top right quadrant.
-        for (double bearing = deltaBearing; bearing < 90.0; bearing += deltaBearing) {
-            sin = Math.sin(Math.toRadians(bearing));
-            cos = Math.cos(Math.toRadians(bearing));
-            radius = Math.sqrt(aE2bE2 / ((bE2 * sin * sin) + (aE2 * cos * cos)));
+                // Compute north.
+                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
-            if (azimuth != 0.0) {
-                pos = GeoLibrary.computePositionAt(((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0, radius, zerozero);
-            } else {
-                pos = GeoLibrary.computePositionAt(bearing, radius, zerozero);
+                // Compute east.
+                angle = this.getAzimuth() + 90.0;
+                angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
+                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+
+                // Compute south.
+                angle = this.getAzimuth() + 180.0;
+                angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
+                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+
+                // Compute west.
+                angle = this.getAzimuth() + 270.0;
+                angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
+                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                bBox.includePosition(pos.getLatitude(), pos.getLongitude());
+
+                // Now we need to extend the box by ~ 10%.
+                double deltaLat = bBox.deltaLatitude();
+                double deltaLong = bBox.deltaLongitude();
+
+                if (deltaLat == 0.0) {
+                    deltaLat = 0.05;
+                }
+                if (deltaLong == 0.0) {
+                    deltaLong = 0.05;
+                }
+
+                deltaLat *= 0.05;
+                deltaLong *= 0.05;
+
+                bBox.includePosition(bBox.getNorth() + deltaLat, bBox.getWest());
+                bBox.includePosition(bBox.getSouth() - deltaLat, bBox.getWest());
+                bBox.includePosition(bBox.getNorth(), bBox.getWest() - deltaLong);
+                bBox.includePosition(bBox.getNorth(), bBox.getEast() + deltaLong);
             }
-            posList.add(pos);
         }
-
-        pointsPerQuadrant = posList.size();
-
-        // Now shadow the top right quadrant onto the bottom right quadrant and offset it by the center coordinate.
-        for (int iIndex = pointsPerQuadrant - 1; iIndex >= 0; iIndex--) {
-            tempPos = posList.get(iIndex);
-            pos = new GeoPosition();
-            pos.setLatitude((tempPos.getLatitude() * -1.0) + center.getLatitude());
-            pos.setLongitude(tempPos.getLongitude() + center.getLongitude());
-            posList.add(pos);
-        }
-
-        // Now shadow the top right quadrant onto the bottom left quadrant and offset it by the center coordinate.
-        for (int iIndex = 0; iIndex < pointsPerQuadrant; iIndex++) {
-            tempPos = posList.get(iIndex);
-            pos = new GeoPosition();
-            pos.setLatitude((tempPos.getLatitude() * -1.0) + center.getLatitude());
-            pos.setLongitude((tempPos.getLongitude() * -1.0) + center.getLongitude());
-            posList.add(pos);
-        }
-
-        // Now shadow the top right quadrant onto the top left quadrant and offset it by the center coordinate.
-        for (int iIndex = pointsPerQuadrant - 1; iIndex >= 0; iIndex--) {
-            tempPos = posList.get(iIndex);
-            pos = new GeoPosition();
-            pos.setLatitude(tempPos.getLatitude() + center.getLatitude());
-            pos.setLongitude((tempPos.getLongitude() * -1.0) + center.getLongitude());
-            posList.add(pos);
-        }
-
-        // Now offset the top right quadrant by the center coordinate.
-        for (int iIndex = 0; iIndex < pointsPerQuadrant; iIndex++) {
-            pos = posList.get(iIndex);
-            pos.setLatitude(pos.getLatitude() + center.getLatitude());
-            pos.setLongitude(pos.getLongitude() + center.getLongitude());
-        }
-
-        return posList;
+        return bBox;
     }
 }

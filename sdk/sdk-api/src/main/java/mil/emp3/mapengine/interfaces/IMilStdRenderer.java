@@ -8,6 +8,7 @@ import java.util.List;
 
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 
 /**
@@ -15,6 +16,7 @@ import mil.emp3.api.interfaces.core.IStorageManager;
  */
 public interface IMilStdRenderer {
     void setStorageManager(IStorageManager storageManager);
+    void setCoreManager(ICoreManager coreManager);
 
     /**
      * Sets the Cache Directory used by renderer and also sets the available heap memory for the application

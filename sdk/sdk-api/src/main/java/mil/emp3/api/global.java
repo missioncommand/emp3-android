@@ -4,6 +4,7 @@ import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ManagerFactory;
 
@@ -86,5 +87,9 @@ public class global {
 
     public static void setConfiguration(IEmpPropertyList properties) {
 
+    }
+
+    public static double modulus(double value1, double value2) {
+        return ((value1 % value2) + value2) % value2;
     }
 }
