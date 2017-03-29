@@ -141,7 +141,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
 
             // check around longitude 0 if span is less than 180
             double span1 = Math.abs(lowest) + highest;
-            if (span1 <= MAXIMUM_LONGITUDE_SPAN) {
+            if (span1 < MAXIMUM_LONGITUDE_SPAN) {
                 return span1;
             }
 
@@ -160,7 +160,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
 
             // check around longitude 180 if span is less than 180
             double span2 = (global.LONGITUDE_MAXIMUM - lowestPositive) + (global.LONGITUDE_MAXIMUM - Math.abs(highestNegative));
-            if (span2 <= MAXIMUM_LONGITUDE_SPAN) {
+            if (span2 < MAXIMUM_LONGITUDE_SPAN) {
                 return span2;
             }
 
@@ -189,7 +189,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         }
         double span = getLongitudeSpan();
         Log.i(TAG, "Initial Span " + span);
-        if(span <= MAXIMUM_LONGITUDE_SPAN) {
+        if(span < MAXIMUM_LONGITUDE_SPAN) {
             return true;
         } else {
             return false; // We are not adjusting vertices. Instead caller should simply use the bounding box.
