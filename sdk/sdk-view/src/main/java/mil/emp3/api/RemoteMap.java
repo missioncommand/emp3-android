@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import mil.emp3.api.abstracts.MirroredMap;
+import mil.emp3.api.abstracts.MapViewFragmentBase;
+import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.EventListenerTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
@@ -43,8 +44,8 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IOverlay;
-import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
+import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.listeners.EventListenerHandle;
@@ -88,7 +89,7 @@ public class RemoteMap implements IMap {
     final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
     final private IEventManager eventManager     = ManagerFactory.getInstance().getEventManager();
 
-    final private MirroredMap oClientMap;
+    final private /*MirroredMap*/MapViewFragmentBase oClientMap;
     final private IMapInstance mapInstance;
 
     public RemoteMap(String remoteMapId, Context context, MirrorCacheModeEnum mode) {
@@ -109,7 +110,7 @@ public class RemoteMap implements IMap {
         propList.put(Property.MIRROR_CACHE_MODE.getValue(), mode);
         propList.put(Property.ENGINE_CLASSNAME.getValue(), "noMap");
         this.mapInstance = userMapInstance == null ? new NoMap() : userMapInstance;
-        this.oClientMap  = new MirroredMap(propList);
+        this.oClientMap  = new /*MirroredMap*/MapViewFragmentBase(propList);
 
         init(context);
     }
@@ -119,7 +120,7 @@ public class RemoteMap implements IMap {
      * @param context
      */
     private void init(Context context) {
-        this.oClientMap.onCreate(context);
+        //this.oClientMap.onCreate(context);
 
         try {
             storageManager.swapMapInstance(oClientMap, mapInstance);
@@ -150,7 +151,7 @@ public class RemoteMap implements IMap {
     }
 
     public void onDestroy() {
-        this.oClientMap.onDestroy();
+        //this.oClientMap.onDestroy();
     }
 
     @Override
@@ -875,7 +876,7 @@ public class RemoteMap implements IMap {
         public int getBackgroundBrightness() {
             return 50;
         }
-
+        
         @Override
         public void setMapGridGenerator(IMapGridLines gridGenerator) {
 

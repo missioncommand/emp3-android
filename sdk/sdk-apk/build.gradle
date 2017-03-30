@@ -2,9 +2,9 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 apply plugin: 'maven-publish'
 
 dependencies {
-    compile project (":sdk:emp3-android-sdk")
-    compile project (":service:mirrorcache:service-mirrorcache-api")
-    compile project (":service:mirrorcache:service-mirrorcache-mirrorables")
+    compile project (":emp3-android-sdk")
+    //compile project (":service:mirrorcache:service-mirrorcache-api")
+    //compile project (":service:mirrorcache:service-mirrorcache-mirrorables")
 
     compile         ("com.android.support:appcompat-v7")
 
