@@ -48,8 +48,8 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IOverlay;
-import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
+import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
@@ -199,7 +199,7 @@ public class MapFragment extends Fragment implements IMap {
         if (null != mapInstance) {
             mapInstance.onDestroy();
         }
-        this.oClientMap.onDestroy();
+        //this.oClientMap.onDestroy();
         super.onDestroy();
     }
 
