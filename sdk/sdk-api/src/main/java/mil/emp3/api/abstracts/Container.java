@@ -69,9 +69,15 @@ public class Container implements IContainer{
     }
 
     @Override
+    public void clearContainer(Object userContext)
+            throws EMP_Exception {
+        storageManager.removeChildren(this, userContext);
+    }
+
+    @Override
     public void clearContainer()
             throws EMP_Exception {
-        storageManager.removeChildren(this);
+        storageManager.removeChildren(this, null);
     }
 
     @Override

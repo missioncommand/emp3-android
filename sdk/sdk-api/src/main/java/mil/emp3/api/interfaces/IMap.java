@@ -163,38 +163,38 @@ public interface IMap extends IContainer {
      * This method adds an overlay container to the root of the map.
      * @param overlay This parameter defines the overlay container.
      * @param visible True if the overlay is to be made visible, false otherwise.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    void addOverlay(IOverlay overlay, boolean visible, Object object)
+    void addOverlay(IOverlay overlay, boolean visible, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method adds the overlay containers on the provided list to the root of the map.
      * @param overlays This parameters is a java.util.ArrayList of one or more overlay containers.
      * @param visible True if the overlays are to be made visible, false otherwise.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    void addOverlays(List<IOverlay> overlays, boolean visible, Object object)
+    void addOverlays(List<IOverlay> overlays, boolean visible, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method removes an overlay containers from the root of the map.
      * @param overlay This parameters defines the overlay that is to be removed from the root of the map.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    void removeOverlay(IOverlay overlay, Object object)
+    void removeOverlay(IOverlay overlay, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method removes the overlay containers on the provided list from the root of the map.
      * @param overlays This parameters is a java.util.ArrayList of one or more overlay containers.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    void removeOverlays(List<IOverlay> overlays, Object object)
+    void removeOverlays(List<IOverlay> overlays, Object userContext)
             throws EMP_Exception;
 
     /**
@@ -279,6 +279,74 @@ public interface IMap extends IContainer {
      * @throws EMP_Exception If the target (or parent) are not on the map, or the target (or parent) are not an overlay or feature.
      */
     void setVisibility(java.util.UUID targetId, java.util.UUID parentId, VisibilityActionEnum actionEnum)
+            throws EMP_Exception;
+
+    /**
+     * This method performs the visibility action on the target object under all 
+     * of its parents on this map.
+     * @param target The object to perform the action on. (See {@link IOverlay}, {@link IFeature})
+     * @param actionEnum The action to perform. See {@link VisibilityActionEnum}.
+     * @param userContext user defined object
+     * @throws EMP_Exception If the target is not on the map or the target is not an overlay or feature.
+     */
+    void setVisibility(IContainer target, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method performs the visibility action on all the target objects listed under all 
+     * of there parents on this map.
+     * @param targetList A list of one or more objects to perform the action on. (See {@link IOverlay}, {@link IFeature})
+     * @param actionEnum The action to perform. See {@link VisibilityActionEnum}.
+     * @param userContext user defined object
+     * @throws EMP_Exception If any target is not on the map or not an overlay or feature.
+     */
+    void setVisibility(IContainerSet targetList, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method performs the visibility action on the target object identified by
+     * the targetId under all of its parents on this map.
+     * @param targetId The unique identifier of the object to perform the action on.
+     * @param actionEnum The action to perform. See {@link VisibilityActionEnum}.
+     * @param userContext user defined object
+     * @throws EMP_Exception If the target identified by the Id is not on the map or is not an overlay or feature.
+     */
+    void setVisibility(java.util.UUID targetId, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method performs the visibility action on the targets identified on the 
+     * list under all of their parents on this map.
+     * @param targetIdList A list of unique identifiers of the objects to perform the action on.
+     * @param actionEnum The action to perform. See {@link VisibilityActionEnum}.
+     * @param userContext user defined object
+     * @throws EMP_Exception If the target identified by the Id is not on the map or is not an overlay or feature.
+     */
+    void setVisibility(IUUIDSet targetIdList, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method performs the visibility action on the target object under the 
+     * specified parent on this map.
+     * @param target The object to perform the action on. (See {@link IOverlay}, {@link IFeature})
+     * @param parent The parent object of the target that the action will be applied to,
+     * @param actionEnum The action to perform. See {@link VisibilityActionEnum}.
+     * @param userContext user defined object
+     * @throws EMP_Exception If the target (or parent) are not on the map, or the target (or parent) are not an overlay or feature.
+     */
+    void setVisibility(IContainer target, IContainer parent, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method performs the visibility action on the target object under the 
+     * specified parent on this map.
+     * @param targetId The Id of the object to perform the action on. (See {@link IOverlay}, {@link IFeature})
+     * @param parentId The Id of the parent object of the target that the action will be applied to,
+     * @param actionEnum The action to perform. See {@link VisibilityActionEnum}.
+     * @param userContext user defined object
+     * @throws EMP_Exception If the target (or parent) are not on the map, or the target (or parent) are not an overlay or feature.
+     */
+    void setVisibility(java.util.UUID targetId, java.util.UUID parentId, VisibilityActionEnum actionEnum, Object userContext)
             throws EMP_Exception;
 
     /**
@@ -378,6 +446,15 @@ public interface IMap extends IContainer {
     /**
      * This method set the size that all icons are displayed. This includes MilStd Point icons.
      * @param eSize {@link IconSizeEnum}
+     * @param userContext user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void setIconSize(IconSizeEnum eSize, Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method set the size that all icons are displayed. This includes MilStd Point icons.
+     * @param eSize {@link IconSizeEnum}
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
     void setIconSize(IconSizeEnum eSize)
@@ -392,11 +469,19 @@ public interface IMap extends IContainer {
     /**
      * This method indicates to the map engine which MilStd labels to display when renderering MilStd symbols.
      * @param labelSetting {@link MilStdLabelSettingEnum}
+     * @param userContext user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void setMilStdLabels(MilStdLabelSettingEnum labelSetting, Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method indicates to the map engine which MilStd labels to display when renderering MilStd symbols.
+     * @param labelSetting {@link MilStdLabelSettingEnum}
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
     void setMilStdLabels(MilStdLabelSettingEnum labelSetting)
             throws EMP_Exception;
-
     /**
      * This method retrieves the current MilStd label setting.
      * @return {@link MilStdLabelSettingEnum}
@@ -669,6 +754,34 @@ public interface IMap extends IContainer {
     /**
      * This method selects the feature on the map. If the feature is already selected, or not on the map no action is taken.
      * @param feature The feature to select. NULL feature is ignored.
+     * @param userContext user defined object
+     */
+    void selectFeature(IFeature feature, Object userContext);
+
+    /**
+     * This method selects the features listed. If a feature is already selected or not on the map no action is taken.
+     * @param features The list of features to select. NULL features are ignored.
+     * @param userContext user defined object
+     */
+    void selectFeatures(List<IFeature> features, Object userContext);
+
+    /**
+     * This method deselects the feature on the map. If the feature is not selected or not on the map no action is taken.
+     * @param feature The feature to deselected. NULL feature is ignored.
+     * @param userContext user defined object
+     */
+    void deselectFeature(IFeature feature, Object userContext);
+
+    /**
+     * This method deselects the features on the map. If any feature is not selected or not on the map no action is taken.
+     * @param features The features to deselected. NULL features are ignored.
+     * @param userContext user defined object
+     */
+    void deselectFeatures(List<IFeature> features, Object userContext);
+
+    /**
+     * This method selects the feature on the map. If the feature is already selected, or not on the map no action is taken.
+     * @param feature The feature to select. NULL feature is ignored.
      */
     void selectFeature(IFeature feature);
 
@@ -695,6 +808,12 @@ public interface IMap extends IContainer {
      * @return A list of IFeatures. If there are no features selected the list is empty.
      */
     List<IFeature> getSelected();
+
+    /**
+     * This method clears the map selected list.
+     * @param userContext user defined object
+     */
+    void clearSelected(Object userContext);
 
     /**
      * This method clears the map selected list.

@@ -264,69 +264,105 @@ public abstract class Map extends Container implements IMap {
     @Override
     public void setVisibility(IContainer target, VisibilityActionEnum actionEnum)
             throws EMP_Exception {
-        if ((target == null) || (actionEnum == null)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Map.setVisibility can not be null.");
-        }
-        
-        UUIDSet oSet = new UUIDSet();
-        oSet.add(target.getGeoId());
-        storageManager.setVisibilityOnMap(this, oSet, actionEnum);
+        setVisibility(target, actionEnum, null);
     }
 
     @Override
     public void setVisibility(IContainerSet targetList, VisibilityActionEnum actionEnum)
             throws EMP_Exception {
-        if ((targetList == null) || (actionEnum == null)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.setVisibility can not be null.");
-        } else if (targetList.size() > 0) {
-            UUIDSet oSet = new UUIDSet();
-            
-            for (IContainer container: targetList) {
-                oSet.add(container.getGeoId());
-            }
-            storageManager.setVisibilityOnMap(this, oSet, actionEnum);
-        }
+        setVisibility(targetList, actionEnum, null);
     }
 
     @Override
     public void setVisibility(java.util.UUID targetId, VisibilityActionEnum actionEnum)
             throws EMP_Exception {
-        if ((targetId == null) || (actionEnum == null)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.setVisibility can not be null.");
-        }
-        
-        UUIDSet oSet = new UUIDSet();
-        oSet.add(targetId);
-        storageManager.setVisibilityOnMap(this, oSet, actionEnum);
+        setVisibility(targetId, actionEnum, null);
     }
 
     @Override
     public void setVisibility(IUUIDSet targetIdList, VisibilityActionEnum actionEnum)
             throws EMP_Exception {
-        if ((targetIdList == null) || (actionEnum == null)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameters to Map.setVisibility can not be null.");
-        } else if (targetIdList.size() > 0) {
-            storageManager.setVisibilityOnMap(this, targetIdList, actionEnum);
-        }
+        setVisibility(targetIdList, actionEnum, null);
     }
 
     @Override
     public void setVisibility(IContainer target, IContainer parent, VisibilityActionEnum actionEnum)
             throws EMP_Exception {
-        if ((target == null) || (parent == null) || (actionEnum == null)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameters to Map.setVisibility can not be null.");
-        }
-        
-        storageManager.setVisibilityOnMap(this, target, parent, actionEnum);
+        setVisibility(target, parent, actionEnum, null);
     }
 
     @Override
     public void setVisibility(java.util.UUID targetId, java.util.UUID parentId, VisibilityActionEnum actionEnum)
             throws EMP_Exception {
+        setVisibility(targetId, parentId, actionEnum, null);
+    }
+
+    @Override
+    public void setVisibility(IContainer target, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        if ((target == null) || (actionEnum == null)) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Map.setVisibility can not be null.");
+        }
+
+        UUIDSet oSet = new UUIDSet();
+        oSet.add(target.getGeoId());
+        storageManager.setVisibilityOnMap(this, oSet, actionEnum, userContext);
+    }
+
+    @Override
+    public void setVisibility(IContainerSet targetList, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        if ((targetList == null) || (actionEnum == null)) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.setVisibility can not be null.");
+        } else if (targetList.size() > 0) {
+            UUIDSet oSet = new UUIDSet();
+
+            for (IContainer container: targetList) {
+                oSet.add(container.getGeoId());
+            }
+            storageManager.setVisibilityOnMap(this, oSet, actionEnum, userContext);
+        }
+    }
+
+    @Override
+    public void setVisibility(java.util.UUID targetId, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        if ((targetId == null) || (actionEnum == null)) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.setVisibility can not be null.");
+        }
+
+        UUIDSet oSet = new UUIDSet();
+        oSet.add(targetId);
+        storageManager.setVisibilityOnMap(this, oSet, actionEnum, userContext);
+    }
+
+    @Override
+    public void setVisibility(IUUIDSet targetIdList, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        if ((targetIdList == null) || (actionEnum == null)) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameters to Map.setVisibility can not be null.");
+        } else if (targetIdList.size() > 0) {
+            storageManager.setVisibilityOnMap(this, targetIdList, actionEnum, userContext);
+        }
+    }
+
+    @Override
+    public void setVisibility(IContainer target, IContainer parent, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        if ((target == null) || (parent == null) || (actionEnum == null)) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameters to Map.setVisibility can not be null.");
+        }
+
+        storageManager.setVisibilityOnMap(this, target, parent, actionEnum, userContext);
+    }
+
+    @Override
+    public void setVisibility(java.util.UUID targetId, java.util.UUID parentId, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
         if ((targetId == null) || (parentId == null) || (actionEnum == null)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameters to Map.setVisibility can not be null.");
         }
-        
+
         IContainer target = storageManager.findContainer(targetId);
         IContainer parent = storageManager.findContainer(parentId);
 
@@ -338,7 +374,7 @@ public abstract class Map extends Container implements IMap {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parent container not found.");
         }
 
-        storageManager.setVisibilityOnMap(this, target, parent, actionEnum);
+        storageManager.setVisibilityOnMap(this, target, parent, actionEnum, userContext);
     }
 
     @Override
@@ -382,9 +418,15 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
+    public void setIconSize(IconSizeEnum eSize, Object userContext)
+            throws EMP_Exception {
+        storageManager.setIconSize(this, eSize, userContext);
+    }
+
+    @Override
     public void setIconSize(IconSizeEnum eSize)
             throws EMP_Exception {
-        storageManager.setIconSize(this, eSize);
+        storageManager.setIconSize(this, eSize, null);
     }
 
     @Override
@@ -393,9 +435,15 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
+    public void setMilStdLabels(MilStdLabelSettingEnum labelSetting, Object userContext)
+            throws EMP_Exception {
+        storageManager.setMilStdLabels(this, labelSetting, userContext);
+    }
+
+    @Override
     public void setMilStdLabels(MilStdLabelSettingEnum labelSetting)
             throws EMP_Exception {
-        storageManager.setMilStdLabels(this, labelSetting);
+        storageManager.setMilStdLabels(this, labelSetting, null);
     }
 
     @Override
@@ -593,39 +641,59 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
-    public void selectFeature(IFeature feature) {
+    public void selectFeature(IFeature feature, Object userContext) {
         if (feature == null) {
             return;
         }
         List<IFeature> list = new ArrayList<>();
         list.add(feature);
-        storageManager.selectFeatures(this, list);
+        storageManager.selectFeatures(this, list, userContext);
+    }
+
+    @Override
+    public void selectFeatures(List<IFeature> features, Object userContext) {
+        if (features == null) {
+            return;
+        }
+        storageManager.selectFeatures(this, features, userContext);
+    }
+
+    @Override
+    public void deselectFeature(IFeature feature, Object userContext) {
+        if (feature == null) {
+            return;
+        }
+        List<IFeature> list = new ArrayList<>();
+        list.add(feature);
+        storageManager.deselectFeatures(this, list, userContext);
+    }
+
+    @Override
+    public void deselectFeatures(List<IFeature> features, Object userContext) {
+        if (features == null) {
+            return;
+        }
+        storageManager.deselectFeatures(this, features, userContext);
+    }
+
+    @Override
+    public void selectFeature(IFeature feature) {
+        selectFeature(feature, null);
     }
 
     @Override
     public void selectFeatures(List<IFeature> features) {
-        if (features == null) {
-            return;
-        }
-        storageManager.selectFeatures(this, features);
+        selectFeatures(features, null);
     }
 
     @Override
     public void deselectFeature(IFeature feature) {
-        if (feature == null) {
-            return;
-        }
-        List<IFeature> list = new ArrayList<>();
-        list.add(feature);
-        storageManager.deselectFeatures(this, list);
+        deselectFeature(feature, null);
     }
 
     @Override
     public void deselectFeatures(List<IFeature> features) {
-        if (features == null) {
-            return;
-        }
-        storageManager.deselectFeatures(this, features);
+        deselectFeatures(features, null);
     }
 
     @Override
@@ -634,8 +702,13 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
+    public void clearSelected(Object userContext) {
+        storageManager.clearSelected(this, userContext);
+    }
+
+    @Override
     public void clearSelected() {
-        storageManager.clearSelected(this);
+        storageManager.clearSelected(this, null);
     }
 
     @Override

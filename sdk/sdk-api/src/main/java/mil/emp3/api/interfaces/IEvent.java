@@ -31,11 +31,11 @@ public interface IEvent<T extends IEventEnum, TargetType extends Object> {
      * Sets a user object to let user track own events
      */
 
-    public void setObject(Object object);
+    public void setUserObject(Object userContext);
 
     /**
      * returns object set by user
      */
 
-    public Object getObject();
+    public Object getUserContext();
 }

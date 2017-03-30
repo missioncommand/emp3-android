@@ -221,14 +221,27 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      * have those changes reflected on the display. This is typically used to change position(s) as battle field objects move around.
      */
     @Override
-    public void apply() {
+    public void apply(Object userContext) {
         try {
-            storageManager.apply(this, true);
+            storageManager.apply(this, true, userContext);
         } catch(EMP_Exception e) {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Once application has added a feature to an overlay, it can change one or more attributes of the Feature and invoke the apply method to
+     * have those changes reflected on the display. This is typically used to change position(s) as battle field objects move around.
+     */
+    @Override
+    public void apply() {
+        try {
+            storageManager.apply(this, true, null);
+        } catch(EMP_Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Sets line style used to render the feature. The line style applies to all features that
      * render lines, borders or outlines. Unless otherwise specified by the specific feature class,
