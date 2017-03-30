@@ -17,9 +17,11 @@ configurations {
 }
 
 dependencies {
+    compile project (":google-maps-android-cmgn")
+
     compileApi      ("org.cmapi.primitives:common-map-geospatial-notation")
     compileApi      ("com.eclipsesource.minimal-json:minimal-json")
-    compile project (":3rdpartylibrary:google-maps-android-cmgn")
+    compileApi      ("mil.army.missioncommand:mirrorcache-api")
 
     doc             (group: 'org.cmapi.primitives', name: 'common-map-geospatial-notation', classifier: 'sources')
 

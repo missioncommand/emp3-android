@@ -35,7 +35,6 @@ import mil.emp3.api.enums.VisibilityActionEnum;
 import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IContainerSet;
 import mil.emp3.api.interfaces.IEmpPropertyList;
@@ -44,8 +43,8 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IOverlay;
-import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
+import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
@@ -148,7 +147,7 @@ public class MapView extends FrameLayout implements IMap {
 
     @Override
     protected void onDetachedFromWindow() {
-        oClientMap.onDestroy();
+        //oClientMap.onDestroy();
         super.onDetachedFromWindow();
     }
 

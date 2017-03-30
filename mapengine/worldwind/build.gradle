@@ -8,9 +8,9 @@ sourceCompatibility = rootProject.sourceCompatibility
 targetCompatibility = rootProject.targetCompatibility
 
 dependencies {
-    provided project   (":sdk:emp3-android-sdk")
+    provided project   (":emp3-android-sdk")
 
-    compileApi project (":3rdpartylibrary:worldwind-release")
+    compileApi project (":worldwind-release")
     compileApi         ("com.android.support:support-annotations")
 }
 
