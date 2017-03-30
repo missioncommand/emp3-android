@@ -20,6 +20,7 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 import mil.emp3.test.emp3vv.utils.MapNamesUtility;
@@ -146,6 +147,16 @@ public class UpdateFeatureDialog extends UpdateContainerDialog {
                         // Launch a dialog with list of positions, make it a modal dialog
                     } else {
                         // update the position based on user input on this screen
+                        try {
+                            EmpGeoPosition newPosition = new EmpGeoPosition(Double.parseDouble(latitude.getText().toString()),
+                                    Double.parseDouble(longitude.getText().toString()),
+                                    Double.parseDouble(altitude.getText().toString()));
+                            feature.getPositions().clear();
+                            feature.getPositions().add(newPosition);
+                            feature.apply();
+                        } catch (Exception e) {
+                            Log.e(TAG, "Exception processing position update ", e);
+                        }
                     }
                 }
             });

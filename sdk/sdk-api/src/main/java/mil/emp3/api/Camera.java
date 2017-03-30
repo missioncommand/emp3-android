@@ -4,9 +4,11 @@ import org.cmapi.primitives.GeoBase;
 import org.cmapi.primitives.GeoCamera;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoCamera;
+import org.cmapi.primitives.IGeoPosition;
 
 import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.UUID;
 
 import mil.emp3.api.enums.EventListenerTypeEnum;
@@ -49,7 +51,11 @@ public class Camera implements ICamera {
      * @param camera An object that implements the IGeoCamera interface. See {@link IGeoCamera}
      */
     public Camera(IGeoCamera camera) {
-        this.geoCamera = camera;
+        if(null == camera) {
+            this.geoCamera = new GeoCamera();
+        } else {
+            this.geoCamera = camera;
+        }
         if (this.geoCamera.getAltitudeMode() == null) {
             this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);
         }
@@ -65,6 +71,35 @@ public class Camera implements ICamera {
         if (this.geoCamera.getAltitudeMode() == null) {
             this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);
         }
+    }
+
+    /**
+     * Build a camera using specified position. If altitudeMode is null then GeoCamera default is maintained.
+     * An exception will be thrown if any of the position parameters are null.
+     * @param latitude
+     * @param longitude
+     * @param altitude
+     * @param altitudeMode
+     */
+    public Camera(double latitude, double longitude, double altitude, AltitudeMode altitudeMode) {
+        this.geoCamera = new GeoCamera();
+        if (this.geoCamera.getAltitudeMode() == null) {
+            this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);
+        }
+        setPosition(latitude, longitude, altitude, altitudeMode);
+    }
+
+    /**
+     * Build a camera using specified position. If altitudeMode is null then GeoCamera default is maintained.
+     * An exception will be thrown if any of the position parameters are null.
+     * @param position
+     */
+    public Camera(IGeoPosition position) {
+        this.geoCamera = new GeoCamera();
+        if (this.geoCamera.getAltitudeMode() == null) {
+            this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);
+        }
+        setPosition(position);
     }
 
     /**
@@ -312,5 +347,31 @@ public class Camera implements ICamera {
     @Override
     public void apply(boolean animate) {
         coreManager.processCameraSettingChange(this, animate);
+    }
+
+    @Override
+    public String toString() {
+        return (String.format(Locale.US, "L %1$6.3f, N %2$6.3f, A %3$6.0f: %4s :H %5$6.3f, R %6$6.3f, T %7$6.0f",
+                getLatitude(), getLongitude(), getAltitude(), getAltitudeMode(), getHeading(), getRoll(), getTilt()));
+    }
+
+    @Override
+    public void setPosition(double latitude, double longitude, double altitude, AltitudeMode altitudeMode) {
+        setLatitude(latitude);
+        setLongitude(longitude);
+        setAltitude(altitude);
+        if(null != altitudeMode) {
+            setAltitudeMode(altitudeMode);
+        }
+    }
+
+    @Override
+    public void setPosition(IGeoPosition position) {
+        if(null == position) {
+            throw new InvalidParameterException("Camera-setPosition: position should be non-null");
+        }
+        setLatitude(position.getLatitude());
+        setLongitude(position.getLongitude());
+        setAltitude(position.getAltitude());
     }
 }
