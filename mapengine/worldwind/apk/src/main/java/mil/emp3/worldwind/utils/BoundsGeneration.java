@@ -187,9 +187,9 @@ public class BoundsGeneration {
 
                     currentBoundingArea.put(mapInstance, boundingArea);
 
-                    Log.i(TAG, "end getBounds " + corners[0].getLatitude() + " " + corners[0].getLongitude() +
-                            corners[1].getLatitude() + " " + corners[1].getLongitude() +
-                            corners[2].getLatitude() + " " + corners[2].getLongitude() +
+                    Log.i(TAG, "end getBounds " + corners[0].getLatitude() + " " + corners[0].getLongitude() + ", " +
+                            corners[1].getLatitude() + " " + corners[1].getLongitude() + ", " +
+                            corners[2].getLatitude() + " " + corners[2].getLongitude() + ", " +
                             corners[3].getLatitude() + " " + corners[3].getLongitude());
                     return boundingArea;
                 }

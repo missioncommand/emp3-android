@@ -1,6 +1,5 @@
 package mil.emp3.api;
 
-import org.cmapi.primitives.GeoBase;
 import org.cmapi.primitives.GeoCamera;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoCamera;
@@ -59,6 +58,7 @@ public class Camera implements ICamera {
         if (this.geoCamera.getAltitudeMode() == null) {
             this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);
         }
+        validate();
     }
 
     /**
@@ -66,6 +66,9 @@ public class Camera implements ICamera {
      */
 
     public Camera(ICamera from) {
+        if(null == from) {
+            throw new InvalidParameterException("from Camera must be non-null");
+        }
         this.geoCamera = new GeoCamera();
         copySettingsFrom(from);
         if (this.geoCamera.getAltitudeMode() == null) {
@@ -102,6 +105,16 @@ public class Camera implements ICamera {
         setPosition(position);
     }
 
+    /**
+     * Use the get and set methods that already do the validation. Any invalid parameter will throw an Exception.
+     */
+    private void validate() {
+        setLatitude(getLatitude());
+        setLongitude(getLongitude());
+        setTilt(getTilt());
+        setRoll(getRoll());
+        setHeading(getHeading());
+    }
     /**
      * Everything except geoId is copied as we don't want to change geoId after instantiation.
      * @param from An object that implements the ICamera interface.

@@ -1,7 +1,5 @@
 package mil.emp3.api;
 
-import org.cmapi.primitives.GeoBase;
-import org.cmapi.primitives.GeoCamera;
 import org.cmapi.primitives.GeoLookAt;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoLookAt;
@@ -52,10 +50,15 @@ public class LookAt implements ILookAt{
      * @param lookAt An object that implements the IGeoLookAt interface. See {@link IGeoLookAt}
      */
     public LookAt(IGeoLookAt lookAt) {
-        this.geoLookAt = lookAt;
+        if(null == lookAt) {
+            this.geoLookAt = new GeoLookAt();
+        } else {
+            this.geoLookAt = lookAt;
+        }
         if (this.geoLookAt.getAltitudeMode() == null) {
             this.geoLookAt.setAltitudeMode(AltitudeMode.RELATIVE_TO_GROUND);
         }
+        validate();
     }
 
     /**
@@ -63,6 +66,9 @@ public class LookAt implements ILookAt{
      */
 
     public LookAt(ILookAt from) {
+        if(null == from) {
+            throw new InvalidParameterException("from LookAt must be non-null");
+        }
         this.geoLookAt = new GeoLookAt();
         copySettingsFrom(from);
         if (this.geoLookAt.getAltitudeMode() == null) {
@@ -114,6 +120,17 @@ public class LookAt implements ILookAt{
         this.geoLookAt.setName(from.getName());
         this.geoLookAt.setRange(from.getRange());
         this.geoLookAt.setDescription(from.getDescription());
+    }
+
+    /**
+     * Use the get and set methods that already do the validation. Any invalid parameter will throw an Exception.
+     */
+    private void validate() {
+        setLatitude(getLatitude());
+        setLongitude(getLongitude());
+        setTilt(getTilt());
+        setRange(getRange());
+        setHeading(getHeading());
     }
 
     @Override
