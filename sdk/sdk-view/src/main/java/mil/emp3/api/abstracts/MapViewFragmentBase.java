@@ -33,7 +33,7 @@ import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 /**
  * This class is the base for the MapFragment and MapView classes.
  */
-public class MapViewFragmentBase extends MirroredMap {
+public class MapViewFragmentBase extends /*Mirrored*/Map {
     private String TAG = MapViewFragmentBase.class.getSimpleName();
 
     final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
@@ -207,7 +207,7 @@ public class MapViewFragmentBase extends MirroredMap {
         this.context = context;
         this.attributeSet = attributeSet;
 
-        onCreate(context);
+//        onCreate(context);
         return buildView(false);
     }
 

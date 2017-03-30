@@ -2,6 +2,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity" >
+
+    <item android:id="@+id/action_mirrorcache"
+        android:title="@string/action_mirrorcache"
+        android:orderInCategory="100">
+        <menu>
+            <item android:id="@+id/action_mirrorcache_connect"
+                android:title="@string/action_mirrorcache_connect"
+                android:orderInCategory="100"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_mirrorcache_disconnect"
+                android:title="@string/action_mirrorcache_disconnect"
+                android:orderInCategory="100"
+                android:enabled="false"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_mirrorcache_subscribe"
+                android:title="@string/action_mirrorcache_subscribe"
+                android:orderInCategory="100"
+                android:enabled="false"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_mirrorcache_unsubscribe"
+                android:title="@string/action_mirrorcache_unsubscribe"
+                android:orderInCategory="100"
+                android:enabled="false"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_mirrorcache_addproduct"
+                android:title="@string/action_mirrorcache_addproduct"
+                android:orderInCategory="100"
+                android:enabled="false"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_mirrorcache_deleteproduct"
+                android:title="@string/action_mirrorcache_deleteproduct"
+                android:orderInCategory="100"
+                android:enabled="false"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+
     <item android:id="@+id/action_layers"
     android:title="@string/action_layer"
     android:orderInCategory="100">

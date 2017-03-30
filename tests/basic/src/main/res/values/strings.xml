@@ -5,6 +5,19 @@
     <string name="action_test">Test</string>
     <string name="action_layer">Layer</string>
 
+    <string name="action_mirrorcache">MirrorCache</string>
+    <string name="action_mirrorcache_connect">Connect</string>
+    <string name="action_mirrorcache_disconnect">Disconnect</string>
+    <string name="action_mirrorcache_subscribe">Subscribe</string>
+    <string name="action_mirrorcache_unsubscribe">Unsubscribe</string>
+    <string name="action_mirrorcache_addproduct">Add Product</string>
+    <string name="action_mirrorcache_deleteproduct">Delete Product</string>
+
+    <string name="text_mirrorcache_ws_endpoint">ws://10.0.2.2:8080/mirrorcache?agent=android</string>
+    <string name="text_mirrorcache_product_id">product:test</string>
+
+    <string name="text_plot_units">10000</string>
+
     <string name="action_addImageLayer">Add Image Layer</string>
     <string name="action_removeImageLayer">Remove Image Layer</string>
 
@@ -97,7 +110,7 @@
     <string name="FPD_milstdversion">MilStd:</string>
     <string name="FPD_2525B">2525B</string>
     <string name="FPD_2525C">2525C</string>
-    
+
     <string name="FPD_affiliationLabel">Affiliation:</string>
 
     <string name="FPD_echelonModifierLabel">Modifier:</string>

@@ -12,15 +12,20 @@ public class EMP_Exception extends Exception {
         NOT_SUPPORTED,
         OTHER
     }
-    
-    private final ErrorDetail eErrorDeatil;
-    
-    public EMP_Exception(EMP_Exception.ErrorDetail detailEnum, String errorMessage) {
+
+    private final ErrorDetail errorDetail;
+
+    public EMP_Exception(EMP_Exception.ErrorDetail errorDetail, String errorMessage) {
         super(errorMessage);
-        this.eErrorDeatil = detailEnum;
+        this.errorDetail = errorDetail;
     }
-    
+
+    public EMP_Exception(EMP_Exception.ErrorDetail errorDetail, String errorMessage, Throwable t) {
+        super(errorMessage, t);
+        this.errorDetail = errorDetail;
+    }
+
     public EMP_Exception.ErrorDetail getErrorDeatil() {
-        return this.eErrorDeatil;
+        return this.errorDetail;
     }
 }
