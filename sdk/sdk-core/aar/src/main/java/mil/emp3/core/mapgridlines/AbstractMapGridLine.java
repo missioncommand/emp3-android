@@ -205,7 +205,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     }
 
     @Override
-    public void mapViewChange(IGeoBounds mapBounds, ICamera camera, int viewWidth, int viewHeight) {
+    public void mapViewChange(IGeoBounds mapBounds, ICamera camera, final int viewWidth, final int viewHeight) {
         if ((null == mapBounds) || (null == camera)) {
             // If there is no bounds or camera we remove the grid. The camera may be looking up.
             clearFeatureList();
@@ -222,19 +222,44 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                 double viewWidthInMeters;
                 Point westPoint;
                 Point eastPoint;
-                IGeoPosition centerWest = new GeoPosition();
-                IGeoPosition centerEast = new GeoPosition();
+                IGeoPosition centerWest;
+                IGeoPosition centerEast;
+                ICamera camera = AbstractMapGridLine.this.currentCamera;
+                IMapInstance mapInstance = AbstractMapGridLine.this.mapInstance;
+                IEmpBoundingBox bBox = AbstractMapGridLine.this.boundingBox;
 
-                centerWest.setLatitude(AbstractMapGridLine.this.boundingBox.centerLatitude());
-                centerWest.setLongitude(AbstractMapGridLine.this.boundingBox.getWest());
+                if ((Math.abs(camera.getHeading()) <= 5.0) &&
+                        (Math.abs(camera.getTilt()) <= 5.0) &&
+                        (Math.abs(camera.getRoll()) <= 5.0)) {
+                    IGeoPosition centerNorth = mapInstance.containerToGeo(new Point(viewWidth / 2, 0));
+                    if (null != centerNorth) {
+                        IGeoPosition centerSouth = mapInstance.containerToGeo(new Point(viewWidth / 2, viewHeight));
+                        if (null != centerSouth) {
+                            centerWest = mapInstance.containerToGeo(new Point(0, viewHeight / 2));
+                            if (null != centerWest) {
+                                centerEast = mapInstance.containerToGeo(new Point(viewWidth, viewHeight / 2));
+                                if (null != centerEast) {
+                                    bBox.setNorth(centerNorth.getLatitude());
+                                    bBox.setSouth(centerSouth.getLatitude());
+                                    bBox.setWest(centerWest.getLongitude());
+                                    bBox.setEast(centerEast.getLongitude());
+                                }
+                            }
+                        }
+                    }
+                }
+                centerWest = new GeoPosition();
+                centerWest.setLatitude(bBox.centerLatitude());
+                centerWest.setLongitude(bBox.getWest());
                 centerWest.setAltitude(0.0);
 
+                centerEast = new GeoPosition();
                 centerEast.setLatitude(centerWest.getLatitude());
-                centerEast.setLongitude(AbstractMapGridLine.this.boundingBox.getEast());
+                centerEast.setLongitude(bBox.getEast());
                 centerEast.setAltitude(0.0);
 
-                westPoint = AbstractMapGridLine.this.mapInstance.geoToContainer(centerWest);
-                eastPoint = AbstractMapGridLine.this.mapInstance.geoToContainer(centerEast);
+                westPoint = mapInstance.geoToContainer(centerWest);
+                eastPoint = mapInstance.geoToContainer(centerEast);
 
                 if ((null != westPoint) && (null != eastPoint)) {
                     int deltaX = eastPoint.x - westPoint.x;
@@ -243,10 +268,12 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                     double deltaYe2 = deltaY * deltaY;
                     double pixelDistance = Math.sqrt(deltaXe2 + deltaYe2);
 
-                    viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
-                    AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
+                    if (pixelDistance > 0.0) {
+                        viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+                        AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
 
-                    AbstractMapGridLine.this.generationThread.scheduleProcessing();
+                        AbstractMapGridLine.this.generationThread.scheduleProcessing();
+                    }
                 }
             }
         });
@@ -353,7 +380,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     protected void displayGridLabel(String label, IEmpBoundingBox mapBounds, double metersPerPixel) {
         IGeoPosition labelPos;
 
-        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel / 4.0;
+        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel / 2.0;
         labelPos = new GeoPosition();
         labelPos.setLatitude(mapBounds.getNorth());
         labelPos.setLongitude(mapBounds.centerLongitude());
