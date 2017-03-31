@@ -9,6 +9,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.cmapi.primitives.IGeoPosition;
+
 import java.util.List;
 
 import mil.emp3.api.Circle;
@@ -16,15 +18,19 @@ import mil.emp3.api.Ellipse;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.Text;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.VisibilityStateEnum;
+import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 import mil.emp3.test.emp3vv.utils.MapNamesUtility;
+import mil.emp3.test.emp3vv.utils.PositionUtility;
 
-public class UpdateFeatureDialog extends UpdateContainerDialog {
+public class UpdateFeatureDialog extends UpdateContainerDialog implements PositionUtility.IPositionChangedListener {
     private static String TAG = UpdateFeatureDialog.class.getSimpleName();
 
     private EditText latitude;
@@ -118,7 +124,7 @@ public class UpdateFeatureDialog extends UpdateContainerDialog {
         altitude.setText(String.format("%1$d", (long) feature.getPositions().get(0).getAltitude()));
 
         // We need a dialog to edit positions of multi point features
-        if((feature.getPositions().size() > 1) || (showOnly)){
+        if(showOnly){
             latitude.setEnabled(false);
             longitude.setEnabled(false);
             altitude.setEnabled(false);
@@ -144,8 +150,25 @@ public class UpdateFeatureDialog extends UpdateContainerDialog {
                 public void onClick(View v) {
                     if (feature.getPositions().size() > 1) {
                         // Launch a dialog with list of positions, make it a modal dialog
+                        if(positionUtility.getPositionList().size() > 1) {
+                            feature.getPositions().clear();
+                            feature.getPositions().addAll(positionUtility.getPositionList());
+                            positionUtility.reset();
+                            feature.apply();
+                        }
                     } else {
                         // update the position based on user input on this screen
+                        try {
+                            EmpGeoPosition newPosition = new EmpGeoPosition(Double.parseDouble(latitude.getText().toString()),
+                                    Double.parseDouble(longitude.getText().toString()),
+                                    Double.parseDouble(altitude.getText().toString()));
+                            feature.getPositions().clear();
+                            feature.getPositions().add(newPosition);
+                            positionUtility.reset();
+                            feature.apply();
+                        } catch (Exception e) {
+                            Log.e(TAG, "Exception processing position update ", e);
+                        }
                     }
                 }
             });
@@ -194,6 +217,15 @@ public class UpdateFeatureDialog extends UpdateContainerDialog {
         }
     }
 
+    @Override
+    protected PositionUtility setupPositionUtility() {
+        try {
+            return new PositionUtility(map, this, true);
+        } catch (EMP_Exception e) {
+            Log.e(TAG, "positionUtility ", e);
+        }
+        return null;
+    }
     boolean hasUpdatableProperties(FeatureTypeEnum featureType) {
         switch(featureType) {
             case GEO_SQUARE:
@@ -279,6 +311,19 @@ public class UpdateFeatureDialog extends UpdateContainerDialog {
         }
     }
 
+    @Override
+    public void newPosition(IGeoPosition geoPosition, String stringPosition) {
+        latitude.setText(String.valueOf(geoPosition.getLatitude()));
+        longitude.setText(String.valueOf(geoPosition.getLongitude()));
+        altitude.setText(String.valueOf(geoPosition.getAltitude()));
+    }
+
+    protected void updateName(String newName) {
+        if(me instanceof Text) {
+            ((Text) me).setText(newName);
+            ((Text) me).apply();
+        }
+    }
     /**
      * Base class used to update properties for basic shapes.
      * @param <T>
