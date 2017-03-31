@@ -5,7 +5,6 @@ import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoCamera;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.UUID;
@@ -67,7 +66,7 @@ public class Camera implements ICamera {
 
     public Camera(ICamera from) {
         if(null == from) {
-            throw new InvalidParameterException("from Camera must be non-null");
+            throw new IllegalArgumentException("from Camera must be non-null");
         }
         this.geoCamera = new GeoCamera();
         copySettingsFrom(from);
@@ -147,7 +146,7 @@ public class Camera implements ICamera {
     @Override
     public void setTilt(double value) {
         if (Double.isNaN(value) || (value < global.CAMERA_TILT_MINIMUM) || (value > global.CAMERA_TILT_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
 
         this.geoCamera.setTilt(value);
@@ -170,7 +169,7 @@ public class Camera implements ICamera {
     @Override
     public void setRoll(double value) {
         if (Double.isNaN(value) || (value < global.CAMERA_ROLL_MINIMUM) || (value > global.CAMERA_ROLL_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
 
         this.geoCamera.setRoll(value);
@@ -193,7 +192,7 @@ public class Camera implements ICamera {
     @Override
     public void setHeading(double heading) {
         if (Double.isNaN(heading) || (heading < global.HEADING_MINIMUM) || (heading > global.HEADING_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoCamera.setHeading(heading);
     }
@@ -215,7 +214,7 @@ public class Camera implements ICamera {
     @Override
     public void setAltitudeMode(IGeoAltitudeMode.AltitudeMode value) {
         if (null == value) {
-            throw new InvalidParameterException("The value can not be null.");
+            throw new IllegalArgumentException("The value can not be null.");
         }
         this.geoCamera.setAltitudeMode(value);
     }
@@ -237,7 +236,7 @@ public class Camera implements ICamera {
     @Override
     public void setLatitude(double value) {
         if (Double.isNaN(value) || (value < global.LATITUDE_MINIMUM) || (value > global.LATITUDE_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoCamera.setLatitude(value);
     }
@@ -259,7 +258,7 @@ public class Camera implements ICamera {
     @Override
     public void setLongitude(double value) {
         if (Double.isNaN(value) || (value < global.LONGITUDE_MINIMUM) || (value > global.LONGITUDE_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoCamera.setLongitude(value);
     }
@@ -381,7 +380,7 @@ public class Camera implements ICamera {
     @Override
     public void setPosition(IGeoPosition position) {
         if(null == position) {
-            throw new InvalidParameterException("Camera-setPosition: position should be non-null");
+            throw new IllegalArgumentException("Camera-setPosition: position should be non-null");
         }
         setLatitude(position.getLatitude());
         setLongitude(position.getLongitude());

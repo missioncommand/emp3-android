@@ -13,8 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.security.InvalidParameterException;
-
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.utils.EmpGeoPosition;
@@ -34,31 +32,31 @@ public class CameraLookAtValidationTest extends TestBaseSingleMap {
 
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void invalidGeoCamera() {
         IGeoCamera geoCamera = new GeoCamera();
         geoCamera.setLatitude(global.LATITUDE_MAXIMUM + 1.0);
         ICamera camera = new Camera(geoCamera);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void nullFromCamera() {
         ICamera from = null;
         ICamera camera = new Camera(from);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void invalidLongitude() {
         ICamera camera = new Camera(0, global.LONGITUDE_MINIMUM-1, 0, null);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void nullPosition() {
         IGeoPosition position = null;
         ICamera camera = new Camera(position);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void invalidPosition() {
         IGeoPosition position = new GeoPosition();
         position.setLatitude(global.LATITUDE_MINIMUM - 1);
@@ -92,31 +90,31 @@ public class CameraLookAtValidationTest extends TestBaseSingleMap {
 
     // LookAt
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void invalidGeoLookAt() {
         IGeoLookAt geoLookAt = new GeoLookAt();
         geoLookAt.setLatitude(global.LATITUDE_MAXIMUM + 1.0);
         ILookAt camera = new LookAt(geoLookAt);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void nullFromLookAt() {
         ILookAt from = null;
         ILookAt lookAt = new LookAt(from);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void invalidLongitudeLookAt() {
         ILookAt lookAt = new LookAt(0, global.LONGITUDE_MINIMUM-1, 0, null);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void nullPositionForLookAt() {
         IGeoPosition position = null;
         ILookAt lookAt = new LookAt(position);
     }
 
-    @Test(expected = InvalidParameterException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void invalidPositionLookAt() {
         IGeoPosition position = new GeoPosition();
         position.setLatitude(global.LATITUDE_MINIMUM - 1);

@@ -5,7 +5,6 @@ import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoLookAt;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.UUID;
@@ -67,7 +66,7 @@ public class LookAt implements ILookAt{
 
     public LookAt(ILookAt from) {
         if(null == from) {
-            throw new InvalidParameterException("from LookAt must be non-null");
+            throw new IllegalArgumentException("from LookAt must be non-null");
         }
         this.geoLookAt = new GeoLookAt();
         copySettingsFrom(from);
@@ -151,7 +150,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setTilt(double value) {
         if (Double.isNaN(value) || (value < global.CAMERA_TILT_MINIMUM) || (value > global.CAMERA_TILT_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
 
         this.geoLookAt.setTilt(value);
@@ -174,7 +173,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setHeading(double heading) {
         if (Double.isNaN(heading) || (heading < global.HEADING_MINIMUM) || (heading > global.HEADING_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoLookAt.setHeading(heading);
     }
@@ -206,7 +205,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setAltitudeMode(IGeoAltitudeMode.AltitudeMode value) {
         if (null == value) {
-            throw new InvalidParameterException("The value can not be null.");
+            throw new IllegalArgumentException("The value can not be null.");
         }
         this.geoLookAt.setAltitudeMode(value);
     }
@@ -228,7 +227,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setLatitude(double value) {
         if (Double.isNaN(value) || (value < global.LATITUDE_MINIMUM) || (value > global.LATITUDE_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoLookAt.setLatitude(value);
     }
@@ -250,7 +249,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setLongitude(double value) {
         if (Double.isNaN(value) || (value < global.LONGITUDE_MINIMUM) || (value > global.LONGITUDE_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoLookAt.setLongitude(value);
     }
@@ -372,7 +371,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setPosition(IGeoPosition position) {
         if(null == position) {
-            throw new InvalidParameterException("LookAt-setPosition: position should be non-null");
+            throw new IllegalArgumentException("LookAt-setPosition: position should be non-null");
         }
         setLatitude(position.getLatitude());
         setLongitude(position.getLongitude());
