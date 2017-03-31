@@ -139,7 +139,8 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
                 if ((null != cmrd) && (null != cmrd.getCamera())) {
                     try {
                         if (null != cmrd.getCamera()) {
-                            coreManager.setCamera(oClientMap, cmrd.getCamera(), false); // This will trigger bounds generation
+                            coreManager.setCamera(oClientMap, cmrd.getCamera(),
+                                    false, event.getUserContext()); // This will trigger bounds generation
                         }
                         if (null != cmrd.getMapServiceHash()) {
                             for (IMapService mapService : cmrd.getMapServiceHash().values()) {

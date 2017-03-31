@@ -117,9 +117,9 @@ public interface IStorageManager {
 
     MilStdLabelSettingEnum getMilStdLabels(IMapInstance mapInstance);
 
-    void addDrawFeature(IMap oMap, IFeature oFeature, Object userContext) throws EMP_Exception;
+    void addDrawFeature(IMap oMap, IFeature oFeature) throws EMP_Exception;
 
-    void removeDrawFeature(IMap oMap, IFeature oFeature, Object userContext) throws EMP_Exception;
+    void removeDrawFeature(IMap oMap, IFeature oFeature) throws EMP_Exception;
 
     void setFarDistanceThreshold(IMap oMap, double dValue);
 

@@ -182,6 +182,11 @@ public class MapView extends FrameLayout implements IMap {
     }
 
     @Override
+    public void setCamera(ICamera camera, boolean animate, Object userContext) throws EMP_Exception {
+        this.oClientMap.setCamera(camera, animate, userContext);
+    }
+
+    @Override
     public void setCamera(ICamera camera, boolean animate) throws EMP_Exception {
         this.oClientMap.setCamera(camera, animate);
     }
@@ -189,6 +194,11 @@ public class MapView extends FrameLayout implements IMap {
     @Override
     public ILookAt getLookAt() {
         return this.oClientMap.getLookAt();
+    }
+
+    @Override
+    public void setLookAt(ILookAt lookAt, boolean animate, Object userContext) throws EMP_Exception {
+        this.oClientMap.setLookAt(lookAt, animate, userContext);
     }
 
     @Override
@@ -204,6 +214,26 @@ public class MapView extends FrameLayout implements IMap {
     @Override
     public java.util.List<IOverlay> getAllOverlays() {
         return this.oClientMap.getAllOverlays();
+    }
+
+    @Override
+    public void addOverlay(IOverlay overlay, boolean visible, Object userContext) throws EMP_Exception {
+        this.oClientMap.addOverlay(overlay, visible, userContext);
+    }
+
+    @Override
+    public void addOverlays(java.util.List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception {
+        this.oClientMap.addOverlays(overlays, visible, userContext);
+    }
+
+    @Override
+    public void removeOverlay(IOverlay overlay, Object userContext) throws EMP_Exception {
+        this.oClientMap.removeOverlay(overlay, userContext);
+    }
+
+    @Override
+    public void removeOverlays(java.util.List<IOverlay> overlays, Object userContext) throws EMP_Exception {
+        this.oClientMap.removeOverlays(overlays, userContext);
     }
 
     @Override
@@ -234,6 +264,42 @@ public class MapView extends FrameLayout implements IMap {
     @Override
     public void removeMapService(IMapService mapService) throws EMP_Exception {
         this.oClientMap.removeMapService(mapService);
+    }
+
+    @Override
+    public void setVisibility(IContainer target, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        this.oClientMap.setVisibility(target, actionEnum, userContext);
+    }
+
+    @Override
+    public void setVisibility(IContainerSet targetList, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        this.oClientMap.setVisibility(targetList, actionEnum, userContext);
+    }
+
+    @Override
+    public void setVisibility(java.util.UUID targetId, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        this.oClientMap.setVisibility(targetId, actionEnum, userContext);
+    }
+
+    @Override
+    public void setVisibility(IUUIDSet targetIdList, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        this.oClientMap.setVisibility(targetIdList, actionEnum, userContext);
+    }
+
+    @Override
+    public void setVisibility(IContainer target, IContainer parent, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        this.oClientMap.setVisibility(target, parent, actionEnum, userContext);
+    }
+
+    @Override
+    public void setVisibility(java.util.UUID targetId, java.util.UUID parentId, VisibilityActionEnum actionEnum, Object userContext)
+            throws EMP_Exception {
+        this.oClientMap.setVisibility(targetId, parentId, actionEnum, userContext);
     }
 
     @Override
@@ -313,6 +379,11 @@ public class MapView extends FrameLayout implements IMap {
     }
 
     @Override
+    public void setIconSize(IconSizeEnum eSize, Object userContext) throws EMP_Exception {
+        this.oClientMap.setIconSize(eSize, userContext);
+    }
+
+    @Override
     public void setIconSize(IconSizeEnum eSize) throws EMP_Exception {
         this.oClientMap.setIconSize(eSize);
     }
@@ -320,6 +391,11 @@ public class MapView extends FrameLayout implements IMap {
     @Override
     public IconSizeEnum getIconSize() {
         return this.oClientMap.getIconSize();
+    }
+
+    @Override
+    public void setMilStdLabels(MilStdLabelSettingEnum labelSetting, Object userContext) throws EMP_Exception {
+        this.oClientMap.setMilStdLabels(labelSetting, userContext);
     }
 
     @Override
@@ -422,6 +498,11 @@ public class MapView extends FrameLayout implements IMap {
     @Override
     public java.util.List<IContainer> getParents() {
         return this.oClientMap.getParents();
+    }
+
+    @Override
+    public void clearContainer(Object userContext) throws EMP_Exception {
+        this.oClientMap.clearContainer(userContext);
     }
 
     @Override
@@ -660,6 +741,38 @@ public class MapView extends FrameLayout implements IMap {
         return this.oClientMap.containerToGeo(point);
     }
 
+    /**
+     * This method marks the feature as selected on the map. If the feature is already mark selected
+     * no action is taken.
+     *
+     * @param feature The feature to mark selected.
+     */
+    @Override
+    public void selectFeature(IFeature feature, Object userContext) {
+        this.oClientMap.selectFeature(feature, userContext);
+    }
+
+    @Override
+    public void selectFeatures(java.util.List<IFeature> features, Object userContext) {
+        this.oClientMap.selectFeatures(features, userContext);
+    }
+
+    /**
+     * This method marks the feature as NOT selected on the map. If the feature is not mark selected
+     * no action is taken.
+     *
+     * @param feature The feature to deselected.
+     */
+    @Override
+    public void deselectFeature(IFeature feature, Object userContext) {
+        this.oClientMap.deselectFeature(feature, userContext);
+    }
+
+    @Override
+    public void deselectFeatures(java.util.List<IFeature> features, Object userContext) {
+        this.oClientMap.deselectFeatures(features, userContext);
+    }
+
     @Override
     public void selectFeature(IFeature feature) {
         this.oClientMap.selectFeature(feature);
@@ -683,6 +796,14 @@ public class MapView extends FrameLayout implements IMap {
     @Override
     public List<IFeature> getSelected() {
         return this.oClientMap.getSelected();
+    }
+
+    /**
+     * This method clears the map selected list.
+     */
+    @Override
+    public void clearSelected(Object userContext) {
+        this.oClientMap.clearSelected(userContext);
     }
 
     @Override

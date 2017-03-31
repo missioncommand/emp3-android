@@ -151,8 +151,13 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
+    public void setCamera(ICamera camera, boolean animate, Object userContext) throws EMP_Exception {
+        coreManager.setCamera(this, camera, animate, userContext);
+    }
+
+    @Override
     public void setCamera(ICamera camera, boolean animate) throws EMP_Exception {
-        coreManager.setCamera(this, camera, animate);
+        coreManager.setCamera(this, camera, animate, null);
     }
 
     @Override
@@ -161,8 +166,13 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
+    public void setLookAt(ILookAt lookAt, boolean animate, Object userContext) throws EMP_Exception {
+        coreManager.setLookAt(this, lookAt, animate, userContext);
+    }
+
+    @Override
     public void setLookAt(ILookAt lookAt, boolean animate) throws EMP_Exception {
-        coreManager.setLookAt(this, lookAt, animate);
+        coreManager.setLookAt(this, lookAt, animate, null);
     }
 
     @Override
@@ -176,7 +186,7 @@ public abstract class Map extends Container implements IMap {
     }
 
     @Override
-    public void addOverlay(IOverlay overlay, boolean visible, Object object)
+    public void addOverlay(IOverlay overlay, boolean visible, Object userContext)
             throws EMP_Exception {
         if (overlay == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.addOverlay can not be null.");
@@ -184,21 +194,21 @@ public abstract class Map extends Container implements IMap {
         
         ArrayList<IOverlay> oList = new ArrayList<>();
         oList.add(overlay);
-        this.addOverlays(oList, visible, object);
+        this.addOverlays(oList, visible, userContext);
     }
 
     @Override
-    public void addOverlays(List<IOverlay> overlays, boolean visible, Object object)
+    public void addOverlays(List<IOverlay> overlays, boolean visible, Object userContext)
             throws EMP_Exception {
         if (overlays == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.addOverlays can not be null.");
         } else if (overlays.size() > 0) {
-            storageManager.addOverlays(this, overlays, visible, object);
+            storageManager.addOverlays(this, overlays, visible, userContext);
         }
     }
 
     @Override
-    public void removeOverlay(IOverlay overlay, Object object)
+    public void removeOverlay(IOverlay overlay, Object userContext)
             throws EMP_Exception {
         if (overlay == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.removeOverlay can not be null.");
@@ -206,16 +216,16 @@ public abstract class Map extends Container implements IMap {
         
         ArrayList<IOverlay> oList = new ArrayList<>();
         oList.add(overlay);
-        this.removeOverlays(oList, object);
+        this.removeOverlays(oList, userContext);
     }
 
     @Override
-    public void removeOverlays(List<IOverlay> overlays, Object object)
+    public void removeOverlays(List<IOverlay> overlays, Object userContext)
             throws EMP_Exception {
         if (overlays == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "parameter to Map.removeOverlays can not be null.");
         } else if (overlays.size() > 0) {
-            storageManager.removeOverlays(this, overlays, object);
+            storageManager.removeOverlays(this, overlays, userContext);
         }
     }
 

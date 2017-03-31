@@ -236,6 +236,11 @@ public class MapFragment extends Fragment implements IMap {
     }
 
     @Override
+    public void setCamera(ICamera camera, boolean animate, Object userContext) throws EMP_Exception {
+        this.oClientMap.setCamera(camera, animate, userContext);
+    }
+
+    @Override
     public void setCamera(ICamera camera, boolean animate) throws EMP_Exception {
         this.oClientMap.setCamera(camera, animate);
     }
@@ -243,6 +248,11 @@ public class MapFragment extends Fragment implements IMap {
     @Override
     public ILookAt getLookAt() {
         return this.oClientMap.getLookAt();
+    }
+
+    @Override
+    public void setLookAt(ILookAt lookAt, boolean animate, Object userContext) throws EMP_Exception {
+        this.oClientMap.setLookAt(lookAt, animate, userContext);
     }
 
     @Override

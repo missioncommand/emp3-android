@@ -91,6 +91,18 @@ public interface IMap extends IContainer {
      * the map viewing area on each change event.
      * @param camera This parameter must contain the new camera setting to be applied to map's viewing area.
      * @param animate If set to true then map will animate to the new position
+     * @param userContext user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void setCamera(ICamera camera, boolean animate, Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method sets the map's camera therefore changing the viewing area of the map.
+     * The map registers for camera change events for the camera and will update
+     * the map viewing area on each change event.
+     * @param camera This parameter must contain the new camera setting to be applied to map's viewing area.
+     * @param animate If set to true then map will animate to the new position
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
     void setCamera(ICamera camera, boolean animate)
@@ -101,6 +113,18 @@ public interface IMap extends IContainer {
      * @return ILookAt
      */
     ILookAt getLookAt();
+
+    /**
+     * This method sets the map's lookAt therefore changing the viewing area of the map.
+     * The map registers for lookAt change events for the lookAt and will update
+     * the map viewing area on each change event.
+     * @param lookAt This parameter must contain the new lookAt setting to be applied to map's viewing area.
+     * @param animate If set tto true then map will animate to the new position.
+     * @param userContext user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void setLookAt(ILookAt lookAt, boolean animate, Object userContext)
+            throws EMP_Exception;
 
     /**
      * This method sets the map's lookAt therefore changing the viewing area of the map.

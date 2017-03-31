@@ -310,7 +310,12 @@ public class Camera implements ICamera {
     }
 
     @Override
+    public void apply(boolean animate, Object userContext) {
+        coreManager.processCameraSettingChange(this, animate, userContext);
+    }
+
+    @Override
     public void apply(boolean animate) {
-        coreManager.processCameraSettingChange(this, animate);
+        coreManager.processCameraSettingChange(this, animate, null);
     }
 }

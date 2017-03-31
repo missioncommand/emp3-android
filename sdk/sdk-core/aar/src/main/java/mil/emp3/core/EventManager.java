@@ -289,9 +289,9 @@ public class EventManager implements IEventManager {
     public void generateContainerEvent(ContainerEventEnum eEvent,
                                        IContainer oEventedObject,
                                        IGeoBase oChild,
-                                       Object object) {
+                                       Object userContext) {
         ContainerEvent oEvent = new ContainerEvent(eEvent, oEventedObject, oChild);
-        oEvent.setUserObject(object);
+        oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.CONTAINER_EVENT_LISTENER, oEventedObject, oEvent);
     }
 
@@ -299,16 +299,16 @@ public class EventManager implements IEventManager {
     public void generateContainerEvent(ContainerEventEnum eEvent,
                                        IContainer oEventedObject,
                                        List<? extends IGeoBase> oList,
-                                       Object object) {
+                                       Object userContext) {
         ContainerEvent oEvent = new ContainerEvent(eEvent, oEventedObject, oList);
-        oEvent.setUserObject(object);
+        oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.CONTAINER_EVENT_LISTENER, oEventedObject, oEvent);
     }
 
     @Override
-    public void generateFeatureEvent(FeatureEventEnum eEvent, IFeature oTarget, boolean bSelected, Object object) {
+    public void generateFeatureEvent(FeatureEventEnum eEvent, IFeature oTarget, boolean bSelected, Object userContext) {
         FeatureEvent oEvent = new FeatureEvent(eEvent, oTarget, bSelected);
-        oEvent.setUserObject(object);
+        oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.FEATURE_EVENT_LISTENER, oTarget, oEvent);
     }
 
@@ -321,17 +321,17 @@ public class EventManager implements IEventManager {
                                                  Point oPoint,
                                                  IGeoPosition oPosition,
                                                  IGeoPosition oStartPosition,
-                                                 Object object) {
+                                                 Object userContext) {
         FeatureUserInteractionEvent oEvent = new FeatureUserInteractionEvent(eEvent, keys, button, oTargetList, oMap, oPoint, oPosition, oStartPosition);
-        oEvent.setUserObject(object);
+        oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.FEATURE_INTERACTION_EVENT_LISTENER, oTargetList, oEvent);
     }
 
     @Override
     public void generateMapStateChangeEvent(MapStateEnum ePreviousState, MapStateEnum eNewState,
-                                            IMap oMap, Object object) {
+                                            IMap oMap, Object userContext) {
         MapStateChangeEvent oEvent = new MapStateChangeEvent(ePreviousState, eNewState, oMap);
-        oEvent.setUserObject(object);
+        oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.MAP_STATE_CHANGE_EVENT_LISTENER, oMap, oEvent);
     }
 
@@ -343,39 +343,39 @@ public class EventManager implements IEventManager {
                                             Point oPoint,
                                             IGeoPosition oPosition,
                                             IGeoPosition oStartPosition,
-                                            Object object) {
+                                            Object userContext) {
         MapUserInteractionEvent oEvent = new MapUserInteractionEvent(eEvent, oKeys, oButton, oMap, oPoint, oPosition, oStartPosition);
-        oEvent.setUserObject(object);
+        oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.MAP_INTERACTION_EVENT_LISTENER, oMap, oEvent);
     }
 
     @Override
     public void generateMapViewChangeEvent(MapViewEventEnum viewEventEnum, ICamera oCamera,
-                                           ILookAt oLookAt, IGeoBounds bounds, IMap oMap, Object object) {
+                                           ILookAt oLookAt, IGeoBounds bounds, IMap oMap, Object userContext) {
         MapViewChangeEvent oEvent = new MapViewChangeEvent(viewEventEnum, oCamera, oLookAt, bounds, oMap);
-        oEvent.setUserObject(object);
+        oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.MAP_VIEW_CHANGE_EVENT_LISTENER, oMap, oEvent);
     }
 
     @Override
     public void generateMapFeatureAddedEvent(MapFeatureEventEnum eventEnum, IMap map,
-                                             IFeature feature, Object object) {
+                                             IFeature feature, Object userContext) {
         final MapFeatureAddedEvent event = new MapFeatureAddedEvent(eventEnum, map, feature);
-        event.setUserObject(object);
+        event.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.MAP_FEATURE_ADDED_EVENT_LISTENER, map, event);
     }
 
     @Override
     public void generateMapFeatureRemovedEvent(MapFeatureEventEnum eventEnum, IMap map,
-                                               IFeature feature, Object object) {
+                                               IFeature feature, Object userContext) {
         final MapFeatureRemovedEvent event = new MapFeatureRemovedEvent(eventEnum, map, feature);
-        event.setUserObject(object);
+        event.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.MAP_FEATURE_REMOVED_EVENT_LISTENER, map, event);
     }
 
     @Override
     public void generateMapCameraEvent(CameraEventEnum eventEnum, IMap map, ICamera camera,
-                                       boolean animate, Object object) {
+                                       boolean animate, Object userContext) {
         mil.emp3.core.events.CameraEvent cameraEvent;
         ListenerRegistrationHashMap registrationList;
         ListenerHandleList handlerList;
@@ -384,7 +384,7 @@ public class EventManager implements IEventManager {
             registrationList = this.oRegisteredOnMap.get(EventListenerTypeEnum.CAMERA_EVENT_LISTENER);
             if (registrationList.containsKey(map.getGeoId())) {
                 cameraEvent = new mil.emp3.core.events.CameraEvent(eventEnum, camera, animate);
-                cameraEvent.setUserObject(object);
+                cameraEvent.setUserObject(userContext);
                 handlerList = registrationList.get(map.getGeoId());
                 this.callEventHandlers(handlerList, cameraEvent);
             }
@@ -393,15 +393,15 @@ public class EventManager implements IEventManager {
 
     @Override
     public void generateVisibilityEvent(VisibilityActionEnum eEvent, IContainer oTarget,
-                                        IContainer oParent, IMap oOnMap, Object object) {
+                                        IContainer oParent, IMap oOnMap, Object userContext) {
         VisibilityEvent oEvent = new VisibilityEvent(eEvent, oTarget, oParent, oOnMap);
-        oEvent.setUserObject(object);
+        oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.VISIBILITY_EVENT_LISTENER, oOnMap, oEvent);
     }
     
     @Override
     public void generateCameraEvent(CameraEventEnum eventEnum, ICamera camera,
-                                    boolean animate, Object object) {
+                                    boolean animate, Object userContext) {
         mil.emp3.core.events.CameraEvent cameraEvent;
         ListenerRegistrationHashMap registrationList;
         ListenerHandleList handlerList;
@@ -410,7 +410,7 @@ public class EventManager implements IEventManager {
             registrationList = this.oRegisteredOnCamera.get(EventListenerTypeEnum.CAMERA_EVENT_LISTENER);
             if (registrationList.containsKey(camera.getGeoId())) {
                 cameraEvent = new mil.emp3.core.events.CameraEvent(eventEnum, camera, animate);
-                cameraEvent.setUserObject(object);
+                cameraEvent.setUserObject(userContext);
                 handlerList = registrationList.get(camera.getGeoId());
                 this.callEventHandlers(handlerList, cameraEvent);
             }
@@ -419,7 +419,7 @@ public class EventManager implements IEventManager {
 
     @Override
     public void generateLookAtEvent(LookAtEventEnum eventEnum, ILookAt lookAt,
-                                    boolean animate, Object object) {
+                                    boolean animate, Object userContext) {
         mil.emp3.core.events.LookAtEvent lookAtEvent;
         ListenerRegistrationHashMap registrationList;
         ListenerHandleList handlerList;
@@ -428,7 +428,7 @@ public class EventManager implements IEventManager {
             registrationList = this.oRegisteredOnLookAt.get(EventListenerTypeEnum.LOOKAT_EVENT_LISTENER);
             if (registrationList.containsKey(lookAt.getGeoId())) {
                 lookAtEvent = new mil.emp3.core.events.LookAtEvent(eventEnum, lookAt, animate);
-                lookAtEvent.setUserObject(object);
+                lookAtEvent.setUserObject(userContext);
                 handlerList = registrationList.get(lookAt.getGeoId());
                 this.callEventHandlers(handlerList, lookAtEvent);
             }
@@ -484,20 +484,17 @@ public class EventManager implements IEventManager {
     }
 
     @Override
-    public void generateFeatureEditEvent(FeatureEditEvent oEvent, Object object) {
-        oEvent.setUserObject(object);
+    public void generateFeatureEditEvent(FeatureEditEvent oEvent) {
         this.processEvent(EventListenerTypeEnum.FEATURE_EDIT_EVENT_LISTENER, oEvent.getTarget(), oEvent);
     }
 
     @Override
-    public void generateFeatureDrawEvent(FeatureDrawEvent oEvent, Object object) {
-        oEvent.setUserObject(object);
+    public void generateFeatureDrawEvent(FeatureDrawEvent oEvent) {
         this.processEvent(EventListenerTypeEnum.FEATURE_DRAW_EVENT_LISTENER, oEvent.getTarget(), oEvent);
     }
 
     @Override
-    public void generateFreehandDrawEvent(MapFreehandEvent event, Object object) {
-        event.setUserObject(object);
+    public void generateFreehandDrawEvent(MapFreehandEvent event) {
         this.processEvent(EventListenerTypeEnum.FREEHAND_DRAW_EVENT_LISTENER, event.getTarget(), event);
     }
 }

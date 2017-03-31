@@ -1929,7 +1929,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void addDrawFeature(IMap oMap, IFeature oFeature, Object userContext) throws EMP_Exception {
+    public void addDrawFeature(IMap oMap, IFeature oFeature) throws EMP_Exception {
         //Log.d(TAG, "addDrawFeature to map.");
 
         try {
@@ -1957,14 +1957,14 @@ public class StorageManager implements IStorageManager {
             }
             this.addChildren(transactionList, parentWrapper, wrapper, true);
 
-            this.executeTransaction(transactionList, userContext);
+            this.executeTransaction(transactionList, null);
         } finally {
             lock.unlock();
         }
     }
 
     @Override
-    public void removeDrawFeature(IMap oMap, IFeature oFeature, Object userContext) throws EMP_Exception {
+    public void removeDrawFeature(IMap oMap, IFeature oFeature) throws EMP_Exception {
         //Log.d(TAG, "removeDrawFeatures from map.");
 
         try {
@@ -1986,7 +1986,7 @@ public class StorageManager implements IStorageManager {
             }
             removeChild(transactionList, parentWrapper, childWrapper);
 
-            executeTransaction(transactionList, userContext);
+            executeTransaction(transactionList, null);
         } finally {
             lock.unlock();
         }

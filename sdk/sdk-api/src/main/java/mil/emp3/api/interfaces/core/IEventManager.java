@@ -118,7 +118,7 @@ public interface IEventManager {
 
     void removeEventHandler(mil.emp3.api.listeners.EventListenerHandle oHandle);
 
-    void generateFeatureEditEvent(FeatureEditEvent oEvent, Object object);
-    void generateFeatureDrawEvent(FeatureDrawEvent oEvent, Object object);
-    void generateFreehandDrawEvent(MapFreehandEvent event, Object object);
+    void generateFeatureEditEvent(FeatureEditEvent oEvent);
+    void generateFeatureDrawEvent(FeatureDrawEvent oEvent);
+    void generateFreehandDrawEvent(MapFreehandEvent event);
 }
