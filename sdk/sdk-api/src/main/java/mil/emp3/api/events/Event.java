@@ -13,6 +13,7 @@ public class Event<T extends IEventEnum, TargetType extends Object> implements I
 
     private final T eEvent; // if we change bitmap to enum this will become a searchable list of long, Easier to implement but way less performant
     private final TargetType oTarget;
+    private Object userContext = null;// allow user to track/filter own events
 
     protected Event(T eEvent, TargetType oTarget) {
         this.eEvent = eEvent;
@@ -35,6 +36,16 @@ public class Event<T extends IEventEnum, TargetType extends Object> implements I
     @Override
     public TargetType getTarget() {
         return this.oTarget;
+    }
+
+    @Override
+    public void setUserObject(Object userContext) {
+        this.userContext = userContext;
+    }
+
+    @Override
+    public Object getUserContext() {
+        return userContext;
     }
 }
 

@@ -67,7 +67,7 @@ public class CoreManager implements ICoreManager {
     }
 
     @Override
-    public void setCamera(IMap clientMap, ICamera camera, boolean animate) throws EMP_Exception {
+    public void setCamera(IMap clientMap, ICamera camera, boolean animate, Object userContext) throws EMP_Exception {
         IClientMapToMapInstance mapMapping = storageManager.getMapMapping(clientMap);
         
         if (mapMapping == null) {
@@ -76,7 +76,7 @@ public class CoreManager implements ICoreManager {
         
         IMapInstance oMapInstance = mapMapping.getMapInstance();
         
-        oMapInstance.setCamera(camera, animate);
+        oMapInstance.setCamera(camera, animate, userContext);
         mapMapping.setCamera(camera);
 
         // We will need this when client executes swapMapEngine and it will be resused for activity restart also.
@@ -98,7 +98,7 @@ public class CoreManager implements ICoreManager {
     }
 
     @Override
-    public void setLookAt(IMap clientMap, ILookAt lookAt, boolean animate) throws EMP_Exception {
+    public void setLookAt(IMap clientMap, ILookAt lookAt, boolean animate, Object userContext) throws EMP_Exception {
         IClientMapToMapInstance mapMapping = storageManager.getMapMapping(clientMap);
 
         if (mapMapping == null) {
@@ -107,7 +107,7 @@ public class CoreManager implements ICoreManager {
 
         IMapInstance oMapInstance = mapMapping.getMapInstance();
 
-        oMapInstance.setLookAt(lookAt, animate);
+        oMapInstance.setLookAt(lookAt, animate, userContext);
         mapMapping.setLookAt(lookAt);
 
         // We will need this when client executes swapMapEngine and it will be resused for activity restart also.
@@ -127,26 +127,26 @@ public class CoreManager implements ICoreManager {
         return mapMapping.getLookAt();
     }
 
-    public void processCameraSettingChange(ICamera camera, boolean animate) {
+    public void processCameraSettingChange(ICamera camera, boolean animate, Object userContext) {
         //storageManager.processCameraSettingChange(camera);
-        eventManager.generateCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, camera, animate);
+        eventManager.generateCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, camera, animate, userContext);
         List<IClientMapToMapInstance> mappings = storageManager.getMappings(camera);
         if(null != mappings) {
             for(IClientMapToMapInstance mapping : mappings) {
                 if(null != mapping.getMapInstance()) {
-                    mapping.getMapInstance().applyCameraChange(camera, animate);
+                    mapping.getMapInstance().applyCameraChange(camera, animate, userContext);
                 }
             }
         }
     }
 
-    public void processLookAtSettingChange(ILookAt lookAt, boolean animate) {
-        eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_IN_MOTION, lookAt, animate);
+    public void processLookAtSettingChange(ILookAt lookAt, boolean animate, Object userContext) {
+        eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_IN_MOTION, lookAt, animate, userContext);
         List<IClientMapToMapInstance> mappings = storageManager.getMappings(lookAt);
         if(null != mappings) {
             for(IClientMapToMapInstance mapping : mappings) {
                 if(null != mapping.getMapInstance()) {
-                    mapping.getMapInstance().applyLookAtChange(lookAt, animate);
+                    mapping.getMapInstance().applyLookAtChange(lookAt, animate, userContext);
                 }
             }
         }

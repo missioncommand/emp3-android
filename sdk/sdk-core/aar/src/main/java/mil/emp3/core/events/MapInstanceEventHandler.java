@@ -101,7 +101,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
 
             if (!bEventConsumed) {
                 eventManager.generateFeatureInteractionEvent(event.getEvent(), event.getKeys(), event.getButton(),
-                        event.getFeatures(), oClientMap, event.getLocation(), event.getCoordinate(), event.getStartCoordinate());
+                        event.getFeatures(), oClientMap, event.getLocation(), event.getCoordinate(), event.getStartCoordinate(), event.getUserContext());
             }
 
             if ((event.getEvent() == UserInteractionEventEnum.DRAG) &&
@@ -130,12 +130,13 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         if (oClientMap != null) {
             // Map Engine is ready, redraw any features that are present on client map.
             if (event.getState() == MapStateEnum.MAP_READY) {
-                storageManager.redrawAllFeatures(oClientMap);
+                storageManager.redrawAllFeatures(oClientMap, event.getUserContext());
                 IClientMapRestoreData cmrd = storageManager.getRestoreData(oClientMap);
                 if ((null != cmrd) && (null != cmrd.getCamera())) {
                     try {
                         if (null != cmrd.getCamera()) {
-                            coreManager.setCamera(oClientMap, cmrd.getCamera(), false); // This will trigger bounds generation
+                            coreManager.setCamera(oClientMap, cmrd.getCamera(),
+                                    false, event.getUserContext()); // This will trigger bounds generation
                         }
                         if (null != cmrd.getMapServiceHash()) {
                             for (IMapService mapService : cmrd.getMapServiceHash().values()) {
@@ -167,7 +168,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
                     }
                 }
             }
-            eventManager.generateMapStateChangeEvent(oClientMap.getState(), event.getState(), oClientMap);
+            eventManager.generateMapStateChangeEvent(oClientMap.getState(), event.getState(), oClientMap, event.getUserContext());
         }
     }
 
@@ -193,7 +194,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
 
             if (!bEventConsumed) {
                 eventManager.generateMapInteractionEvent(event.getEvent(), event.getKeys(), event.getButton(),
-                        oClientMap, event.getLocation(), event.getCoordinate(), event.getStartCoordinate());
+                        oClientMap, event.getLocation(), event.getCoordinate(), event.getStartCoordinate(), event.getUserContext());
             }
 
             if ((event.getEvent() == UserInteractionEventEnum.DRAG) &&
@@ -215,20 +216,20 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         this.setMapViewWidth(event.getMapViewWidth());
         this.setMapViewHeight(event.getMapViewHeight());
 
-        eventManager.generateMapViewChangeEvent(event.getEvent(), mapCamera, mapLookAt, oBounds, clientMap);
+        eventManager.generateMapViewChangeEvent(event.getEvent(), mapCamera, mapLookAt, oBounds, clientMap, event.getUserContext());
         switch (event.getEvent()) {
             case VIEW_IN_MOTION:
-                eventManager.generateMapCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, clientMap, mapCamera, false);
-                eventManager.generateCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, mapCamera, false);  // TODO This needs to be addressed
-                eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_IN_MOTION, mapLookAt, false);
+                eventManager.generateMapCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, clientMap, mapCamera, false, event.getUserContext());
+                eventManager.generateCameraEvent(CameraEventEnum.CAMERA_IN_MOTION, mapCamera, false, event.getUserContext());  // TODO This needs to be addressed
+                eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_IN_MOTION, mapLookAt, false, event.getUserContext());
                 break;
             case VIEW_MOTION_STOPPED:
                 if (null != this.mapGridLineGenerator) {
                     this.mapGridLineGenerator.mapViewChange(event.getBounds(), event.getCamera(), event.getMapViewWidth(), event.getMapViewHeight());
                 }
-                eventManager.generateMapCameraEvent(CameraEventEnum.CAMERA_MOTION_STOPPED, clientMap, mapCamera, false);
-                eventManager.generateCameraEvent(CameraEventEnum.CAMERA_MOTION_STOPPED, mapCamera, false);  // TODO This needs to be addressed.
-                eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_MOTION_STOPPED, mapLookAt, false);
+                eventManager.generateMapCameraEvent(CameraEventEnum.CAMERA_MOTION_STOPPED, clientMap, mapCamera, false, event.getUserContext());
+                eventManager.generateCameraEvent(CameraEventEnum.CAMERA_MOTION_STOPPED, mapCamera, false, event.getUserContext());  // TODO This needs to be addressed.
+                eventManager.generateLookAtEvent(LookAtEventEnum.LOOKAT_MOTION_STOPPED, mapLookAt, false, event.getUserContext());
                 break;
         }
     }
@@ -238,7 +239,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         IMap oClientMap = this.getClientMap();
 
         if (oClientMap != null) {
-            eventManager.generateMapFeatureAddedEvent(event.getEvent(), oClientMap, event.getFeature());
+            eventManager.generateMapFeatureAddedEvent(event.getEvent(), oClientMap, event.getFeature(), event.getUserContext());
         }
     }
 
@@ -247,7 +248,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         IMap oClientMap = this.getClientMap();
 
         if (oClientMap != null) {
-            eventManager.generateMapFeatureRemovedEvent(event.getEvent(), oClientMap, event.getFeature());
+            eventManager.generateMapFeatureRemovedEvent(event.getEvent(), oClientMap, event.getFeature(), event.getUserContext());
         }
     }
 
