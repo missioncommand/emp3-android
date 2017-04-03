@@ -42,7 +42,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(IGeoDocument document) throws IllegalArgumentException, XmlPullParserException, IOException {
+    public KML(IGeoDocument document) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (!document.getProperties().containsKey(KML_STRING_PROPERTY) && !((null != document.getDocumentURI()) && !document.getDocumentURI().isEmpty())) {
@@ -76,7 +76,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(String kmlString) throws IllegalArgumentException, XmlPullParserException, IOException {
+    public KML(String kmlString) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if ((null == kmlString) || (kmlString.isEmpty())) {
@@ -100,7 +100,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the stream.
      */
-    public KML(InputStream inputStream) throws IllegalArgumentException, XmlPullParserException, IOException {
+    public KML(InputStream inputStream) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (null == inputStream) {
@@ -125,7 +125,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(java.net.URL url) throws IllegalArgumentException, XmlPullParserException, IOException {
+    public KML(java.net.URL url) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (null == url) {

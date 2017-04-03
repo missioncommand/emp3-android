@@ -45,7 +45,7 @@ public class GeoLibrary {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static double computeDistanceBetween(IGeoPosition oLatLon1, IGeoPosition oLatLon2) throws IllegalArgumentException {
+    public static double computeDistanceBetween(IGeoPosition oLatLon1, IGeoPosition oLatLon2) {
 
         if (oLatLon1 == null) {
             throw new IllegalArgumentException("oLatLon1 can not be null.");
@@ -76,7 +76,7 @@ public class GeoLibrary {
      * @return the bearing is return in degrees.
      * @throws IllegalArgumentException
      */
-    public static double computeBearing(IGeoPosition oFrom, IGeoPosition oTo) throws IllegalArgumentException {
+    public static double computeBearing(IGeoPosition oFrom, IGeoPosition oTo) {
 
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
@@ -105,7 +105,7 @@ public class GeoLibrary {
      * @return position
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom) throws IllegalArgumentException {
+    public static IGeoPosition computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom) {
         IGeoPosition oNewPos = new GeoPosition();
 
         GeoLibrary.computePositionAt(dBearing, dDistance, oFrom, oNewPos);
@@ -121,7 +121,7 @@ public class GeoLibrary {
      * @param result the object to place the resulting position.
      * @throws IllegalArgumentException
      */
-    public static void computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom, IGeoPosition result) throws IllegalArgumentException {
+    public static void computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom, IGeoPosition result) {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
@@ -143,7 +143,7 @@ public class GeoLibrary {
         result.setLongitude(Math.toDegrees(dLon2Rad));
     }
 
-    public static IGeoPosition midPointBetween(IGeoPosition oLocation1, IGeoPosition oLocation2) throws IllegalArgumentException {
+    public static IGeoPosition midPointBetween(IGeoPosition oLocation1, IGeoPosition oLocation2) {
         if (oLocation1 == null) {
             throw new IllegalArgumentException("oLocation1 can not be null.");
         }
@@ -179,7 +179,7 @@ public class GeoLibrary {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static double computeRhumbDistance(IGeoPosition oFrom, IGeoPosition oTo) throws IllegalArgumentException {
+    public static double computeRhumbDistance(IGeoPosition oFrom, IGeoPosition oTo) {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
@@ -210,7 +210,7 @@ public class GeoLibrary {
      * @return The bearing is return in degrees.
      * @throws IllegalArgumentException
      */
-    public static double computeRhumbBearing(IGeoPosition oFrom, IGeoPosition oTo) throws IllegalArgumentException {
+    public static double computeRhumbBearing(IGeoPosition oFrom, IGeoPosition oTo) {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
@@ -239,7 +239,7 @@ public class GeoLibrary {
      * @return Geo position
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition calculateRhumbPositionAt(double dBearing, double dDistance, IGeoPosition oFrom) throws IllegalArgumentException {
+    public static IGeoPosition calculateRhumbPositionAt(double dBearing, double dDistance, IGeoPosition oFrom) {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
