@@ -270,6 +270,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                 eastPoint = mapInstance.geoToContainer(centerEast);
 
                 if ((null != westPoint) && (null != eastPoint)) {
+                    // Using Pythagoras to compute the pixel distance ( for with and height) of the bounding box.
                     int deltaX = eastPoint.x - westPoint.x;
                     int deltaY = eastPoint.y - westPoint.y;
                     double deltaXe2 = deltaX * deltaX;

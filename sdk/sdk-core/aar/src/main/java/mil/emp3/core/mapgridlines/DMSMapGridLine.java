@@ -206,64 +206,6 @@ public class DMSMapGridLine extends AbstractMapGridLine {
                 displayGridLabel("DMS Grid Off", mapBounds, metersPerPixel);
                 Log.i(TAG, "DMS Grid Off :");
             }
-/*
-            if (deltaDegree < 0.0005) {
-                createDMSGridLines(DMS_100_MSEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 0.1\" Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 0.1\" Grid :" + deltaDegree);
-            } else if (deltaDegree < 0.0013) {
-                createDMSGridLines(DMS_500_MSEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 0.5\" Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 0.5\" Grid :" + deltaDegree);
-            } else if (deltaDegree < 0.005) {
-                createDMSGridLines(DMS_1_SEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 1\" Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 1\" Grid :" + deltaDegree);
-            } else if (deltaDegree < 0.017) {
-                createDMSGridLines(DMS_5_SEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 5\" Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 5\" Grid :" + deltaDegree);
-            } else if (deltaDegree < 0.04) {
-                createDMSGridLines(DMS_10_SEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 10\" Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 10\" Grid :" + deltaDegree);
-            } else if (deltaDegree < 0.1) {
-                createDMSGridLines(DMS_30_SEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 30\" Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 30\" Grid :" + deltaDegree);
-            } else if (deltaDegree < 0.25) {
-                createDMSGridLines(DMS_1_MIN_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 1' Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 1' Grid :" + deltaDegree);
-            } else if (deltaDegree < 0.7) {
-                createDMSGridLines(DMS_5_MIN_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 5' Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 5' Grid :" + deltaDegree);
-            } else if (deltaDegree < 2.0) {
-                createDMSGridLines(DMS_10_MIN_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 10' Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 10' Grid :" + deltaDegree);
-            } else if (deltaDegree < 8.0) {
-                createDMSGridLines(DMS_30_MIN_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 30' Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 30' Grid :" + deltaDegree);
-            } else if (deltaDegree < 12.0) {
-                createDMSGridLines(DMS_1_DEGREE_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 1\u00b0 Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 1° Grid :" + deltaDegree);
-            } else if (deltaDegree < 25.0) {
-                createDMSGridLines(DMS_5_DEGREE_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 5\u00b0 Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 5° Grid :" + deltaDegree);
-            } else if (deltaDegree <= 100.0) {
-                createDMSGridLines(DMS_10_DEGREE_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 10\u00b0 Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 10\u00b0 Grid :" + deltaDegree);
-            } else {
-                displayGridLabel("DMS Grid Off", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS Grid Off :" + deltaDegree);
-            }
-*/
             // Else the grid turns off.
         } catch (Exception Ex) {
             Log.e(TAG, "DMS grid generation failed.", Ex);
