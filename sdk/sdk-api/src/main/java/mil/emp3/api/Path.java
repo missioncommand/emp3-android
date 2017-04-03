@@ -2,7 +2,6 @@ package mil.emp3.api;
 
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
@@ -31,7 +30,7 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
     public Path(List<IGeoPosition> oPositionList) {
         super(new GeoRenderable(), FeatureTypeEnum.GEO_PATH);
         if (null == oPositionList) {
-            throw new InvalidParameterException("The coordinate parameter can NOT be null");
+            throw new IllegalArgumentException("The coordinate parameter can NOT be null");
         }
         this.getRenderable().getPositions().addAll(oPositionList);
     }

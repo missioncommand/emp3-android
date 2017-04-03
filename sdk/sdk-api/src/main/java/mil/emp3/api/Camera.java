@@ -141,7 +141,7 @@ public class Camera implements ICamera {
 
     /**
      * This method sets the tilt on the camera.
-     * @param value The tilt angle in degrees. The valid range is 0 - 180. A 0 deg tilt points the camera downward, a 90 deg tilt points the camera towards the horizon, and a 180 deg tilt points the camera skyward. An InvalidParameterException is raised if the value is out of range or NaN.
+     * @param value The tilt angle in degrees. The valid range is 0 - 180. A 0 deg tilt points the camera downward, a 90 deg tilt points the camera towards the horizon, and a 180 deg tilt points the camera skyward. An IllegalArgumentException is raised if the value is out of range or NaN.
      */
     @Override
     public void setTilt(double value) {
@@ -164,7 +164,7 @@ public class Camera implements ICamera {
     /**
      * This method sets the roll on the camera. If this camera is the current camera on
      * any map, it will change the view on the map.
-     * @param value The roll angle in degrees. The valid range is -180 - 180. An InvalidParameterException is raised if the value is out of range or NaN.
+     * @param value The roll angle in degrees. The valid range is -180 - 180. An IllegalArgumentException is raised if the value is out of range or NaN.
      */
     @Override
     public void setRoll(double value) {
@@ -187,7 +187,7 @@ public class Camera implements ICamera {
     /**
      * This method sets the cameras heading. Setting this value on a camera that is
      * associated with a map will cause the map to change its viewing area.
-     * @param heading The new heading in degrees from north. An InvalidParameterException is raised if the value is out of range (-180 to 360) or NaN.
+     * @param heading The new heading in degrees from north. An IllegalArgumentException is raised if the value is out of range (-180 to 360) or NaN.
      */
     @Override
     public void setHeading(double heading) {
@@ -209,7 +209,7 @@ public class Camera implements ICamera {
     /**
      * This method set the altitude mode for the elevation setting. Setting this value on a camera that is
      * associated with a map will cause the map to change its viewing area.
-     * @param value The new altitude mode. See {@link IGeoAltitudeMode.AltitudeMode} An InvalidParameterException is raised if the value is null.
+     * @param value The new altitude mode. See {@link IGeoAltitudeMode.AltitudeMode} An IllegalArgumentException is raised if the value is null.
      */
     @Override
     public void setAltitudeMode(IGeoAltitudeMode.AltitudeMode value) {
@@ -231,7 +231,7 @@ public class Camera implements ICamera {
     /**
      * This method sets the latitude of the camera position. Setting this value on a camera that is
      * associated with a map will cause the map to change its viewing area.
-     * @param value The latitude in degrees. The value must be -90.0 and 90 degrees. An InvalidParameterException is raised if the value is out of range or NaN.
+     * @param value The latitude in degrees. The value must be -90.0 and 90 degrees. An IllegalArgumentException is raised if the value is out of range or NaN.
      */
     @Override
     public void setLatitude(double value) {
@@ -253,7 +253,7 @@ public class Camera implements ICamera {
     /**
      * This method sets the longitude of the camera position. Setting this value on a camera that is
      * associated with a map will cause the map to change its viewing area.
-     * @param value The longitude in degrees. The value must be -180.0 and 180.0 degrees. An InvalidParameterException is raised if the value is out of range or NaN.
+     * @param value The longitude in degrees. The value must be -180.0 and 180.0 degrees. An IllegalArgumentException is raised if the value is out of range or NaN.
      */
     @Override
     public void setLongitude(double value) {

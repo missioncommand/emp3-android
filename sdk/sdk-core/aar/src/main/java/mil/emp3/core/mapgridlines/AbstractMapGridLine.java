@@ -14,7 +14,6 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -196,7 +195,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
     protected void addFeature(IFeature feature) {
         if (null == feature) {
-            throw new InvalidParameterException("feature is null.");
+            throw new IllegalArgumentException("feature is null.");
         }
         synchronized (this.featureList) {
             this.featureList.add(feature);

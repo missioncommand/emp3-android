@@ -21,7 +21,6 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -210,7 +209,7 @@ public class KMLExportThread extends java.lang.Thread {
 
 
         if (null == callback) {
-            throw new InvalidParameterException("Invalid ISerializePlacemarkGeometry");
+            throw new IllegalArgumentException("Invalid ISerializePlacemarkGeometry");
         }
         callback.serializeGeometry(xmlSerializer);
 
@@ -231,7 +230,7 @@ public class KMLExportThread extends java.lang.Thread {
         serializeVisibility(feature, xmlSerializer);
 
         if (null == callback) {
-            throw new InvalidParameterException("Invalid ISerializePlacemarkGeometry");
+            throw new IllegalArgumentException("Invalid ISerializePlacemarkGeometry");
         }
         callback.serializeNetworkLink(xmlSerializer);
 

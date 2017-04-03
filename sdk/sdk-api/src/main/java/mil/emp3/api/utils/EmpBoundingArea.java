@@ -7,7 +7,6 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,11 +79,11 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
 
         for(int ii = 0; ii < vertices.length; ii++) {
             if (Double.isNaN(vertices[ii].getLatitude()) || (vertices[ii].getLatitude() < global.LATITUDE_MINIMUM) || (vertices[ii].getLatitude() > global.LATITUDE_MAXIMUM)) {
-                throw new InvalidParameterException("Latitude is Out Of Range for vertex " + (ii+1));
+                throw new IllegalArgumentException("Latitude is Out Of Range for vertex " + (ii+1));
             }
 
             if (Double.isNaN(vertices[ii].getLongitude()) || (vertices[ii].getLongitude() < global.LONGITUDE_MINIMUM) || (vertices[ii].getLongitude() > global.LONGITUDE_MAXIMUM)) {
-                throw new InvalidParameterException("Longitude is Out Of Range for vertex " + (ii+1));
+                throw new IllegalArgumentException("Longitude is Out Of Range for vertex " + (ii+1));
             }
 
             vertices[ii].setAltitude(0);

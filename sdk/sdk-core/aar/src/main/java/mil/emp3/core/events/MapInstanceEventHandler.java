@@ -5,8 +5,6 @@ import android.util.Log;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
-
 import mil.emp3.api.enums.CameraEventEnum;
 import mil.emp3.api.enums.LookAtEventEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
@@ -26,10 +24,8 @@ import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.ManagerFactory;
-import mil.emp3.core.storage.ClientMapToMapInstance;
 import mil.emp3.core.mapgridlines.MGRSMapGridLine;
 import mil.emp3.core.mapgridlines.UTMMapGridLine;
-import mil.emp3.core.mapgridlines.coordinates.UTMCoordinate;
 import mil.emp3.core.storage.MapStatus;
 import mil.emp3.mapengine.events.MapInstanceFeatureAddedEvent;
 import mil.emp3.mapengine.events.MapInstanceFeatureRemovedEvent;
@@ -258,7 +254,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
     @Override
     public void setMapGridType(MapGridTypeEnum gridType) {
         if (null == gridType) {
-            throw new InvalidParameterException("Invalid grid type.");
+            throw new IllegalArgumentException("Invalid grid type.");
         }
 
         if (null != this.mapGridLineGenerator) {
@@ -282,7 +278,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
             case NONE:
                 break;
             default:
-                throw new InvalidParameterException(gridType.name() + " grid type is currently not supported.");
+                throw new IllegalArgumentException(gridType.name() + " grid type is currently not supported.");
         }
 
         this.getMapInstance().setMapGridGenerator(gridLineGenerator);
