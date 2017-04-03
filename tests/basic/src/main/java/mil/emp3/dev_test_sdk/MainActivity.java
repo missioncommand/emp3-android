@@ -698,7 +698,7 @@ public class MainActivity extends AppCompatActivity
                     iCount++;
 
                     // Give the feature a name.
-                    oSPSymbol.setName("Unit " + iCount);
+                    oSPSymbol.setName(String.format("Unit-%04d", iCount));
 
                     //oSPSymbol.setFillStyle(iconStyleFill);
                     //oSPSymbol.setStrokeStyle(iconStyleStroke);
@@ -3187,7 +3187,8 @@ public class MainActivity extends AppCompatActivity
 
             symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSymbolDef.getDescription());
             symbol.setName(name);
-            symbol.setDescription(oSymbolDef.getFullPath());
+            symbol.setDescription(oSymbolDef.getDescription());
+            symbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
 
             switch (oSymbolDef.getMinPoints()) {
                 case 1:
