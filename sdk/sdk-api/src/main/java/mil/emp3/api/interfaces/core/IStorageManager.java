@@ -50,19 +50,19 @@ public interface IStorageManager {
 
     IContainerSet getParentsOf(IGeoBase oObject);
 
-    void setVisibilityOnMap(IMap map, IUUIDSet targetIdList, VisibilityActionEnum actionEnum) throws EMP_Exception;
+    void setVisibilityOnMap(IMap map, IUUIDSet targetIdList, VisibilityActionEnum actionEnum, Object userContext) throws EMP_Exception;
 
     boolean isOnMap(IMap map, IContainer target);
 
-    void setVisibilityOnMap(IMap map, IContainer target, IContainer parent, VisibilityActionEnum actionEnum) throws EMP_Exception;
+    void setVisibilityOnMap(IMap map, IContainer target, IContainer parent, VisibilityActionEnum actionEnum, Object userContext) throws EMP_Exception;
 
     VisibilityStateEnum getVisibilityOnMap(IMap map, IContainer target);
 
     VisibilityStateEnum getVisibilityOnMap(IMap map, IContainer target, IContainer parent);
 
-    void addOverlays(IMap map, List<IOverlay> overlays, boolean visible) throws EMP_Exception;
+    void addOverlays(IMap map, List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception;
 
-    void apply(IFeature feature, boolean batch) throws EMP_Exception;
+    void apply(IFeature feature, boolean batch, Object userContext) throws EMP_Exception;
 
     List<IFeature> getChildFeatures(IContainer parent);
 
@@ -76,23 +76,23 @@ public interface IStorageManager {
 
     List<IFeature> getParentFeatures(IFeature childFeature);
 
-    void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible) throws EMP_Exception;
+    void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception;
 
-    void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible) throws EMP_Exception;
+    void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible, Object userContext) throws EMP_Exception;
 
-    void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible) throws EMP_Exception;
+    void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible, Object userContext) throws EMP_Exception;
 
-    void removeFeatures(IFeature parentFeature, List<IFeature> features) throws EMP_Exception;
+    void removeFeatures(IFeature parentFeature, List<IFeature> features, Object userContext) throws EMP_Exception;
 
-    void removeFeatures(IOverlay parentOverlay, List<IFeature> features) throws EMP_Exception;
+    void removeFeatures(IOverlay parentOverlay, List<IFeature> features, Object userContext) throws EMP_Exception;
 
-    void removeOverlays(IMap clientMap, List<IOverlay> overlays) throws EMP_Exception;
+    void removeOverlays(IMap clientMap, List<IOverlay> overlays, Object userContext) throws EMP_Exception;
 
-    void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays) throws EMP_Exception;
+    void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays, Object userContext) throws EMP_Exception;
 
-    void removeChildren(IContainer parentContainer) throws EMP_Exception;
+    void removeChildren(IContainer parentContainer, Object userContext) throws EMP_Exception;
 
-    void redrawAllFeatures(IMap clientMap);
+    void redrawAllFeatures(IMap clientMap, Object userContext);
 
     void addMapService(IMap map, IMapService mapService) throws EMP_Exception;
 
@@ -102,11 +102,11 @@ public interface IStorageManager {
 
     void MapServiceUpdated(IMapService mapService) throws EMP_Exception;
 
-    void setIconSize(IMap map, IconSizeEnum eSize) throws EMP_Exception;
+    void setIconSize(IMap map, IconSizeEnum eSize, Object userContext) throws EMP_Exception;
 
     IconSizeEnum getIconSize(IMap map);
 
-    void setMilStdLabels(IMap map, MilStdLabelSettingEnum labelSetting) throws EMP_Exception;
+    void setMilStdLabels(IMap map, MilStdLabelSettingEnum labelSetting, Object userContext) throws EMP_Exception;
 
     MilStdLabelSettingEnum getMilStdLabels(IMap map);
 
@@ -170,7 +170,7 @@ public interface IStorageManager {
      * @param map The map the selection it to be applied.
      * @param features The list of features to select.
      */
-    void selectFeatures(IMap map, List<IFeature> features);
+    void selectFeatures(IMap map, List<IFeature> features, Object userContext);
 
     /**
      * This method marks the feature as NOT selected on the map. If the feature is not mark selected
@@ -178,7 +178,7 @@ public interface IStorageManager {
      * @param map The map the deselection it to be applied.
      * @param features The list of feature to deselected.
      */
-    void deselectFeatures(IMap map, List<IFeature> features);
+    void deselectFeatures(IMap map, List<IFeature> features, Object userContext);
 
     /**
      * This method retrieves the list of feature that are marked selected on the map.
@@ -191,7 +191,7 @@ public interface IStorageManager {
      * This method clears the map selected list.
      * @param map The map the selection list to clear.
      */
-    void clearSelected(IMap map);
+    void clearSelected(IMap map, Object userContext);
 
     /**
      * This method check if the feature is selected on the map.

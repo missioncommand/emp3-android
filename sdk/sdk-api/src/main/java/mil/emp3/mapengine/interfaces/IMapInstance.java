@@ -99,14 +99,16 @@ public interface IMapInstance {
     /**
      * This method is called by the EMP core to add features to the map.
      * @param features The list of one or more feature to add to the map. See {@link FeatureVisibilityList}
+     * @param userContext user defined object
      */
-    void addFeatures(FeatureVisibilityList features);
+    void addFeatures(FeatureVisibilityList features, Object userContext);
 
     /**
      * This method is called by the EMP core to remove features from the map.
      * @param features The list of one or more unique Id of features to remove from the map.
+     * @param userContext user defined object
      */
-    void removeFeatures(IUUIDSet features);
+    void removeFeatures(IUUIDSet features, Object userContext);
 
     /**
      * This method is called by the EMP core to add a service to the map.
@@ -131,30 +133,36 @@ public interface IMapInstance {
      * EMP Camera and map engine camera in sync.
      * @param oCamera The new setting. See {@link ICamera}
      * @param animate If set to true then animate to new position
+     * @param userContext user defined object
      */
-    void setCamera(ICamera oCamera, boolean animate);
+    void setCamera(ICamera oCamera, boolean animate, Object userContext);
 
     /**
      * This method is used to update camera setting. Camera settings are updated only if oCamera is the currentCamera.
      * This method is invoked as a result of application invoking ICamera.apply();
      * @param oCamera
      * @param animate
+     * @param userContext user defined object
      */
-    void applyCameraChange(ICamera oCamera, boolean animate);
+    void applyCameraChange(ICamera oCamera, boolean animate, Object userContext);
 
     /**
      * This method is used to set the lookAt for the map. It is the responsibility of IMapInstance to keep the
      * EMP LookAt and map engine LookAt in sync.
      * @param oLookAt The new setting. See {@link ILookAt}
      * @param animate If set to true then animate to new position
+     * @param userContext user defined object
      */
-    void setLookAt(ILookAt oLookAt, boolean animate);
+    void setLookAt(ILookAt oLookAt, boolean animate, Object userContext);
 
     /**
      * This method is used to update lookAt settings. LookAt settings are updated only if oLookAt is the current LookAt.
      * This method is invoked as a result of application invoking ILookAt.apply();
+     * @param oLookAt The new setting. See {@link ILookAt}
+     * @param animate If set to true then animate to new position
+     * @param userContext user defined object
      */
-    void applyLookAtChange(ILookAt oLookAt, boolean animate);
+    void applyLookAtChange(ILookAt oLookAt, boolean animate, Object userContext);
 
     /**
      * This method is used to retrieve the map current LookAt.

@@ -330,7 +330,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
 
         if (oList.size() > 0) {
             // Remove from the map
-            this.mapInstance.removeFeatures(oList);
+            this.mapInstance.removeFeatures(oList, null);
         }
     }
 
@@ -344,7 +344,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
 
         if (oList.size() > 0) {
             // Remove from the map
-            this.mapInstance.removeFeatures(oList);
+            this.mapInstance.removeFeatures(oList, null);
         }
     }
 
@@ -357,7 +357,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
             oList.add(oItem);
         }
         if (oList.size() > 0) {
-            mapInstance.addFeatures(oList);
+            mapInstance.addFeatures(oList, null);
         }
     }
 
@@ -411,7 +411,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                         List<ControlPoint> oCPList = this.doAddControlPoint(oEvent.getCoordinate());
                         if ((oCPList != null) && (oCPList.size() > 0)) {
                             try {
-                                this.storageManager.apply(this.oFeature, false);
+                                this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
                             } catch (EMP_Exception ex) {
                                 Log.e(TAG, "storageManger.apply failed.", ex);
                             }
@@ -457,7 +457,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                     List<ControlPoint> oCPList = this.doAddControlPoint(oEvent.getCoordinate());
                     if ((oCPList != null) && (oCPList.size() > 0)) {
                         try {
-                            this.storageManager.apply(this.oFeature, false);
+                            this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
                         } catch (EMP_Exception ex) {
                             Log.e(TAG, "storageManger.apply failed.", ex);
                         }
@@ -477,7 +477,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                         // The Editor deleted CPs.
                         // TODO add update event generation.
                         try {
-                            this.storageManager.apply(this.oFeature, false);
+                            this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
                         } catch (EMP_Exception ex) {
                             Log.e(TAG, "storageManger.apply failed.", ex);
                         }
@@ -513,7 +513,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                         this.eEditorState = EditorStateEnum.DRAGGING_CP;
                         if (this.doControlPointMoved((ControlPoint) oEventedFeature, oEvent.getCoordinate())) {
                             try {
-                                this.storageManager.apply(this.oFeature, false);
+                                this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
                             } catch (EMP_Exception ex) {
                                 Log.e(TAG, "storageManger.apply failed.", ex);
                             }
@@ -610,7 +610,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
             } else {
                 this.restoreOnCancel();
                 try {
-                    this.storageManager.apply(this.oFeature, false);
+                    this.storageManager.apply(this.oFeature, false, null);
                 } catch (EMP_Exception ex) {
                     Log.e(TAG, "storageManger.apply failed.", ex);
                 }
@@ -711,7 +711,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
         }
         // Now update the feature on the map.
         try {
-            this.storageManager.apply(this.oFeature, false);
+            this.storageManager.apply(this.oFeature, false, null);
         } catch (EMP_Exception ex) {
             Log.e(TAG, "storageManger.apply failed.", ex);
         }

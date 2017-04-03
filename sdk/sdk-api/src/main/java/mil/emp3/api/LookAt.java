@@ -348,8 +348,13 @@ public class LookAt implements ILookAt{
     }
 
     @Override
+    public void apply(boolean animate, Object userContext) {
+        coreManager.processLookAtSettingChange(this, animate, userContext);
+    }
+
+    @Override
     public void apply(boolean animate) {
-        coreManager.processLookAtSettingChange(this, animate);
+        coreManager.processLookAtSettingChange(this, animate, null);
     }
 
     @Override

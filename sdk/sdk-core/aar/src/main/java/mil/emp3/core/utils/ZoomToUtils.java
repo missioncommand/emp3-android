@@ -394,7 +394,9 @@ public class ZoomToUtils {
             camera.setTilt(0);
 
             try {
-                coreManager.setCamera(clientMap, camera, animate);
+                // we may need to revisit this
+                // don't know if zoom is always a self-event
+                coreManager.setCamera(clientMap, camera, animate, null);
             } catch (EMP_Exception e) {
                 Log.e(TAG, "zoomTo " + center.getLatitude() + ":" + center.getLongitude(), e);
             }
