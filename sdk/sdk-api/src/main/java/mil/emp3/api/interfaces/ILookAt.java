@@ -1,6 +1,7 @@
 package mil.emp3.api.interfaces;
 
 import org.cmapi.primitives.IGeoLookAt;
+import org.cmapi.primitives.IGeoPosition;
 
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.EventListenerHandle;
@@ -45,4 +46,21 @@ public interface ILookAt extends IGeoLookAt{
      * @param animate If set to true then camera movement will be animated.
      */
     void apply(boolean animate);
+
+    /**
+     * Set the lookkAt position. If position parameters are invalid an exception is thrown.
+     * If altitudeMode is null then it will then original altitude mode is maintained.
+     * @param latitude
+     * @param longitude
+     * @param altitude
+     * @param altitudeMode
+     */
+    void setPosition(double latitude, double longitude, double altitude, AltitudeMode altitudeMode);
+
+    /**
+     * set the lookAt position. If position is null or position parameters are invalid an exception is thrown.
+     * Note that altitude mode is not affected by this method.
+     * @param position
+     */
+    void setPosition(IGeoPosition position);
 }
