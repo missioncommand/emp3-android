@@ -50,6 +50,9 @@ public class DMSAngle {
         double minuteTemp = (int) Math.floor((degrees - degreeTemp) * 60.0);
         double secondTemp = (3600.0 * (degrees - degreeTemp)) - (minuteTemp * 60.0);
 
+        // This will round the angle to the nearest millisecond.
+        secondTemp = Math.round(secondTemp * 1000.0) / 1000.0;
+
         if (secondTemp >= 60.0) {
             secondTemp = 60.0 - secondTemp;
             minuteTemp += 1.0;

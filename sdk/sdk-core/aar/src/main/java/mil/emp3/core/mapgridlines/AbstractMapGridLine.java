@@ -70,6 +70,10 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     private final IEmpBoundingBox boundingBox;
     // The meters per pixel across the center.
     private double metersPerPixel;
+    // Bounds width in pixels.
+    private int boundsPixelWidth;
+    // Bounds height in pixels.
+    private int boundsPixelHeight;
     // The generation thread.
     private GridLineGenerationThread generationThread;
 
@@ -224,6 +228,10 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                 Point eastPoint;
                 IGeoPosition centerWest;
                 IGeoPosition centerEast;
+                Point northPoint;
+                Point southPoint;
+                IGeoPosition centerNorth;
+                IGeoPosition centerSouth;
                 ICamera camera = AbstractMapGridLine.this.currentCamera;
                 IMapInstance mapInstance = AbstractMapGridLine.this.mapInstance;
                 IEmpBoundingBox bBox = AbstractMapGridLine.this.boundingBox;
@@ -231,9 +239,9 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                 if ((Math.abs(camera.getHeading()) <= 5.0) &&
                         (Math.abs(camera.getTilt()) <= 5.0) &&
                         (Math.abs(camera.getRoll()) <= 5.0)) {
-                    IGeoPosition centerNorth = mapInstance.containerToGeo(new Point(viewWidth / 2, 0));
+                    centerNorth = mapInstance.containerToGeo(new Point(viewWidth / 2, 0));
                     if (null != centerNorth) {
-                        IGeoPosition centerSouth = mapInstance.containerToGeo(new Point(viewWidth / 2, viewHeight));
+                        centerSouth = mapInstance.containerToGeo(new Point(viewWidth / 2, viewHeight));
                         if (null != centerSouth) {
                             centerWest = mapInstance.containerToGeo(new Point(0, viewHeight / 2));
                             if (null != centerWest) {
@@ -267,6 +275,27 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                     double deltaXe2 = deltaX * deltaX;
                     double deltaYe2 = deltaY * deltaY;
                     double pixelDistance = Math.sqrt(deltaXe2 + deltaYe2);
+
+                    AbstractMapGridLine.this.boundsPixelWidth = (int) pixelDistance;
+
+                    // Calculate the north south pixelsHeight.
+                    centerNorth = centerWest;
+                    centerSouth = centerEast;
+
+                    centerNorth.setLatitude(bBox.getNorth());
+                    centerNorth.setLongitude(bBox.centerLongitude());
+
+                    centerSouth.setLatitude(bBox.getSouth());
+                    centerSouth.setLongitude(centerNorth.getLongitude());
+
+                    northPoint = mapInstance.geoToContainer(centerNorth);
+                    southPoint = mapInstance.geoToContainer(centerSouth);
+
+                    deltaX = northPoint.x - southPoint.x;
+                    deltaY = northPoint.y - southPoint.y;
+                    deltaXe2 = deltaX * deltaX;
+                    deltaYe2 = deltaY * deltaY;
+                    AbstractMapGridLine.this.boundsPixelHeight = (int) Math.sqrt(deltaXe2 + deltaYe2);
 
                     if (pixelDistance > 0.0) {
                         viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
@@ -419,5 +448,13 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         }
 
         return this.labelStyleMap.get(styleType);
+    }
+
+    protected int getBoundingBoxPixelWidth() {
+        return this.boundsPixelWidth;
+    }
+
+    protected int getBoundingBoxPixelHeight() {
+        return this.boundsPixelHeight;
     }
 }

@@ -35,11 +35,14 @@ public class DMSMapGridLine extends AbstractMapGridLine {
     private static final int DMS_1_MSEC_INTERVAL = 1;
     private static final int DMS_10_MSEC_INTERVAL = DMS_1_MSEC_INTERVAL + 1;
     private static final int DMS_100_MSEC_INTERVAL = DMS_10_MSEC_INTERVAL + 1;
-    private static final int DMS_1_SEC_INTERVAL = DMS_100_MSEC_INTERVAL + 1;
-    private static final int DMS_10_SEC_INTERVAL = DMS_1_SEC_INTERVAL + 1;
+    private static final int DMS_500_MSEC_INTERVAL = DMS_100_MSEC_INTERVAL + 1;
+    private static final int DMS_1_SEC_INTERVAL = DMS_500_MSEC_INTERVAL + 1;
+    private static final int DMS_5_SEC_INTERVAL = DMS_1_SEC_INTERVAL + 1;
+    private static final int DMS_10_SEC_INTERVAL = DMS_5_SEC_INTERVAL + 1;
     private static final int DMS_30_SEC_INTERVAL = DMS_10_SEC_INTERVAL + 1;
     private static final int DMS_1_MIN_INTERVAL = DMS_30_SEC_INTERVAL + 1;
-    private static final int DMS_10_MIN_INTERVAL = DMS_1_MIN_INTERVAL + 1;
+    private static final int DMS_5_MIN_INTERVAL = DMS_1_MIN_INTERVAL + 1;
+    private static final int DMS_10_MIN_INTERVAL = DMS_5_MIN_INTERVAL + 1;
     private static final int DMS_30_MIN_INTERVAL = DMS_10_MIN_INTERVAL + 1;
     private static final int DMS_1_DEGREE_INTERVAL = DMS_30_MIN_INTERVAL + 1;
     private static final int DMS_5_DEGREE_INTERVAL = DMS_1_DEGREE_INTERVAL + 1;
@@ -52,15 +55,16 @@ public class DMSMapGridLine extends AbstractMapGridLine {
     private static final String DMS_GRID_LAT_MINOR_VALUE = "DMS.grid.lat.minor";
     private static final String DMS_GRID_LONG_MINOR_VALUE = "DMS.grid.long.minor";
 
-    private static final double DEGREES_PER_MILLISECOND = 1.0 / 3600000.0;
-    private static final double DEGREES_PER_10_MILLISECONDS = 1.0 / 360000.0;
-    private static final double DEGREES_PER_100_MILLISECONDS = 1.0 / 36000.0;
-    private static final double DEGREES_PER_SECOND = 1.0 / 3600.0;
-    private static final double DEGREES_PER_10_SECONDS = 1.0 / 360.0;
-    private static final double DEGREES_PER_30_SECONDS = 3.0 / 360.0;
-    private static final double DEGREES_PER_MINUTE = 1.0 / 60.0;
-    private static final double DEGREES_PER_10_MINUTES = 1.0 / 6.0;
-    private static final double DEGREES_PER_30_MINUTES = 0.5;
+    private static final double DEGREES_PER_100_MILLISECONDS = DMSAngle.DEGREES_PER_MILLISECOND * 100.0;
+    private static final double DEGREES_PER_500_MILLISECONDS = DMSAngle.DEGREES_PER_MILLISECOND * 500.0;
+    private static final double DEGREES_PER_SECOND = DMSAngle.DEGREES_PER_SECOND;
+    private static final double DEGREES_PER_5_SECONDS = DMSAngle.DEGREES_PER_SECOND * 5.0;
+    private static final double DEGREES_PER_10_SECONDS = DMSAngle.DEGREES_PER_SECOND * 10.0;
+    private static final double DEGREES_PER_30_SECONDS = DMSAngle.DEGREES_PER_SECOND * 30.0;
+    private static final double DEGREES_PER_MINUTE = DMSAngle.DEGREES_PER_MINUTE;
+    private static final double DEGREES_PER_5_MINUTES = DMSAngle.DEGREES_PER_MINUTE * 5.0;
+    private static final double DEGREES_PER_10_MINUTES = DMSAngle.DEGREES_PER_MINUTE * 10.0;
+    private static final double DEGREES_PER_30_MINUTES = DMSAngle.DEGREES_PER_MINUTE * 30.0;
 
     public DMSMapGridLine(IMapInstance mapInstance) {
         super(mapInstance);
@@ -131,42 +135,110 @@ public class DMSMapGridLine extends AbstractMapGridLine {
 
     @Override
     protected void processViewChange(IEmpBoundingBox mapBounds, ICamera camera, double metersPerPixel) {
-        // Calculate the mters per 1/8 of an inch on the display.
+
+        if ((this.getBoundingBoxPixelHeight() == 0) || (this.getBoundingBoxPixelWidth() == 0)) {
+            return;
+        }
+        // Pixels per fraction of an inch.
+        double pixelsPerFractionInch = PIXELS_PER_INCH / 4.0; // 1/4 inch
+
+        // Calculate the meters per 1/8 of an inch on the display.
         double metersInOneEighthOfAnInch = metersPerPixel * PIXELS_PER_INCH / 8.0;
-        // Get the smallest delta, longitude or latitude.
-        double deltaDegree = ((mapBounds.deltaLatitude() > mapBounds.deltaLongitude())? mapBounds.deltaLongitude(): mapBounds.deltaLatitude());
+
+        // Index 0 for latitude and 1 from longitude.
+        double[] degreesPerFractionInch = new double[] {mapBounds.deltaLatitude() * pixelsPerFractionInch / (double) this.getBoundingBoxPixelHeight(),
+                mapBounds.deltaLongitude() * pixelsPerFractionInch / (double) this.getBoundingBoxPixelWidth()};
+        int[] gridSetting = new int[] { 0, 0};
 
         clearFeatureList();
 
+        double degreesPerUnit;
+
         try {
-            if (deltaDegree < DEGREES_PER_10_MILLISECONDS) {
-                createDMSGridLines(DMS_1_MSEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 0.001\" Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 0.001\" Grid :" + deltaDegree);
-            } else if (deltaDegree < DEGREES_PER_100_MILLISECONDS) {
-                createDMSGridLines(DMS_10_MSEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
-                displayGridLabel("DMS 0.01\" Grid", mapBounds, metersPerPixel);
-                Log.i(TAG, "DMS 0.01\" Grid :" + deltaDegree);
-            } else if (deltaDegree < DEGREES_PER_SECOND) {
+            for (int iIndex = 0; iIndex < 2; iIndex++) {
+                degreesPerUnit = degreesPerFractionInch[iIndex];
+                if (degreesPerUnit < DEGREES_PER_100_MILLISECONDS) {
+                    gridSetting[iIndex] = DMS_100_MSEC_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 0.1\" Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit < DEGREES_PER_500_MILLISECONDS) {
+                    gridSetting[iIndex] = DMS_500_MSEC_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 0.5\" Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit < DEGREES_PER_SECOND) {
+                    gridSetting[iIndex] = DMS_1_SEC_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 1\" Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit < DEGREES_PER_5_SECONDS) {
+                    gridSetting[iIndex] = DMS_5_SEC_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 5\" Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit < DEGREES_PER_10_SECONDS) {
+                    gridSetting[iIndex] = DMS_10_SEC_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 10\" Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit < DEGREES_PER_30_SECONDS) {
+                    gridSetting[iIndex] = DMS_30_SEC_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 30\" Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit <= DEGREES_PER_MINUTE) {
+                    gridSetting[iIndex] = DMS_1_MIN_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 1' Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit <= DEGREES_PER_5_MINUTES) {
+                    gridSetting[iIndex] = DMS_5_MIN_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 5' Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit <= DEGREES_PER_10_MINUTES) {
+                    gridSetting[iIndex] = DMS_10_MIN_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 10' Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit <= DEGREES_PER_30_MINUTES) {
+                    gridSetting[iIndex] = DMS_30_MIN_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 30' Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit <= 1.0) {
+                    gridSetting[iIndex] = DMS_1_DEGREE_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 1° Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit <= 5.0) {
+                    gridSetting[iIndex] = DMS_5_DEGREE_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 5° Grid :" + degreesPerUnit);
+                } else if (degreesPerUnit <= 10.0) {
+                    gridSetting[iIndex] = DMS_10_DEGREE_INTERVAL;
+                    Log.i(TAG, ((iIndex == 0)? "Lat": "Long") + " 10° Grid :" + degreesPerUnit);
+                }
+            }
+
+            if ((gridSetting[0] > 0) && (gridSetting[1] > 0)) {
+                createDMSGridLines(gridSetting[0], gridSetting[1], mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
+                displayGridLabel("DMS Grid", mapBounds, metersPerPixel);
+            } else {
+                displayGridLabel("DMS Grid Off", mapBounds, metersPerPixel);
+                Log.i(TAG, "DMS Grid Off :");
+            }
+/*
+            if (deltaDegree < 0.0005) {
                 createDMSGridLines(DMS_100_MSEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
                 displayGridLabel("DMS 0.1\" Grid", mapBounds, metersPerPixel);
                 Log.i(TAG, "DMS 0.1\" Grid :" + deltaDegree);
-            } else if (deltaDegree < DEGREES_PER_10_SECONDS) {
+            } else if (deltaDegree < 0.0013) {
+                createDMSGridLines(DMS_500_MSEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
+                displayGridLabel("DMS 0.5\" Grid", mapBounds, metersPerPixel);
+                Log.i(TAG, "DMS 0.5\" Grid :" + deltaDegree);
+            } else if (deltaDegree < 0.005) {
                 createDMSGridLines(DMS_1_SEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
                 displayGridLabel("DMS 1\" Grid", mapBounds, metersPerPixel);
                 Log.i(TAG, "DMS 1\" Grid :" + deltaDegree);
-            } else if (deltaDegree < DEGREES_PER_MINUTE) {
+            } else if (deltaDegree < 0.017) {
+                createDMSGridLines(DMS_5_SEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
+                displayGridLabel("DMS 5\" Grid", mapBounds, metersPerPixel);
+                Log.i(TAG, "DMS 5\" Grid :" + deltaDegree);
+            } else if (deltaDegree < 0.04) {
                 createDMSGridLines(DMS_10_SEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
                 displayGridLabel("DMS 10\" Grid", mapBounds, metersPerPixel);
                 Log.i(TAG, "DMS 10\" Grid :" + deltaDegree);
-            } else if (deltaDegree < DEGREES_PER_MINUTE) {
+            } else if (deltaDegree < 0.1) {
                 createDMSGridLines(DMS_30_SEC_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
                 displayGridLabel("DMS 30\" Grid", mapBounds, metersPerPixel);
                 Log.i(TAG, "DMS 30\" Grid :" + deltaDegree);
-            } else if (deltaDegree < DEGREES_PER_10_MINUTES) {
+            } else if (deltaDegree < 0.25) {
                 createDMSGridLines(DMS_1_MIN_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
                 displayGridLabel("DMS 1' Grid", mapBounds, metersPerPixel);
                 Log.i(TAG, "DMS 1' Grid :" + deltaDegree);
+            } else if (deltaDegree < 0.7) {
+                createDMSGridLines(DMS_5_MIN_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
+                displayGridLabel("DMS 5' Grid", mapBounds, metersPerPixel);
+                Log.i(TAG, "DMS 5' Grid :" + deltaDegree);
             } else if (deltaDegree < 2.0) {
                 createDMSGridLines(DMS_10_MIN_INTERVAL, mapBounds, metersPerPixel, metersInOneEighthOfAnInch);
                 displayGridLabel("DMS 10' Grid", mapBounds, metersPerPixel);
@@ -191,6 +263,7 @@ public class DMSMapGridLine extends AbstractMapGridLine {
                 displayGridLabel("DMS Grid Off", mapBounds, metersPerPixel);
                 Log.i(TAG, "DMS Grid Off :" + deltaDegree);
             }
+*/
             // Else the grid turns off.
         } catch (Exception Ex) {
             Log.e(TAG, "DMS grid generation failed.", Ex);
@@ -229,11 +302,31 @@ public class DMSMapGridLine extends AbstractMapGridLine {
                 angle.setDecimalDegrees(dd);
                 break;
             }
+            case DMS_500_MSEC_INTERVAL: {
+                double dd = Math.floor(angle.toDD() / 500.0 / DMSAngle.DEGREES_PER_MILLISECOND) * 500.0 * DMSAngle.DEGREES_PER_MILLISECOND;
+
+                if (angle.toDD() > dd) {
+                    dd += (DMSAngle.DEGREES_PER_MILLISECOND * 500.0);
+                }
+
+                angle.setDecimalDegrees(dd);
+                break;
+            }
             case DMS_1_SEC_INTERVAL: {
                 double dd = Math.floor(angle.toDD() / DMSAngle.DEGREES_PER_SECOND) * DMSAngle.DEGREES_PER_SECOND;
 
                 if (angle.toDD() > dd) {
                     dd += DMSAngle.DEGREES_PER_SECOND;
+                }
+
+                angle.setDecimalDegrees(dd);
+                break;
+            }
+            case DMS_5_SEC_INTERVAL: {
+                double dd = Math.floor(angle.toDD() / 5.0 / DMSAngle.DEGREES_PER_SECOND) * 5.0 * DMSAngle.DEGREES_PER_SECOND;
+
+                if (angle.toDD() > dd) {
+                    dd += (DMSAngle.DEGREES_PER_SECOND * 5.0);
                 }
 
                 angle.setDecimalDegrees(dd);
@@ -264,6 +357,16 @@ public class DMSMapGridLine extends AbstractMapGridLine {
 
                 if (angle.toDD() > dd) {
                     dd += DMSAngle.DEGREES_PER_MINUTE;
+                }
+
+                angle.setDecimalDegrees(dd);
+                break;
+            }
+            case DMS_5_MIN_INTERVAL: {
+                double dd = Math.floor(angle.toDD() / 5.0 / DMSAngle.DEGREES_PER_MINUTE) * 5.0 * DMSAngle.DEGREES_PER_MINUTE;
+
+                if (angle.toDD() > dd) {
+                    dd += (DMSAngle.DEGREES_PER_MINUTE * 5.0);
                 }
 
                 angle.setDecimalDegrees(dd);
@@ -336,8 +439,16 @@ public class DMSMapGridLine extends AbstractMapGridLine {
                 angle.addSeconds(0.1);
                 break;
             }
+            case DMS_500_MSEC_INTERVAL: {
+                angle.addSeconds(0.5);
+                break;
+            }
             case DMS_1_SEC_INTERVAL: {
                 angle.addSeconds(1.0);
+                break;
+            }
+            case DMS_5_SEC_INTERVAL: {
+                angle.addSeconds(5.0);
                 break;
             }
             case DMS_10_SEC_INTERVAL: {
@@ -350,6 +461,10 @@ public class DMSMapGridLine extends AbstractMapGridLine {
             }
             case DMS_1_MIN_INTERVAL: {
                 angle.addMinutes(1);
+                break;
+            }
+            case DMS_5_MIN_INTERVAL: {
+                angle.addMinutes(5);
                 break;
             }
             case DMS_10_MIN_INTERVAL: {
@@ -411,24 +526,24 @@ public class DMSMapGridLine extends AbstractMapGridLine {
         String fmtString = "";
 
         switch (gridSetting) {
-            case DMS_1_MSEC_INTERVAL: {
+            case DMS_1_MSEC_INTERVAL:
                 fmtString = "%D2d\u00b0 %M2d' %S5.3f\"";
                 break;
-            }
-            case DMS_10_MSEC_INTERVAL: {
+            case DMS_10_MSEC_INTERVAL:
                 fmtString = "%D2d\u00b0 %M2d' %S4.2f\"";
                 break;
-            }
-            case DMS_100_MSEC_INTERVAL: {
+            case DMS_100_MSEC_INTERVAL:
+            case DMS_500_MSEC_INTERVAL:
                 fmtString = "%D2d\u00b0 %M2d' %S3.1f\"";
                 break;
-            }
             case DMS_1_SEC_INTERVAL:
+            case DMS_5_SEC_INTERVAL:
             case DMS_10_SEC_INTERVAL:
             case DMS_30_SEC_INTERVAL:
                 fmtString = "%D2d\u00b0 %M2d' %S2.0f\"";
                 break;
             case DMS_1_MIN_INTERVAL:
+            case DMS_5_MIN_INTERVAL:
             case DMS_10_MIN_INTERVAL:
             case DMS_30_MIN_INTERVAL:
                 fmtString = "%D2d\u00b0 %M2d'";
@@ -446,25 +561,25 @@ public class DMSMapGridLine extends AbstractMapGridLine {
         return fmtString;
     }
 
-    private void createDMSGridLines(int gridSetting, IEmpBoundingBox mapBounds, double metersPerPixel, double metersInOneEighthOfAnInch) {
+    private void createDMSGridLines(int latitudeGridSetting, int longitudeGridSetting, IEmpBoundingBox mapBounds, double metersPerPixel, double metersInOneEighthOfAnInch) {
         DMSCoordinate meridianNorthCoordinate = DMSCoordinate.fromLatLong(mapBounds.getNorth(), mapBounds.getWest());
         DMSCoordinate meridianSouthCoordinate = DMSCoordinate.fromLatLong(mapBounds.getSouth(), mapBounds.getWest());
         DMSCoordinate parallelWestCoordinate = DMSCoordinate.fromLatLong(mapBounds.getSouth(), mapBounds.getWest());
         DMSCoordinate parallelEastCoordinate = DMSCoordinate.fromLatLong(mapBounds.getSouth(), mapBounds.getEast());
 
-        initLongitude(gridSetting, meridianNorthCoordinate);
-        initLongitude(gridSetting, meridianSouthCoordinate);
+        initLongitude(longitudeGridSetting, meridianNorthCoordinate);
+        initLongitude(longitudeGridSetting, meridianSouthCoordinate);
         //initLatitude(gridSetting, meridianSouthCoordinate);
 
-        initLatitude(gridSetting, parallelWestCoordinate);
-        initLatitude(gridSetting, parallelEastCoordinate);
+        initLatitude(latitudeGridSetting, parallelWestCoordinate);
+        initLatitude(latitudeGridSetting, parallelEastCoordinate);
         //initLongitude(gridSetting, parallelWestCoordinate);
 
-        createMeridians(gridSetting, mapBounds, meridianNorthCoordinate, meridianSouthCoordinate, metersInOneEighthOfAnInch);
-        createParallels(gridSetting, mapBounds, parallelWestCoordinate, parallelEastCoordinate, metersInOneEighthOfAnInch);
+        createMeridians(longitudeGridSetting, mapBounds, meridianNorthCoordinate, meridianSouthCoordinate, metersInOneEighthOfAnInch);
+        createParallels(latitudeGridSetting, mapBounds, parallelWestCoordinate, parallelEastCoordinate, metersInOneEighthOfAnInch);
     }
 
-    private void createMeridians(int gridSetting, IEmpBoundingBox mapBounds, DMSCoordinate northCoordinate, DMSCoordinate southCoordinate, double metersInOneEighthOfAnInch) {
+    private void createMeridians(int longitudeGridSetting, IEmpBoundingBox mapBounds, DMSCoordinate northCoordinate, DMSCoordinate southCoordinate, double metersInOneEighthOfAnInch) {
         IFeature gridObject;
         IGeoPosition pos;
         double northLat;
@@ -488,17 +603,17 @@ public class DMSMapGridLine extends AbstractMapGridLine {
             addFeature(gridObject);
 
             pos = GeoLibrary.calculateRhumbPositionAt(0.0, labelOffset, pos);
-            label = southCoordinate.longitudeToString(getFormatString(gridSetting));
+            label = southCoordinate.longitudeToString(getFormatString(longitudeGridSetting));
             gridObject = createLabelFeature(pos, label, DMS_GRID_LONG_MINOR_VALUE);
             addFeature(gridObject);
 
-            incrementLongitude(gridSetting, northCoordinate);
-            incrementLongitude(gridSetting, southCoordinate);
+            incrementLongitude(longitudeGridSetting, northCoordinate);
+            incrementLongitude(longitudeGridSetting, southCoordinate);
             longitude = northCoordinate.getLongitude().toDD();
         }
     }
 
-    private void createParallels(int gridSetting, IEmpBoundingBox mapBounds, DMSCoordinate westCoordinate, DMSCoordinate eastCoordinate, double metersInOneEighthOfAnInch) {
+    private void createParallels(int latitudeGridSetting, IEmpBoundingBox mapBounds, DMSCoordinate westCoordinate, DMSCoordinate eastCoordinate, double metersInOneEighthOfAnInch) {
         IFeature gridObject;
         IGeoPosition pos;
         String label;
@@ -507,7 +622,7 @@ public class DMSMapGridLine extends AbstractMapGridLine {
         double latitude = westCoordinate.getLatitude().toDD();
         List<IGeoPosition> posList = new ArrayList<>();
         double centerLongitude = mapBounds.centerLongitude();
-        double labelOffset =  metersInOneEighthOfAnInch / 2.0;
+        double labelOffset =  metersInOneEighthOfAnInch;
 
         while (mapBounds.contains(latitude, centerLongitude)) {
             posList.clear();
@@ -523,12 +638,12 @@ public class DMSMapGridLine extends AbstractMapGridLine {
             addFeature(gridObject);
 
             pos = GeoLibrary.calculateRhumbPositionAt(90.0, labelOffset, pos);
-            label = westCoordinate.latitudeToString(getFormatString(gridSetting));
+            label = westCoordinate.latitudeToString(getFormatString(latitudeGridSetting));
             gridObject = createLabelFeature(pos, label, DMS_GRID_LAT_MINOR_VALUE);
             addFeature(gridObject);
 
-            incrementLatitude(gridSetting, westCoordinate);
-            incrementLatitude(gridSetting, eastCoordinate);
+            incrementLatitude(latitudeGridSetting, westCoordinate);
+            incrementLatitude(latitudeGridSetting, eastCoordinate);
             latitude = westCoordinate.getLatitude().toDD();
         }
     }
