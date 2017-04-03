@@ -15,6 +15,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.IMapInteractionEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 
 public class PositionUtility implements IMapInteractionEventListener {
     private static String TAG = PositionUtility.class.getSimpleName();
@@ -49,10 +50,7 @@ public class PositionUtility implements IMapInteractionEventListener {
     }
 
     public IGeoPosition getPosition() {
-        IGeoPosition position = new GeoPosition();
-        position.setLatitude(currentLatitude);
-        position.setLongitude(currentLongitude);
-        return position;
+        return new EmpGeoPosition(currentLatitude, currentLongitude);
     }
 
     public List<IGeoPosition> getPositionList() {
@@ -83,6 +81,12 @@ public class PositionUtility implements IMapInteractionEventListener {
         listener.newPosition(lastPosition, getFormatedPosition());
         if(null != multiplePositions) {
             multiplePositions.add(lastPosition);
+        }
+    }
+
+    public void reset() {
+        if(null != multiplePositions) {
+            multiplePositions.clear();
         }
     }
 }

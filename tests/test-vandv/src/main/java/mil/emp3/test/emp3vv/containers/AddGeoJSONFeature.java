@@ -18,6 +18,7 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.common.StyleManager;
 import mil.emp3.test.emp3vv.containers.dialogs.FeaturePropertiesDialog;
 import mil.emp3.test.emp3vv.containers.dialogs.GeoJSONPropertiesDialog;
+import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 
 public class AddGeoJSONFeature extends AddEntityBase implements FeaturePropertiesDialog.FeaturePropertiesDialogListener<GeoJSONPropertiesDialog>{
     private static String TAG = AddGeoJSONFeature.class.getSimpleName();
@@ -34,16 +35,23 @@ public class AddGeoJSONFeature extends AddEntityBase implements FeaturePropertie
             return "fragment_geojson_properties_dialog";
         }
 
-        Runnable myRunnable = new Runnable() {
-            @Override
-            public void run() {
-                FragmentManager fm = ((AppCompatActivity)activity).getSupportFragmentManager();
-                GeoJSONPropertiesDialog geoJSONPropertiesDialog = GeoJSONPropertiesDialog.newInstance("GeoJSON Properties", map, parentList,
-                              featureName, visible, AddGeoJSONFeature.this);
-                geoJSONPropertiesDialog.show(fm, "fragment_geojson_properties_dialog");
+        try {
+            final GeoJSONPropertiesDialog geoJSONPropertiesDialog = GeoJSONPropertiesDialog.newInstance("GeoJSON Properties", map, parentList,
+                    featureName, visible, AddGeoJSONFeature.this);
+            List<String> getGeoJSONList = geoJSONPropertiesDialog.getGeoJSONList(); // Just make sure there are gepJson files before showing dialog
+            if((null != getGeoJSONList) && (getGeoJSONList.size() > 0)) {
+                Runnable myRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        FragmentManager fm = ((AppCompatActivity) activity).getSupportFragmentManager();
+                        geoJSONPropertiesDialog.show(fm, "fragment_geojson_properties_dialog");
+                    }
+                };
+                mainHandler.post(myRunnable);
             }
-        };
-        mainHandler.post(myRunnable);
+        } catch (Exception e) {
+            ErrorDialog.showError(activity, "No Geo JSON files available in /sdcard/Download/ or permissions issue");
+        }
 
         return "fragment_geojson_properties_dialog";
     }
