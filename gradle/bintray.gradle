@@ -28,7 +28,7 @@ bintray {
         userOrg = 'missioncommand'
         repo    = 'maven'
         name    = 'emp3-android'
-        desc    = 'Extensible Map Platform (EMP) Android Development Kit'
+        desc    = 'Extensible Map Platform (EMP) - Android Development Kit'
         
         licenses = ['Apache-2.0']
 

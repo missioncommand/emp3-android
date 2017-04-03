@@ -1,12 +1,12 @@
 package mil.emp3.api;
 
-import org.cmapi.primitives.GeoBase;
 import org.cmapi.primitives.GeoLookAt;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoLookAt;
+import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.UUID;
 
 import mil.emp3.api.enums.EventListenerTypeEnum;
@@ -49,10 +49,15 @@ public class LookAt implements ILookAt{
      * @param lookAt An object that implements the IGeoLookAt interface. See {@link IGeoLookAt}
      */
     public LookAt(IGeoLookAt lookAt) {
-        this.geoLookAt = lookAt;
+        if(null == lookAt) {
+            this.geoLookAt = new GeoLookAt();
+        } else {
+            this.geoLookAt = lookAt;
+        }
         if (this.geoLookAt.getAltitudeMode() == null) {
             this.geoLookAt.setAltitudeMode(AltitudeMode.RELATIVE_TO_GROUND);
         }
+        validate();
     }
 
     /**
@@ -60,12 +65,45 @@ public class LookAt implements ILookAt{
      */
 
     public LookAt(ILookAt from) {
+        if(null == from) {
+            throw new IllegalArgumentException("from LookAt must be non-null");
+        }
         this.geoLookAt = new GeoLookAt();
         copySettingsFrom(from);
         if (this.geoLookAt.getAltitudeMode() == null) {
             this.geoLookAt.setAltitudeMode(AltitudeMode.ABSOLUTE);
         }
     }
+
+    /**
+     * Build a LookAt using specified position. If altitudeMode is null then GeoCamera default is maintained.
+     * An exception will be thrown if any of the position parameters are null.
+     * @param latitude
+     * @param longitude
+     * @param altitude
+     * @param altitudeMode
+     */
+    public LookAt(double latitude, double longitude, double altitude, AltitudeMode altitudeMode) {
+        this.geoLookAt = new GeoLookAt();
+        if (this.geoLookAt.getAltitudeMode() == null) {
+            this.geoLookAt.setAltitudeMode(AltitudeMode.RELATIVE_TO_GROUND);
+        }
+        setPosition(latitude, longitude, altitude, altitudeMode);
+    }
+
+    /**
+     * Build a LookAt using specified position. If altitudeMode is null then GeoCamera default is maintained.
+     * An exception will be thrown if any of the position parameters are null.
+     * @param position
+     */
+    public LookAt(IGeoPosition position) {
+        this.geoLookAt = new GeoLookAt();
+        if (this.geoLookAt.getAltitudeMode() == null) {
+            this.geoLookAt.setAltitudeMode(AltitudeMode.RELATIVE_TO_GROUND);
+        }
+        setPosition(position);
+    }
+
     /**
      * Everything except geoId is copied as we don't want to change geoId after instantiation.
      * @param from An object that implements the ILookAt interface.
@@ -81,6 +119,17 @@ public class LookAt implements ILookAt{
         this.geoLookAt.setName(from.getName());
         this.geoLookAt.setRange(from.getRange());
         this.geoLookAt.setDescription(from.getDescription());
+    }
+
+    /**
+     * Use the get and set methods that already do the validation. Any invalid parameter will throw an Exception.
+     */
+    private void validate() {
+        setLatitude(getLatitude());
+        setLongitude(getLongitude());
+        setTilt(getTilt());
+        setRange(getRange());
+        setHeading(getHeading());
     }
 
     @Override
@@ -101,7 +150,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setTilt(double value) {
         if (Double.isNaN(value) || (value < global.CAMERA_TILT_MINIMUM) || (value > global.CAMERA_TILT_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
 
         this.geoLookAt.setTilt(value);
@@ -124,7 +173,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setHeading(double heading) {
         if (Double.isNaN(heading) || (heading < global.HEADING_MINIMUM) || (heading > global.HEADING_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoLookAt.setHeading(heading);
     }
@@ -156,7 +205,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setAltitudeMode(IGeoAltitudeMode.AltitudeMode value) {
         if (null == value) {
-            throw new InvalidParameterException("The value can not be null.");
+            throw new IllegalArgumentException("The value can not be null.");
         }
         this.geoLookAt.setAltitudeMode(value);
     }
@@ -178,7 +227,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setLatitude(double value) {
         if (Double.isNaN(value) || (value < global.LATITUDE_MINIMUM) || (value > global.LATITUDE_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoLookAt.setLatitude(value);
     }
@@ -200,7 +249,7 @@ public class LookAt implements ILookAt{
     @Override
     public void setLongitude(double value) {
         if (Double.isNaN(value) || (value < global.LONGITUDE_MINIMUM) || (value > global.LONGITUDE_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoLookAt.setLongitude(value);
     }
@@ -301,5 +350,31 @@ public class LookAt implements ILookAt{
     @Override
     public void apply(boolean animate) {
         coreManager.processLookAtSettingChange(this, animate);
+    }
+
+    @Override
+    public String toString() {
+        return (String.format(Locale.US, "L %1$6.3f, N %2$6.3f, A %3$6.0f: %4s :H %5$6.3f, N %6$6.3f, T %7$6.0f",
+                getLatitude(), getLongitude(), getAltitude(), getAltitudeMode(), getHeading(), getRange(), getTilt()));
+    }
+
+    @Override
+    public void setPosition(double latitude, double longitude, double altitude, AltitudeMode altitudeMode) {
+        setLatitude(latitude);
+        setLongitude(longitude);
+        setAltitude(altitude);
+        if(null != altitudeMode) {
+            setAltitudeMode(altitudeMode);
+        }
+    }
+
+    @Override
+    public void setPosition(IGeoPosition position) {
+        if(null == position) {
+            throw new IllegalArgumentException("LookAt-setPosition: position should be non-null");
+        }
+        setLatitude(position.getLatitude());
+        setLongitude(position.getLongitude());
+        setAltitude(position.getAltitude());
     }
 }

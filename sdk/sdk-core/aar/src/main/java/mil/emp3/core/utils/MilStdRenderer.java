@@ -53,7 +53,7 @@ import sec.web.render.SECWebRenderer;
  */
 public class MilStdRenderer implements IMilStdRenderer {
     private static final String TAG = MilStdRenderer.class.getSimpleName();
-    private static boolean debugMe = true; // Added to debug Issue #92. Will remove when all problems related to it are resolved.
+    private static boolean debugMe = false; // Added to debug Issue #92. Will remove when all problems related to it are resolved.
 
     public static final String METOC_PRESSURE_INSTABILITY_LINE = "WA-DPXIL---L---";
     public static final String METOC_PRESSURE_SHEAR_LINE = "WA-DPXSH---L---";
