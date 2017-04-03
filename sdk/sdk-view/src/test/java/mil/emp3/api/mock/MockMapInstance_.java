@@ -110,7 +110,7 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
-    public void addFeatures(FeatureVisibilityList features) {
+    public void addFeatures(FeatureVisibilityList features, Object userContext) {
         Log.d(TAG, "In addFeatures");
         for (FeatureVisibility featureVisibility: features) {
             Log.d(TAG, "In addFeatures " + featureVisibility.feature.getClass().getName() + " " + featureVisibility.feature.getGeoId());
@@ -119,7 +119,7 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
-    public void removeFeatures(IUUIDSet features) {
+    public void removeFeatures(IUUIDSet features, Object userContext) {
         Log.d(TAG, "In removeFeatures");
         for (java.util.UUID uniqueId: features) {
             removeFeatureQueue.add(uniqueId);
@@ -142,7 +142,7 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
-    public void setCamera(ICamera oCamera, boolean animate) {
+    public void setCamera(ICamera oCamera, boolean animate, Object userContext) {
 
         if(oCamera != this.currentCamera) {
 //            ICamera camera = new Camera();
@@ -172,10 +172,10 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
-    public void applyCameraChange(ICamera oCamera, boolean animate) { }
+    public void applyCameraChange(ICamera oCamera, boolean animate, Object userContext) { }
 
     @Override
-    public void setLookAt(ILookAt oLookAt, boolean animate) {
+    public void setLookAt(ILookAt oLookAt, boolean animate, Object userContext) {
 
     }
 
@@ -185,7 +185,7 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
-    public void applyLookAtChange(ILookAt oLookAt, boolean animate) { }
+    public void applyLookAtChange(ILookAt oLookAt, boolean animate, Object userContext) { }
 
     @Override
     public void setBounds(IGeoBounds bounds) {
