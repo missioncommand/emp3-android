@@ -35,6 +35,14 @@ public interface ILookAt extends IGeoLookAt{
     /**
      * This method causes any changes done to the LookAt settings to be applied to any map or object that it may
      * be associated with.
+     * @param userContext user defined object
+     * @param animate If set to true then camera movement will be animated.
+     */
+    void apply(boolean animate, Object userContext);
+
+    /**
+     * This method causes any changes done to the LookAt settings to be applied to any map or object that it may
+     * be associated with.
      * @param animate If set to true then camera movement will be animated.
      */
     void apply(boolean animate);

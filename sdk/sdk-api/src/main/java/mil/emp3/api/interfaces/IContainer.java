@@ -36,6 +36,14 @@ public interface IContainer extends IGeoContainer {
 
     /**
      * This method removes all children from this container.
+     * @param userContext user defined object
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void clearContainer(Object userContext)
+            throws EMP_Exception;
+
+    /**
+     * This method removes all children from this container.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
     void clearContainer()

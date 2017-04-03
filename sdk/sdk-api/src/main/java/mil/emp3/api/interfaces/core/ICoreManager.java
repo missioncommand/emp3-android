@@ -34,13 +34,13 @@ public interface ICoreManager {
 
     MapStateEnum getState(IMap clientMap);
 
-    void setCamera(IMap clientMap, ICamera camera, boolean animate) throws EMP_Exception;
+    void setCamera(IMap clientMap, ICamera camera, boolean animate, Object userContext) throws EMP_Exception;
     ICamera getCamera(IMap clientMap);
-    void processCameraSettingChange(ICamera camera, boolean animate);
+    void processCameraSettingChange(ICamera camera, boolean animate, Object userContext);
 
-    void setLookAt(IMap clientMap, ILookAt lookAt, boolean animate) throws EMP_Exception;
+    void setLookAt(IMap clientMap, ILookAt lookAt, boolean animate, Object userContext) throws EMP_Exception;
     ILookAt getLookAt(IMap clientMap);
-    void processLookAtSettingChange(ILookAt lookAt, boolean animate);
+    void processLookAtSettingChange(ILookAt lookAt, boolean animate, Object userContext);
 
     void setMotionLockMode(IMap clientMap, MapMotionLockEnum mode) throws EMP_Exception;
     MapMotionLockEnum getMotionLockMode(IMap clientMap) throws EMP_Exception;

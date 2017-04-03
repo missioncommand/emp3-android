@@ -12,7 +12,6 @@ import java.util.List;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MapFeatureEventEnum;
 import mil.emp3.api.enums.MapStateEnum;
-import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
 import mil.emp3.api.enums.UserInteractionKeyEnum;
 import mil.emp3.api.enums.UserInteractionMouseButtonEnum;
@@ -176,9 +175,11 @@ public abstract class CoreMapInstance implements IMapInstance {
      * Builds a feature removed event and posts it to the listener.
      * @param feature
      */
-    protected void generateFeatureRemovedEvent(IFeature feature) {
+    protected void generateFeatureRemovedEvent(IFeature feature, Object userContext) {
         if(null != featureRemovedEventListener) {
-            featureRemovedEventListener.onEvent(new MapInstanceFeatureRemovedEvent(this, MapFeatureEventEnum.MAP_FEATURE_REMOVED, feature));
+            MapInstanceFeatureRemovedEvent event = new MapInstanceFeatureRemovedEvent(this, MapFeatureEventEnum.MAP_FEATURE_REMOVED, feature);
+            event.setUserObject(userContext);
+            featureRemovedEventListener.onEvent(event);
         }
     }
 
@@ -186,9 +187,11 @@ public abstract class CoreMapInstance implements IMapInstance {
      * Builds a feature added event and posts it to the listener.
      * @param feature
      */
-    protected void generateFeatureAddedEvent(IFeature feature) {
+    protected void generateFeatureAddedEvent(IFeature feature, Object userContext) {
         if(null != featureAddedEventListener) {
-            featureAddedEventListener.onEvent(new MapInstanceFeatureAddedEvent(this, MapFeatureEventEnum.MAP_FEATURE_ADDED, feature));
+            MapInstanceFeatureAddedEvent event = new MapInstanceFeatureAddedEvent(this, MapFeatureEventEnum.MAP_FEATURE_ADDED, feature);
+            event.setUserObject(userContext);
+            featureAddedEventListener.onEvent(event);
         }
     }
 

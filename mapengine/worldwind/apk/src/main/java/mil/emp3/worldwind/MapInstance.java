@@ -386,7 +386,7 @@ public class MapInstance extends CoreMapInstance {
 
         while (!this.featureHash.isEmpty()) {
             oUniqueId = (UUID) this.featureHash.keySet().toArray()[0];
-            this.removeFeature(oUniqueId);
+            this.removeFeature(oUniqueId, null);
         }
 
 
@@ -504,7 +504,7 @@ public class MapInstance extends CoreMapInstance {
      * @param features
      */
     @Override
-    public void addFeatures(final FeatureVisibilityList features) {
+    public void addFeatures(final FeatureVisibilityList features, final Object userContext) {
         // Update the view on UI thread.
         if (!SystemUtils.isCurrentThreadUIThread()) {
             /*
@@ -518,7 +518,7 @@ public class MapInstance extends CoreMapInstance {
                         //    Log.d(TAG, "Add Feature Stroke Width: " + featureVisibility.feature.getStrokeStyle().getStrokeWidth());
                         //}
                         MapInstance.this.plotFeature(featureVisibility.feature, featureVisibility.visible);
-                        MapInstance.this.generateFeatureAddedEvent(featureVisibility.feature);
+                        MapInstance.this.generateFeatureAddedEvent(featureVisibility.feature, userContext);
                     }
 
                     ww.requestRedraw();
@@ -527,14 +527,14 @@ public class MapInstance extends CoreMapInstance {
         } else {
             for (FeatureVisibility featureVisibility: features) {
                 MapInstance.this.plotFeature(featureVisibility.feature, featureVisibility.visible);
-                generateFeatureAddedEvent(featureVisibility.feature);
+                generateFeatureAddedEvent(featureVisibility.feature, userContext);
             }
 
             ww.requestRedraw();
         }
     }
 
-    private void removeFeature(UUID uniqueId) {
+    private void removeFeature(UUID uniqueId, Object userContext) {
         if (this.featureHash.containsKey(uniqueId)) {
             FeatureRenderableMapping oWrapper = this.featureHash.get(uniqueId);;
             dirtyOnMapMove.remove(uniqueId);
@@ -542,7 +542,7 @@ public class MapInstance extends CoreMapInstance {
             if (oWrapper != null) {
                 IFeature feature = oWrapper.getFeature();
                 getRenderableLayer(feature).removeFeatureRenderables(uniqueId);
-                generateFeatureRemovedEvent(feature);
+                generateFeatureRemovedEvent(feature, userContext);
                 this.featureHash.remove(uniqueId);
             }
         }
@@ -555,9 +555,9 @@ public class MapInstance extends CoreMapInstance {
      * @param features
      */
     @Override
-    public void removeFeatures(final IUUIDSet features) {
+    public void removeFeatures(final IUUIDSet features, Object userContext) {
         for (java.util.UUID uniqueId: features) {
-            this.removeFeature(uniqueId);
+            this.removeFeature(uniqueId, userContext);
         }
 
         // Update the view on UI thread.
@@ -816,12 +816,12 @@ public class MapInstance extends CoreMapInstance {
     }
 
     @Override
-    public void setCamera(ICamera oCamera, boolean animate) {
+    public void setCamera(ICamera oCamera, boolean animate, Object userContext) {
         this.oMapViewController.setCamera(oCamera, animate);
     }
 
     @Override
-    public void applyCameraChange(ICamera oCamera, boolean animate) {
+    public void applyCameraChange(ICamera oCamera, boolean animate, Object userContext) {
         this.oMapViewController.applyCameraChange(oCamera, animate);
     }
 
@@ -831,10 +831,12 @@ public class MapInstance extends CoreMapInstance {
     }
 
     @Override
-    public void setLookAt(ILookAt oLookAt, boolean animate) { this.oMapViewController.setLookAt(oLookAt, animate); }
+    public void setLookAt(ILookAt oLookAt, boolean animate, Object userContext) {
+        this.oMapViewController.setLookAt(oLookAt, animate);
+    }
 
     @Override
-    public void applyLookAtChange(ILookAt oLookAt, boolean animate) {
+    public void applyLookAtChange(ILookAt oLookAt, boolean animate, Object userContext) {
         this.oMapViewController.applyLookAtChange(oLookAt, animate);
     }
     /**

@@ -234,13 +234,13 @@ public class FreehandDrawEditor extends AbstractEditor {
                 oList = new FeatureVisibilityList();
                 oItem = new FeatureVisibility(this.lineDrawObject, true);
                 oList.add(oItem);
-                mapInstance.addFeatures(oList);
+                mapInstance.addFeatures(oList, null);
                 break;
             case MAP_FREEHAND_LINE_DRAW_END: {
                 // Here we remove the line feature from the map.
                 UUIDSet removeSet = new UUIDSet();
                 removeSet.add(this.lineDrawObject.getGeoId());
-                this.mapInstance.removeFeatures(removeSet);
+                this.mapInstance.removeFeatures(removeSet, null);
                 break;
             }
             case MAP_EXIT_FREEHAND_DRAW_MODE:
