@@ -57,14 +57,12 @@ public class MilStdUtilities {
 
     public static String getMilStdSinglePointIconURL(final MilStdSymbol feature,
             MilStdLabelSettingEnum eLabelSetting, java.util.Set<IGeoMilSymbol.Modifier> labelSet,
-            int iIconSize, boolean selected, IGeoColor selectedStrokeColor, IGeoColor selectedTextColor) {
+            SparseArray<String> attributes) {
         int iKey;
         String value;
         String UniqueDesignator1 = null;
         String params = "";
         java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = feature.getModifiers();
-        SparseArray<String> attributes = feature.getAttributes(iIconSize,
-                selected, selectedStrokeColor, selectedTextColor);
 
         if (null != attributes) {
             for (int iIndex = 0; iIndex < attributes.size(); iIndex++) {

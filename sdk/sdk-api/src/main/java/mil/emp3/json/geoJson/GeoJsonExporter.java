@@ -338,11 +338,7 @@ public class GeoJsonExporter extends Thread{
 
         saAttr.put(MilStdAttributes.UseDashArray, "false");
 
-        iconURL = MilStdUtilities.getMilStdSinglePointIconURL(feature, eLabelSetting, oLabels,
-                iconSize,
-                this.map.isSelected(feature),
-                this.map.getSelectedStrokeStyle().getStrokeColor(),
-                this.map.getSelectedLabelStyle().getColor());
+        iconURL = MilStdUtilities.getMilStdSinglePointIconURL(feature, eLabelSetting, oLabels, saAttr);
 
         oImageInfo = this.oIconRenderer.RenderIcon(feature.getSymbolCode(), ((saModifiers == null) ? this.emptyArray : saModifiers), ((saAttr == null) ? this.emptyArray : saAttr));
 
@@ -504,7 +500,7 @@ public class GeoJsonExporter extends Thread{
         this.featureList = null;
         this.callback = callback;
         this.addExtendedData = extendedData;
-        this.eLabelSetting = storageManager.getMilStdLabels(this.map);
+        this.eLabelSetting = this.map.getMilStdLabels();
         this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
     }
 
@@ -514,7 +510,7 @@ public class GeoJsonExporter extends Thread{
         this.feature = null;
         this.callback = callback;
         this.addExtendedData = extendedData;
-        this.eLabelSetting = storageManager.getMilStdLabels(this.map);
+        this.eLabelSetting = this.map.getMilStdLabels();
         this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
     }
 }
