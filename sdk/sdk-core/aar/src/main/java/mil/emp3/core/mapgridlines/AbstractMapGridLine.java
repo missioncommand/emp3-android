@@ -31,6 +31,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
@@ -236,41 +237,14 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                 IMapInstance mapInstance = AbstractMapGridLine.this.mapInstance;
                 IEmpBoundingBox bBox = AbstractMapGridLine.this.boundingBox;
 
-                if ((Math.abs(camera.getHeading()) <= 5.0) &&
-                        (Math.abs(camera.getTilt()) <= 5.0) &&
-                        (Math.abs(camera.getRoll()) <= 5.0)) {
-                    centerNorth = mapInstance.containerToGeo(new Point(viewWidth / 2, 0));
-                    if (null != centerNorth) {
-                        centerSouth = mapInstance.containerToGeo(new Point(viewWidth / 2, viewHeight));
-                        if (null != centerSouth) {
-                            centerWest = mapInstance.containerToGeo(new Point(0, viewHeight / 2));
-                            if (null != centerWest) {
-                                centerEast = mapInstance.containerToGeo(new Point(viewWidth, viewHeight / 2));
-                                if (null != centerEast) {
-                                    bBox.setNorth(centerNorth.getLatitude());
-                                    bBox.setSouth(centerSouth.getLatitude());
-                                    bBox.setWest(centerWest.getLongitude());
-                                    bBox.setEast(centerEast.getLongitude());
-                                }
-                            }
-                        }
-                    }
-                }
-                centerWest = new GeoPosition();
-                centerWest.setLatitude(bBox.centerLatitude());
-                centerWest.setLongitude(bBox.getWest());
-                centerWest.setAltitude(0.0);
-
-                centerEast = new GeoPosition();
-                centerEast.setLatitude(centerWest.getLatitude());
-                centerEast.setLongitude(bBox.getEast());
-                centerEast.setAltitude(0.0);
+                centerWest = new EmpGeoPosition(bBox.centerLatitude(), bBox.getWest());
+                centerEast = new EmpGeoPosition(centerWest.getLatitude(), bBox.getEast());
 
                 westPoint = mapInstance.geoToContainer(centerWest);
                 eastPoint = mapInstance.geoToContainer(centerEast);
 
                 if ((null != westPoint) && (null != eastPoint)) {
-                    // Using Pythagoras to compute the pixel distance ( for with and height) of the bounding box.
+                    // Using Pythagoras to compute the pixel distance ( for width and height) of the bounding box.
                     int deltaX = eastPoint.x - westPoint.x;
                     int deltaY = eastPoint.y - westPoint.y;
                     double deltaXe2 = deltaX * deltaX;
