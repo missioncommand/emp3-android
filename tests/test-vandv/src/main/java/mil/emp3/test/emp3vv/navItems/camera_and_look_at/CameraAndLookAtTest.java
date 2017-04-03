@@ -285,11 +285,7 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
             cannedTestSetup(whichMap);
 
             ICamera camera = maps[whichMap].getCamera();
-            String status  = String.format(Locale.US, "Starting Camera " +
-                            " (L:N:A %1$6.3f %2$6.3f %3$6.0f H:T:R %4$6.3f %5$6.3f %6$6.3f) ",
-                    camera.getLatitude(), camera.getLongitude(), camera.getAltitude(),
-                    camera.getHeading(), camera.getTilt(), camera.getRoll());
-            ErrorDialog.showMessageWaitForConfirm(activity, status);
+            ErrorDialog.showMessageWaitForConfirm(activity, "Starting Camera " + camera.toString());
 
             ICamera myCamera = new Camera();
             myCamera.copySettingsFrom(camera);
@@ -306,9 +302,7 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
 
     private void setupCameraTest(int whichMap, ICamera myCamera, double lat, double lon, double alt, double tilt, double roll, double heading, String featureSeen) {
         try {
-            myCamera.setLatitude(lat);
-            myCamera.setLongitude(lon);
-            myCamera.setAltitude(alt);
+            myCamera.setPosition(lat, lon, alt, null);
             myCamera.setTilt(tilt);
             myCamera.setRoll(roll);
             myCamera.setHeading(heading);
@@ -316,11 +310,7 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
             maps[whichMap].setCamera(myCamera, false);
 
             ICamera camera = maps[whichMap].getCamera();
-            String status  = String.format(Locale.US, "Camera.set Target " + featureSeen +
-                            " Camera " + " (L:N:A %1$6.3f %2$6.3f %3$6.0f H:T:R %4$6.3f %5$6.3f %6$6.3f) ",
-                    camera.getLatitude(), camera.getLongitude(), camera.getAltitude(),
-                    camera.getHeading(), camera.getTilt(), camera.getRoll());
-            ErrorDialog.showMessageWaitForConfirm(activity, status);
+            ErrorDialog.showMessageWaitForConfirm(activity, "Camera.set Target " + featureSeen + " " + camera.toString());
         }catch (EMP_Exception e) {
             Log.e(TAG, "setupCameraTest ", e);
             updateStatus(TAG, e.getMessage());
@@ -354,10 +344,7 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
             maps[whichMap].setCamera(CameraUtility.buildCamera(sourceLat, sourceLon, sourceAlt), false);
 
             ICamera camera1 = maps[whichMap].getCamera();
-            String status = String.format(Locale.US, "LookAt.set Camera position L:N:A %1$6.3f %2$6.3f %3$6.0f T:R:H %4$6.3f %5$6.3f %6$6.3f no feature seen",
-                    camera1.getLatitude(), camera1.getLongitude(), camera1.getAltitude(),
-                    camera1.getTilt(), camera1.getRoll(), camera1.getHeading());
-            ErrorDialog.showMessageWaitForConfirm(activity, status);
+            ErrorDialog.showMessageWaitForConfirm(activity, "LookAt.set Camera position " + camera1);
 
 
             // Compute heading and distance
@@ -367,13 +354,7 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
 
             Thread.sleep(small_waitInterval);
             ICamera camera2 = maps[whichMap].getCamera();
-            status = String.format(Locale.US, "LookAt.set " + featureSeen + " (L:N:A %1$6.3f %2$6.3f %3$6.0f) " +
-                            "Camera " + " (L:N:A %4$6.3f %5$6.3f %6$6.0f H:T:R %7$6.3f %8$6.3f %9$6.3f) ",
-                    calculatedLookAt.getLatitude(), calculatedLookAt.getLongitude(), calculatedLookAt.getAltitude(),
-                    camera2.getLatitude(), camera2.getLongitude(), camera2.getAltitude(),
-                    camera2.getHeading(), camera2.getTilt(), camera2.getRoll());
-
-            ErrorDialog.showMessageWaitForConfirm(activity, status);
+            ErrorDialog.showMessageWaitForConfirm(activity, "LookAt.set " + featureSeen + " " + calculatedLookAt.toString() + " Camera " + camera2.toString());
 
         } catch (EMP_Exception | InterruptedException e) {
             Log.e(TAG, "setupLookAt", e);
@@ -393,10 +374,7 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
             cannedTestSetup(whichMap);
 
             ICamera camera = maps[whichMap].getCamera();
-            String status  = String.format(Locale.US, "Camera.apply start pos Camera (L:N:A %1$6.3f %2$6.3f %3$6.0f  H:T:R %4$6.3f %5$6.3f %6$6.3f) no feature seen",
-                    camera.getLatitude(), camera.getLongitude(), camera.getAltitude(),
-                    camera.getHeading(), camera.getTilt(), camera.getRoll());
-            ErrorDialog.showMessageWaitForConfirm(activity, status);
+            ErrorDialog.showMessageWaitForConfirm(activity, "Camera.apply start pos Camera " + camera.toString() + " no feature seen");
 
             setupApplyCamera(camera, 40.0, -70.0, 2000.0, 0.0, 0.0, 0.0, "TRUCK0");
             setupApplyCamera(camera, 40.0, -80.0, 2000.0, 0.0, 0.0, 0.0, "TRUCK1");
@@ -409,22 +387,14 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
 
     private void setupApplyCamera(ICamera camera, double lat, double lon, double alt, double tilt, double roll, double heading, String featureSeen) {
         try {
-
-            camera.setLatitude(lat);
-            camera.setLongitude(lon);
-            camera.setAltitude(alt);
+            camera.setPosition(lat, lon, alt, null);
             camera.setTilt(tilt);
             camera.setRoll(roll);
             camera.setHeading(heading);
 
             camera.apply(false);
             Thread.sleep(small_waitInterval);
-
-            String status  = String.format(Locale.US, "Camera.apply Target " + featureSeen +
-                            " Camera " + " (L:N:A %1$6.3f %2$6.3f %3$6.0f H:T:R %4$6.3f %5$6.3f %6$6.3f) ",
-                    camera.getLatitude(), camera.getLongitude(), camera.getAltitude(),
-                    camera.getHeading(), camera.getTilt(), camera.getRoll());
-           ErrorDialog.showMessageWaitForConfirm(activity, status);
+            ErrorDialog.showMessageWaitForConfirm(activity, "Camera.apply Target " + featureSeen + " Camera " + camera.toString());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -476,13 +446,7 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
             ILookAt lookAt2 = maps[whichMap].getLookAt();
             ICamera camera2 = maps[whichMap].getCamera();
 
-            String lookat  = String.format(Locale.US, "LookAt.apply " + featureSeen + " (L:N:A %1$6.3f %2$6.3f %3$6.0f) " +
-                            "Camera " + " (L:N:A %4$6.3f %5$6.3f %6$6.0f H:T:R %7$6.3f %8$6.3f %9$6.3f) ",
-                    lookAt2.getLatitude(), lookAt2.getLongitude(), lookAt2.getAltitude(),
-                    camera2.getLatitude(), camera2.getLongitude(), camera2.getAltitude(),
-                    camera2.getHeading(), camera2.getTilt(), camera2.getRoll());
-
-            ErrorDialog.showMessageWaitForConfirm(activity, lookat);
+            ErrorDialog.showMessageWaitForConfirm(activity, "LookAt.apply " + featureSeen + " " + lookAt2.toString() + " Camera " + camera2.toString());
             return lookAt;
 
         } catch (InterruptedException e) {
@@ -542,11 +506,7 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
         @Override
         public void onEvent(CameraEvent event) {
             ICamera camera = event.getCamera();
-            String eventString  = String.format(Locale.US,
-                    "ICameraEventListener " + onWhat + " (L:N:A %1$6.3f %2$6.3f %3$6.0f H:T:R %4$6.3f %5$6.3f %6$6.3f) ",
-                    camera.getLatitude(), camera.getLongitude(), camera.getAltitude(),
-                    camera.getHeading(), camera.getTilt(), camera.getRoll());
-            ErrorDialog.showMessageWaitForConfirm(activity, eventString);
+            ErrorDialog.showMessageWaitForConfirm(activity, "ICameraEventListener " + onWhat + " " + camera.toString());
         }
     }
 
@@ -554,28 +514,14 @@ public class CameraAndLookAtTest extends NavItemBase implements CameraAndLookAtD
         @Override
         public void onEvent(LookAtEvent event) {
             ILookAt lookAt = event.getLookAt();
-            String eventString  = String.format(Locale.US,
-                    "ILookAtEventListener " + " (L:N:A %1$6.3f %2$6.3f %3$6.0f H:T:R %4$6.3f %5$6.3f %6$6.3f) ",
-                    lookAt.getLatitude(), lookAt.getLongitude(), lookAt.getAltitude(),
-                    lookAt.getHeading(), lookAt.getTilt(), lookAt.getRange());
-            ErrorDialog.showMessageWaitForConfirm(activity, eventString);
+            ErrorDialog.showMessageWaitForConfirm(activity, "ILookAtEventListener " + lookAt.toString());
         }
     }
 
     class MapViewChangeEventListener implements IMapViewChangeEventListener {
         @Override
         public void onEvent(MapViewChangeEvent event) {
-            ICamera camera = event.getCamera();
-            String eventString  = String.format(Locale.US,
-                    "MapViewChangeEventListener " + "Camera (L:N:A %1$6.3f %2$6.3f %3$6.0f H:T:R %4$6.3f %5$6.3f %6$6.3f) \n",
-                    camera.getLatitude(), camera.getLongitude(), camera.getAltitude(),
-                    camera.getHeading(), camera.getTilt(), camera.getRoll());
-            ILookAt lookAt = event.getLookAt();
-            String eventString2  = String.format(Locale.US,
-                    "LookAt (L:N:A %1$6.3f %2$6.3f %3$6.0f H:T:R %4$6.3f %5$6.3f %6$6.3f) ",
-                    lookAt.getLatitude(), lookAt.getLongitude(), lookAt.getAltitude(),
-                    lookAt.getHeading(), lookAt.getTilt(), lookAt.getRange());
-            ErrorDialog.showMessageWaitForConfirm(activity, eventString + eventString2);
+            ErrorDialog.showMessageWaitForConfirm(activity, "MapViewChangeEventListener Camera " + event.getCamera().toString() + " LookAt " + event.getLookAt().toString());
         }
     }
 }

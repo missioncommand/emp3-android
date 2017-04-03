@@ -10,19 +10,16 @@ import java.util.List;
 import mil.emp3.api.LookAt;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.utils.EmpGeoPosition;
 
 public class CameraUtility {
     private static final double INVERSE_FLATTENING = 298.257223563;
     private static final double OFFICIAL_SEMI_MAJOR_AXIS = 6378137.0;
 
     public static ICamera buildCamera(double latitude, double longitude, double altitude) {
-        mil.emp3.api.Camera oCamera = new mil.emp3.api.Camera();
+        mil.emp3.api.Camera oCamera = new mil.emp3.api.Camera(latitude, longitude, altitude, IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
         oCamera.setName("Main Cam");
-        oCamera.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-        oCamera.setAltitude(altitude);
         oCamera.setHeading(0.0);
-        oCamera.setLatitude(latitude);
-        oCamera.setLongitude(longitude);
         oCamera.setRoll(0.0);
         oCamera.setTilt(0.0);
         return oCamera;
@@ -89,8 +86,6 @@ public class CameraUtility {
 
     public static LookAt setupLookAt(double sourceLat, double sourceLon, double sourceAlt, double targetLat, double targetLon, double targetAlt) {
 
-        LookAt lookAt = new LookAt();
-
         // Compute heading and distance from aircraft to airport
         double heading = CameraUtility.greatCircleAzimuth(Math.toRadians(sourceLat), Math.toRadians(sourceLon),
                         Math.toRadians(targetLat), Math.toRadians(targetLon));
@@ -105,12 +100,9 @@ public class CameraUtility {
         System.err.println("CHECK altitude " + altitude + " range " + range + " tilt " + tilt);
 
         // Apply the new view
+        LookAt lookAt = new LookAt(targetLat, targetLon, targetAlt, IGeoAltitudeMode.AltitudeMode.ABSOLUTE);
         lookAt.setName("Main Cam");
-        lookAt.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.ABSOLUTE);
-        lookAt.setAltitude(targetAlt);
         lookAt.setHeading(heading);
-        lookAt.setLatitude(targetLat);
-        lookAt.setLongitude(targetLon);
         lookAt.setRange(range);
         lookAt.setTilt(tilt);
 
@@ -118,12 +110,10 @@ public class CameraUtility {
     }
 
     public static List<IGeoPosition> getCameraPosition(IMap map, List<IGeoPosition> positionList, boolean getAltitude) {
-        ICamera camera = map.getCamera();
-        IGeoPosition position = new GeoPosition();
-        position.setLatitude(camera.getLatitude());
-        position.setLongitude(camera.getLongitude());
-        if(getAltitude) {
-            position.setAltitude(camera.getAltitude());
+
+        EmpGeoPosition position = new EmpGeoPosition(map.getCamera());
+        if(!getAltitude) {
+            position.setAltitude(0);
         }
         if(null == positionList) {
             positionList = new ArrayList<>();
