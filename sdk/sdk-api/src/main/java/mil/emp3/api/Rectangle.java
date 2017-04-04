@@ -5,12 +5,7 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRectangle;
-import org.cmapi.primitives.IGeoStrokeStyle;
-import org.xmlpull.v1.XmlSerializer;
 
-import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.abstracts.Feature;
@@ -20,7 +15,6 @@ import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
-import mil.emp3.api.utils.kml.EmpKMLExporter;
 
 /**
  * This class implements the EMP rectangle feature. It accepts one (1) geographic coordinate that places the
@@ -48,7 +42,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         super(new GeoRectangle(), FeatureTypeEnum.GEO_RECTANGLE);
 
         if ((null == oCenter) || (!EmpGeoPosition.validate(oCenter))) {
-            throw new InvalidParameterException("The coordinate can NOT be null and must have valid values");
+            throw new IllegalArgumentException("The coordinate can NOT be null and must have valid values");
         }
         this.getRenderable().getPositions().add(oCenter);
         this.setFillStyle(null);
@@ -66,13 +60,13 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         super(new GeoRectangle(), FeatureTypeEnum.GEO_RECTANGLE);
 
         if (null == oCenter || !EmpGeoPosition.validate(oCenter)) {
-            throw new InvalidParameterException("The coordinate can NOT be null and must have valid values");
+            throw new IllegalArgumentException("The coordinate can NOT be null and must have valid values");
         }
         dWidth = makePositive(dWidth, "Width is invalid. NaN");
         dHeight = makePositive(dHeight, "Height is invalid. NaN");
 
         if(dWidth < MINIMUM_WIDTH || dHeight < MINIMUM_HEIGHT) {
-            throw new InvalidParameterException("Invalid height or width. " + dHeight + " " +  dWidth + " Minimum supported " +
+            throw new IllegalArgumentException("Invalid height or width. " + dHeight + " " +  dWidth + " Minimum supported " +
                 MINIMUM_HEIGHT + " " + MINIMUM_WIDTH);
         }
 
@@ -91,13 +85,13 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         super(oRenderable, FeatureTypeEnum.GEO_RECTANGLE);
 
         if(null == oRenderable) {
-            throw new InvalidParameterException("Encapsulated Rectangle must be non-null");
+            throw new IllegalArgumentException("Encapsulated Rectangle must be non-null");
         }
         this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
         this.setHeight(makePositive(this.getHeight(), "Invalid Height. NaN"));
 
         if(this.getWidth() < MINIMUM_WIDTH || this.getHeight() < MINIMUM_HEIGHT) {
-            throw new InvalidParameterException("Invalid height or width. " + this.getHeight() + " " +  this.getWidth() + " Minimum supported " +
+            throw new IllegalArgumentException("Invalid height or width. " + this.getHeight() + " " +  this.getWidth() + " Minimum supported " +
                     MINIMUM_HEIGHT + " " + MINIMUM_WIDTH);
         }
 
@@ -113,7 +107,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
     public void setWidth(double dWidth) {
         dWidth = makePositive(dWidth, "Invalid Width. NaN");
         if (dWidth < MINIMUM_WIDTH) {
-            throw new InvalidParameterException("Invalid width.");
+            throw new IllegalArgumentException("Invalid width.");
         }
         this.getRenderable().setWidth(Math.abs(dWidth));
     }
@@ -135,7 +129,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
     public void setHeight(double dHeight) {
         dHeight = makePositive(dHeight, "Invalid Height. NaN");
         if (dHeight < MINIMUM_HEIGHT) {
-            throw new InvalidParameterException("Invalid height.");
+            throw new IllegalArgumentException("Invalid height.");
         }
         this.getRenderable().setHeight(Math.abs(dHeight));
     }

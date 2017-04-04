@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -208,7 +207,7 @@ public class KMLExportThread extends java.lang.Thread {
         serializeVisibility(feature, xmlSerializer);
 
         if (null == callback) {
-            throw new InvalidParameterException("Invalid ISerializePlacemarkGeometry");
+            throw new IllegalArgumentException("Invalid ISerializePlacemarkGeometry");
         }
         callback.serializeGeometry(xmlSerializer);
 

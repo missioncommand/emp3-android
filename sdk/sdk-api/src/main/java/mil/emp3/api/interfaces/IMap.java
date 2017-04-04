@@ -9,7 +9,6 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import mil.emp3.api.enums.EditorMode;
@@ -74,7 +73,7 @@ public interface IMap extends IContainer {
      * This method request a screen capture from the map. Client software must account for the event of
      * a callback function being invoked prior to the function returning.
      * @param callback An implementation of the {@link IScreenCaptureCallback} interface.
-     * @throws InvalidParameterException if the callback parameter is null.
+     * @throws IllegalArgumentException if the callback parameter is null.
      * @throws UnsupportedOperationException if the map engine does not support screen capture operations.
      */
     void getScreenCapture(IScreenCaptureCallback callback);

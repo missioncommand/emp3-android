@@ -5,8 +5,6 @@ import android.util.Log;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
-
 /**
  * This class represent a UTM coordinate.
  * Parts of this class have been ported from javascript. From
@@ -82,7 +80,7 @@ public class UTMCoordinate {
      */
     public void setZoneNumber(int value) {
         if ((value < 1) || (value > 60)) {
-            throw new InvalidParameterException("The zone number must be between 1 and 60 inclusive.");
+            throw new IllegalArgumentException("The zone number must be between 1 and 60 inclusive.");
         }
         zoneNumberValue = value;
     }
@@ -94,7 +92,7 @@ public class UTMCoordinate {
     public void setZoneLetter(String value) {
         if ((null == value) || (value.length() > 1) || value.isEmpty() || !latBands.contains(value)) {
             Log.e(TAG, "Invalid Zone letter: " + value);
-            throw new InvalidParameterException("Invalid Zone letter " + value);
+            throw new IllegalArgumentException("Invalid Zone letter " + value);
         }
         zoneLetterValue = value;
     }
@@ -451,7 +449,7 @@ public class UTMCoordinate {
                 northing = 7900000.0;
                 break;
             default:
-                throw new InvalidParameterException("UTM zone letter is not set.");
+                throw new IllegalArgumentException("UTM zone letter is not set.");
         }
 
         return northing;
@@ -535,7 +533,7 @@ public class UTMCoordinate {
                 northing = 9328195.0;
                 break;
             default:
-                throw new InvalidParameterException("UTM zone letter is not set.");
+                throw new IllegalArgumentException("UTM zone letter is not set.");
         }
 
         return northing;
@@ -710,7 +708,7 @@ public class UTMCoordinate {
      */
     public boolean isNorthernHemisphere() {
         if (null == getZoneLetter()) {
-            throw new InvalidParameterException("Zone letter not set.");
+            throw new IllegalArgumentException("Zone letter not set.");
         }
         return (getZoneLetter().charAt(0) >= 'N');
     }

@@ -5,12 +5,7 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoSquare;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoSquare;
-import org.cmapi.primitives.IGeoStrokeStyle;
-import org.xmlpull.v1.XmlSerializer;
 
-import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.abstracts.Feature;
@@ -20,7 +15,6 @@ import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
-import mil.emp3.api.utils.kml.EmpKMLExporter;
 
 /**
  * This class implements the EMP square feature. It accepts one (1) geographic coordinate that places the
@@ -45,7 +39,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
     public Square(IGeoPosition oCenter) {
         super(new GeoSquare(), FeatureTypeEnum.GEO_SQUARE);
         if (null == oCenter || !EmpGeoPosition.validate(oCenter)) {
-            throw new InvalidParameterException("The coordinate can NOT be null and must have valid values");
+            throw new IllegalArgumentException("The coordinate can NOT be null and must have valid values");
         }
         this.getRenderable().getPositions().add(oCenter);
         this.setFillStyle(null);
@@ -61,12 +55,12 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
     public Square(IGeoPosition oCenter, double dWidth) {
         super(new GeoSquare(), FeatureTypeEnum.GEO_SQUARE);
         if (null == oCenter || !EmpGeoPosition.validate(oCenter)) {
-            throw new InvalidParameterException("The coordinate can NOT be null and must have valid values.");
+            throw new IllegalArgumentException("The coordinate can NOT be null and must have valid values.");
         }
 
         dWidth = makePositive(dWidth, "Invalid Width. NaN");
         if(dWidth < MINIMUM_WIDTH) {
-            throw new InvalidParameterException("Invalid width. " + dWidth + " Minimum supported " + MINIMUM_WIDTH);
+            throw new IllegalArgumentException("Invalid width. " + dWidth + " Minimum supported " + MINIMUM_WIDTH);
         }
         this.getRenderable().getPositions().add(oCenter);
         this.setWidth(dWidth);
@@ -82,12 +76,12 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
     public Square(IGeoSquare oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_SQUARE);
         if(null == oRenderable) {
-            throw new InvalidParameterException("Encapsulated Square must be non-null");
+            throw new IllegalArgumentException("Encapsulated Square must be non-null");
         }
         this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
 
         if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new InvalidParameterException("Invalid width. " + this.getWidth() + " Minimum supported " + MINIMUM_WIDTH);
+            throw new IllegalArgumentException("Invalid width. " + this.getWidth() + " Minimum supported " + MINIMUM_WIDTH);
         }
         this.setAzimuth(this.getAzimuth());  // For validation.
     }
@@ -100,7 +94,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
     public void setWidth(double fValue) {
         fValue = makePositive(fValue, "Invalid width. NaN");
         if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new InvalidParameterException("Invalid width. " + fValue + " Minimum supported " + MINIMUM_WIDTH);
+            throw new IllegalArgumentException("Invalid width. " + fValue + " Minimum supported " + MINIMUM_WIDTH);
         }
         this.getRenderable().setWidth(fValue);
     }
