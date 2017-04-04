@@ -8,7 +8,6 @@ import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import mil.emp3.api.enums.CameraEventEnum;
@@ -419,7 +418,7 @@ public class CoreManager implements ICoreManager {
 
         // Make sure the map exists.
         if (mapMapping == null) {
-            throw new InvalidParameterException("Map not found.");
+            throw new IllegalArgumentException("Map not found.");
         }
         mapMapping.setMapGridType(gridType);
     }

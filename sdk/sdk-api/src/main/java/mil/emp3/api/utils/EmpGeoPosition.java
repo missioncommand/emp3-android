@@ -5,6 +5,7 @@ import android.util.Log;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.List;
 import java.util.Locale;
 
 import mil.emp3.api.global;
@@ -115,5 +116,108 @@ public class EmpGeoPosition extends GeoPosition {
         } else {
             return "null position";
         }
+    }
+
+    // Following methods were copied from NASA World Wind Location.java class. These methods were minimally adjusted to use EMP classes.
+
+    /**
+     * Restricts an angle to the range [-90, +90] degrees, wrapping angles outside the range. Wrapping takes place along
+     * a line of constant longitude which may pass through the poles. In which case, 135 degrees normalizes to 45
+     * degrees; 181 degrees normalizes to -1 degree.
+     *
+     * @param degrees the angle to wrap in degrees
+     *
+     * @return the specified angle wrapped to the range [-90, +90] degrees
+     */
+    public static double normalizeLatitude(double degrees) {
+        double lat = degrees % 180;
+        double normalizedLat = lat > 90 ? 180 - lat : (lat < -90 ? -180 - lat : lat);
+        // Determine whether whether the latitude is in the north or south hemisphere
+        int numEquatorCrosses = (int) (degrees / 180);
+        return (numEquatorCrosses % 2 == 0) ? normalizedLat : -normalizedLat;
+    }
+
+    /**
+     * Restricts an angle to the range [-180, +180] degrees, wrapping angles outside the range. Wrapping takes place as
+     * though traversing a line of constant latitude which may pass through the antimeridian; angles less than -180 wrap
+     * back to +180, while angles greater than +180 wrap back to -180.
+     *
+     * @param degrees the angle to wrap in degrees
+     *
+     * @return the specified angle wrapped to the range [-180, +180] degrees
+     */
+    public static double normalizeLongitude(double degrees) {
+        double lon = degrees % 360;
+        return lon > 180 ? lon - 360 : (lon < -180 ? 360 + lon : lon);
+    }
+
+    /**
+     * Restricts an angle to the range [-90, +90] degrees, clamping angles outside the range. Angles less than -90 are
+     * returned as -90, and angles greater than +90 are returned as +90. Angles within the range are returned
+     * unmodified.
+     *
+     * @param degrees the angle to clamp in degrees
+     *
+     * @return the specified angle clamped to the range [-90, +90] degrees
+     */
+    public static double clampLatitude(double degrees) {
+        return degrees > 90 ? 90 : (degrees < -90 ? -90 : degrees);
+    }
+
+    /**
+     * Restricts an angle to the range [-180, +180] degrees, clamping angles outside the range. Angles less than -180
+     * are returned as 0, and angles greater than +180 are returned as +180. Angles within the range are returned
+     * unmodified.
+     *
+     * @param degrees the angle to clamp in degrees
+     *
+     * @return the specified angle clamped to the range [-180, +180] degrees
+     */
+    public static double clampLongitude(double degrees) {
+        return degrees > 180 ? 180 : (degrees < -180 ? -180 : degrees);
+    }
+
+    /**
+     * Determines whether a list of locations crosses the antimeridian.
+     *
+     * @param locations the locations to test
+     *
+     * @return true if the antimeridian is crossed, false otherwise
+     *
+     * @throws IllegalArgumentException If the locations list is null
+     */
+    public static boolean locationsCrossAntimeridian(List<? extends IGeoPosition> locations) {
+        if (locations == null) {
+            throw new IllegalArgumentException("EmpGeoPosition-locationsCrossAntimeridian-missingList");
+        }
+
+        // Check the list's length. A list with fewer than two locations does not cross the antimeridan.
+        int len = locations.size();
+        if (len < 2) {
+            return false;
+        }
+
+        // Compute the longitude attributes associated with the first location.
+        double lon1 = normalizeLongitude(locations.get(0).getLongitude());
+        double sig1 = Math.signum(lon1);
+
+        // Iterate over the segments in the list. A segment crosses the antimeridian if its endpoint longitudes have
+        // different signs and are more than 180 degrees apart (but not 360, which indicates the longitudes are the same).
+        for (int idx = 1; idx < len; idx++) {
+            double lon2 = normalizeLongitude(locations.get(idx).getLongitude());
+            double sig2 = Math.signum(lon2);
+
+            if (sig1 != sig2) {
+                double delta = Math.abs(lon1 - lon2);
+                if (delta > 180 && delta < 360) {
+                    return true;
+                }
+            }
+
+            lon1 = lon2;
+            sig1 = sig2;
+        }
+
+        return false;
     }
 }

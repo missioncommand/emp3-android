@@ -1,6 +1,5 @@
 package mil.emp3.api;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
@@ -11,8 +10,6 @@ import mil.emp3.api.utils.ManagerFactory;
 
 import org.cmapi.primitives.GeoAirControlMeasure;
 import org.cmapi.primitives.IGeoAirControlMeasure;
-
-import javax.management.AttributeNotFoundException;
 
 /**
  *
@@ -110,7 +107,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
      */
     private void setDoubleAttribute(IGeoAirControlMeasure.Attribute attributeName, double dValue) {
         if (Double.isNaN(dValue)) {
-            throw new InvalidParameterException("The value can not be NaN.");
+            throw new IllegalArgumentException("The value can not be NaN.");
         } else {
             this.getAttributes().put(attributeName, dValue + "");
         }
@@ -126,7 +123,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the Radius attribute
-     * @param dValue The radius value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The radius value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setRadiusAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.RADIUS, dValue);
@@ -143,7 +140,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the Inner Radius attribute
-     * @param dValue The inner radius value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The inner radius value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setInnerRadiusAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.INNER_RADIUS, dValue);
@@ -159,7 +156,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the turn attribute
-     * @param eValue The turn value to set. An InvalidParameterException is raised if the value is null.
+     * @param eValue The turn value to set. An IllegalArgumentException is raised if the value is null.
      */
     //public void setTurnAttribute(ACMTurnEnum eValue) {
 
@@ -175,7 +172,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the minimum altitude attribute
-     * @param dValue The minimum altitude value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The minimum altitude value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setMinAltAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.MIN_ALT, dValue);
@@ -191,7 +188,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the Maximum Altitude attribute
-     * @param dValue The maximum altitude value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The maximum altitude value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setMaxAltAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.MAX_ALT, dValue);
@@ -207,7 +204,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the left azimuth attribute
-     * @param dValue The left azimuth value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The left azimuth value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setLeftAzimuthAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.LEFT_AZIMUTH, dValue);
@@ -223,7 +220,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the right azimuth attribute
-     * @param dValue The right azimuth value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The right azimuth value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setRightAzimuthAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.RIGHT_AZIMUTH, dValue);
@@ -239,7 +236,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the width attribute
-     * @param dValue The width value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The width value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setWidthAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.WIDTH, dValue);
@@ -255,7 +252,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the left width attribute
-     * @param dValue The left width value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The left width value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setLeftWidthAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.LEFT_WIDTH, dValue);
@@ -271,7 +268,7 @@ public class AirControlMeasure extends Feature<IGeoAirControlMeasure> implements
 
     /**
      * This method set the right width attribute
-     * @param dValue The right width value to set. An InvalidParameterException is raised if the value is Double.Nan.
+     * @param dValue The right width value to set. An IllegalArgumentException is raised if the value is Double.Nan.
      */
     public void setRightWidthAttribute(double dValue) {
         this.setDoubleAttribute(Attribute.RIGHT_WIDTH, dValue);
