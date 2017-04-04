@@ -128,8 +128,12 @@ public class EmpGeoPosition extends GeoPosition {
      * @param degrees the angle to wrap in degrees
      *
      * @return the specified angle wrapped to the range [-90, +90] degrees
+     * @throws IllegalArgumentException if the argument is NaN or Infinity.
      */
     public static double normalizeLatitude(double degrees) {
+        if (Double.isNaN(degrees) || Double.isInfinite(degrees)) {
+            throw new IllegalArgumentException("Argument can not be NaN or Infinity.");
+        }
         double lat = degrees % 180;
         double normalizedLat = lat > 90 ? 180 - lat : (lat < -90 ? -180 - lat : lat);
         // Determine whether whether the latitude is in the north or south hemisphere
@@ -145,8 +149,12 @@ public class EmpGeoPosition extends GeoPosition {
      * @param degrees the angle to wrap in degrees
      *
      * @return the specified angle wrapped to the range [-180, +180] degrees
+     * @throws IllegalArgumentException if the argument is NaN or Infinity.
      */
     public static double normalizeLongitude(double degrees) {
+        if (Double.isNaN(degrees) || Double.isInfinite(degrees)) {
+            throw new IllegalArgumentException("Argument can not be NaN or Infinity.");
+        }
         double lon = degrees % 360;
         return lon > 180 ? lon - 360 : (lon < -180 ? 360 + lon : lon);
     }

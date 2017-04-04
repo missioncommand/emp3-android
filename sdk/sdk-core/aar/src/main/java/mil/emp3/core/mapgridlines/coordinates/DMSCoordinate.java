@@ -3,7 +3,6 @@ package mil.emp3.core.mapgridlines.coordinates;
 import org.cmapi.primitives.IGeoPosition;
 
 import mil.emp3.api.utils.EmpGeoPosition;
-import mil.emp3.core.mapgridlines.utils.Angle;
 import mil.emp3.core.mapgridlines.utils.DMSAngle;
 
 /**
@@ -20,8 +19,8 @@ public class DMSCoordinate {
     }
 
     private DMSCoordinate(double latitude, double longitude) {
-        this.latitude = DMSAngle.fromDD(Angle.normalizeLatitude(latitude));
-        this.longitude = DMSAngle.fromDD(Angle.normalizeLongitude(longitude));
+        this.latitude = DMSAngle.fromDD(EmpGeoPosition.normalizeLatitude(latitude));
+        this.longitude = DMSAngle.fromDD(EmpGeoPosition.normalizeLongitude(longitude));
     }
 
     public static DMSCoordinate fromLatLong(double latitude, double longitude) {
@@ -37,11 +36,11 @@ public class DMSCoordinate {
     }
 
     public void setLatitude(double degLat) {
-        this.latitude.setDecimalDegrees(Angle.normalizeLatitude(degLat));
+        this.latitude.setDecimalDegrees(EmpGeoPosition.normalizeLatitude(degLat));
     }
 
     public void setLongitude(double degLong) {
-        this.longitude.setDecimalDegrees(Angle.normalizeLongitude(degLong));
+        this.longitude.setDecimalDegrees(EmpGeoPosition.normalizeLongitude(degLong));
     }
 
     public void setCoordinate(double degLat, double degLong) {

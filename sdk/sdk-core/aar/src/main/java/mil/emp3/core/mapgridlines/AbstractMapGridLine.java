@@ -252,7 +252,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
                     AbstractMapGridLine.this.boundsPixelWidth = (int) pixelDistance;
 
-                    // Calculate the north south pixelsHeight.
+                    // Calculate the north south pixelsHeight. Reuse the west and east geo positions.
                     centerNorth = centerWest;
                     centerSouth = centerEast;
 
