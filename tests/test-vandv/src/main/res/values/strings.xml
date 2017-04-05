@@ -9,6 +9,8 @@
     <string name="action_camera">Camera</string>
     <string name="action_map">Map</string>
     <string name="action_distance_thresholds">Distance Thresholds</string>
+    <string name="action_set_wcs">Add WCS</string>
+    <string name="action_reset_wcs">Remove WCS</string>
     <string name="action_set_wms">Add WMS</string>
     <string name="action_reset_wms">Remove WMS</string>
     <string name="action_addGeoPackage">Add GeoPackage</string>
@@ -84,6 +86,8 @@
         <item>image/png</item>
         <item>image/jpeg</item>
     </string-array>
+    <string name="WcsUrlDefault">https://worldwind26.arc.nasa.gov/wcs</string>
+    <string name="CoverageDefault">aster_v2</string>
     <string name="GpkgDefault">/sdcard/Download/AGC_DG_APG_R2C1_14_17_22NOV2016.gpkg</string>
     <string name="CameraLatitude">39.54795</string>
     <string name="CameraLongitude">-76.16334</string>
