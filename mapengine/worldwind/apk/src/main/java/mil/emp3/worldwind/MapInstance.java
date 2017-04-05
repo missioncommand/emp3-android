@@ -776,6 +776,20 @@ public class MapInstance extends CoreMapInstance {
             } else {
                 this.addWMTSService((IWMTS) mapService);
             }
+        } else if (mapService instanceof IWCS) {
+            if (!SystemUtils.isCurrentThreadUIThread()) {
+                /*
+                 * SEE HANDLER NOTES ABOVE.
+                 */
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        MapInstance.this.addWCSService((IWCS) mapService);
+                    }
+                });
+            } else {
+                this.addWCSService((IWCS) mapService);
+            }
         }
     }
 
