@@ -36,6 +36,7 @@ import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layer.AbstractLayer;
 import gov.nasa.worldwind.layer.BackgroundLayer;
+import gov.nasa.worldwind.layer.BlueMarbleLandsatLayer;
 import gov.nasa.worldwind.layer.Layer;
 import gov.nasa.worldwind.layer.LayerFactory;
 import gov.nasa.worldwind.layer.RenderableLayer;
@@ -122,6 +123,8 @@ public class MapInstance extends CoreMapInstance {
     private Map<UUID, SurfaceImage> surfaceLayerHash;
     private Map<UUID, Layer> wmsHash;
     private Map<UUID, Layer> wmtsHash;
+    private boolean wcsBackground = false;
+    private Layer blueMarbleLandsatLayer = new BlueMarbleLandsatLayer();
     private RenderableLayer brightnessLayer;
 
     private boolean brightnessProcessingPosted = false;
@@ -589,6 +592,11 @@ public class MapInstance extends CoreMapInstance {
         Wcs100ElevationCoverage aster = new Wcs100ElevationCoverage(coverageSector, numberOfLevels,
                 wcs.getServiceURL(), wcs.getCoverageName());
 
+        if (!wcsBackground) {
+            ww.getLayers().addLayer(blueMarbleLandsatLayer);
+            wcsBackground = true;
+        }
+
         // Remove any existing coverages from the Globe
         ww.getGlobe().getElevationModel().clearCoverages();
 
@@ -824,6 +832,10 @@ public class MapInstance extends CoreMapInstance {
                     this.miniMap.requestRedraw();
                 }
             }
+        } else if (mapService instanceof  IWCS) {
+            ww.getGlobe().getElevationModel().clearCoverages();
+            ww.getLayers().removeLayer(blueMarbleLandsatLayer);
+            wcsBackground = false;
         }
     }
 
