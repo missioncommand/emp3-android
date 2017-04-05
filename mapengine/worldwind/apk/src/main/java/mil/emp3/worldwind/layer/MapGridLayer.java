@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.List;
 
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.layer.RenderableLayer;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.render.Renderable;
@@ -54,6 +55,12 @@ public class MapGridLayer extends RenderableLayer {
                     switch (feature.getFeatureType()) {
                         case GEO_PATH:
                             renderable = this.featureConverter.createWWPath((Path) feature, false);
+                            if(renderable instanceof gov.nasa.worldwind.shape.Path) {
+                                // Optimize Grid rendering
+                                gov.nasa.worldwind.shape.Path path = (gov.nasa.worldwind.shape.Path) renderable;
+                                path.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+                                path.setFollowTerrain(false);
+                            }
                             break;
                         case GEO_TEXT:
                             renderable = this.featureConverter.createWWLabel((Text) feature, false);
