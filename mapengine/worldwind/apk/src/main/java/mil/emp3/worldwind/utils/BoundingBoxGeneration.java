@@ -13,6 +13,7 @@ import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
 
@@ -36,6 +37,7 @@ public class BoundingBoxGeneration {
 
     private static String TAG = BoundingBoxGeneration.class.getSimpleName();
     private final PickNavigateController mapController;
+    private final IMapInstance mapInstance;
     private final int width;
     private final int height;
     private final int lr_margin;
@@ -52,6 +54,7 @@ public class BoundingBoxGeneration {
     private final static double POLE_OFFEST = 1.0; // setting north/south as 90/-90 causes calculation breakdown in places like MGRS.
 
     private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen, int cornersTouched) {
+        this.mapInstance = mapInstance;
         mapController = mapInstance.getMapController();
         width = mapInstance.getWW().getWidth();
         height = mapInstance.getWW().getHeight();
@@ -163,6 +166,38 @@ public class BoundingBoxGeneration {
         }
         return false;
     }
+
+    private boolean boundsForSmallCameraAngles(IGeoBounds geoBounds) {
+        if (null == camera) {
+            return false;
+        }
+
+        if (((Math.abs(camera.getHeading()) <= 5.0) || (Math.abs(camera.getHeading()) >= 355.0)) &&
+                (Math.abs(camera.getTilt()) <= 5.0) &&
+                (Math.abs(camera.getRoll()) <= 5.0)) {
+
+            gov.nasa.worldwind.geom.Position centerNorth = new gov.nasa.worldwind.geom.Position();
+            if (mapController.screenPointToGroundPosition(width / 2, 0, centerNorth)) {
+                gov.nasa.worldwind.geom.Position centerSouth = new gov.nasa.worldwind.geom.Position();
+                if (mapController.screenPointToGroundPosition(width / 2, height, centerSouth)) {
+                    gov.nasa.worldwind.geom.Position centerWest = new gov.nasa.worldwind.geom.Position();
+                    if (mapController.screenPointToGroundPosition(0, height / 2, centerWest)) {
+                        gov.nasa.worldwind.geom.Position centerEast = new gov.nasa.worldwind.geom.Position();
+                        if (mapController.screenPointToGroundPosition(width, height / 2, centerEast)) {
+                            geoBounds.setNorth(centerNorth.latitude);
+                            geoBounds.setSouth(centerSouth.latitude);
+                            geoBounds.setWest(centerWest.longitude);
+                            geoBounds.setEast(centerEast.longitude);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Calculates a bounding box using the previously calculated vertices of the bounding area. There are multiple steps involved.
      *
@@ -178,6 +213,8 @@ public class BoundingBoxGeneration {
 
         // Consider the simple case where the entire globe is visible.
         if(boundsForEntireGlobeVisible(geoBounds, geometricCenter)) {
+            return;
+        } else if (boundsForSmallCameraAngles(geoBounds)) {
             return;
         }
 

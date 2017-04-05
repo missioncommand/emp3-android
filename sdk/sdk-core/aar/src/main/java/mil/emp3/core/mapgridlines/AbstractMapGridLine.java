@@ -30,6 +30,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
@@ -69,6 +70,10 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     private final IEmpBoundingBox boundingBox;
     // The meters per pixel across the center.
     private double metersPerPixel;
+    // Bounds width in pixels.
+    private int boundsPixelWidth;
+    // Bounds height in pixels.
+    private int boundsPixelHeight;
     // The generation thread.
     private GridLineGenerationThread generationThread;
 
@@ -204,7 +209,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     }
 
     @Override
-    public void mapViewChange(IGeoBounds mapBounds, ICamera camera, int viewWidth, int viewHeight) {
+    public void mapViewChange(IGeoBounds mapBounds, ICamera camera, final int viewWidth, final int viewHeight) {
         if ((null == mapBounds) || (null == camera)) {
             // If there is no bounds or camera we remove the grid. The camera may be looking up.
             clearFeatureList();
@@ -221,31 +226,57 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                 double viewWidthInMeters;
                 Point westPoint;
                 Point eastPoint;
-                IGeoPosition centerWest = new GeoPosition();
-                IGeoPosition centerEast = new GeoPosition();
+                IGeoPosition centerWest;
+                IGeoPosition centerEast;
+                Point northPoint;
+                Point southPoint;
+                IGeoPosition centerNorth;
+                IGeoPosition centerSouth;
+                ICamera camera = AbstractMapGridLine.this.currentCamera;
+                IMapInstance mapInstance = AbstractMapGridLine.this.mapInstance;
+                IEmpBoundingBox bBox = AbstractMapGridLine.this.boundingBox;
 
-                centerWest.setLatitude(AbstractMapGridLine.this.boundingBox.centerLatitude());
-                centerWest.setLongitude(AbstractMapGridLine.this.boundingBox.getWest());
-                centerWest.setAltitude(0.0);
+                centerWest = new EmpGeoPosition(bBox.centerLatitude(), bBox.getWest());
+                centerEast = new EmpGeoPosition(centerWest.getLatitude(), bBox.getEast());
 
-                centerEast.setLatitude(centerWest.getLatitude());
-                centerEast.setLongitude(AbstractMapGridLine.this.boundingBox.getEast());
-                centerEast.setAltitude(0.0);
-
-                westPoint = AbstractMapGridLine.this.mapInstance.geoToContainer(centerWest);
-                eastPoint = AbstractMapGridLine.this.mapInstance.geoToContainer(centerEast);
+                westPoint = mapInstance.geoToContainer(centerWest);
+                eastPoint = mapInstance.geoToContainer(centerEast);
 
                 if ((null != westPoint) && (null != eastPoint)) {
+                    // Using Pythagoras to compute the pixel distance ( for width and height) of the bounding box.
                     int deltaX = eastPoint.x - westPoint.x;
                     int deltaY = eastPoint.y - westPoint.y;
                     double deltaXe2 = deltaX * deltaX;
                     double deltaYe2 = deltaY * deltaY;
                     double pixelDistance = Math.sqrt(deltaXe2 + deltaYe2);
 
-                    viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
-                    AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
+                    AbstractMapGridLine.this.boundsPixelWidth = (int) pixelDistance;
 
-                    AbstractMapGridLine.this.generationThread.scheduleProcessing();
+                    // Calculate the north south pixelsHeight. Reuse the west and east geo positions.
+                    centerNorth = centerWest;
+                    centerSouth = centerEast;
+
+                    centerNorth.setLatitude(bBox.getNorth());
+                    centerNorth.setLongitude(bBox.centerLongitude());
+
+                    centerSouth.setLatitude(bBox.getSouth());
+                    centerSouth.setLongitude(centerNorth.getLongitude());
+
+                    northPoint = mapInstance.geoToContainer(centerNorth);
+                    southPoint = mapInstance.geoToContainer(centerSouth);
+
+                    deltaX = northPoint.x - southPoint.x;
+                    deltaY = northPoint.y - southPoint.y;
+                    deltaXe2 = deltaX * deltaX;
+                    deltaYe2 = deltaY * deltaY;
+                    AbstractMapGridLine.this.boundsPixelHeight = (int) Math.sqrt(deltaXe2 + deltaYe2);
+
+                    if (pixelDistance > 0.0) {
+                        viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+                        AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
+
+                        AbstractMapGridLine.this.generationThread.scheduleProcessing();
+                    }
                 }
             }
         });
@@ -352,7 +383,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     protected void displayGridLabel(String label, IEmpBoundingBox mapBounds, double metersPerPixel) {
         IGeoPosition labelPos;
 
-        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel / 4.0;
+        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel / 2.0;
         labelPos = new GeoPosition();
         labelPos.setLatitude(mapBounds.getNorth());
         labelPos.setLongitude(mapBounds.centerLongitude());
@@ -391,5 +422,13 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         }
 
         return this.labelStyleMap.get(styleType);
+    }
+
+    protected int getBoundingBoxPixelWidth() {
+        return this.boundsPixelWidth;
+    }
+
+    protected int getBoundingBoxPixelHeight() {
+        return this.boundsPixelHeight;
     }
 }
