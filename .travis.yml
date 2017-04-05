@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: android
 android:
   components:
@@ -28,7 +28,6 @@ cache:
 before_install:
   - export GRADLE_OPTS="-Dorg.gradle.daemon=false -Xmx3072m $GRADLE_OPTS"
   - export DEFAULT_JVM_OPTS=
-  - echo y | android update sdk -u -a -t tools
 
 install: true
 
