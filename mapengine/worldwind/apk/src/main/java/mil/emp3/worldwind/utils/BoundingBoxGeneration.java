@@ -176,18 +176,18 @@ public class BoundingBoxGeneration {
                 (Math.abs(camera.getTilt()) <= 5.0) &&
                 (Math.abs(camera.getRoll()) <= 5.0)) {
 
-            IGeoPosition centerNorth = mapInstance.containerToGeo(new Point(width / 2, 0));
-            if (null != centerNorth) {
-                IGeoPosition centerSouth = mapInstance.containerToGeo(new Point(width / 2, height));
-                if (null != centerSouth) {
-                    IGeoPosition centerWest = mapInstance.containerToGeo(new Point(0, height / 2));
-                    if (null != centerWest) {
-                        IGeoPosition centerEast = mapInstance.containerToGeo(new Point(width, height / 2));
-                        if (null != centerEast) {
-                            geoBounds.setNorth(centerNorth.getLatitude());
-                            geoBounds.setSouth(centerSouth.getLatitude());
-                            geoBounds.setWest(centerWest.getLongitude());
-                            geoBounds.setEast(centerEast.getLongitude());
+            gov.nasa.worldwind.geom.Position centerNorth = new gov.nasa.worldwind.geom.Position();
+            if (mapController.screenPointToGroundPosition(width / 2, 0, centerNorth)) {
+                gov.nasa.worldwind.geom.Position centerSouth = new gov.nasa.worldwind.geom.Position();
+                if (mapController.screenPointToGroundPosition(width / 2, height, centerSouth)) {
+                    gov.nasa.worldwind.geom.Position centerWest = new gov.nasa.worldwind.geom.Position();
+                    if (mapController.screenPointToGroundPosition(0, height / 2, centerWest)) {
+                        gov.nasa.worldwind.geom.Position centerEast = new gov.nasa.worldwind.geom.Position();
+                        if (mapController.screenPointToGroundPosition(width, height / 2, centerEast)) {
+                            geoBounds.setNorth(centerNorth.latitude);
+                            geoBounds.setSouth(centerSouth.latitude);
+                            geoBounds.setWest(centerWest.longitude);
+                            geoBounds.setEast(centerEast.longitude);
                             return true;
                         }
                     }
