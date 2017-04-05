@@ -90,6 +90,7 @@ import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.WCS;
 import mil.emp3.api.WMS;
 import mil.emp3.api.WMTS;
 import mil.emp3.api.enums.FontSizeModifierEnum;
@@ -148,6 +149,7 @@ public class MainActivity extends AppCompatActivity
     protected Overlay oRootOverlay;
     private ICamera oCamera;
     private ILookAt oLookAt;
+    private WCS wcsService;
     private WMS wmsService;
     private WMTS wmtsService;
     private mil.emp3.api.GeoPackage geoPackage;
@@ -2191,6 +2193,36 @@ public class MainActivity extends AppCompatActivity
                     oItem = this.oMenu.findItem(R.id.action_addWMTS);
                     oItem.setEnabled(true);
                 } catch (EMP_Exception ex) {
+                }
+                return true;
+            case R.id.action_addWCS:
+                try {
+                    wcsService = new WCS("https://worldwind26.arc.nasa.gov/wcs",
+                            "aster_v2");
+                    map.addMapService(wcsService);
+                    MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
+                    oItem.setEnabled(true);
+                    oItem = MainActivity.this.oMenu.findItem(R.id.action_addWCS);
+                    oItem.setEnabled(false);
+                    ICamera camera = map.getCamera();
+                    camera.setLatitude(37.5);
+                    camera.setLongitude(-105.5);
+                    camera.setAltitude(5000);
+                    camera.setTilt(30);
+                    camera.apply(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return true;
+            case R.id.action_removeWCS:
+                try {
+                    map.removeMapService(this.wmsService);
+                    MenuItem oItem = this.oMenu.findItem(R.id.action_removeWCS);
+                    oItem.setEnabled(false);
+                    oItem = this.oMenu.findItem(R.id.action_addWCS);
+                    oItem.setEnabled(true);
+                } catch (EMP_Exception ex) {
+                    ex.printStackTrace();
                 }
                 return true;
             case R.id.action_addWMS:
