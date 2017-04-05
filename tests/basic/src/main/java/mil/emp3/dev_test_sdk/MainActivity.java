@@ -134,6 +134,7 @@ import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
 import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
+import mil.emp3.dev_test_sdk.utils.CameraUtility;
 import mil.emp3.json.geoJson.GeoJsonCaller;
 import mil.emp3.json.geoJson.GeoJsonExporter;
 import mil.emp3.json.geoJson.GeoJsonParser;
@@ -2204,19 +2205,17 @@ public class MainActivity extends AppCompatActivity
                     oItem.setEnabled(true);
                     oItem = MainActivity.this.oMenu.findItem(R.id.action_addWCS);
                     oItem.setEnabled(false);
-                    ICamera camera = map.getCamera();
-                    camera.setLatitude(37.5);
-                    camera.setLongitude(-105.5);
-                    camera.setAltitude(5000);
-                    camera.setTilt(30);
-                    camera.apply(true);
+                    // 37.577227, -105.485845, 4374
+                    ILookAt calculatedLookAt = CameraUtility.setupLookAt(37.5, -105.5, 5000,
+                            37.577227, -105.485845, 4374);
+                    map.setLookAt(calculatedLookAt, false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return true;
             case R.id.action_removeWCS:
                 try {
-                    map.removeMapService(this.wmsService);
+                    map.removeMapService(this.wcsService);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeWCS);
                     oItem.setEnabled(false);
                     oItem = this.oMenu.findItem(R.id.action_addWCS);
