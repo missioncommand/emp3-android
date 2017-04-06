@@ -58,12 +58,12 @@ import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -134,8 +134,6 @@ import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.json.geoJson.GeoJsonCaller;
-import mil.emp3.json.geoJson.GeoJsonExporter;
-import mil.emp3.json.geoJson.GeoJsonParser;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -1545,20 +1543,20 @@ public class MainActivity extends AppCompatActivity
                                        final String endpointStr = text.getText().toString();
                                        Log.d(TAG, "endpointStr: " + endpointStr);
 
-                                       new AsyncTask<Void, Void, EMP_Exception>() {
+                                       new AsyncTask<Void, Void, Exception>() {
                                            @Override
-                                           protected EMP_Exception doInBackground(final Void... params) {
+                                           protected Exception doInBackground(final Void... params) {
                                                try {
-                                                   mc = new MirrorCache(endpointStr);
+                                                   mc = new MirrorCache(new URI(endpointStr));
                                                    mc.connect();
 
-                                               } catch (EMP_Exception e) {
+                                               } catch (Exception e) {
                                                    return e;
                                                }
                                                return null;
                                            }
                                            @Override
-                                           protected void onPostExecute(final EMP_Exception e) {
+                                           protected void onPostExecute(final Exception e) {
                                                if (e == null) {
                                                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(true);
                                                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
