@@ -107,6 +107,16 @@
                 android:orderInCategory="3"
                 android:title="@string/action_mapGridUTM"
                 app:showAsAction="never" />
+            <item
+                android:id="@+id/action_mapGridDMS"
+                android:orderInCategory="3"
+                android:title="@string/action_mapGridDMS"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_mapGridDD"
+                android:orderInCategory="3"
+                android:title="@string/action_mapGridDD"
+                app:showAsAction="never" />
         </menu>
     </item>
     <item

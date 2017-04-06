@@ -23,6 +23,8 @@
     <string name="action_mapGridNone">No Grid</string>
     <string name="action_mapGridMGRS">MGRS Grid</string>
     <string name="action_mapGridUTM">UTM Grid</string>
+    <string name="action_mapGridDMS">DMS Grid</string>
+    <string name="action_mapGridDD">DD Grid</string>
 
     <string name="action_farThresholdLabel">FDT:</string>
     <string name="action_midThresholdLabel">MDT:</string>
