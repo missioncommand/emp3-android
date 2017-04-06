@@ -17,6 +17,7 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import mil.emp3.api.Camera;
 import mil.emp3.api.MilStdSymbol;
@@ -249,6 +250,14 @@ public abstract class MapStatus implements IMapStatus {
         }
 
         return oList;
+    }
+
+    public boolean serviceExists(UUID uuid) {
+        if(this.mapServiceHash.containsKey(uuid)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

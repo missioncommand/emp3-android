@@ -40,6 +40,7 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IContainerSet;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
@@ -54,6 +55,7 @@ import mil.emp3.api.interfaces.core.storage.IStorageObjectWrapper;
 import mil.emp3.api.utils.ContainerSet;
 import mil.emp3.api.utils.UUIDSet;
 import mil.emp3.core.utils.IdentifierVisibilityHash;
+import mil.emp3.core.utils.KMLSProvider;
 import mil.emp3.core.utils.milstd2525.icons.BitmapCacheFactory;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
@@ -1692,7 +1694,16 @@ public class StorageManager implements IStorageManager {
 
         try {
             lock.lock();
-            if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
+            if(mapService instanceof IKMLS) {
+                if(KMLSProvider.create(this).addMapService(map, (IKMLS) mapService)) {
+                    // We will need this when client does a swap engine or activity is restored.
+                    // When activity is restored we still save the entire list anyway, that may be redundant
+                    ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
+                    if (null != cmrd) {
+                        cmrd.addMapService(mapService);
+                    }
+                }
+            } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 mapMapping.getMapInstance().addMapService(mapService);
                 mapMapping.addMapService(mapService);
