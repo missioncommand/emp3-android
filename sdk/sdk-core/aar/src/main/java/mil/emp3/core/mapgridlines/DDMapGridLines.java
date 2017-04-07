@@ -236,11 +236,13 @@ public class DDMapGridLines extends AbstractMapGridLine {
     }
 
     private void incrementLatitude(int gridSetting, EmpGeoPosition position) {
-        position.setLatitude(increamentDegrees(gridSetting, position.getLatitude()));
+        double latitude = increamentDegrees(gridSetting, position.getLatitude());
+        position.setLatitude(EmpGeoPosition.normalizeLatitude(latitude));
     }
 
     private void incrementLongitude(int gridSetting, EmpGeoPosition position) {
-        position.setLongitude(increamentDegrees(gridSetting, position.getLongitude()));
+        double longitude = increamentDegrees(gridSetting, position.getLongitude());
+        position.setLongitude(EmpGeoPosition.normalizeLongitude(longitude));
     }
 
     private String getLabelString(int gridSetting, double value) {
