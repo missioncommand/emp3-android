@@ -74,8 +74,6 @@ import mil.emp3.mapengine.abstracts.CoreMapInstance;
 import mil.emp3.mapengine.api.Capabilities;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
-import mil.emp3.mapengine.events.MapInstanceViewChangeEvent;
-import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
 import mil.emp3.mapengine.interfaces.IEmpResources;
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
@@ -123,8 +121,6 @@ public class MapInstance extends CoreMapInstance {
     private Map<UUID, SurfaceImage> surfaceLayerHash;
     private Map<UUID, Layer> wmsHash;
     private Map<UUID, Layer> wmtsHash;
-    private boolean wcsBackground = false;
-    private Layer blueMarbleLandsatLayer = new BlueMarbleLandsatLayer();
     private RenderableLayer brightnessLayer;
 
     private boolean brightnessProcessingPosted = false;
@@ -592,11 +588,6 @@ public class MapInstance extends CoreMapInstance {
         Wcs100ElevationCoverage aster = new Wcs100ElevationCoverage(coverageSector, numberOfLevels,
                 wcs.getServiceURL(), wcs.getCoverageName());
 
-        if (!wcsBackground) {
-            ww.getLayers().addLayer(blueMarbleLandsatLayer);
-            wcsBackground = true;
-        }
-
         // Remove any existing coverages from the Globe
         ww.getGlobe().getElevationModel().clearCoverages();
 
@@ -834,8 +825,7 @@ public class MapInstance extends CoreMapInstance {
             }
         } else if (mapService instanceof  IWCS) {
             ww.getGlobe().getElevationModel().clearCoverages();
-            ww.getLayers().removeLayer(blueMarbleLandsatLayer);
-            wcsBackground = false;
+            ww.requestRedraw();
         }
     }
 
