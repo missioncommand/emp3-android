@@ -15,8 +15,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.security.InvalidParameterException;
-
 import mil.emp3.api.utils.EmpGeoPosition;
 
 /**
@@ -36,12 +34,12 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
 
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void invalidRadiusCircle() {
         Circle circle = new Circle(0.01);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void setInvalidRadiusCircle() {
         Circle circle = new Circle(100.0);
         circle.setRadius(.05);
@@ -56,42 +54,42 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
         Assert.assertEquals("Radius should be positive", 120.0, circle.getRadius(), .001);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void nullGeoCircle() {
         IGeoCircle geoCircle = null;
         Circle circle = new Circle(geoCircle);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void invalidGeoCircle() {
         IGeoCircle geoCircle = new GeoCircle();
         geoCircle.setRadius(0.02);
         Circle circle = new Circle(geoCircle);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void CircleRadiusNaN() {
         Circle circle = new Circle(Double.NaN);
     }
 
     // Ellipse
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void invalidMajorRadiusEllipse() {
         Ellipse ellipse = new Ellipse(0.01, 20.0);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void invalidMinorRadiusEllipse() {
         Ellipse ellipse = new Ellipse(20.0, .09);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void setInvalidMajorRadiusEllipse() {
         Ellipse ellipse = new Ellipse(100.0, 200.0);
         ellipse.setSemiMajor(.05);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void setInvalidMinorRadiusEllipse() {
         Ellipse ellipse = new Ellipse(100.0, 200.0);
         ellipse.setSemiMinor(.05);
@@ -110,50 +108,50 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
         Assert.assertEquals("Minor Radius should be positive", 300.0, ellipse.getSemiMinor(), .001);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void nullGeoEllipse() {
         IGeoEllipse geoEllipse = null;
         Ellipse ellipse = new Ellipse(geoEllipse);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void invalidGeoEllipse() {
         IGeoEllipse geoEllipse = new GeoEllipse();
         geoEllipse.setAzimuth(-361.0);
         Ellipse ellipse = new Ellipse(geoEllipse);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void ellipseRadiusNaN() {
         Ellipse ellispe = new Ellipse(Double.NaN, Double.NaN);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void ellipseInvalidAzimuth() {
         Ellipse ellispe = new Ellipse(400.0, 200.0, 381);
     }
 
     // Rectangle
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void rectangleAtInvalidCenter() {
         IGeoPosition center = new GeoPosition();
         center.setLatitude(-91.0);
         Rectangle rectangle = new Rectangle(center);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void rectangleAtInvalidWidth() {
         EmpGeoPosition center = new EmpGeoPosition(0, 0);
         Rectangle rectangle = new Rectangle(center, 0.034, 200.0);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void rectangleAtInvalidHeight() {
         EmpGeoPosition center = new EmpGeoPosition(0, 0);
         Rectangle rectangle = new Rectangle(center, 34, 0.99);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void invalidGeoRectangle() {
         IGeoRectangle geoRectangle = new GeoRectangle();
         geoRectangle.setAzimuth(-400);
@@ -171,20 +169,20 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
     }
 
     // Square
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void squareAtInvalidCenter() {
         IGeoPosition center = new GeoPosition();
         center.setLatitude(-91.0);
         Square square = new Square(center);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void squareAtInvalidWidth() {
         EmpGeoPosition center = new EmpGeoPosition(0, 0);
         Square square = new Square(center, 0.034);
     }
 
-    @Test (expected=InvalidParameterException.class)
+    @Test (expected=IllegalArgumentException.class)
     public void invalidGeoSquare() {
         IGeoSquare geoSquare = new GeoSquare();
         geoSquare.setAzimuth(361);

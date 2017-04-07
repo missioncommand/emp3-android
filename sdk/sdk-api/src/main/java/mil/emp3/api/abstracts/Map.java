@@ -11,7 +11,6 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,7 +139,7 @@ public abstract class Map extends Container implements IMap {
     @Override
     public void getScreenCapture(IScreenCaptureCallback callback) {
         if (null == callback) {
-            throw new InvalidParameterException("The callback can not be null.");
+            throw new IllegalArgumentException("The callback can not be null.");
         }
         storageManager.getMapInstance(this).getCapture(callback);
     }

@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.security.InvalidParameterException;
 import java.text.DecimalFormat;
 
 import mil.emp3.test.emp3vv.R;
@@ -138,7 +137,7 @@ public class IncrementDecrement<T extends Number> {
                 (initialValue instanceof  Byte)) {
             valueView.setText(String.valueOf((int) currentValue));
         } else {
-            throw new InvalidParameterException("Update updateDisplay to handle your type " + initialValue.getClass().getSimpleName());
+            throw new IllegalArgumentException("Update updateDisplay to handle your type " + initialValue.getClass().getSimpleName());
         }
     }
 }
