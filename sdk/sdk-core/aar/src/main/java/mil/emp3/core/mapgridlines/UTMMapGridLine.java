@@ -157,9 +157,9 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
                 Log.i(TAG, "Grid Zones threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 displayGridLabel("UTM Grid Zones", mapBounds, metersPerPixel);
-            } else if (metersInOneEighthOfAnInch <= 500000) {
-                Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
-                super.processViewChange(mapBounds, camera, metersPerPixel);
+            //} else if (metersInOneEighthOfAnInch <= 500000) {
+             //   Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
+             //   super.processViewChange(mapBounds, camera, metersPerPixel);
             } else {
                 Log.i(TAG, "Grid off. " + metersInOneEighthOfAnInch);
                 // The grid turns off.
@@ -376,8 +376,22 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         boolean labelDetail = ((labelHeightMeters * 2) < metersInOneEighthOfAnInch);
         int majorGridSize = ((gridSize == UTM_100K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
 
-        minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
-        maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        if (!mapBounds.containsIDL()) {
+            minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
+            maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        } else if (utmZoneCoord.getZoneNumber() == 1) {
+            minLogintude = -180.0;
+            maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        } else if (utmZoneCoord.getZoneNumber() == 60) {
+            minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
+            maxLongitude = 180.0;
+        } else if (utmZoneCoord.getZoneNumber() < 30) {
+            minLogintude = utmZoneCoord.getZoneWestLongitude();
+            maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        } else {
+            minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
+            maxLongitude = utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees();
+        }
         maxLongitude = ((maxLongitude == 180.0)? maxLongitude - 0.00000001: maxLongitude);
 
         if ((utmZoneCoord.getZoneNumber() == 31) && (utmZoneCoord.getZoneLetter().equals("V"))) {

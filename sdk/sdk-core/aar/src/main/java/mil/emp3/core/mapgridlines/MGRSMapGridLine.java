@@ -213,9 +213,9 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                 Log.i(TAG, "GZD threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 displayGridLabel("MGRS GZD", mapBounds, metersPerPixel);
-            } else if (metersInOneEighthOfAnInch <= 500000) {
-                Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
-                super.processViewChange(mapBounds, camera, metersPerPixel);
+            //} else if (metersInOneEighthOfAnInch <= 500000) {
+            //    Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
+            //    super.processViewChange(mapBounds, camera, metersPerPixel);
             } else {
                 Log.i(TAG, "Grid off. " + metersInOneEighthOfAnInch);
                 // The grid turns off.
