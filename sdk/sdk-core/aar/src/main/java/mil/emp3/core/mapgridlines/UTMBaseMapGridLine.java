@@ -57,7 +57,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         IGeoLabelStyle labelStyle;
 
         // Grid zone styles.
-        color = new EmpGeoColor(0.6, 255, 255, 0);
+        color = new EmpGeoColor(0.8, 255, 255, 0);
         strokeStyle = new GeoStrokeStyle();
         strokeStyle.setStrokeColor(color);
         strokeStyle.setStrokeWidth(3.0);
@@ -381,11 +381,13 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
 
         for (iIndex = minRow; iIndex <= maxRow; iIndex++) {
             latitude = (double) ((iIndex * 8) - 80);
-            positionList = new ArrayList<>();
-            positionList.add(GridLineUtils.newPosition(latitude, minLongitude, 0));
-            positionList.add(GridLineUtils.newPosition(latitude, maxLongitude, 0));
-            gridObject = createPathFeature(positionList, UTM_GRID_ZONE_PARALLELS);
-            addFeature(gridObject);
+            if (mapBounds.contains(latitude, mapBounds.centerLongitude())) {
+                positionList = new ArrayList<>();
+                positionList.add(GridLineUtils.newPosition(latitude, minLongitude, 0));
+                positionList.add(GridLineUtils.newPosition(latitude, maxLongitude, 0));
+                gridObject = createPathFeature(positionList, UTM_GRID_ZONE_PARALLELS);
+                addFeature(gridObject);
+            }
         }
         if ((maxLatitude >= 84.0) && (minLatitude < 84.0)) {
             positionList = new ArrayList<>();

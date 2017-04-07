@@ -97,7 +97,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
 
         // UTM northing values
         labelStyle = new GeoLabelStyle();
-        color = new EmpGeoColor(1.0, 0, 0, 0);
+        color = new EmpGeoColor(1.0, 150, 150, 150);
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
@@ -157,9 +157,9 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
                 Log.i(TAG, "Grid Zones threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 displayGridLabel("UTM Grid Zones", mapBounds, metersPerPixel);
-            } else if (metersInOneEighthOfAnInch <= 500000) {
-                Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
-                super.processViewChange(mapBounds, camera, metersPerPixel);
+            //} else if (metersInOneEighthOfAnInch <= 500000) {
+             //   Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
+             //   super.processViewChange(mapBounds, camera, metersPerPixel);
             } else {
                 Log.i(TAG, "Grid off. " + metersInOneEighthOfAnInch);
                 // The grid turns off.
@@ -220,10 +220,21 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         boolean labelDetail = ((labelHeightMeters * 2) < metersInOneEighthOfAnInch);
         int majorGridSize = ((gridSize == UTM_100K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
 
-        UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), utmZoneCoord.getZoneSouthLatitude()),
-                Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude()), southUTMCoord);
-        UTMCoordinate.fromLatLong(Math.min(mapBounds.getNorth(), utmZoneCoord.getZoneSouthLatitude() + utmZoneCoord.getGridZoneHeightInDegrees()),
-                Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude()), northUTMCoord);
+        if (mapBounds.containsIDL()) {
+            if (utmZoneCoord.getZoneNumber() == 1) {
+                UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), utmZoneCoord.getZoneSouthLatitude()), -180.0, southUTMCoord);
+                UTMCoordinate.fromLatLong(Math.min(mapBounds.getNorth(), utmZoneCoord.getZoneSouthLatitude() + utmZoneCoord.getGridZoneHeightInDegrees()),
+                        -180.0, northUTMCoord);
+            } else {
+                UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), utmZoneCoord.getZoneSouthLatitude()),
+                        Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude()), southUTMCoord);
+                UTMCoordinate.fromLatLong(Math.min(mapBounds.getNorth(), utmZoneCoord.getZoneSouthLatitude() + utmZoneCoord.getGridZoneHeightInDegrees()),
+                        Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude()), northUTMCoord);
+            }
+        } else {
+            UTMCoordinate.fromLatLong(Math.max(mapBounds.getSouth(), utmZoneCoord.getZoneSouthLatitude()), Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude()), southUTMCoord);
+            UTMCoordinate.fromLatLong(Math.min(mapBounds.getNorth(), utmZoneCoord.getZoneSouthLatitude() + utmZoneCoord.getGridZoneHeightInDegrees()), Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude()), northUTMCoord);
+        }
 
         gridZoneBounds.setSouth(utmZoneCoord.getZoneSouthLatitude());
         gridZoneBounds.setNorth(gridZoneBounds.getSouth() + utmZoneCoord.getGridZoneHeightInDegrees());
@@ -234,15 +245,23 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
             // In the nortrhern hemisphere the south edge is wider.
             // Set the easting value to a multiple of the grid size.
             tempValue = (int) Math.floor(southUTMCoord.getEasting() / gridSize) * gridSize;
-            if ((int) southUTMCoord.getEasting() != tempValue) {
+            if (southUTMCoord.getEasting() > (double) tempValue) {
                 southUTMCoord.setEasting(tempValue + gridSize);
+            } else if (mapBounds.containsIDL() && (utmZoneCoord.getZoneNumber() == 1) && (gridSize == UTM_1_METER_GRID)) {
+                southUTMCoord.setEasting(tempValue + 1);
+            } else {
+                southUTMCoord.setEasting(tempValue);
             }
             northUTMCoord.setEasting(southUTMCoord.getEasting());
         } else {
             // Set the easting value to a multiple of the grid size.
             tempValue = (int) Math.floor(northUTMCoord.getEasting() / gridSize) * gridSize;
-            if ((int) northUTMCoord.getEasting() != tempValue) {
+            if (northUTMCoord.getEasting() > (double) tempValue) {
                 northUTMCoord.setEasting(tempValue + gridSize);
+            } else if (mapBounds.containsIDL() && (utmZoneCoord.getZoneNumber() == 1) && (gridSize == UTM_1_METER_GRID)) {
+                northUTMCoord.setEasting(tempValue + 1);
+            } else {
+                northUTMCoord.setEasting(tempValue);
             }
             southUTMCoord.setEasting(northUTMCoord.getEasting());
         }
@@ -250,7 +269,17 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         southUTMCoord.toLatLong(southPos);
         northUTMCoord.toLatLong(northPos);
 
-        maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        if (mapBounds.containsIDL()) {
+            if (utmZoneCoord.getZoneNumber() == 1) {
+                maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+            } else if (utmZoneCoord.getZoneNumber() == 60) {
+                maxLongitude = 180.0;
+            } else {
+                maxLongitude = Math.min(180.0, utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+            }
+        } else {
+            maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        }
 
         while (southPos.getLongitude() < maxLongitude) {
             // The first and last meridian in a grid zone may not extend from the north to the south of the grid zone.
@@ -347,8 +376,22 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         boolean labelDetail = ((labelHeightMeters * 2) < metersInOneEighthOfAnInch);
         int majorGridSize = ((gridSize == UTM_100K_METER_GRID)? gridSize: ((metersInOneEighthOfAnInch < gridSize)? gridSize: gridSize * 10));
 
-        minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
-        maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        if (!mapBounds.containsIDL()) {
+            minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
+            maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        } else if (utmZoneCoord.getZoneNumber() == 1) {
+            minLogintude = -180.0;
+            maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        } else if (utmZoneCoord.getZoneNumber() == 60) {
+            minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
+            maxLongitude = 180.0;
+        } else if (utmZoneCoord.getZoneNumber() < 30) {
+            minLogintude = utmZoneCoord.getZoneWestLongitude();
+            maxLongitude = Math.min(mapBounds.getEast(), utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees());
+        } else {
+            minLogintude = Math.max(mapBounds.getWest(), utmZoneCoord.getZoneWestLongitude());
+            maxLongitude = utmZoneCoord.getZoneWestLongitude() + utmZoneCoord.getGridZoneWidthInDegrees();
+        }
         maxLongitude = ((maxLongitude == 180.0)? maxLongitude - 0.00000001: maxLongitude);
 
         if ((utmZoneCoord.getZoneNumber() == 31) && (utmZoneCoord.getZoneLetter().equals("V"))) {

@@ -265,17 +265,19 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                     northPoint = mapInstance.geoToContainer(centerNorth);
                     southPoint = mapInstance.geoToContainer(centerSouth);
 
-                    deltaX = northPoint.x - southPoint.x;
-                    deltaY = northPoint.y - southPoint.y;
-                    deltaXe2 = deltaX * deltaX;
-                    deltaYe2 = deltaY * deltaY;
-                    AbstractMapGridLine.this.boundsPixelHeight = (int) Math.sqrt(deltaXe2 + deltaYe2);
+                    if ((null != northPoint) && (null != southPoint)) {
+                        deltaX = northPoint.x - southPoint.x;
+                        deltaY = northPoint.y - southPoint.y;
+                        deltaXe2 = deltaX * deltaX;
+                        deltaYe2 = deltaY * deltaY;
+                        AbstractMapGridLine.this.boundsPixelHeight = (int) Math.sqrt(deltaXe2 + deltaYe2);
 
-                    if (pixelDistance > 0.0) {
-                        viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
-                        AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
+                        if (pixelDistance > 0.0) {
+                            viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+                            AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
 
-                        AbstractMapGridLine.this.generationThread.scheduleProcessing();
+                            AbstractMapGridLine.this.generationThread.scheduleProcessing();
+                        }
                     }
                 }
             }
@@ -383,7 +385,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     protected void displayGridLabel(String label, IEmpBoundingBox mapBounds, double metersPerPixel) {
         IGeoPosition labelPos;
 
-        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel / 2.0;
+        double charMetersWidth = getCharacterPixelWidth(MAIN_GRID_TYPE_LABEL) * metersPerPixel; // / 2.0;
         labelPos = new GeoPosition();
         labelPos.setLatitude(mapBounds.getNorth());
         labelPos.setLongitude(mapBounds.centerLongitude());
