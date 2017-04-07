@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +52,7 @@ public class BufferGenerator {
             } else if(targetFeature instanceof Path) {
                 return generateBufferPolygon((Path) targetFeature, mapInstance, buffer);
             } else {
-                throw new InvalidParameterException(targetFeature.getClass().getSimpleName() + " NOT supported");
+                throw new IllegalArgumentException(targetFeature.getClass().getSimpleName() + " NOT supported");
             }
         } catch(Exception e) {
             Log.e(TAG, "generateBuffer buffer " + buffer, e);

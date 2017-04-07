@@ -5,7 +5,6 @@ import android.util.Log;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.GeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import static java.lang.Double.isNaN;
@@ -44,16 +43,16 @@ public class GeoLibrary {
      * @param oLatLon1
      * @param oLatLon2
      * @return The distance in meters.
-     * @throws InvalidParameterException
+     * @throws IllegalArgumentException
      */
-    public static double computeDistanceBetween(IGeoPosition oLatLon1, IGeoPosition oLatLon2) throws InvalidParameterException {
+    public static double computeDistanceBetween(IGeoPosition oLatLon1, IGeoPosition oLatLon2) {
 
         if (oLatLon1 == null) {
-            throw new InvalidParameterException("oLatLon1 can not be null.");
+            throw new IllegalArgumentException("oLatLon1 can not be null.");
         }
 
         if (oLatLon2 == null) {
-            throw new InvalidParameterException("oLatLon2 can not be null.");
+            throw new IllegalArgumentException("oLatLon2 can not be null.");
         }
 
         double dLat1Rad = Math.toRadians(oLatLon1.getLatitude());
@@ -75,16 +74,16 @@ public class GeoLibrary {
      * @param oFrom
      * @param oTo
      * @return the bearing is return in degrees.
-     * @throws InvalidParameterException
+     * @throws IllegalArgumentException
      */
-    public static double computeBearing(IGeoPosition oFrom, IGeoPosition oTo) throws InvalidParameterException {
+    public static double computeBearing(IGeoPosition oFrom, IGeoPosition oTo) {
 
         if (oFrom == null) {
-            throw new InvalidParameterException("oFrom can not be null.");
+            throw new IllegalArgumentException("oFrom can not be null.");
         }
 
         if (oTo == null) {
-            throw new InvalidParameterException("oTo can not be null.");
+            throw new IllegalArgumentException("oTo can not be null.");
         }
 
         double dLat1Rad = Math.toRadians(oFrom.getLatitude());
@@ -104,9 +103,9 @@ public class GeoLibrary {
      * @param dDistance The distance in meters.
      * @param oFrom The starting position
      * @return position
-     * @throws InvalidParameterException
+     * @throws IllegalArgumentException
      */
-    public static IGeoPosition computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom) throws InvalidParameterException {
+    public static IGeoPosition computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom) {
         IGeoPosition oNewPos = new GeoPosition();
 
         GeoLibrary.computePositionAt(dBearing, dDistance, oFrom, oNewPos);
@@ -120,14 +119,14 @@ public class GeoLibrary {
      * @param dDistance The distance in meters.
      * @param oFrom The starting position
      * @param result the object to place the resulting position.
-     * @throws InvalidParameterException
+     * @throws IllegalArgumentException
      */
-    public static void computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom, IGeoPosition result) throws InvalidParameterException {
+    public static void computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom, IGeoPosition result) {
         if (oFrom == null) {
-            throw new InvalidParameterException("oFrom can not be null.");
+            throw new IllegalArgumentException("oFrom can not be null.");
         }
         if (result == null) {
-            throw new InvalidParameterException("result must be provided.");
+            throw new IllegalArgumentException("result must be provided.");
         }
 
         double dAngularDistance = dDistance / GeoLibrary.getEarthRadiusAt(oFrom.getLatitude()); //DEFAULT_EARTH_RADIUS;
@@ -144,13 +143,13 @@ public class GeoLibrary {
         result.setLongitude(Math.toDegrees(dLon2Rad));
     }
 
-    public static IGeoPosition midPointBetween(IGeoPosition oLocation1, IGeoPosition oLocation2) throws InvalidParameterException {
+    public static IGeoPosition midPointBetween(IGeoPosition oLocation1, IGeoPosition oLocation2) {
         if (oLocation1 == null) {
-            throw new InvalidParameterException("oLocation1 can not be null.");
+            throw new IllegalArgumentException("oLocation1 can not be null.");
         }
 
         if (oLocation2 == null) {
-            throw new InvalidParameterException("oLocation2 can not be null.");
+            throw new IllegalArgumentException("oLocation2 can not be null.");
         }
         IGeoPosition oNewPos = new GeoPosition();
 
@@ -178,15 +177,15 @@ public class GeoLibrary {
      * @param oFrom
      * @param oTo
      * @return The distance in meters.
-     * @throws InvalidParameterException
+     * @throws IllegalArgumentException
      */
-    public static double computeRhumbDistance(IGeoPosition oFrom, IGeoPosition oTo) throws InvalidParameterException {
+    public static double computeRhumbDistance(IGeoPosition oFrom, IGeoPosition oTo) {
         if (oFrom == null) {
-            throw new InvalidParameterException("oFrom can not be null.");
+            throw new IllegalArgumentException("oFrom can not be null.");
         }
 
         if (oTo == null) {
-            throw new InvalidParameterException("oTo can not be null.");
+            throw new IllegalArgumentException("oTo can not be null.");
         }
         double lat1 = Math.toRadians(oFrom.getLatitude()),
                lat2 = Math.toRadians(oTo.getLatitude());
@@ -209,15 +208,15 @@ public class GeoLibrary {
      * @param oFrom
      * @param oTo
      * @return The bearing is return in degrees.
-     * @throws InvalidParameterException
+     * @throws IllegalArgumentException
      */
-    public static double computeRhumbBearing(IGeoPosition oFrom, IGeoPosition oTo) throws InvalidParameterException {
+    public static double computeRhumbBearing(IGeoPosition oFrom, IGeoPosition oTo) {
         if (oFrom == null) {
-            throw new InvalidParameterException("oFrom can not be null.");
+            throw new IllegalArgumentException("oFrom can not be null.");
         }
 
         if (oTo == null) {
-            throw new InvalidParameterException("oTo can not be null.");
+            throw new IllegalArgumentException("oTo can not be null.");
         }
         double lat1 = Math.toRadians(oFrom.getLatitude()),
                lat2 = Math.toRadians(oTo.getLatitude());
@@ -238,11 +237,11 @@ public class GeoLibrary {
      * @param dDistance The distance in meters.
      * @param oFrom
      * @return Geo position
-     * @throws InvalidParameterException
+     * @throws IllegalArgumentException
      */
-    public static IGeoPosition calculateRhumbPositionAt(double dBearing, double dDistance, IGeoPosition oFrom) throws InvalidParameterException {
+    public static IGeoPosition calculateRhumbPositionAt(double dBearing, double dDistance, IGeoPosition oFrom) {
         if (oFrom == null) {
-            throw new InvalidParameterException("oFrom can not be null.");
+            throw new IllegalArgumentException("oFrom can not be null.");
         }
         double d = dDistance / GeoLibrary.getEarthRadiusAt(oFrom.getLatitude()); // DEFAULT_EARTH_RADIUS; // d = angular distance covered on earth's surface
         double lat1 = Math.toRadians(oFrom.getLatitude()),

@@ -8,7 +8,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,15 +38,15 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     /**
      * This constructor creates a KML feature from a document geo object.
      * @param document An object that implements the IGeoDocument interface.
-     * @throws InvalidParameterException This exception is raised if the geo renderable object does not contain a KML string or URL.
+     * @throws IllegalArgumentException This exception is raised if the geo renderable object does not contain a KML string or URL.
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(IGeoDocument document) throws InvalidParameterException, XmlPullParserException, IOException {
+    public KML(IGeoDocument document) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (!document.getProperties().containsKey(KML_STRING_PROPERTY) && !((null != document.getDocumentURI()) && !document.getDocumentURI().isEmpty())) {
-            throw new InvalidParameterException("GeoRenderable does not contain a KML string or URL property.");
+            throw new IllegalArgumentException("GeoRenderable does not contain a KML string or URL property.");
         }
 
         this.geoDocument = document;
@@ -73,15 +72,15 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     /**
      * This constructor take a valid KML string.
      * @param kmlString A valid KML document.
-     * @throws InvalidParameterException This exception is raised if the string is null or empty.
+     * @throws IllegalArgumentException This exception is raised if the string is null or empty.
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(String kmlString) throws InvalidParameterException, XmlPullParserException, IOException {
+    public KML(String kmlString) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if ((null == kmlString) || (kmlString.isEmpty())) {
-            throw new InvalidParameterException("KML string can not be null nor empty.");
+            throw new IllegalArgumentException("KML string can not be null nor empty.");
         }
         EmpKMLParser empKMLParser;
         empKMLParser = new EmpKMLParser(kmlString);
@@ -97,15 +96,15 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     /**
      * This constructor creates a KML feature from the KML obtained from input stream. The caller is responsible for closing the stream.
      * @param inputStream The open input stream.
-     * @throws InvalidParameterException This exception is raised if the stream is null.
+     * @throws IllegalArgumentException This exception is raised if the stream is null.
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the stream.
      */
-    public KML(InputStream inputStream) throws InvalidParameterException, XmlPullParserException, IOException {
+    public KML(InputStream inputStream) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (null == inputStream) {
-            throw new InvalidParameterException("Input stream can not be null.");
+            throw new IllegalArgumentException("Input stream can not be null.");
         }
         this.geoDocument = new GeoDocument();
         EmpKMLParser empKMLParser;
@@ -122,15 +121,15 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     /**
      * This constructor creates a KML feature from the KML obtained from the URL.
      * @param url A valid URL to a KML resource.
-     * @throws InvalidParameterException This exception is raised if the url is null.
+     * @throws IllegalArgumentException This exception is raised if the url is null.
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(java.net.URL url) throws InvalidParameterException, XmlPullParserException, IOException {
+    public KML(java.net.URL url) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (null == url) {
-            throw new InvalidParameterException("Invalid parameters. URL can not be null.");
+            throw new IllegalArgumentException("Invalid parameters. URL can not be null.");
         }
         this.geoDocument = new GeoDocument();
         InputStream inputStream = null;

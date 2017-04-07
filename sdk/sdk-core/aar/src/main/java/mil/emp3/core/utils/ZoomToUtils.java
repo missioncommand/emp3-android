@@ -69,14 +69,21 @@ public class ZoomToUtils {
         List<IGeoPosition> positionList = new ArrayList<>();
         for(IFeature feature : featureList) {
             if(VisibilityStateEnum.VISIBLE == storageManager.getVisibilityOnMap(clientMap, feature)) {
-                positionList.addAll(feature.getPositions());
+                if(null != feature.getPositions()) {
+                    positionList.addAll(feature.getPositions());
+                }
             }
+        }
+
+        if(0 == positionList.size()) {
+            Log.e(TAG, "Cannot zoom to a feature(s) with no positions");
+            return;
         }
 
         IGeoPosition center = GeoLibrary.getCenter(positionList);
         BoundingBox boundingBox = getBoundingBox(positionList);
 
-        if(boundingBox.isSinglePoint()) {
+        if((null != boundingBox) && (boundingBox.isSinglePoint())) {
             double leftLongitude, rightLongitude, bottomLatitude, topLatitude;
 
             leftLongitude = GeoLibrary.wrapLongitude(boundingBox.getLeftLongitude() - single_point_offset);
