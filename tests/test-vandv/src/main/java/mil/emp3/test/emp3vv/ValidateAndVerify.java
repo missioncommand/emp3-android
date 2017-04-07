@@ -23,7 +23,7 @@ import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.utils.CameraUtility;
 
 /**
- * Anyone with intention of adding anything to the tester should start reaing here.
+ * Anyone with intention of adding anything to the tester should start reading here.
  *
  * What is on the screen?
  *   - Hamburger menu on top left corner

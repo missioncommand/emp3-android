@@ -6,12 +6,12 @@ import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoMilSymbol;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,23 +34,42 @@ import mil.emp3.mirrorcache.spi.MirrorCacheClientProvider;
 import mil.emp3.mirrorcache.spi.MirrorCacheClientProviderFactory;
 
 public class MirrorCache {
-    static final private String TAG = MirrorCache.class.getSimpleName();
-
+    static final private String TAG            = MirrorCache.class.getSimpleName();
     static final private String PRODUCT_PREFIX = "product:";
 
-    private MirrorCacheClient client;
+    private boolean isConnected;
 
-    final private URI endpointUri;
+    final private MirrorCacheClient client;
     final private Map<String, Product> localProductMap;
 
-    public MirrorCache(String endpoint) {
-        try {
-            this.endpointUri     = new URI(endpoint);
-            this.localProductMap = new HashMap<>();
+    public MirrorCache(final URI endpointUri) {
+        Objects.requireNonNull(endpointUri, "endpointUri == null");
 
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(e);
+        final MirrorCacheClient client;
+        try {
+            client = MirrorCacheClientProviderFactory.getClient(new MirrorCacheClientProvider.ClientArguments() {
+                @Override
+                public TransportType transportType() {
+                    return TransportType.WEBSOCKET_PROGRAMMATIC;
+                }
+                @Override
+                public URI endpoint() {
+                    return endpointUri;
+                }
+            });
+        } catch (MirrorCacheException e) {
+            throw new IllegalStateException(e);
         }
+
+        this.client          = client;
+        this.localProductMap = new HashMap<>();
+    }
+
+    public MirrorCache(MirrorCacheClient client) {
+        Objects.requireNonNull(client, "client == null");
+
+        this.client          = client;
+        this.localProductMap = new HashMap<>();
     }
 
     // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
@@ -59,36 +78,32 @@ public class MirrorCache {
     public void connect() throws EMP_Exception {
         Log.d(TAG, "connect()");
 
-        if (client != null) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "Already connected.");
-        }
+        if (!isConnected()) {
+            try {
+                client.init();
+                client.connect();
 
-        try {
-            client = MirrorCacheClientProviderFactory.getClient(new MirrorCacheClientProvider.ClientArguments() {
-                @Override public TransportType transportType() {
-                    return TransportType.WEBSOCKET_PROGRAMMATIC;
-                }
-                @Override public URI endpoint() {
-                    return endpointUri;
-                }
-            });
-            client.init();
-            client.connect();
+            } catch (MirrorCacheException e) {
+                throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getReason().getMsg() + "\n" + e.getDetails(), e);
+            }
 
-        } catch (MirrorCacheException e) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getReason().getMsg() + "\n" + e.getDetails(), e);
+            isConnected = true;
         }
     }
 
     public void disconnect() throws EMP_Exception {
         Log.d(TAG, "disconnect()");
 
-        try {
-            client.disconnect();
-            client.shutdown();
-            client = null;
-        } catch (MirrorCacheException e) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getReason().getMsg() + "\n" + e.getDetails(), e);
+        if (isConnected()) {
+            try {
+                client.disconnect();
+                client.shutdown();
+
+                isConnected = false;
+
+            } catch (MirrorCacheException e) {
+                throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getReason().getMsg() + "\n" + e.getDetails(), e);
+            }
         }
     }
 
@@ -100,6 +115,7 @@ public class MirrorCache {
      */
     public List<String> getProductIds() throws EMP_Exception {
         Log.d(TAG, "getProductIds()");
+        validateConnection();
 
         final List<String> productIds = new ArrayList<>();
 
@@ -127,6 +143,8 @@ public class MirrorCache {
      */
     public Overlay subscribe(String productId) throws EMP_Exception {
         Log.d(TAG, "subscribe()");
+        Objects.requireNonNull(productId, "productId == null");
+        validateConnection();
 
         validateProductId(productId);
         Log.d(TAG, "productId: " + productId);
@@ -173,6 +191,8 @@ public class MirrorCache {
      */
     public void unsubscribe(String productId) throws EMP_Exception {
         Log.d(TAG, "unsubscribe()");
+        Objects.requireNonNull(productId, "productId == null");
+        validateConnection();
 
         validateProductId(productId);
         Log.d(TAG, "productId: " + productId);
@@ -202,6 +222,8 @@ public class MirrorCache {
      */
     public void addProduct(final Overlay overlay) throws EMP_Exception {
         Log.d(TAG, "addProduct()");
+        Objects.requireNonNull(overlay, "overlay == null");
+        validateConnection();
 
         final String productId = generateProductId(overlay);
         Log.d(TAG, "productId: " + productId);
@@ -237,6 +259,8 @@ public class MirrorCache {
      */
     public void removeProduct(Overlay overlay, boolean allowSubscribersToKeep) throws EMP_Exception {
         Log.d(TAG, "removeProduct()");
+        Objects.requireNonNull(overlay, "overlay == null");
+        validateConnection();
 
         final String productId = generateProductId(overlay);
         Log.d(TAG, "productId: " + productId);
@@ -266,6 +290,16 @@ public class MirrorCache {
     // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
     // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
 
+    private boolean isConnected() {
+        return isConnected;
+    }
+
+    private void validateConnection() {
+        if (!isConnected()) {
+            throw new IllegalStateException("!isConnected()");
+        }
+    }
+
     /**
      * Validates the format of a productId.
      *
@@ -273,8 +307,8 @@ public class MirrorCache {
      * @throws EMP_Exception If {@code productId} is incorrectly formatted
      */
     static private void validateProductId(String productId) throws EMP_Exception {
-        if (productId == null || !productId.startsWith(PRODUCT_PREFIX) || productId.length() == PRODUCT_PREFIX.length()) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "productId == null || !productId.startsWith(PRODUCT_PREFIX) || productId.length() == PRODUCT_PREFIX.length()");
+        if (!productId.startsWith(PRODUCT_PREFIX) || productId.length() == PRODUCT_PREFIX.length()) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "Invalid productId. (!productId.startsWith(PRODUCT_PREFIX) || productId.length() == PRODUCT_PREFIX.length())");
         }
     }
 
