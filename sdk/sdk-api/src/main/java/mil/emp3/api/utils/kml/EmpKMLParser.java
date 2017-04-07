@@ -22,6 +22,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -60,6 +61,7 @@ public class EmpKMLParser {
     private String docId = null;
     private String documentName = null;
     private String documentDescription = null;
+    private String documentBase = null;
 
     /**
      * This Constructor parses a KML string.
@@ -87,6 +89,17 @@ public class EmpKMLParser {
      * @throws IOException This exception is raised if it fails to read the input stream.
      */
     public EmpKMLParser(InputStream stream) throws XmlPullParserException, IOException {
+        this(stream, null);
+    }
+
+    /**
+     * This constructor parses the KML from an input stream.
+     * @param stream The input stream to read from.
+     * @param documentBase A valid file system path (e.g directory where KMZ file was exploded).
+     * @throws XmlPullParserException This exception is raised if the KML fails to parse.
+     * @throws IOException This exception is raised if it fails to read the input stream.
+     */
+    public EmpKMLParser(InputStream stream, String documentBase) throws XmlPullParserException, IOException {
         XmlPullParser xmlPullParser;
 
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -95,6 +108,7 @@ public class EmpKMLParser {
         xmlPullParser = factory.newPullParser();
         xmlPullParser.setInput(stream, null);
 
+        this.documentBase = documentBase;
         this.parseKML(xmlPullParser);
     }
 
@@ -221,7 +235,13 @@ public class EmpKMLParser {
                 }
 
                 if ((null != kmlStyle) && (null != kmlStyle.getIconUrl())) {
-                    newPoint.setIconURI(kmlStyle.getIconUrl());
+                    if(null == documentBase) {
+                        newPoint.setIconURI(kmlStyle.getIconUrl());
+                    } else {
+                        // documentBase is set by the KMLSProvider when a KMZ file is exploded and stored on local file system.
+                        String fullPath = documentBase + File.separator + kmlStyle.getIconUrl().toString();
+                        newPoint.setIconURI(fullPath);
+                    }
                 }
 
                 newPoint.setPosition(kmlPoint.getGeometryObject());

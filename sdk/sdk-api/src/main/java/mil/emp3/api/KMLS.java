@@ -10,13 +10,26 @@ import java.util.UUID;
 import mil.emp3.api.abstracts.MapService;
 import mil.emp3.api.enums.KMLSStatusEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
 
+/**
+ * Implements the KML Map Service. This service used by the application to fetch a KMZ file, convert it to KMLFeature and
+ * draw it on a background Layer.
+ */
 public class KMLS extends MapService implements IKMLS {
     private Map<IMap, KMLSStatusEnum> KMLSStatusMap = new HashMap<>();
-    private Context context;
+    private final Context context;
+    private KML feature;
 
+    /**
+     * Create a KMLS service
+     * @param context Android context, required to find a directory to copy the fetched KMZ file
+     * @param serviceURL URL for the KMZ.
+     * @throws MalformedURLException
+     * @throws IllegalArgumentException
+     */
     public KMLS(Context context, String serviceURL) throws MalformedURLException {
         super(serviceURL);
         if(null == context) {
@@ -25,14 +38,28 @@ public class KMLS extends MapService implements IKMLS {
         this.context = context;
     }
 
-    public KMLS(UUID geoId, String serviceURL) throws MalformedURLException {
-        super(serviceURL);
+    /**
+     * Creates a KMLS service using application specified UUID.
+     * @param context Android context, required to find a directory to copy the fetched KMZ file
+     * @param serviceURL URL for the KMZ.
+     * @param geoId
+     * @throws MalformedURLException
+     * @throws IllegalArgumentException
+     */
+    public KMLS(Context context, String serviceURL, UUID geoId) throws MalformedURLException {
+        this(context, serviceURL);
         if(null == geoId) {
             throw new IllegalArgumentException("geoId must be non-null");
         }
         setGeoId(geoId);
     }
 
+    /**
+     * Fetches the current status of the service for the specified client map.
+     * @param mapClient
+     * @return
+     * @throws EMP_Exception
+     */
     @Override
     public KMLSStatusEnum getStatus(IMap mapClient) throws EMP_Exception {
         if(null == mapClient) {
@@ -45,8 +72,31 @@ public class KMLS extends MapService implements IKMLS {
         return status;
     }
 
+    /**
+     * Fetch the context with which object was initialized.
+     * @return
+     */
     @Override
     public Context getContext() {
         return context;
+    }
+
+    /**
+     * Sets the KML feature. This is used internally for EMP to store the feature that generated from the KMZ.
+     * Client applications shouldn't use this method.
+     * @param feature
+     */
+    @Override
+    public void setFeature(KML feature) {
+        this.feature = feature;
+    }
+
+    /**
+     * Fetches the feature that was generated from the KMZ.
+     * @return
+     */
+    @Override
+    public IKML getFeature() {
+        return feature;
     }
 }

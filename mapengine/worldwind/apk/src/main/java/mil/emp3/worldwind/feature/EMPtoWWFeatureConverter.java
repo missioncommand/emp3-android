@@ -15,6 +15,9 @@ import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +68,7 @@ public class EMPtoWWFeatureConverter {
      */
     public Placemark createPlacemark(mil.emp3.api.Point feature, boolean isSelected) {
         Offset imageOffset;
-        PlacemarkAttributes oAttr;
+        PlacemarkAttributes oAttr = null;
         IGeoIconStyle oIconStyle = feature.getIconStyle();
         IGeoPosition oPos = feature.getPosition();
         String sURL = feature.getIconURI();
@@ -131,10 +134,18 @@ public class EMPtoWWFeatureConverter {
                         gov.nasa.worldwind.WorldWind.OFFSET_FRACTION, 0, // x offset
                         gov.nasa.worldwind.WorldWind.OFFSET_FRACTION, 1.0); // y offset
             }
-            oAttr = PlacemarkAttributes.createWithImage(ImageSource.fromUrl(sURL)).setImageOffset(imageOffset);
+            File file = new File(sURL);
+
+            try {
+                oAttr = PlacemarkAttributes.createWithImage(ImageSource.fromUrl(file.toURI().toURL().toString())).setImageOffset(imageOffset);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
         }
 
-        oAttr.setImageScale(dScale);
+        if(null != oAttr) {
+            oAttr.setImageScale(dScale);
+        }
 
         Placemark oIcon = new Placemark(
                 Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()),

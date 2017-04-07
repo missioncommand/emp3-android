@@ -28,7 +28,7 @@ import mil.emp3.core.storage.ClientMapToMapInstance;
  * Processes KML service requests from the client application. Basic interfaces for the application are
  * addMapService and removeMapService. Request is queued to a Thread and application call is returned.
  *
- * Some design decisions (allow listed in the issue)
+ * Some design decisions (also listed in the issue)
  *
  * 1. Features created by KMZ are treated as a special layer in Map Instance. They are not added to any overlay within the core.
  * 2. Features created via KMZ are not returned when getAllMapFeatures is executed.
@@ -40,10 +40,16 @@ public class KMLSProvider {
     private static String TAG = KMLSProvider.class.getSimpleName();
     private static KMLSProvider instance = null;
     private final IStorageManager storageManager;
+
     private BlockingQueue<KMLSRequest> queue = new LinkedBlockingQueue<>();
     private KMLSProcessor processor;
     private Thread processorThread;
 
+    /**
+     * KMLProvider is singleton.
+     * @param storageManager
+     * @return
+     */
     public static KMLSProvider create(IStorageManager storageManager) {
         if(null == instance) {
             synchronized(KMLSProvider.class) {
@@ -60,6 +66,9 @@ public class KMLSProvider {
         this.storageManager = storageManager;
     }
 
+    /**
+     * Initialize the processing thread.
+     */
     private void init() {
         if(null == processor) {
             processor = new KMLSProcessor();
@@ -67,6 +76,14 @@ public class KMLSProvider {
             processorThread.start();
         }
     }
+
+    /**
+     * Queue up the request for KMLProcessor as we don't want to execute it on the UI thread.
+     * @param map
+     * @param mapService
+     * @return
+     * @throws EMP_Exception
+     */
     public boolean addMapService(IMap map, IKMLS mapService) throws EMP_Exception
     {
         try {
@@ -84,6 +101,9 @@ public class KMLSProvider {
         return false;
     }
 
+    /**
+     * Holder for KML Request.
+     */
     class KMLSRequest {
         IMap map;
         IKMLS service;
@@ -95,6 +115,10 @@ public class KMLSProvider {
             this.service = service;
         }
     }
+
+    /**
+     * Waits on the queue and serially process incoming KML Service Requests.
+     */
     class KMLSProcessor implements Runnable {
         private int READ_BUFFER_SIZE = 4096;
         @Override
@@ -104,24 +128,33 @@ public class KMLSProvider {
                     KMLSRequest request = queue.take();
                     Log.d(TAG, "KMLSProcessor processing " + request.service.getURL());
 
-                    copyKMZ(request);
-                    listFiles(request.kmzDirectory);
+                    copyKMZ(request);  // Fetch the KMZ either file URL or network URL
+                    listFiles(request.kmzDirectory); // This is just for debugging
+
+                    // File could be either a KMZ file or KML file.
                     boolean isKMZFile = false;
                     try {
                         unzipKMZFile(request);
                         listFiles(request.kmzDirectory);
                         isKMZFile = true;
                     } catch (EMP_Exception e) {
-
+                        Log.i(TAG, "KMLProcessor-run " + e.getMessage(), e);
                     }
 
                     if(!isKMZFile) {
                         // Process as KML file??
                     }
 
+                    // Parse the KML file and build a KML Feature and pass it on to the MapInstance for drawing.
                     if((null != request.kmlFilePath) && (0 != request.kmlFilePath.length())) {
-                        KML kmlFeature = new KML(new File(request.kmlFilePath).toURI().toURL());
+                        KML kmlFeature = new KML(new File(request.kmlFilePath).toURI().toURL(), request.kmzDirectory.getAbsolutePath());
                         Log.d(TAG, "kmlFeature created " + request.kmlFilePath);
+                        request.service.setFeature(kmlFeature);
+
+                        ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(request.map);
+                        if((null != mapMapping) && (null != mapMapping.getMapInstance())) {
+                            mapMapping.getMapInstance().addMapService(request.service);
+                        }
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -152,7 +185,7 @@ public class KMLSProvider {
                 File directory = request.service.getContext().getDir(path.substring(path.lastIndexOf(File.separatorChar) + 1) + ".d", Context.MODE_PRIVATE);
                 cleanDirectory(directory);
                 String fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
-                Log.d(TAG, "File Path from URL " + path + " target directory " + directory + " target fileName " + fileName);
+                Log.v(TAG, "File Path from URL " + path + " target directory " + directory + " target fileName " + fileName);
                 try (InputStream input = connection.getInputStream();
                      OutputStream output = new FileOutputStream(directory + File.separator + fileName)) {
                     byte[] buffer = new byte[READ_BUFFER_SIZE];
@@ -162,7 +195,7 @@ public class KMLSProvider {
                         output.write(buffer, 0, n);
                         total += n;
                     }
-                    Log.d(TAG, "transferred " + total);
+                    Log.v(TAG, "transferred " + total);
                 }
 
                 request.kmzFilePath = directory + File.separator + fileName;
@@ -192,7 +225,7 @@ public class KMLSProvider {
 
         /**
          * https://developers.google.com/kml/documentation/kmzarchives for structure of KMZ file, Important thing to note is:
-         *     a KMZ file can refer to other kmz files.
+         *     a KMZ file can refer to other kmz files - we don;t support that
          *     There shouldn't be more than one kml file in the archive
          *     File references are relative.
          *     kml file is always in the root folder.
@@ -208,7 +241,7 @@ public class KMLSProvider {
 
                 while (entries.hasMoreElements()) {
                     ZipEntry zipEntry = entries.nextElement();
-                    Log.d(TAG, "zipEntry " + zipEntry.getName());
+                    Log.v(TAG, "zipEntry " + zipEntry.getName());
 
                     if(zipEntry.isDirectory()) {
                         File directory = new File(request.kmzDirectory + File.separator + zipEntry.getName());
@@ -238,6 +271,10 @@ public class KMLSProvider {
             }
         }
 
+        /**
+         * Recursively lists files in a directory.
+         * @param directory
+         */
         private void listFiles(File directory) {
             if(null != directory) {
                 Log.v(TAG, "listFiles for " + directory.getAbsolutePath());
