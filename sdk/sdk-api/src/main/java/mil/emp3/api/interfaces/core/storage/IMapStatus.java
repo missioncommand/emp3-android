@@ -6,6 +6,8 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.util.UUID;
+
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.EditorMode;
@@ -80,4 +82,11 @@ public interface IMapStatus {
     FontSizeModifierEnum getFontSizeModifier();
     void setFontSizeModifier(FontSizeModifierEnum value);
     IGeoFillStyle getBufferFillStyle();
+
+    /**
+     * Returns true if a service with specified uuid has already been installed.
+     * @param uuid
+     * @return
+     */
+    boolean serviceExists(UUID uuid);
 }

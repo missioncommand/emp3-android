@@ -252,6 +252,7 @@ public abstract class MapStatus implements IMapStatus {
         return oList;
     }
 
+    @Override
     public boolean serviceExists(UUID uuid) {
         if(this.mapServiceHash.containsKey(uuid)) {
             return true;
