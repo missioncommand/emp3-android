@@ -57,7 +57,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         IGeoLabelStyle labelStyle;
 
         // Grid zone styles.
-        color = new EmpGeoColor(0.6, 255, 255, 0);
+        color = new EmpGeoColor(1.0, 255, 255, 0);
         strokeStyle = new GeoStrokeStyle();
         strokeStyle.setStrokeColor(color);
         strokeStyle.setStrokeWidth(3.0);

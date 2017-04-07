@@ -58,7 +58,7 @@ public class MapGridLayer extends RenderableLayer {
                             if(renderable instanceof gov.nasa.worldwind.shape.Path) {
                                 // Optimize Grid rendering
                                 gov.nasa.worldwind.shape.Path path = (gov.nasa.worldwind.shape.Path) renderable;
-                                path.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+                                //path.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
                                 path.setFollowTerrain(false);
                             }
                             break;

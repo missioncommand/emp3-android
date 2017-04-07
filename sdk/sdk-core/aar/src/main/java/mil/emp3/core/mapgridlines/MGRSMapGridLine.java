@@ -152,7 +152,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
         // MGRS northing values
         labelStyle = new GeoLabelStyle();
-        color = new EmpGeoColor(0.5, 0, 0, 0);
+        color = new EmpGeoColor(1.0, 150, 150, 150);
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
