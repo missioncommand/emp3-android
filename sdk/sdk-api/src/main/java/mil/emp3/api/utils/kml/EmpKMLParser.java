@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -239,8 +240,21 @@ public class EmpKMLParser {
                         newPoint.setIconURI(kmlStyle.getIconUrl());
                     } else {
                         // documentBase is set by the KMLSProvider when a KMZ file is exploded and stored on local file system.
-                        String fullPath = documentBase + File.separator + kmlStyle.getIconUrl().toString();
-                        newPoint.setIconURI(fullPath);
+                        // If the IconUrl is already a well formed URL then don't touch it. Otherwise it is probably a relative
+                        // path from the KMZ file, so create a file URL for the path.
+                        try {
+                            URL url = new URL(kmlStyle.getIconUrl());
+                            newPoint.setIconURI(kmlStyle.getIconUrl());
+                        } catch (MalformedURLException e) {
+                            try {
+                                String fullPath = documentBase + File.separator + kmlStyle.getIconUrl().toString();
+                                File file = new File(fullPath);
+                                newPoint.setIconURI(file.toURI().toURL().toString());
+                            } catch (MalformedURLException em) {
+                                Log.e(TAG, "createEMPFeature ", e);
+                            }
+                        }
+
                     }
                 }
 

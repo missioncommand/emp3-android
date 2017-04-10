@@ -37,29 +37,17 @@ import mil.emp3.core.storage.ClientMapToMapInstance;
  *
  * 1. Features created by KMZ are treated as a special layer in Map Instance. They are not added to any overlay within the core.
  * 2. Features created via KMZ are not returned when getAllMapFeatures is executed.
- * 3. No event is generated when KMZ processing is complete or fails.
+ * 3. Events are generated and reported via the listener as service processing goes through phases.
  * 4. KMZ referring to another KMZ is not supported as our parser skips over network links.
  */
 
 public class KMLSProvider {
     private static String TAG = KMLSProvider.class.getSimpleName();
     private static KMLSProvider instance = null;
-    private final static String KMLS_ROOT = "KMLS";
-    private final static String PERSISTENT_ROOT = "PERSISTENT";
-    private final static String VOLATILE_ROOT = "VOLATILE";
 
     private final IStorageManager storageManager;
-
-    private BlockingQueue<KMLSRequest> queue = new LinkedBlockingQueue<>();
-
     private KMLSProcessor processor;
-    private Thread processorThread;
-
     private KMLSReporter reporter;
-
-    private boolean directoryBuilt = false;
-    private File persistentRoot;
-    private File volatileRoot;
 
     /**
      * KMLProvider is singleton.
@@ -71,7 +59,6 @@ public class KMLSProvider {
             synchronized(KMLSProvider.class) {
                 if(null == instance) {
                     instance = new KMLSProvider(storageManager);
-                    instance.init();
                 }
             }
         }
@@ -80,37 +67,10 @@ public class KMLSProvider {
 
     private KMLSProvider(IStorageManager storageManager) {
         this.storageManager = storageManager;
+        processor = new KMLSProcessor();
+        reporter = new KMLSReporter();
     }
 
-    /**
-     * Initialize the processing thread.
-     */
-    private void init() {
-        if(null == processor) {
-            processor = new KMLSProcessor();
-            processorThread = new Thread(processor);
-            processorThread.start();
-        }
-
-        if(null == reporter) {
-            reporter = new KMLSReporter();
-        }
-    }
-
-    private void buildDirectory(Context context) {
-        try {
-            if (!directoryBuilt) {
-                File kmlsRoot = context.getDir(KMLS_ROOT, Context.MODE_PRIVATE);
-                persistentRoot = new File(kmlsRoot + File.separator + PERSISTENT_ROOT);
-                persistentRoot.mkdirs();
-                volatileRoot = new File(kmlsRoot + File.separator + VOLATILE_ROOT);
-                volatileRoot.mkdirs();
-                directoryBuilt = true;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "failed to build directory ", e);
-        }
-    }
     /**
      * Queue up the request for KMLProcessor as we don't want to execute it on the UI thread.
      * @param map
@@ -127,12 +87,7 @@ public class KMLSProvider {
                 return false;
             }
             mapMapping.addMapService(mapService);
-            queue.put(new KMLSRequest(map, mapService));
-
-            if(mapService instanceof KMLS) {
-                KMLS kmls = (KMLS) mapService;
-                kmls.setStatus(map, KMLSStatusEnum.QUEUED);
-            }
+            processor.generateRequest(map, mapService);
             return true;
         } catch (Exception e) {
             Log.e(TAG, "addMapService ", e);
@@ -141,25 +96,56 @@ public class KMLSProvider {
     }
 
     /**
-     * Holder for KML Request.
-     */
-    class KMLSRequest {
-        IMap map;
-        IKMLS service;
-        String kmzFilePath = null;
-        File kmzDirectory = null;
-        String kmlFilePath = null;
-        KMLSRequest(IMap map, IKMLS service) {
-            this.map = map;
-            this.service = service;
-        }
-    }
-
-    /**
      * Waits on the queue and serially process incoming KML Service Requests.
      */
     class KMLSProcessor implements Runnable {
-        private int READ_BUFFER_SIZE = 4096;
+        private final int READ_BUFFER_SIZE = 4096;
+
+        private final String KMLS_ROOT = "KMLS";
+        private final String PERSISTENT_ROOT = "PERSISTENT";
+        private final String VOLATILE_ROOT = "VOLATILE";
+
+        private boolean directoryBuilt = false;
+        private File persistentRoot;
+        private File volatileRoot;
+
+        /**
+         * Holder for KML Request.
+         */
+        class KMLSRequest {
+            IMap map;
+            IKMLS service;
+            String kmzFilePath = null;
+            File kmzDirectory = null;
+            String kmlFilePath = null;
+            KMLSRequest(IMap map, IKMLS service) {
+                this.map = map;
+                this.service = service;
+            }
+        }
+
+        private BlockingQueue<KMLSRequest> queue = new LinkedBlockingQueue<>();
+        private Thread processorThread;
+
+        /**
+         * Start thread if it is not already started.
+         */
+        private void startThread() {
+            if(null == processorThread) {
+                processorThread = new Thread(this);
+                processorThread.start();
+            }
+        }
+
+        void generateRequest(IMap map, IKMLS mapService) {
+            queue.add(new KMLSRequest(map, mapService));
+            if(mapService instanceof KMLS) {
+                KMLS kmls = (KMLS) mapService;
+                kmls.setStatus(map, KMLSStatusEnum.QUEUED);
+            }
+            startThread();
+        }
+
         @Override
         public void run() {
             while(!Thread.interrupted()) {
@@ -173,19 +159,13 @@ public class KMLSProvider {
                     listFiles(request.kmzDirectory); // This is just for debugging
 
                     // File could be either a KMZ file or KML file.
-                    boolean isKMZFile = false;
                     try {
                         ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.EXPLODING);
                         unzipKMZFile(request);
                         reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_EXPLODED);
                         listFiles(request.kmzDirectory);
-                        isKMZFile = true;
                     } catch (EMP_Exception e) {
                         Log.i(TAG, "KMLProcessor-run " + e.getMessage(), e);
-                    }
-
-                    if(!isKMZFile) {
-                        // Process as KML file??
                     }
 
                     // Parse the KML file and build a KML Feature and pass it on to the MapInstance for drawing.
@@ -208,6 +188,21 @@ public class KMLSProvider {
                 } catch(Exception e) {
                     Log.e(TAG, "KMLSProcessor run", e);
                 }
+            }
+        }
+
+        private void buildDirectory(Context context) {
+            try {
+                if (!directoryBuilt) {
+                    File kmlsRoot = context.getDir(KMLS_ROOT, Context.MODE_PRIVATE);
+                    persistentRoot = new File(kmlsRoot + File.separator + PERSISTENT_ROOT);
+                    persistentRoot.mkdirs();
+                    volatileRoot = new File(kmlsRoot + File.separator + VOLATILE_ROOT);
+                    volatileRoot.mkdirs();
+                    directoryBuilt = true;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "failed to build directory ", e);
             }
         }
 
@@ -320,6 +315,11 @@ public class KMLSProvider {
 
             } catch (IOException | SecurityException e) {
                 Log.e(TAG, "KMLProcessor-unzipKMZFile " + request.kmzFilePath, e);
+                if(request.kmzFilePath.endsWith(".kml")) {
+                    // So it is a KML file not a KMZ file
+                    request.kmlFilePath = request.kmzFilePath;
+                    Log.d(TAG, "kmlFilePath " + request.kmlFilePath);
+                }
                 throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getMessage());
             }
         }
