@@ -5,6 +5,7 @@ import android.content.Context;
 import mil.emp3.api.KML;
 import mil.emp3.api.enums.KMLSStatusEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.listeners.IKMLSEventListener;
 
 /**
  * 3.4.1.4 Display KML Service Data
@@ -37,6 +38,11 @@ public interface IKMLS extends IMapService {
      */
     Context getContext();
 
+    /**
+     * Returns application installed listener.
+     * @return
+     */
+    IKMLSEventListener getListener();
     /**
      * KML Feature generated from the downloaded KMZ file is set by this method. Client applications should not use this method.
      * @param feature

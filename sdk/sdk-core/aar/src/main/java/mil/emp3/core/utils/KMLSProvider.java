@@ -18,10 +18,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import mil.emp3.api.KML;
+import mil.emp3.api.KMLS;
+import mil.emp3.api.enums.KMLSEventEnum;
+import mil.emp3.api.enums.KMLSStatusEnum;
+import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.IStorageManager;
+import mil.emp3.api.listeners.IKMLSEventListener;
 import mil.emp3.core.storage.ClientMapToMapInstance;
 
 /**
@@ -39,11 +44,22 @@ import mil.emp3.core.storage.ClientMapToMapInstance;
 public class KMLSProvider {
     private static String TAG = KMLSProvider.class.getSimpleName();
     private static KMLSProvider instance = null;
+    private final static String KMLS_ROOT = "KMLS";
+    private final static String PERSISTENT_ROOT = "PERSISTENT";
+    private final static String VOLATILE_ROOT = "VOLATILE";
+
     private final IStorageManager storageManager;
 
     private BlockingQueue<KMLSRequest> queue = new LinkedBlockingQueue<>();
+
     private KMLSProcessor processor;
     private Thread processorThread;
+
+    private KMLSReporter reporter;
+
+    private boolean directoryBuilt = false;
+    private File persistentRoot;
+    private File volatileRoot;
 
     /**
      * KMLProvider is singleton.
@@ -75,8 +91,26 @@ public class KMLSProvider {
             processorThread = new Thread(processor);
             processorThread.start();
         }
+
+        if(null == reporter) {
+            reporter = new KMLSReporter();
+        }
     }
 
+    private void buildDirectory(Context context) {
+        try {
+            if (!directoryBuilt) {
+                File kmlsRoot = context.getDir(KMLS_ROOT, Context.MODE_PRIVATE);
+                persistentRoot = new File(kmlsRoot + File.separator + PERSISTENT_ROOT);
+                persistentRoot.mkdirs();
+                volatileRoot = new File(kmlsRoot + File.separator + VOLATILE_ROOT);
+                volatileRoot.mkdirs();
+                directoryBuilt = true;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "failed to build directory ", e);
+        }
+    }
     /**
      * Queue up the request for KMLProcessor as we don't want to execute it on the UI thread.
      * @param map
@@ -94,6 +128,11 @@ public class KMLSProvider {
             }
             mapMapping.addMapService(mapService);
             queue.put(new KMLSRequest(map, mapService));
+
+            if(mapService instanceof KMLS) {
+                KMLS kmls = (KMLS) mapService;
+                kmls.setStatus(map, KMLSStatusEnum.QUEUED);
+            }
             return true;
         } catch (Exception e) {
             Log.e(TAG, "addMapService ", e);
@@ -128,13 +167,17 @@ public class KMLSProvider {
                     KMLSRequest request = queue.take();
                     Log.d(TAG, "KMLSProcessor processing " + request.service.getURL());
 
+                    ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.FETCHING);
                     copyKMZ(request);  // Fetch the KMZ either file URL or network URL
+                    reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_RETRIEVED);
                     listFiles(request.kmzDirectory); // This is just for debugging
 
                     // File could be either a KMZ file or KML file.
                     boolean isKMZFile = false;
                     try {
+                        ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.EXPLODING);
                         unzipKMZFile(request);
+                        reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_EXPLODED);
                         listFiles(request.kmzDirectory);
                         isKMZFile = true;
                     } catch (EMP_Exception e) {
@@ -147,13 +190,17 @@ public class KMLSProvider {
 
                     // Parse the KML file and build a KML Feature and pass it on to the MapInstance for drawing.
                     if((null != request.kmlFilePath) && (0 != request.kmlFilePath.length())) {
+                        ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.PARSING);
                         KML kmlFeature = new KML(new File(request.kmlFilePath).toURI().toURL(), request.kmzDirectory.getAbsolutePath());
                         Log.d(TAG, "kmlFeature created " + request.kmlFilePath);
                         request.service.setFeature(kmlFeature);
+                        reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_PARSED);
 
                         ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(request.map);
                         if((null != mapMapping) && (null != mapMapping.getMapInstance())) {
                             mapMapping.getMapInstance().addMapService(request.service);
+                            ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.DRAWN);
+                            reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FEATURES_DRAWN);
                         }
                     }
                 } catch (InterruptedException e) {
@@ -180,9 +227,15 @@ public class KMLSProvider {
             // fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 
             try {
+                buildDirectory(request.service.getContext());
                 URLConnection connection = request.service.getURL().openConnection();
                 String path = request.service.getURL().getPath();
-                File directory = request.service.getContext().getDir(path.substring(path.lastIndexOf(File.separatorChar) + 1) + ".d", Context.MODE_PRIVATE);
+                // File directory = request.service.getContext().getDir(path.substring(path.lastIndexOf(File.separatorChar) + 1) + ".d", Context.MODE_PRIVATE);
+
+                File directory = new File(persistentRoot + File.separator + path.substring(path.lastIndexOf(File.separatorChar) + 1) + ".d");
+                if(!directory.exists()) {
+                    directory.mkdirs();
+                }
                 cleanDirectory(directory);
                 String fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
                 Log.v(TAG, "File Path from URL " + path + " target directory " + directory + " target fileName " + fileName);
@@ -287,6 +340,71 @@ public class KMLSProvider {
                             Log.v(TAG, file.getName() + " " + file.length());
                         }
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * KMLS Reporter is responsible for reporting KMLS events to the application.
+     */
+    class KMLSReporter implements Runnable {
+
+        private BlockingQueue<KMLSReport> reportQueue = new LinkedBlockingQueue<>();
+        private Thread reporterThread = null;
+
+        /**
+         * Start thread if it is not already started.
+         */
+        private void startThread() {
+            if(null == reporterThread) {
+                reporterThread = new Thread(this);
+                reporterThread.start();
+            }
+        }
+        /**
+         * Used to report current status of the request via events to the client application
+         */
+        class KMLSReport extends KMLSEvent {
+            private final IKMLSEventListener listener;
+            public KMLSReport(IMap clientMap, IKMLS oTarget, KMLSEventEnum eEvent, IKMLSEventListener listener) {
+                super(eEvent, oTarget, clientMap);
+                this.listener = listener;
+            }
+
+            public IKMLSEventListener getListener() {
+                return listener;
+            }
+        }
+
+        /**
+         * Create the event object and queue it up for processing
+         * @param clientMap
+         * @param service
+         * @param event
+         */
+        void generateEvent(IMap clientMap, IKMLS service, KMLSEventEnum event) {
+            KMLSReport report = new KMLSReport(clientMap, service, event, service.getListener());
+            reportQueue.add(report);
+            startThread();
+        }
+
+        /**
+         * Takes the next event from the queue and invokes user installed listener.
+         */
+        @Override
+        public void run() {
+            while(!Thread.interrupted()) {
+                try {
+                    KMLSReport report = reportQueue.take();
+                    Log.d(TAG, "KMLSReporter reporting " + report.getTarget().getURL() + " " + report.getEvent());
+                    if(null != report.getListener()) {
+                        report.getListener().onEvent(report);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch(Exception e) {
+                    Log.e(TAG, "KMLSProcessor run", e);
                 }
             }
         }

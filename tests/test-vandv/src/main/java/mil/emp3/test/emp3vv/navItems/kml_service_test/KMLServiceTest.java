@@ -1,9 +1,13 @@
 package mil.emp3.test.emp3vv.navItems.kml_service_test;
 
 import android.app.Activity;
+import android.util.Log;
 
+import mil.emp3.api.events.KMLSEvent;
+import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.KMLS;
+import mil.emp3.api.listeners.IKMLSEventListener;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.NavItemBase;
@@ -15,9 +19,13 @@ public class KMLServiceTest extends NavItemBase {
 
     private final StyleManager styleManager;
 
+    private IKMLSEventListener[] kmlsEventListener = new IKMLSEventListener[ExecuteTest.MAX_MAPS];
+
     public KMLServiceTest(Activity activity, IMap map1, IMap map2) {
         super(activity, map1, map2, TAG);
         styleManager = new StyleManager(activity, maps);
+        kmlsEventListener[0] = new KMLSServiceListener(0);
+        kmlsEventListener[1] = new KMLSServiceListener(1);
     }
 
     @Override
@@ -61,7 +69,7 @@ public class KMLServiceTest extends NavItemBase {
             } else if (userAction.equals("ClearMap")) {
                 clearMaps();
             } else if (userAction.equals("Add Service")) {
-                KMLS kmls = new KMLS(activity, "https://github.com/downloads/brazzy/nikki/example.kmz");
+                KMLS kmls = new KMLS(activity, "https://github.com/downloads/brazzy/nikki/example.kmz", true, kmlsEventListener[whichMap]);
                 maps[whichMap].addMapService(kmls);
             } else if (userAction.equals("Remove Service")) {
 
@@ -87,5 +95,20 @@ public class KMLServiceTest extends NavItemBase {
     protected boolean exitTest() {
         String userAction = "Exit";
         return (actOn(userAction));
+    }
+
+    class KMLSServiceListener implements IKMLSEventListener {
+        private final int whichMap;
+        KMLSServiceListener(int whichMap) {
+            this.whichMap = whichMap;
+        }
+        @Override
+        public void onEvent(KMLSEvent event) {
+            try {
+                Log.d(TAG, "KMLSServiceListener-onEvent " + event.getEvent().toString() + " status " + event.getTarget().getStatus(maps[whichMap]));
+            } catch(EMP_Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+        }
     }
 }
