@@ -5,8 +5,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
-
 import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -21,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
