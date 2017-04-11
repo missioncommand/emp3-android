@@ -5,6 +5,8 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
 import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -18,6 +20,8 @@ import org.cmapi.primitives.IGeoTimeSpan;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
@@ -60,6 +64,7 @@ public class GeoJsonExporter extends Thread{
     private final IMap map;
     private final IFeature feature;
     private final List<IFeature> featureList;
+    private final IOverlay overlay;
     private final IEmpExportToStringCallback callback;
     private final MilStdLabelSettingEnum eLabelSetting;
     private final java.util.Set<IGeoMilSymbol.Modifier> oLabels;
@@ -445,6 +450,9 @@ public class GeoJsonExporter extends Thread{
     }
 
     private void appendFeatureList(List<IFeature> featureList, StringBuffer buffer) throws IOException {
+        if (featureList.isEmpty()) {
+            return;
+        }
         buffer.append("{\"type\":  \"FeatureCollection\",\n");
         buffer.append("\"features\":[\n");
         boolean addComma = false;
@@ -457,6 +465,13 @@ public class GeoJsonExporter extends Thread{
             appendFeature(feature, buffer);
         }
         buffer.append("]\n}\n");
+    }
+
+    private void getAllFeatures(IOverlay overlay, List<IFeature> featureList) {
+        for (IOverlay ovl : overlay.getOverlays()) {
+            getAllFeatures(ovl, featureList);  // recursive
+            featureList.addAll(ovl.getFeatures());
+        }
     }
 
     private void export(IFeature feature, StringBuffer buffer) throws IOException {
@@ -479,14 +494,29 @@ public class GeoJsonExporter extends Thread{
         appendFeatureList(featureList, buffer);
     }
 
+    private void export(IOverlay overlay, StringBuffer buffer) throws IOException {
+        List<IFeature> featureList = new ArrayList<>();
+        getAllFeatures(overlay, featureList); // flatten it out
+        appendFeatureList(featureList, buffer);
+    }
+
+    private void export(IMap map, StringBuffer buffer) throws IOException {
+        List<IFeature> featureList = map.getAllFeatures();
+        appendFeatureList(featureList, buffer);
+    }
+
     @Override
     public void run() {
         try {
             StringBuffer buffer = new StringBuffer();
             if (feature != null) {
                 export(feature, buffer);
-            } else {
+            } else if (featureList != null){
                 export(featureList, buffer);
+            } else if (overlay != null) {
+                export(overlay, buffer);
+            } else {
+                export(map, buffer);
             }
             this.callback.exportSuccess(buffer.toString());
         } catch (Exception Ex) {
@@ -498,6 +528,7 @@ public class GeoJsonExporter extends Thread{
         this.map = map;
         this.feature = feature;
         this.featureList = null;
+        this.overlay = null;
         this.callback = callback;
         this.addExtendedData = extendedData;
         this.eLabelSetting = this.map.getMilStdLabels();
@@ -507,10 +538,34 @@ public class GeoJsonExporter extends Thread{
     protected GeoJsonExporter(IMap map, List<IFeature> featureList, boolean extendedData, IEmpExportToStringCallback callback) {
         this.map = map;
         this.featureList = featureList;
+        this.overlay = null;
         this.feature = null;
         this.callback = callback;
         this.addExtendedData = extendedData;
         this.eLabelSetting = this.map.getMilStdLabels();
         this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
     }
+
+    protected GeoJsonExporter(IMap map, boolean extendedData, IEmpExportToStringCallback callback) {
+        this.map = map;
+        this.overlay = null;
+        this.featureList = null;
+        this.feature = null;
+        this.callback = callback;
+        this.addExtendedData = extendedData;
+        this.eLabelSetting = this.map.getMilStdLabels();
+        this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
+    }
+
+    protected GeoJsonExporter(IMap map, IOverlay overlay, boolean extendedData, IEmpExportToStringCallback callback) {
+        this.map = map;
+        this.overlay = overlay;
+        this.featureList = null;
+        this.feature = null;
+        this.callback = callback;
+        this.addExtendedData = extendedData;
+        this.eLabelSetting = this.map.getMilStdLabels();
+        this.oLabels = coreManager.getMilStdModifierLabelList(this.eLabelSetting);
+    }
+
 }
