@@ -15,7 +15,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name="android.support.multidex.MultiDexApplication"
         tools:replace="android:allowBackup,android:theme"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

@@ -3,12 +3,10 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 android {
     defaultConfig {
         applicationId "mil.emp3.test.emp3vv"
-        multiDexEnabled true
     }
 }
 
 dependencies {
-    compile         ("com.android.support:multidex")
     compile         ("com.android.support:appcompat-v7")
     compile         ("com.android.support:design")
 
