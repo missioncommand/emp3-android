@@ -15,7 +15,8 @@ ext {
 
     //version_nasa_worldwind_sdk = "0.5.2"
     version_cmapi              = "0.0.7"
-    version_renderer           = "0.1.22"
+    version_renderer           = "0.1.24"
+    version_mirrorcache        = "0.1.0"
 
     android_minSdkVersion     = 19
     android_targetSdkVersion  = 23
@@ -54,8 +55,12 @@ dependencyManagement {
         // MISSION_COMMAND-related
         dependency ("org.cmapi.primitives:common-map-geospatial-notation:${version_cmapi}")
         dependency ("mil.army.missioncommand:mil-sym-android-renderer:${version_renderer}")
+        dependency ("mil.army.missioncommand:mirrorcache-api:${version_mirrorcache}")
+        dependency ("mil.army.missioncommand:mirrorcache-impl-core:${version_mirrorcache}")
+        dependency ("mil.army.missioncommand:mirrorcache-impl-transport-ws-nv:${version_mirrorcache}")
 
         // ANDROID-related
+        dependency ("com.android.support:multidex:1.0.1")
         dependency ("com.android.support:appcompat-v7:23.2.1")
         dependency ("com.android.support:support-annotations:23.1.1")
         dependency ("com.android.support:design:23.2.1")

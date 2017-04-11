@@ -1,12 +1,12 @@
 package mil.emp3.api;
 
-import org.cmapi.primitives.GeoBase;
 import org.cmapi.primitives.GeoCamera;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoCamera;
+import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.UUID;
 
 import mil.emp3.api.enums.EventListenerTypeEnum;
@@ -49,10 +49,15 @@ public class Camera implements ICamera {
      * @param camera An object that implements the IGeoCamera interface. See {@link IGeoCamera}
      */
     public Camera(IGeoCamera camera) {
-        this.geoCamera = camera;
+        if(null == camera) {
+            this.geoCamera = new GeoCamera();
+        } else {
+            this.geoCamera = camera;
+        }
         if (this.geoCamera.getAltitudeMode() == null) {
             this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);
         }
+        validate();
     }
 
     /**
@@ -60,6 +65,9 @@ public class Camera implements ICamera {
      */
 
     public Camera(ICamera from) {
+        if(null == from) {
+            throw new IllegalArgumentException("from Camera must be non-null");
+        }
         this.geoCamera = new GeoCamera();
         copySettingsFrom(from);
         if (this.geoCamera.getAltitudeMode() == null) {
@@ -67,6 +75,45 @@ public class Camera implements ICamera {
         }
     }
 
+    /**
+     * Build a camera using specified position. If altitudeMode is null then GeoCamera default is maintained.
+     * An exception will be thrown if any of the position parameters are null.
+     * @param latitude
+     * @param longitude
+     * @param altitude
+     * @param altitudeMode
+     */
+    public Camera(double latitude, double longitude, double altitude, AltitudeMode altitudeMode) {
+        this.geoCamera = new GeoCamera();
+        if (this.geoCamera.getAltitudeMode() == null) {
+            this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);
+        }
+        setPosition(latitude, longitude, altitude, altitudeMode);
+    }
+
+    /**
+     * Build a camera using specified position. If altitudeMode is null then GeoCamera default is maintained.
+     * An exception will be thrown if any of the position parameters are null.
+     * @param position
+     */
+    public Camera(IGeoPosition position) {
+        this.geoCamera = new GeoCamera();
+        if (this.geoCamera.getAltitudeMode() == null) {
+            this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);
+        }
+        setPosition(position);
+    }
+
+    /**
+     * Use the get and set methods that already do the validation. Any invalid parameter will throw an Exception.
+     */
+    private void validate() {
+        setLatitude(getLatitude());
+        setLongitude(getLongitude());
+        setTilt(getTilt());
+        setRoll(getRoll());
+        setHeading(getHeading());
+    }
     /**
      * Everything except geoId is copied as we don't want to change geoId after instantiation.
      * @param from An object that implements the ICamera interface.
@@ -94,12 +141,12 @@ public class Camera implements ICamera {
 
     /**
      * This method sets the tilt on the camera.
-     * @param value The tilt angle in degrees. The valid range is 0 - 180. A 0 deg tilt points the camera downward, a 90 deg tilt points the camera towards the horizon, and a 180 deg tilt points the camera skyward. An InvalidParameterException is raised if the value is out of range or NaN.
+     * @param value The tilt angle in degrees. The valid range is 0 - 180. A 0 deg tilt points the camera downward, a 90 deg tilt points the camera towards the horizon, and a 180 deg tilt points the camera skyward. An IllegalArgumentException is raised if the value is out of range or NaN.
      */
     @Override
     public void setTilt(double value) {
         if (Double.isNaN(value) || (value < global.CAMERA_TILT_MINIMUM) || (value > global.CAMERA_TILT_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
 
         this.geoCamera.setTilt(value);
@@ -117,12 +164,12 @@ public class Camera implements ICamera {
     /**
      * This method sets the roll on the camera. If this camera is the current camera on
      * any map, it will change the view on the map.
-     * @param value The roll angle in degrees. The valid range is -180 - 180. An InvalidParameterException is raised if the value is out of range or NaN.
+     * @param value The roll angle in degrees. The valid range is -180 - 180. An IllegalArgumentException is raised if the value is out of range or NaN.
      */
     @Override
     public void setRoll(double value) {
         if (Double.isNaN(value) || (value < global.CAMERA_ROLL_MINIMUM) || (value > global.CAMERA_ROLL_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
 
         this.geoCamera.setRoll(value);
@@ -140,12 +187,12 @@ public class Camera implements ICamera {
     /**
      * This method sets the cameras heading. Setting this value on a camera that is
      * associated with a map will cause the map to change its viewing area.
-     * @param heading The new heading in degrees from north. An InvalidParameterException is raised if the value is out of range (-180 to 360) or NaN.
+     * @param heading The new heading in degrees from north. An IllegalArgumentException is raised if the value is out of range (-180 to 360) or NaN.
      */
     @Override
     public void setHeading(double heading) {
         if (Double.isNaN(heading) || (heading < global.HEADING_MINIMUM) || (heading > global.HEADING_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoCamera.setHeading(heading);
     }
@@ -162,12 +209,12 @@ public class Camera implements ICamera {
     /**
      * This method set the altitude mode for the elevation setting. Setting this value on a camera that is
      * associated with a map will cause the map to change its viewing area.
-     * @param value The new altitude mode. See {@link IGeoAltitudeMode.AltitudeMode} An InvalidParameterException is raised if the value is null.
+     * @param value The new altitude mode. See {@link IGeoAltitudeMode.AltitudeMode} An IllegalArgumentException is raised if the value is null.
      */
     @Override
     public void setAltitudeMode(IGeoAltitudeMode.AltitudeMode value) {
         if (null == value) {
-            throw new InvalidParameterException("The value can not be null.");
+            throw new IllegalArgumentException("The value can not be null.");
         }
         this.geoCamera.setAltitudeMode(value);
     }
@@ -184,12 +231,12 @@ public class Camera implements ICamera {
     /**
      * This method sets the latitude of the camera position. Setting this value on a camera that is
      * associated with a map will cause the map to change its viewing area.
-     * @param value The latitude in degrees. The value must be -90.0 and 90 degrees. An InvalidParameterException is raised if the value is out of range or NaN.
+     * @param value The latitude in degrees. The value must be -90.0 and 90 degrees. An IllegalArgumentException is raised if the value is out of range or NaN.
      */
     @Override
     public void setLatitude(double value) {
         if (Double.isNaN(value) || (value < global.LATITUDE_MINIMUM) || (value > global.LATITUDE_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoCamera.setLatitude(value);
     }
@@ -206,12 +253,12 @@ public class Camera implements ICamera {
     /**
      * This method sets the longitude of the camera position. Setting this value on a camera that is
      * associated with a map will cause the map to change its viewing area.
-     * @param value The longitude in degrees. The value must be -180.0 and 180.0 degrees. An InvalidParameterException is raised if the value is out of range or NaN.
+     * @param value The longitude in degrees. The value must be -180.0 and 180.0 degrees. An IllegalArgumentException is raised if the value is out of range or NaN.
      */
     @Override
     public void setLongitude(double value) {
         if (Double.isNaN(value) || (value < global.LONGITUDE_MINIMUM) || (value > global.LONGITUDE_MAXIMUM)) {
-            throw new InvalidParameterException("The value is out of range.");
+            throw new IllegalArgumentException("The value is out of range.");
         }
         this.geoCamera.setLongitude(value);
     }
@@ -310,7 +357,38 @@ public class Camera implements ICamera {
     }
 
     @Override
+    public void apply(boolean animate, Object userContext) {
+        coreManager.processCameraSettingChange(this, animate, userContext);
+    }
+
+    @Override
     public void apply(boolean animate) {
-        coreManager.processCameraSettingChange(this, animate);
+        coreManager.processCameraSettingChange(this, animate, null);
+    }
+
+    @Override
+    public String toString() {
+        return (String.format(Locale.US, "L %1$6.3f, N %2$6.3f, A %3$6.0f: %4s :H %5$6.3f, R %6$6.3f, T %7$6.0f",
+                getLatitude(), getLongitude(), getAltitude(), getAltitudeMode(), getHeading(), getRoll(), getTilt()));
+    }
+
+    @Override
+    public void setPosition(double latitude, double longitude, double altitude, AltitudeMode altitudeMode) {
+        setLatitude(latitude);
+        setLongitude(longitude);
+        setAltitude(altitude);
+        if(null != altitudeMode) {
+            setAltitudeMode(altitudeMode);
+        }
+    }
+
+    @Override
+    public void setPosition(IGeoPosition position) {
+        if(null == position) {
+            throw new IllegalArgumentException("Camera-setPosition: position should be non-null");
+        }
+        setLatitude(position.getLatitude());
+        setLongitude(position.getLongitude());
+        setAltitude(position.getAltitude());
     }
 }

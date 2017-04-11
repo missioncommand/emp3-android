@@ -23,6 +23,7 @@ import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 import mil.emp3.test.emp3vv.utils.MapNamesUtility;
+import mil.emp3.test.emp3vv.utils.PositionUtility;
 
 abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
     private static String TAG = UpdateContainerDialog.class.getSimpleName();
@@ -46,6 +47,8 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
     protected ListView addChildrenList;
     protected ArrayAdapter<String> addChildrenListAdapter;
     protected List<String> addChildrenListData;
+
+    protected PositionUtility positionUtility;
 
     public interface IUpdateContainerDialogListener extends IEmp3TesterDialogBaseListener {
         void removeMe(UpdateContainerDialog dialog);
@@ -120,7 +123,7 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
 
         meName = (EditText) view.findViewById(R.id.me_name);
         meName.setText(me.getName());
-        Button updateMeName = (Button) view.findViewById(R.id.update_me_name);
+        final Button updateMeName = (Button) view.findViewById(R.id.update_me_name);
         if(!showOnly) {
             updateMeName.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -135,6 +138,7 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
                     } else {
                         ((IUpdateContainerDialogListener)listener).updateName(UpdateContainerDialog.this);
                         resetListsOnDataChange();
+                        updateName(meName.getText().toString().trim());
                         // need to repopulate all the lists as name has changed
                     }
                 }
@@ -176,6 +180,9 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(null != positionUtility) {
+                    positionUtility.stop();
+                }
                 UpdateContainerDialog.this.dismiss();
             }
         });
@@ -195,6 +202,7 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
 
         setupUpdatePropertiesButton(view, myParentListData);
         setupOptional(view);
+        positionUtility = setupPositionUtility();
     }
 
     protected void resetListsOnDataChange() {
@@ -302,6 +310,11 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
     }
 
     /**
+     * UpdateFeatureDialog creates this so that feature position(s) can be updated.
+     * @return
+     */
+    protected PositionUtility setupPositionUtility() { return null; }
+    /**
      * This is overridden by UpdateFeatureDialog to allow user to update properties for basic shapes, Circle, Ellipse, Rectangle and Square
      * @param view
      * @param parentList
@@ -318,4 +331,12 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
      * @param visible
      */
     abstract protected void updateOtherProperties(List<String> parentList, String featureName, boolean visible);
+
+    /**
+     * Sub class should override this if required. UpdateFeatureDialog uses this to setText on Text feature.
+     * @param newName
+     */
+    protected void updateName(String newName) {
+
+    }
 }

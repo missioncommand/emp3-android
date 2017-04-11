@@ -4,7 +4,6 @@ package mil.emp3.api.abstracts;
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoContainer;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -69,9 +68,15 @@ public class Container implements IContainer{
     }
 
     @Override
+    public void clearContainer(Object userContext)
+            throws EMP_Exception {
+        storageManager.removeChildren(this, userContext);
+    }
+
+    @Override
     public void clearContainer()
             throws EMP_Exception {
-        storageManager.removeChildren(this);
+        storageManager.removeChildren(this, null);
     }
 
     @Override
@@ -237,13 +242,13 @@ public class Container implements IContainer{
     @Override
     public boolean getBooleanProperty(String propertyName) {
         if (!this.containsProperty(propertyName)) {
-            throw new InvalidParameterException("Property does not exists.");
+            throw new IllegalArgumentException("Property does not exists.");
         }
 
         String strValue = this.getProperty(propertyName);
 
         if ((null == strValue) || strValue.isEmpty() || !(strValue.equalsIgnoreCase("true") || strValue.equalsIgnoreCase("false"))) {
-            throw new InvalidParameterException("Property value is not a boolean.");
+            throw new IllegalArgumentException("Property value is not a boolean.");
         }
 
         return Boolean.parseBoolean(strValue);
@@ -254,19 +259,19 @@ public class Container implements IContainer{
         int retValue;
 
         if (!this.containsProperty(propertyName)) {
-            throw new InvalidParameterException("Property does not exists.");
+            throw new IllegalArgumentException("Property does not exists.");
         }
 
         String strValue = this.getProperty(propertyName);
 
         if ((null == strValue) || strValue.isEmpty()) {
-            throw new InvalidParameterException("Property value is not an integer.");
+            throw new IllegalArgumentException("Property value is not an integer.");
         }
 
         try {
             retValue = Integer.parseInt(strValue);
         } catch (NumberFormatException Ex) {
-            throw new InvalidParameterException("Property value is not an integer.");
+            throw new IllegalArgumentException("Property value is not an integer.");
         }
 
         return retValue;
@@ -277,19 +282,19 @@ public class Container implements IContainer{
         float retValue;
 
         if (!this.containsProperty(propertyName)) {
-            throw new InvalidParameterException("Property does not exists.");
+            throw new IllegalArgumentException("Property does not exists.");
         }
 
         String strValue = this.getProperty(propertyName);
 
         if ((null == strValue) || strValue.isEmpty()) {
-            throw new InvalidParameterException("Property value is not a float.");
+            throw new IllegalArgumentException("Property value is not a float.");
         }
 
         try {
             retValue = Float.parseFloat(strValue);
         } catch (NumberFormatException Ex) {
-            throw new InvalidParameterException("Property value is not an float.");
+            throw new IllegalArgumentException("Property value is not an float.");
         }
 
         return retValue;
@@ -300,19 +305,19 @@ public class Container implements IContainer{
         double retValue;
 
         if (!this.containsProperty(propertyName)) {
-            throw new InvalidParameterException("Property does not exists.");
+            throw new IllegalArgumentException("Property does not exists.");
         }
 
         String strValue = this.getProperty(propertyName);
 
         if ((null == strValue) || strValue.isEmpty()) {
-            throw new InvalidParameterException("Property value is not a double.");
+            throw new IllegalArgumentException("Property value is not a double.");
         }
 
         try {
             retValue = Double.parseDouble(strValue);
         } catch (NumberFormatException Ex) {
-            throw new InvalidParameterException("Property value is not an double.");
+            throw new IllegalArgumentException("Property value is not an double.");
         }
 
         return retValue;

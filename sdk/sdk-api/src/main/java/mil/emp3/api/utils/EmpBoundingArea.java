@@ -7,7 +7,6 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,11 +45,17 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
     // by SEC Military Symbol renderer. We will do the adjustment only when user tries to retrieve anything related
     // to the vertices.
 
-    private final static double MAX_DISTANCE_FROM_CENTER = 5000000; // Maximum distance from center of four vertices.
+    private final double MAXIMUM_LONGITUDE_SPAN = 180.0;
 
-    private IGeoPosition[] adjustedVertices = null;   // Approximate the vertices to keep longitude range to 180 degrees.
+    // NOTE: We are no longer adjusting the vertices. If SPAN of the bounding area is more that 180 deg then we simply
+    // return the bounding box that was calculated when bounding area was calculated. We are still populating
+    // the adjusted vertices and span calculation is done on the adjustedVertices member. Since this is a work in
+    // progress we have kept the member variable and keep using it.
 
-    private String boundingAreaString = null;                // Stores bounding area String that was created in toString operation.
+    private IGeoPosition[] adjustedVertices = null;   // Adjust the vertices to keep longitude range to 180 degrees.
+    boolean adjustVerticesStatus = false;             // This is set to true if vertices could be adjusted to meet the 180 span requirement.
+
+    private String boundingAreaString = null;         // Stores bounding area String that was created in toString operation.
 
     /**
      * All parameters must be non-null and have valid values.
@@ -74,11 +79,11 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
 
         for(int ii = 0; ii < vertices.length; ii++) {
             if (Double.isNaN(vertices[ii].getLatitude()) || (vertices[ii].getLatitude() < global.LATITUDE_MINIMUM) || (vertices[ii].getLatitude() > global.LATITUDE_MAXIMUM)) {
-                throw new InvalidParameterException("Latitude is Out Of Range for vertex " + (ii+1));
+                throw new IllegalArgumentException("Latitude is Out Of Range for vertex " + (ii+1));
             }
 
             if (Double.isNaN(vertices[ii].getLongitude()) || (vertices[ii].getLongitude() < global.LONGITUDE_MINIMUM) || (vertices[ii].getLongitude() > global.LONGITUDE_MAXIMUM)) {
-                throw new InvalidParameterException("Longitude is Out Of Range for vertex " + (ii+1));
+                throw new IllegalArgumentException("Longitude is Out Of Range for vertex " + (ii+1));
             }
 
             vertices[ii].setAltitude(0);
@@ -95,48 +100,109 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         super.setSouth(geoBounds.getSouth());
     }
 
-    private void adjustVerticesByDistance() {
-        if(null != adjustedVertices) return;
-
-        IGeoPosition center;
-
-        if(!cameraOnScreen) {
-            // Find the center of the four vertices.
-            List<IGeoPosition> cornersFound = new ArrayList<>();
-            for (int ii = 0; ii < vertices.length; ii++) {
-                cornersFound.add(vertices[ii]);
-            }
-            center = GeoLibrary.getCenter(cornersFound);
-        } else {
-            center = new GeoPosition();
-            center.setLatitude(camera.getLatitude());
-            center.setLongitude(camera.getLongitude());
-        }
-
-        adjustedVertices = new IGeoPosition[vertices.length];
-        double distance;
-
-        // If distance from center is more than 5,000,000 meters then clip it.
-        for (int ii = 0; ii < vertices.length; ii++) {
-            try {
-                distance = GeoLibrary.computeDistanceBetween(center, vertices[ii]);
-                Log.d(TAG, "distance " + ii + " " + distance);
-                if (distance > MAX_DISTANCE_FROM_CENTER) {
-                    double bearing = GeoLibrary.computeBearing(center, vertices[ii]);
-                    adjustedVertices[ii] = GeoLibrary.computePositionAt(bearing, MAX_DISTANCE_FROM_CENTER, center);
-                } else {
-                    adjustedVertices[ii] = vertices[ii];
+    /**
+     * Get Longitude Span
+     *    - If all longitudes are either positive or negative then span is simply the difference between highest and lowest
+     *    - Otherwise we have to check the span over the 0 longitude or 180 degree longitude. Whichever is the lowers we will return.
+     *    - We are presuming that vertices were copied to adjusted vertices in case we need to reintroduce the adjustment.
+     * @return
+     */
+    private double getLongitudeSpan() {
+        // If all vertices are either positive or negative then span is less tha or equal to 180
+        if ((adjustedVertices[0].getLongitude() >= 0 && adjustedVertices[1].getLongitude() >= 0 &&
+                adjustedVertices[2].getLongitude() >= 0 && adjustedVertices[3].getLongitude() >= 0) ||
+                (adjustedVertices[0].getLongitude() <= 0 && adjustedVertices[1].getLongitude() <= 0 &&
+                        adjustedVertices[2].getLongitude() <= 0 && adjustedVertices[3].getLongitude() <= 0)) {
+            double lowest = global.LONGITUDE_MAXIMUM + 1.0;
+            double highest = global.LONGITUDE_MINIMUM - 1.0;
+            for (int ii = 0; ii < adjustedVertices.length; ii++) {
+                if (adjustedVertices[ii].getLongitude() < lowest) {
+                    lowest = adjustedVertices[ii].getLongitude();
                 }
-            } catch(Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-                adjustedVertices[ii] = vertices[ii];
+                if (adjustedVertices[ii].getLongitude() > highest) {
+                    highest = adjustedVertices[ii].getLongitude();
+                }
+            }
+
+            return Math.abs(highest - lowest);
+        } else {
+            // Find the lowest longitude and highest longitude
+            double lowest = global.LONGITUDE_MAXIMUM + 1.0;
+            double highest = global.LONGITUDE_MINIMUM  - 1.0;
+            for (int ii = 0; ii < adjustedVertices.length; ii++) {
+                if (adjustedVertices[ii].getLongitude() < lowest) {
+                    lowest = adjustedVertices[ii].getLongitude();
+                }
+                if (adjustedVertices[ii].getLongitude() > highest) {
+                    highest = adjustedVertices[ii].getLongitude();
+                }
+            }
+
+            // check around longitude 0 if span is less than 180
+            double span1 = Math.abs(lowest) + highest;
+            if (span1 < MAXIMUM_LONGITUDE_SPAN) {
+                return span1;
+            }
+
+
+            // Find the lowest positive and highest negative longitude
+            double lowestPositive = global.LONGITUDE_MAXIMUM + 1.0;
+            double highestNegative = global.LONGITUDE_MINIMUM  - 1.0;
+            for (int ii = 0; ii < adjustedVertices.length; ii++) {
+                if (adjustedVertices[ii].getLongitude() >= 0 && adjustedVertices[ii].getLongitude() < lowestPositive) {
+                    lowestPositive = adjustedVertices[ii].getLongitude();
+                }
+                if (adjustedVertices[ii].getLongitude() <= 0 && adjustedVertices[ii].getLongitude() > highestNegative) {
+                    highestNegative = adjustedVertices[ii].getLongitude();
+                }
+            }
+
+            // check around longitude 180 if span is less than 180
+            double span2 = (global.LONGITUDE_MAXIMUM - lowestPositive) + (global.LONGITUDE_MAXIMUM - Math.abs(highestNegative));
+            if (span2 < MAXIMUM_LONGITUDE_SPAN) {
+                return span2;
+            }
+
+            if(span1 < span2) {
+                return span1;
+            } else {
+                return span2;
             }
         }
     }
+
+    /**
+     * Get the current span for the bounded area. If span is more than 180 deg then return false else return true. If the logic to
+     * adjust vertices for span is to be reintroduced then we should do that here. Currently there is no adjustment.
+     * @return
+     */
+    private boolean adjustVerticesByDistance() {
+        if(null != adjustedVertices) {
+            return adjustVerticesStatus;
+        }
+
+        adjustVerticesStatus = true;
+        adjustedVertices = new IGeoPosition[vertices.length];
+        for (int ii = 0; ii < vertices.length; ii++) {
+            adjustedVertices[ii] = new EmpGeoPosition(vertices[ii]);
+        }
+        double span = getLongitudeSpan();
+        Log.i(TAG, "Initial Span " + span);
+        if(span < MAXIMUM_LONGITUDE_SPAN) {
+            return true;
+        } else {
+            return false; // We are not adjusting vertices. Instead caller should simply use the bounding box.
+        }
+    }
+
+
     /**
      * Converts vertices to a String to a format required by Military Symbol render-er. It returns a string based on adjustedVertices that
      * meets the SEC Render-er requirement of 180 degrees max span of longitude. This calculation is very much approximate and may need
      * more work in future.
+     *
+     * If quadrilateral vertices can be adjusted to meet the 180 span requirement then that is the output. Otherwise use calculated bounds to
+     * generate a string (this has a different format). This will usually be the case when camera is at or near the pole.
      * @return
      */
 
@@ -145,13 +211,19 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         if(null != boundingAreaString) {
             return boundingAreaString;
         }
-        adjustVerticesByDistance();
-        StringBuilder builder = new StringBuilder();
-        for(int ii = adjustedVertices.length - 1; ii >= 0 ; ii--) {
-            builder.append(adjustedVertices[ii].getLongitude() + "," + adjustedVertices[ii].getLatitude() + " ");
+        if(adjustVerticesByDistance()) {
+
+            StringBuilder builder = new StringBuilder();
+            for (int ii = adjustedVertices.length - 1; ii >= 0; ii--) {
+                builder.append(adjustedVertices[ii].getLongitude() + "," + adjustedVertices[ii].getLatitude() + " ");
+            }
+            builder.append(adjustedVertices[adjustedVertices.length - 1].getLongitude() + "," + adjustedVertices[adjustedVertices.length - 1].getLatitude());
+            boundingAreaString = builder.toString();
+        } else {
+            // Span of the area is larger than 180 deg, so simply sue the bounding box which is guarenteed to have a span less than 120.
+            // This usually happens when complete globe is visible of we are at or near the pole.
+            boundingAreaString = getWest() + "," + getSouth() + "," + getEast() + "," + getNorth();
         }
-        builder.append(adjustedVertices[adjustedVertices.length - 1].getLongitude() + "," + adjustedVertices[adjustedVertices.length - 1].getLatitude());
-        boundingAreaString = builder.toString();
         return boundingAreaString;
     }
 

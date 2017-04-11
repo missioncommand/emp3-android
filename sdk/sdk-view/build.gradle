@@ -2,15 +2,15 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 apply plugin: 'maven-publish'
 
 dependencies {
-    compile project     (":sdk:emp3-android-sdk")
-    compile project     (":service:mirrorcache:service-mirrorcache-api")
-    compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
+    compile project     (":emp3-android-sdk")
+    //compile project     (":service:mirrorcache:service-mirrorcache-api")
+    //compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
     compile             ("com.android.support:appcompat-v7")
     compile             ("mil.army.missioncommand:mil-sym-android-renderer")
 
     provided            ("org.cmapi.primitives:common-map-geospatial-notation")
-    
-    testCompile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
+
+    testCompile project (":emp3-android-sdk-core-aar")
     testCompile         ("junit:junit")
     //testCompile         ("org.mockito:mockito-core")
     testCompile         ("org.powermock:powermock-api-mockito") { // PowerMockito is required to mock static methods like Logger.log

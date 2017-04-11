@@ -71,7 +71,7 @@ public class GeoJSONPropertiesDialog extends FeaturePropertiesDialog<GeoJSONProp
         return getSelectedFromSingleChoiceList(fileList);
     }
 
-    private List<String> getGeoJSONList() {
+    public List<String> getGeoJSONList() {
         String[] geoJSONList = null;
         try {
             downloadFolder.mkdirs();

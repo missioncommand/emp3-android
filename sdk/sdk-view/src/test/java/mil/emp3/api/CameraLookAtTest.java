@@ -9,8 +9,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import java.security.InvalidParameterException;
-
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ILookAt;
 
@@ -93,7 +91,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setLatitude(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -103,7 +101,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setLongitude(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -113,7 +111,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setRoll(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -123,7 +121,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setTilt(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -133,7 +131,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setHeading(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -143,7 +141,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setLatitude(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }
@@ -153,7 +151,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setLongitude(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }
@@ -163,7 +161,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setRoll(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }
@@ -173,7 +171,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setTilt(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }
@@ -183,7 +181,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             camera.setHeading(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }
@@ -193,7 +191,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             lookAt.setLatitude(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -203,7 +201,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             lookAt.setLongitude(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -213,7 +211,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             lookAt.setTilt(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -223,7 +221,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             lookAt.setHeading(value);
             Assert.fail("Exception not caught, test failed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Log.i(TAG, "Exception caught, test passed");
         }
     }
@@ -233,7 +231,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             lookAt.setLatitude(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }
@@ -243,7 +241,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             lookAt.setLongitude(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }
@@ -253,7 +251,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             lookAt.setTilt(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }
@@ -263,7 +261,7 @@ public class CameraLookAtTest extends TestBase {
         try {
             lookAt.setHeading(value);
             Log.i(TAG, "Test passed");
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             Assert.fail("Exception caught, test failed");
         }
     }

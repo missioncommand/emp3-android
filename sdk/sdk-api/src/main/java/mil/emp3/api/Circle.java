@@ -5,21 +5,14 @@ import mil.emp3.api.abstracts.Feature;
 import org.cmapi.primitives.GeoCircle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoCircle;
-import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoStrokeStyle;
-import org.xmlpull.v1.XmlSerializer;
 
-import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.GeoLibrary;
-import mil.emp3.api.utils.kml.EmpKMLExporter;
 
 /**
  * This class implements a Circle feature. It requires a radius and a single coordinate that indicates the
@@ -47,7 +40,7 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         if (radius >= MINIMUM_RADIUS) {
             this.getRenderable().setRadius(radius);
         } else {
-            throw new InvalidParameterException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
+            throw new IllegalArgumentException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
         }
         this.setFillStyle(null);
     }
@@ -60,25 +53,25 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         super(renderable, FeatureTypeEnum.GEO_CIRCLE);
 
         if(null == renderable) {
-            throw new InvalidParameterException("Encapsulated GeoCircle must be non-null");
+            throw new IllegalArgumentException("Encapsulated GeoCircle must be non-null");
         }
         this.setRadius(makePositive(this.getRadius(), "Invalid radius. NaN"));
 
         if (this.getRadius() < MINIMUM_RADIUS) {
-            throw new InvalidParameterException("Invalid radius. " + this.getRadius() + " Minimum supported " + MINIMUM_RADIUS);
+            throw new IllegalArgumentException("Invalid radius. " + this.getRadius() + " Minimum supported " + MINIMUM_RADIUS);
         }
     }
 
     /**
      * This method overrides the default radius of a circular feature.
-     * @param radius The new radius in meters. If the radius is < 0 the absolute value is used. If the value is < 1, an InvalidParameterException is raised..
+     * @param radius The new radius in meters. If the radius is < 0 the absolute value is used. If the value is < 1, an IllegalArgumentException is raised..
      */
     @Override
     public void setRadius(double radius) {
         radius = makePositive(radius, "Invalid radius. NaN");
 
         if (radius < MINIMUM_RADIUS) {
-            throw new InvalidParameterException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
+            throw new IllegalArgumentException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
         }
         this.getRenderable().setRadius(radius);
     }

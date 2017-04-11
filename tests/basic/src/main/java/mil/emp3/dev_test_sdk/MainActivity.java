@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -57,12 +58,12 @@ import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -82,6 +83,7 @@ import mil.emp3.api.GeoPackage;
 import mil.emp3.api.ImageLayer;
 import mil.emp3.api.KML;
 import mil.emp3.api.MilStdSymbol;
+import mil.emp3.api.MirrorCache;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.Path;
 import mil.emp3.api.Point;
@@ -132,8 +134,6 @@ import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.json.geoJson.GeoJsonCaller;
-import mil.emp3.json.geoJson.GeoJsonExporter;
-import mil.emp3.json.geoJson.GeoJsonParser;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -190,6 +190,8 @@ public class MainActivity extends AppCompatActivity
     private File downloadFolder = new File("/sdcard/Download/");
     private String gpkgPick;
     private static final String SUFFIX = ".gpkg";
+
+    private MirrorCache mc;
 
     public enum PlotModeEnum {
         IDLE,
@@ -694,7 +696,7 @@ public class MainActivity extends AppCompatActivity
                     iCount++;
 
                     // Give the feature a name.
-                    oSPSymbol.setName("Unit " + iCount);
+                    oSPSymbol.setName(String.format("Unit-%04d", iCount));
 
                     //oSPSymbol.setFillStyle(iconStyleFill);
                     //oSPSymbol.setStrokeStyle(iconStyleStroke);
@@ -790,6 +792,14 @@ public class MainActivity extends AppCompatActivity
             map.removeEventListener(featureInteraction);
             map.removeEventListener(viewChange);
             oCamera.removeEventListener(cameraHandler);
+        }
+        if (mc != null) {
+            try {
+                mc.disconnect();
+
+            } catch (EMP_Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
         }
         super.onDestroy();
     }
@@ -1519,6 +1529,175 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.action_mirrorcache_connect: {
+                MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(false);
+
+                new AlertDialog.Builder(MainActivity.this)
+                               .setMessage("WebSocket endpoint:")
+                               .setView(R.layout.mirrorcache_url_dialog)
+                               .setNegativeButton(android.R.string.no, null)
+                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+
+                                       final String endpointStr = text.getText().toString();
+                                       Log.d(TAG, "endpointStr: " + endpointStr);
+
+                                       new AsyncTask<Void, Void, Exception>() {
+                                           @Override
+                                           protected Exception doInBackground(final Void... params) {
+                                               try {
+                                                   mc = new MirrorCache(new URI(endpointStr));
+                                                   mc.connect();
+
+                                               } catch (Exception e) {
+                                                   return e;
+                                               }
+                                               return null;
+                                           }
+                                           @Override
+                                           protected void onPostExecute(final Exception e) {
+                                               if (e == null) {
+                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(true);
+                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_addproduct).setEnabled(true);
+
+                                               } else if (e != null) {
+                                                   Log.e(TAG, e.getMessage(), e);
+                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(true);
+                                               }
+                                           }
+                                       }.execute();
+                                   }
+                               }).create().show();
+                return true;
+            }
+            case R.id.action_mirrorcache_disconnect: {
+                MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(false);
+
+                try {
+                    mc.disconnect();
+                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(true);
+
+                } catch (EMP_Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
+                    new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(true);
+                }
+                return true;
+            }
+            case R.id.action_mirrorcache_subscribe: {
+                MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(false);
+
+                new AlertDialog.Builder(MainActivity.this)
+                               .setMessage("Product Id:")
+                               .setView(R.layout.mirrorcache_subscribe_dialog)
+                               .setNegativeButton(android.R.string.no, null)
+                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+
+                                       final String productId = text.getText().toString();
+                                       Log.d(TAG, "productId: " + productId);
+
+                                       new AsyncTask<Void, Void, EMP_Exception>() {
+                                           @Override
+                                           protected EMP_Exception doInBackground(final Void... params) {
+                                               try {
+                                                   final Overlay overlay = mc.subscribe(productId);
+                                                   MainActivity.this.map.addOverlay(overlay, true);
+
+                                               } catch (EMP_Exception e) {
+                                                   return e;
+                                               }
+                                               return null;
+                                           }
+                                           @Override
+                                           protected void onPostExecute(final EMP_Exception e) {
+                                               if (e == null) {
+                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
+
+                                               } else if (e != null) {
+                                                   Log.e(TAG, e.getMessage(), e);
+                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+                                               }
+                                           }
+                                       }.execute();
+                                   }
+                               }).create().show();
+                return true;
+            }
+            case R.id.action_mirrorcache_unsubscribe: {
+                MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(false);
+
+                new AlertDialog.Builder(MainActivity.this)
+                               .setMessage("Product Id:")
+                               .setView(R.layout.mirrorcache_subscribe_dialog)
+                               .setNegativeButton(android.R.string.no, null)
+                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                   public void onClick(DialogInterface dialog, int which) {
+                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+
+                                       final String productId = text.getText().toString();
+                                       Log.d(TAG, "productId: " + productId);
+
+                                       new AsyncTask<Void, Void, EMP_Exception>() {
+                                           @Override
+                                           protected EMP_Exception doInBackground(final Void... params) {
+                                               try {
+                                                   mc.unsubscribe(productId);
+
+                                               } catch (EMP_Exception e) {
+                                                   return e;
+                                               }
+                                               return null;
+                                           }
+                                           @Override
+                                           protected void onPostExecute(final EMP_Exception e) {
+                                               if (e == null) {
+                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+
+                                               } else if (e != null) {
+                                                   Log.e(TAG, e.getMessage(), e);
+                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
+                                               }
+                                           }
+                                       }.execute();
+                                   }
+                               }).create().show();
+                return true;
+            }
+            case R.id.action_mirrorcache_addproduct: {
+                MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_addproduct).setEnabled(false);
+
+                try {
+                    mc.addProduct(MainActivity.this.oRootOverlay);
+                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_deleteproduct).setEnabled(true);
+
+                } catch (EMP_Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
+                    new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_addproduct).setEnabled(true);
+                }
+                return true;
+            }
+            case R.id.action_mirrorcache_deleteproduct: {
+                MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_deleteproduct).setEnabled(false);
+
+                try {
+                    mc.removeProduct(MainActivity.this.oRootOverlay, false);
+                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_addproduct).setEnabled(true);
+
+                } catch (EMP_Exception e) {
+                    Log.e(TAG, e.getMessage(), e);
+                    new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_deleteproduct).setEnabled(false);
+                }
+                return true;
+            }
             case R.id.action_mapgridnone: {
                 this.map.setGridType(MapGridTypeEnum.NONE);
                 return true;
@@ -1939,8 +2118,28 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             case R.id.action_plot2units2525B:
-                removeAllFeatures();
-                plotManyMilStd(10000);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage("Number of Units:")
+                        .setView(R.layout.plot_unit_dialog)
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                                final CheckBox checkBox = (CheckBox) (((Dialog) dialog).findViewById(R.id.remove_features));
+
+                                final String numUnits = text.getText().toString();
+                                Log.d(TAG, "numUnits: " + numUnits);
+
+                                final boolean shouldRemoveAllFeatures = checkBox.isChecked();
+                                Log.d(TAG, "shouldRemoveAllFeatures: " + shouldRemoveAllFeatures);
+
+                                if (shouldRemoveAllFeatures) {
+                                    removeAllFeatures();
+                                }
+
+                                plotManyMilStd(Integer.parseInt(numUnits));
+                            }
+                        }).create().show();
                 return true;
             case R.id.action_plotunits2525B:
                 removeAllFeatures();
@@ -2079,7 +2278,7 @@ public class MainActivity extends AppCompatActivity
                     oItem.setEnabled(true);
                 } catch (EMP_Exception ex) {
                 }
-                return true;
+            return true;
 /*
             case R.id.action_plotsymbol:
                 if (this.ePlotMode == PlotModeEnum.IDLE) {
@@ -2986,7 +3185,8 @@ public class MainActivity extends AppCompatActivity
 
             symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSymbolDef.getDescription());
             symbol.setName(name);
-            symbol.setDescription(oSymbolDef.getFullPath());
+            symbol.setDescription(oSymbolDef.getDescription());
+            symbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
 
             switch (oSymbolDef.getMinPoints()) {
                 case 1:

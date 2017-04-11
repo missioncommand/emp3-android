@@ -1,10 +1,5 @@
 package mil.emp3.api.utils.kml;
 
-import android.util.Xml;
-
-import java.io.IOException;
-import java.security.InvalidParameterException;
-
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
@@ -27,7 +22,7 @@ public class EmpKMLExporter {
     public static void exportToString(IMap map, boolean extendedData, IEmpExportToStringCallback callback) {
 
         if ((null == map) || (null == callback)) {
-            throw new InvalidParameterException("Parameters can't be null.");
+            throw new IllegalArgumentException("Parameters can't be null.");
         }
 
         KMLExportThread exporter = new KMLExportThread(map, extendedData, callback);
@@ -37,7 +32,7 @@ public class EmpKMLExporter {
     public static void exportToString(IMap map, IOverlay overlay, boolean extendedData, IEmpExportToStringCallback callback) {
 
         if ((null == overlay) || (null == callback)) {
-            throw new InvalidParameterException("Parameters can't be null.");
+            throw new IllegalArgumentException("Parameters can't be null.");
         }
 
         KMLExportThread exporter = new KMLExportThread(map, overlay, extendedData, callback);
@@ -47,7 +42,7 @@ public class EmpKMLExporter {
     public static void exportToString(IMap map, IFeature feature, boolean extendedData, IEmpExportToStringCallback callback) {
 
         if ((null == feature) || (null == callback)) {
-            throw new InvalidParameterException("Parameters can't be null.");
+            throw new IllegalArgumentException("Parameters can't be null.");
         }
 
         KMLExportThread exporter = new KMLExportThread(map, feature, extendedData, callback);

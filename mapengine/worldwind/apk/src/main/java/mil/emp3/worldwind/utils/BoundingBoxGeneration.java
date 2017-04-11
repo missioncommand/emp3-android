@@ -13,6 +13,7 @@ import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
 
@@ -36,6 +37,7 @@ public class BoundingBoxGeneration {
 
     private static String TAG = BoundingBoxGeneration.class.getSimpleName();
     private final PickNavigateController mapController;
+    private final IMapInstance mapInstance;
     private final int width;
     private final int height;
     private final int lr_margin;
@@ -49,8 +51,10 @@ public class BoundingBoxGeneration {
     private final static double MAX_LATITUDE_SPAN = 120.0;
     private final static double MAX_LONGITUDE_SPAN = 120.0;
     private final static double USE_GEOMETRIC_CENTER_FOR_TILT_GT = 45.0;
+    private final static double POLE_OFFEST = 1.0; // setting north/south as 90/-90 causes calculation breakdown in places like MGRS.
 
     private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen, int cornersTouched) {
+        this.mapInstance = mapInstance;
         mapController = mapInstance.getMapController();
         width = mapInstance.getWW().getWidth();
         height = mapInstance.getWW().getHeight();
@@ -74,6 +78,7 @@ public class BoundingBoxGeneration {
                                         boolean cameraOnScreen, int cornersTouched, IGeoPosition geometricCenter) {
         BoundingBoxGeneration bbg = new BoundingBoxGeneration(mapInstance, cameraOnScreen, cornersTouched);
         bbg.buildBoundingBox_(vertices, geoBounds, geometricCenter);
+        Log.i(TAG, "buildBoundingBox NEWS " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
     /**
      * Sets North boundary to the highest latitude
@@ -131,6 +136,72 @@ public class BoundingBoxGeneration {
     private boolean checkResultNoMargin(Point result) {
         return result.x < 0 || result.x > width || result.y < 0 || result.y > height;
     }
+
+    /**
+     * If complete Globe is visible then we build the bounding box using the geometric center and moving 60 degrees out in each direction.
+     *
+     * @param geoBounds
+     * @param geometricCenter
+     * @return
+     */
+    private boolean boundsForEntireGlobeVisible(IGeoBounds geoBounds, IGeoPosition geometricCenter) {
+        if(0 == cornersTouched && cameraOnScreen && -BoundsGeneration.TILT_TOLERANCE < camera.getTilt() && camera.getTilt() < BoundsGeneration.TILT_TOLERANCE) {
+            geoBounds.setNorth(geometricCenter.getLatitude() + MAX_LATITUDE_SPAN/2);
+            if(geoBounds.getNorth() > global.LATITUDE_MAXIMUM) {
+                geoBounds.setNorth(global.LATITUDE_MAXIMUM - POLE_OFFEST);
+            }
+            geoBounds.setEast(geometricCenter.getLongitude() + MAX_LONGITUDE_SPAN/2);
+            if(geoBounds.getEast() > global.LONGITUDE_MAXIMUM) {
+                geoBounds.setEast(global.LONGITUDE_MINIMUM + (geoBounds.getEast() % global.LONGITUDE_MAXIMUM));
+            }
+            geoBounds.setWest(geometricCenter.getLongitude() - MAX_LONGITUDE_SPAN/2);
+            if(geoBounds.getWest() < global.LONGITUDE_MINIMUM) {
+                geoBounds.setWest(geoBounds.getWest() + (2 * global.LONGITUDE_MAXIMUM));
+            }
+            geoBounds.setSouth(geometricCenter.getLatitude() - MAX_LATITUDE_SPAN/2);
+            if(geoBounds.getSouth() < global.LATITUDE_MINIMUM) {
+                geoBounds.setSouth(global.LATITUDE_MINIMUM + POLE_OFFEST);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean boundsForSmallCameraAngles(IGeoBounds geoBounds) {
+        if (null == camera) {
+            return false;
+        }
+
+        boolean ret = false;
+
+        if (((Math.abs(camera.getHeading()) <= 5.0) || (Math.abs(camera.getHeading()) >= 355.0)) &&
+                (Math.abs(camera.getTilt()) <= 5.0) &&
+                (Math.abs(camera.getRoll()) <= 5.0)) {
+
+            gov.nasa.worldwind.geom.Position centerNorth = new gov.nasa.worldwind.geom.Position();
+            if (mapController.screenPointToGroundPosition(width / 2, 0, centerNorth)) {
+                gov.nasa.worldwind.geom.Position centerSouth = new gov.nasa.worldwind.geom.Position();
+                if (mapController.screenPointToGroundPosition(width / 2, height, centerSouth)) {
+                    geoBounds.setNorth(centerNorth.latitude);
+                    geoBounds.setSouth(centerSouth.latitude);
+                    ret = true;
+                }
+            }
+
+            gov.nasa.worldwind.geom.Position centerWest = new gov.nasa.worldwind.geom.Position();
+            if (mapController.screenPointToGroundPosition(0, height / 2, centerWest)) {
+                gov.nasa.worldwind.geom.Position centerEast = new gov.nasa.worldwind.geom.Position();
+                if (mapController.screenPointToGroundPosition(width, height / 2, centerEast)) {
+                    geoBounds.setWest(centerWest.longitude);
+                    geoBounds.setEast(centerEast.longitude);
+                    ret = true;
+                }
+            }
+        }
+
+        return ret;
+    }
+
     /**
      * Calculates a bounding box using the previously calculated vertices of the bounding area. There are multiple steps involved.
      *
@@ -142,27 +213,37 @@ public class BoundingBoxGeneration {
      * @param geoBounds is the output
      */
     private void buildBoundingBox_(IGeoPosition[] vertices, IGeoBounds geoBounds, IGeoPosition geometricCenter) {
+        Log.i(TAG, "start buildBoundingBox_ ");
+
+        // Consider the simple case where the entire globe is visible.
+        if (boundsForSmallCameraAngles(geoBounds)) {
+            return;
+        } else if(boundsForEntireGlobeVisible(geoBounds, geometricCenter)) {
+            return;
+        }
 
         setNorthAndSouth(vertices, geoBounds);  // Simply to figure out value for increment based on span.
         IGeoPosition center;
 
         // Find the point that will be used as center.
-        List<IGeoPosition> corners = new ArrayList<>();
-        int ii;
-        for(ii = 0; ii < vertices.length; ii++) {
-            corners.add(vertices[ii]);
-        }
-
-        center = GeoLibrary.getCenter(corners);
-
-        if(cameraOnScreen) {
-            corners.clear();
-            corners.add(center);
-            corners.add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude()));
+        // Need to investigate if we can always use the geometric Center
+        if (camera.getTilt() > USE_GEOMETRIC_CENTER_FOR_TILT_GT) {
+            center = geometricCenter;
+        } else {
+            List<IGeoPosition> corners = new ArrayList<>();
+            int ii;
+            for (ii = 0; ii < vertices.length; ii++) {
+                corners.add(vertices[ii]);
+            }
             center = GeoLibrary.getCenter(corners);
-        }
 
-        Log.d(TAG, "adjustEastAndWest In NEWS " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
+            if (cameraOnScreen) { // then take the center of the vertices and camera.
+                corners.clear();
+                corners.add(center);
+                corners.add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude()));
+                center = GeoLibrary.getCenter(corners);
+            }
+        }
 
         double increment = (geoBounds.getNorth() - geoBounds.getSouth()) * INCREMENT_FACTOR;
 
@@ -172,22 +253,17 @@ public class BoundingBoxGeneration {
         double increment_lon_f = 1.0;
         if(width > height) {
             increment_lon_f = (double) width / (double) height;
-            Log.d(TAG, "increment_lon_f " + increment_lon_f);
+            Log.v(TAG, "increment_lon_f " + increment_lon_f);
         }
         if((cornersTouched > 0) && (cornersTouched <= 2)) {
             increment_lon_f *= 2;
-            Log.d(TAG, "increment_lon_f " + increment_lon_f);
+            Log.v(TAG, "increment_lon_f " + increment_lon_f);
         }
 
         double increment_lat_f = 1.0;
         if(height > width) {
             increment_lat_f = (double) height / (double) width;
-            Log.d(TAG, "increment_lat_f " + increment_lat_f);
-        }
-
-        // Need to investigate if we can always use the geometric Center
-        if(camera.getTilt() > USE_GEOMETRIC_CENTER_FOR_TILT_GT) {
-            center = geometricCenter;
+            Log.v(TAG, "increment_lat_f " + increment_lat_f);
         }
 
         // Stretch along all four corners
@@ -205,8 +281,6 @@ public class BoundingBoxGeneration {
             geoBounds.setSouth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getNorth(), geoBounds.getSouth(), increment, true));
             geoBounds.setNorth(adjustLatitude(geoBounds.getEast(), geoBounds.getWest(), geoBounds.getSouth(), geoBounds.getNorth(), increment, false));
         }
-
-        Log.d(TAG, "buildBoundingBox_ Out NEWS " + ii + " " + geoBounds.getNorth() + " " + geoBounds.getEast() + " " + geoBounds.getWest() + " " + geoBounds.getSouth());
     }
 
     /**

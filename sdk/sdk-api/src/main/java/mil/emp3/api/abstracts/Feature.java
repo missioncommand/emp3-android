@@ -1,10 +1,6 @@
 package mil.emp3.api.abstracts;
 
-import android.util.Log;
-
-import org.cmapi.primitives.GeoTimeSpan;
 import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
@@ -12,24 +8,16 @@ import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoTimeSpan;
 
-import java.security.InvalidParameterException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
-import mil.emp3.api.GeoJSON;
-import mil.emp3.api.MilStdSymbol;
-import mil.emp3.api.Path;
-import mil.emp3.api.Point;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.global;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
-import mil.emp3.api.utils.EmpGeoColor;
 
-import static android.content.ContentValues.TAG;
 
 /**
  * All single point and multi point shapes and symbols that are displayed on the Map use Feature as their base class. Feature class provides for
@@ -77,7 +65,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     public void validate() {}
 
     @Override
-    public void addFeature(IFeature feature, boolean visible)
+    public void addFeature(IFeature feature, boolean visible, Object object)
             throws EMP_Exception {
         if (feature == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Feature.addFeature can not be null.");
@@ -85,11 +73,11 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         
         ArrayList<IFeature> oList = new ArrayList<>();
         oList.add(feature);
-        this.addFeatures(oList, visible);
+        this.addFeatures(oList, visible, object);
     }
 
     @Override
-    public void addFeatures(List<IFeature> features, boolean visible)
+    public void addFeatures(List<IFeature> features, boolean visible, Object object)
             throws EMP_Exception {
         if (features == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Feature.addFeatures can not be null.");
@@ -97,24 +85,48 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
             for (IFeature feature : features) {
                 feature.validate();
             }
-            storageManager.addFeatures(this, features, visible);
+            storageManager.addFeatures(this, features, visible, object);
         }
+    }
+
+    @Override
+    public void removeFeature(IFeature feature, Object object)
+            throws EMP_Exception {
+        if(null == feature) return;
+        ArrayList<IFeature> oList = new ArrayList<>();
+        oList.add(feature);
+        this.removeFeatures(oList, object);
+    }
+
+    @Override
+    public void removeFeatures(List<IFeature> features, Object object)
+            throws EMP_Exception {
+        if((null == features) || (0 == features.size())) return;
+        storageManager.removeFeatures(this, features, object);
+    }
+
+    @Override
+    public void addFeature(IFeature feature, boolean visible)
+            throws EMP_Exception {
+        addFeature(feature, visible, null);
+    }
+
+    @Override
+    public void addFeatures(List<IFeature> features, boolean visible)
+            throws EMP_Exception {
+        addFeatures(features, visible, null);
     }
 
     @Override
     public void removeFeature(IFeature feature)
             throws EMP_Exception {
-        if(null == feature) return;
-        ArrayList<IFeature> oList = new ArrayList<>();
-        oList.add(feature);
-        this.removeFeatures(oList);
+        removeFeature(feature, null);
     }
 
     @Override
     public void removeFeatures(List<IFeature> features)
             throws EMP_Exception {
-        if((null == features) || (0 == features.size())) return;
-        storageManager.removeFeatures(this, features);
+        removeFeatures(features, null);
     }
 
     /**
@@ -197,14 +209,27 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      * have those changes reflected on the display. This is typically used to change position(s) as battle field objects move around.
      */
     @Override
-    public void apply() {
+    public void apply(Object userContext) {
         try {
-            storageManager.apply(this, true);
+            storageManager.apply(this, true, userContext);
         } catch(EMP_Exception e) {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Once application has added a feature to an overlay, it can change one or more attributes of the Feature and invoke the apply method to
+     * have those changes reflected on the display. This is typically used to change position(s) as battle field objects move around.
+     */
+    @Override
+    public void apply() {
+        try {
+            storageManager.apply(this, true, null);
+        } catch(EMP_Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Sets line style used to render the feature. The line style applies to all features that
      * render lines, borders or outlines. Unless otherwise specified by the specific feature class,
@@ -324,14 +349,14 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
 
     /**
      * This method sets the azimuth value for the feature. The azimuth indicates the clockwise rotation from north at which the feature is to be rendered.
-     * @param dValue - The azimuth in degrees. Valid range is -360 to 360. Out of range values raises an InvalidParameterException.
+     * @param dValue - The azimuth in degrees. Valid range is -360 to 360. Out of range values raises an IllegalArgumentException.
      */
     @Override
     public void setAzimuth(double dValue) {
         if (!Double.isNaN(dValue) && dValue >= global.HEADING_MINIMUM && dValue <= global.HEADING_MAXIMUM) {
             this.getRenderable().setAzimuth(dValue);
         } else {
-            throw new InvalidParameterException("Value is out of range (" + dValue + ").");
+            throw new IllegalArgumentException("Value is out of range (" + dValue + ").");
         }
     }
 
@@ -347,7 +372,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     @Override
     public void setPathType(PathType pathType) {
         if (null == pathType) {
-            throw new InvalidParameterException("Paramater ca not be null.");
+            throw new IllegalArgumentException("Paramater ca not be null.");
         }
 
         this.getRenderable().setPathType(pathType);
@@ -398,7 +423,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      */
     protected double makePositive(double dValue, String message) {
         if(Double.isNaN(dValue)) {
-            throw new InvalidParameterException(message);
+            throw new IllegalArgumentException(message);
         }
         else {
             return Math.abs(dValue);

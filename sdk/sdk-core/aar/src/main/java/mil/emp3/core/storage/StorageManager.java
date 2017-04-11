@@ -440,7 +440,8 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void setVisibilityOnMap(IMap map, IUUIDSet targetIdList, VisibilityActionEnum actionEnum) throws EMP_Exception {
+    public void setVisibilityOnMap(IMap map, IUUIDSet targetIdList, VisibilityActionEnum actionEnum,
+            Object userContext) throws EMP_Exception {
         IStorageObjectWrapper targetWrapper;
         IStorageObjectWrapper parentWrapper;
         VisibilityStateEnum prevVisibileState;
@@ -486,10 +487,10 @@ public class StorageManager implements IStorageManager {
                         break;
                 }
                 // Generate the event.
-                eventManager.generateVisibilityEvent(actionEnum, targetWrapper.getObject(), null, map);
+                eventManager.generateVisibilityEvent(actionEnum, targetWrapper.getObject(), null, map, userContext);
             }
 
-            processVisibilityList(map, idVisibilityList);
+            processVisibilityList(map, idVisibilityList, userContext);
         } finally {
             lock.unlock();
         }
@@ -627,7 +628,8 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void setVisibilityOnMap(IMap map, IContainer target, IContainer parent, VisibilityActionEnum actionEnum) throws EMP_Exception {
+    public void setVisibilityOnMap(IMap map, IContainer target, IContainer parent, VisibilityActionEnum actionEnum,
+                                   Object userContext) throws EMP_Exception {
         java.util.UUID parentId = parent.getGeoId();
         java.util.UUID targetId = target.getGeoId();
         java.util.UUID mapId = map.getGeoId();
@@ -670,12 +672,12 @@ public class StorageManager implements IStorageManager {
                     break;
             }
 
-            processVisibilityList(map, idVisibilityList);
+            processVisibilityList(map, idVisibilityList, userContext);
         } finally {
             lock.unlock();
         }
         // Generate the event.
-        eventManager.generateVisibilityEvent(actionEnum, target, parent, map);
+        eventManager.generateVisibilityEvent(actionEnum, target, parent, map, userContext);
     }
 
     /**
@@ -683,7 +685,7 @@ public class StorageManager implements IStorageManager {
      * @param map
      * @param idVisibilityList
      */
-    private void processVisibilityList(IMap map, IdentifierVisibilityHash idVisibilityList) {
+    private void processVisibilityList(IMap map, IdentifierVisibilityHash idVisibilityList, Object userContext) {
         if (!idVisibilityList.isEmpty()) {
             // Now send it to the map.
             IMapInstance mapInstance = this.getMapInstance(map);
@@ -702,9 +704,9 @@ public class StorageManager implements IStorageManager {
                 }
             }
             if (!fvList.isEmpty())
-                mapInstance.addFeatures(fvList);
+                mapInstance.addFeatures(fvList, userContext);
             if (!removeSet.isEmpty())
-                mapInstance.removeFeatures(removeSet);
+                mapInstance.removeFeatures(removeSet, userContext);
         }
     }
     @Override
@@ -869,7 +871,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception 
      */
     @Override
-    public void addOverlays(IMap map, List<IOverlay> overlays, boolean visible) throws EMP_Exception {
+    public void addOverlays(IMap map, List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception {
         try {
             lock.lock();
             java.util.UUID childId;
@@ -894,17 +896,17 @@ public class StorageManager implements IStorageManager {
                 this.addChildren(transactionList, parentWrapper, wrapper, visible);
             }
 
-            this.executeTransaction(transactionList);
+            this.executeTransaction(transactionList, userContext);
         } finally {
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, map, overlays);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, map, overlays, userContext);
         }
     }
 
     /**
      * This method send the features in the bulkFeatureApplyList to the map engines.
      */
-    private void processBulkFeatureApplyList() {
+    private void processBulkFeatureApplyList(Object userContext) {
         if (this.bulkFeatureApplyList.isEmpty()) {
             return;
         }
@@ -938,7 +940,7 @@ public class StorageManager implements IStorageManager {
 
                     if (!fvList.isEmpty()) {
                         // Send the list to the map engine.
-                        mapMapping.getMapInstance().addFeatures(fvList);
+                        mapMapping.getMapInstance().addFeatures(fvList, userContext);
                     }
                 }
             }
@@ -955,7 +957,7 @@ public class StorageManager implements IStorageManager {
      * @throws mil.emp3.api.exceptions.EMP_Exception
      */
     @Override
-    public void apply(IFeature feature, boolean batch) throws EMP_Exception {
+    public void apply(IFeature feature, boolean batch, Object userContext) throws EMP_Exception {
         // Ensure the feature has an altitude mode.
         this.setDefaultAltitudeMode(feature);
         try {
@@ -995,10 +997,10 @@ public class StorageManager implements IStorageManager {
             if ((null != fvList) && !fvList.isEmpty()) {
                 if (!batch || (this.bulkFeatureApplyListCount >= StorageManager.MAX_BULK_FEATURE_APPLY_COUNT)) {
                     //Log.d(TAG, "Non Batch Apply processing :" + this.bulkFeatureApplyListCount);
-                    this.processBulkFeatureApplyList();
+                    this.processBulkFeatureApplyList(userContext);
                 } else {
                     //Log.d(TAG, "Batch Apply processing :" + this.bulkFeatureApplyListCount);
-                    this.startFeatureApplyThread();
+                    this.startFeatureApplyThread(userContext);
                 }
             }
         } finally {
@@ -1006,7 +1008,7 @@ public class StorageManager implements IStorageManager {
         }
     }
 
-    private void startFeatureApplyThread() {
+    private void startFeatureApplyThread(final Object userContext) {
         if (null == this.bulkFeatureApplyThread) {
             this.bulkFeatureApplyThread = new Thread(new Runnable() {
                 @Override
@@ -1021,7 +1023,7 @@ public class StorageManager implements IStorageManager {
                                 try {
                                     lock.lock();
                                     //Log.d(TAG, "Thread processing list:" + StorageManager.this.bulkFeatureApplyListCount);
-                                    StorageManager.this.processBulkFeatureApplyList();
+                                    StorageManager.this.processBulkFeatureApplyList(userContext);
                                 } finally {
                                     lock.unlock();
                                 }
@@ -1041,7 +1043,7 @@ public class StorageManager implements IStorageManager {
         }
     }
 
-    private void executeTransaction(TransactionList transactionList) {
+    private void executeTransaction(TransactionList transactionList, Object userContext) {
         StorageObjectWrapper wrapper;
         IMap map;
         IMapInstance mapInstance;
@@ -1078,7 +1080,7 @@ public class StorageManager implements IStorageManager {
                 }
             }
 
-            mapInstance.removeFeatures(removeFeatureList);
+            mapInstance.removeFeatures(removeFeatureList, userContext);
         }
         
         mapAddFeatures = transactionList.getFeatureAdds();
@@ -1096,7 +1098,7 @@ public class StorageManager implements IStorageManager {
         }
 
         if (mapAddFeatures.size() > 0) {
-            this.processBulkFeatureApplyList();
+            this.processBulkFeatureApplyList(userContext);
         }
     }
 
@@ -1291,7 +1293,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible)
+    public void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible, Object userContext)
              throws EMP_Exception {
         try {
             lock.lock();
@@ -1320,15 +1322,16 @@ public class StorageManager implements IStorageManager {
                 this.addChildren(transactionList, parentWrapper, wrapper, visible);
             }
 
-            this.executeTransaction(transactionList);
+            this.executeTransaction(transactionList, userContext);
         } finally {
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay, overlays);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay,
+                    overlays, userContext);
         }
     }
 
     @Override
-    public void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible)
+    public void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible, Object userContext)
              throws EMP_Exception {
         try {
             lock.lock();
@@ -1359,15 +1362,16 @@ public class StorageManager implements IStorageManager {
                 this.addChildren(transactionList, parentWrapper, wrapper, visible);
             }
 
-            this.executeTransaction(transactionList);
+            this.executeTransaction(transactionList, userContext);
         } finally {
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay, featureList);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay,
+                    featureList, userContext);
         }
     }
 
     @Override
-    public void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible)
+    public void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible, Object userContext)
              throws EMP_Exception {
         java.util.UUID childId;
         java.util.UUID parentId = parentFeature.getGeoId();
@@ -1397,10 +1401,11 @@ public class StorageManager implements IStorageManager {
                 this.addChildren(transactionList, parentWrapper, wrapper, visible);
             }
 
-            this.executeTransaction(transactionList);
+            this.executeTransaction(transactionList, userContext);
         } finally {
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentFeature, featureList);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentFeature,
+                    featureList, userContext);
         }
     }
 
@@ -1440,7 +1445,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeFeatures(IFeature parentFeature, List<IFeature> features)
+    public void removeFeatures(IFeature parentFeature, List<IFeature> features, Object userContext)
             throws EMP_Exception {
         if((null == parentFeature) || (null == features)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentFeature or features list is NULL");
@@ -1475,11 +1480,11 @@ public class StorageManager implements IStorageManager {
                 }
                 removeChild(transactionList, parentWrapper, childWrapper);
             }
-            executeTransaction(transactionList);
+            executeTransaction(transactionList, userContext);
         } finally {
             //Log.v(TAG, "after removeFeatures(IFeature parentFeature oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentFeature, features);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentFeature, features, userContext);
         }
     }
 
@@ -1491,7 +1496,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeFeatures(IOverlay parentOverlay, List<IFeature> features)
+    public void removeFeatures(IOverlay parentOverlay, List<IFeature> features, Object userContext)
             throws EMP_Exception {
         if((null == parentOverlay) || (null == features)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentOverlay or features list is NULL");
@@ -1526,16 +1531,16 @@ public class StorageManager implements IStorageManager {
                 }
                 removeChild(transactionList, parentWrapper, childWrapper);
             }
-            executeTransaction(transactionList);
+            executeTransaction(transactionList, userContext);
         } finally {
             //Log.v(TAG, "after removeFeatures(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, features);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, features, userContext);
         }
     }
 
     @Override
-    public void removeOverlays(IMap clientMap, List<IOverlay> overlays) throws EMP_Exception {
+    public void removeOverlays(IMap clientMap, List<IOverlay> overlays, Object userContext) throws EMP_Exception {
         // validate the overlay list to ensure that each of the overlays is a direct child of clientMap
         //Log.d(TAG, "removeOverlays from IMap");
         if((null == clientMap) || (null == overlays)) {
@@ -1564,11 +1569,11 @@ public class StorageManager implements IStorageManager {
                 StorageObjectWrapper childWrapper = this.oObjectHash.get(anOverlay.getGeoId());
                 removeChild(transactionList, parentWrapper, childWrapper);
             }
-            executeTransaction(transactionList);
+            executeTransaction(transactionList, userContext);
         } finally {
             //Log.v(TAG, "after removeOverlays(IMap clientMap oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, clientMap, overlays);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, clientMap, overlays, userContext);
         }
     }
 
@@ -1581,7 +1586,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays) throws EMP_Exception {
+    public void removeOverlays(IOverlay parentOverlay, List<IOverlay> overlays, Object userContext) throws EMP_Exception {
         if((null == parentOverlay) || (null == overlays)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, " parentOverlay or overlays list is NULL");
         }
@@ -1608,11 +1613,11 @@ public class StorageManager implements IStorageManager {
                 StorageObjectWrapper childWrapper = this.oObjectHash.get(anOverlay.getGeoId());
                 removeChild(transactionList, parentWrapper, childWrapper);
             }
-            executeTransaction(transactionList);
+            executeTransaction(transactionList, userContext);
         } finally {
             //Log.v(TAG, "after removeOverlays(IOverlay parentOverlay oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, overlays);
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentOverlay, overlays, userContext);
         }
     }
 
@@ -1622,7 +1627,7 @@ public class StorageManager implements IStorageManager {
      * @throws EMP_Exception
      */
     @Override
-    public void removeChildren(IContainer parentContainer) throws EMP_Exception {
+    public void removeChildren(IContainer parentContainer, Object userContext) throws EMP_Exception {
         StorageObjectWrapper parentContainerWrapper;
         try {
             lock.lock();
@@ -1639,7 +1644,7 @@ public class StorageManager implements IStorageManager {
                 for (StorageObjectWrapper childWrapper : childList) {
                     removeChild(transactionList, parentContainerWrapper, childWrapper);
                 }
-                executeTransaction(transactionList);
+                executeTransaction(transactionList, userContext);
             }
         } finally {
             //Log.v(TAG, "after removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
@@ -1648,7 +1653,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void redrawAllFeatures(IMap clientMap) {
+    public void redrawAllFeatures(IMap clientMap, Object userContext) {
         IMapInstance mapInstance = getMapInstance(clientMap);
         if (null == mapInstance) {
             //Log.i(TAG, "redrawAllFeatures: mapInstance is null, skip");
@@ -1672,7 +1677,7 @@ public class StorageManager implements IStorageManager {
                 }
             }
             if (fvList.size() > 0) {
-                mapInstance.addFeatures(fvList);
+                mapInstance.addFeatures(fvList, userContext);
                 mapInstance.selectFeatures(this.getSelected(clientMap));
             } else {
                 //Log.i(TAG, "redrawAllFeatures: There are no visible faetures");
@@ -1766,7 +1771,7 @@ public class StorageManager implements IStorageManager {
         }
     }
 
-    private void dirtySinglePointOnMap(IMap map) {
+    private void dirtySinglePointOnMap(IMap map, Object userContext) {
         StorageObjectWrapper oWrapper;
 
         IMapInstance mapInstance = getMapInstance(map);
@@ -1798,11 +1803,11 @@ public class StorageManager implements IStorageManager {
             }
         }
         if(fvList.size() > 0) {
-            mapInstance.addFeatures(fvList);
+            mapInstance.addFeatures(fvList, userContext);
         }
     }
 
-    private void dirtyMilStdOnMap(IMap map) {
+    private void dirtyMilStdOnMap(IMap map, Object userContext) {
         StorageObjectWrapper oWrapper;
 
         IMapInstance mapInstance = getMapInstance(map);
@@ -1823,12 +1828,12 @@ public class StorageManager implements IStorageManager {
             }
         }
         if(fvList.size() > 0) {
-            mapInstance.addFeatures(fvList);
+            mapInstance.addFeatures(fvList, userContext);
         }
     }
     
     @Override
-    public void setIconSize(IMap map, IconSizeEnum eSize)
+    public void setIconSize(IMap map, IconSizeEnum eSize, Object userContext)
             throws EMP_Exception {
         try {
             lock.lock();
@@ -1839,7 +1844,7 @@ public class StorageManager implements IStorageManager {
             }
 
             oMapping.setIconSize(eSize);
-            this.dirtySinglePointOnMap(map);
+            this.dirtySinglePointOnMap(map, userContext);
         } finally {
             lock.unlock();
         }
@@ -1856,7 +1861,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void setMilStdLabels(IMap map, MilStdLabelSettingEnum labelSetting)
+    public void setMilStdLabels(IMap map, MilStdLabelSettingEnum labelSetting, Object userContext)
             throws EMP_Exception {
         try {
             lock.lock();
@@ -1867,7 +1872,7 @@ public class StorageManager implements IStorageManager {
             }
 
             oMapping.setMilStdLabels(labelSetting);
-            this.dirtyMilStdOnMap(map);
+            this.dirtyMilStdOnMap(map, userContext);
         } finally {
             lock.unlock();
         }
@@ -1952,7 +1957,7 @@ public class StorageManager implements IStorageManager {
             }
             this.addChildren(transactionList, parentWrapper, wrapper, true);
 
-            this.executeTransaction(transactionList);
+            this.executeTransaction(transactionList, null);
         } finally {
             lock.unlock();
         }
@@ -1981,7 +1986,7 @@ public class StorageManager implements IStorageManager {
             }
             removeChild(transactionList, parentWrapper, childWrapper);
 
-            executeTransaction(transactionList);
+            executeTransaction(transactionList, null);
         } finally {
             lock.unlock();
         }
@@ -2220,7 +2225,7 @@ public class StorageManager implements IStorageManager {
      * @param features The list of features to select.
      */
     @Override
-    public void selectFeatures(IMap clientMap, List<IFeature> features) {
+    public void selectFeatures(IMap clientMap, List<IFeature> features, Object userContext) {
         IClientMapToMapInstance mapping;
         if ((features != null) && (null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))){
             List<IFeature> featureList = new ArrayList<>();
@@ -2249,7 +2254,7 @@ public class StorageManager implements IStorageManager {
             // Don't invoke application code within the lock
             if (!featureList.isEmpty()) {
                 for (IFeature selected : featureList) {
-                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_SELECTED, selected, true);
+                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_SELECTED, selected, true, userContext);
                 }
             }
         }
@@ -2263,7 +2268,7 @@ public class StorageManager implements IStorageManager {
      * @param features The feature to deselected.
      */
     @Override
-    public void deselectFeatures(IMap clientMap, List<IFeature> features) {
+    public void deselectFeatures(IMap clientMap, List<IFeature> features, Object userContext) {
         IClientMapToMapInstance mapping;
         if ((features != null) && (null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
             List<IFeature> featureList = new ArrayList<>();
@@ -2293,7 +2298,7 @@ public class StorageManager implements IStorageManager {
             // Don't invoke application code within a lock
             if (!featureList.isEmpty()) {
                 for (IFeature selected : featureList) {
-                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_DESELECTED, selected, false);
+                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_DESELECTED, selected, false, userContext);
                 }
             }
         }
@@ -2328,7 +2333,7 @@ public class StorageManager implements IStorageManager {
      * @param clientMap The map the selection list to clear.
      */
     @Override
-    public void clearSelected(IMap clientMap) {
+    public void clearSelected(IMap clientMap, Object userContext) {
         IClientMapToMapInstance mapping;
         if ((null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
             List<IFeature> deselectList = new ArrayList<>();
@@ -2361,7 +2366,7 @@ public class StorageManager implements IStorageManager {
             // Don't invoke application code within a lock
             if (!deselectList.isEmpty()) {
                 for (IFeature selected : deselectList) {
-                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_DESELECTED, selected, false);
+                    eventManager.generateFeatureEvent(FeatureEventEnum.FEATURE_DESELECTED, selected, false, userContext);
                 }
             }
         }

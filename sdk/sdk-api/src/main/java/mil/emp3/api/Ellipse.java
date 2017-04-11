@@ -7,19 +7,13 @@ import org.cmapi.primitives.GeoEllipse;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoEllipse;
 import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoStrokeStyle;
-import org.xmlpull.v1.XmlSerializer;
 
-import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.util.ArrayList;
 import java.util.List;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.GeoLibrary;
-import mil.emp3.api.utils.kml.EmpKMLExporter;
 
 /**
  * This class implements an ellipse feature. It requires a single coordinate that indicates the
@@ -49,7 +43,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         dMinorRadius = makePositive(dMinorRadius, "Invalid minor radius. NaN");
 
         if((dMajorRadius < MINIMUM_SEMI_MAJOR) || (dMinorRadius < MINIMUM_SEMI_MINOR)) {
-            throw new InvalidParameterException("Invalid Major or Minor. " + dMajorRadius + " " + dMinorRadius +
+            throw new IllegalArgumentException("Invalid Major or Minor. " + dMajorRadius + " " + dMinorRadius +
                     " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
         }
         this.setSemiMajor(dMajorRadius);
@@ -70,7 +64,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         dMinorRadius = makePositive(dMinorRadius, "Invalid minor radius. NaN");
 
         if((dMajorRadius < MINIMUM_SEMI_MAJOR) || (dMinorRadius < MINIMUM_SEMI_MINOR)) {
-            throw new InvalidParameterException("Invalid Major or Minor. " + dMajorRadius + " " + dMinorRadius +
+            throw new IllegalArgumentException("Invalid Major or Minor. " + dMajorRadius + " " + dMinorRadius +
                     " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
         }
 
@@ -88,13 +82,13 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         super(oRenderable, FeatureTypeEnum.GEO_ELLIPSE);
 
         if(null == oRenderable) {
-            throw new InvalidParameterException("Encapsulated GeoEllipse must be non-null");
+            throw new IllegalArgumentException("Encapsulated GeoEllipse must be non-null");
         }
         this.setSemiMajor(makePositive(this.getSemiMajor(), "Invalid Semi Major NaN"));
         this.setSemiMinor(makePositive(this.getSemiMinor(), "Invalid Semi Minor NaN"));
 
         if((this.getSemiMajor() < MINIMUM_SEMI_MAJOR) || (this.getSemiMinor() < MINIMUM_SEMI_MINOR)) {
-            throw new InvalidParameterException("Invalid Major or Minor. " + this.getSemiMajor() + " " + this.getSemiMinor() +
+            throw new IllegalArgumentException("Invalid Major or Minor. " + this.getSemiMajor() + " " + this.getSemiMinor() +
                     " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
         }
 
@@ -110,7 +104,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         value = makePositive(value, "Semi Major is NaN");
 
         if (value < MINIMUM_SEMI_MAJOR) {
-            throw new InvalidParameterException("Semi Major must be >= 1.0");
+            throw new IllegalArgumentException("Semi Major must be >= 1.0");
         }
         this.getRenderable().setSemiMajor(value);
     }
@@ -133,7 +127,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         value = makePositive(value, "Semi Minor is NaN");
 
         if (value < MINIMUM_SEMI_MINOR) {
-            throw new InvalidParameterException("The Semi Minor must be >= 1.0.");
+            throw new IllegalArgumentException("The Semi Minor must be >= 1.0.");
         }
         this.getRenderable().setSemiMinor(value);
     }

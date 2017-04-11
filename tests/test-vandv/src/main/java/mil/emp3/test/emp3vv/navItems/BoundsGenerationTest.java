@@ -310,7 +310,7 @@ public class BoundsGenerationTest extends NavItemBase {
         List<IGeoPosition> positions = new ArrayList<>();
         if(null != empBoundingArea) {
             String strPos = empBoundingArea.toString();
-            Log.d(TAG, "Pos String " + strPos);
+            Log.i(TAG, "Pos String " + strPos);
             String[] pairs = strPos.split(" ");
             if((pairs != null) && (pairs.length == 5)) {
                 for(String pair: pairs) {
@@ -319,18 +319,27 @@ public class BoundsGenerationTest extends NavItemBase {
                     }
                     String[] latLon = pair.split(",");
                     if((null != latLon) && (2 == latLon.length)) {
-                        Double longitude = Double.parseDouble(latLon[0]);
-                        Double latitude = Double.parseDouble(latLon[1]);
-                        IGeoPosition position = new GeoPosition();
-                        position.setLatitude(latitude);
-                        position.setLongitude(longitude);
-                        positions.add(position);
+                        positions.add(new EmpGeoPosition(Double.parseDouble(latLon[1]), Double.parseDouble(latLon[0])));
                     } else {
                         Log.e(TAG, "fetchPositionsFromString invalid pair " + pair);
                     }
                 }
             } else {
                 Log.e(TAG, "fetchPositionsFromString not enough pairs " + pairs.length);
+                // May be it is the getWest() + "," + getSouth() + "," + getEast() + "," + getNorth();
+                String[] edges = strPos.split(",");
+                if((null != edges) && (edges.length == 4)) {
+                    Double west = Double.parseDouble(edges[0]);
+                    Double south = Double.parseDouble(edges[1]);
+                    Double east = Double.parseDouble(edges[2]);
+                    Double north = Double.parseDouble(edges[3]);
+                    positions.add(new EmpGeoPosition(north, west));
+                    positions.add(new EmpGeoPosition(north, east));
+                    positions.add(new EmpGeoPosition(south, east));
+                    positions.add(new EmpGeoPosition(south, west));
+                } else {
+                    Log.e(TAG, "Invalid bounds string " + strPos);
+                }
             }
         } else {
             Log.e(TAG, "fetchPositionsFromString empBoundingArea is null");
