@@ -39,6 +39,11 @@ public interface IKMLS extends IMapService {
     Context getContext();
 
     /**
+     * Returns true if service was created with Persistent flag on.
+     * @return
+     */
+    boolean isPersistent();
+    /**
      * Returns application installed listener.
      * @return
      */

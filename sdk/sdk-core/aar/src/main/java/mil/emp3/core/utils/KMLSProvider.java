@@ -199,6 +199,7 @@ public class KMLSProvider {
                     persistentRoot.mkdirs();
                     volatileRoot = new File(kmlsRoot + File.separator + VOLATILE_ROOT);
                     volatileRoot.mkdirs();
+                    cleanDirectory(volatileRoot);   // Cleanup the space used by volatile service from previous run.
                     directoryBuilt = true;
                 }
             } catch (Exception e) {
@@ -225,28 +226,46 @@ public class KMLSProvider {
                 buildDirectory(request.service.getContext());
                 URLConnection connection = request.service.getURL().openConnection();
                 String path = request.service.getURL().getPath();
-                // File directory = request.service.getContext().getDir(path.substring(path.lastIndexOf(File.separatorChar) + 1) + ".d", Context.MODE_PRIVATE);
 
-                File directory = new File(persistentRoot + File.separator + path.substring(path.lastIndexOf(File.separatorChar) + 1) + ".d");
+                String hostName = request.service.getURL().getHost();
+                if(null == hostName) {
+                    hostName = "file";
+                }
+
+                File directory;
+                if(request.service.isPersistent()) {
+                    directory = new File(persistentRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
+                } else {
+                    directory = new File(volatileRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
+                }
+                String fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
+                String targetFilePath = directory + File.separator + fileName;
+
+                Log.v(TAG, "File Path from URL " + path + " target directory " + directory + " target fileName " + fileName);
+
                 if(!directory.exists()) {
                     directory.mkdirs();
                 }
-                cleanDirectory(directory);
-                String fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
-                Log.v(TAG, "File Path from URL " + path + " target directory " + directory + " target fileName " + fileName);
-                try (InputStream input = connection.getInputStream();
-                     OutputStream output = new FileOutputStream(directory + File.separator + fileName)) {
-                    byte[] buffer = new byte[READ_BUFFER_SIZE];
-                    int n;
-                    int total = 0;
-                    while ((n = input.read(buffer)) != -1) {
-                        output.write(buffer, 0, n);
-                        total += n;
+                    File targetFile = new File(targetFilePath);
+                if(targetFile.exists() && (targetFile.length() > 0) && (targetFile.canRead())) {
+                    Log.i(TAG, "file " + targetFilePath + " exists, no need to fetch");
+                } else {
+                    cleanDirectory(directory);
+
+                    try (InputStream input = connection.getInputStream();
+                         OutputStream output = new FileOutputStream(targetFilePath)) {
+                        byte[] buffer = new byte[READ_BUFFER_SIZE];
+                        int n;
+                        int total = 0;
+                        while ((n = input.read(buffer)) != -1) {
+                            output.write(buffer, 0, n);
+                            total += n;
+                        }
+                        Log.v(TAG, "transferred " + total);
                     }
-                    Log.v(TAG, "transferred " + total);
                 }
 
-                request.kmzFilePath = directory + File.separator + fileName;
+                request.kmzFilePath = targetFilePath;
                 request.kmzDirectory = directory;
             } catch (IOException ioe) {
                 Log.e(TAG, "KMLSProcessor-copyKMZ failed " + request.service.getURL(), ioe);
