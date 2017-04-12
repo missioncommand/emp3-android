@@ -65,6 +65,14 @@
         android:hint="Enter Text"
         android:visibility="gone"
         />
+
+    <ListView
+        android:id="@+id/file_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:listSelector="@android:color/darker_gray"
+        android:visibility="gone"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
