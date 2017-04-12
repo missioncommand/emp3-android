@@ -12,6 +12,7 @@ import android.view.View;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.Date;
 import java.util.EnumSet;
 
 import gov.nasa.worldwind.BasicWorldWindowController;
@@ -57,6 +58,8 @@ public class PickNavigateController extends BasicWorldWindowController implement
     private boolean isDragging = false;
     private boolean dragConsumed = false;
     private MotionEvent dragDownEvent = null;
+    private Date lastDragComplete = new Date();
+
     private EnumSet<UserInteractionKeyEnum> oKeys = EnumSet.noneOf(UserInteractionKeyEnum.class);
     private UserInteractionMouseButtonEnum oButton = UserInteractionMouseButtonEnum.NONE;
 
@@ -181,6 +184,16 @@ public class PickNavigateController extends BasicWorldWindowController implement
             dragDownEvent = null;
             oPreviousScrollEventPosition = null;
         }
+
+        if ((System.currentTimeMillis() - lastDragComplete.getTime()) < 1000) {
+            // After we process the drag complete which occurs with an ACTION_UP while isDragging,
+            // we can't process events within a ~ 1 sec because the ACTION_UP that ends the drag that is
+            // followed by an ACTION_DOWN then an ACTION_UP in rapid succession causes a double tap
+            // to be generated.
+            Log.i(TAG, event.getAction() + " evt to close to drag complete. Picks " + this.oFeaturePickList.size() + ".");
+            return true;
+        }
+
         // See if its an UP event
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP: {
@@ -191,6 +204,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
                     Log.i(TAG, "ACTION_UP evt. Picks " + this.oFeaturePickList.size() + ".");
                     this.actionUpDetected = true;
                     consumed = this.onScrollHandler(this.dragDownEvent, event, 0, 0);
+                    lastDragComplete.setTime(System.currentTimeMillis());
                 } else {
                     Log.i(TAG, "ACTION_UP evt NOT dragging. Picks " + this.oFeaturePickList.size() + ".");
                 }
