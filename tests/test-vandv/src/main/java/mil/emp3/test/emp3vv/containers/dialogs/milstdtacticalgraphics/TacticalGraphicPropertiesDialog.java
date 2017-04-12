@@ -120,6 +120,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
         return parentList;
     }
     public void setFeatureVisible(boolean visible) {
+        Log.d(TAG, this.sFeatureName + " visible " + visible);
         this.featureVisible = visible;
     }
 
@@ -133,6 +134,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
     }
 
     public void setSymbolCode(String sValue) {
+        Log.d(TAG, this.sFeatureName + " symbol code " + sValue);
         if (sValue != null) {
             this.sSymbolCode = sValue;
             String sTemp = String.valueOf(SymbolUtilities.getAffiliation(sValue));
@@ -148,6 +150,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
     }
 
     public void setFeatureName(String sValue) {
+        Log.d(TAG, "Feature name is " + sValue);
         if (sValue != null) {
             this.sFeatureName = sValue;
         }
@@ -158,6 +161,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
     }
 
     public void setMilStdVersion(GeoMilSymbol.SymbolStandard eVersion) {
+        Log.d(TAG, this.sFeatureName + " standard " + eVersion);
         if (eVersion != null) {
             this.eMilStdVersion = eVersion;
         }
@@ -354,6 +358,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
 
                 if (oDefItem != null) {
                     TacticalGraphicPropertiesDialog.this.sSymbolCode = oDefItem.getSymbolDef().getBasicSymbolId();
+                    Log.d(TAG, getFeatureName() + " symbol code set to " + getSymbolCode());
                     oSymbolCode.setText(TacticalGraphicPropertiesDialog.this.sSymbolCode);
 
                     if (oDefItem != TacticalGraphicPropertiesDialog.this.oCurrentDefItem) {
@@ -430,5 +435,6 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
         }
 
         this.sSymbolCode = SymbolUtilities.setAffiliation(this.sSymbolCode, this.eAffiliation.toString());
+        Log.d(TAG, this.sFeatureName + " symbol code updated " + this.sSymbolCode);
     }
 }
