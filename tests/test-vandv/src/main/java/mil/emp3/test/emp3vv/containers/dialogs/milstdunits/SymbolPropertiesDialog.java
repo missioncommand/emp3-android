@@ -155,6 +155,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
     }
 
     public void setFeatureVisible(boolean visible) {
+        Log.d(TAG, this.sFeatureName + " visible " + visible);
         this.featureVisible = visible;
     }
 
@@ -197,6 +198,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
     }
 
     public void setSymbolCode(String sValue) {
+        Log.d(TAG, ".Symbol code " + sValue);
         if (sValue != null) {
             this.sSymbolCode = sValue;
             String sTemp = String.valueOf(armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(sValue));
@@ -242,6 +244,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
     }
 
     public void setFeatureName(String sValue) {
+        Log.d(TAG, "Feature name is " + sValue);
         if (sValue != null) {
             this.sFeatureName = sValue;
         }
@@ -252,6 +255,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
     }
 
     public void setMilStdVersion(GeoMilSymbol.SymbolStandard eVersion) {
+        Log.d(TAG, this.sFeatureName + " standard " + eVersion);
         if (eVersion != null) {
             this.eMilStdVersion = eVersion;
         }
@@ -582,6 +586,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
 
                 if (oUnitDefItem != null) {
                     SymbolPropertiesDialog.this.sSymbolCode = oUnitDefItem.getUnitDef().getBasicSymbolId();
+                    Log.d(TAG, getFeatureName() + " symbol code set to " + getSymbolCode());
                     oSymbolCode.setText(SymbolPropertiesDialog.this.sSymbolCode);
                     SymbolPropertiesDialog.this.setSymbolImage();
                     if (oUnitDefItem != SymbolPropertiesDialog.this.oCurrentUnitDefItem) {
@@ -717,5 +722,6 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
 
         this.sSymbolCode = SymbolCodeUtils.setEchelon(sTemp, sStr);
         this.sSymbolCode = armyc2.c2sd.renderer.utilities.SymbolUtilities.setAffiliation(this.sSymbolCode, this.eAffiliation.toString());
+        Log.d(TAG, this.sFeatureName + " symbol code updated " + this.sSymbolCode);
     }
 }
