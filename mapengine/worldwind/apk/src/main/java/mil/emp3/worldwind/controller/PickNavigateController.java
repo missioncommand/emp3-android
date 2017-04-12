@@ -241,7 +241,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
             pickedObject = pickList.pickedObjectAt(iIndex);
             if (pickedObject != null) {
                 oObject = pickedObject.getUserObject();
-                if (oObject instanceof mil.emp3.api.interfaces.IFeature) {
+                if ((null != oObject) && (oObject instanceof mil.emp3.api.interfaces.IFeature)) {
                     oFeature = (mil.emp3.api.interfaces.IFeature) oObject;
                     if (!this.oFeaturePickList.contains(oFeature)) {
                         Log.d(TAG, "Picked " + oFeature.getClass().getSimpleName());
