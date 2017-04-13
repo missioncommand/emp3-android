@@ -191,6 +191,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
             // followed by an ACTION_DOWN then an ACTION_UP in rapid succession causes a double tap
             // to be generated.
             Log.i(TAG, event.getAction() + " evt to close to drag complete. Picks " + this.oFeaturePickList.size() + ".");
+            oFeaturePickList.clear();
             return true;
         }
 
