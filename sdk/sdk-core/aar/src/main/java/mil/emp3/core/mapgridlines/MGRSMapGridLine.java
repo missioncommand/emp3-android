@@ -152,7 +152,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
 
         // MGRS northing values
         labelStyle = new GeoLabelStyle();
-        color = new EmpGeoColor(0.5, 0, 0, 0);
+        color = new EmpGeoColor(1.0, 150, 150, 150);
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
@@ -213,9 +213,9 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                 Log.i(TAG, "GZD threshold. " + metersInOneEighthOfAnInch);
                 createUTMGridZones(mapBounds, metersPerPixel);
                 displayGridLabel("MGRS GZD", mapBounds, metersPerPixel);
-            } else if (metersInOneEighthOfAnInch <= 500000) {
-                Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
-                super.processViewChange(mapBounds, camera, metersPerPixel);
+            //} else if (metersInOneEighthOfAnInch <= 500000) {
+            //    Log.i(TAG, "UTM grid. " + metersInOneEighthOfAnInch);
+            //    super.processViewChange(mapBounds, camera, metersPerPixel);
             } else {
                 Log.i(TAG, "Grid off. " + metersInOneEighthOfAnInch);
                 // The grid turns off.

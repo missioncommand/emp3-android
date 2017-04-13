@@ -24,6 +24,7 @@ import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.ManagerFactory;
+import mil.emp3.core.mapgridlines.DDMapGridLines;
 import mil.emp3.core.mapgridlines.DMSMapGridLine;
 import mil.emp3.core.storage.ClientMapToMapInstance;
 import mil.emp3.core.mapgridlines.MGRSMapGridLine;
@@ -282,6 +283,12 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
                 DMSMapGridLine dmsGridGenerator = new DMSMapGridLine(this.getMapInstance());
                 this.mapGridLineGenerator = dmsGridGenerator;
                 gridLineGenerator = dmsGridGenerator;
+                break;
+            case DD:
+                DDMapGridLines ddGridGenerator = new DDMapGridLines(this.getMapInstance());
+                this.mapGridLineGenerator = ddGridGenerator;
+                gridLineGenerator = ddGridGenerator;
+                break;
             case NONE:
                 break;
             default:

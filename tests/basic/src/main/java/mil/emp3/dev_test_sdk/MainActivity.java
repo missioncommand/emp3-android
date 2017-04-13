@@ -484,6 +484,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    public class GeoJsonCallBack implements IEmpExportToStringCallback {
+        @Override
+        public void exportSuccess(String geoJSON) {
+            // Quick and dirty way to show the output
+            String[] splits = geoJSON.split("\n");
+            for (int i = 0; i < splits.length; i++) {
+                Log.i(TAG, splits[i]);
+            }
+        }
+
+        @Override
+        public void exportFailed(Exception e) {
+            Log.i(TAG, "geojson export failed", e);
+        }
+    }
+
     private double randomLocalLatitude() {
         return (Math.random() * 30.0) + 10.0;
     }
@@ -1883,39 +1899,17 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_exportFeatureToGeoJSON:
                 try {
                     List<IFeature> featureList = this.map.getSelected();
+                    GeoJsonCallBack callback = new GeoJsonCallBack();
                     if (featureList.size() == 1) {
-                        GeoJsonCaller.exportToString(map, featureList.get(0), false, new IEmpExportToStringCallback() {
-                            @Override
-                            public void exportSuccess(String geoJSON) {
-                                // Quick and dirty way to show the output
-                                String[] splits = geoJSON.split("\n");
-                                for (int i = 0; i < splits.length; i++) {
-                                    Log.i(TAG, splits[i]);
-                                }
-                            }
-
-                            @Override
-                            public void exportFailed(Exception e) {
-                                Log.i(TAG, "geojson export failed", e);
-                            }
-                        });
+                        GeoJsonCaller.exportToString(map, featureList.get(0), false, callback);
                     } else {
-                        GeoJsonCaller.exportToString(map, featureList, false, new IEmpExportToStringCallback() {
-                            @Override
-                            public void exportSuccess(String geoJSON) {
-                                // Quick and dirty way to show the output
-                                String[] splits = geoJSON.split("\n");
-                                for (int i = 0; i < splits.length; i++) {
-                                    Log.i(TAG, splits[i]);
-                                }
-                            }
-
-                            @Override
-                            public void exportFailed(Exception e) {
-                                Log.i(TAG, "geojson export failed", e);
-                            }
-                        });
+                        GeoJsonCaller.exportToString(map, featureList, false, callback);
                     }
+                    // repeat with map and overlay calls
+                    if (map.getAllOverlays().size() > 0) {
+                        GeoJsonCaller.exportToString(map, map.getAllOverlays().get(0), false, callback);
+                    }
+                    GeoJsonCaller.exportToString(map, false, callback);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -2,6 +2,8 @@ package mil.emp3.worldwind.layer;
 
 import android.util.Log;
 
+import org.cmapi.primitives.IGeoPosition;
+
 import java.util.List;
 
 import gov.nasa.worldwind.WorldWind;
@@ -53,15 +55,18 @@ public class MapGridLayer extends RenderableLayer {
                 for (IFeature feature : featureList) {
                     renderable = null;
                     switch (feature.getFeatureType()) {
-                        case GEO_PATH:
-                            renderable = this.featureConverter.createWWPath((Path) feature, false);
-                            if(renderable instanceof gov.nasa.worldwind.shape.Path) {
+                        case GEO_PATH: {
+                            gov.nasa.worldwind.shape.Path path = this.featureConverter.createWWPath((Path) feature, false);
+                            IGeoPosition pos1 = feature.getPositions().get(0);
+                            IGeoPosition pos2 = feature.getPositions().get(1);
+                            if ((Math.abs(pos1.getLatitude() - pos2.getLatitude()) > 24.0) ||
+                                    (Math.abs(pos1.getLongitude() - pos2.getLongitude()) > 24.0)) {
                                 // Optimize Grid rendering
-                                gov.nasa.worldwind.shape.Path path = (gov.nasa.worldwind.shape.Path) renderable;
-                                path.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
                                 path.setFollowTerrain(false);
                             }
+                            renderable = path;
                             break;
+                        }
                         case GEO_TEXT:
                             renderable = this.featureConverter.createWWLabel((Text) feature, false);
                             break;

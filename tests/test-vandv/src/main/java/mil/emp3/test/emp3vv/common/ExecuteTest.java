@@ -31,6 +31,7 @@ import mil.emp3.test.emp3vv.optItems.Locate;
 import mil.emp3.test.emp3vv.optItems.LookAt;
 import mil.emp3.test.emp3vv.optItems.Map;
 import mil.emp3.test.emp3vv.optItems.MapBrightness;
+import mil.emp3.test.emp3vv.optItems.MapGridDDAction;
 import mil.emp3.test.emp3vv.optItems.MapGridDMSAction;
 import mil.emp3.test.emp3vv.optItems.MapGridMGRSAction;
 import mil.emp3.test.emp3vv.optItems.MapGridNoneAction;
@@ -95,6 +96,7 @@ public class ExecuteTest {
         optionSettings.put("MGRS Grid", MapGridMGRSAction.class);
         optionSettings.put("UTM Grid", MapGridUTMAction.class);
         optionSettings.put("DMS Grid", MapGridDMSAction.class);
+        optionSettings.put("DD Grid", MapGridDDAction.class);
     }
 
     public static UserAction getUserActionImpl() {
