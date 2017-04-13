@@ -184,7 +184,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
             dragDownEvent = null;
             oPreviousScrollEventPosition = null;
         }
-
+/*
         if ((System.currentTimeMillis() - lastDragComplete.getTime()) < 1000) {
             // After we process the drag complete which occurs with an ACTION_UP while isDragging,
             // we can't process events within a ~ 1 sec because the ACTION_UP that ends the drag that is
@@ -194,7 +194,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
             oFeaturePickList.clear();
             return true;
         }
-
+*/
         // See if its an UP event
         switch (event.getAction()) {
             case MotionEvent.ACTION_UP: {
