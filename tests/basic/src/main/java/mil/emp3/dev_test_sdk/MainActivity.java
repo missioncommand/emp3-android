@@ -44,6 +44,7 @@ import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.GeoLabelStyle;
+import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoAltitudeMode;
@@ -82,6 +83,7 @@ import mil.emp3.api.GeoJSON;
 import mil.emp3.api.GeoPackage;
 import mil.emp3.api.ImageLayer;
 import mil.emp3.api.KML;
+import mil.emp3.api.MapView;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.MirrorCache;
 import mil.emp3.api.Overlay;
@@ -90,6 +92,7 @@ import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.Text;
 import mil.emp3.api.WMS;
 import mil.emp3.api.WMTS;
 import mil.emp3.api.enums.FontSizeModifierEnum;
@@ -150,6 +153,7 @@ public class MainActivity extends AppCompatActivity
     private WMTS wmtsService;
     private mil.emp3.api.GeoPackage geoPackage;
     protected java.util.HashMap<java.util.UUID, IFeature> oFeatureHash = new java.util.HashMap<>();
+    private List<Point> markerList = new ArrayList<>();
     private IFeature oCurrentSelectedFeature;
     private final org.cmapi.primitives.IGeoStrokeStyle oSelectedStrokeStyle = new org.cmapi.primitives.GeoStrokeStyle();
     private java.util.HashMap<java.util.UUID, FeatureLocationDialog> oSelectedDialogHash = new java.util.HashMap<>();
@@ -365,6 +369,17 @@ public class MainActivity extends AppCompatActivity
             if (MainActivity.this.oSelectedDialogHash.containsKey(oFeature.getGeoId())) {
                 FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(oFeature.getGeoId());
                 oDialog.updateDialog();
+
+                if ((oFeature instanceof  Circle) && (MainActivity.this.markerList.size() > 0)) {
+                    Circle circle = (Circle) oFeature;
+                    IGeoPosition pos = circle.getPosition();
+                    double radius = circle.getRadius();
+
+                    for (Point point: MainActivity.this.markerList) {
+                        GeoLibrary.computePositionAt(point.getAzimuth(), radius, pos, point.getPosition());
+                        point.apply();
+                    }
+                }
             }
         }
 
@@ -767,6 +782,7 @@ public class MainActivity extends AppCompatActivity
 
             try {
                 this.oRootOverlay.removeFeatures(oFeatureList);
+                this.markerList.clear();
                 Log.d(TAG, "Removed " + oFeatureList.size() + " features.");
                 this.oFeatureHash.clear();
             } catch (EMP_Exception Ex) {
@@ -1548,45 +1564,47 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_mirrorcache_connect: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(false);
 
-                new AlertDialog.Builder(MainActivity.this)
-                               .setMessage("WebSocket endpoint:")
-                               .setView(R.layout.mirrorcache_url_dialog)
-                               .setNegativeButton(android.R.string.no, null)
-                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    new AlertDialog.Builder(MainActivity.this)
+                                   .setMessage("WebSocket endpoint:")
+                                   .setView(R.layout.mirrorcache_url_dialog)
+                                   .setNegativeButton(android.R.string.no, null)
+                                   .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                       public void onClick(DialogInterface dialog, int which) {
+                                           final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
 
-                                       final String endpointStr = text.getText().toString();
-                                       Log.d(TAG, "endpointStr: " + endpointStr);
+                                           final String endpointStr = text.getText().toString();
+                                           Log.d(TAG, "endpointStr: " + endpointStr);
 
-                                       new AsyncTask<Void, Void, Exception>() {
-                                           @Override
-                                           protected Exception doInBackground(final Void... params) {
-                                               try {
-                                                   mc = new MirrorCache(new URI(endpointStr));
-                                                   mc.connect();
+                                           new AsyncTask<Void, Void, Exception>() {
+                                               @Override
+                                               protected Exception doInBackground(final Void... params) {
+                                                   try {
+                                                       mc = new MirrorCache(new URI(endpointStr));
+                                                       mc.connect();
 
-                                               } catch (Exception e) {
-                                                   return e;
+                                                   } catch (Exception e) {
+                                                       return e;
+                                                   }
+                                                   return null;
                                                }
-                                               return null;
-                                           }
-                                           @Override
-                                           protected void onPostExecute(final Exception e) {
-                                               if (e == null) {
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(true);
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_addproduct).setEnabled(true);
+                                               @Override
+                                               protected void onPostExecute(final Exception e) {
+                                                   if (e == null) {
+                                                       MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(true);
+                                                       MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+                                                       MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_addproduct).setEnabled(true);
 
-                                               } else if (e != null) {
-                                                   Log.e(TAG, e.getMessage(), e);
-                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(true);
+                                                   } else if (e != null) {
+                                                       Log.e(TAG, e.getMessage(), e);
+                                                       new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                                       MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(true);
+                                                   }
                                                }
-                                           }
-                                       }.execute();
-                                   }
-                               }).create().show();
+                                           }.execute();
+                                       }
+                                   }).create().show();
+                }
                 return true;
             }
             case R.id.action_mirrorcache_disconnect: {
@@ -1606,84 +1624,88 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_mirrorcache_subscribe: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(false);
 
-                new AlertDialog.Builder(MainActivity.this)
-                               .setMessage("Product Id:")
-                               .setView(R.layout.mirrorcache_subscribe_dialog)
-                               .setNegativeButton(android.R.string.no, null)
-                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    new AlertDialog.Builder(MainActivity.this)
+                                   .setMessage("Product Id:")
+                                   .setView(R.layout.mirrorcache_subscribe_dialog)
+                                   .setNegativeButton(android.R.string.no, null)
+                                   .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                       public void onClick(DialogInterface dialog, int which) {
+                                           final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
 
-                                       final String productId = text.getText().toString();
-                                       Log.d(TAG, "productId: " + productId);
+                                           final String productId = text.getText().toString();
+                                           Log.d(TAG, "productId: " + productId);
 
-                                       new AsyncTask<Void, Void, EMP_Exception>() {
-                                           @Override
-                                           protected EMP_Exception doInBackground(final Void... params) {
-                                               try {
-                                                   final Overlay overlay = mc.subscribe(productId);
-                                                   MainActivity.this.map.addOverlay(overlay, true);
+                                           new AsyncTask<Void, Void, EMP_Exception>() {
+                                               @Override
+                                               protected EMP_Exception doInBackground(final Void... params) {
+                                                   try {
+                                                       final Overlay overlay = mc.subscribe(productId);
+                                                       MainActivity.this.map.addOverlay(overlay, true);
 
-                                               } catch (EMP_Exception e) {
-                                                   return e;
+                                                   } catch (EMP_Exception e) {
+                                                       return e;
+                                                   }
+                                                   return null;
                                                }
-                                               return null;
-                                           }
-                                           @Override
-                                           protected void onPostExecute(final EMP_Exception e) {
-                                               if (e == null) {
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
+                                               @Override
+                                               protected void onPostExecute(final EMP_Exception e) {
+                                                   if (e == null) {
+                                                       MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
 
-                                               } else if (e != null) {
-                                                   Log.e(TAG, e.getMessage(), e);
-                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+                                                   } else if (e != null) {
+                                                       Log.e(TAG, e.getMessage(), e);
+                                                       new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                                       MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+                                                   }
                                                }
-                                           }
-                                       }.execute();
-                                   }
-                               }).create().show();
+                                           }.execute();
+                                       }
+                                   }).create().show();
+                }
                 return true;
             }
             case R.id.action_mirrorcache_unsubscribe: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(false);
 
-                new AlertDialog.Builder(MainActivity.this)
-                               .setMessage("Product Id:")
-                               .setView(R.layout.mirrorcache_subscribe_dialog)
-                               .setNegativeButton(android.R.string.no, null)
-                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    new AlertDialog.Builder(MainActivity.this)
+                                   .setMessage("Product Id:")
+                                   .setView(R.layout.mirrorcache_subscribe_dialog)
+                                   .setNegativeButton(android.R.string.no, null)
+                                   .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                       public void onClick(DialogInterface dialog, int which) {
+                                           final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
 
-                                       final String productId = text.getText().toString();
-                                       Log.d(TAG, "productId: " + productId);
+                                           final String productId = text.getText().toString();
+                                           Log.d(TAG, "productId: " + productId);
 
-                                       new AsyncTask<Void, Void, EMP_Exception>() {
-                                           @Override
-                                           protected EMP_Exception doInBackground(final Void... params) {
-                                               try {
-                                                   mc.unsubscribe(productId);
+                                           new AsyncTask<Void, Void, EMP_Exception>() {
+                                               @Override
+                                               protected EMP_Exception doInBackground(final Void... params) {
+                                                   try {
+                                                       mc.unsubscribe(productId);
 
-                                               } catch (EMP_Exception e) {
-                                                   return e;
+                                                   } catch (EMP_Exception e) {
+                                                       return e;
+                                                   }
+                                                   return null;
                                                }
-                                               return null;
-                                           }
-                                           @Override
-                                           protected void onPostExecute(final EMP_Exception e) {
-                                               if (e == null) {
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+                                               @Override
+                                               protected void onPostExecute(final EMP_Exception e) {
+                                                   if (e == null) {
+                                                       MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
 
-                                               } else if (e != null) {
-                                                   Log.e(TAG, e.getMessage(), e);
-                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
+                                                   } else if (e != null) {
+                                                       Log.e(TAG, e.getMessage(), e);
+                                                       new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                                       MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
+                                                   }
                                                }
-                                           }
-                                       }.execute();
-                                   }
-                               }).create().show();
+                                           }.execute();
+                                       }
+                                   }).create().show();
+                }
                 return true;
             }
             case R.id.action_mirrorcache_addproduct: {
@@ -2112,36 +2134,38 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             case R.id.action_plot2units2525B:
-                new AlertDialog.Builder(MainActivity.this)
-                        .setMessage("Number of Units:")
-                        .setView(R.layout.plot_unit_dialog)
-                        .setNegativeButton(android.R.string.no, null)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
-                                final CheckBox checkBox = (CheckBox) (((Dialog) dialog).findViewById(R.id.remove_features));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setMessage("Number of Units:")
+                            .setView(R.layout.plot_unit_dialog)
+                            .setNegativeButton(android.R.string.no, null)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                                    final CheckBox checkBox = (CheckBox) (((Dialog) dialog).findViewById(R.id.remove_features));
 
-                                final String numUnits = text.getText().toString();
-                                Log.d(TAG, "numUnits: " + numUnits);
+                                    final String numUnits = text.getText().toString();
+                                    Log.d(TAG, "numUnits: " + numUnits);
 
-                                final boolean shouldRemoveAllFeatures = checkBox.isChecked();
-                                Log.d(TAG, "shouldRemoveAllFeatures: " + shouldRemoveAllFeatures);
+                                    final boolean shouldRemoveAllFeatures = checkBox.isChecked();
+                                    Log.d(TAG, "shouldRemoveAllFeatures: " + shouldRemoveAllFeatures);
 
-                                if (shouldRemoveAllFeatures) {
-                                    removeAllFeatures();
+                                    if (shouldRemoveAllFeatures) {
+                                        removeAllFeatures();
+                                    }
+
+                                    plotManyMilStd(Integer.parseInt(numUnits));
                                 }
-
-                                plotManyMilStd(Integer.parseInt(numUnits));
-                            }
-                        }).create().show();
+                            }).create().show();
+                }
                 return true;
             case R.id.action_plotunits2525B:
                 removeAllFeatures();
-                plotMilStd(org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525B, 0);
+                plotMilStd(GeoMilSymbol.SymbolStandard.MIL_STD_2525B, 0);
                 return true;
             case R.id.action_plotunits2525C:
                 removeAllFeatures();
-                plotMilStd(org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525C, 0);
+                plotMilStd(GeoMilSymbol.SymbolStandard.MIL_STD_2525C, 0);
                 return true;
             case R.id.action_removeAll:
                 removeAllFeatures();
@@ -2228,7 +2252,7 @@ public class MainActivity extends AppCompatActivity
                             ArrayList<String> layers = new ArrayList<>();
                             layers.add(layer);
                             try {
-                                wmsService = new mil.emp3.api.WMS(
+                                wmsService = new WMS(
                                         url,
                                         wmsVersion,
                                         tileFormat,
@@ -2494,7 +2518,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_drawText: {
                 IGeoLabelStyle labelStyle = new GeoLabelStyle();
-                mil.emp3.api.Text textFeature = new mil.emp3.api.Text();
+                Text textFeature = new Text();
 
                 labelStyle.setColor(new EmpGeoColor(1.0, 0, 255, 255));
                 labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
@@ -2741,7 +2765,7 @@ public class MainActivity extends AppCompatActivity
                     crossHairLayout.setVisibility(View.GONE);
                 } else {
                     // Turn them on.
-                    mil.emp3.api.MapView mapView = (mil.emp3.api.MapView) this.findViewById(R.id.map);
+                    MapView mapView = (MapView) this.findViewById(R.id.map);
                     int mapWidth = mapView.getWidth();
                     int mapHeight = mapView.getHeight();
                     int posX = mapWidth / 2 + (int) mapView.getX() - (crossHairImage.getWidth() / 2);
@@ -2908,7 +2932,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             }
             case R.id.action_plotText: {
-                mil.emp3.api.Text textFeature;
+                Text textFeature;
                 IGeoLabelStyle labelStyle;
                 IGeoPosition pos1 = new GeoPosition();
                 IGeoPosition pos2 = new GeoPosition();
@@ -2931,7 +2955,7 @@ public class MainActivity extends AppCompatActivity
                 labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
                 labelStyle.setSize(14.0);
                 labelStyle.setOutlineColor(null);
-                textFeature = new mil.emp3.api.Text();
+                textFeature = new Text();
                 textFeature.setName("This Text is LEFT Justified 14pt.");
                 textFeature.setLabelStyle(labelStyle);
                 textFeature.setPosition(pos1);
@@ -2949,7 +2973,7 @@ public class MainActivity extends AppCompatActivity
                 labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
                 labelStyle.setSize(12.0);
                 //labelStyle.setOutlineColor(null);
-                textFeature = new mil.emp3.api.Text();
+                textFeature = new Text();
                 textFeature.setName("This Text is CENTER Justified 12pt.");
                 textFeature.setLabelStyle(labelStyle);
                 textFeature.setPosition(pos2);
@@ -2967,7 +2991,7 @@ public class MainActivity extends AppCompatActivity
                 labelStyle.setJustification(IGeoLabelStyle.Justification.RIGHT);
                 labelStyle.setSize(10.0);
                 labelStyle.setOutlineColor(null);
-                textFeature = new mil.emp3.api.Text();
+                textFeature = new Text();
                 textFeature.setName("This Text is RIGHT Justified 10pt.");
                 textFeature.setLabelStyle(labelStyle);
                 textFeature.setPosition(pos3);
@@ -3099,6 +3123,41 @@ public class MainActivity extends AppCompatActivity
                     oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
                     this.oRootOverlay.addFeature(oFeature, true);
                     this.oFeatureHash.put(oFeature.getGeoId(), oFeature);
+
+                    IGeoPosition pos;
+                    Point defaultPoint = new Point();
+
+                    defaultPoint.setAzimuth(45.0);
+                    pos = GeoLibrary.computePositionAt(45.0, 25000, oPosList.get(0));
+                    defaultPoint.setPosition(pos);
+                    this.oRootOverlay.addFeature(defaultPoint, true);
+                    this.oFeatureHash.put(defaultPoint.getGeoId(), defaultPoint);
+                    this.markerList.add(defaultPoint);
+
+                    defaultPoint = new Point();
+                    defaultPoint.setAzimuth(135.0);
+                    pos = GeoLibrary.computePositionAt(135.0, 25000, oPosList.get(0));
+                    defaultPoint.setPosition(pos);
+                    this.oRootOverlay.addFeature(defaultPoint, true);
+                    this.oFeatureHash.put(defaultPoint.getGeoId(), defaultPoint);
+                    this.markerList.add(defaultPoint);
+
+                    defaultPoint = new Point();
+                    defaultPoint.setAzimuth(225.0);
+                    pos = GeoLibrary.computePositionAt(225.0, 25000, oPosList.get(0));
+                    defaultPoint.setPosition(pos);
+                    this.oRootOverlay.addFeature(defaultPoint, true);
+                    this.oFeatureHash.put(defaultPoint.getGeoId(), defaultPoint);
+                    this.markerList.add(defaultPoint);
+
+                    defaultPoint = new Point();
+                    defaultPoint.setAzimuth(315.0);
+                    pos = GeoLibrary.computePositionAt(315.0, 25000, oPosList.get(0));
+                    defaultPoint.setPosition(pos);
+                    this.oRootOverlay.addFeature(defaultPoint, true);
+                    this.oFeatureHash.put(defaultPoint.getGeoId(), defaultPoint);
+                    this.markerList.add(defaultPoint);
+
                 } catch (EMP_Exception ex) {
                 }
                 return true;
