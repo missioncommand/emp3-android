@@ -25,6 +25,11 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpGeoColor;
 
+/**
+ * <a href="http://geojson.org/geojson-spec.html">GeoJSON Specifications</a><br/>
+ * <a href="http://cmapi.org/versions/v1.2.0/index.html">Properties supported by EMP GeoJSON</a>
+ */
+
 public class GeoJsonParser {
 
     private final static String TAG = GeoJsonParser.class.getSimpleName();
