@@ -26,14 +26,14 @@ public class MirrorCacheTest extends TestCase {
         try {
             mc.subscribe("invalid-id");
             fail();
-        } catch (EMP_Exception expected) {
+        } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), new Contains("Invalid productId"));
         }
 
         try {
             mc.unsubscribe("invalid-id");
             fail();
-        } catch (EMP_Exception expected) {
+        } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), new Contains("Invalid productId"));
         }
     }
@@ -49,7 +49,7 @@ public class MirrorCacheTest extends TestCase {
         try {
             mc.addProduct(overlay);
             fail();
-        } catch (EMP_Exception expected) {
+        } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), new Contains("Invalid overlayName"));
         }
 
@@ -57,7 +57,7 @@ public class MirrorCacheTest extends TestCase {
         try {
             mc.addProduct(overlay);
             fail();
-        } catch (EMP_Exception expected) {
+        } catch (IllegalArgumentException expected) {
             assertThat(expected.getMessage(), new Contains("Invalid overlayName"));
         }
     }
