@@ -13,7 +13,6 @@ import mil.emp3.test.emp3vv.navItems.AddRemoveGetTest;
 import mil.emp3.test.emp3vv.navItems.BoundsGenerationTest;
 import mil.emp3.test.emp3vv.navItems.FreehandDrawTest;
 import mil.emp3.test.emp3vv.navItems.LaunchMap;
-import mil.emp3.test.emp3vv.navItems.geoJSON_test.GeoJSONTest;
 import mil.emp3.test.emp3vv.navItems.performance_test.PerformanceTest;
 import mil.emp3.test.emp3vv.navItems.basic_capability_test.BasicShapeTest;
 
@@ -67,7 +66,6 @@ public class ExecuteTest {
         capabilityTests.put("Basic Shapes Editors", BasicShapesEditorsTest.class);
         capabilityTests.put("Basic Shape", BasicShapeTest.class);
         capabilityTests.put("Freehand Draw", FreehandDrawTest.class);
-        capabilityTests.put("GeoJSON Test", GeoJSONTest.class);
         capabilityTests.put("Performance", PerformanceTest.class);
         capabilityTests.put("Bounds Generation", BoundsGenerationTest.class);
 

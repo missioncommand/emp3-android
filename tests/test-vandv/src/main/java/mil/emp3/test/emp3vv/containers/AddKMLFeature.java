@@ -16,7 +16,7 @@ import mil.emp3.test.emp3vv.containers.dialogs.FeaturePropertiesDialog;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 
 public class AddKMLFeature extends AddEntityBase implements FeaturePropertiesDialog.FeaturePropertiesDialogListener<FeatureFromFilePropertiesDialog> {
-    private static String TAG = AddCircleFeature.class.getSimpleName();
+    private static String TAG = AddKMLFeature.class.getSimpleName();
 
     public AddKMLFeature(Activity activity, IMap map, IStatusListener statusListener, StyleManager styleManager) {
         super(activity, map, statusListener, styleManager);
