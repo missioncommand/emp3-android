@@ -80,7 +80,7 @@ public class MirrorCache {
     }
 
     /**
-     * Initializes this instance with a MirrorCache service endpoint.
+     * Initializes this instance with a pre-configured MirrorCacheClient.
      *
      * @param client an existing MirrorCacheClient implementation pre-configured
      *               to communicate with a MirrorCache service
