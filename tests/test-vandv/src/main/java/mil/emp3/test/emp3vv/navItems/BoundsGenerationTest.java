@@ -347,7 +347,7 @@ public class BoundsGenerationTest extends NavItemBase {
         p.getPositions().add(new EmpGeoPosition(37.42257124044786, -122.0848938459612, 170));
 
         Log.d(TAG, p.toString());
-        
+
         return p;
     }
     List<IGeoPosition> fetchPositionsFromString(IEmpBoundingArea empBoundingArea) {
