@@ -358,6 +358,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
 
                 if (oDefItem != null) {
                     TacticalGraphicPropertiesDialog.this.sSymbolCode = oDefItem.getSymbolDef().getBasicSymbolId();
+                    Log.d(TAG, getFeatureName() + " is " + oDefItem.getSymbolDef().getDescription());
                     Log.d(TAG, getFeatureName() + " symbol code set to " + getSymbolCode());
                     oSymbolCode.setText(TacticalGraphicPropertiesDialog.this.sSymbolCode);
 
