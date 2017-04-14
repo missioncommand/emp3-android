@@ -11,9 +11,12 @@ import org.cmapi.primitives.IGeoPosition;
 import java.util.ArrayList;
 import java.util.List;
 
+import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IGeoJSON;
+import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
@@ -69,8 +72,22 @@ public class ZoomToUtils {
         List<IGeoPosition> positionList = new ArrayList<>();
         for(IFeature feature : featureList) {
             if(VisibilityStateEnum.VISIBLE == storageManager.getVisibilityOnMap(clientMap, feature)) {
-                if(null != feature.getPositions()) {
-                    positionList.addAll(feature.getPositions());
+                if (feature.getFeatureType() == FeatureTypeEnum.GEOJSON) {
+                    for (IFeature feat : ((IGeoJSON)feature).getFeatureList()) {
+                        if (null != feature.getPositions()) {
+                            positionList.addAll(feat.getPositions());
+                        }
+                    }
+                } else if (feature.getFeatureType() == FeatureTypeEnum.KML) {
+                    for (IFeature feat : ((IKML)feature).getFeatureList()) {
+                        if (null != feature.getPositions()) {
+                            positionList.addAll(feat.getPositions());
+                        }
+                    }
+                } else {
+                    if (null != feature.getPositions()) {
+                        positionList.addAll(feature.getPositions());
+                    }
                 }
             }
         }

@@ -195,7 +195,7 @@ public class PolygonEditor extends AbstractDrawEditEditor<Polygon> {
                 oCP.setCPIndex(cpIndex + 1);
 
                 // Add this CP position to the features position list.
-                posList.add(cpSubIndex, oCP.getPosition());
+                posList.add(cpIndex + 1, oCP.getPosition());
 
                 // Now that we added the new position we need to create the new CP between them.
                 // Create the new CP between the beforeCP and this one.

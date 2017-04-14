@@ -449,6 +449,36 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
         boolean bRet = false;
         IFeature oEventedFeature = oEvent.getFeatures().get(0);
         boolean bIsCP = (oEvent.getFeatures().get(0) instanceof ControlPoint);
+        boolean bIsNewCP = false;
+
+        if (bIsCP) {
+            // If the top feature is a control point, check to see if its a new CP.
+            // If it is a new CP, check to see if there is another CP on the list that is NOT a new CP.
+            // If there is another control point on the list that is NOT a new CP, generate the event
+            // for that control point.
+            int iIndex = 1;
+            IFeature tempFeature;
+            ControlPoint cp = (ControlPoint) oEventedFeature;
+            while ((null != cp) && (cp.getCPType() == ControlPoint.CPTypeEnum.NEW_POSITION_CP)) {
+                if (iIndex < oEvent.getFeatures().size()) {
+                    tempFeature = oEvent.getFeatures().get(iIndex);
+                    if (tempFeature instanceof ControlPoint) {
+                        cp = (ControlPoint) tempFeature;
+                    }
+                } else {
+                    cp = null;
+                }
+                iIndex++;
+            }
+
+            if (null != cp) {
+                if (cp.getCPType() != ControlPoint.CPTypeEnum.NEW_POSITION_CP) {
+                    oEventedFeature = cp;
+                } else {
+                    bIsNewCP = true;
+                }
+            }
+        }
 
         switch (oEvent.getEvent()) {
             case CLICKED:
@@ -471,21 +501,23 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                 break;
             case DOUBLE_CLICKED:
                 if (bIsCP) {
-                    this.eEditorState = EditorStateEnum.DELETE_CP;
-                    List<ControlPoint> oCPList = this.doDeleteControlPoint((ControlPoint) oEventedFeature);
-                    if ((oCPList != null) && (oCPList.size() > 0)) {
-                        // The Editor deleted CPs.
-                        // TODO add update event generation.
-                        try {
-                            this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
-                        } catch (EMP_Exception ex) {
-                            Log.e(TAG, "storageManger.apply failed.", ex);
+                    if (!bIsNewCP) {
+                        this.eEditorState = EditorStateEnum.DELETE_CP;
+                        List<ControlPoint> oCPList = this.doDeleteControlPoint((ControlPoint) oEventedFeature);
+                        if ((oCPList != null) && (oCPList.size() > 0)) {
+                            // The Editor deleted CPs.
+                            // TODO add update event generation.
+                            try {
+                                this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
+                            } catch (EMP_Exception ex) {
+                                Log.e(TAG, "storageManger.apply failed.", ex);
+                            }
+                            this.removeControlPoint(oCPList);
+                            this.updateControlPointOnMap();
                         }
-                        this.removeControlPoint(oCPList);
-                        this.updateControlPointOnMap();
+                        this.issueUpdateEvent();
+                        this.eEditorState = EditorStateEnum.IDLE;
                     }
-                    this.issueUpdateEvent();
-                    this.eEditorState = EditorStateEnum.IDLE;
                     bRet = true;
                 }
                 break;
