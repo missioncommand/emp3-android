@@ -232,4 +232,13 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     public String exportToKML() {
         return "";
     }
+
+    @Override
+    public String toString() {
+        String str = "Feature " + getFeatureType();
+        for(IFeature f: getFeatureList()) {
+            str += f.toString();
+        }
+        return str;
+    }
 }
