@@ -98,6 +98,7 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
                     try {
                         if(mapStateChangeEvent.getNewState() == MapStateEnum.MAP_READY) {
                             ExecuteTest.setMapReady(ExecuteTest.MAP1, true);
+                            onTestCompleted("Map Ready");
                             testStatus.setText("map: Map Status Changed to " + mapStateChangeEvent.getNewState() + " Select capability from the drawer");
                         } else {
                             testStatus.setText("map: Map Status Changed to " + mapStateChangeEvent.getNewState());
@@ -132,6 +133,8 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
         } catch (EMP_Exception e) {
             e.printStackTrace();
         }
+        map.setName("map1");
+        Log.d(TAG, "map name " + map.getName());
 
         map2 = (IMap) findViewById(R.id.map2);
         try {
@@ -142,6 +145,7 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
                     try {
                         if(mapStateChangeEvent.getNewState() == MapStateEnum.MAP_READY) {
                             ExecuteTest.setMapReady(ExecuteTest.MAP2, true);
+                            onTestCompleted("Map Ready");
                             testStatus.setText("map2: Map Status Changed to " + mapStateChangeEvent.getNewState() + " Select capability from the drawer");
                         } else {
                             testStatus.setText("map2: Map Status Changed to " + mapStateChangeEvent.getNewState());
@@ -155,6 +159,8 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
         } catch (EMP_Exception e) {
             e.printStackTrace();
         }
+        map2.setName("map2");
+        Log.d(TAG, "map2 name " + map.getName());
     }
 
     @Override
