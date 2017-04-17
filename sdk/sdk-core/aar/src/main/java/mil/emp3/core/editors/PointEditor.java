@@ -14,14 +14,20 @@ public class PointEditor extends AbstractSinglePointEditor<mil.emp3.api.Point> {
         this.initializeEdit();
     }
 
-    public PointEditor(IMapInstance map, mil.emp3.api.Point feature, IDrawEventListener oEventListener) throws EMP_Exception {
-        super(map, feature, oEventListener, false);
+    public PointEditor(IMapInstance map, mil.emp3.api.Point feature, IDrawEventListener oEventListener, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, false, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
+
         this.oFeature.setPosition(getCenter());
     }
 }

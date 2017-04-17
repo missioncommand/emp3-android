@@ -120,7 +120,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
      * @throws EMP_Exception
      */
     protected AbstractDrawEditEditor(IMapInstance map, T feature, IEditEventListener oEventListener, boolean bUsesCP) throws EMP_Exception {
-        super(map, feature, EditorMode.EDIT_MODE);
+        super(map, feature, EditorMode.EDIT_MODE, false);
 
         this.bUsesControlPoints = bUsesCP;
         this.oEditEventListener = oEventListener;
@@ -198,14 +198,30 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
      * @param bUsesCP If true the feature requires the use of control points during the draw process.
      * @throws EMP_Exception
      */
-    protected AbstractDrawEditEditor(IMapInstance map, T feature, IDrawEventListener oEventListener, boolean bUsesCP) throws EMP_Exception {
-        super(map, feature, EditorMode.DRAW_MODE);
+    protected AbstractDrawEditEditor(IMapInstance map, T feature, IDrawEventListener oEventListener, boolean bUsesCP, boolean newFeature) throws EMP_Exception {
+        super(map, feature, EditorMode.DRAW_MODE, newFeature);
 
         this.bUsesControlPoints = bUsesCP;
         this.oDrawEventListener = oEventListener;
     }
 
     protected void initializeDraw() throws EMP_Exception {
+        IGeoPosition oNewPos;
+
+        if (!this.isNewFeature()) {
+            // An existing feature was place into draw mode.
+
+            // The following makes a copy of the feature coordinate in
+            // case the draW is canceled.
+            for (IGeoPosition oPos : this.oFeature.getPositions()) {
+                oNewPos = new GeoPosition();
+                oNewPos.setLatitude(oPos.getLatitude());
+                oNewPos.setLongitude(oPos.getLongitude());
+                oNewPos.setAltitude(oPos.getAltitude());
+                this.oOrgPosList.add(oNewPos);
+            }
+        }
+
         // we need to prepare to draw the object.
         this.prepareForDraw();
         // Set the default altitude mode.
@@ -226,12 +242,12 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
     }
 
     /**
-     * The derived class must implement this function.
+     * The derived class can implement this function.
      * It is called once at the start of a draw operation to allows the derived class to assign
      * geographic coordinates to the new feature that place the feature at the center of the viewing
      * area on the map. It should use the maps camera position to compute its coordinates.
      */
-    protected abstract void prepareForDraw() throws EMP_Exception;
+    protected void prepareForDraw() throws EMP_Exception {}
 
     /**
      * The subclass can implement this function.
@@ -636,8 +652,17 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
     private void issueCanceledEvent() {
         try {
             if (this.inDrawMode()) {
-                // Remove from the map.
-                this.removeFeature();
+                if (this.isNewFeature()) {
+                    // Remove from the map.
+                    this.removeFeature();
+                } else {
+                    this.restoreOnCancel();
+                    try {
+                        this.storageManager.apply(this.oFeature, false, null);
+                    } catch (EMP_Exception ex) {
+                        Log.e(TAG, "storageManger.apply failed.", ex);
+                    }
+                }
                 this.issueDrawEvent(FeatureDrawEventEnum.DRAW_CANCELED);
             } else {
                 this.restoreOnCancel();

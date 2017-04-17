@@ -37,8 +37,8 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         this.initializeEdit();
     }
 
-    public MilStdDCCircularRangeFanEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCCircularRangeFanEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
     }
 
@@ -65,6 +65,13 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            this.checkAMModifier();
+            return;
+        }
+
         IGeoPosition cameraPos = this.getMapCameraPosition();
         List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
