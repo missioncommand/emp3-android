@@ -586,6 +586,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
 
                 if (oUnitDefItem != null) {
                     SymbolPropertiesDialog.this.sSymbolCode = oUnitDefItem.getUnitDef().getBasicSymbolId();
+                    Log.d(TAG, getFeatureName() + " is " + oUnitDefItem.getUnitDef().getDescription());
                     Log.d(TAG, getFeatureName() + " symbol code set to " + getSymbolCode());
                     oSymbolCode.setText(SymbolPropertiesDialog.this.sSymbolCode);
                     SymbolPropertiesDialog.this.setSymbolImage();
