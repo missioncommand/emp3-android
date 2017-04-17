@@ -52,6 +52,11 @@ public class MapViewFragmentBase extends /*Mirrored*/Map {
             this.TAG = properties.getStringValue("TAG");
         }
         this.context = properties.getContext("CONTEXT");
+
+        if(properties.containsKey("MAPNAME")) {
+            setMapName(properties.getStringValue("MAPNAME"));
+            Log.d(TAG, "setMapName from properties " + getMapName());
+        }
     }
 /*
     public MapViewFragmentBase(String TAG) {
