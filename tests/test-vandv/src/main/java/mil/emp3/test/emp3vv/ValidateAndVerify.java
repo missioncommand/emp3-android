@@ -105,35 +105,14 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
                         }
                         // map.setCamera(CameraUtility.buildCamera(33.9424368, -118.4081222, 2000000.0), false);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "map1 " + e.getMessage(), e);
                     }
                 }
             });
-
-            /*
-                Following listener code was added to verify EMP-2702. It seems like EMP-2702 is no longer an issue.
-            map.addMapViewChangeEventListener(new IMapViewChangeEventListener() {
-                @Override
-                public void onEvent(MapViewChangeEvent event) {
-                    Log.d(TAG, "mapViewChangeEventListener.onEvent map: " + event.getEvent());
-                    ICamera camera = event.getCamera();
-                    Log.d(TAG, "mapViewChangeEventListener.onEvent " + camera.getLatitude() + "/" + camera.getLongitude());
-                }
-            });
-
-            map.addCameraEventListener(new ICameraEventListener() {
-                @Override
-                public void onEvent(CameraEvent event) {
-                    Log.d(TAG, "CameraEventListener.onEvent map: " + event.getEvent());
-                    ICamera camera = event.getCamera();
-                    Log.d(TAG, "CameraEventListener.onEvent " + camera.getLatitude() + "/" + camera.getLongitude());
-                }
-            });
-            */
         } catch (EMP_Exception e) {
             e.printStackTrace();
         }
-        map.setName("map1");
+        map.setName("map1");   // Must do this to restore map and data after device orientation change.
         Log.d(TAG, "map name " + map.getName());
 
         map2 = (IMap) findViewById(R.id.map2);
@@ -150,16 +129,16 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
                         } else {
                             testStatus.setText("map2: Map Status Changed to " + mapStateChangeEvent.getNewState());
                         }
-                        map2.setCamera(CameraUtility.buildCamera(33.9424368, -118.4081222, 2000000.0), false);
-                    } catch (EMP_Exception e) {
-                        e.printStackTrace();
+                        // map2.setCamera(CameraUtility.buildCamera(33.9424368, -118.4081222, 2000000.0), false);
+                    } catch (Exception e) {
+                        Log.e(TAG, "map2 " + e.getMessage(), e);
                     }
                 }
             });
         } catch (EMP_Exception e) {
             e.printStackTrace();
         }
-        map2.setName("map2");
+        map2.setName("map2");   // Must do this to restore map and data after device orientation change.
         Log.d(TAG, "map2 name " + map.getName());
     }
 

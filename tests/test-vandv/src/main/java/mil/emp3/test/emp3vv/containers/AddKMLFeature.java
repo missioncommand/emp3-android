@@ -47,6 +47,7 @@ public class AddKMLFeature extends AddEntityBase implements FeaturePropertiesDia
             for(IFeature f: kml.getFeatureList()) {
                 Log.d(TAG, "Type " + f.getFeatureType());
             }
+            Log.d(TAG, "KML " + kml.toString());
             addFeature(newFeature, dialog);
             return true;
         } catch (Exception e) {

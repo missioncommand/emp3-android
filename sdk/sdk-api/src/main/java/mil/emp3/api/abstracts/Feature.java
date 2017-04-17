@@ -434,6 +434,10 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         }
     }
 
+    /**
+     * Convert selected members to String.
+     * @return
+     */
     @Override
     public String toString() {
         String str = "Feature " + getFeatureType() + "\n";

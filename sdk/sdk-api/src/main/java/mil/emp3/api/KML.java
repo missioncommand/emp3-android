@@ -233,6 +233,10 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         return "";
     }
 
+    /**
+     * Convert all features to String
+     * @return
+     */
     @Override
     public String toString() {
         String str = "Feature " + getFeatureType();
