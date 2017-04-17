@@ -683,7 +683,9 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
         try {
             if (this.inDrawMode()) {
                 this.issueDrawEvent(FeatureDrawEventEnum.DRAW_COMPLETE);
-                this.removeFeature();
+                if (this.isNewFeature()) {
+                    this.removeFeature();
+                }
             } else {
                 this.issueEditEvent(FeatureEditEventEnum.EDIT_COMPLETE);
             }
