@@ -14,6 +14,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -73,24 +74,23 @@ public class PathEditor extends AbstractDrawEditEditor<Path> {
         }
 
         // Compute the position control point.
-        pos = new GeoPosition();
-        pos.setAltitude(0);
-        pos.setLatitude(oLatLng.getLatitude());
-        pos.setLongitude(oLatLng.getLongitude());
-        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posCnt, -1);
+        pos = new EmpGeoPosition(oLatLng.getLatitude(), oLatLng.getLongitude());
+        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
         // Add the new position to the feature position list.
-        posList.add(pos);
+        posList.add(0, pos);
+
+        this.increaseControlPointIndexes(0);
 
         if (posList.size() > 1) {
-            // Compute the new CP between the last position and the new one.
-            controlPoint = this.createCPBetween(posList.get(lastIndex), oLatLng, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex, posCnt);
+            // Compute the new CP between the 2 first positions.
+            controlPoint = this.createCPBetween(oLatLng, posList.get(1), ControlPoint.CPTypeEnum.NEW_POSITION_CP, 0, 1);
             cpList.add(controlPoint);
         }
 
         // Add the update data
-        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{posCnt});
+        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0});
 
         return cpList;
     }

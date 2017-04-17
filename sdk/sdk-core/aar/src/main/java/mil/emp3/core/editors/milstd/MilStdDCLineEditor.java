@@ -14,6 +14,7 @@ import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.core.utils.CoreMilStdUtilities;
@@ -236,9 +237,8 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
     protected List<ControlPoint> doAddControlPoint(IGeoPosition oLatLng) {
         ControlPoint controlPoint;
         List<IGeoPosition> posList = this.getPositions();
-        IGeoPosition pos = new GeoPosition();
+        IGeoPosition pos;
         int posCnt = posList.size();
-        int lastIndex = posCnt - 1;
 
         List<ControlPoint> cpList = new ArrayList<>();
 
@@ -248,32 +248,36 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
         }
 
         // Compute the position control point.
-        pos = new GeoPosition();
-        pos.setAltitude(0);
-        pos.setLatitude(oLatLng.getLatitude());
-        pos.setLongitude(oLatLng.getLongitude());
-        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posCnt, -1);
+        pos = new EmpGeoPosition(oLatLng.getLatitude(), oLatLng.getLongitude());
+        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
         // Add the new position to the feature position list.
-        posList.add(pos);
+        posList.add(0, pos);
 
-        if ((controlPoint.getCPIndex() == 1) && this.hasWidth()) {
-            // We have added the 2nd point so it needs a width CP.
-            ControlPoint widthCP = new ControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 0, -1);
-            widthCP.setPosition(new GeoPosition());
-            this.addControlPoint(widthCP);
+        this.increaseControlPointIndexes(0);
+
+        if (this.hasWidth()) {
+            ControlPoint widthCP;
+            if (posList.size() == 2) {
+                // We have added the 2nd point so it needs a width CP.
+                widthCP = new ControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 0, -1);
+                widthCP.setPosition(new GeoPosition());
+                this.addControlPoint(widthCP);
+            } else {
+                widthCP = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 1, -1);
+            }
             this.positionWidthControlPoint(widthCP);
         }
 
         if (posList.size() > 1) {
-            // Compute the new CP between the last position and the new one.
-            controlPoint = this.createCPBetween(posList.get(lastIndex), oLatLng, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex, posCnt);
+            // Compute the new CP between the first and 2nd position2.
+            controlPoint = this.createCPBetween(oLatLng, posList.get(1), ControlPoint.CPTypeEnum.NEW_POSITION_CP, 0, 1);
             cpList.add(controlPoint);
         }
 
         // Add the update data
-        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{posCnt});
+        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0});
 
         return cpList;
     }

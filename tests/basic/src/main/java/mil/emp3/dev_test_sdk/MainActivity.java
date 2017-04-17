@@ -462,10 +462,10 @@ public class MainActivity extends AppCompatActivity
             MainActivity.this.oEditorCompleteBtn.hide();
             MainActivity.this.oEditorCancelBtn.hide();
             if (!MainActivity.this.oFeatureHash.containsKey(feature.getGeoId())) {
-                // Only add it if it dones not exists. A feature can be placed back into draw mode.
-                MainActivity.this.oFeatureHash.put(feature.getGeoId(), feature);
+                // Only add it if it does not exists. A feature can be placed back into draw mode.
                 try {
                     MainActivity.this.oRootOverlay.addFeature(feature, true);
+                    MainActivity.this.oFeatureHash.put(feature.getGeoId(), feature);
                 } catch (EMP_Exception e) {
                     e.printStackTrace();
                 }
@@ -478,6 +478,10 @@ public class MainActivity extends AppCompatActivity
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
             MainActivity.this.oEditorCompleteBtn.hide();
             MainActivity.this.oEditorCancelBtn.hide();
+            FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(originalFeature.getGeoId());
+            if (null != oDialog) {
+                oDialog.dismiss();
+            }
         }
 
         @Override
