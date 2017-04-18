@@ -40,8 +40,8 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         this.initializeEdit();
     }
 
-    public MilStdDCSectorRangeFanEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCSectorRangeFanEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
     }
 
@@ -77,7 +77,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
             if (this.azimuthList.size() == (2 * this.rangeList.size())) {
                 // There is no minimum range.
                 this.hasMinimumRange = false;
-            } else if (this.azimuthList.size() == (2 * (this.rangeList.size() - 2))) {
+            } else if (this.azimuthList.size() == ((2 * this.rangeList.size()) - 2)) {
                 // There is a minimum range.
                 this.hasMinimumRange = true;
             } else if (this.azimuthList.size() > (2 * this.rangeList.size())) {
@@ -117,11 +117,17 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            this.checkAMModifier();
+            this.checkANModifier();
+            return;
+        }
+
         IGeoPosition cameraPos = this.getMapCameraPosition();
         List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
-
-        posList.clear();
 
         while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
             this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
@@ -134,6 +140,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         this.checkAMModifier();
         this.checkANModifier();
 
+        posList.clear();
         // Add P1 is the center.
         pos = new GeoPosition();
         pos.setAltitude(0);
@@ -214,7 +221,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         GeoLibrary.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
     }
 
-    private void createRangeAndAzimuths(int index) {
+    private void createRangeAndAzimuths(int index, List<ControlPoint> cpList) {
         float leftAzimuth;
         float rightAzimuth;
         IGeoPosition pos;
@@ -234,7 +241,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.RANGE_CP, index, -1);
         controlPoint.setPosition(pos);
         this.positionRangeControlPoint(controlPoint, range, leftAzimuth, rightAzimuth);
-        this.addControlPoint(controlPoint);
+        cpList.add(controlPoint);
 
         if (this.hasMinimumRange && (index == 0)) {
             // It is a minimum range, so we do not add azimuth CPs.
@@ -251,20 +258,21 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, index, azimuthIndex);
         GeoLibrary.computePositionAt(leftAzimuth, distanceAzimuthCP, centerPos, pos);
         controlPoint.setPosition(pos);
-        this.addControlPoint(controlPoint);
+        cpList.add(controlPoint);
 
         // Create right azimuth CP.
         pos = new GeoPosition();
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, index, azimuthIndex + 1);
         GeoLibrary.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, pos);
         controlPoint.setPosition(pos);
-        this.addControlPoint(controlPoint);
+        cpList.add(controlPoint);
     }
 
     @Override
     protected void assembleControlPoints() {
         List<IGeoPosition> posList = this.getPositions();
         ControlPoint controlPoint;
+        List<ControlPoint> cpList = new ArrayList<>();
 
         // Add the center control point.
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
@@ -273,7 +281,12 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
         // Now add the range CPs.
         for (int index = 0; index < this.rangeList.size(); index++) {
-            this.createRangeAndAzimuths(index);
+            this.createRangeAndAzimuths(index, cpList);
+
+            while (cpList.size() > 0) {
+                this.addControlPoint(cpList.get(0));
+                cpList.remove(0);
+            }
         }
     }
 
@@ -501,7 +514,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         this.insertAzimuthValue(azimuthIndex, 315);
         this.insertAzimuthValue(azimuthIndex + 1, 45);
 
-        this.createRangeAndAzimuths(newRangeIndex);
+        this.createRangeAndAzimuths(newRangeIndex, cpList);
         this.addUpdateEventData(IGeoMilSymbol.Modifier.DISTANCE);
         this.addUpdateEventData(IGeoMilSymbol.Modifier.AZIMUTH);
 
@@ -646,11 +659,13 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                     this.changeControlPointIndexes(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, cpIndex, -1);
                 }
 
-                // Reposition the CPs of the range that now has index cpIndex.
-                this.updateControlPointsForRange(cpIndex);
-                // Reposition the CPs of the range after this one, if there is one.
-                if ((cpIndex + 1) < this.rangeList.size()) {
-                    this.updateControlPointsForRange(cpIndex + 1);
+                if (cpIndex < this.rangeList.size()) {
+                    // Reposition the CPs of the range that now has index cpIndex.
+                    this.updateControlPointsForRange(cpIndex);
+                    // Reposition the CPs of the range after this one, if there is one.
+                    if ((cpIndex + 1) < this.rangeList.size()) {
+                        this.updateControlPointsForRange(cpIndex + 1);
+                    }
                 }
                 break;
             }

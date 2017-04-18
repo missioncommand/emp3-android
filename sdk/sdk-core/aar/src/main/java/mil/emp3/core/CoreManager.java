@@ -231,15 +231,15 @@ public class CoreManager implements ICoreManager {
             return;
         }
 
-        if (storageManager.isOnMap(clientMap, oFeature)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.NOT_SUPPORTED, "Not Supported. The feature is on the map.");
-        }
+        //if (storageManager.isOnMap(clientMap, oFeature)) {
+        //    throw new EMP_Exception(EMP_Exception.ErrorDetail.NOT_SUPPORTED, "Not Supported. The feature is on the map.");
+        //}
 
         if (!mapMapping.canEdit(oFeature)) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.NOT_SUPPORTED, "Not Supported. The current map can not display a feature of this type.");
         }
 
-        mapMapping.drawFeature(oFeature, listener);
+        mapMapping.drawFeature(oFeature, listener, (storageManager.findContainer(oFeature.getGeoId()) == null));
     }
 
     @Override

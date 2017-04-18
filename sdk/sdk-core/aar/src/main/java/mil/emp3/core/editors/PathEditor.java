@@ -28,17 +28,10 @@ public class PathEditor extends AbstractDrawEditEditor<Path> {
         this.initializeEdit();
     }
 
-    public PathEditor(IMapInstance map, Path feature, IDrawEventListener oEventListener) throws EMP_Exception {
-        super(map, feature, oEventListener, true);
+    public PathEditor(IMapInstance map, Path feature, IDrawEventListener oEventListener, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, true, newFeature);
 
         this.initializeDraw();
-    }
-
-    @Override
-    protected void prepareForDraw() throws EMP_Exception {
-        List<IGeoPosition> posList = this.getPositions();
-
-        posList.clear();
     }
 
     @Override
@@ -73,6 +66,11 @@ public class PathEditor extends AbstractDrawEditEditor<Path> {
         int lastIndex = posCnt - 1;
 
         List<ControlPoint> cpList = new ArrayList<>();
+
+        if (this.inEditMode()) {
+            // In Edit mode we do not add CP. The user needs to drag new CP.
+            return cpList;
+        }
 
         // Compute the position control point.
         pos = new GeoPosition();

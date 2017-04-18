@@ -16,8 +16,8 @@ public class TextEditor extends AbstractSinglePointEditor<mil.emp3.api.Text> {
         this.initializeEdit();
     }
 
-    public TextEditor(IMapInstance map, mil.emp3.api.Text feature, IDrawEventListener oEventListener) throws EMP_Exception {
-        super(map, feature, oEventListener, false);
+    public TextEditor(IMapInstance map, mil.emp3.api.Text feature, IDrawEventListener oEventListener, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, false, newFeature);
         this.initializeDraw();
     }
 

@@ -38,8 +38,8 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
         super(map, feature, oEventListener, bUsesCP);
     }
 
-    protected AbstractBasicShapesDrawEditEditor(IMapInstance map, T feature, IDrawEventListener oEventListener, boolean bUsesCP) throws EMP_Exception {
-        super(map, feature, oEventListener, bUsesCP);
+    protected AbstractBasicShapesDrawEditEditor(IMapInstance map, T feature, IDrawEventListener oEventListener, boolean bUsesCP, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, bUsesCP, newFeature);
     }
 
     protected abstract void saveOriginalState();
