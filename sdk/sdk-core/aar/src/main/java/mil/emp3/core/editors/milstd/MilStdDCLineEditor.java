@@ -185,12 +185,12 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                 if (this.hasWidth()) {
                     double width = this.getWidth();
                     // Calculate the distance and bearing of the line from P1 - P2
-                    //double distanceP1P2 = GeoLibrary.computeDistanceBetween(posList.get(0), posList.get(1));
                     double bearingP1P2 = GeoLibrary.computeBearing(posList.get(0), posList.get(1));
+                    double distanceP1P2 = GeoLibrary.computeDistanceBetween(posList.get(0), posList.get(1));
                     // Calculate the reference position at 1/4 distance between P1 - P2.
-                    //IGeoPosition refPos = GeoLibrary.computePositionAt(bearingP1P2, distanceP1P2 / 4.0, posList.get(0));
+                    IGeoPosition qtrPos = GeoLibrary.computePositionAt(bearingP1P2, distanceP1P2 / 4.0, posList.get(0));
                     /// Calculate the width CP position at a -90deg from the ref position of the P1-P2 line.
-                    GeoLibrary.computePositionAt(bearingP1P2 - 90.0, width / 2.0, posList.get(0), widthCP.getPosition());
+                    GeoLibrary.computePositionAt(bearingP1P2 - 90.0, width / 2.0, qtrPos, widthCP.getPosition());
                 }
             }
         }
@@ -440,11 +440,15 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                 break;
             }
             case WIDTH_CP: {
-                // Calculate the distance between P1 and the new position.
-                double newHalfWidth = GeoLibrary.computeDistanceBetween(posList.get(0), oLatLon);
+                // Calculate the distance between the qtr position and the new position.
+                double bearingP1P2 = GeoLibrary.computeBearing(posList.get(0), posList.get(1));
+                double distanceP1P2 = GeoLibrary.computeDistanceBetween(posList.get(0), posList.get(1));
+                // Calculate the reference position at 1/4 distance between P1 - P2.
+                IGeoPosition qtrPos = GeoLibrary.computePositionAt(bearingP1P2, distanceP1P2 / 4.0, posList.get(0));
+                double newHalfWidth = GeoLibrary.computeDistanceBetween(qtrPos, oLatLon);
 
                 // Update the value
-                this.saveWidth(newHalfWidth * 2);
+                this.saveWidth(Math.floor(newHalfWidth * 2));
                 this.positionWidthControlPoint(oCP);
 
                 moved = true;
