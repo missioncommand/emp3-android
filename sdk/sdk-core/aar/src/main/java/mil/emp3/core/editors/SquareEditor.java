@@ -191,7 +191,7 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
      * @param oCP     The control point that was moved.
      * @param oLatLon The new location for the control point.
      * @return Always return true, even if height/width wasn't adjusted based on minimum height/width restriction. Returning true indicates
-     * that even was consumed, otherwise Map would move, which is not desirable. (Issue #149).
+     * that event was consumed, otherwise Map would move, which is not desirable. (Issue #149).
      * Side effect of this decision is client application will get redundant events.
      */
 
