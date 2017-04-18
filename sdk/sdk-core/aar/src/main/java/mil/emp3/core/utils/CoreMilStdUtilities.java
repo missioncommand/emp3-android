@@ -219,7 +219,7 @@ public class CoreMilStdUtilities {
         return editor;
     }
 
-    public static AbstractEditor getMultiPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener) throws EMP_Exception {
+    public static AbstractEditor getMultiPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, boolean newFeature) throws EMP_Exception {
         AbstractEditor editor = null;
         armyc2.c2sd.renderer.utilities.SymbolDef symbolDef;
         int milstdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(feature.getSymbolStandard());
@@ -237,28 +237,28 @@ public class CoreMilStdUtilities {
                  * 0 control points
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_ARROW:
-                editor = new MilStdDCLineEditor(map, feature, oEventListener, symbolDefinition);
+                editor = new MilStdDCLineEditor(map, feature, oEventListener, symbolDefinition, newFeature);
                 break;
                 /**
                  * An animated shape, uses the animate function to draw.
                  * 0 control points (every point shapes symbol)
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_AUTOSHAPE:
-                editor = new MilStdAutoShapeEditor(map, feature, oEventListener, symbolDefinition);
+                editor = new MilStdAutoShapeEditor(map, feature, oEventListener, symbolDefinition, newFeature);
                 break;
                 /**
                  * An enclosed polygon with n points
                  * 0 control points
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_POLYGON:
-                editor = new MilStdPolygonEditor(map, feature, oEventListener);
+                editor = new MilStdPolygonEditor(map, feature, oEventListener, newFeature);
                 break;
                 /**
                  * A graphic with n points whose last point defines the width of the graphic.
                  * 1 control point
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_ROUTE:
-                editor = new MilStdDCRouteEditor(map, feature, oEventListener, symbolDefinition);
+                editor = new MilStdDCRouteEditor(map, feature, oEventListener, symbolDefinition, newFeature);
                 break;
                 /**
                  * A line defined only by 2 points, and cannot have more.
@@ -270,14 +270,14 @@ public class CoreMilStdUtilities {
                  * 0 control points
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_TWOPOINTARROW:
-                editor = new MilStdDCTwoPointEditor(map, feature, oEventListener, symbolDefinition);
+                editor = new MilStdDCTwoPointEditor(map, feature, oEventListener, symbolDefinition, newFeature);
                 break;
                 /**
                  * Shape is defined by a single point
                  * 0 control points
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_POINT:
-                editor = new MilStdSinglePointEditor(map, feature, oEventListener);
+                editor = new MilStdSinglePointEditor(map, feature, oEventListener, newFeature);
                 break;
                 /**
                  * An animated shape, uses the animate function to draw. Super Autoshape draw
@@ -286,21 +286,21 @@ public class CoreMilStdUtilities {
                  *
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_SUPERAUTOSHAPE:
-                 editor = new MilStdDCSuperAutoShapeEditor(map, feature, oEventListener, symbolDefinition);
+                 editor = new MilStdDCSuperAutoShapeEditor(map, feature, oEventListener, symbolDefinition, newFeature);
                  break;
                 /**
                  * Circle that requires 1 AM modifier value.
                  * See ModifiersTG.js for modifier descriptions and constant key strings.
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE:
-                 editor = new MilStdDCCircularParamAutoShapeEditor(map, feature, oEventListener, symbolDefinition);
+                 editor = new MilStdDCCircularParamAutoShapeEditor(map, feature, oEventListener, symbolDefinition, newFeature);
                  break;
                 /**
                  * Rectangle that requires 2 AM modifier values and 1 AN value.";
                  * See ModifiersTG.js for modifier descriptions and constant key strings.
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE:
-                 editor = new MilStdDCRectangularParamAutoShape(map, feature, oEventListener, symbolDefinition);
+                 editor = new MilStdDCRectangularParamAutoShape(map, feature, oEventListener, symbolDefinition, newFeature);
                  break;
                 /**
                  * Requires 2 AM values and 2 AN values per sector.
@@ -310,21 +310,21 @@ public class CoreMilStdUtilities {
                  * See ModifiersTG.js for modifier descriptions and constant key strings.
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE:
-                editor = new MilStdDCSectorRangeFanEditor(map, feature, oEventListener, symbolDefinition);
+                editor = new MilStdDCSectorRangeFanEditor(map, feature, oEventListener, symbolDefinition, newFeature);
                 break;
                 /**
                  *  Requires at least 1 distance/AM value"
                  *  See ModifiersTG.js for modifier descriptions and constant key strings.
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE:
-                editor = new MilStdDCCircularRangeFanEditor(map, feature, oEventListener, symbolDefinition);
+                editor = new MilStdDCCircularRangeFanEditor(map, feature, oEventListener, symbolDefinition, newFeature);
                 break;
                 /**
                  * Requires 1 AM value.
                  * See ModifiersTG.js for modifier descriptions and constant key strings.
                  */
             case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_TWO_POINT_RECT_PARAMETERED_AUTOSHAPE:
-                editor = new MilStdDCTwoPointRectangularParamAutoShape(map, feature, oEventListener, symbolDefinition);
+                editor = new MilStdDCTwoPointRectangularParamAutoShape(map, feature, oEventListener, symbolDefinition, newFeature);
                 break;
                 /**
                  * 3D airspace, not a milstd graphic.

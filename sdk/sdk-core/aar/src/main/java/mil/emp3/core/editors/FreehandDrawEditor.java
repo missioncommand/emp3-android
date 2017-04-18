@@ -67,7 +67,7 @@ public class FreehandDrawEditor extends AbstractEditor {
     boolean finishing = false;
 
     public FreehandDrawEditor(MapStatus mapStatus, IGeoStrokeStyle initialStyle, IFreehandEventListener listener) throws EMP_Exception {
-        super(mapStatus.getMapInstance(), new Path(), EditorMode.FREEHAND_MODE);
+        super(mapStatus.getMapInstance(), new Path(), EditorMode.FREEHAND_MODE, true);
 
         this.mapStatus = mapStatus;
 

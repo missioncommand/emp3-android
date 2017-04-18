@@ -54,13 +54,19 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
         this.initializeEdit();
     }
 
-    public MilStdAutoShapeEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdAutoShapeEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
+
         IGeoPosition cameraPos = this.getMapCameraPosition();
         List<IGeoPosition> posList = this.getPositions();
         // We set the radius to 2/5 of the camera altitude.
@@ -71,9 +77,6 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
             // If its to large set it to 1000 miles which makes the segment 2000 miles long.
             distance = 2609340.0;
         }
-
-        // For drawing we remove all positions and start from scratch.
-        posList.clear();
 
         switch (this.oFeature.getBasicSymbol()) {
             case CoreMilStdUtilities.TASK_CORDON_SEARCH:
@@ -178,6 +181,11 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
         List<IGeoPosition> posList = this.getPositions();
 
         List<ControlPoint> cpList = new ArrayList<>();
+
+        if (this.inEditMode()) {
+            // In Edit mode we do not add CP. The user needs to drag new CP.
+            return cpList;
+        }
 
         if (posList.size() < this.getMaxPoints()) {
             IGeoPosition pos = new GeoPosition();
