@@ -440,13 +440,19 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      */
     @Override
     public String toString() {
-        String str = "Feature " + getFeatureType() + "\n";
+        String str = getFeatureType().toString() + " ";
+        if(null != getName()) {
+            str += getName() + "\n";
+        } else {
+            str += "\n";
+        }
         str += "PathType " + getPathType().toString() + " Extrude " + getExtrude() + " AltitudeMode " + getAltitudeMode() + "\n";
         str += EmpStyles.toString(getFillStyle()) + "\n" + EmpStyles.toString(getStrokeStyle()) + "\n";
-        for(IGeoPosition p: getPositions()) {
-            str += EmpGeoPosition.toString(p) + "\n";
+        if(null != getPositions() && getPositions().size() > 0) {
+            str += "Position Count " + getPositions().size() + " " + EmpGeoPosition.toString(getPositions().get(0)) + "\n";
         }
-        str += "Feature Done\n";
+        // If you need to print all positions use EmpGeoPosition.toString(List<IGeoPosition>);
+
         return str;
     }
 }

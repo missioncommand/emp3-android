@@ -38,6 +38,7 @@ public class AddCircleFeature extends AddEntityBase implements FeatureProperties
             newFeature.setRadius(dialog.getRadiusValue());
             newFeature.setBuffer(dialog.getBufferValue());
             addFeature(newFeature, dialog);
+            Log.d(TAG, newFeature.toString());
             return true;
         } catch (Exception e) {
             Log.e(TAG, "onFeaturePropertiesSaveClick", e);

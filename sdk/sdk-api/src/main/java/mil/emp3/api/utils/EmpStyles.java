@@ -58,7 +58,8 @@ public class EmpStyles {
 
         String strokeColor = "StrokeStyle " + toString(geoStrokeStyle.getStrokeColor());
         return strokeColor + "W:" + geoStrokeStyle.getStrokeWidth() + " SF:" + geoStrokeStyle.getStipplingFactor() +
-                " SP:" + geoStrokeStyle.getStipplingPattern() + " ";
+                " SP:" + Integer.toBinaryString(geoStrokeStyle.getStipplingPattern()) + " ";
+        // When interpreting the stippling pattern output consider negative numbers and 2s complement.
     }
 
     /**
