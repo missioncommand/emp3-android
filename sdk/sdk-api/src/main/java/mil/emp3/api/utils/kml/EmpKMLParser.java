@@ -62,8 +62,6 @@ public class EmpKMLParser {
     private String docId = null;
     private String documentName = null;
     private String documentDescription = null;
-    private Map<String, String> styleMap = new HashMap<>();
-    private Map<String, KmlStyle> styles = new HashMap<>();
 
     /**
      * This Constructor parses a KML string.
@@ -158,7 +156,8 @@ public class EmpKMLParser {
 
     private EmpObjectHierarchyEntry createEMPOverlay(EmpObjectHierarchyEntry parentEntry, KmlContainer kmlContainer) {
         IOverlay overlay = new Overlay();
-        EmpObjectHierarchyEntry objectEntry = new EmpObjectHierarchyEntry(parentEntry, overlay);
+        EmpObjectHierarchyEntry objectEntry = new EmpObjectHierarchyEntry(parentEntry, overlay,
+                kmlContainer.getStyleMap(), kmlContainer.getStyles());
 
         if ((null != kmlContainer.getContainerId()) && !kmlContainer.getContainerId().isEmpty()) {
             overlay.setDataProviderId(kmlContainer.getContainerId());
@@ -187,8 +186,6 @@ public class EmpKMLParser {
             containerEntry = parentEntry;
         }
 
-        styleMap.putAll(kmlContainer.getStyleMap());
-        styles.putAll(kmlContainer.getStyles());
         for (KmlContainer childKMLContainer: kmlContainer.getContainerList()) {
             processContainer(containerEntry, childKMLContainer);
         }
@@ -350,7 +347,10 @@ public class EmpKMLParser {
         KmlGeometry geometry = kmlPlacemark.getGeometry();
         KmlStyle kmlStyle = kmlPlacemark.getInlineStyle();
 
-        if (null == kmlStyle) {
+        EmpObjectHierarchyEntry containerEntry = parentEntry;
+        while (null == kmlStyle && containerEntry != null) {
+            Map<String, String> styleMap = containerEntry.getStyleMap();
+            Map<String, KmlStyle> styles = containerEntry.getStyles();
             String styleRef = kmlPlacemark.getStyleId();
             kmlStyle = styles.get(styleRef);
             if (null == kmlStyle && styleMap.containsKey(styleRef)) {
@@ -359,6 +359,7 @@ public class EmpKMLParser {
                     kmlStyle = styles.get(styleId);
                 }
             }
+            containerEntry = containerEntry.getParent();
         }
 
         this.createEMPFeature(parentEntry, kmlPlacemark.getPlacemarkId(), geometry, kmlStyle, kmlPlacemark.getProperties());
