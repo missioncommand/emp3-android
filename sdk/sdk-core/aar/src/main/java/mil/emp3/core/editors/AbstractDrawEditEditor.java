@@ -76,7 +76,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
      * in the event the edit is canceled.
      *
      * 2) - This base class calls the prepareForEdit to allow the derived class to perform additional
-     * initialization. The derived class must override the preparForEdit method.
+     * initialization. The derived class can override the preparForEdit method.
      *
      * 3) - If the derived class indicated that it uses control points (bUsesCP == true) this base class
      * calls the assembleControlPoints method which the derived class must override to create the control
@@ -86,7 +86,8 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
      * has started.
      *
      * 5) - If the derived class uses control points and the user clicks (taps) on the map this class
-     * calls the doAddControlPoint allowing the derived class to handle the add. The derived class
+     * calls the doAddControlPoint allowing the derived class to handle the add. Map clicks (taps) must
+     * not be used to add coordinates to a features position list while in edit mode. The derived class
      * must return the control point added or null if it does not. If the control point is added the
      * base class will generate a FeatureEditEventEnum.EDIT_UPDATE event indicating the addition and
      * add the control point to the map.
@@ -150,47 +151,53 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
     }
 
     /**
-     * This constructor initializes the base class for a draw operation. Draw operations are performed on
-     * feature that are NOT currently on the map.
+     * This constructor initializes the base class for a draw operation. A feature that already exists can
+     * be placed into draw mode. A derived class can use the isNewFeature() method to determine if the feature
+     * being drawn is an existing or a new feature.
      *
      * The draw operation is as follows.
      *
-     * 1) - The base class calls the prepareForDraw. The derived class MUST asing geographic coordinates
-     * to the feature.
+     * 1) - If the feature being drawn already exists, a copy of all its properties is stored, and are
+     * reapplied to the feature in the event the draw is canceled.
      *
-     * 2) - The base class adds the feature to the map via the storage manager.
+     * 2) - The base class calls the prepareForDraw. The derived class MUST ensure that the feature has the
+     * minimum set of property values required to be rendered.
      *
-     * 3) - If the feature requires control points the assembleControlPoints is called. The derived
-     * class must create the minimum number of control points needed to properlly draw the feature on
+     * 3) - The base class adds the feature to the map via the storage manager if its not on the map.
+     *
+     * 4) - If the feature requires control points the assembleControlPoints is called. The derived
+     * class must create the minimum number of control points needed to properly draw the feature on
      * the map. The base class adds the control points to the map.
      *
-     * 4) - The base class issues a FeatureDrawEventEnum.DRAW_START event.
+     * 5) - The base class issues a FeatureDrawEventEnum.DRAW_START event.
      *
-     * 5) - If the derived class uses control points and the user clicks (taps) on the map this class
+     * 6) - If the derived class uses control points and the user clicks (taps) on the map this class
      * calls the doAddControlPoint allowing the derived class to handle the add. The derived class
      * must return a list of control points added or null if none are added. If the control point(s) are added the
      * base class will generate a FeatureDrawEventEnum.DRAW_UPDATE event indicating the addition and
      * adds the control point to the map.
      *
-     * 6) - If the user double clicks (double taps) on a control point, the base class calls doDeleteControlPoint.
+     * 7) - If the user double clicks (double taps) on a control point, the base class calls doDeleteControlPoint.
      * The derived class must return a list of the control points removed, null otherwise.
      * If the control point(s) are removed the base class generates a FeatureDrawEventEnum.DRAW_UPDATE
      * event indicating the deletion, remove the control points from the map and updates the feature on the map.
      *
-     * 7) - If the user drags a control point the base class calls doControlPointMoved. The derived class
+     * 8) - If the user drags a control point the base class calls doControlPointMoved. The derived class
      * must return a list containing all of the control points that are affected by
      * the action. The base class updates the control points and the feature on the map, and generate a
      * FeatureDrawEventEnum.DRAW_UPDATE event.
      *
-     * 8) - If the user drags on the feature (not a control point) the base class calls doFeatureMove.
+     * 9) - If the user drags on the feature (not a control point) the base class calls doFeatureMove.
      * The base class generates a FeatureDrawEventEnum.DRAW_UPDATE and updates the control points and feature
      * on the map.
      *
-     * 9) - If the draw operation is canceled, all control points and the feature are removed from the map.
-     * The base class generates a FeatureDrawEventEnum.DRAW_CANCELED event and the editor is deleted.
+     * 10) - If the draw operation is canceled, all control points are removed from the map. The feature
+     * is removed if it is a new feature.  The base class generates a FeatureDrawEventEnum.DRAW_CANCELED
+     * event and the editor is deleted. If the feature already existsed in the core the stored properties
+     * are reapplied to the feature to return it to its original state.
      *
-     * 10) - If the operation is completed the base class removes all control points and feature from the map,
-     * then generates a FeatureDrawEventEnum.DRAW_COMPLETE.
+     * 11) - If the operation is completed the base class removes all control points from the map, the feature
+     * is removed if it is a new feature, then generates a FeatureDrawEventEnum.DRAW_COMPLETE.
      *
      * @param map The map on which the draw will take place.
      * @param feature The feature that is to drawn.
