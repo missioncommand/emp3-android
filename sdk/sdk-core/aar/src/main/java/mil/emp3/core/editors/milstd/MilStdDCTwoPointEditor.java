@@ -28,13 +28,19 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
         this.initializeEdit();
     }
 
-    public MilStdDCTwoPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCTwoPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
+
         IGeoPosition cameraPos = this.getMapCameraPosition();
         List<IGeoPosition> posList = this.getPositions();
         // We set the initial line segment to 2/6 of the camera altitude.
@@ -50,9 +56,6 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
             // The feature has enough points.
             return;
         }
-
-        // If it does not have enough positions, clear them.
-        posList.clear();
 
         // Calculate the point.
         GeoLibrary.computePositionAt(270.0, segmentLength, cameraPos, pos);

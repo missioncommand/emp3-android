@@ -332,16 +332,18 @@ public class MainActivity extends AppCompatActivity
                     }
                     break;
                 case LONG_PRESS:
-                    if (event.getTarget().get(0) != null) {
-                        // If there is a feature on the list, we want to place it in edit mode.
-/*
-                        if (MainActivity.this.ePlotMode == PlotModeEnum.IDLE) {
-                            Log.d(TAG, "FeatureUserInteractionEvent  Entering edit properties mode.");
-                            MainActivity.this.oCurrentSelectedFeature = event.getTarget().get(0);
-                            MainActivity.this.ePlotMode = PlotModeEnum.EDIT_PROPERTIES;
-                            MainActivity.this.openFeatureProperties();
+                    if (oFeature != null) {
+                        // If there is a feature on the list, we want to place it into draw mode.
+                        try {
+                            if ((MainActivity.this.ePlotMode == PlotModeEnum.IDLE) &&
+                                    MainActivity.this.map.isSelected(oFeature)) {
+                                Log.d(TAG, "FeatureUserInteractionEvent  Entering edit mode.");
+                                MainActivity.this.oCurrentSelectedFeature = oFeature;
+                                MainActivity.this.map.drawFeature(oFeature, new FeatureDrawListener(oFeature));
+                            }
+                        } catch (EMP_Exception Ex) {
+                            Log.d(TAG, "drawFeature failed.", Ex);
                         }
-*/
                     }
                     break;
                 case DRAG:
@@ -474,11 +476,14 @@ public class MainActivity extends AppCompatActivity
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
             MainActivity.this.oEditorCompleteBtn.hide();
             MainActivity.this.oEditorCancelBtn.hide();
-            MainActivity.this.oFeatureHash.put(feature.getGeoId(), feature);
-            try {
-                MainActivity.this.oRootOverlay.addFeature(feature, true);
-            } catch (EMP_Exception e) {
-                e.printStackTrace();
+            if (!MainActivity.this.oFeatureHash.containsKey(feature.getGeoId())) {
+                // Only add it if it dones not exists. A feature can be placed back into draw mode.
+                MainActivity.this.oFeatureHash.put(feature.getGeoId(), feature);
+                try {
+                    MainActivity.this.oRootOverlay.addFeature(feature, true);
+                } catch (EMP_Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 

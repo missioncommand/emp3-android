@@ -1,9 +1,6 @@
 package mil.emp3.test.emp3vv.containers;
 
 import android.app.Activity;
-import android.os.Handler;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.io.FileInputStream;
@@ -16,11 +13,11 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.common.StyleManager;
+import mil.emp3.test.emp3vv.containers.dialogs.FeatureFromFilePropertiesDialog;
 import mil.emp3.test.emp3vv.containers.dialogs.FeaturePropertiesDialog;
-import mil.emp3.test.emp3vv.containers.dialogs.GeoJSONPropertiesDialog;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 
-public class AddGeoJSONFeature extends AddEntityBase implements FeaturePropertiesDialog.FeaturePropertiesDialogListener<GeoJSONPropertiesDialog>{
+public class AddGeoJSONFeature extends AddEntityBase implements FeaturePropertiesDialog.FeaturePropertiesDialogListener<FeatureFromFilePropertiesDialog> {
     private static String TAG = AddGeoJSONFeature.class.getSimpleName();
 
     public AddGeoJSONFeature(Activity activity, IMap map, IStatusListener statusListener, StyleManager styleManager) {
@@ -28,51 +25,36 @@ public class AddGeoJSONFeature extends AddEntityBase implements FeaturePropertie
     }
 
     public String showPropertiesDialog(final List<String> parentList, final String featureName, final boolean visible) {
-        Handler mainHandler = new Handler(activity.getMainLooper());
 
-        if(parentList.size() == 0) {
-            statusListener.updateStatus(TAG, "You need at least one overlay to add a feature");
-            return "fragment_geojson_properties_dialog";
+        FeatureFromFilePropertiesDialog instance = FeatureFromFilePropertiesDialog.newInstance("GeoJSON Properties", map, parentList,
+                featureName, visible, AddGeoJSONFeature.this, ".geojson");
+
+        List<String> availableFiles = instance.getFileList(".geojson");
+        if((null == availableFiles) || (0 == availableFiles.size())) {
+            ErrorDialog.showError(activity, "Either Storage Permission is not set or there are no .kml files in external-storage/testFiles");
+            return "no_fragment_displayed";
         }
-
-        try {
-            final GeoJSONPropertiesDialog geoJSONPropertiesDialog = GeoJSONPropertiesDialog.newInstance("GeoJSON Properties", map, parentList,
-                    featureName, visible, AddGeoJSONFeature.this);
-            List<String> getGeoJSONList = geoJSONPropertiesDialog.getGeoJSONList(); // Just make sure there are gepJson files before showing dialog
-            if((null != getGeoJSONList) && (getGeoJSONList.size() > 0)) {
-                Runnable myRunnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        FragmentManager fm = ((AppCompatActivity) activity).getSupportFragmentManager();
-                        geoJSONPropertiesDialog.show(fm, "fragment_geojson_properties_dialog");
-                    }
-                };
-                mainHandler.post(myRunnable);
-            }
-        } catch (Exception e) {
-            ErrorDialog.showError(activity, "No Geo JSON files available in /sdcard/Download/ or permissions issue");
-        }
-
-        return "fragment_geojson_properties_dialog";
+        return showPropertiesDialog(instance, "fragment_geo_json_properties_dialog");
     }
 
     @Override
-    public boolean onFeaturePropertiesSaveClick(GeoJSONPropertiesDialog dialog) {
-        String fileName = "/sdcard/Download/" + dialog.getSelectedGeoJSON();
+    public boolean onFeaturePropertiesSaveClick(FeatureFromFilePropertiesDialog dialog) {
+        String fileName = dialog.getSelectedFile();
         Log.i(TAG, "GeoJSON file " + fileName);
         try {
             InputStream stream = new FileInputStream(fileName);
-            IFeature feature = new GeoJSON(stream);
-            addFeature(feature, dialog);
+            IFeature newFeature = new GeoJSON(stream);
+            addFeature(newFeature, dialog);
             return true;
         } catch (EMP_Exception | IOException e) {
-            e.printStackTrace();
+            statusListener.updateStatus(TAG, e.getMessage());
+            ErrorDialog.showError(activity, "Failed to add Feature " + e.getMessage());
         }
         return false;
     }
 
     @Override
-    public void onFeaturePropertiesCancelClick(GeoJSONPropertiesDialog dialog) {
+    public void onFeaturePropertiesCancelClick(FeatureFromFilePropertiesDialog dialog) {
 
     }
 }

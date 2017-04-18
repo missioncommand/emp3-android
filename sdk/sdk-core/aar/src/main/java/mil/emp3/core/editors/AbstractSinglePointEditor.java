@@ -23,13 +23,16 @@ public abstract class AbstractSinglePointEditor<T extends IFeature> extends Abst
         super(map, feature, oEventListener, bUsesCP);
     }
 
-    protected AbstractSinglePointEditor(IMapInstance map, T feature, IDrawEventListener oEventListener, boolean bUsesCP) throws EMP_Exception {
-        super(map, feature, oEventListener, bUsesCP);
+    protected AbstractSinglePointEditor(IMapInstance map, T feature, IDrawEventListener oEventListener, boolean bUsesCP, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, bUsesCP, newFeature);
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        this.oFeature.getPositions().clear();
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
         this.oFeature.getPositions().add(getCenter());
     }
 

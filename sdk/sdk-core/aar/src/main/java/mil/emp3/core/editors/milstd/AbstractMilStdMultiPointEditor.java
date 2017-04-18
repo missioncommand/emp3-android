@@ -33,8 +33,8 @@ public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEdi
         }
     }
 
-    protected AbstractMilStdMultiPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, true);
+    protected AbstractMilStdMultiPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, true, newFeature);
 
         if (this.oFeature.getAltitudeMode() == null) {
             this.oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
@@ -42,11 +42,20 @@ public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEdi
         this.milstdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(oFeature.getSymbolStandard());
         this.basicSymbolCode = oFeature.getBasicSymbol();
         this.symbolDefinition = symDef;
+
+        if (!this.isNewFeature()) {
+            // An existing feature was placed into draw mode.
+
+            // Copy the modifiers if there are any.
+            for (IGeoMilSymbol.Modifier modifier : oFeature.getModifiers().keySet()) {
+                this.originalModifiers.put(modifier, new String(oFeature.getStringModifier(modifier)));
+            }
+        }
     }
 
     @Override
     public void Cancel() {
-        if (this.inEditMode()) {
+        if (this.inEditMode() || (this.inDrawMode() && !this.isNewFeature())) {
             // Restore the modifiers.
             java.util.HashMap<IGeoMilSymbol.Modifier, String> symbolModifiers = oFeature.getModifiers();
             symbolModifiers.clear();

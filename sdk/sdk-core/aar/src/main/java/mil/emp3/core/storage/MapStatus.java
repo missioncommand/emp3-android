@@ -403,40 +403,40 @@ public abstract class MapStatus implements IMapStatus {
     }
 
     @Override
-    public void drawFeature(IFeature oFeature, IDrawEventListener listener) throws EMP_Exception {
+    public void drawFeature(IFeature oFeature, IDrawEventListener listener, boolean newFeature) throws EMP_Exception {
         if ((this.oEditor == null) && (MapMotionLockEnum.UNLOCKED == eLockMode)) {
             switch (oFeature.getFeatureType()) {
                 case GEO_POINT:
-                    this.oEditor = new PointEditor(this.getMapInstance(), (mil.emp3.api.Point) oFeature, listener);
+                    this.oEditor = new PointEditor(this.getMapInstance(), (mil.emp3.api.Point) oFeature, listener, newFeature);
                     break;
                 case GEO_MIL_SYMBOL:
                     MilStdSymbol oSymbol = (MilStdSymbol) oFeature;
                     if (oSymbol.isTacticalGraphic()) {
-                        this.oEditor = CoreMilStdUtilities.getMultiPointEditor(this.getMapInstance(), (mil.emp3.api.MilStdSymbol) oFeature, listener);
+                        this.oEditor = CoreMilStdUtilities.getMultiPointEditor(this.getMapInstance(), (mil.emp3.api.MilStdSymbol) oFeature, listener, newFeature);
                     } else {
-                        this.oEditor = new MilStdSinglePointEditor(this.getMapInstance(), (mil.emp3.api.MilStdSymbol) oFeature, listener);
+                        this.oEditor = new MilStdSinglePointEditor(this.getMapInstance(), (mil.emp3.api.MilStdSymbol) oFeature, listener, newFeature);
                     }
                     break;
                 case GEO_PATH:
-                    this.oEditor = new PathEditor(this.getMapInstance(), (mil.emp3.api.Path) oFeature, listener);
+                    this.oEditor = new PathEditor(this.getMapInstance(), (mil.emp3.api.Path) oFeature, listener, newFeature);
                     break;
                 case GEO_POLYGON:
-                    this.oEditor = new PolygonEditor(this.getMapInstance(), (mil.emp3.api.Polygon) oFeature, listener);
+                    this.oEditor = new PolygonEditor(this.getMapInstance(), (mil.emp3.api.Polygon) oFeature, listener, newFeature);
                     break;
                 case GEO_TEXT:
-                    this.oEditor = new TextEditor(this.getMapInstance(), (mil.emp3.api.Text) oFeature, listener);
+                    this.oEditor = new TextEditor(this.getMapInstance(), (mil.emp3.api.Text) oFeature, listener, newFeature);
                     break;
                 case GEO_RECTANGLE:
-                    this.oEditor = new RectangleEditor(this.getMapInstance(), (mil.emp3.api.Rectangle) oFeature, listener);
+                    this.oEditor = new RectangleEditor(this.getMapInstance(), (mil.emp3.api.Rectangle) oFeature, listener, newFeature);
                     break;
                 case GEO_CIRCLE:
-                    this.oEditor = new CircleEditor(this.getMapInstance(), (mil.emp3.api.Circle) oFeature, listener);
+                    this.oEditor = new CircleEditor(this.getMapInstance(), (mil.emp3.api.Circle) oFeature, listener, newFeature);
                     break;
                 case GEO_ELLIPSE:
-                    this.oEditor = new EllipseEditor(this.getMapInstance(), (mil.emp3.api.Ellipse) oFeature, listener);
+                    this.oEditor = new EllipseEditor(this.getMapInstance(), (mil.emp3.api.Ellipse) oFeature, listener, newFeature);
                     break;
                 case GEO_SQUARE:
-                    this.oEditor = new SquareEditor(this.getMapInstance(), (mil.emp3.api.Square) oFeature, listener);
+                    this.oEditor = new SquareEditor(this.getMapInstance(), (mil.emp3.api.Square) oFeature, listener, newFeature);
                     break;
                 case GEO_ACM:
                     throw new EMP_Exception(EMP_Exception.ErrorDetail.NOT_SUPPORTED, "Not Supported. The current map can not display a feature of this type.");
