@@ -195,14 +195,14 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
                 return cpList;
             }
 
-            if (oCP.getCPIndex() == tailIndex) {
+            if (cpIndex == tailIndex) {
                 // We can't delete the last CP. Its the arrow width.
                 return cpList;
             }
 
             cpList.add(oCP);
 
-            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{oCP.getCPIndex()});
+            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{cpIndex});
 
             // Calculate the index of the NEW_POSITION CP before this CP and find it.
             int beforeIndex = (cpIndex + posList.size() - 1) % posList.size();
@@ -220,20 +220,23 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
                     cpList.add(newAfterCP);
                 }
 
-                // Now we add a new control point between the CP before and after the one removed.
-                ControlPoint beforeCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, beforeIndex, -1);
-                ControlPoint afterCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, afterIndex, -1);
-                this.createCPBetween(beforeCP.getPosition(), afterCP.getPosition(), ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, afterIndex);
+                if (cpIndex != 0) {
+                    // Now we add a new control point between the CP before and after the one removed.
+                    ControlPoint beforeCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, beforeIndex, -1);
+                    ControlPoint afterCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, afterIndex, -1);
+                    this.createCPBetween(beforeCP.getPosition(), afterCP.getPosition(), ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, afterIndex);
+                }
             }
 
             // Remove the position from the feature position list.
-            posList.remove(oCP.getCPIndex());
+            posList.remove(cpIndex);
+            tailIndex = posList.size() - 1;
 
-            this.decreaseControlPointIndexes(oCP.getCPIndex());
+            this.decreaseControlPointIndexes(cpIndex);
 
-            if (oCP.getCPIndex() == 0) {
-                // We need to move the arrow width CP.
-                ControlPoint arrowHeadPos = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posList.size() - 1, -1);
+            if (cpIndex == 0) {
+                // The 1st coordinate was deleted, we need to move the arrow width CP.
+                ControlPoint arrowHeadPos = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, tailIndex, -1);
                 if (null != arrowHeadPos) {
                     double arrowHeadAzimuth = GeoLibrary.computeBearing(oCP.getPosition(), arrowHeadPos.getPosition()) -
                             GeoLibrary.computeBearing(oCP.getPosition(), posList.get(0)) +
@@ -242,11 +245,11 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
 
                     GeoLibrary.computePositionAt(arrowHeadAzimuth, arrowHeadLength, posList.get(0), arrowHeadPos.getPosition());
                     // Add the update data
-                    this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{posList.size() - 1});
+                    this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{tailIndex});
                 }
-            } else if (oCP.getCPIndex() == 1) {
-                // We need to move the arrow width CP.
-                ControlPoint arrowHeadPos = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posList.size() - 1, -1);
+            } else if (cpIndex == 1) {
+                // The 2nd coordinate was deleted, we need to move the arrow width CP.
+                ControlPoint arrowHeadPos = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, tailIndex, -1);
                 if (null != arrowHeadPos) {
                     double arrowHeadAzimuth = GeoLibrary.computeBearing(posList.get(0), arrowHeadPos.getPosition()) -
                             GeoLibrary.computeBearing(posList.get(0), oCP.getPosition()) +
@@ -255,10 +258,9 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
 
                     GeoLibrary.computePositionAt(arrowHeadAzimuth, arrowHeadLength, posList.get(0), arrowHeadPos.getPosition());
                     // Add the update data
-                    this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{posList.size() - 1});
+                    this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{tailIndex});
                 }
             }
-            return cpList;
         }
 
         return cpList;
