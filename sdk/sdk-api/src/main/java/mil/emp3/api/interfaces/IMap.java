@@ -524,7 +524,7 @@ public interface IMap extends IContainer {
 
     /**
      * This method places the specified feature into edit mode and EditorMode changes to EDIT_MODE.
-     * @param oFeature The specified feature
+     * @param oFeature The specified feature. The feature must have been place on the map previously.
      * @throws EMP_Exception The exception is raised if a processing error is encountered. I.E.
      * If the feature is currently not on this map, or the map can't edit a feature of that type,
      * or there is a draw or edit in progress or MapMotionLockMode is LOCK/SMART_LOCK.
@@ -534,7 +534,10 @@ public interface IMap extends IContainer {
 
     /**
      * This method places the specified feature into edit mode and EditorMode changes to EDIT_MODE.
-     * @param oFeature The specified feature
+     *
+     * Clicking (tapping) on the map to add coordinates to the feature's position list is not support
+     * while in edit mode. To allow map clicking to add corrdiantes use the drawFeature method.
+     * @param oFeature The specified feature. The feature must have been place on the map previously.
      * @param listener A listener to handler the edit session events. This listener is
      * unregistered when the edit session is completed or canceled.
      * @throws EMP_Exception The exception is raised if a processing error is encountered. I.E.
@@ -563,10 +566,16 @@ public interface IMap extends IContainer {
 
 
     /**
-     * This method instructs the map to draw the feature specified and EditorMode changes to DRAW_MODE
-     * @param oFeature The specified feature
+     * This method instructs the map to draw the feature specified and EditorMode changes to DRAW_MODE.
+     * Drawing a feature is the only mechanism available to add coordinates to a features position
+     * list by clicking (taping) on the map.
+     *
+     * Canceling a draw operation of an existing feature will return the feature back to its original state.
+     *
+     * @param oFeature The specified feature. The feature can be a newly allocated feature or a feature
+     *                 that has already been placed on a map.
      * @param listener A draw event listener that will received the draw event. This listener will
-     * be unregistered when the draw if complete or canceled.
+     * be unregistered when the draw completes or is canceled.
      * @throws EMP_Exception The exception is raised if a processing error is encountered. I.E.
      * If the map is already drawing or editing, or the map can't draw a feature of that type, or
      * MapMotionLockMode is LOCK or SMART_LOCK.
