@@ -10,6 +10,7 @@ import java.util.List;
 import mil.emp3.api.KML;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.test.emp3vv.common.StyleManager;
 import mil.emp3.test.emp3vv.containers.dialogs.FeatureFromFilePropertiesDialog;
 import mil.emp3.test.emp3vv.containers.dialogs.FeaturePropertiesDialog;
@@ -43,9 +44,10 @@ public class AddKMLFeature extends AddEntityBase implements FeaturePropertiesDia
             InputStream stream = new FileInputStream(fileName);
             IFeature newFeature = new KML(stream);
             KML kml = (KML) newFeature;
-            Log.d(TAG, "FeatureList " + kml.getFeatureList().size() + " ImageLayerList " + kml.getImageLayerList().size());
+
+            Log.d(TAG, "KML " + kml.toString());
             for(IFeature f: kml.getFeatureList()) {
-                Log.d(TAG, "Type " + f.getFeatureType());
+                Log.d(TAG, f.toString() + EmpGeoPosition.toString(f.getPositions()));
             }
             addFeature(newFeature, dialog);
             return true;
