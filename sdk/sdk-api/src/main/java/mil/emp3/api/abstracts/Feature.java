@@ -1,5 +1,7 @@
 package mil.emp3.api.abstracts;
 
+import android.util.Log;
+
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
@@ -17,6 +19,8 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.global;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.utils.EmpGeoPosition;
+import mil.emp3.api.utils.EmpStyles;
 
 
 /**
@@ -428,5 +432,27 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         else {
             return Math.abs(dValue);
         }
+    }
+
+    /**
+     * Convert selected members to String.
+     * @return
+     */
+    @Override
+    public String toString() {
+        String str = getFeatureType().toString() + " ";
+        if(null != getName()) {
+            str += getName() + "\n";
+        } else {
+            str += "\n";
+        }
+        str += "PathType " + getPathType().toString() + " Extrude " + getExtrude() + " AltitudeMode " + getAltitudeMode() + "\n";
+        str += EmpStyles.toString(getFillStyle()) + "\n" + EmpStyles.toString(getStrokeStyle()) + "\n";
+        if(null != getPositions() && getPositions().size() > 0) {
+            str += "Position Count " + getPositions().size() + " " + EmpGeoPosition.toString(getPositions().get(0)) + "\n";
+        }
+        // If you need to print all positions use EmpGeoPosition.toString(List<IGeoPosition>);
+
+        return str;
     }
 }

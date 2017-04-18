@@ -113,6 +113,17 @@ public class ExecuteTest {
         return mapReady[whichMap];
     }
 
+    public static boolean isThereAReadyMap() {
+        boolean foundReadyMap = false;
+
+        for(int ii = 0; ii < MAX_MAPS; ii++) {
+            if(getMapReady(ii)) {
+                foundReadyMap = true;
+                break;
+            }
+        }
+        return foundReadyMap;
+    }
     public static String onTestSelected(String TAG, Activity activity, String selectedTest, IMap map, IMap map2) {
 
         Log.d(TAG, "Selected Test " + selectedTest);

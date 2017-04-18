@@ -19,6 +19,7 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.ITestMenuManager;
 
 
@@ -298,9 +299,12 @@ public class MapTestMenuFragment extends Fragment implements ITestMenuManager {
     }
 
     public void preLaunchMap() {
+        boolean foundReadyMap = ExecuteTest.isThereAReadyMap();
         for(MenuItem item : items) {
             if(!item.getTitle().equals("Launch Map")) {
-                item.setEnabled(false);
+                if(!foundReadyMap) {
+                    item.setEnabled(false);
+                }
             }
         }
     }
