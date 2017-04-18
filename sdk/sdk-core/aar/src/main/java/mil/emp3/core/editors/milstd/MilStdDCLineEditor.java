@@ -257,7 +257,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
 
         this.increaseControlPointIndexes(0);
 
-        if (this.hasWidth()) {
+        if (this.hasWidth() && (posList.size() >= 2)) {
             ControlPoint widthCP;
             if (posList.size() == 2) {
                 // We have added the 2nd point so it needs a width CP.
@@ -266,6 +266,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                 this.addControlPoint(widthCP);
             } else {
                 widthCP = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 1, -1);
+                widthCP.setCPIndex(0);
             }
             this.positionWidthControlPoint(widthCP);
         }
