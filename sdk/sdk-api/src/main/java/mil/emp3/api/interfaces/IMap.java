@@ -534,6 +534,9 @@ public interface IMap extends IContainer {
 
     /**
      * This method places the specified feature into edit mode and EditorMode changes to EDIT_MODE.
+     *
+     * Clicking (tapping) on the map to add coordinates to the feature's position list is not support
+     * while in edit mode. To allow map clicking to add corrdiantes use the drawFeature method.
      * @param oFeature The specified feature. The feature must have been place on the map previously.
      * @param listener A listener to handler the edit session events. This listener is
      * unregistered when the edit session is completed or canceled.
@@ -568,7 +571,7 @@ public interface IMap extends IContainer {
      * list by clicking (taping) on the map.
      *
      * Canceling a draw operation of an existing feature will return the feature back to its original state.
-     * 
+     *
      * @param oFeature The specified feature. The feature can be a newly allocated feature or a feature
      *                 that has already been placed on a map.
      * @param listener A draw event listener that will received the draw event. This listener will
