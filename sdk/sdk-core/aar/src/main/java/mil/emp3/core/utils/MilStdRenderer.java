@@ -419,7 +419,7 @@ public class MilStdRenderer implements IMilStdRenderer {
                     textFeature.setRotationAngle(angle);
 
                     featureList.add(textFeature);
-                    //Log.i(TAG, "Shape Type Modifier Fill." + shapeInfo.getModifierString() + " at " + point2D.getY() + "/" + point2D.getX());
+                    Log.i(TAG, "Shape Type Modifier Fill." + shapeInfo.getModifierString() + " at " + point2D.getY() + "/" + point2D.getX());
                     break;
                 }
                 default:
