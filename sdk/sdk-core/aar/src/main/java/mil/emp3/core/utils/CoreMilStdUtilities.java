@@ -25,8 +25,10 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  */
 public class CoreMilStdUtilities {
 
-    // These constance are used in the editors to allpy slight differences for the actual symbols.
+    // These constance are used in the editors to apply slight differences for the actual symbols.
     public static final String AIR_CORRIDOR = "G*G*ALC---****X";
+    public static final String BOUNDARY = "G*G*GLB---****X";
+    public static final String ASSEMBLY_AREA = "G*G*GAA---****X";
     public static final String STANDARD_ARMY_AIRCRAFT_FLIGHT_ROUTE = "G*G*ALS---****X";
     public static final String MINIMUM_RISK_ROUTE = "G*G*ALM---****X";
     public static final String UBMANNED_AERIAL_VEHICLE_ROUTE = "G*G*ALU---****X";
