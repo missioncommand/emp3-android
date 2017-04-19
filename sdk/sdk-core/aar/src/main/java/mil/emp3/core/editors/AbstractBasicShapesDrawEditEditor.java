@@ -149,7 +149,14 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
     protected boolean doFeatureMove(double dBearing, double dDistance) {
         IGeoPosition newPosition = GeoLibrary.computePositionAt(dBearing, dDistance, getFeaturePosition());
         setFeaturePosition(newPosition);
-        this.oFeature.apply();
+
+        // batch mode is set to false, otherwise It would appear that Control Points are floating
+        // behind the rectangle/Square.
+        try {
+            storageManager.apply(oFeature, false, null);
+        } catch (EMP_Exception ex) {
+            Log.e(TAG, "storageManger.apply failed.", ex);
+        }
         addUpdateEventData(FeatureEditUpdateTypeEnum.POSITION_UPDATED);
         issueUpdateEvent();
         recompute(getFeaturePosition());
