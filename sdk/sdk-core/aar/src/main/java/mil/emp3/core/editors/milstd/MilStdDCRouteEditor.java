@@ -42,13 +42,19 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
         this.initializeEdit();
     }
 
-    public MilStdDCRouteEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCRouteEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
+
         IGeoPosition cameraPos = this.getMapCameraPosition();
         List<IGeoPosition> posList = this.getPositions();
         // We set the initial line segment to 2/6 of the camera altitude.
@@ -59,9 +65,6 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
             // If its to large set it to 1000 miles which makes the segment 2000 miles long.
             segmentLength = 2609340.0;
         }
-
-        // If it does not have enough positions, clear them.
-        posList.clear();
 
         // Calulate the point.
         GeoLibrary.computePositionAt(270.0, segmentLength, cameraPos, pos);
@@ -113,6 +116,11 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
         int lastIndex = posCnt - 1;
 
         List<ControlPoint> cpList = new ArrayList<>();
+
+        if (this.inEditMode()) {
+            // In Edit mode we do not add CP. The user needs to drag new CP.
+            return cpList;
+        }
 
         // Increment the index => lastIndex.
         this.increaseControlPointIndexes(lastIndex);

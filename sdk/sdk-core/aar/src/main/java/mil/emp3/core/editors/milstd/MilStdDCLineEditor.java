@@ -29,8 +29,8 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
         this.initializeEdit();
     }
 
-    public MilStdDCLineEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCLineEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
     }
 
@@ -165,7 +165,6 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        this.getPositions().clear();
         this.verifyModifiers();
     }
 
@@ -242,6 +241,11 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
         int lastIndex = posCnt - 1;
 
         List<ControlPoint> cpList = new ArrayList<>();
+
+        if (this.inEditMode()) {
+            // In Edit mode we do not add CP. The user needs to drag new CP.
+            return cpList;
+        }
 
         // Compute the position control point.
         pos = new GeoPosition();

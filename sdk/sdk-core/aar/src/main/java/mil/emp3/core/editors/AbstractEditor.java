@@ -35,15 +35,17 @@ public abstract class AbstractEditor<T extends IFeature> {
 
     protected final IMap oClientMap;
     protected final IMapInstance mapInstance;
-    protected final EditorMode editorMode;
+    private final EditorMode editorMode;
+    private final boolean newFeature;
 
     protected final T oFeature;
 
-    protected AbstractEditor(IMapInstance instance, T feature, EditorMode eMode) {
+    protected AbstractEditor(IMapInstance instance, T feature, EditorMode eMode, boolean newFeature) {
         this.oFeature = feature;
         this.mapInstance = instance;
         this.oClientMap = storageManager.getMapMapping(this.mapInstance).getClientMap();
         this.editorMode = eMode;
+        this.newFeature = newFeature;
     }
 
     public T getFeature() {
@@ -99,6 +101,10 @@ public abstract class AbstractEditor<T extends IFeature> {
 
     protected IGeoBounds getMapBounds() {
         return this.getMapMapping().getBounds();
+    }
+
+    protected boolean isNewFeature() {
+        return this.newFeature;
     }
 
     public boolean inDrawMode() {

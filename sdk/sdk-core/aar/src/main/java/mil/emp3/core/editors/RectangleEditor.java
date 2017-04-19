@@ -56,14 +56,19 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
         this.initializeEdit();
     }
 
-    public RectangleEditor(IMapInstance map, Rectangle feature, IDrawEventListener oEventListener) throws EMP_Exception {
-        super(map, feature, oEventListener, true);
+    public RectangleEditor(IMapInstance map, Rectangle feature, IDrawEventListener oEventListener, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, true, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
 
         double refDistance = getReferenceDistance();
         if(refDistance > 0) {

@@ -95,14 +95,20 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
         this.initializeEdit();
     }
 
-    public MilStdDCTwoPointRectangularParamAutoShape(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCTwoPointRectangularParamAutoShape(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.checkAMModifier();
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
+
         IGeoPosition cameraPos = this.getMapCameraPosition();
         List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;

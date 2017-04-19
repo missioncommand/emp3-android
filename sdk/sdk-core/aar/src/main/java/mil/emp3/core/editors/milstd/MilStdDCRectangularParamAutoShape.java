@@ -36,8 +36,8 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         this.initializeEdit();
     }
 
-    public MilStdDCRectangularParamAutoShape(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCRectangularParamAutoShape(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
     }
 
@@ -148,12 +148,14 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
         IGeoPosition cameraPos = this.getMapCameraPosition();
         List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
-
-        // Remove all positions, AM and AN modifiers.
-        posList.clear();
 
         while (!Float.isNaN(this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, 0))) {
             this.oFeature.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, Float.NaN);
