@@ -1,18 +1,14 @@
 package mil.emp3.core.events;
 
+import org.cmapi.primitives.IGeoBase;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.enums.ContainerEventEnum;
-import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IContainer;
 
-import org.cmapi.primitives.IGeoBase;
-
-/**
- * Created by ish.rivera on 2/29/2016.
- */
-public class ContainerEvent extends mil.emp3.api.events.ContainerEvent{
+public class ContainerEvent extends mil.emp3.api.events.ContainerEvent {
     private final ArrayList<IGeoBase> oChildren;
 
     public ContainerEvent(ContainerEventEnum eEvent, IContainer oEventedObject, IGeoBase oChild) {

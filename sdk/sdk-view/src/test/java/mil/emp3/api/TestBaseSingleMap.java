@@ -38,9 +38,8 @@ public class TestBaseSingleMap extends TestBase {
     BlockingQueue<IEvent> receivedEventQueue;
     protected MockEventListener eventListener;
 
-    @Override
     protected void setupSingleMap(String TAG) throws Exception {
-        super.setupSingleMap(TAG);
+        init();
 
         this.TAG = TAG;
 

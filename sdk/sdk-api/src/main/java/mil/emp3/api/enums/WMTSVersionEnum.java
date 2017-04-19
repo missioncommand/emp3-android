@@ -1,9 +1,5 @@
 package mil.emp3.api.enums;
 
-/**
- * Created by raju on 11/22/2016.
- */
-
 public enum WMTSVersionEnum {
     /**
      * This enumerated value indicates WMTS version 1.0.0

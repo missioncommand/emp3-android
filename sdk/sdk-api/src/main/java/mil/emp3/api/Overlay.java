@@ -42,41 +42,41 @@ public class Overlay extends Container implements IOverlay {
     }
 
     @Override
-    public void addOverlay(IOverlay overlay, boolean visible, Object object)
+    public void addOverlay(IOverlay overlay, boolean visible, Object userContext)
             throws EMP_Exception {
         if (overlay == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Overlay.addOverlay can not be null.");
         }
-        
+
         ArrayList<IOverlay> oList = new ArrayList<>();
         oList.add(overlay);
-        this.addOverlays(oList, visible, object);
+        this.addOverlays(oList, visible, userContext);
     }
 
     @Override
-    public void addOverlays(List<IOverlay> overlays, boolean visible, Object object)
+    public void addOverlays(List<IOverlay> overlays, boolean visible, Object userContext)
             throws EMP_Exception {
         if (overlays == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Overlay.addOverlays can not be null.");
         } else if (overlays.size() > 0) {
-            storageManager.addOverlays(this, overlays, visible, object);
+            storageManager.addOverlays(this, overlays, visible, userContext);
         }
     }
 
     @Override
-    public void removeOverlay(IOverlay overlay, Object object)
+    public void removeOverlay(IOverlay overlay, Object userContext)
             throws EMP_Exception {
-        if(null == overlay) return;
+        if (null == overlay) return;
         ArrayList<IOverlay> oList = new ArrayList<>();
         oList.add(overlay);
-        this.removeOverlays(oList, object);
+        this.removeOverlays(oList, userContext);
     }
 
     @Override
-    public void removeOverlays(List<IOverlay> overlays, Object object)
+    public void removeOverlays(List<IOverlay> overlays, Object userContext)
             throws EMP_Exception {
-        if((null == overlays) || (0 == overlays.size())) return;
-        storageManager.removeOverlays(this, overlays, object);
+        if ((null == overlays) || (0 == overlays.size())) return;
+        storageManager.removeOverlays(this, overlays, userContext);
     }
 
     @Override
@@ -92,9 +92,9 @@ public class Overlay extends Container implements IOverlay {
     }
 
     @Override
-    public void removeOverlay(IOverlay overlay)
+    public void removeOverlay(IOverlay userContext)
             throws EMP_Exception {
-        this.removeOverlay(overlay, null);
+        this.removeOverlay(userContext, null);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class Overlay extends Container implements IOverlay {
     }
 
     @Override
-    public void addFeature(IFeature feature, boolean visible, Object object)
+    public void addFeature(IFeature feature, boolean visible, Object userContext)
             throws EMP_Exception {
         if (feature == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Overlay.addFeature can not be null.");
@@ -117,11 +117,11 @@ public class Overlay extends Container implements IOverlay {
 
         ArrayList<IFeature> oList = new ArrayList<>();
         oList.add(feature);
-        this.addFeatures(oList, visible, object);
+        this.addFeatures(oList, visible, userContext);
     }
 
     @Override
-    public void addFeatures(List<IFeature> features, boolean visible, Object object)
+    public void addFeatures(List<IFeature> features, boolean visible, Object userContext)
             throws EMP_Exception {
         if (features == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Overlay.addFeatures can not be null.");
@@ -129,24 +129,24 @@ public class Overlay extends Container implements IOverlay {
             for (IFeature feature : features) {
                 feature.validate();
             }
-            storageManager.addFeatures(this, features, visible, object);
+            storageManager.addFeatures(this, features, visible, userContext);
         }
     }
 
     @Override
-    public void removeFeature(IFeature feature, Object object)
+    public void removeFeature(IFeature feature, Object userContext)
             throws EMP_Exception {
-        if(null == feature) return;
+        if (null == feature) return;
         ArrayList<IFeature> oList = new ArrayList<>();
         oList.add(feature);
-        this.removeFeatures(oList, object);
+        this.removeFeatures(oList, userContext);
     }
 
     @Override
-    public void removeFeatures(List<IFeature> features, Object object)
+    public void removeFeatures(List<IFeature> features, Object userContext)
             throws EMP_Exception {
-        if((null == features) || (0 == features.size())) return;
-        storageManager.removeFeatures(this, features, object);
+        if ((null == features) || (0 == features.size())) return;
+        storageManager.removeFeatures(this, features, userContext);
     }
 
 
