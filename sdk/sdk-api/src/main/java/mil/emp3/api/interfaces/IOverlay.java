@@ -15,7 +15,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      *
      * @return An ArrayList of zero or more IOverlay objects.
      */
-    public List<IOverlay> getOverlays();
+    List<IOverlay> getOverlays();
 
     /**
      * This method adds a child overlay to this overlay.
@@ -24,7 +24,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param visible True if the overlay is to be made visible, false otherwise.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addOverlay(IOverlay overlay, boolean visible)
+    void addOverlay(IOverlay overlay, boolean visible)
             throws EMP_Exception;
 
     /**
@@ -34,7 +34,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param visible True if the overlays are to be made visible, false otherwise.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addOverlays(List<IOverlay> overlays, boolean visible)
+    void addOverlays(List<IOverlay> overlays, boolean visible)
             throws EMP_Exception;
 
     /**
@@ -43,7 +43,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param overlay The child overlay to remove.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeOverlay(IOverlay overlay)
+    void removeOverlay(IOverlay overlay)
             throws EMP_Exception;
 
     /**
@@ -52,7 +52,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param overlays A list of child overlays to remove.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeOverlays(List<IOverlay> overlays)
+    void removeOverlays(List<IOverlay> overlays)
             throws EMP_Exception;
 
     /**
@@ -60,10 +60,10 @@ public interface IOverlay extends IContainer, IGeoContainer {
      *
      * @param overlay The child overlay to add.
      * @param visible True if the overlay is to be made visible, false otherwise.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addOverlay(IOverlay overlay, boolean visible, Object object)
+    void addOverlay(IOverlay overlay, boolean visible, Object userContext)
             throws EMP_Exception;
 
     /**
@@ -71,76 +71,76 @@ public interface IOverlay extends IContainer, IGeoContainer {
      *
      * @param overlays A list of child overlays to add.
      * @param visible True if the overlays are to be made visible, false otherwise.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addOverlays(List<IOverlay> overlays, boolean visible, Object object)
+    void addOverlays(List<IOverlay> overlays, boolean visible, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method removes a child overlay from this overlay.
      *
      * @param overlay The child overlay to remove.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeOverlay(IOverlay overlay, Object object)
+    void removeOverlay(IOverlay overlay, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method removes one or more child overlays from this overlay.
      *
      * @param overlays A list of child overlays to remove.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeOverlays(List<IOverlay> overlays, Object object)
+    void removeOverlays(List<IOverlay> overlays, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method retrieves all child features of this overlay.
      * @return An ArrayList of IFeatures.
      */
-    public List<IFeature> getFeatures();
+    List<IFeature> getFeatures();
 
     /**
      * This method adds a feature to this overlay.
      * @param feature The feature to add
      * @param visible True if the feature is to be made visible, false otherwise.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addFeature(IFeature feature, boolean visible, Object object)
+    void addFeature(IFeature feature, boolean visible, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method adds one or more features to this overlay.
      * @param features ArrayList of IFeatures to add.
      * @param visible True if the features are to be made visible, false otherwise.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addFeatures(List<IFeature> features, boolean visible, Object object)
+    void addFeatures(List<IFeature> features, boolean visible, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method removes a child feature from this overlay.
      *
      * @param feature The child feature to remove.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeFeature(IFeature feature, Object object)
+    void removeFeature(IFeature feature, Object userContext)
             throws EMP_Exception;
 
     /**
      * This method removes one or more child features from this overlay.
      *
      * @param features A list of child features to remove.
-     * @param object user defined object
+     * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeFeatures(List<IFeature> features, Object object)
+    void removeFeatures(List<IFeature> features, Object userContext)
             throws EMP_Exception;
 
     /**
@@ -149,7 +149,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param visible True if the feature is to be made visible, false otherwise.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addFeature(IFeature feature, boolean visible)
+    void addFeature(IFeature feature, boolean visible)
             throws EMP_Exception;
 
     /**
@@ -158,7 +158,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param visible True if the features are to be made visible, false otherwise.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void addFeatures(List<IFeature> features, boolean visible)
+    void addFeatures(List<IFeature> features, boolean visible)
             throws EMP_Exception;
 
     /**
@@ -167,7 +167,7 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param feature The child feature to remove.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeFeature(IFeature feature)
+    void removeFeature(IFeature feature)
             throws EMP_Exception;
 
     /**
@@ -176,12 +176,12 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * @param features A list of child features to remove.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
-    public void removeFeatures(List<IFeature> features)
+    void removeFeatures(List<IFeature> features)
             throws EMP_Exception;
 
     /**
      * This method triggers an update of the overlay. After changing any properties, this
      * method MUST be called to force an update.
      */
-    public void apply();
+    void apply();
 }

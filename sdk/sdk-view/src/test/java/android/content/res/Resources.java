@@ -3,9 +3,6 @@ package android.content.res;
 import android.test.mock.MockResources;
 import android.util.DisplayMetrics;
 
-/**
- * Created by ish.rivera on 7/6/2016.
- */
 public class Resources {
     private static Resources mSystem;
     final DisplayMetrics mMetrics = new DisplayMetrics();

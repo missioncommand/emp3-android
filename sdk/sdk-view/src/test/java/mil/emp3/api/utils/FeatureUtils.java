@@ -9,9 +9,6 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 
 import mil.emp3.api.Polygon;
 
-/**
- * Created by deepakkarmarkar on 9/30/2016.
- */
 public class FeatureUtils {
     /**
      * Builds a basic polygon with graphic properties.
