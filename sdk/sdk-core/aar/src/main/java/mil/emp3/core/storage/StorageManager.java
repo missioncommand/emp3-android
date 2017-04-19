@@ -1509,6 +1509,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public void removeChildren(IContainer parentContainer, Object userContext) throws EMP_Exception {
         StorageObjectWrapper parentContainerWrapper;
+        List<IGeoBase> childrenToTriggerEvents = new ArrayList<>();
         try {
             lock.lock();
             //Log.v(TAG, "b4remove removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
@@ -1523,12 +1524,17 @@ public class StorageManager implements IStorageManager {
                 childList.addAll(childrenList.values()); // To avoid ConcurrentModification issue
                 for (StorageObjectWrapper childWrapper : childList) {
                     removeChild(transactionList, parentContainerWrapper, childWrapper);
+
+                    if (childWrapper.getObject() instanceof IGeoBase) {
+                        childrenToTriggerEvents.add((IGeoBase) childWrapper.getObject());
+                    }
                 }
                 executeTransaction(transactionList, userContext);
             }
         } finally {
             //Log.v(TAG, "after removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentContainer, childrenToTriggerEvents, userContext);
         }
     }
 
