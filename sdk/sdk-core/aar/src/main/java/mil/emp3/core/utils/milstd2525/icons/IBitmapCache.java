@@ -5,9 +5,6 @@ import android.util.SparseArray;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.mapengine.interfaces.IEmpImageInfo;
 
-/**
- * Created by deepakkarmarkar on 7/26/2016.
- */
 public interface IBitmapCache {
 
     /**
