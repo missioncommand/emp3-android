@@ -24,7 +24,6 @@ import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.EventListenerTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
-import mil.emp3.api.enums.EditorMode;
 import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
@@ -35,7 +34,6 @@ import mil.emp3.api.enums.VisibilityActionEnum;
 import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
-import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IContainerSet;
 import mil.emp3.api.interfaces.IEmpPropertyList;
@@ -75,7 +73,6 @@ import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
 import mil.emp3.mapengine.interfaces.IMapGridLines;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
-import mil.emp3.mapengine.interfaces.ISetVisibilityList;
 
 /**
  * This class implements the IMap interface. It provides applications access to a remote
@@ -97,7 +94,7 @@ public class RemoteMap implements IMap {
     }
 
     /**
-     * This is used by RemoteMapTest - We want to disable mirrorcace and use a mock MapInstance during unit test
+     * This is used by RemoteMapTest - We want to disable mirrorcache and use a mock MapInstance during unit test
      * @param remoteMapId
      * @param context
      * @param mode
@@ -176,7 +173,7 @@ public class RemoteMap implements IMap {
 
     @Override
     public void getScreenCapture(IScreenCaptureCallback callback) {
-        throw new UnsupportedOperationException("This map engine does not support this opertaion.");
+        throw new UnsupportedOperationException("This map engine does not support this operation.");
     }
 
     @Override
@@ -344,7 +341,7 @@ public class RemoteMap implements IMap {
     public VisibilityStateEnum getVisibility(IContainer target) {
         return this.oClientMap.getVisibility(target);
     }
-    
+
     @Override
     public VisibilityStateEnum getVisibility(IContainer target, IContainer parent) {
         return this.oClientMap.getVisibility(target, parent);
@@ -981,7 +978,7 @@ public class RemoteMap implements IMap {
         public int getBackgroundBrightness() {
             return 50;
         }
-        
+
         @Override
         public void setMapGridGenerator(IMapGridLines gridGenerator) {
 

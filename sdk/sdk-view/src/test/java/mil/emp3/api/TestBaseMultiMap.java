@@ -36,10 +36,8 @@ public class TestBaseMultiMap extends TestBase {
     BlockingQueue<IEvent>[] receivedEventQueue;
     protected MockEventListener[] eventListener;
 
-
-    @Override
     protected void setupMultipleMaps(String TAG, int mapCount) throws Exception {
-        super.setupMultipleMaps(TAG, mapCount);
+        init();
 
         this.TAG = TAG;
 
