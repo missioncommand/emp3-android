@@ -3497,9 +3497,11 @@ public class MainActivity extends AppCompatActivity
             }
         } catch (Exception Ex) {}
 
-        if (!symbolDef.getModifiers().isEmpty()) {
+        if (true) {
+            // For now add them all.
+            String modifiers = "W.W1.T.T1.X.X1.H.H1.H2.N.C.A.B.Y.V.Q";
             // Needs modifiers.
-            String[] aModifiers = symbolDef.getModifiers().split("\\.");
+            String[] aModifiers = modifiers.split("\\.");
             for (int index = 0; index < aModifiers.length; index++) {
                 switch (aModifiers[index]) {
                     case "W":
