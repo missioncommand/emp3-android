@@ -75,22 +75,20 @@ public class PathEditor extends AbstractDrawEditEditor<Path> {
 
         // Compute the position control point.
         pos = new EmpGeoPosition(oLatLng.getLatitude(), oLatLng.getLongitude());
-        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
+        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posCnt, -1);
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
         // Add the new position to the feature position list.
-        posList.add(0, pos);
-
-        this.increaseControlPointIndexes(0);
+        posList.add(pos);
 
         if (posList.size() > 1) {
-            // Compute the new CP between the 2 first positions.
-            controlPoint = this.createCPBetween(oLatLng, posList.get(1), ControlPoint.CPTypeEnum.NEW_POSITION_CP, 0, 1);
+            // Compute the new CP between the last 2 positions.
+            controlPoint = this.createCPBetween(posList.get(lastIndex), oLatLng, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex, posCnt);
             cpList.add(controlPoint);
         }
 
         // Add the update data
-        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0});
+        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{posCnt});
 
         return cpList;
     }

@@ -22,6 +22,174 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
  * This class implements the MilStd editor for Line draw category TG.
+ *
+ * Draw Category DRAW_CATEGORY_ARROW
+ * Tactical Graphics
+ *      Command and Control and General Maneuver
+ *          Deception
+ *              Direction of Attack for Feint
+ *          Offense
+ *              Lines
+ *                  Direction of Attack
+ *                      Direction of Attack Aviation
+ *                      Direction of Attack Ground
+ *                          Direction of Attack Ground Main Attack
+ *                          Direction of Attack Ground Supporting Attack
+ *
+ * Draw Category DRAW_CATEGORY_LINE
+ * Tactical Graphics
+ *      Command and Control and General Maneuver
+ *          General
+ *              Lines
+ *                  Boundary
+ *                  Forward Line of Own Troops
+ *                  Line of Contact (LC)
+ *                  Phase Line
+ *                  Light Line
+ *          Aviation
+ *              Lines
+ *                  Air Corridor
+ *                  Minimum Risk Route (MRR)
+ *                  Standard-Use Army Aircraft Flight Route (SAAFR)
+ *                  Unmanned Aerial Vehicle (UAV) Route
+ *                  Low Level Transit Route (LLTR)
+ *          Defense
+ *              Lines
+ *                  Forward Edge of Battle Area
+ *          Offense
+ *              Lines
+ *                  Final Coordination Line
+ *                  Limit Of Advance (LOA)
+ *                  Line of Departure (LD)
+ *                  Line of Departure/Line of Contact (LD/LC)
+ *                  Probable Line of Deployment (PLD)
+ *          Special
+ *              Line
+ *                  Holding Line
+ *                  Release Line
+ *                  Bridgehead
+ *      Mobility-Survivability
+ *          Obstacles
+ *              General
+ *                  Obstacle Line
+ *              Abatis
+ *              Antitank Obstacles
+ *                  Antitank Ditch
+ *                      Antitank Ditch Under Construction
+ *                      Antitank Ditch Complete
+ *                  Antitank Ditch Reinforced with Antitank Mines
+ *                  Antitank Wall
+ *              Wire Obstacle
+ *                  Wire Obstacle Unspecified
+ *                  Wire Obstacle Single Fence
+ *                  Wire Obstacle Double Fence
+ *                  Wire Obstacle Double Apron Fence
+ *                  Wire Obstacle Low Wire Fence
+ *                  Wire Obstacle High Wire Fence
+ *                  Concertina
+ *                      Wire Obstacle Single Concertina
+ *                      Wire Obstacle Double Strand Concertina
+ *                      Wire Obstacle Triple Strand Concertina
+ *          Survivability
+ *              Fortified Line
+ *      Fire Support
+ *          Lines
+ *              Command and Control Lines
+ *                  Fire Support Coordination Line
+ *                  Coordinated Fire Line (CFL)
+ *                  No-Fire Line (NFL)
+ *                  Restrictive Fire Line (RFL)
+ *                  Munition Flight Path (MFP)
+ *      Combat Service Support
+ *          Lines
+ *              Supply Routes
+ *                  Main Supply Route
+ *                  Alternate Supply Route
+ *                  Supply Route One-Way Traffic
+ *                  Supply Route Alternating Traffic
+ *                  Supply Route Two-Way Traffic
+ *  METOC
+ *      Atmospheric
+ *          Pressure Systems
+ *              Frontal Systems
+ *                  Cold Front
+ *                      Upper Cold Front
+ *                      Cold Frontogenisis
+ *                      Cold Frontolysis
+ *                  Warm Front
+ *                      Upper Warm Front
+ *                      Warm Frontogenisis
+ *                      Warm Frontolysis
+ *                  Occluded Front
+ *                      Upper Occluded Front
+ *                      Occluded Frontolysis
+ *                  Stationary Front
+ *                      Upper Stationary Front
+ *                      Stationary Frontogenesis
+ *                      Stationary Frontolysis
+ *              Lines
+ *                  Trough Axis
+ *                  Ridge Axis
+ *                  Severe Squall Line
+ *                  Instability Line
+ *                  Shear Line
+ *                  Inter-Tropical Convergance Zone
+ *                  Convergance Line
+ *                  Inter-Tropical Discontinuity
+ *          Winds
+ *              Jet Stream
+ *              Stream Line
+ *          Isopleths
+ *              Isobar Surface
+ *              Upper Air
+ *              Isotherm
+ *              Isotach
+ *              Isodrosotherm
+ *              Isopleths Thickness
+ *              Operator Freeform
+ *      Oceanic
+ *          Ice Systems
+ *              Dynamic Processes
+ *                  Ice Drift (Direction)
+ *              Limits
+ *                  Limit of Visual Observation
+ *                  Limit of Undercast
+ *                  Limit of Radar Observation
+ *                  Observed Ice Edge
+ *                  Estimated Ice Edge
+ *                  Ice Edge From Radar
+ *              Openings in the Ice
+ *                  Cracks
+ *                  Cracks Specific-Location
+ *                  Ice Openings-Lead
+ *                  Frozen Lead
+ *          Hydrography
+ *              Depth
+ *                  Depth Curve
+ *                  Depth Contour
+ *              Coastal Hydrography
+ *                  Coastline
+ *                  Foreshore
+ *                      Foreshore Line
+ *              Ports and Harbors
+ *                  Ports
+ *                      Anchorage Line
+ *                      Pier
+ *                      Facilities
+ *                          Ramp Above Water
+ *                          Ramp Below Water
+ *                  Shoreline Protection
+ *                      Jetty Above Water
+ *                      Jetty Below Water
+ *                      Seawall
+ *              Aids to Navigation
+ *                  Leading Line
+ *              Dangers-Hazards
+ *                  Breaker
+ *                  Reef
+ *              Tide and Current
+ *                  Ebb Tide
+ *                  Flood Tide
  */
 public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
 
@@ -239,6 +407,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
         List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
         int posCnt = posList.size();
+        int lastPos = posCnt - 1;
 
         List<ControlPoint> cpList = new ArrayList<>();
 
@@ -253,39 +422,56 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
         // Add the new position to the feature position list.
-        posList.add(0, pos);
 
-        this.increaseControlPointIndexes(0);
+        switch (this.symbolDefinition.getDrawCategory()) {
+            case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_ARROW: {
+                controlPoint.setCPIndex(0);
+                posList.add(0, pos);
 
-        if (this.hasWidth() && (posList.size() >= 2)) {
-            ControlPoint widthCP;
-            if (posList.size() == 2) {
-                // We have added the 2nd point so it needs a width CP.
-                widthCP = new ControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 0, -1);
-                widthCP.setPosition(new GeoPosition());
-                this.addControlPoint(widthCP);
-            } else {
-                widthCP = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 1, -1);
-                widthCP.setCPIndex(0);
+                this.increaseControlPointIndexes(0);
+
+                if (posList.size() > 1) {
+                    // Compute the new CP between the first and 2nd position2.
+                    controlPoint = this.createCPBetween(oLatLng, posList.get(1), ControlPoint.CPTypeEnum.NEW_POSITION_CP, 0, 1);
+                    cpList.add(controlPoint);
+                }
+
+                // Add the update data
+                this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0});
+                break;
             }
-            this.positionWidthControlPoint(widthCP);
-        }
+            case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_LINE: {
+                controlPoint.setCPIndex(posCnt);
+                posList.add(pos);
 
-        if (posList.size() > 1) {
-            // Compute the new CP between the first and 2nd position2.
-            controlPoint = this.createCPBetween(oLatLng, posList.get(1), ControlPoint.CPTypeEnum.NEW_POSITION_CP, 0, 1);
-            cpList.add(controlPoint);
-        }
+                if (this.hasWidth() && (posList.size() == 2)) {
+                    ControlPoint widthCP;
+                    // We have added the 2nd point so it needs a width CP.
+                    widthCP = new ControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 0, -1);
+                    widthCP.setPosition(new GeoPosition());
+                    cpList.add(widthCP);
+                    this.positionWidthControlPoint(widthCP);
+                }
 
-        // Add the update data
-        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0});
+                if (posList.size() > 1) {
+                    // Compute the new CP between the first and 2nd position2.
+                    controlPoint = this.createCPBetween(posList.get(lastPos), oLatLng, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastPos, posCnt);
+                    cpList.add(controlPoint);
+                }
+
+                // Add the update data
+                this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0});
+            }
+        }
 
         return cpList;
     }
 
     protected List<ControlPoint>  doDeleteControlPoint(ControlPoint oCP) {
         List<IGeoPosition> posList = this.getPositions();
-        int lastIndex = posList.size() - 1;
+        int cpIndex = oCP.getCPIndex();
+        int posCnt = posList.size();
+        int lastIndex = posCnt - 1;
 
         List<ControlPoint> cpList = new ArrayList<>();
 
@@ -294,7 +480,7 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
             return cpList;
         }
 
-        if (posList.size() > 2) {
+        if (posCnt > 2) {
             // We only remove points beyond the minimum # of positions.
 
             if (oCP.getCPType() != ControlPoint.CPTypeEnum.POSITION_CP) {
@@ -304,28 +490,28 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
 
             cpList.add(oCP);
 
-            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{oCP.getCPIndex()});
+            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{cpIndex});
 
             // Calculate the before and after index of the new PC before this CP.
-            int beforeIndex = (oCP.getCPIndex() + posList.size() - 1) % posList.size();
-            int afterIndex = (oCP.getCPIndex() + 1) % posList.size();
+            int beforeIndex = (oCP.getCPIndex() + posCnt - 1) % posCnt;
+            int afterIndex = (oCP.getCPIndex() + 1) % posCnt;
 
             // Now find and add the before new position CP to the list.
-            ControlPoint newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, oCP.getCPIndex());
+            ControlPoint newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, cpIndex);
             if (newCP != null) {
                 // The first point does not have a new CP before it.
                 cpList.add(newCP);
             }
 
             // Now find and add the after new position CP to the list.
-            newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, oCP.getCPIndex(), afterIndex);
+            newCP = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, cpIndex, afterIndex);
             if (newCP != null) {
                 // The last point does not have a new CP after it.
                 cpList.add(newCP);
             }
 
             // Remove the position from the feature position list.
-            posList.remove(oCP.getCPIndex());
+            posList.remove(cpIndex);
 
             if ((beforeIndex != lastIndex) && (afterIndex != 0)) {
                 // Now we add a new control point between the CP before and after the one removed.
@@ -334,9 +520,9 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                 this.createCPBetween(beforeCP.getPosition(), afterCP.getPosition(), ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, afterIndex);
             }
 
-            this.decreaseControlPointIndexes(oCP.getCPIndex());
+            this.decreaseControlPointIndexes(cpIndex);
 
-            if (oCP.getCPIndex() < 2) {
+            if ((cpIndex < 2) && this.hasWidth()) {
                 ControlPoint widthCP = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 0, -1);
                 if (widthCP != null) {
                     this.positionWidthControlPoint(widthCP);
