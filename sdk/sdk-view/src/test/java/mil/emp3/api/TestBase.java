@@ -3,11 +3,27 @@ package mil.emp3.api;
 import android.os.Looper;
 
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import mil.emp3.api.enums.ContainerEventEnum;
+import mil.emp3.api.enums.FeatureEventEnum;
+import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.enums.VisibilityActionEnum;
+import mil.emp3.api.events.ContainerEvent;
+import mil.emp3.api.events.FeatureEvent;
+import mil.emp3.api.events.VisibilityEvent;
+import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
@@ -16,17 +32,21 @@ import mil.emp3.core.CoreManager;
 import mil.emp3.core.EventManager;
 import mil.emp3.core.storage.StorageManager;
 import mil.emp3.core.utils.MilStdRenderer;
+import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
+
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mock;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ManagerFactory.class, Looper.class})
 @SuppressStaticInitializationFor("mil.emp3.api.utils.ManagerFactory")
 abstract public class TestBase {
 
-    static final IStorageManager storageManager = new StorageManager();
-    static final IEventManager eventManager     = new EventManager();
-    static final ICoreManager coreManager       = new CoreManager();
-    static final IMilStdRenderer milStdRenderer = new MilStdRenderer();
+    static final protected IStorageManager storageManager = new StorageManager();
+    static final protected IEventManager eventManager     = new EventManager();
+    static final protected ICoreManager coreManager       = new CoreManager();
+    static final protected IMilStdRenderer milStdRenderer = new MilStdRenderer();
 
     static {
         storageManager.setEventManager(eventManager);
@@ -61,10 +81,114 @@ abstract public class TestBase {
         PowerMockito.when(Looper.myLooper()).thenReturn(looper);
     }
 
-    protected void setupMultipleMaps(String tag, int mapCount) throws Exception {
-        init();
+    static public List<IFeature> createMockedMilStdSymbolWithStubbedGuid(int count) {
+        final List<IFeature> mockChildren = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            final MilStdSymbol mockChild = mock(MilStdSymbol.class);
+            final UUID childUuid = UUID.randomUUID();
+
+            when(mockChild.getGeoId()).thenReturn(childUuid);
+            when(mockChild.getFeatureType()).thenReturn(FeatureTypeEnum.GEO_MIL_SYMBOL);
+
+            mockChildren.add(mockChild);
+        }
+
+        return mockChildren;
     }
-    protected void setupSingleMap(String tag) throws Exception {
-        init();
+
+    static public List<IFeature> createMockedPointWithStubbedGuid(int count) {
+        final List<IFeature> mockChildren = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            final Point mockChild = mock(Point.class);
+            final UUID childUuid = UUID.randomUUID();
+
+            when(mockChild.getGeoId()).thenReturn(childUuid);
+            when(mockChild.getFeatureType()).thenReturn(FeatureTypeEnum.GEO_POINT);
+
+            mockChildren.add(mockChild);
+        }
+
+        return mockChildren;
+    }
+
+    static public List<IFeature> createMockedCircleWithStubbedGuid(int count) {
+        final List<IFeature> mockChildren = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            final Circle mockChild = mock(Circle.class);
+            final UUID childUuid = UUID.randomUUID();
+
+            when(mockChild.getGeoId()).thenReturn(childUuid);
+            when(mockChild.getFeatureType()).thenReturn(FeatureTypeEnum.GEO_CIRCLE);
+
+            mockChildren.add(mockChild);
+        }
+
+        return mockChildren;
+    }
+
+    static public List<IOverlay> createMockedOverlayWithStubbedGuid(int count) {
+        final List<IOverlay> mockChildren = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            final Overlay mockChild = mock(Overlay.class);
+            final UUID childUuid = UUID.randomUUID();
+            when(mockChild.getGeoId()).thenReturn(childUuid);
+
+            mockChildren.add(mockChild);
+        }
+
+        return mockChildren;
+    }
+
+    static public IMap createMockedMapWithStubbedGuid() throws EMP_Exception {
+        return createMockedMapWithStubbedGuid(mock(IMapInstance.class));
+    }
+
+    static public IMap createMockedMapWithStubbedGuid(IMapInstance mapInstance) throws EMP_Exception {
+        final IMap mockMap = mock(IMap.class);
+        when(mockMap.getGeoId()).thenReturn(UUID.randomUUID());
+
+        storageManager.swapMapInstance(mockMap, mapInstance);
+
+        return mockMap;
+    }
+
+    static public ArgumentMatcher<ContainerEvent> createMatcherToMatch(final Object userContext, final ContainerEventEnum eventType) {
+        return new ArgumentMatcher<ContainerEvent>() {
+            @Override
+            public boolean matches(Object argument) {
+                final ContainerEvent event = (ContainerEvent) argument;
+
+                return (eventType == event.getEvent())
+                        && (userContext == event.getUserContext());
+            }
+        };
+    }
+
+    static public ArgumentMatcher<FeatureEvent> createMatcherToMatch(final Object userContext, final FeatureEventEnum eventType) {
+        return new ArgumentMatcher<FeatureEvent>() {
+            @Override
+            public boolean matches(Object argument) {
+                final FeatureEvent event = (FeatureEvent) argument;
+
+                return (eventType == event.getEvent())
+                        && (userContext == event.getUserContext());
+            }
+        };
+    }
+
+    static public ArgumentMatcher<VisibilityEvent> createMatcherToMatch(final Object userContext, final VisibilityActionEnum eventType) {
+        return new ArgumentMatcher<VisibilityEvent>() {
+            @Override
+            public boolean matches(Object argument) {
+                final VisibilityEvent event = (VisibilityEvent) argument;
+
+                return (eventType == event.getEvent())
+                        && (userContext == event.getUserContext());
+            }
+        };
     }
 }

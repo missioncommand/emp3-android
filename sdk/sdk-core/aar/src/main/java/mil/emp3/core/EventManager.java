@@ -240,7 +240,7 @@ public class EventManager implements IEventManager {
     private void getEventHandlers(EventListenerTypeEnum eEventType,
             IGeoBase oEventedObject,
             List<EventListenerHandle> oList) {
-        
+
         if (oEventedObject instanceof IMap) {
             this.getMapEventHandlers(eEventType, oEventedObject, oList);
         } else if (oEventedObject instanceof IOverlay) {
@@ -258,7 +258,7 @@ public class EventManager implements IEventManager {
 
         }
     }
-    
+
     private void callEventHandlers(ListenerHandleList handlerList, Event oEvent) {
         for (EventListenerHandle oHandle : handlerList) {
             try {
@@ -313,7 +313,7 @@ public class EventManager implements IEventManager {
     }
 
     @Override
-    public void  generateFeatureInteractionEvent(UserInteractionEventEnum eEvent,
+    public void generateFeatureInteractionEvent(UserInteractionEventEnum eEvent,
                                                  EnumSet<UserInteractionKeyEnum> keys,
                                                  UserInteractionMouseButtonEnum button,
                                                  List<IFeature> oTargetList,
@@ -398,14 +398,14 @@ public class EventManager implements IEventManager {
         oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.VISIBILITY_EVENT_LISTENER, oOnMap, oEvent);
     }
-    
+
     @Override
     public void generateCameraEvent(CameraEventEnum eventEnum, ICamera camera,
                                     boolean animate, Object userContext) {
         mil.emp3.core.events.CameraEvent cameraEvent;
         ListenerRegistrationHashMap registrationList;
         ListenerHandleList handlerList;
-        
+
         if (this.oRegisteredOnCamera.containsKey(EventListenerTypeEnum.CAMERA_EVENT_LISTENER)) {
             registrationList = this.oRegisteredOnCamera.get(EventListenerTypeEnum.CAMERA_EVENT_LISTENER);
             if (registrationList.containsKey(camera.getGeoId())) {
