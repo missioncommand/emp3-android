@@ -1030,8 +1030,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setEventListeners() {
-        map.setFarDistanceThreshold(20000.0);
-        map.setMidDistanceThreshold(10000.0);
+        map.setFarDistanceThreshold(500000.0);
+        map.setMidDistanceThreshold(490000.0);
         try {
             userInteraction = map.addMapInteractionEventListener(new MapInteractionEventListener());
         } catch (EMP_Exception e) {
