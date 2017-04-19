@@ -45,7 +45,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 public abstract class AbstractDrawEditEditor<T extends IFeature> extends AbstractEditor<T> {
     private final static String TAG = AbstractDrawEditEditor.class.getSimpleName();
 
-    final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
+    final protected IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
 
     public enum EditorStateEnum {
         IDLE,
