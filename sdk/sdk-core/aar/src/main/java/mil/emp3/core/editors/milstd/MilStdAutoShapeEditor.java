@@ -113,7 +113,7 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                 break;
             }
             case CoreMilStdUtilities.MS_NBC_MINIMUM_SAFE_DISTANCE_ZONES: {
-                double delta = Math.rint(centerPos.getAltitude() / 10.0);
+                double delta = Math.rint(distance / 2.0);
 
                 distance = delta;
 
