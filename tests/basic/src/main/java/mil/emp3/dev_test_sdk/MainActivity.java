@@ -2069,6 +2069,11 @@ public class MainActivity extends AppCompatActivity
                     KML kmlFeature = new KML(stream);
                     this.oRootOverlay.addFeature(kmlFeature, true);
                     this.oFeatureHash.put(kmlFeature.getGeoId(), kmlFeature);
+                    ICamera camera = this.map.getCamera();
+                    camera.setAltitude(400);
+                    camera.setLongitude(-122.08447);
+                    camera.setLatitude(37.42198);
+                    camera.apply(true);
                 } catch (Exception Ex) {
                     Log.e(TAG, "KML failed.", Ex);
                 } finally {
