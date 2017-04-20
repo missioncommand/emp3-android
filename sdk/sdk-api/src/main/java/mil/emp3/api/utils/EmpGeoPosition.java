@@ -118,6 +118,20 @@ public class EmpGeoPosition extends GeoPosition {
         }
     }
 
+    /**
+     * Converts position list to String consisting of latitude longitude and altitude
+     * @param positions
+     * @return
+     */
+    public static String toString(List<IGeoPosition> positions) {
+        String str = "Positions " + "\n";
+        if(null != positions) {
+            for(IGeoPosition p: positions) {
+                str += toString(p) + "\n";
+            }
+        }
+        return str;
+    }
     // Following methods were copied from NASA World Wind Location.java class. These methods were minimally adjusted to use EMP classes.
 
     /**

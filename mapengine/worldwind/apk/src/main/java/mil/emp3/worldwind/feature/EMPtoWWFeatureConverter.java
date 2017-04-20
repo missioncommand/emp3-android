@@ -285,6 +285,7 @@ public class EMPtoWWFeatureConverter {
         wwLabel = new gov.nasa.worldwind.shape.Label(textPosition, feature.getText(), textAttribute);
 
         Conversion.convertAndSetIGeoAltitudeMode(wwLabel, feature.getAltitudeMode());
+        wwLabel.setRotationMode(WorldWind.RELATIVE_TO_GLOBE);
         wwLabel.setRotation(feature.getRotationAngle());
         wwLabel.setPickDelegate(feature);
 

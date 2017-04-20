@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import java.util.concurrent.locks.ReentrantLock;
 
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
@@ -116,7 +115,7 @@ public class StorageManager implements IStorageManager {
         if (this.oObjectHash.containsKey(targetId)) {
             return this.oObjectHash.get(targetId).getObject();
         }
-        
+
         return null;
     }
 
@@ -437,7 +436,7 @@ public class StorageManager implements IStorageManager {
         } finally {
             lock.unlock();
         }
-        
+
         return oList;
     }
 
@@ -497,7 +496,7 @@ public class StorageManager implements IStorageManager {
             lock.unlock();
         }
     }
-    
+
     private void setVisibilityOnChildren(
             IdentifierVisibilityHash idVisibilityList,
             java.util.UUID mapId,
@@ -507,7 +506,7 @@ public class StorageManager implements IStorageManager {
         java.util.UUID wrapperId = wrapper.getGeoId();
         java.util.Map<java.util.UUID, IStorageObjectWrapper> childrenList =
                 wrapper.getChildrenList();
-        
+
         for (IStorageObjectWrapper childWraper: childrenList.values()) {
             switch (actionEnum) {
                 case SHOW_ALL:
@@ -561,7 +560,7 @@ public class StorageManager implements IStorageManager {
                         case VISIBLE_ANCESTOR_HIDDEN:
                         case HIDDEN:
                         default:
-                            // The child's visibility does not change state so we don't need 
+                            // The child's visibility does not change state so we don't need
                             // to check its children.
                             continue;
                     }
@@ -570,7 +569,7 @@ public class StorageManager implements IStorageManager {
             this.setVisibilityOnChildren(idVisibilityList, mapId, childWraper, actionEnum);
         }
     }
-    
+
     private void setVisibilityOnParents(
             IdentifierVisibilityHash idVisibilityList,
             java.util.UUID mapId,
@@ -705,10 +704,12 @@ public class StorageManager implements IStorageManager {
                     removeSet.add(uuid);
                 }
             }
-            if (!fvList.isEmpty())
+            if (!fvList.isEmpty()) {
                 mapInstance.addFeatures(fvList, userContext);
-            if (!removeSet.isEmpty())
+            }
+            if (!removeSet.isEmpty()) {
                 mapInstance.removeFeatures(removeSet, userContext);
+            }
         }
     }
     @Override
@@ -800,10 +801,10 @@ public class StorageManager implements IStorageManager {
         StorageObjectWrapper childWrapper;
         boolean bHasParents = containerWrapper.hasParents();
         java.util.Set<java.util.UUID> childIdList = new java.util.HashSet<>(containerWrapper.getChildIdList());
-        
+
         for (java.util.UUID uuId: childIdList) {
             childWrapper = this.oObjectHash.get(uuId);
-            
+
             if (childWrapper.isOnMap(mapId)) {
                 // The child is no longer on the map.
                 if (childWrapper.hasChildren()) {
@@ -827,7 +828,7 @@ public class StorageManager implements IStorageManager {
             IUUIDSet postMapList,
             StorageObjectWrapper parentWrapper,
             StorageObjectWrapper childWrapper) {
-        
+
         for (java.util.UUID uuId: preMapList) {
             if (!postMapList.contains(uuId)) {
                 // This child was on the map before and now not.
@@ -836,7 +837,7 @@ public class StorageManager implements IStorageManager {
                 this.proessChildrenRemoves(transactionList, uuId, childWrapper);
             }
         }
-        
+
         for (java.util.UUID uuId: postMapList) {
             if (!preMapList.contains(uuId)) {
                 // The child was not on this map and it is now.
@@ -846,12 +847,12 @@ public class StorageManager implements IStorageManager {
             }
         }
     }
-    
+
     private void addChildren(TransactionList transactionList, StorageObjectWrapper parentWrapper, StorageObjectWrapper childWrapper, boolean visible)
              throws EMP_Exception {
         IUUIDSet preMapList;
         IUUIDSet postMapList;
-        
+
         // Add it to the parent if it is not a child already.
         if (!parentWrapper.hasChild(childWrapper.getGeoId())) {
             // Get The map list before the operation
@@ -860,48 +861,8 @@ public class StorageManager implements IStorageManager {
             parentWrapper.addChild(childWrapper, (visible ? VisibilityStateEnum.VISIBLE : VisibilityStateEnum.HIDDEN));
             // Get the map list after the operation.
             postMapList = childWrapper.getMapList();
-            
+
             this.processRequest(transactionList, preMapList, postMapList, parentWrapper, childWrapper);
-        }
-    }
-
-    /**
-     * This method adds overlays to the root of the map.
-     * @param map
-     * @param overlays
-     * @param visible
-     * @throws EMP_Exception 
-     */
-    @Override
-    public void addOverlays(IMap map, List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception {
-        try {
-            lock.lock();
-            java.util.UUID childId;
-            java.util.UUID parentId = map.getGeoId();
-            StorageObjectWrapper wrapper;
-            StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentId);
-            TransactionList transactionList = new TransactionList();
-
-            // Loop through the overlays.
-            for (IOverlay overlay : overlays) {
-                // Get the unique Id.
-                childId = overlay.getGeoId();
-                // See if it already exists.
-                if (this.oObjectHash.containsKey(childId)) {
-                    // It does exists so update the object just in case.
-                    wrapper = this.oObjectHash.get(childId);
-                    wrapper.setObject(overlay);
-                } else {
-                    wrapper = new StorageObjectWrapper<>(overlay);
-                    this.oObjectHash.put(childId, wrapper);
-                }
-                this.addChildren(transactionList, parentWrapper, wrapper, visible);
-            }
-
-            this.executeTransaction(transactionList, userContext);
-        } finally {
-            lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, map, overlays, userContext);
         }
     }
 
@@ -1054,7 +1015,7 @@ public class StorageManager implements IStorageManager {
         IUUIDSet removeFeatureList;
         java.util.HashMap<java.util.UUID, IUUIDSet> mapRemoveFeatures;
         java.util.HashMap<java.util.UUID, FeatureVisibilityList> mapAddFeatures;
-        
+
         mapRemoveFeatures = transactionList.getFeatureRemoves();
         for (java.util.UUID mapId: mapRemoveFeatures.keySet()) {
             wrapper = this.oObjectHash.get(mapId);
@@ -1084,7 +1045,7 @@ public class StorageManager implements IStorageManager {
 
             mapInstance.removeFeatures(removeFeatureList, userContext);
         }
-        
+
         mapAddFeatures = transactionList.getFeatureAdds();
         for (java.util.UUID mapId: mapAddFeatures.keySet()) {
             addFeatureList = mapAddFeatures.get(mapId);
@@ -1294,121 +1255,40 @@ public class StorageManager implements IStorageManager {
         return parentFeatures;
     }
 
+    /**
+     * This method adds overlays to the root of the map.
+     * @param map
+     * @param overlays
+     * @param visible
+     * @throws EMP_Exception
+     */
     @Override
-    public void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible, Object userContext)
-             throws EMP_Exception {
-        try {
-            lock.lock();
-            java.util.UUID childId;
-            java.util.UUID parentId = parentOverlay.getGeoId();
-            StorageObjectWrapper wrapper;
-            StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentId);
-            if (null == parentWrapper)
-                throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARENT, "Parent is not yet added");
-
-            TransactionList transactionList = new TransactionList();
-
-            // Loop through the overlays.
-            for (IOverlay overlay : overlays) {
-                // Get the unique Id.
-                childId = overlay.getGeoId();
-                // See if it already exists.
-                if (this.oObjectHash.containsKey(childId)) {
-                    // It does exists so update the object just in case.
-                    wrapper = this.oObjectHash.get(childId);
-                    wrapper.setObject(overlay);
-                } else {
-                    wrapper = new StorageObjectWrapper<>(overlay);
-                    this.oObjectHash.put(childId, wrapper);
-                }
-                this.addChildren(transactionList, parentWrapper, wrapper, visible);
-            }
-
-            this.executeTransaction(transactionList, userContext);
-        } finally {
-            lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay,
-                    overlays, userContext);
-        }
+    public void addOverlays(IMap map, List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception {
+        add(map, overlays, visible, userContext);
     }
 
     @Override
-    public void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible, Object userContext)
-             throws EMP_Exception {
-        try {
-            lock.lock();
-            java.util.UUID childId;
-            java.util.UUID parentId = parentOverlay.getGeoId();
-            StorageObjectWrapper wrapper;
-            StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentId);
-            if (null == parentWrapper)
-                throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARENT, "Parent is not yet added");
-
-            TransactionList transactionList = new TransactionList();
-
-            // Loop through the overlays.
-            for (IFeature feature : featureList) {
-                // Ensure the feature has an altitude mode.
-                this.setDefaultAltitudeMode(feature);
-                // Get the unique Id.
-                childId = feature.getGeoId();
-                // See if it already exists.
-                if (this.oObjectHash.containsKey(childId)) {
-                    // It does exists so update the object just in case.
-                    wrapper = this.oObjectHash.get(childId);
-                    wrapper.setObject(feature);
-                } else {
-                    wrapper = new StorageObjectWrapper<>(feature);
-                    this.oObjectHash.put(childId, wrapper);
-                }
-                this.addChildren(transactionList, parentWrapper, wrapper, visible);
-            }
-
-            this.executeTransaction(transactionList, userContext);
-        } finally {
-            lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentOverlay,
-                    featureList, userContext);
+    public void addOverlays(IOverlay parentOverlay, List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception {
+        if (null == this.oObjectHash.get(parentOverlay.getGeoId())) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARENT, "Parent is not yet added");
         }
+        add(parentOverlay, overlays, visible, userContext);
     }
 
     @Override
-    public void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible, Object userContext)
-             throws EMP_Exception {
-        java.util.UUID childId;
-        java.util.UUID parentId = parentFeature.getGeoId();
-        StorageObjectWrapper wrapper;
-
-        try {
-            lock.lock();
-            StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentId);
-
-            if (null == parentWrapper)
-                throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARENT, "Parent is not yet added");
-            TransactionList transactionList = new TransactionList();
-
-            // Loop through the overlays.
-            for (IFeature feature : featureList) {
-                // Get the unique Id.
-                childId = feature.getGeoId();
-                // See if it already exists.
-                if (this.oObjectHash.containsKey(childId)) {
-                    // It does exists so update the object just in case.
-                    wrapper = this.oObjectHash.get(childId);
-                    wrapper.setObject(feature);
-                } else {
-                    wrapper = new StorageObjectWrapper<>(feature);
-                    this.oObjectHash.put(childId, wrapper);
-                }
-                this.addChildren(transactionList, parentWrapper, wrapper, visible);
-            }
-
-            this.executeTransaction(transactionList, userContext);
-        } finally {
-            lock.unlock();
-            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parentFeature,
-                    featureList, userContext);
+    public void addFeatures(IOverlay parentOverlay, List<IFeature> featureList, boolean visible, Object userContext) throws EMP_Exception {
+        if (null == this.oObjectHash.get(parentOverlay.getGeoId())) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARENT, "Parent is not yet added");
         }
+        add(parentOverlay, featureList, visible, userContext);
+    }
+
+    @Override
+    public void addFeatures(IFeature parentFeature, List<IFeature> featureList, boolean visible, Object userContext) throws EMP_Exception {
+        if (null == this.oObjectHash.get(parentFeature.getGeoId())) {
+            throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARENT, "Parent is not yet added");
+        }
+        add(parentFeature, featureList, visible, userContext);
     }
 
     /**
@@ -1631,6 +1511,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public void removeChildren(IContainer parentContainer, Object userContext) throws EMP_Exception {
         StorageObjectWrapper parentContainerWrapper;
+        List<IGeoBase> childrenToTriggerEvents = new ArrayList<>();
         try {
             lock.lock();
             //Log.v(TAG, "b4remove removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
@@ -1645,12 +1526,17 @@ public class StorageManager implements IStorageManager {
                 childList.addAll(childrenList.values()); // To avoid ConcurrentModification issue
                 for (StorageObjectWrapper childWrapper : childList) {
                     removeChild(transactionList, parentContainerWrapper, childWrapper);
+
+                    if (childWrapper.getObject() instanceof IGeoBase) {
+                        childrenToTriggerEvents.add((IGeoBase) childWrapper.getObject());
+                    }
                 }
                 executeTransaction(transactionList, userContext);
             }
         } finally {
             //Log.v(TAG, "after removeChildren(IContainer parentContainer oObjectHash.size() " + oObjectHash.size());
             lock.unlock();
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_REMOVED, parentContainer, childrenToTriggerEvents, userContext);
         }
     }
 
@@ -1742,13 +1628,13 @@ public class StorageManager implements IStorageManager {
             lock.unlock();
         }
     }
-    
+
     @Override
     public List<IMapService> getMapServices(IMap map) {
         List<IMapService> oList;
-        
+
         ClientMapToMapInstance mapMapping;
-        
+
         if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
             mapMapping = this.oClientMapToMapInstanceMapping.get(map);
             oList = mapMapping.getMapServices();
@@ -1757,7 +1643,7 @@ public class StorageManager implements IStorageManager {
         }
         return oList;
     }
-    
+
     @Override
     public void MapServiceUpdated(IMapService mapService) throws EMP_Exception {
         java.util.UUID wmsId = mapService.getGeoId();
@@ -1786,7 +1672,9 @@ public class StorageManager implements IStorageManager {
         StorageObjectWrapper oWrapper;
 
         IMapInstance mapInstance = getMapInstance(map);
-        if(null == mapInstance) return;
+        if (null == mapInstance) {
+            return;
+        }
         FeatureVisibilityList fvList = new FeatureVisibilityList();
 
         // We need to force an update on all single point icon features
@@ -1813,7 +1701,7 @@ public class StorageManager implements IStorageManager {
                 }
             }
         }
-        if(fvList.size() > 0) {
+        if (fvList.size() > 0) {
             mapInstance.addFeatures(fvList, userContext);
         }
     }
@@ -1822,7 +1710,9 @@ public class StorageManager implements IStorageManager {
         StorageObjectWrapper oWrapper;
 
         IMapInstance mapInstance = getMapInstance(map);
-        if(null == mapInstance) return;
+        if (null == mapInstance) {
+            return;
+        }
         FeatureVisibilityList fvList = new FeatureVisibilityList();
 
         // We need to force an update on all MilStd features
@@ -1838,11 +1728,11 @@ public class StorageManager implements IStorageManager {
                 }
             }
         }
-        if(fvList.size() > 0) {
+        if (fvList.size() > 0) {
             mapInstance.addFeatures(fvList, userContext);
         }
     }
-    
+
     @Override
     public void setIconSize(IMap map, IconSizeEnum eSize, Object userContext)
             throws EMP_Exception {
@@ -1864,7 +1754,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public IconSizeEnum getIconSize(IMap map) {
         IClientMapToMapInstance oMapping = this.getMapMapping(map);
-        
+
         if (oMapping == null) {
             return IconSizeEnum.SMALL;
         }
@@ -1892,7 +1782,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public MilStdLabelSettingEnum getMilStdLabels(IMap map) {
         IClientMapToMapInstance oMapping = this.getMapMapping(map);
-        
+
         if (oMapping == null) {
             return null;
         }
@@ -1902,7 +1792,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public IconSizeEnum getIconSize(IMapInstance mapInstance) {
         IClientMapToMapInstance oMapping = this.getMapMapping(mapInstance);
-        
+
         if (oMapping == null) {
             return IconSizeEnum.SMALL;
         }
@@ -1932,7 +1822,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public MilStdLabelSettingEnum getMilStdLabels(IMapInstance mapInstance) {
         IClientMapToMapInstance oMapping = this.getMapMapping(mapInstance);
-        
+
         if (oMapping == null) {
             return null;
         }
@@ -2549,5 +2439,45 @@ public class StorageManager implements IStorageManager {
 
         IClientMapToMapInstance mapping = this.getMapMapping(map);
         mapping.setFontSizeModifier(value);
+    }
+
+    private void add(IContainer parent, List<? extends IContainer> children, boolean visible, Object userContext) throws EMP_Exception {
+        try {
+            lock.lock();
+            java.util.UUID childId;
+            java.util.UUID parentId = parent.getGeoId();
+            StorageObjectWrapper wrapper;
+            StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentId);
+            if (null == parentWrapper) {
+                throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARENT, "Parent is not yet added");
+            }
+
+            TransactionList transactionList = new TransactionList();
+
+            // Loop through the overlays.
+            for (IContainer child : children) {
+                // Ensure the feature has an altitude mode.
+                if (child instanceof IFeature) {
+                    this.setDefaultAltitudeMode((IFeature) child);
+                }
+                // Get the unique Id.
+                childId = child.getGeoId();
+                // See if it already exists.
+                if (this.oObjectHash.containsKey(childId)) {
+                    // It does exists so update the object just in case.
+                    wrapper = this.oObjectHash.get(childId);
+                    wrapper.setObject(child);
+                } else {
+                    wrapper = new StorageObjectWrapper<>(child);
+                    this.oObjectHash.put(childId, wrapper);
+                }
+                this.addChildren(transactionList, parentWrapper, wrapper, visible);
+            }
+
+            this.executeTransaction(transactionList, userContext);
+        } finally {
+            lock.unlock();
+            eventManager.generateContainerEvent(ContainerEventEnum.OBJECT_ADDED, parent, children, userContext);
+        }
     }
 }

@@ -6,12 +6,12 @@ import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoMilSymbol;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,62 +33,109 @@ import mil.emp3.mirrorcache.event.EventRegistration;
 import mil.emp3.mirrorcache.spi.MirrorCacheClientProvider;
 import mil.emp3.mirrorcache.spi.MirrorCacheClientProviderFactory;
 
+/**
+ * This class provides a simplified means of interacting with a MirrorCache service by
+ * only allowing a user to subscribe to {@link Overlay} (product) instances being
+ * offered by remote users, and to offer {@link Overlay} instances to a MirrorCache
+ * service for other remote users to subscribe to.
+ */
 public class MirrorCache {
-    static final private String TAG = MirrorCache.class.getSimpleName();
-
+    static final private String TAG            = MirrorCache.class.getSimpleName();
     static final private String PRODUCT_PREFIX = "product:";
 
-    private MirrorCacheClient client;
+    private boolean isConnected;
 
-    final private URI endpointUri;
+    final private MirrorCacheClient client;
     final private Map<String, Product> localProductMap;
 
-    public MirrorCache(String endpoint) {
-        try {
-            this.endpointUri     = new URI(endpoint);
-            this.localProductMap = new HashMap<>();
+    /**
+     * Initializes this instance with a MirrorCache service endpoint.
+     *
+     * @param endpointUri the MirrorCache service endpoint to communicate with
+     *
+     * @throws IllegalStateException If a MirrorCache error occurs
+     * @throws NullPointerException If {@code endpointUri} is null
+     */
+    public MirrorCache(final URI endpointUri) {
+        Objects.requireNonNull(endpointUri, "endpointUri == null");
 
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
-    // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
-
-    public void connect() throws EMP_Exception {
-        Log.d(TAG, "connect()");
-
-        if (client != null) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "Already connected.");
-        }
-
+        final MirrorCacheClient client;
         try {
             client = MirrorCacheClientProviderFactory.getClient(new MirrorCacheClientProvider.ClientArguments() {
-                @Override public TransportType transportType() {
+                @Override
+                public TransportType transportType() {
                     return TransportType.WEBSOCKET_PROGRAMMATIC;
                 }
-                @Override public URI endpoint() {
+                @Override
+                public URI endpoint() {
                     return endpointUri;
                 }
             });
-            client.init();
-            client.connect();
-
         } catch (MirrorCacheException e) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getReason().getMsg() + "\n" + e.getDetails(), e);
+            throw new IllegalStateException(e);
+        }
+
+        this.client          = client;
+        this.localProductMap = new HashMap<>();
+    }
+
+    /**
+     * Initializes this instance with a pre-configured MirrorCacheClient.
+     *
+     * @param client an existing MirrorCacheClient implementation pre-configured
+     *               to communicate with a MirrorCache service
+     *
+     * @throws NullPointerException If {@code client} is null
+     */
+    public MirrorCache(MirrorCacheClient client) {
+        Objects.requireNonNull(client, "client == null");
+
+        this.client          = client;
+        this.localProductMap = new HashMap<>();
+    }
+
+    // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
+    // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
+
+    /**
+     * Connects to the MirrorCache service.
+     *
+     * @throws EMP_Exception If a MirrorCache error occurs
+     */
+    public void connect() throws EMP_Exception {
+        Log.d(TAG, "connect()");
+
+        if (!isConnected()) {
+            try {
+                client.init();
+                client.connect();
+
+            } catch (MirrorCacheException e) {
+                throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getReason().getMsg() + "\n" + e.getDetails(), e);
+            }
+
+            isConnected = true;
         }
     }
 
+    /**
+     * Disconnects from the MirrorCache service.
+     *
+     * @throws EMP_Exception If a MirrorCache error occurs
+     */
     public void disconnect() throws EMP_Exception {
         Log.d(TAG, "disconnect()");
 
-        try {
-            client.disconnect();
-            client.shutdown();
-            client = null;
-        } catch (MirrorCacheException e) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getReason().getMsg() + "\n" + e.getDetails(), e);
+        if (isConnected()) {
+            try {
+                client.disconnect();
+                client.shutdown();
+
+                isConnected = false;
+
+            } catch (MirrorCacheException e) {
+                throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getReason().getMsg() + "\n" + e.getDetails(), e);
+            }
         }
     }
 
@@ -96,10 +143,13 @@ public class MirrorCache {
      * Retrieves a list of productIds.
      *
      * @return the gathered productIds
+     *
      * @throws EMP_Exception If a MirrorCache error occurs
+     * @throws IllegalStateException If not connected
      */
     public List<String> getProductIds() throws EMP_Exception {
         Log.d(TAG, "getProductIds()");
+        validateConnection();
 
         final List<String> productIds = new ArrayList<>();
 
@@ -122,11 +172,18 @@ public class MirrorCache {
      * Subscribes to the provided productId.
      *
      * @param productId the productId to subscribe to.
+     *
      * @return an Overlay whose contents are managed by the MirrorCache
+     *
      * @throws EMP_Exception If a MirrorCache error occurs
+     * @throws IllegalStateException If not connected
+     * @throws NullPointerException If {@code productId} is null
+     * @throws IllegalArgumentException If {@code productId} is incorrectly formatted
      */
     public Overlay subscribe(String productId) throws EMP_Exception {
         Log.d(TAG, "subscribe()");
+        Objects.requireNonNull(productId, "productId == null");
+        validateConnection();
 
         validateProductId(productId);
         Log.d(TAG, "productId: " + productId);
@@ -170,9 +227,16 @@ public class MirrorCache {
      * Unsubscribes from the provided productId.
      *
      * @param productId the productId to unsubscribe from
+     *
+     * @throws EMP_Exception If a MirrorCache error occurs
+     * @throws IllegalStateException If not connected or if {@code productId} is not subscribed to
+     * @throws NullPointerException If {@code productId} is null
+     * @throws IllegalArgumentException If {@code productId} is incorrectly formatted
      */
     public void unsubscribe(String productId) throws EMP_Exception {
         Log.d(TAG, "unsubscribe()");
+        Objects.requireNonNull(productId, "productId == null");
+        validateConnection();
 
         validateProductId(productId);
         Log.d(TAG, "productId: " + productId);
@@ -181,7 +245,7 @@ public class MirrorCache {
          * Ensure subscription exists.
          */
         if (!localProductMap.containsKey(productId)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "no subscriptions found for productId: " + productId);
+            throw new IllegalStateException("no subscriptions found for productId: " + productId);
         }
 
         try {
@@ -198,10 +262,16 @@ public class MirrorCache {
      * available to other users of the MirrorCache.
      *
      * @param overlay the Overlay to be managed by the MirrorCache
+     *
      * @throws EMP_Exception If a MirrorCache error occurs
+     * @throws IllegalStateException If not connected or if {@code overlay} was already added as a product
+     * @throws NullPointerException If {@code overlay} is null
+     * @throws IllegalArgumentException If {@code overlay.getName()} is invalid
      */
     public void addProduct(final Overlay overlay) throws EMP_Exception {
         Log.d(TAG, "addProduct()");
+        Objects.requireNonNull(overlay, "overlay == null");
+        validateConnection();
 
         final String productId = generateProductId(overlay);
         Log.d(TAG, "productId: " + productId);
@@ -210,7 +280,7 @@ public class MirrorCache {
          * Ensure product does not exist.
          */
         if (localProductMap.containsKey(productId)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "productId already exists: " + productId);
+            throw new IllegalStateException("productId already exists: " + productId);
         }
 
         try {
@@ -233,19 +303,25 @@ public class MirrorCache {
      * @param overlay the Overlay to remove from MirrorCache
      * @param allowSubscribersToKeep if true, the local data previously received by
      *                               subscribers via this product will not be purged
+     *
      * @throws EMP_Exception If a MirrorCache error occurs
+     * @throws IllegalStateException If not connected or if {@code overlay} was not added as a product
+     * @throws NullPointerException If {@code overlay} is null
+     * @throws IllegalArgumentException If {@code overlay.getName()} is invalid
      */
     public void removeProduct(Overlay overlay, boolean allowSubscribersToKeep) throws EMP_Exception {
         Log.d(TAG, "removeProduct()");
+        Objects.requireNonNull(overlay, "overlay == null");
+        validateConnection();
 
         final String productId = generateProductId(overlay);
         Log.d(TAG, "productId: " + productId);
 
         /*
-        * Ensure product exists.
-        */
+         * Ensure product exists.
+         */
         if (!localProductMap.containsKey(productId)) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "productId does not exist: " + productId);
+            throw new IllegalStateException("productId does not exist: " + productId);
         }
 
         try {
@@ -266,15 +342,26 @@ public class MirrorCache {
     // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
     // -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- //
 
+    private boolean isConnected() {
+        return isConnected;
+    }
+
+    private void validateConnection() {
+        if (!isConnected()) {
+            throw new IllegalStateException("!isConnected()");
+        }
+    }
+
     /**
      * Validates the format of a productId.
      *
      * @param productId the productId to validate
-     * @throws EMP_Exception If {@code productId} is incorrectly formatted
+     *
+     * @throws IllegalArgumentException If {@code productId} is incorrectly formatted
      */
-    static private void validateProductId(String productId) throws EMP_Exception {
-        if (productId == null || !productId.startsWith(PRODUCT_PREFIX) || productId.length() == PRODUCT_PREFIX.length()) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "productId == null || !productId.startsWith(PRODUCT_PREFIX) || productId.length() == PRODUCT_PREFIX.length()");
+    static private void validateProductId(String productId) {
+        if (!productId.startsWith(PRODUCT_PREFIX) || productId.length() == PRODUCT_PREFIX.length()) {
+            throw new IllegalArgumentException("Invalid productId. (!productId.startsWith(PRODUCT_PREFIX) || productId.length() == PRODUCT_PREFIX.length())");
         }
     }
 
@@ -282,14 +369,16 @@ public class MirrorCache {
      * Constructs a productId based on Overlay name.
      *
      * @param overlay the Overlay used to construct the productId
+     *
      * @return the constructed productId
-     * @throws EMP_Exception If {@code overlay.getName()} is invalid
+     *
+     * @throws IllegalArgumentException If {@code overlay.getName()} is invalid
      */
-    static private String generateProductId(Overlay overlay) throws EMP_Exception {
+    static private String generateProductId(Overlay overlay) {
         final String overlayName = overlay.getName();
 
         if (overlayName == null || overlayName.trim().length() == 0) {
-            throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, "Invalid overlayName: " + overlayName);
+            throw new IllegalArgumentException("Invalid overlayName: " + overlayName);
         }
 
         return PRODUCT_PREFIX + overlayName;
@@ -337,7 +426,7 @@ public class MirrorCache {
                     Log.d(TAG, "ChannelEventHandler[" + channel.getName() + "].onChannelPublishedEvent()");
 
                     /*
-                     * An item was published to the group, update the overlay.
+                     * An item was published to the channel, update the overlay.
                      */
                     final Object data = event.getMessage().getPayload().getData();
                     if (data instanceof IGeoMilSymbol) {
@@ -356,7 +445,7 @@ public class MirrorCache {
                     Log.d(TAG, "ChannelEventHandler[" + channel.getName() + "].onChannelDeletedEvent()");
 
                     /*
-                     * An item was deleted from the group, update the overlay.
+                     * An item was deleted from the channel, update the overlay.
                      */
                     final String payloadId = event.getPayloadId();
 

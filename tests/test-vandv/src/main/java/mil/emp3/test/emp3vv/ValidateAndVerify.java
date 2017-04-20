@@ -23,7 +23,7 @@ import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.utils.CameraUtility;
 
 /**
- * Anyone with intention of adding anything to the tester should start reaing here.
+ * Anyone with intention of adding anything to the tester should start reading here.
  *
  * What is on the screen?
  *   - Hamburger menu on top left corner
@@ -98,40 +98,22 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
                     try {
                         if(mapStateChangeEvent.getNewState() == MapStateEnum.MAP_READY) {
                             ExecuteTest.setMapReady(ExecuteTest.MAP1, true);
+                            onTestCompleted("Map Ready");
                             testStatus.setText("map: Map Status Changed to " + mapStateChangeEvent.getNewState() + " Select capability from the drawer");
                         } else {
                             testStatus.setText("map: Map Status Changed to " + mapStateChangeEvent.getNewState());
                         }
                         // map.setCamera(CameraUtility.buildCamera(33.9424368, -118.4081222, 2000000.0), false);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "map1 " + e.getMessage(), e);
                     }
                 }
             });
-
-            /*
-                Following listener code was added to verify EMP-2702. It seems like EMP-2702 is no longer an issue.
-            map.addMapViewChangeEventListener(new IMapViewChangeEventListener() {
-                @Override
-                public void onEvent(MapViewChangeEvent event) {
-                    Log.d(TAG, "mapViewChangeEventListener.onEvent map: " + event.getEvent());
-                    ICamera camera = event.getCamera();
-                    Log.d(TAG, "mapViewChangeEventListener.onEvent " + camera.getLatitude() + "/" + camera.getLongitude());
-                }
-            });
-
-            map.addCameraEventListener(new ICameraEventListener() {
-                @Override
-                public void onEvent(CameraEvent event) {
-                    Log.d(TAG, "CameraEventListener.onEvent map: " + event.getEvent());
-                    ICamera camera = event.getCamera();
-                    Log.d(TAG, "CameraEventListener.onEvent " + camera.getLatitude() + "/" + camera.getLongitude());
-                }
-            });
-            */
         } catch (EMP_Exception e) {
             e.printStackTrace();
         }
+        map.setName("map1");   // Must do this to restore map and data after device orientation change.
+        Log.d(TAG, "map name " + map.getName());
 
         map2 = (IMap) findViewById(R.id.map2);
         try {
@@ -142,19 +124,22 @@ public class ValidateAndVerify extends MapFragmentAndViewActivity
                     try {
                         if(mapStateChangeEvent.getNewState() == MapStateEnum.MAP_READY) {
                             ExecuteTest.setMapReady(ExecuteTest.MAP2, true);
+                            onTestCompleted("Map Ready");
                             testStatus.setText("map2: Map Status Changed to " + mapStateChangeEvent.getNewState() + " Select capability from the drawer");
                         } else {
                             testStatus.setText("map2: Map Status Changed to " + mapStateChangeEvent.getNewState());
                         }
-                        map2.setCamera(CameraUtility.buildCamera(33.9424368, -118.4081222, 2000000.0), false);
-                    } catch (EMP_Exception e) {
-                        e.printStackTrace();
+                        // map2.setCamera(CameraUtility.buildCamera(33.9424368, -118.4081222, 2000000.0), false);
+                    } catch (Exception e) {
+                        Log.e(TAG, "map2 " + e.getMessage(), e);
                     }
                 }
             });
         } catch (EMP_Exception e) {
             e.printStackTrace();
         }
+        map2.setName("map2");   // Must do this to restore map and data after device orientation change.
+        Log.d(TAG, "map2 name " + map.getName());
     }
 
     @Override

@@ -58,12 +58,12 @@ import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -134,8 +134,6 @@ import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.json.geoJson.GeoJsonCaller;
-import mil.emp3.json.geoJson.GeoJsonExporter;
-import mil.emp3.json.geoJson.GeoJsonParser;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -330,16 +328,18 @@ public class MainActivity extends AppCompatActivity
                     }
                     break;
                 case LONG_PRESS:
-                    if (event.getTarget().get(0) != null) {
-                        // If there is a feature on the list, we want to place it in edit mode.
-/*
-                        if (MainActivity.this.ePlotMode == PlotModeEnum.IDLE) {
-                            Log.d(TAG, "FeatureUserInteractionEvent  Entering edit properties mode.");
-                            MainActivity.this.oCurrentSelectedFeature = event.getTarget().get(0);
-                            MainActivity.this.ePlotMode = PlotModeEnum.EDIT_PROPERTIES;
-                            MainActivity.this.openFeatureProperties();
+                    if (oFeature != null) {
+                        // If there is a feature on the list, we want to place it into draw mode.
+                        try {
+                            if ((MainActivity.this.ePlotMode == PlotModeEnum.IDLE) &&
+                                    MainActivity.this.map.isSelected(oFeature)) {
+                                Log.d(TAG, "FeatureUserInteractionEvent  Entering edit mode.");
+                                MainActivity.this.oCurrentSelectedFeature = oFeature;
+                                MainActivity.this.map.drawFeature(oFeature, new FeatureDrawListener(oFeature));
+                            }
+                        } catch (EMP_Exception Ex) {
+                            Log.d(TAG, "drawFeature failed.", Ex);
                         }
-*/
                     }
                     break;
                 case DRAG:
@@ -461,11 +461,14 @@ public class MainActivity extends AppCompatActivity
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
             MainActivity.this.oEditorCompleteBtn.hide();
             MainActivity.this.oEditorCancelBtn.hide();
-            MainActivity.this.oFeatureHash.put(feature.getGeoId(), feature);
-            try {
-                MainActivity.this.oRootOverlay.addFeature(feature, true);
-            } catch (EMP_Exception e) {
-                e.printStackTrace();
+            if (!MainActivity.this.oFeatureHash.containsKey(feature.getGeoId())) {
+                // Only add it if it does not exists. A feature can be placed back into draw mode.
+                try {
+                    MainActivity.this.oRootOverlay.addFeature(feature, true);
+                    MainActivity.this.oFeatureHash.put(feature.getGeoId(), feature);
+                } catch (EMP_Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -475,11 +478,31 @@ public class MainActivity extends AppCompatActivity
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
             MainActivity.this.oEditorCompleteBtn.hide();
             MainActivity.this.oEditorCancelBtn.hide();
+            FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(originalFeature.getGeoId());
+            if (null != oDialog) {
+                oDialog.dismiss();
+            }
         }
 
         @Override
         public void onDrawError(IMap map, String errorMessage) {
             Log.d(TAG, "Draw Error.");
+        }
+    }
+
+    public class GeoJsonCallBack implements IEmpExportToStringCallback {
+        @Override
+        public void exportSuccess(String geoJSON) {
+            // Quick and dirty way to show the output
+            String[] splits = geoJSON.split("\n");
+            for (int i = 0; i < splits.length; i++) {
+                Log.i(TAG, splits[i]);
+            }
+        }
+
+        @Override
+        public void exportFailed(Exception e) {
+            Log.i(TAG, "geojson export failed", e);
         }
     }
 
@@ -1011,8 +1034,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setEventListeners() {
-        map.setFarDistanceThreshold(20000.0);
-        map.setMidDistanceThreshold(10000.0);
+        map.setFarDistanceThreshold(500000.0);
+        map.setMidDistanceThreshold(490000.0);
         try {
             userInteraction = map.addMapInteractionEventListener(new MapInteractionEventListener());
         } catch (EMP_Exception e) {
@@ -1545,20 +1568,20 @@ public class MainActivity extends AppCompatActivity
                                        final String endpointStr = text.getText().toString();
                                        Log.d(TAG, "endpointStr: " + endpointStr);
 
-                                       new AsyncTask<Void, Void, EMP_Exception>() {
+                                       new AsyncTask<Void, Void, Exception>() {
                                            @Override
-                                           protected EMP_Exception doInBackground(final Void... params) {
+                                           protected Exception doInBackground(final Void... params) {
                                                try {
-                                                   mc = new MirrorCache(endpointStr);
+                                                   mc = new MirrorCache(new URI(endpointStr));
                                                    mc.connect();
 
-                                               } catch (EMP_Exception e) {
+                                               } catch (Exception e) {
                                                    return e;
                                                }
                                                return null;
                                            }
                                            @Override
-                                           protected void onPostExecute(final EMP_Exception e) {
+                                           protected void onPostExecute(final Exception e) {
                                                if (e == null) {
                                                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(true);
                                                    MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
@@ -1882,39 +1905,17 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_exportFeatureToGeoJSON:
                 try {
                     List<IFeature> featureList = this.map.getSelected();
+                    GeoJsonCallBack callback = new GeoJsonCallBack();
                     if (featureList.size() == 1) {
-                        GeoJsonCaller.exportToString(map, featureList.get(0), false, new IEmpExportToStringCallback() {
-                            @Override
-                            public void exportSuccess(String geoJSON) {
-                                // Quick and dirty way to show the output
-                                String[] splits = geoJSON.split("\n");
-                                for (int i = 0; i < splits.length; i++) {
-                                    Log.i(TAG, splits[i]);
-                                }
-                            }
-
-                            @Override
-                            public void exportFailed(Exception e) {
-                                Log.i(TAG, "geojson export failed", e);
-                            }
-                        });
+                        GeoJsonCaller.exportToString(map, featureList.get(0), false, callback);
                     } else {
-                        GeoJsonCaller.exportToString(map, featureList, false, new IEmpExportToStringCallback() {
-                            @Override
-                            public void exportSuccess(String geoJSON) {
-                                // Quick and dirty way to show the output
-                                String[] splits = geoJSON.split("\n");
-                                for (int i = 0; i < splits.length; i++) {
-                                    Log.i(TAG, splits[i]);
-                                }
-                            }
-
-                            @Override
-                            public void exportFailed(Exception e) {
-                                Log.i(TAG, "geojson export failed", e);
-                            }
-                        });
+                        GeoJsonCaller.exportToString(map, featureList, false, callback);
                     }
+                    // repeat with map and overlay calls
+                    if (map.getAllOverlays().size() > 0) {
+                        GeoJsonCaller.exportToString(map, map.getAllOverlays().get(0), false, callback);
+                    }
+                    GeoJsonCaller.exportToString(map, false, callback);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -2072,6 +2073,11 @@ public class MainActivity extends AppCompatActivity
                     KML kmlFeature = new KML(stream);
                     this.oRootOverlay.addFeature(kmlFeature, true);
                     this.oFeatureHash.put(kmlFeature.getGeoId(), kmlFeature);
+                    ICamera camera = this.map.getCamera();
+                    camera.setAltitude(400);
+                    camera.setLongitude(-122.08447);
+                    camera.setLatitude(37.42198);
+                    camera.apply(true);
                 } catch (Exception Ex) {
                     Log.e(TAG, "KML failed.", Ex);
                 } finally {
@@ -3318,17 +3324,17 @@ public class MainActivity extends AppCompatActivity
                             if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol()) ||
                                     CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
                             } else {
-                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 0);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, 0);
                             }
                             break;
                         case "AN#":
                             if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol()) ||
                                     CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
                             } else {
-                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 0, 45);
-                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 1, 315);
-                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 2, 45);
-                                symbol.setModifier(IGeoMilSymbol.Modifier.DISTANCE, 3, 315);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 0, 45);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 1, 315);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 2, 45);
+                                symbol.setModifier(IGeoMilSymbol.Modifier.AZIMUTH, 3, 315);
                             }
                             break;
                         case "X":
@@ -3423,6 +3429,8 @@ public class MainActivity extends AppCompatActivity
                     oSymbol.setName(dialog.getFeatureName());
                     //oSymbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
 
+                    this.setModifiers(oSymbol, symbolDef);
+/*
                     switch (SymbolUtilities.getBasicSymbolID(dialog.getSymbolCode())) {
                         case "G*G*ALC---****X": // AIR_CORRIDOR:
                             switch (dialog.getMilStdVersion()) {
@@ -3467,13 +3475,133 @@ public class MainActivity extends AppCompatActivity
                             oSymbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.UNIT, MilStdSymbol.Echelon.COMPANY_BATTERY_TROOP);
                             break;
                     }
-
+*/
                     this.map.drawFeature(oSymbol, new FeatureDrawListener(oSymbol));
                 } catch (EMP_Exception e) {
                     Log.d(TAG, "Cant draw " + dialog.getSymbolCode(), e);
                     this.ePlotMode = PlotModeEnum.IDLE;
                 }
                 break;
+            }
+        }
+    }
+
+    private void setModifiers(MilStdSymbol symbol, armyc2.c2sd.renderer.utilities.SymbolDef symbolDef) {
+        try {
+            switch (symbol.getBasicSymbol()) {
+                case "G*G*GAA---****X": // ASSEMBLY AREA
+                    symbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.UNIT, MilStdSymbol.Echelon.COMPANY_BATTERY_TROOP);
+                    break;
+                case "G*G*OPP---****X": // POINT OF DEPARTURE
+                    symbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.UNIT, MilStdSymbol.Echelon.COMPANY_BATTERY_TROOP);
+                    break;
+                case "G*G*GLB---****X": // BOUNDARIES
+                    symbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.UNIT, MilStdSymbol.Echelon.DIVISION);
+                    break;
+            }
+        } catch (Exception Ex) {}
+
+        if (true) {
+            // For now add them all.
+            String modifiers = "W.W1.T.T1.X.X1.H.H1.H2.N.C.A.B.Y.V.Q";
+            // Needs modifiers.
+            String[] aModifiers = modifiers.split("\\.");
+            for (int index = 0; index < aModifiers.length; index++) {
+                switch (aModifiers[index]) {
+                    case "W":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.DATE_TIME_GROUP, "0800Z");
+                        break;
+                    case "W1":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.DATE_TIME_GROUP_2, "2300Z");
+                        break;
+                    case "T":
+                        switch (symbol.getBasicSymbol()) {
+                            case CoreMilStdUtilities.BOUNDARY:
+                                symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, "10 Mtn Div");
+                                break;
+                            default:
+                                if ((null != symbol.getName()) && !symbol.getName().isEmpty()) {
+                                    symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, symbol.getName());
+                                } else {
+                                    symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, "UD1");
+                                }
+                                break;
+                        }
+                        break;
+                    case "T1":
+                        switch (symbol.getBasicSymbol()) {
+                            case CoreMilStdUtilities.BOUNDARY:
+                                symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_2, "3 Inf Div");
+                                break;
+                            default:
+                                symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_2, "UD2");
+                                break;
+                        }
+                        break;
+                    case "AM":
+                        break;
+                    case "AM#":
+                        break;
+                    case "AN":
+                        break;
+                    case "AN#":
+                        break;
+                    case "X":
+                        if (CoreMilStdUtilities.SECTOR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                        } else if (CoreMilStdUtilities.CIRCULAR_RANGE_FAN.equals(symbol.getBasicSymbol())) {
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                            //symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 1, 20000);
+                        } else {
+                            symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                        }
+                        break;
+                    case "X1":
+                        //symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 0, 10000);
+                        symbol.setModifier(IGeoMilSymbol.Modifier.ALTITUDE_DEPTH, 1, 20000);
+                        break;
+                    case "H":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_1, "Info 1");
+                        break;
+                    case "H1":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_2, "Info 2");
+                        break;
+                    case "H2":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.ADDITIONAL_INFO_3, "Info 3");
+                        break;
+                    case "N":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.HOSTILE, "N-ENY");
+                        break;
+                    case "C":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.QUANTITY, "12");
+                        break;
+                    case "A":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.SYMBOL_ICON, "SI");
+                        break;
+                    case "B":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.ECHELON, "Echelon");
+                        break;
+                    case "Y":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.LOCATION, "Location");
+                        break;
+                    case "V":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.EQUIPMENT_TYPE, "Eq Type");
+                        break;
+                    case "Q":
+                        symbol.setModifier(IGeoMilSymbol.Modifier.DIRECTION_OF_MOVEMENT, "45");
+                        break;
+                    default:
+                        Log.e(TAG, "Modifier not set " + aModifiers[index] + ". " + symbolDef.getDescription() + " getModifiers() " + symbolDef.getModifiers());
+                        break;
+                }
+            }
+        }
+
+        if (null == symbol.getStringModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1)) {
+            if ((null != symbol.getName()) && !symbol.getName().isEmpty()) {
+                symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, symbol.getName());
+            } else {
+                symbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, "UD1");
             }
         }
     }

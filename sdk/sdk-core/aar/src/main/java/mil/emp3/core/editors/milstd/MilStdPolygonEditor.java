@@ -30,17 +30,10 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
         this.initializeEdit();
     }
 
-    public MilStdPolygonEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener) throws EMP_Exception {
-        super(map, feature, oEventListener, true);
+    public MilStdPolygonEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, true, newFeature);
 
         this.initializeDraw();
-    }
-
-    @Override
-    protected void prepareForDraw() throws EMP_Exception {
-        List<IGeoPosition> posList = this.getPositions();
-
-        posList.clear();
     }
 
     @Override
@@ -84,6 +77,11 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
         int lastIndex = posCnt - 1;
 
         List<ControlPoint> cpList = new ArrayList<>();
+
+        if (this.inEditMode()) {
+            // In Edit mode we do not add CP. The user needs to drag new CP.
+            return cpList;
+        }
         // Set the position control point.
         pos = new GeoPosition();
         pos.setAltitude(0);
@@ -194,7 +192,7 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
                 oCP.setCPIndex(cpIndex + 1);
 
                 // Add this CP position to the features position list.
-                posList.add(cpSubIndex, oCP.getPosition());
+                posList.add(cpIndex + 1, oCP.getPosition());
 
                 // Now that we added the new position we need to create the new CP between them.
                 // Create the new CP between the beforeCP and this one.

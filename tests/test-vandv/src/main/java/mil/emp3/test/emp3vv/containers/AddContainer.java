@@ -6,33 +6,20 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import org.cmapi.primitives.IGeoFillStyle;
-import org.cmapi.primitives.IGeoLabelStyle;
-import org.cmapi.primitives.IGeoStrokeStyle;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mil.emp3.api.GeoJSON;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
-import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
-import mil.emp3.json.geoJson.GeoJsonParser;
 import mil.emp3.test.emp3vv.common.StyleManager;
 import mil.emp3.test.emp3vv.containers.dialogs.AddFeatureDialog;
-import mil.emp3.test.emp3vv.containers.dialogs.AddGeoJSONDialog;
 import mil.emp3.test.emp3vv.containers.dialogs.AddOverlayDialog;
-import mil.emp3.test.emp3vv.navItems.geoJSON_test.GeoJSONTest;
 import mil.emp3.test.emp3vv.utils.MapNamesUtility;
 
 /**
@@ -41,8 +28,7 @@ import mil.emp3.test.emp3vv.utils.MapNamesUtility;
  *     You can model these after {@link AddEllipseFeature} and {@link mil.emp3.test.emp3vv.containers.dialogs.EllipsePropertiesDialog} classes
  *     update the entityClass table below with feature type and AddNewFeatureFeature class.
  */
-public class AddContainer extends AddEntityBase implements AddOverlayDialog.IAddOverlayDialogListener, AddFeatureDialog.IAddFeatureDialogListener,
-AddGeoJSONDialog.IAddGeoJSONDialogListener{
+public class AddContainer extends AddEntityBase implements AddOverlayDialog.IAddOverlayDialogListener, AddFeatureDialog.IAddFeatureDialogListener {
 
     private static Map<FeatureTypeEnum, Class<? extends AddEntityBase>> entityClasses;
     static {
@@ -57,6 +43,7 @@ AddGeoJSONDialog.IAddGeoJSONDialogListener{
         entityClasses.put(FeatureTypeEnum.GEO_POINT, AddPointFeature.class);
         entityClasses.put(FeatureTypeEnum.GEO_SQUARE, AddSquareFeature.class);
         entityClasses.put(FeatureTypeEnum.GEOJSON, AddGeoJSONFeature.class);
+        entityClasses.put(FeatureTypeEnum.KML, AddKMLFeature.class);
     }
 
     private static String TAG = AddContainer.class.getSimpleName();
@@ -156,30 +143,6 @@ AddGeoJSONDialog.IAddGeoJSONDialogListener{
         return;
     }
 
-    public void showAddGeoJSONDialog() {
-        Handler mainHandler = new Handler(activity.getMainLooper());
-
-        final List<String> parentList = MapNamesUtility.getNames(map, false, true, true);
-        final List<String> namesInUse = MapNamesUtility.getNames(map, true, true, true);
-
-        if(parentList.size() == 0) {
-            statusListener.updateStatus(TAG, "You need at least one overlay to add a feature");
-            return;
-        }
-
-        Runnable myRunnable = new Runnable() {
-            @Override
-            public void run() {
-                FragmentManager fm = ((AppCompatActivity)activity).getSupportFragmentManager();
-                AddGeoJSONDialog addGeoJSONDialogFragment = AddGeoJSONDialog.newInstance("Add GeoJSON", map, parentList, AddContainer.this, namesInUse);
-                addGeoJSONDialogFragment.show(fm, addGeoJSONFragment);
-            }
-        };
-        mainHandler.post(myRunnable);
-
-        return;
-    }
-
     @Override
     public boolean featureSet(AddFeatureDialog dialog) {
 
@@ -212,28 +175,6 @@ AddGeoJSONDialog.IAddGeoJSONDialogListener{
             } else {
                 statusListener.updateStatus(TAG, featureTypeEnum.toString() + " is NOT yet supported");
             }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean featureSet(AddGeoJSONDialog dialog) {
-
-        IMap map = dialog.getMap();
-        List<String> parentNames = dialog.getSelectedParentList();
-        boolean visible = dialog.getGeoJSONVisible();
-        String fileName = "/sdcard/Download/" + dialog.getSelectedGeoJSON();
-        Log.i(TAG, "GeoJSON file " + fileName);
-        try {
-            InputStream stream = new FileInputStream(fileName);
-            IFeature feature = new GeoJSON(stream);
-            for (String parentName : parentNames) {
-                Overlay overlay = (Overlay) MapNamesUtility.getContainer(map, parentName);
-                overlay.addFeature(feature, visible);
-            }
-            return true;
-        } catch (EMP_Exception | IOException e) {
-            e.printStackTrace();
         }
         return false;
     }

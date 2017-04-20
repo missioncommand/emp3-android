@@ -39,7 +39,7 @@ public interface IMapStatus {
     boolean isEditing();
 
     void editFeature(IFeature oFeature, IEditEventListener listener) throws EMP_Exception;
-    void drawFeature(IFeature oFeature, IDrawEventListener listener) throws EMP_Exception;
+    void drawFeature(IFeature oFeature, IDrawEventListener listener, boolean newFeature) throws EMP_Exception;
     void freehandDraw(IGeoStrokeStyle initialStyle, IFreehandEventListener listener) throws EMP_Exception;
     void setFreehandDrawStyle(IGeoStrokeStyle style) throws EMP_Exception;
 

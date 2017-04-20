@@ -13,7 +13,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.utils.GeoLibrary;
 
 /**
- * This class test the Geo Library method.
+ * This class tests the Geo Library method.
  */
 public class GeoLibraryUnitTest {
     private static final String TAG = GeoLibraryUnitTest.class.getSimpleName();

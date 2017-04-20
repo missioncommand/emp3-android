@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,12 +54,12 @@ public class EmpKMLParser {
     private EmpObjectHierarchyEntry rootEmpEntry;
 
     // This visibleFeatureList contains all the EMP features the KML translates into that are visible.
-    private final java.util.List<IFeature> visibleFeatureList = new java.util.ArrayList<>();
+    private final List<IFeature> visibleFeatureList = new ArrayList<>();
     // This invisibleFeatureList contains all the EMP features the KML translates into that are not visible.
-    private final java.util.List<IFeature> invisibleFeatureList = new java.util.ArrayList<>();
+    private final List<IFeature> invisibleFeatureList = new ArrayList<>();
 
     // This list contains all the ground overlays defined in the KML document.
-    private final java.util.List<IImageLayer> imageLayerList = new java.util.ArrayList<>();
+    private final List<IImageLayer> imageLayerList = new ArrayList<>();
 
     private String docId = null;
     private String documentName = null;
@@ -119,7 +121,7 @@ public class EmpKMLParser {
         kmlParser.parseKml();
 
         if (!kmlParser.getContainers().isEmpty()) {
-            this.rootEmpEntry = this.processContainer(null, kmlParser.getContainers().get(0), null, null);
+            this.rootEmpEntry = this.processContainer(null, kmlParser.getContainers().get(0));
         }
         //this.processPlacemarks(kmlParser.getPlacemarks(), kmlParser.getStyleMaps(), kmlParser.getStyles());
         //this.processGroundOverlays(kmlParser.getGroundOverlays(), kmlParser.getStyleMaps(), kmlParser.getStyles());
@@ -156,9 +158,7 @@ public class EmpKMLParser {
         return this.imageLayerList;
     }
 
-    private void processGroundOverlays(Map<KmlGroundOverlay, Object> groundOverlayMap,
-            Map<String, String> styleMapHash,
-            Map<String, KmlStyle> styleHash) {
+    private void processGroundOverlays(Map<KmlGroundOverlay, Object> groundOverlayMap) {
         for (KmlGroundOverlay groundOverlay: groundOverlayMap.keySet()) {
             try {
                 IImageLayer imageLayer = new ImageLayer(groundOverlay.getImageUrl(), groundOverlay.getLatLngBox());
@@ -171,7 +171,8 @@ public class EmpKMLParser {
 
     private EmpObjectHierarchyEntry createEMPOverlay(EmpObjectHierarchyEntry parentEntry, KmlContainer kmlContainer) {
         IOverlay overlay = new Overlay();
-        EmpObjectHierarchyEntry objectEntry = new EmpObjectHierarchyEntry(parentEntry, overlay);
+        EmpObjectHierarchyEntry objectEntry = new EmpObjectHierarchyEntry(parentEntry, overlay,
+                kmlContainer.getStyleMap(), kmlContainer.getStyles());
 
         if ((null != kmlContainer.getContainerId()) && !kmlContainer.getContainerId().isEmpty()) {
             overlay.setDataProviderId(kmlContainer.getContainerId());
@@ -191,9 +192,7 @@ public class EmpKMLParser {
     }
 
     private EmpObjectHierarchyEntry processContainer(EmpObjectHierarchyEntry parentEntry,
-            KmlContainer kmlContainer,
-            Map<String, String> styleMapHash,
-            Map<String, KmlStyle> styleHash) {
+            KmlContainer kmlContainer) {
         EmpObjectHierarchyEntry containerEntry;
 
         if ((null == parentEntry) || parentEntry.isOverlayEntry()) {
@@ -203,14 +202,14 @@ public class EmpKMLParser {
         }
 
         for (KmlContainer childKMLContainer: kmlContainer.getContainerList()) {
-            processContainer(containerEntry, childKMLContainer, childKMLContainer.getStyleMap(), childKMLContainer.getStyles());
+            processContainer(containerEntry, childKMLContainer);
         }
 
         for (KmlPlacemark kmlPlacemark: kmlContainer.getPlacemarkList().keySet()) {
-            this.createEMPFeatures(containerEntry, kmlPlacemark, kmlContainer.getStyleMap(), kmlContainer.getStyles());
+            this.createEMPFeatures(containerEntry, kmlPlacemark);
         }
 
-        this.processGroundOverlays(kmlContainer.getGroundOverlayHashMap(), kmlContainer.getStyleMap(), kmlContainer.getStyles());
+        this.processGroundOverlays(kmlContainer.getGroundOverlayHashMap());
 
         return containerEntry;
     }
@@ -274,10 +273,13 @@ public class EmpKMLParser {
                 if (null != kmlStyle) {
                     IGeoStrokeStyle strokeStyle = line.getStrokeStyle();
                     color = strokeStyle.getStrokeColor();
-                    color.setAlpha(kmlStyle.getStrokeColor().getAlpha());
-                    color.setRed(kmlStyle.getStrokeColor().getRed());
-                    color.setGreen(kmlStyle.getStrokeColor().getGreen());
-                    color.setBlue(kmlStyle.getStrokeColor().getBlue());
+                    IGeoColor kmlColor = kmlStyle.getStrokeColor();
+                    if (kmlColor != null) {
+                        color.setAlpha(kmlColor.getAlpha());
+                        color.setRed(kmlColor.getRed());
+                        color.setGreen(kmlColor.getGreen());
+                        color.setBlue(kmlColor.getBlue());
+                    }
                     strokeStyle.setStrokeWidth(kmlStyle.getStrokeWidth());
                 }
 
@@ -309,10 +311,13 @@ public class EmpKMLParser {
                 if (null != kmlStyle) {
                     IGeoStrokeStyle strokeStyle = newPolygon.getStrokeStyle();
                     color = strokeStyle.getStrokeColor();
-                    color.setAlpha(kmlStyle.getStrokeColor().getAlpha());
-                    color.setRed(kmlStyle.getStrokeColor().getRed());
-                    color.setGreen(kmlStyle.getStrokeColor().getGreen());
-                    color.setBlue(kmlStyle.getStrokeColor().getBlue());
+                    IGeoColor kmlColor = kmlStyle.getStrokeColor();
+                    if (kmlColor != null) {
+                        color.setAlpha(kmlColor.getAlpha());
+                        color.setRed(kmlColor.getRed());
+                        color.setGreen(kmlColor.getGreen());
+                        color.setBlue(kmlColor.getBlue());
+                    }
                     strokeStyle.setStrokeWidth(kmlStyle.getStrokeWidth());
                 }
 
@@ -371,21 +376,24 @@ public class EmpKMLParser {
     }
 
     private void createEMPFeatures(EmpObjectHierarchyEntry parentEntry,
-            KmlPlacemark kmlPlacemark,
-            Map<String, String> styleMapHash,
-            Map<String, KmlStyle> styleHash) {
+            KmlPlacemark kmlPlacemark) {
 
         KmlGeometry geometry = kmlPlacemark.getGeometry();
         KmlStyle kmlStyle = kmlPlacemark.getInlineStyle();
 
-        if (null == kmlStyle) {
+        EmpObjectHierarchyEntry containerEntry = parentEntry;
+        while (null == kmlStyle && containerEntry != null) {
+            Map<String, String> styleMap = containerEntry.getStyleMap();
+            Map<String, KmlStyle> styles = containerEntry.getStyles();
             String styleRef = kmlPlacemark.getStyleId();
-            if (styleMapHash.containsKey(styleRef)) {
-                String styleId = styleMapHash.get(styleRef);
-                if (styleHash.containsKey(styleId)) {
-                    kmlStyle = styleHash.get(styleId);
+            kmlStyle = styles.get(styleRef);
+            if (null == kmlStyle && styleMap.containsKey(styleRef)) {
+                String styleId = styleMap.get(styleRef);
+                if (styles.containsKey(styleId)) {
+                    kmlStyle = styles.get(styleId);
                 }
             }
+            containerEntry = containerEntry.getParent();
         }
 
         this.createEMPFeature(parentEntry, kmlPlacemark.getPlacemarkId(), geometry, kmlStyle, kmlPlacemark.getProperties());

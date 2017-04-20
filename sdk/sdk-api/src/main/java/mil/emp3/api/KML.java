@@ -248,4 +248,27 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     public String exportToKML() {
         return "";
     }
+
+    /**
+     * Convert all features to String, Converts details of the first feature on the list.
+     * @return
+     */
+    @Override
+    public String toString() {
+        String str = getFeatureType().toString() + " ";
+        if(null != getName()) {
+            str += getName() + "\n";
+        } else {
+            str += "\n";
+        }
+
+        if(null != getImageLayerList() && getImageLayerList().size() > 0) {
+            str += "Image Layer Count " + getImageLayerList().size() + "\n";
+        }
+
+        if(null != getFeatureList() && getFeatureList().size() > 0) {
+            str += "Feature Count " + getFeatureList().size() + " " + getFeatureList().get(0).toString();
+        }
+        return str;
+    }
 }

@@ -172,6 +172,8 @@ public class BoundingBoxGeneration {
             return false;
         }
 
+        boolean ret = false;
+
         if (((Math.abs(camera.getHeading()) <= 5.0) || (Math.abs(camera.getHeading()) >= 355.0)) &&
                 (Math.abs(camera.getTilt()) <= 5.0) &&
                 (Math.abs(camera.getRoll()) <= 5.0)) {
@@ -180,22 +182,24 @@ public class BoundingBoxGeneration {
             if (mapController.screenPointToGroundPosition(width / 2, 0, centerNorth)) {
                 gov.nasa.worldwind.geom.Position centerSouth = new gov.nasa.worldwind.geom.Position();
                 if (mapController.screenPointToGroundPosition(width / 2, height, centerSouth)) {
-                    gov.nasa.worldwind.geom.Position centerWest = new gov.nasa.worldwind.geom.Position();
-                    if (mapController.screenPointToGroundPosition(0, height / 2, centerWest)) {
-                        gov.nasa.worldwind.geom.Position centerEast = new gov.nasa.worldwind.geom.Position();
-                        if (mapController.screenPointToGroundPosition(width, height / 2, centerEast)) {
-                            geoBounds.setNorth(centerNorth.latitude);
-                            geoBounds.setSouth(centerSouth.latitude);
-                            geoBounds.setWest(centerWest.longitude);
-                            geoBounds.setEast(centerEast.longitude);
-                            return true;
-                        }
-                    }
+                    geoBounds.setNorth(centerNorth.latitude);
+                    geoBounds.setSouth(centerSouth.latitude);
+                    ret = true;
+                }
+            }
+
+            gov.nasa.worldwind.geom.Position centerWest = new gov.nasa.worldwind.geom.Position();
+            if (mapController.screenPointToGroundPosition(0, height / 2, centerWest)) {
+                gov.nasa.worldwind.geom.Position centerEast = new gov.nasa.worldwind.geom.Position();
+                if (mapController.screenPointToGroundPosition(width, height / 2, centerEast)) {
+                    geoBounds.setWest(centerWest.longitude);
+                    geoBounds.setEast(centerEast.longitude);
+                    ret = true;
                 }
             }
         }
 
-        return false;
+        return ret;
     }
 
     /**
@@ -212,9 +216,9 @@ public class BoundingBoxGeneration {
         Log.i(TAG, "start buildBoundingBox_ ");
 
         // Consider the simple case where the entire globe is visible.
-        if(boundsForEntireGlobeVisible(geoBounds, geometricCenter)) {
+        if (boundsForSmallCameraAngles(geoBounds)) {
             return;
-        } else if (boundsForSmallCameraAngles(geoBounds)) {
+        } else if(boundsForEntireGlobeVisible(geoBounds, geometricCenter)) {
             return;
         }
 

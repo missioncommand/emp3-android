@@ -13,7 +13,6 @@ import mil.emp3.test.emp3vv.navItems.AddRemoveGetTest;
 import mil.emp3.test.emp3vv.navItems.BoundsGenerationTest;
 import mil.emp3.test.emp3vv.navItems.FreehandDrawTest;
 import mil.emp3.test.emp3vv.navItems.LaunchMap;
-import mil.emp3.test.emp3vv.navItems.geoJSON_test.GeoJSONTest;
 import mil.emp3.test.emp3vv.navItems.kml_service_test.KMLServiceTest;
 import mil.emp3.test.emp3vv.navItems.performance_test.PerformanceTest;
 import mil.emp3.test.emp3vv.navItems.basic_capability_test.BasicShapeTest;
@@ -32,6 +31,7 @@ import mil.emp3.test.emp3vv.optItems.Locate;
 import mil.emp3.test.emp3vv.optItems.LookAt;
 import mil.emp3.test.emp3vv.optItems.Map;
 import mil.emp3.test.emp3vv.optItems.MapBrightness;
+import mil.emp3.test.emp3vv.optItems.MapGridDDAction;
 import mil.emp3.test.emp3vv.optItems.MapGridDMSAction;
 import mil.emp3.test.emp3vv.optItems.MapGridMGRSAction;
 import mil.emp3.test.emp3vv.optItems.MapGridNoneAction;
@@ -67,7 +67,6 @@ public class ExecuteTest {
         capabilityTests.put("Basic Shapes Editors", BasicShapesEditorsTest.class);
         capabilityTests.put("Basic Shape", BasicShapeTest.class);
         capabilityTests.put("Freehand Draw", FreehandDrawTest.class);
-        capabilityTests.put("GeoJSON Test", GeoJSONTest.class);
         capabilityTests.put("Performance", PerformanceTest.class);
         capabilityTests.put("Bounds Generation", BoundsGenerationTest.class);
         capabilityTests.put("KML Service", KMLServiceTest.class);
@@ -93,6 +92,7 @@ public class ExecuteTest {
         optionSettings.put("MGRS Grid", MapGridMGRSAction.class);
         optionSettings.put("UTM Grid", MapGridUTMAction.class);
         optionSettings.put("DMS Grid", MapGridDMSAction.class);
+        optionSettings.put("DD Grid", MapGridDDAction.class);
     }
 
     public static UserAction getUserActionImpl() {
@@ -115,6 +115,17 @@ public class ExecuteTest {
         return mapReady[whichMap];
     }
 
+    public static boolean isThereAReadyMap() {
+        boolean foundReadyMap = false;
+
+        for(int ii = 0; ii < MAX_MAPS; ii++) {
+            if(getMapReady(ii)) {
+                foundReadyMap = true;
+                break;
+            }
+        }
+        return foundReadyMap;
+    }
     public static String onTestSelected(String TAG, Activity activity, String selectedTest, IMap map, IMap map2) {
 
         Log.d(TAG, "Selected Test " + selectedTest);
