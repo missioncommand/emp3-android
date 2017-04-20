@@ -233,8 +233,10 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
         this.prepareForDraw();
         // Set the default altitude mode.
         storageManager.setDefaultAltitudeMode(this.getFeature());
-        // We need to plot the object to the map.
-        storageManager.addDrawFeature(this.oClientMap, this.getFeature());
+        if (this.isNewFeature()) {
+            // We need to plot the object to the map.
+            storageManager.addDrawFeature(this.oClientMap, this.getFeature());
+        }
         // Add the control points if any.
         if (this.bUsesControlPoints) {
             this.assembleControlPoints();
