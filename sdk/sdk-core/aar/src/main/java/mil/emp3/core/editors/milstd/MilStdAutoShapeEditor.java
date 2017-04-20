@@ -9,6 +9,7 @@ import java.util.List;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.utils.GeoLibrary;
@@ -67,15 +68,23 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
             return;
         }
 
-        IGeoPosition cameraPos = this.getMapCameraPosition();
+        // IGeoPosition cameraPos = this.getMapCameraPosition();
+        IGeoPosition centerPos = getCenter(); // Get the center of visible area, Camera is not at the center when tilted.
         List<IGeoPosition> posList = this.getPositions();
         // We set the radius to 2/5 of the camera altitude.
-        double distance = cameraPos.getAltitude() / 5.0;
+        // double distance = cameraPos.getAltitude() / 5.0;
+        double distance = getReferenceDistance(); // Based on approximate centerWest and centerEast of the visible area.
+
+        if(distance > 0) {
+            distance *= .20;
+        } else {
+            ICamera camera = oClientMap.getCamera();
+            distance = camera.getAltitude() / 5.0;
+        }
         IGeoPosition pos;
 
-        if (distance > 2609340.0) {
-            // If its to large set it to 1000 miles which makes the segment 2000 miles long.
-            distance = 2609340.0;
+        if (distance > MAXIMUM_DISTANCE) {
+            distance = MAXIMUM_DISTANCE;
         }
 
         switch (this.oFeature.getBasicSymbol()) {
@@ -90,13 +99,13 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
 
                 // The first point is in the center.
                 pos.setAltitude(0);
-                pos.setLatitude(cameraPos.getLatitude());
-                pos.setLongitude(cameraPos.getLongitude());
+                pos.setLatitude(centerPos.getLatitude());
+                pos.setLongitude(centerPos.getLongitude());
                 posList.add(pos);
 
                 // The 2nd position is at the distance at 270 bearing.
                 pos = new GeoPosition();
-                GeoLibrary.computePositionAt(270.0, distance, cameraPos, pos);
+                GeoLibrary.computePositionAt(270.0, distance, centerPos, pos);
                 pos.setAltitude(0);
                 posList.add(pos);
 
@@ -104,19 +113,19 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                 break;
             }
             case CoreMilStdUtilities.MS_NBC_MINIMUM_SAFE_DISTANCE_ZONES: {
-                double delta = Math.rint(cameraPos.getAltitude() / 10.0);
+                double delta = Math.rint(distance / 2.0);
 
                 distance = delta;
 
                 pos = new GeoPosition();
-                pos.setLatitude(cameraPos.getLatitude());
-                pos.setLongitude(cameraPos.getLongitude());
+                pos.setLatitude(centerPos.getLatitude());
+                pos.setLongitude(centerPos.getLongitude());
                 pos.setAltitude(0);
                 posList.add(pos);
 
                 for (int index = 0; index < 3; index++) {
                     pos = new GeoPosition();
-                    GeoLibrary.computePositionAt(90.0, distance, cameraPos, pos);
+                    GeoLibrary.computePositionAt(90.0, distance, centerPos, pos);
                     pos.setAltitude(0);
                     posList.add(pos);
                     distance += delta;
