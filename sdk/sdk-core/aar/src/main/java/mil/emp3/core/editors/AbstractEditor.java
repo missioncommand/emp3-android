@@ -161,7 +161,7 @@ public abstract class AbstractEditor<T extends IFeature> {
      * We take the reference distance calculated here and multiply it with some factor.
      * @return
      */
-    double getReferenceDistance() {
+    protected double getReferenceDistance() {
         double refDistance = -global.MINIMUM_DISTANCE;
         IGeoBounds bounds = mapInstance.getMapBounds();
         if (null != bounds) {
