@@ -14,6 +14,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -73,10 +74,7 @@ public class PathEditor extends AbstractDrawEditEditor<Path> {
         }
 
         // Compute the position control point.
-        pos = new GeoPosition();
-        pos.setAltitude(0);
-        pos.setLatitude(oLatLng.getLatitude());
-        pos.setLongitude(oLatLng.getLongitude());
+        pos = new EmpGeoPosition(oLatLng.getLatitude(), oLatLng.getLongitude());
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posCnt, -1);
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
@@ -84,7 +82,7 @@ public class PathEditor extends AbstractDrawEditEditor<Path> {
         posList.add(pos);
 
         if (posList.size() > 1) {
-            // Compute the new CP between the last position and the new one.
+            // Compute the new CP between the last 2 positions.
             controlPoint = this.createCPBetween(posList.get(lastIndex), oLatLng, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex, posCnt);
             cpList.add(controlPoint);
         }
