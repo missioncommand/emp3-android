@@ -18,6 +18,7 @@ public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEdi
     protected final armyc2.c2sd.renderer.utilities.SymbolDef symbolDefinition;
     protected final String basicSymbolCode;
     protected final int milstdVersion;
+    protected final double MAXIMUM_DISTANCE = 2609340.0; // Used to calculate default dimensions of the symbol. (based on experiment?)
     private final java.util.HashMap<IGeoMilSymbol.Modifier, String> originalModifiers = new java.util.HashMap<>();
 
     protected AbstractMilStdMultiPointEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
