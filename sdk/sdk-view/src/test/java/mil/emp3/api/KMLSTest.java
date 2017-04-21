@@ -1,12 +1,16 @@
 package mil.emp3.api;
 
+import android.graphics.Color;
+import android.os.Looper;
 import android.test.mock.MockContext;
 import android.util.Log;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.io.File;
 import java.net.URL;
@@ -15,13 +19,19 @@ import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.listeners.IKMLSEventListener;
 
+//@RunWith(RobolectricTestRunner.class)
+//@Config(constants = mil.emp3.view.BuildConfig.class)
+@PrepareForTest({Color.class})
 public class KMLSTest extends TestBaseSingleMap {
 
     private static String TAG = KMLSTest.class.getSimpleName();
-
+//    private Context context;
     @Before
     public void setUp() throws Exception {
+//        context = RuntimeEnvironment.application;
         setupSingleMap(TAG);
+//        PowerMockito.mock(Color.class);
+//        PowerMockito.when(Color.class, "parseColor", Mockito.any(String.class)).thenReturn(0);
     }
 
     @After

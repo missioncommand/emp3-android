@@ -191,18 +191,27 @@ public class KMLSProvider {
 
                     // Parse the KML file and build a KML Feature and pass it on to the MapInstance for drawing.
                     if((null != request.kmlFilePath) && (0 != request.kmlFilePath.length())) {
-                        ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.PARSING);
-                        KML kmlFeature = new KML(new File(request.kmlFilePath).toURI().toURL(), request.kmzDirectory.getAbsolutePath());
-                        Log.d(TAG, "kmlFeature created " + request.kmlFilePath);
-                        request.service.setFeature(kmlFeature);
-                        reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_PARSED);
-
-                        ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(request.map);
-                        if((null != mapMapping) && (null != mapMapping.getMapInstance())) {
-                            mapMapping.getMapInstance().addMapService(request.service);
-                            ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.DRAWN);
-                            reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FEATURES_DRAWN);
+                        try {
+                            ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.PARSING);
+                            KML kmlFeature = new KML(new File(request.kmlFilePath).toURI().toURL(), request.kmzDirectory.getAbsolutePath());
+                            Log.d(TAG, "kmlFeature created " + request.kmlFilePath);
+                            request.service.setFeature(kmlFeature);
+                            reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_PARSED);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Failed to parse request.kmlFilePath ", e);
+                            reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_INSTALL_FAILED);
                         }
+
+                        if(null != request.service.getFeature()) {
+                            ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(request.map);
+                            if ((null != mapMapping) && (null != mapMapping.getMapInstance())) {
+                                mapMapping.getMapInstance().addMapService(request.service);
+                                ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.DRAWN);
+                                reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FEATURES_DRAWN);
+                            }
+                        }
+                    } else {
+                        reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_INSTALL_FAILED);
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -246,6 +255,9 @@ public class KMLSProvider {
             try {
                 buildDirectory(request.service.getContext());
 
+                String forwardSlahsStd = "/";
+                char forwardSlashChar = '/';
+
                 Log.d(TAG, "protocol " + request.service.getURL().getProtocol() + " HOST " + request.service.getURL().getHost()
                         + " File " + request.service.getURL().getFile());
                 Log.d(TAG, "File.separator " + File.separator);
@@ -258,13 +270,37 @@ public class KMLSProvider {
                 }
 
                 File directory;
+                String fileName;
+                String targetFilePath;
                 if(request.service.isPersistent()) {
-                    directory = new File(persistentRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
+                    if(request.service.getURL().getProtocol().equals("file")) {
+                        String file = request.service.getURL().getFile();
+                        if(file.contains(":")) {
+                            String split[] = file.split(":");
+                            file = split[split.length -1];
+                        }
+                        fileName = file.substring(file.lastIndexOf(forwardSlashChar) + 1);
+                        directory = new File(persistentRoot + File.separator + file.replace(forwardSlashChar, '.'));
+                    } else {
+                        directory = new File(persistentRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
+                        fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
+                    }
                 } else {
-                    directory = new File(volatileRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
+                    if(request.service.getURL().getProtocol().equals("file")) {
+                        String file = request.service.getURL().getFile();
+                        if(file.contains(":")) {
+                            String split[] = file.split(":");
+                            file = split[split.length -1];
+                        }
+                        fileName = file.substring(file.lastIndexOf(forwardSlashChar) + 1);
+                        directory = new File(volatileRoot + File.separator + file.replace(forwardSlashChar, '.'));
+                    } else {
+                        directory = new File(volatileRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
+                        fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
+                    }
                 }
-                String fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
-                String targetFilePath = directory + File.separator + fileName;
+
+                targetFilePath = directory + File.separator + fileName;
 
                 Log.v(TAG, "File Path from URL " + path + " target directory " + directory + " target fileName " + fileName);
 

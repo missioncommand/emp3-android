@@ -21,6 +21,9 @@ dependencies {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
+
+    testCompile "org.robolectric:robolectric:3.3.2"
+    // testCompile "xmlpull:xmlpull:1.1.3.1"
 }
 
 
