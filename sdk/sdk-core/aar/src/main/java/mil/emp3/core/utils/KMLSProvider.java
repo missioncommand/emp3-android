@@ -112,7 +112,7 @@ public class KMLSProvider {
         /**
          * Holder for KML Request.
          */
-        class KMLSRequest {
+        class KMLSRequest implements KMZFile.IKMZFileRerquest{
             IMap map;
             IKMLS service;
             String kmzFilePath = null;
@@ -121,6 +121,26 @@ public class KMLSProvider {
             KMLSRequest(IMap map, IKMLS service) {
                 this.map = map;
                 this.service = service;
+            }
+
+            @Override
+            public File getDestinationDir() {
+                return kmzDirectory;
+            }
+
+            @Override
+            public String getSourceFilePath() {
+                return kmzFilePath;
+            }
+
+            @Override
+            public String getKmlFilePath() {
+                return kmlFilePath;
+            }
+
+            @Override
+            public void setKmlFilePath(String kmlFilePath) {
+                this.kmlFilePath = kmlFilePath;
             }
         }
 
@@ -161,7 +181,8 @@ public class KMLSProvider {
                     // File could be either a KMZ file or KML file.
                     try {
                         ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.EXPLODING);
-                        unzipKMZFile(request);
+                        KMZFile kmzFile = new KMZFile();
+                        kmzFile.unzipKMZFile(request);
                         reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_EXPLODED);
                         listFiles(request.kmzDirectory);
                     } catch (EMP_Exception e) {
@@ -224,6 +245,10 @@ public class KMLSProvider {
 
             try {
                 buildDirectory(request.service.getContext());
+
+                Log.d(TAG, "protocol " + request.service.getURL().getProtocol() + " HOST " + request.service.getURL().getHost()
+                        + " File " + request.service.getURL().getFile());
+                Log.d(TAG, "File.separator " + File.separator);
                 URLConnection connection = request.service.getURL().openConnection();
                 String path = request.service.getURL().getPath();
 
@@ -299,49 +324,49 @@ public class KMLSProvider {
          * @param request
          * @throws EMP_Exception
          */
-        private void unzipKMZFile(KMLSRequest request) throws EMP_Exception {
-
-            try {
-                String kmlFilePath = null;
-                ZipFile zipFile = new ZipFile(request.kmzFilePath);
-                Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-                while (entries.hasMoreElements()) {
-                    ZipEntry zipEntry = entries.nextElement();
-                    Log.v(TAG, "zipEntry " + zipEntry.getName());
-
-                    if(zipEntry.isDirectory()) {
-                        File directory = new File(request.kmzDirectory + File.separator + zipEntry.getName());
-                        directory.mkdirs();
-                        continue;
-                    }
-
-                    if(((null == kmlFilePath) || (0 == kmlFilePath.length())) && (zipEntry.getName().endsWith(".kml"))) {
-                        request.kmlFilePath = request.kmzDirectory + File.separator + zipEntry.getName();
-                        Log.d(TAG, "kmlFilePath " + request.kmlFilePath);
-                    }
-
-                    try (BufferedInputStream bis = new  BufferedInputStream(zipFile.getInputStream(zipEntry));
-                         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(request.kmzDirectory, zipEntry.getName())))) {
-                        byte[] buf = new byte[READ_BUFFER_SIZE];
-                        int ii;
-                        while ((ii = bis.read(buf, 0, READ_BUFFER_SIZE)) != -1) {
-                            bos.write(buf, 0, ii);
-                        }
-                        bos.flush();
-                    }
-                }
-
-            } catch (IOException | SecurityException e) {
-                Log.e(TAG, "KMLProcessor-unzipKMZFile " + request.kmzFilePath, e);
-                if(request.kmzFilePath.endsWith(".kml")) {
-                    // So it is a KML file not a KMZ file
-                    request.kmlFilePath = request.kmzFilePath;
-                    Log.d(TAG, "kmlFilePath " + request.kmlFilePath);
-                }
-                throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getMessage());
-            }
-        }
+//        private void unzipKMZFile(KMLSRequest request) throws EMP_Exception {
+//
+//            try {
+//                String kmlFilePath = null;
+//                ZipFile zipFile = new ZipFile(request.kmzFilePath);
+//                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+//
+//                while (entries.hasMoreElements()) {
+//                    ZipEntry zipEntry = entries.nextElement();
+//                    Log.v(TAG, "zipEntry " + zipEntry.getName());
+//
+//                    if(zipEntry.isDirectory()) {
+//                        File directory = new File(request.kmzDirectory + File.separator + zipEntry.getName());
+//                        directory.mkdirs();
+//                        continue;
+//                    }
+//
+//                    if(((null == kmlFilePath) || (0 == kmlFilePath.length())) && (zipEntry.getName().endsWith(".kml"))) {
+//                        request.kmlFilePath = request.kmzDirectory + File.separator + zipEntry.getName();
+//                        Log.d(TAG, "kmlFilePath " + request.kmlFilePath);
+//                    }
+//
+//                    try (BufferedInputStream bis = new  BufferedInputStream(zipFile.getInputStream(zipEntry));
+//                         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(request.kmzDirectory, zipEntry.getName())))) {
+//                        byte[] buf = new byte[READ_BUFFER_SIZE];
+//                        int ii;
+//                        while ((ii = bis.read(buf, 0, READ_BUFFER_SIZE)) != -1) {
+//                            bos.write(buf, 0, ii);
+//                        }
+//                        bos.flush();
+//                    }
+//                }
+//
+//            } catch (IOException | SecurityException e) {
+//                Log.e(TAG, "KMLProcessor-unzipKMZFile " + request.kmzFilePath, e);
+//                if(request.kmzFilePath.endsWith(".kml")) {
+//                    // So it is a KML file not a KMZ file
+//                    request.kmlFilePath = request.kmzFilePath;
+//                    Log.d(TAG, "kmlFilePath " + request.kmlFilePath);
+//                }
+//                throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getMessage());
+//            }
+//        }
 
         /**
          * Recursively lists files in a directory.
