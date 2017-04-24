@@ -348,22 +348,6 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         label.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
         setLabelAttributes(label, gridObjectType);
 
-        if (this.currentCamera.getHeading() != 0.0) {
-            double azimuth = label.getAzimuth() - this.currentCamera.getHeading();
-
-            // This operation converts the Double remainder operation to a modulus operation.
-            // It ensures that all label remain aligned with the grid when the heading changes.
-            azimuth = global.modulus((azimuth + 180), 360.0) - 180.0;
-            label.setAzimuth(azimuth);
-        }
-
-        if (this.currentCamera.getRoll() != 0.0) {
-            double azimuth = label.getAzimuth() + this.currentCamera.getRoll();
-
-            azimuth = global.modulus((azimuth + 180), 360.0) - 180.0;
-            label.setAzimuth(azimuth);
-        }
-
         return label;
     }
 

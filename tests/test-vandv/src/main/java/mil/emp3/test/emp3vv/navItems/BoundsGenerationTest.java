@@ -6,15 +6,18 @@ import android.util.Log;
 import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
+import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
+import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import mil.emp3.api.KML;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.Point;
@@ -41,6 +44,7 @@ import mil.emp3.api.utils.EmpBoundingArea;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpGeoPosition;
+import mil.emp3.api.utils.EmpStyles;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.NavItemBase;
@@ -264,22 +268,7 @@ public class BoundsGenerationTest extends NavItemBase {
                 AddContainer addContainer = new AddContainer(activity, maps[whichMap], this, styleManager);
                 addContainer.showAddFeatureDialog();
             } else if(userAction.equals("Test Case")) {
-                MilStdSymbol symbol = new MilStdSymbol();
-                symbol.setName("Test Case");
-                symbol.setSymbolCode("GFG*GLF---****X");
-                IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
-                strokeStyle.setStrokeColor(new EmpGeoColor(1, 0, 255, 255));
-                strokeStyle.setStrokeWidth(5);
-                symbol.setStrokeStyle(strokeStyle);
-                symbol.getPositions().add(new EmpGeoPosition(51.71890155127165, -115.98336399953365, 0 ));
-                symbol.getPositions().add(new EmpGeoPosition(52.64436742922938, -104.25681924615716, 0 ));
-                symbol.getPositions().add(new EmpGeoPosition(52.17390465118869, -94.5947905827707, 0 ));
-
-                symbol.getPositions().add(new EmpGeoPosition(50.34258657086281, -81.94509827090853, 0 ));
-                symbol.getPositions().add(new EmpGeoPosition(47.709296820694576, -73.15852091105798, 0 ));
-                symbol.getPositions().add(new EmpGeoPosition(44.662370012492, -60.4663988644806, 0 ));
-
-                overlay[whichMap].addFeature(symbol, true);
+                overlay[whichMap].addFeature(testCase_2(), true);
             } else if(userAction.equals("MGRS")) {
                 maps[whichMap].setGridType(MapGridTypeEnum.MGRS);
             } else if(userAction.equals("No Grid")) {
@@ -306,6 +295,61 @@ public class BoundsGenerationTest extends NavItemBase {
         return (actOn(userAction));
     }
 
+    IFeature testCase_1() {
+        MilStdSymbol symbol = new MilStdSymbol();
+        symbol.setName("Test Case");
+        symbol.setSymbolCode("GFG*GLF---****X");
+        IGeoStrokeStyle strokeStyle = new GeoStrokeStyle();
+        strokeStyle.setStrokeColor(new EmpGeoColor(1, 0, 255, 255));
+        strokeStyle.setStrokeWidth(5);
+        symbol.setStrokeStyle(strokeStyle);
+        symbol.getPositions().add(new EmpGeoPosition(51.71890155127165, -115.98336399953365, 0 ));
+        symbol.getPositions().add(new EmpGeoPosition(52.64436742922938, -104.25681924615716, 0 ));
+        symbol.getPositions().add(new EmpGeoPosition(52.17390465118869, -94.5947905827707, 0 ));
+
+        symbol.getPositions().add(new EmpGeoPosition(50.34258657086281, -81.94509827090853, 0 ));
+        symbol.getPositions().add(new EmpGeoPosition(47.709296820694576, -73.15852091105798, 0 ));
+        symbol.getPositions().add(new EmpGeoPosition(44.662370012492, -60.4663988644806, 0 ));
+        return symbol;
+    }
+
+    IFeature testCase_2() {
+        Polygon p = new Polygon();
+        p.setName("Test Case 2");
+        IGeoStrokeStyle strokeStyle = EmpStyles.buildStrokeStyle(0, 0, 0, 0.8, 3.0, 0, (short)0);
+        p.setStrokeStyle(strokeStyle);
+        p.setFillStyle(null);
+        p.setExtrude(true);
+        p.setPathType(IGeoRenderable.PathType.GREAT_CIRCLE);
+        // p.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.RELATIVE_TO_GROUND);
+
+        p.getPositions().add(new EmpGeoPosition(37.42257124044786, -122.0848938459612, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42211922626856, -122.0849580979198, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42207183952619, -122.0847469573047, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42209006729676, -122.0845725380962, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42215932700895, -122.0845954886723, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42227278564371, -122.0838521118269, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42203539112084, -122.083792243335, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42209006957106, -122.0835076656616, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42200987395161, -122.0834709464152, 170));
+        p.getPositions().add(new EmpGeoPosition(37.4221046494946, -122.0831221085748, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42226503990386, -122.0829247374572, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42231242843094, -122.0829339169385, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42225046087618, -122.0833837359737, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42234159228745, -122.0833607854248, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42237075460644, -122.0834204551642, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42251292011001, -122.083659133885, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42265873093781, -122.0839758438952, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42265143972521,-122.0842374743331, 170));
+        p.getPositions().add(new EmpGeoPosition(37.4226514386435, -122.0845036949503, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42261133916315, -122.0848020460801, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42256395055121, -122.0847882750515, 170));
+        p.getPositions().add(new EmpGeoPosition(37.42257124044786, -122.0848938459612, 170));
+
+        Log.d(TAG, p.toString());
+
+        return p;
+    }
     List<IGeoPosition> fetchPositionsFromString(IEmpBoundingArea empBoundingArea) {
         List<IGeoPosition> positions = new ArrayList<>();
         if(null != empBoundingArea) {

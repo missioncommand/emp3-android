@@ -18,6 +18,7 @@ public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEdi
     protected final armyc2.c2sd.renderer.utilities.SymbolDef symbolDefinition;
     protected final String basicSymbolCode;
     protected final int milstdVersion;
+    protected final double MAXIMUM_DISTANCE = 2609340.0; // Used to calculate default dimensions of the symbol. (based on experiment?)
     private final java.util.HashMap<IGeoMilSymbol.Modifier, String> originalModifiers = new java.util.HashMap<>();
 
     protected AbstractMilStdMultiPointEditor(IMapInstance map, MilStdSymbol feature, IEditEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
@@ -33,8 +34,8 @@ public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEdi
         }
     }
 
-    protected AbstractMilStdMultiPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, true);
+    protected AbstractMilStdMultiPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, true, newFeature);
 
         if (this.oFeature.getAltitudeMode() == null) {
             this.oFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
@@ -42,11 +43,20 @@ public abstract class AbstractMilStdMultiPointEditor extends AbstractDrawEditEdi
         this.milstdVersion = MilStdUtilities.geoMilStdVersionToRendererVersion(oFeature.getSymbolStandard());
         this.basicSymbolCode = oFeature.getBasicSymbol();
         this.symbolDefinition = symDef;
+
+        if (!this.isNewFeature()) {
+            // An existing feature was placed into draw mode.
+
+            // Copy the modifiers if there are any.
+            for (IGeoMilSymbol.Modifier modifier : oFeature.getModifiers().keySet()) {
+                this.originalModifiers.put(modifier, new String(oFeature.getStringModifier(modifier)));
+            }
+        }
     }
 
     @Override
     public void Cancel() {
-        if (this.inEditMode()) {
+        if (this.inEditMode() || (this.inDrawMode() && !this.isNewFeature())) {
             // Restore the modifiers.
             java.util.HashMap<IGeoMilSymbol.Modifier, String> symbolModifiers = oFeature.getModifiers();
             symbolModifiers.clear();

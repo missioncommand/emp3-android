@@ -2,9 +2,6 @@ package mil.emp3.worldwind.utils;
 
 import mil.emp3.mapengine.interfaces.IMapEngineProperties;
 
-/**
- * Created by ish.rivera on 6/15/2016.
- */
 public class MapEngineProperties implements IMapEngineProperties {
     @Override
     public String getName() {

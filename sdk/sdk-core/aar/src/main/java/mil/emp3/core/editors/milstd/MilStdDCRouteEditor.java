@@ -11,6 +11,7 @@ import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.mapengine.interfaces.IMapInstance;
@@ -42,15 +43,21 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
         this.initializeEdit();
     }
 
-    public MilStdDCRouteEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCRouteEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        IGeoPosition cameraPos = this.getMapCameraPosition();
         List<IGeoPosition> posList = this.getPositions();
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
+/*
+        IGeoPosition cameraPos = this.getMapCameraPosition();
         // We set the initial line segment to 2/6 of the camera altitude.
         double segmentLength = cameraPos.getAltitude() / 6.0;
         IGeoPosition pos = new GeoPosition();
@@ -59,9 +66,6 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
             // If its to large set it to 1000 miles which makes the segment 2000 miles long.
             segmentLength = 2609340.0;
         }
-
-        // If it does not have enough positions, clear them.
-        posList.clear();
 
         // Calulate the point.
         GeoLibrary.computePositionAt(270.0, segmentLength, cameraPos, pos);
@@ -77,6 +81,7 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
         posList.add(pos);
 
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0,1,2});
+*/
     }
 
     @Override
@@ -110,29 +115,67 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
         List<IGeoPosition> posList = this.getPositions();
         IGeoPosition pos;
         int posCnt = posList.size();
-        int lastIndex = posCnt - 1;
 
         List<ControlPoint> cpList = new ArrayList<>();
 
-        // Increment the index => lastIndex.
-        this.increaseControlPointIndexes(lastIndex);
+        if (this.inEditMode()) {
+            // In Edit mode we do not add CP. The user needs to drag new CP.
+            return cpList;
+        }
+
+        // Increment the index of all CP.
+        this.increaseControlPointIndexes(0);
 
         // Set the position and create the control point.
-        pos = new GeoPosition();
-        pos.setAltitude(0);
-        pos.setLatitude(oLatLng.getLatitude());
-        pos.setLongitude(oLatLng.getLongitude());
-        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, lastIndex, -1);
+        pos = new EmpGeoPosition(oLatLng.getLatitude(), oLatLng.getLongitude());
+        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
-        posList.add(lastIndex, pos);
+        posList.add(0, pos);
 
-        // Compute the new CP between the last position and the new one.
-        controlPoint = this.createCPBetween(posList.get(lastIndex - 1), pos, ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex - 1, lastIndex);
-        cpList.add(controlPoint);
+        if (posList.size() > 1) {
+            // Compute the new CP between the last position and the new one.
+            controlPoint = this.createCPBetween(pos, posList.get(1), ControlPoint.CPTypeEnum.NEW_POSITION_CP, 0, 1);
+            cpList.add(controlPoint);
+        }
 
-        // Add the update data
-        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{lastIndex});
+        if (posList.size() == 2) {
+            // We have the 2nd position we need to add the width CP.
+            IGeoPosition cameraPos = this.getMapCameraPosition();
+            double arrowLength = cameraPos.getAltitude() / 8.5;
+            double arrowHeadAzimuth = GeoLibrary.computeBearing(posList.get(0), posList.get(1)) + 45.0;
+
+            if (arrowLength > 1126300.0) {
+                // If its to large set it to 700 miles.
+                arrowLength = 1126300.0;
+            }
+
+            pos = GeoLibrary.computePositionAt(arrowHeadAzimuth, arrowLength, posList.get(0));
+            controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 2, -1);
+            controlPoint.setPosition(pos);
+            cpList.add(controlPoint);
+            posList.add(pos);
+            // Add the update data
+            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0, 2});
+        } else if (posList.size() > 3) {
+            // We need to move the arrow width CP.
+            controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posList.size() - 1, -1);
+            if (null != controlPoint) {
+                double arrowHeadAzimuth = GeoLibrary.computeBearing(posList.get(1), controlPoint.getPosition()) -
+                        GeoLibrary.computeBearing(posList.get(1), posList.get(2)) +
+                        GeoLibrary.computeBearing(posList.get(0), posList.get(1));
+                double arrowHeadLength = GeoLibrary.computeDistanceBetween(posList.get(1), controlPoint.getPosition());
+
+                GeoLibrary.computePositionAt(arrowHeadAzimuth, arrowHeadLength, posList.get(0), controlPoint.getPosition());
+                // Add the update data
+                this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{posList.size() - 1});
+            }
+            // Add the update data
+            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0});
+        } else {
+            // Add the update data
+            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0});
+        }
 
         return cpList;
     }
@@ -152,19 +195,14 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
                 return cpList;
             }
 
-            if (oCP.getCPIndex() == tailIndex) {
+            if (cpIndex == tailIndex) {
                 // We can't delete the last CP. Its the arrow width.
-                return cpList;
-            }
-
-            if (oCP.getCPIndex() == 0) {
-                // We can't remove the first position.
                 return cpList;
             }
 
             cpList.add(oCP);
 
-            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{oCP.getCPIndex()});
+            this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_DELETED, new int[]{cpIndex});
 
             // Calculate the index of the NEW_POSITION CP before this CP and find it.
             int beforeIndex = (cpIndex + posList.size() - 1) % posList.size();
@@ -182,18 +220,47 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
                     cpList.add(newAfterCP);
                 }
 
-                // Now we add a new control point between the CP before and after the one removed.
-                ControlPoint beforeCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, beforeIndex, -1);
-                ControlPoint afterCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, afterIndex, -1);
-                this.createCPBetween(beforeCP.getPosition(), afterCP.getPosition(), ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, afterIndex);
+                if (cpIndex != 0) {
+                    // Now we add a new control point between the CP before and after the one removed.
+                    ControlPoint beforeCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, beforeIndex, -1);
+                    ControlPoint afterCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, afterIndex, -1);
+                    this.createCPBetween(beforeCP.getPosition(), afterCP.getPosition(), ControlPoint.CPTypeEnum.NEW_POSITION_CP, beforeIndex, afterIndex);
+                }
             }
 
             // Remove the position from the feature position list.
-            posList.remove(oCP.getCPIndex());
+            posList.remove(cpIndex);
+            tailIndex = posList.size() - 1;
 
-            this.decreaseControlPointIndexes(oCP.getCPIndex());
+            this.decreaseControlPointIndexes(cpIndex);
 
-            return cpList;
+            if (cpIndex == 0) {
+                // The 1st coordinate was deleted, we need to move the arrow width CP.
+                ControlPoint arrowHeadPos = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, tailIndex, -1);
+                if (null != arrowHeadPos) {
+                    double arrowHeadAzimuth = GeoLibrary.computeBearing(oCP.getPosition(), arrowHeadPos.getPosition()) -
+                            GeoLibrary.computeBearing(oCP.getPosition(), posList.get(0)) +
+                            GeoLibrary.computeBearing(posList.get(0), posList.get(1));
+                    double arrowHeadLength = GeoLibrary.computeDistanceBetween(oCP.getPosition(), arrowHeadPos.getPosition());
+
+                    GeoLibrary.computePositionAt(arrowHeadAzimuth, arrowHeadLength, posList.get(0), arrowHeadPos.getPosition());
+                    // Add the update data
+                    this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{tailIndex});
+                }
+            } else if (cpIndex == 1) {
+                // The 2nd coordinate was deleted, we need to move the arrow width CP.
+                ControlPoint arrowHeadPos = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, tailIndex, -1);
+                if (null != arrowHeadPos) {
+                    double arrowHeadAzimuth = GeoLibrary.computeBearing(posList.get(0), arrowHeadPos.getPosition()) -
+                            GeoLibrary.computeBearing(posList.get(0), oCP.getPosition()) +
+                            GeoLibrary.computeBearing(posList.get(0), posList.get(1));
+                    double arrowHeadLength = GeoLibrary.computeDistanceBetween(posList.get(0), arrowHeadPos.getPosition());
+
+                    GeoLibrary.computePositionAt(arrowHeadAzimuth, arrowHeadLength, posList.get(0), arrowHeadPos.getPosition());
+                    // Add the update data
+                    this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{tailIndex});
+                }
+            }
         }
 
         return cpList;
@@ -246,11 +313,35 @@ public class MilStdDCRouteEditor extends AbstractMilStdMultiPointEditor {
                 break;
             }
             case POSITION_CP: {
-                // Set the control points coordinates.
-                currentPosition.setLatitude(oLatLon.getLatitude());
-                currentPosition.setLongitude((oLatLon.getLongitude()));
-                // Add the update data
-                this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{cpIndex});
+                if (cpIndex < 2) {
+                    // The 1st or 2nd position was moved we need to move the arrow head CP.
+                    ControlPoint arrowHeadPos = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, posList.size() - 1, -1);
+                    if (null != arrowHeadPos) {
+                        double arrowHeadLength = GeoLibrary.computeDistanceBetween(posList.get(0), arrowHeadPos.getPosition());
+                        double arrowHeadAzimuth = GeoLibrary.computeBearing(posList.get(0), arrowHeadPos.getPosition()) - GeoLibrary.computeBearing(posList.get(0), posList.get(1));
+
+                        if (cpIndex == 0) {
+                            arrowHeadAzimuth += GeoLibrary.computeBearing(oLatLon, posList.get(1));
+                            GeoLibrary.computePositionAt(arrowHeadAzimuth, arrowHeadLength, oLatLon, arrowHeadPos.getPosition());
+                        } else {
+                            arrowHeadAzimuth += GeoLibrary.computeBearing(posList.get(0), oLatLon);
+                            GeoLibrary.computePositionAt(arrowHeadAzimuth, arrowHeadLength, posList.get(0), arrowHeadPos.getPosition());
+                        }
+                        // Add the update data
+                        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{cpIndex, posList.size() - 1});
+                    } else {
+                        // Add the update data
+                        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{cpIndex});
+                    }
+                    currentPosition.setLatitude(oLatLon.getLatitude());
+                    currentPosition.setLongitude((oLatLon.getLongitude()));
+                } else {
+                    // Set the control points coordinates.
+                    currentPosition.setLatitude(oLatLon.getLatitude());
+                    currentPosition.setLongitude((oLatLon.getLongitude()));
+                    // Add the update data
+                    this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{cpIndex});
+                }
                 moved = true;
 
                 // Now we need to move the new CP that may be before and after this one.

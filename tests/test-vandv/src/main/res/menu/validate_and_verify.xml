@@ -26,6 +26,15 @@
         app:showAsAction="never">
         <menu>
             <item
+                android:id="@+id/action_set_wcs"
+                android:title="@string/action_set_wcs"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_reset_wcs"
+                android:title="@string/action_reset_wcs"
+                android:enabled="false"
+                app:showAsAction="never" />
+            <item
                 android:id="@+id/action_set_wms"
                 android:title="@string/action_set_wms"
                 app:showAsAction="never" />

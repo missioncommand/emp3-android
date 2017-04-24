@@ -46,16 +46,16 @@ public interface IEventManager {
     void generateContainerEvent(ContainerEventEnum eEvent,
                                 IContainer oEventedObject,
                                 IGeoBase oChild,
-                                Object object);
+                                Object userContext);
 
     void generateContainerEvent(ContainerEventEnum eEvent,
                                 IContainer oEventedObject,
                                 List<? extends IGeoBase> oList,
-                                Object object);
+                                Object userContext);
 
     void generateFeatureEvent(FeatureEventEnum eEvent, IFeature oTarget,
                               boolean bSelected,
-                              Object object);
+                              Object userContext);
 
     void  generateFeatureInteractionEvent(UserInteractionEventEnum eEvent,
                                           EnumSet<UserInteractionKeyEnum> keys,
@@ -65,12 +65,12 @@ public interface IEventManager {
                                           Point oPoint,
                                           IGeoPosition oPosition,
                                           IGeoPosition oStartPosition,
-                                          Object object);
+                                          Object userContext);
 
     void generateMapStateChangeEvent(MapStateEnum ePreviousState,
                                      MapStateEnum eNewState,
                                      IMap oMap,
-                                     Object object);
+                                     Object userContext);
 
     void generateMapInteractionEvent(UserInteractionEventEnum eEvent,
                                      EnumSet<UserInteractionKeyEnum> keys,
@@ -79,42 +79,42 @@ public interface IEventManager {
                                      Point oPoint,
                                      IGeoPosition oPosition,
                                      IGeoPosition oStartPosition,
-                                     Object object);
+                                     Object userContext);
 
     void generateMapViewChangeEvent(MapViewEventEnum viewEventEnum, ICamera oCamera, ILookAt oLookAt,
-                                    IGeoBounds bounds, IMap oMap, Object object);
+                                    IGeoBounds bounds, IMap oMap, Object userContext);
 
     void generateMapFeatureAddedEvent(MapFeatureEventEnum eventEnum,
                                       IMap map,
                                       IFeature feature,
-                                      Object object);
+                                      Object userContext);
 
     void generateMapFeatureRemovedEvent(MapFeatureEventEnum eventEnum,
                                         IMap map,
                                         IFeature feature,
-                                        Object object);
+                                        Object userContext);
 
     void generateMapCameraEvent(CameraEventEnum eventEnum,
                                 IMap map,
                                 ICamera camera,
                                 boolean animate,
-                                Object object);
+                                Object userContext);
 
     void generateVisibilityEvent(VisibilityActionEnum eEvent,
                                  IContainer oTarget,
                                  IContainer oParent,
                                  IMap oOnMap,
-                                 Object object);
+                                 Object userContext);
 
     void generateCameraEvent(CameraEventEnum eventEnum,
                              ICamera camera,
                              boolean animate,
-                             Object object);
+                             Object userContext);
 
     void generateLookAtEvent(LookAtEventEnum eventEnum,
                              ILookAt lookAt,
                              boolean animate,
-                             Object object);
+                             Object userContext);
 
     void removeEventHandler(mil.emp3.api.listeners.EventListenerHandle oHandle);
 

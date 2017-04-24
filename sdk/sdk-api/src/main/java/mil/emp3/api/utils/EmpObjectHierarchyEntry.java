@@ -1,7 +1,11 @@
 package mil.emp3.api.utils;
 
+import com.google.maps.android.kml.KmlStyle;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import mil.emp3.api.Overlay;
 import mil.emp3.api.interfaces.IContainer;
@@ -16,10 +20,15 @@ public class EmpObjectHierarchyEntry {
     private final List<EmpObjectHierarchyEntry> childrenList = new ArrayList<>();
     private final IContainer empObject;
     private final EmpObjectHierarchyEntry parentEntry;
+    private final Map<String, String> styleMap;
+    private final Map<String, KmlStyle> styles;
 
-    public EmpObjectHierarchyEntry(EmpObjectHierarchyEntry parent, IContainer object) {
+    public EmpObjectHierarchyEntry(EmpObjectHierarchyEntry parent, IContainer object,
+                                   Map<String, String> styleMap, Map<String, KmlStyle> styles) {
         empObject = object;
         parentEntry = parent;
+        this.styleMap = styleMap;
+        this.styles = styles;
 
         if (null != parentEntry) {
             parentEntry.addChild(this);
@@ -49,4 +58,8 @@ public class EmpObjectHierarchyEntry {
     public boolean isFeatureEntry() {
         return (this.empObject instanceof IFeature);
     }
+
+    public Map<String, String> getStyleMap() {return this.styleMap;}
+
+    public Map<String, KmlStyle> getStyles() { return  this.styles;}
 }

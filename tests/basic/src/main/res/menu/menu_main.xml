@@ -43,6 +43,15 @@
     android:title="@string/action_layer"
     android:orderInCategory="100">
         <menu>
+                <item android:id="@+id/action_addWCS"
+                    android:title="@string/action_addWCS"
+                    android:orderInCategory="101"
+                    app:showAsAction="never" />
+                <item android:id="@+id/action_removeWCS"
+                    android:title="@string/action_removeWCS"
+                    android:enabled="false"
+                    android:orderInCategory="101"
+                    app:showAsAction="never" />
                 <item android:id="@+id/action_addWMS"
                       android:title="@string/action_addWMS"
                       android:orderInCategory="101"

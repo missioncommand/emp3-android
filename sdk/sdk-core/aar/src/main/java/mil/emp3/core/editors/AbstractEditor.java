@@ -35,15 +35,17 @@ public abstract class AbstractEditor<T extends IFeature> {
 
     protected final IMap oClientMap;
     protected final IMapInstance mapInstance;
-    protected final EditorMode editorMode;
+    private final EditorMode editorMode;
+    private final boolean newFeature;
 
     protected final T oFeature;
 
-    protected AbstractEditor(IMapInstance instance, T feature, EditorMode eMode) {
+    protected AbstractEditor(IMapInstance instance, T feature, EditorMode eMode, boolean newFeature) {
         this.oFeature = feature;
         this.mapInstance = instance;
         this.oClientMap = storageManager.getMapMapping(this.mapInstance).getClientMap();
         this.editorMode = eMode;
+        this.newFeature = newFeature;
     }
 
     public T getFeature() {
@@ -101,6 +103,10 @@ public abstract class AbstractEditor<T extends IFeature> {
         return this.getMapMapping().getBounds();
     }
 
+    protected boolean isNewFeature() {
+        return this.newFeature;
+    }
+
     public boolean inDrawMode() {
         return (this.getEditorMode() == EditorMode.DRAW_MODE);
     }
@@ -155,7 +161,7 @@ public abstract class AbstractEditor<T extends IFeature> {
      * We take the reference distance calculated here and multiply it with some factor.
      * @return
      */
-    double getReferenceDistance() {
+    protected double getReferenceDistance() {
         double refDistance = -global.MINIMUM_DISTANCE;
         IGeoBounds bounds = mapInstance.getMapBounds();
         if (null != bounds) {

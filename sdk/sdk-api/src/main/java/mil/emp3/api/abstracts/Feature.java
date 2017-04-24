@@ -1,5 +1,7 @@
 package mil.emp3.api.abstracts;
 
+import android.util.Log;
+
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
@@ -17,6 +19,8 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.global;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.utils.EmpGeoPosition;
+import mil.emp3.api.utils.EmpStyles;
 
 
 /**
@@ -65,19 +69,19 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     public void validate() {}
 
     @Override
-    public void addFeature(IFeature feature, boolean visible, Object object)
+    public void addFeature(IFeature feature, boolean visible, Object userContext)
             throws EMP_Exception {
         if (feature == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Feature.addFeature can not be null.");
         }
-        
+
         ArrayList<IFeature> oList = new ArrayList<>();
         oList.add(feature);
-        this.addFeatures(oList, visible, object);
+        this.addFeatures(oList, visible, userContext);
     }
 
     @Override
-    public void addFeatures(List<IFeature> features, boolean visible, Object object)
+    public void addFeatures(List<IFeature> features, boolean visible, Object userContext)
             throws EMP_Exception {
         if (features == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Parameter to Feature.addFeatures can not be null.");
@@ -85,24 +89,24 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
             for (IFeature feature : features) {
                 feature.validate();
             }
-            storageManager.addFeatures(this, features, visible, object);
+            storageManager.addFeatures(this, features, visible, userContext);
         }
     }
 
     @Override
-    public void removeFeature(IFeature feature, Object object)
+    public void removeFeature(IFeature feature, Object userContext)
             throws EMP_Exception {
         if(null == feature) return;
         ArrayList<IFeature> oList = new ArrayList<>();
         oList.add(feature);
-        this.removeFeatures(oList, object);
+        this.removeFeatures(oList, userContext);
     }
 
     @Override
-    public void removeFeatures(List<IFeature> features, Object object)
+    public void removeFeatures(List<IFeature> features, Object userContext)
             throws EMP_Exception {
         if((null == features) || (0 == features.size())) return;
-        storageManager.removeFeatures(this, features, object);
+        storageManager.removeFeatures(this, features, userContext);
     }
 
     @Override
@@ -428,5 +432,27 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         else {
             return Math.abs(dValue);
         }
+    }
+
+    /**
+     * Convert selected members to String.
+     * @return
+     */
+    @Override
+    public String toString() {
+        String str = getFeatureType().toString() + " ";
+        if(null != getName()) {
+            str += getName() + "\n";
+        } else {
+            str += "\n";
+        }
+        str += "PathType " + getPathType().toString() + " Extrude " + getExtrude() + " AltitudeMode " + getAltitudeMode() + "\n";
+        str += EmpStyles.toString(getFillStyle()) + "\n" + EmpStyles.toString(getStrokeStyle()) + "\n";
+        if(null != getPositions() && getPositions().size() > 0) {
+            str += "Position Count " + getPositions().size() + " " + EmpGeoPosition.toString(getPositions().get(0)) + "\n";
+        }
+        // If you need to print all positions use EmpGeoPosition.toString(List<IGeoPosition>);
+
+        return str;
     }
 }
