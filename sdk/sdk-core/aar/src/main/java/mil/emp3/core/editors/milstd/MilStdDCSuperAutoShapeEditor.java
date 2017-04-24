@@ -9,6 +9,7 @@ import java.util.List;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.utils.GeoLibrary;
@@ -82,26 +83,39 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
         this.initializeEdit();
     }
 
-    public MilStdDCSuperAutoShapeEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCSuperAutoShapeEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, armyc2.c2sd.renderer.utilities.SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
-        IGeoPosition cameraPos = this.getMapCameraPosition();
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
+
+        // IGeoPosition cameraPos = this.getMapCameraPosition();
+        IGeoPosition centerPos = getCenter();   // Get the center of visible area, Camera is not at the center when tilted.
         List<IGeoPosition> posList = this.getPositions();
         // We set the length to 2/6 of the camera altitude.
-        double distance = cameraPos.getAltitude() / 6.0;
+        // double distance = cameraPos.getAltitude() / 6.0;
+        double distance = getReferenceDistance(); // Based on approximate centerWest and centerEast of the visible area.
+
+        if(distance > 0) {
+            distance *= .15;
+        } else {
+            ICamera camera = oClientMap.getCamera();
+            distance = camera.getAltitude() / 6.0;
+        }
+
         double dBrng, dBrngInc;
         IGeoPosition pos;
 
-        if (distance > 2609340.0) {
-            // If its to large set it to 1000 miles which makes the segment 2000 miles long.
-            distance = 2609340.0;
+        if (distance > MAXIMUM_DISTANCE) {
+            distance = MAXIMUM_DISTANCE;
         }
-
-        posList.clear();
 
 
         switch (this.oFeature.getBasicSymbol()) {
@@ -116,18 +130,18 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             case CoreMilStdUtilities.TASK_DISRUPT:
             case CoreMilStdUtilities.TASK_DELAY: {
                 pos = new GeoPosition();
-                GeoLibrary.computePositionAt(270.0, distance, cameraPos, pos);
+                GeoLibrary.computePositionAt(270.0, distance, centerPos, pos);
                 pos.setAltitude(0);
                 posList.add(pos);
 
                 pos = new GeoPosition();
-                pos.setLatitude(cameraPos.getLatitude());
-                pos.setLongitude(cameraPos.getLongitude());
+                pos.setLatitude(centerPos.getLatitude());
+                pos.setLongitude(centerPos.getLongitude());
                 pos.setAltitude(0);
                 posList.add(pos);
 
                 pos = new GeoPosition();
-                GeoLibrary.computePositionAt(0.0, distance, cameraPos, pos);
+                GeoLibrary.computePositionAt(0.0, distance, centerPos, pos);
                 pos.setAltitude(0);
                 posList.add(pos);
 
@@ -142,14 +156,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                 int[] intArray = new int[this.getMinPoints()];
 
                 pos = new GeoPosition();
-                GeoLibrary.computePositionAt(dBrng, distance, cameraPos, pos);
+                GeoLibrary.computePositionAt(dBrng, distance, centerPos, pos);
                 pos.setAltitude(0);
                 posList.add(pos);
 
                 while (posList.size() <  this.getMinPoints()) {
                     dBrng += dBrngInc;
                     pos = new GeoPosition();
-                    GeoLibrary.computePositionAt(dBrng, distance, cameraPos, pos);
+                    GeoLibrary.computePositionAt(dBrng, distance, centerPos, pos);
                     pos.setAltitude(0);
                     posList.add(pos);
                 }
@@ -444,6 +458,12 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
         String basicSymbolCode = this.oFeature.getBasicSymbol();
 
         List<ControlPoint> cpList = new ArrayList<>();
+
+        if (this.inEditMode()) {
+            // In Edit mode we do not add CP. The user needs to drag new CP.
+            return cpList;
+        }
+
         if (this.getPositions().size() < this.getMaxPoints()) {
             ControlPoint controlPoint;
             IGeoPosition pos;

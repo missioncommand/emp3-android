@@ -14,12 +14,30 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
- * This class implements the two point catgegory editor.
+ * This class implements the two point category editor.
+ *
+ * TACTICAL GRAPHICS
+ *      TASKS
+ *          FIX
+ *          Follow and Assume
+ *              Follow and Support
+ * Tactical Graphics
+ *      Mobility-Survivability
+ *          Obstacles
+ *              Obstacle Effect
+ *                  Fix (Obstacle Effect)
+ * Tactical Graphics
+ *      Combat Service Support
+ *          Lines
+ *              Convoys
+ *                  Moving Convoy
+ *                  Halted Convoy
  */
 public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
 
@@ -28,42 +46,9 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
         this.initializeEdit();
     }
 
-    public MilStdDCTwoPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, SymbolDef symDef) throws EMP_Exception {
-        super(map, feature, oEventListener, symDef);
+    public MilStdDCTwoPointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, SymbolDef symDef, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, symDef, newFeature);
         this.initializeDraw();
-    }
-
-    @Override
-    protected void prepareForDraw() throws EMP_Exception {
-        IGeoPosition cameraPos = this.getMapCameraPosition();
-        List<IGeoPosition> posList = this.getPositions();
-        // We set the initial line segment to 2/6 of the camera altitude.
-        double segmentLength = cameraPos.getAltitude() / 6.0;
-        IGeoPosition pos = new GeoPosition();
-
-        if (segmentLength > 2609340.0) {
-            // If its to large set it to 1000 miles which makes the segment 2000 miles long.
-            segmentLength = 2609340.0;
-        }
-
-        if (posList.size() >= this.getMinPoints()) {
-            // The feature has enough points.
-            return;
-        }
-
-        // If it does not have enough positions, clear them.
-        posList.clear();
-
-        // Calculate the point.
-        GeoLibrary.computePositionAt(270.0, segmentLength, cameraPos, pos);
-        pos.setAltitude(0);
-        posList.add(pos);
-        // Calculate the end.
-        pos = new GeoPosition();
-        GeoLibrary.computePositionAt(90.0, segmentLength, cameraPos, pos);
-        posList.add(pos);
-
-        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{0,1});
     }
 
     @Override
@@ -71,23 +56,15 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
         List<IGeoPosition> posList = this.getPositions();
         int index = 0;
         int posCnt = posList.size();
-        int lastIndex = posCnt - 1;
         IGeoPosition pos;
-        IGeoPosition prevPos = null;
         ControlPoint controlPoint;
 
         //Add the control points for each position on the list.
         for (index = 0; index < posCnt; index++) {
             pos = posList.get(index);
-            if ((index > 0) && (index != lastIndex)) {
-                // There was a position before the current one so we add a new CP.
-                // But there is no new CP before the last position.
-                this.createCPBetween(prevPos, pos, ControlPoint.CPTypeEnum.NEW_POSITION_CP, index - 1, index);
-            }
             controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, index, -1);
             controlPoint.setPosition(pos);
             this.addControlPoint(controlPoint);
-            prevPos = pos;
         }
     };
 
@@ -105,5 +82,31 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
         currentPosition.setLongitude((oLatLon.getLongitude()));
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{oCP.getCPIndex()});
         return true;
+    }
+
+    @Override
+    protected List<ControlPoint> doAddControlPoint(IGeoPosition oNewPos) {
+        ControlPoint controlPoint;
+        List<IGeoPosition> posList = this.getPositions();
+        IGeoPosition pos;
+        int posCnt = posList.size();
+
+        if (this.inEditMode() || (posCnt >= this.getMaxPoints())) {
+            return null;
+        }
+
+        List<ControlPoint> cpList = new ArrayList<>();
+
+        // Increment the index of all CP.
+        this.increaseControlPointIndexes(0);
+
+        // Set the position and create the control point.
+        pos = new EmpGeoPosition(oNewPos.getLatitude(), oNewPos.getLongitude());
+        controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
+        controlPoint.setPosition(pos);
+        cpList.add(controlPoint);
+        posList.add(0, pos);
+
+        return cpList;
     }
 }

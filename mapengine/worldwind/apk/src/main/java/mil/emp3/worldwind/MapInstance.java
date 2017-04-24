@@ -30,11 +30,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import gov.nasa.worldwind.FrameMetrics;
-import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.Navigator;
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
-import gov.nasa.worldwind.layer.AbstractLayer;
 import gov.nasa.worldwind.layer.BackgroundLayer;
 import gov.nasa.worldwind.layer.BlueMarbleLandsatLayer;
 import gov.nasa.worldwind.layer.Layer;
@@ -49,10 +48,8 @@ import gov.nasa.worldwind.util.Logger;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
-import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
-import mil.emp3.api.enums.MapViewEventEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.enums.WMTSVersionEnum;
 import mil.emp3.api.interfaces.ICamera;
@@ -62,10 +59,10 @@ import mil.emp3.api.interfaces.IGeoPackage;
 import mil.emp3.api.interfaces.IImageLayer;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
+import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.IWCS;
 import mil.emp3.api.interfaces.IWMS;
-import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.interfaces.IWMTS;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.FontUtilities;
@@ -87,10 +84,10 @@ import mil.emp3.worldwind.layer.GeoJSONLayer;
 import mil.emp3.worldwind.layer.IconLayer;
 import mil.emp3.worldwind.layer.KMLLayer;
 import mil.emp3.worldwind.layer.MapGridLayer;
+import mil.emp3.worldwind.layer.MilStdSymbolLayer;
 import mil.emp3.worldwind.layer.PathLayer;
 import mil.emp3.worldwind.layer.PolygonLayer;
 import mil.emp3.worldwind.layer.RenderedFeatureLayer;
-import mil.emp3.worldwind.layer.MilStdSymbolLayer;
 import mil.emp3.worldwind.layer.TextLayer;
 import mil.emp3.worldwind.utils.BoundsGeneration;
 import mil.emp3.worldwind.utils.ConfigChooser;
@@ -537,7 +534,7 @@ public class MapInstance extends CoreMapInstance {
 
     private void removeFeature(UUID uniqueId, Object userContext) {
         if (this.featureHash.containsKey(uniqueId)) {
-            FeatureRenderableMapping oWrapper = this.featureHash.get(uniqueId);;
+            FeatureRenderableMapping oWrapper = this.featureHash.get(uniqueId);
             dirtyOnMapMove.remove(uniqueId);
 
             if (oWrapper != null) {
@@ -1420,7 +1417,7 @@ public class MapInstance extends CoreMapInstance {
     public PickNavigateController getMapController() {
         return mapController;
     }
-    
+
     @Override
     public void setMapGridGenerator(IMapGridLines gridGenerator) {
         if (null != this.gridLayer) {

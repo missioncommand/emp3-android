@@ -9,7 +9,6 @@ import mil.emp3.api.listeners.ICameraEventListener;
 
 /**
  * This class defines the interface to a camera.
- * @author ish.rivera
  */
 public interface ICamera extends IGeoCamera {
     /**

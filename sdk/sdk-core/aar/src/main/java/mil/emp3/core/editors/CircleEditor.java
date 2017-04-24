@@ -34,15 +34,20 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
         this.initializeEdit();
     }
 
-    public CircleEditor(IMapInstance map, Circle feature, IDrawEventListener oEventListener)
+    public CircleEditor(IMapInstance map, Circle feature, IDrawEventListener oEventListener, boolean newFeature)
             throws EMP_Exception {
-        super(map, feature, oEventListener, true);
+        super(map, feature, oEventListener, true, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
 
         double tempRadius;
         double refDistance = getReferenceDistance();

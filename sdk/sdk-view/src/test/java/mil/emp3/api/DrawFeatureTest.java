@@ -633,16 +633,13 @@ public class DrawFeatureTest extends TestBaseMultiMap {
 
         addFeatureToMap(polygon);
 
-        boolean exceptionGood = false;
+        boolean exceptionGood = true;
         try {
             remoteMap[0].drawFeature(polygon, fdl);
-            postDrawFeature(fdl, polygon);
         } catch (EMP_Exception e) {
-            if(e.getMessage().equals("Not Supported. The feature is on the map.")) {
-                exceptionGood = true;
-            }
+            exceptionGood = false;
         } finally {
-            Assert.assertTrue("drawFeature Expected EM_Exception Not Supported. The feature is on the map.", exceptionGood);
+            Assert.assertTrue("drawFeature should not fail event if the feature is on the map.", exceptionGood);
         }
     }
 

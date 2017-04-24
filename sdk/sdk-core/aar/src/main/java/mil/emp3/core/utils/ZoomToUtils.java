@@ -27,7 +27,6 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
  * This class contains utility methods used by the zoomTo methods in Core Manager
- * Created by deepakkarmarkar on 7/6/2016.
  */
 public class ZoomToUtils {
     private static String TAG = ZoomToUtils.class.getSimpleName();

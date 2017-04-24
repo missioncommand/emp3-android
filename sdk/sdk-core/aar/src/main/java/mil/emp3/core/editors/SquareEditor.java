@@ -38,14 +38,19 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
         this.initializeEdit();
     }
 
-    public SquareEditor(IMapInstance map, Square feature, IDrawEventListener oEventListener) throws EMP_Exception {
-        super(map, feature, oEventListener, true);
+    public SquareEditor(IMapInstance map, Square feature, IDrawEventListener oEventListener, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, true, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
 
         double refDistance = getReferenceDistance();
         if(refDistance > 0) {
@@ -190,12 +195,13 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
      *
      * @param oCP     The control point that was moved.
      * @param oLatLon The new location for the control point.
-     * @return
+     * @return Always return true, even if height/width wasn't adjusted based on minimum height/width restriction. Returning true indicates
+     * that event was consumed, otherwise Map would move, which is not desirable. (Issue #149).
+     * Side effect of this decision is client application will get redundant events.
      */
 
     protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
         Log.d(TAG, "doControlPointMoved");
-        boolean moved = false;
 
         switch (oCP.getCPType()) {
             case LENGTH_CP:
@@ -204,14 +210,12 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
                     break;
                 }
                 adjustWidth(oCP, oLatLon);
-                moved = true;
                 break;
 
             case AZIMUTH_CP:
                 currentBearing = GeoLibrary.computeBearing(this.oFeature.getPosition(), oLatLon) + 90.0;
                 currentBearing = (currentBearing + 360) % 360;
                 recompute(this.oFeature.getPosition());
-                moved = true;
                 this.oFeature.setAzimuth(currentBearing);
                 this.oFeature.apply();
                 addUpdateEventData(FeaturePropertyChangedEnum.AZIMUTH_PROPERTY_CHANGED);
@@ -219,10 +223,10 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
                 break;
 
             default:
-                Log.d(TAG, "unsupported control point type " + oCP.getCPType().toString());
+                Log.e(TAG, "unsupported control point type " + oCP.getCPType().toString());
         }
 
-        return moved;
+        return true;
     }
 
     @Override

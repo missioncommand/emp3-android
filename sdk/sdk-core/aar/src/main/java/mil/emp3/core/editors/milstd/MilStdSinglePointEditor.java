@@ -19,8 +19,8 @@ public class MilStdSinglePointEditor extends AbstractSinglePointEditor<MilStdSym
         this.initializeEdit();
     }
 
-    public MilStdSinglePointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener) throws EMP_Exception {
-        super(map, feature, oEventListener, false);
+    public MilStdSinglePointEditor(IMapInstance map, MilStdSymbol feature, IDrawEventListener oEventListener, boolean newFeature) throws EMP_Exception {
+        super(map, feature, oEventListener, false, newFeature);
         this.initializeDraw();
     }
 

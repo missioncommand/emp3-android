@@ -40,15 +40,20 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
         this.initializeEdit();
     }
 
-    public EllipseEditor(IMapInstance map, Ellipse feature, IDrawEventListener oEventListener)
+    public EllipseEditor(IMapInstance map, Ellipse feature, IDrawEventListener oEventListener, boolean newFeature)
             throws EMP_Exception {
-        super(map, feature, oEventListener, true);
+        super(map, feature, oEventListener, true, newFeature);
         this.initializeDraw();
     }
 
     @Override
     protected void prepareForDraw() throws EMP_Exception {
         super.prepareForDraw();
+
+        if (!this.isNewFeature()) {
+            // A feature that already exists should have all of its properties set already.
+            return;
+        }
 
         double tempRadius;
         double refDistance = getReferenceDistance();
