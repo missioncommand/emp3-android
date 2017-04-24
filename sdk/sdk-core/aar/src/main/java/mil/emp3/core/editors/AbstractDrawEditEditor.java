@@ -507,6 +507,8 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
 
         switch (oEvent.getEvent()) {
             case CLICKED:
+                // We only process clicks on Map user interaction events.
+/*
                 if ((oEvent.getCoordinate() != null) && !bIsCP) {
                     this.eEditorState = EditorStateEnum.ADDING_CP;
                     List<ControlPoint> oCPList = this.doAddControlPoint(oEvent.getCoordinate());
@@ -522,6 +524,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                     this.issueUpdateEvent();
                     this.eEditorState = EditorStateEnum.IDLE;
                 }
+*/
                 bRet = true;
                 break;
             case DOUBLE_CLICKED:
