@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -75,6 +76,7 @@ public class KMZFile {
                 // So it is a KML file not a KMZ file
                 request.setKmlFilePath(request.getSourceFilePath());
                 Log.d(TAG, "kmlFilePath " + request.getKmlFilePath());
+                return;
             }
             throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getMessage());
         }

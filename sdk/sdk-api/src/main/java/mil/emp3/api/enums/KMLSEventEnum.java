@@ -30,4 +30,16 @@ public enum KMLSEventEnum implements IEventEnum {
      * KML Service failed to load
      */
     KML_SERVICE_INSTALL_FAILED,
+    /**
+     * KML Service file retrieval failed
+     */
+    KML_SERVICE_FILE_RETRIEVAL_FAILED,
+    /**
+     * File specified by URL is neither a kml file nor z properly packed kmz file
+     */
+    KML_SERVICE_FILE_INVALID,
+    /**
+     * Failed to parse extracted kml file
+     */
+    KML_SERVICE_PARSE_FAILED
 }

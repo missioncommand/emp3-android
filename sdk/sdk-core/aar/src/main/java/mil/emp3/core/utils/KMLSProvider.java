@@ -173,20 +173,28 @@ public class KMLSProvider {
                     KMLSRequest request = queue.take();
                     Log.d(TAG, "KMLSProcessor processing " + request.service.getURL());
 
-                    ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.FETCHING);
-                    copyKMZ(request);  // Fetch the KMZ either file URL or network URL
-                    reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_RETRIEVED);
-                    listFiles(request.kmzDirectory); // This is just for debugging
+                    try {
+                        ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.FETCHING);
+                        copyKMZ(request);  // Fetch the KMZ either file URL or network URL
+                        reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_RETRIEVED);
+                        listFiles(request.kmzDirectory); // This is just for debugging
+                    } catch (Exception e) {
+                        Log.e(TAG, "run:copyKMZ failed ", e);
+                        reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_RETRIEVAL_FAILED);
+                    }
 
                     // File could be either a KMZ file or KML file.
-                    try {
-                        ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.EXPLODING);
-                        KMZFile kmzFile = new KMZFile();
-                        kmzFile.unzipKMZFile(request);
-                        reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_EXPLODED);
-                        listFiles(request.kmzDirectory);
-                    } catch (EMP_Exception e) {
-                        Log.i(TAG, "KMLProcessor-run " + e.getMessage(), e);
+                    if((null != request.kmzDirectory) && (null != request.kmzFilePath)) {
+                        try {
+                            ((KMLS) request.service).setStatus(request.map, KMLSStatusEnum.EXPLODING);
+                            KMZFile kmzFile = new KMZFile();
+                            kmzFile.unzipKMZFile(request);
+                            reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_EXPLODED);
+                            listFiles(request.kmzDirectory);
+                        } catch (EMP_Exception e) {
+                            Log.i(TAG, "KMLProcessor-run " + e.getMessage(), e);
+                            reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_INVALID);
+                        }
                     }
 
                     // Parse the KML file and build a KML Feature and pass it on to the MapInstance for drawing.
@@ -199,6 +207,7 @@ public class KMLSProvider {
                             reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_PARSED);
                         } catch (Exception e) {
                             Log.e(TAG, "Failed to parse request.kmlFilePath ", e);
+                            reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_PARSE_FAILED);
                             reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_INSTALL_FAILED);
                         }
 

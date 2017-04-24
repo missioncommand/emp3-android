@@ -8,10 +8,12 @@ import android.view.View;
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
+import mil.emp3.api.KMLS;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
@@ -23,6 +25,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IUUIDSet;
@@ -126,9 +129,55 @@ public class MockMapInstance_ extends CoreMapInstance {
         }
     }
 
+    List<FeatureTypeEnum> kmlsFeatureTypes = new ArrayList<>();
+    int kmlsImageCount = 0;
     @Override
     public void addMapService(IMapService mapService) {
+        Log.d(TAG, "In addMapService ");
+        kmlsFeatureTypes.clear();
+        kmlsImageCount = 0;
+        if(mapService instanceof IKMLS) {
+            IKMLS kmlService = (IKMLS) mapService;
+            if((null != kmlService.getFeature()) && (null != kmlService.getFeature().getFeatureList())) {
+                for(IFeature f: kmlService.getFeature().getFeatureList()) {
+                    Log.d(TAG, "KML Feature " + f.getFeatureType().toString());
+                    kmlsFeatureTypes.add(f.getFeatureType());
+                }
+            }
 
+            if(null != kmlService.getFeature().getImageLayerList()) {
+                Log.d(TAG, "KMl Image Count " + kmlService.getFeature().getImageLayerList().size());
+                kmlsImageCount = kmlService.getFeature().getImageLayerList().size();
+            }
+        }
+    }
+
+    public boolean validateAddKmlsFeatureCount(FeatureTypeEnum featureType, int expectedCount) {
+
+        int actualCount = 0;
+        for(FeatureTypeEnum fte: kmlsFeatureTypes) {
+            if(fte.equals(featureType)) {
+                actualCount++;
+            }
+        }
+
+        if(expectedCount != actualCount) {
+            Log.d(TAG, featureType.toString() + " Expected Count " + expectedCount + " Actual " + actualCount);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean validateAddKmlsImageCount(int expectedCount) {
+        if(expectedCount != kmlsImageCount) {
+            Log.d(TAG, "Expected Image Count " + expectedCount + " Actual " + kmlsImageCount);
+            return false;
+        }
+        return true;
+    }
+    public void cleanKmls() {
+        kmlsFeatureTypes.clear();
+        kmlsImageCount = 0;
     }
 
     @Override
