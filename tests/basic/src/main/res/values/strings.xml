@@ -44,6 +44,8 @@
     <string name="action_plotTG2525C">2525C TG</string>
     <string name="action_plotKML">Plot KML</string>
     <string name="action_removeAll">Remove All</string>
+    <string name="action_addWCS">Add WCS</string>
+    <string name="action_removeWCS">Remove WCS</string>
     <string name="action_addWMS">Add WMS</string>
     <string name="action_removeWMS">Remove WMS</string>
     <string name="action_addWMTS">Add WMTS</string>
