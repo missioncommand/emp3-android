@@ -110,7 +110,7 @@ public class RenderedFeature extends FeatureRenderableMapping<IFeature> {
             }
         }
 
-        java.util.List<IFeature> featureList = getMapInstance().getMilStdRenderer().getFeatureRenderableShapes(getMapInstance(), this.getFeature(), this.isSelected());
+        java.util.List<IFeature> featureList = getMapInstance().getMilStdRenderer().getFeatureRenderableShapes(getMapInstance(), this.getFeature(), false);
 
         for (IFeature feature: featureList) {
             if (feature instanceof Path) {
