@@ -714,6 +714,7 @@ public class MapInstance extends CoreMapInstance {
             // clientApplication used addMapService for KMLService. Features generated based on that add are added directly
             // to a special background layer. We need to investigate if we should generate an event for this.
             kmlServiceLayer.plot(((IKMLS)mapService).getFeature(), true);
+            ww.requestRedraw();
         } else {
             Log.e(TAG, "This MapService is NOT supported " + mapService.getClass().getName());
         }
@@ -766,6 +767,14 @@ public class MapInstance extends CoreMapInstance {
                     this.miniMap.requestRedraw();
                 }
             }
+        } else if (mapService instanceof IKMLS) {
+            IKMLS kmlService = (IKMLS) mapService;
+            if(null != kmlService.getFeature()) {
+                removeFeature(kmlService.getFeature().getGeoId(), null);
+            }
+            ww.requestRedraw();
+        } else {
+            Log.e(TAG, "removing unsupported MapService " + mapService.getClass().getCanonicalName());
         }
     }
 

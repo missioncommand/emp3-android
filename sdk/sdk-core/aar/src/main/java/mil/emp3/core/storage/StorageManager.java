@@ -1612,7 +1612,16 @@ public class StorageManager implements IStorageManager {
 
         try {
             lock.lock();
-            if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
+            if(mapService instanceof IKMLS) {
+                if(KMLSProvider.create(this).removeMapService(map, (IKMLS) mapService)) {
+                    // We will need this when client does a swap engine or activity is restored.
+                    // When activity is restored we still save the entire list anyway, that may be redundant
+                    ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
+                    if (null != cmrd) {
+                        cmrd.removeMapService(mapService);
+                    }
+                }
+            } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 if (mapMapping.removeMapService(mapService)) {
                     mapMapping.getMapInstance().removeMapService(mapService);

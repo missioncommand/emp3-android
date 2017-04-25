@@ -12,6 +12,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.zip.ZipEntry;
@@ -48,6 +51,8 @@ public class KMLSProvider {
     private final IStorageManager storageManager;
     private KMLSProcessor processor;
     private KMLSReporter reporter;
+
+    private Map<UUID, KMLSProcessor.KMLSRequest> uuidkmlsRequestMap = new HashMap<>();
 
     /**
      * KMLProvider is singleton.
@@ -95,10 +100,30 @@ public class KMLSProvider {
         return false;
     }
 
+    public boolean removeMapService(IMap map, IKMLS mapService) throws EMP_Exception
+    {
+        try {
+            ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(map);
+            if (!mapMapping.serviceExists(mapService.getGeoId())) {
+                Log.i(TAG, "Attempting remove KMLS Service that was never added");
+                return false;
+            }
+            KMLSProcessor.KMLSRequest request = uuidkmlsRequestMap.get(mapService.getGeoId());
+            if(request != null) {
+                mapMapping.removeMapService(request.getService());
+                mapMapping.getMapInstance().removeMapService(request.getService());
+                request.clean();
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "addMapService ", e);
+        }
+        return false;
+    }
     /**
      * Waits on the queue and serially process incoming KML Service Requests.
      */
-    class KMLSProcessor implements Runnable {
+    private class KMLSProcessor implements Runnable {
         private final int READ_BUFFER_SIZE = 4096;
 
         private final String KMLS_ROOT = "KMLS";
@@ -113,11 +138,11 @@ public class KMLSProvider {
          * Holder for KML Request.
          */
         class KMLSRequest implements KMZFile.IKMZFileRerquest{
-            IMap map;
-            IKMLS service;
-            String kmzFilePath = null;
-            File kmzDirectory = null;
-            String kmlFilePath = null;
+            private IMap map;
+            private IKMLS service;
+            private String kmzFilePath = null;
+            private File kmzDirectory = null;
+            private String kmlFilePath = null;
             KMLSRequest(IMap map, IKMLS service) {
                 this.map = map;
                 this.service = service;
@@ -141,6 +166,44 @@ public class KMLSProvider {
             @Override
             public void setKmlFilePath(String kmlFilePath) {
                 this.kmlFilePath = kmlFilePath;
+            }
+
+            public IMap getMap() {
+                return map;
+            }
+
+            public void setMap(IMap map) {
+                this.map = map;
+            }
+
+            public IKMLS getService() {
+                return service;
+            }
+
+            public void setService(IKMLS service) {
+                this.service = service;
+            }
+
+            public String getKmzFilePath() {
+                return kmzFilePath;
+            }
+
+            public void setKmzFilePath(String kmzFilePath) {
+                this.kmzFilePath = kmzFilePath;
+            }
+
+            public File getKmzDirectory() {
+                return kmzDirectory;
+            }
+
+            public void setKmzDirectory(File kmzDirectory) {
+                this.kmzDirectory = kmzDirectory;
+            }
+
+            public void clean() {
+                if(null != kmzDirectory) {
+                    cleanDirectory(kmzDirectory);
+                }
             }
         }
 
@@ -204,6 +267,9 @@ public class KMLSProvider {
                             KML kmlFeature = new KML(new File(request.kmlFilePath).toURI().toURL(), request.kmzDirectory.getAbsolutePath());
                             Log.d(TAG, "kmlFeature created " + request.kmlFilePath);
                             request.service.setFeature(kmlFeature);
+                            if(null != kmlFeature) {
+                                kmlFeature.setName(request.service.getName());
+                            }
                             reporter.generateEvent(request.map, request.service, KMLSEventEnum.KML_SERVICE_FILE_PARSED);
                         } catch (Exception e) {
                             Log.e(TAG, "Failed to parse request.kmlFilePath ", e);
@@ -359,59 +425,6 @@ public class KMLSProvider {
                 }
             }
         }
-
-        /**
-         * https://developers.google.com/kml/documentation/kmzarchives for structure of KMZ file, Important thing to note is:
-         *     a KMZ file can refer to other kmz files - we don;t support that
-         *     There shouldn't be more than one kml file in the archive
-         *     File references are relative.
-         *     kml file is always in the root folder.
-         * @param request
-         * @throws EMP_Exception
-         */
-//        private void unzipKMZFile(KMLSRequest request) throws EMP_Exception {
-//
-//            try {
-//                String kmlFilePath = null;
-//                ZipFile zipFile = new ZipFile(request.kmzFilePath);
-//                Enumeration<? extends ZipEntry> entries = zipFile.entries();
-//
-//                while (entries.hasMoreElements()) {
-//                    ZipEntry zipEntry = entries.nextElement();
-//                    Log.v(TAG, "zipEntry " + zipEntry.getName());
-//
-//                    if(zipEntry.isDirectory()) {
-//                        File directory = new File(request.kmzDirectory + File.separator + zipEntry.getName());
-//                        directory.mkdirs();
-//                        continue;
-//                    }
-//
-//                    if(((null == kmlFilePath) || (0 == kmlFilePath.length())) && (zipEntry.getName().endsWith(".kml"))) {
-//                        request.kmlFilePath = request.kmzDirectory + File.separator + zipEntry.getName();
-//                        Log.d(TAG, "kmlFilePath " + request.kmlFilePath);
-//                    }
-//
-//                    try (BufferedInputStream bis = new  BufferedInputStream(zipFile.getInputStream(zipEntry));
-//                         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(request.kmzDirectory, zipEntry.getName())))) {
-//                        byte[] buf = new byte[READ_BUFFER_SIZE];
-//                        int ii;
-//                        while ((ii = bis.read(buf, 0, READ_BUFFER_SIZE)) != -1) {
-//                            bos.write(buf, 0, ii);
-//                        }
-//                        bos.flush();
-//                    }
-//                }
-//
-//            } catch (IOException | SecurityException e) {
-//                Log.e(TAG, "KMLProcessor-unzipKMZFile " + request.kmzFilePath, e);
-//                if(request.kmzFilePath.endsWith(".kml")) {
-//                    // So it is a KML file not a KMZ file
-//                    request.kmlFilePath = request.kmzFilePath;
-//                    Log.d(TAG, "kmlFilePath " + request.kmlFilePath);
-//                }
-//                throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, e.getMessage());
-//            }
-//        }
 
         /**
          * Recursively lists files in a directory.

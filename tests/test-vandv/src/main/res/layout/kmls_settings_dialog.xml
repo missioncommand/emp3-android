@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/KmlsName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Service Name(required)"/>
+
+    <EditText
+        android:id="@+id/KmlsUrl"
+        android:layout_width="500dp"
+        android:layout_height="wrap_content"
+        android:hint="Service URL{required}" />
+
+    <CheckBox
+        android:id="@+id/KmlsPersistent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="persistent"/>
+
+    <include android:id="@+id/kmls_apply_done" layout="@layout/apply_done" />
+</LinearLayout>

@@ -136,4 +136,14 @@ public class KMLS extends MapService implements IKMLS {
     public IKML getFeature() {
         return feature;
     }
+
+    @Override
+    public String toString() {
+        String str = "KMLS: ";
+        if(null != getName()) {
+            str += "name: " + getName() + " ";
+        }
+        str += super.toString() + "persistent: " + isPersistent;
+        return str;
+    }
 }
