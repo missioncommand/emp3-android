@@ -1,4 +1,4 @@
-package mil.emp3.core.utils;
+package mil.emp3.core.services.kml;
 
 import android.util.Log;
 
@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import mil.emp3.api.exceptions.EMP_Exception;

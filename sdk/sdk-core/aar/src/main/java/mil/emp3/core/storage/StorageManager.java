@@ -54,7 +54,7 @@ import mil.emp3.api.interfaces.core.storage.IStorageObjectWrapper;
 import mil.emp3.api.utils.ContainerSet;
 import mil.emp3.api.utils.UUIDSet;
 import mil.emp3.core.utils.IdentifierVisibilityHash;
-import mil.emp3.core.utils.KMLSProvider;
+import mil.emp3.core.services.kml.KMLSProvider;
 import mil.emp3.core.utils.milstd2525.icons.BitmapCacheFactory;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;

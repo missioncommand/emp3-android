@@ -146,4 +146,8 @@ public class KMLS extends MapService implements IKMLS {
         str += super.toString() + "persistent: " + isPersistent;
         return str;
     }
+
+    public void setGeoId(java.util.UUID geoId){
+        throw new IllegalStateException("GeoId can't be changed after construction");
+    }
 }

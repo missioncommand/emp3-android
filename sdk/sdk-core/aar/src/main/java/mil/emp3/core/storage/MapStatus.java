@@ -16,7 +16,9 @@ import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import mil.emp3.api.Camera;
@@ -50,6 +52,7 @@ import mil.emp3.core.editors.RectangleEditor;
 import mil.emp3.core.editors.SquareEditor;
 import mil.emp3.core.editors.TextEditor;
 import mil.emp3.core.editors.milstd.MilStdSinglePointEditor;
+import mil.emp3.core.services.kml.KMLSRequest;
 import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.mapengine.interfaces.IMapEngineCapabilities;
@@ -78,6 +81,8 @@ public abstract class MapStatus implements IMapStatus {
     private MilStdLabelSettingEnum eLabelSetting = MilStdLabelSettingEnum.COMMON_LABELS;
     // This hash map contains all the map services the map is currently handling.
     private final java.util.HashMap<java.util.UUID, IMapService> mapServiceHash;
+    // Actiove KML Service requests
+    private Map<UUID, KMLSRequest> kmlsRequestMap = new HashMap<>();
     // This value is the map's current width in pixels.
     private int iMapViewWidth = 0;
     // this value is the map's current height in pixels.
@@ -573,4 +578,13 @@ public abstract class MapStatus implements IMapStatus {
     public IGeoFillStyle getBufferFillStyle() {
         return bufferFillStyle;
     }
+
+    /**
+     * KMLSProvider maintains a Map of all active KML Service Requests for each Map Client.
+     * @return
+     */
+    public Map<UUID, KMLSRequest> getKmlsRequestMap() {
+        return kmlsRequestMap;
+    }
+
 }
