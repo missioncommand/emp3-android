@@ -2616,7 +2616,8 @@ public class MainActivity extends AppCompatActivity
 
                 strokeStyle.setStrokeColor(geoColor);
                 strokeStyle.setStrokeWidth(5);
-                strokeStyle.setStipplingPattern((short) 0);
+                strokeStyle.setStipplingPattern((short) 0xEEEE);
+                strokeStyle.setStipplingFactor(3);
                 circle.setStrokeStyle(strokeStyle);
 
                 fillStyle.setFillColor(geoFillColor);
