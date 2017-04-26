@@ -265,11 +265,11 @@ public class MilStdRenderer implements IMilStdRenderer {
             IFeature renderFeature,
             boolean selected) {
         IFeature feature;
-        IGeoColor geoLineColor;
+        IGeoColor newLineColor;
         IGeoColor geoFillColor;
         armyc2.c2sd.renderer.utilities.Color fillColor;
         armyc2.c2sd.renderer.utilities.Color lineColor;
-        IGeoStrokeStyle renderStrokeStyle = renderFeature.getStrokeStyle();
+        IGeoStrokeStyle symbolStrokeStyle = renderFeature.getStrokeStyle();
         //IGeoFillStyle symbolFillStyle = renderFeature.getFillStyle();
         IGeoLabelStyle symbolTextStyle = renderFeature.getLabelStyle();
         IGeoStrokeStyle currentStrokeStyle;
@@ -287,17 +287,28 @@ public class MilStdRenderer implements IMilStdRenderer {
             lineColor = shapeInfo.getLineColor();
             if (lineColor != null) {
                 currentStrokeStyle = new GeoStrokeStyle();
-                currentStrokeStyle.setStrokeWidth((renderStrokeStyle == null)? 3: renderStrokeStyle.getStrokeWidth());
-                geoLineColor = new EmpGeoColor((double) lineColor.getAlpha() / 255.0, lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue());
-                currentStrokeStyle.setStrokeColor(geoLineColor);
+                currentStrokeStyle.setStrokeWidth((symbolStrokeStyle == null)? 3: symbolStrokeStyle.getStrokeWidth());
+                newLineColor = currentStrokeStyle.getStrokeColor();
+                newLineColor.setAlpha((double) lineColor.getAlpha() / 255.0);
+                newLineColor.setRed(lineColor.getRed());
+                newLineColor.setGreen(lineColor.getGreen());
+                newLineColor.setBlue(lineColor.getBlue());
             }
 
             if (selected) {
+                IGeoStrokeStyle selectedLineStyle = storageManager.getSelectedStrokeStyle(mapInstance);
+                IGeoColor selectedColor = selectedLineStyle.getStrokeColor();
+
                 if (null == currentStrokeStyle) {
-                    currentStrokeStyle = storageManager.getSelectedStrokeStyle(mapInstance);
-                } else {
-                    currentStrokeStyle.setStrokeColor(storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor());
+                    currentStrokeStyle = new GeoStrokeStyle();
                 }
+                newLineColor = currentStrokeStyle.getStrokeColor();
+
+                newLineColor.setAlpha(selectedColor.getAlpha());
+                newLineColor.setRed(selectedColor.getRed());
+                newLineColor.setGreen(selectedColor.getGreen());
+                newLineColor.setBlue(selectedColor.getBlue());
+                currentStrokeStyle.setStrokeWidth(selectedLineStyle.getStrokeWidth());
             }
 
             armyc2.c2sd.graphics2d.BasicStroke basicStroke = (armyc2.c2sd.graphics2d.BasicStroke) shapeInfo.getStroke();
@@ -312,9 +323,12 @@ public class MilStdRenderer implements IMilStdRenderer {
 
             fillColor = shapeInfo.getFillColor();
             if (fillColor != null) {
-                geoFillColor = new EmpGeoColor((double) fillColor.getAlpha() / 255.0, fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue());
                 currentFillStyle = new GeoFillStyle();
-                currentFillStyle.setFillColor(geoFillColor);
+                geoFillColor =  currentFillStyle.getFillColor();
+                geoFillColor.setAlpha((double) fillColor.getAlpha() / 255.0);
+                geoFillColor.setRed(fillColor.getRed());
+                geoFillColor.setGreen(fillColor.getGreen());
+                geoFillColor.setBlue(fillColor.getBlue());
             }
 
             switch (shapeInfo.getShapeType()) {
