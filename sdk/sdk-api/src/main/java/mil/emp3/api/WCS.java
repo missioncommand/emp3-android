@@ -7,18 +7,16 @@ import mil.emp3.api.interfaces.IWCS;
 
 public class WCS extends MapService implements IWCS {
 
-    private final String serviceURL;
     private final String coverageName;
 
     public WCS(String url, String name) throws MalformedURLException {
         super(url);
-        serviceURL = url;
         coverageName = name;
     }
 
     @Override
     public String getServiceURL() {
-        return serviceURL;
+        return getURL().toString();
     }
 
     @Override
@@ -31,6 +29,6 @@ public class WCS extends MapService implements IWCS {
      */
     @Override
     public String toString() {
-        return "URL: " + serviceURL + "\n" + "Coverage: " + coverageName;
+        return "URL: " + getURL() + "\n" + "Coverage: " + coverageName;
     }
 }

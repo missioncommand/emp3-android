@@ -16,7 +16,6 @@ import mil.emp3.api.utils.ManagerFactory;
 public class WMTS extends MapService implements IWMTS {
     final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
 
-    private String serviceURL = null;
     private WMTSVersionEnum eVersion = null;
     private String sTileFormat = "image/png";
     private List<String> oLayers;
@@ -37,7 +36,6 @@ public class WMTS extends MapService implements IWMTS {
                List<String> oLayers)
             throws java.net.MalformedURLException {
         super(sURL);
-        serviceURL = sURL;
 
         if (oLayers != null) {
             this.oLayers = oLayers;
@@ -121,12 +119,14 @@ public class WMTS extends MapService implements IWMTS {
      */
     @Override
     public String toString() {
-        String str = "URL: " + serviceURL + "\n"
+        String str = "URL: " + getURL() + "\n"
                 + "WMTS Version: " + eVersion.toString() + "\n"
-                + "Tile format: " + sTileFormat + "\n"
-                + "Layers: \n";
-        for (String layer : oLayers) {
-            str += "\t" + layer + "\n";
+                + "Tile format: " + sTileFormat + "\n";
+        if (oLayers != null && oLayers.size() > 0) {
+            str += "Layers: \n";
+            for (String layer : oLayers) {
+                str += "\t" + layer + "\n";
+            }
         }
         return str;
     }

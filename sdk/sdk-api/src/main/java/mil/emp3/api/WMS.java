@@ -18,7 +18,6 @@ public class WMS extends MapService implements IWMS {
 
     final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
 
-    private String serviceURL = null;
     private WMSVersionEnum eVersion = null;
     private boolean bTransparent = true;
     private String sTileFormat = "image/png";
@@ -46,7 +45,6 @@ public class WMS extends MapService implements IWMS {
             List<String> oLayers)
             throws java.net.MalformedURLException {
         super(sURL);
-        serviceURL = sURL;
 
         this.bTransparent = bTransparent;
         if (oLayers != null) {
@@ -162,13 +160,15 @@ public class WMS extends MapService implements IWMS {
      */
     @Override
     public String toString() {
-        String str = "URL: " + serviceURL + "\n"
+        String str = "URL: " + getURL() + "\n"
                 + "WMS Version: " + eVersion.toString() + "\n"
                 + "Transparent: " + bTransparent + "\n"
-                + "Tile format: " + sTileFormat + "\n"
-                + "Layers: \n";
-        for (String layer : oLayers) {
-            str += "\t" + layer + "\n";
+                + "Tile format: " + sTileFormat + "\n";
+        if (oLayers != null && oLayers.size() > 0) {
+            str += "Layers: \n";
+            for (String layer : oLayers) {
+                str += "\t" + layer + "\n";
+            }
         }
         return str;
     }
