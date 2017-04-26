@@ -103,7 +103,7 @@ public class KMLServiceTest extends NavItemBase implements KmlsSettingsDialog.IK
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
                                     Log.d(TAG, "Selected URL " + sampleURLs[which]);
-                                    KMLS kmls = new KMLS(activity, sampleURLs[which], true, kmlsEventListener[whichMap]);
+                                    KMLS kmls = new KMLS(activity, sampleURLs[which], kmlsEventListener[whichMap]);
                                     // maps[whichMap].addMapService(kmls);
                                     getServiceNameAndAdd(kmls, whichMap);
                                 } catch (MalformedURLException mue) {
@@ -134,7 +134,7 @@ public class KMLServiceTest extends NavItemBase implements KmlsSettingsDialog.IK
                                 public void onClick(DialogInterface dialog, int which) {
                                     try {
                                         Log.d(TAG, "Selected URL " + sampleFileURLs.get(which));
-                                        KMLS kmls = new KMLS(activity, sampleFileURLs.get(which), true, kmlsEventListener[whichMap]);
+                                        KMLS kmls = new KMLS(activity, sampleFileURLs.get(which), kmlsEventListener[whichMap]);
                                         // maps[whichMap].addMapService(kmls);
                                         getServiceNameAndAdd(kmls, whichMap);
                                     } catch (MalformedURLException mue) {
@@ -306,10 +306,10 @@ public class KMLServiceTest extends NavItemBase implements KmlsSettingsDialog.IK
 
     @Override
     public void kmlsSet(KmlsSettingsDialog kmlsSettingsDialog) {
-        Log.d(TAG, "kmlsSet " + kmlsSettingsDialog.getName() + " " + kmlsSettingsDialog.getUrl() + " " + kmlsSettingsDialog.getPersistent());
+        Log.d(TAG, "kmlsSet " + kmlsSettingsDialog.getName() + " " + kmlsSettingsDialog.getUrl());
 
         try {
-            KMLS kmls = new KMLS(activity, kmlsSettingsDialog.getUrl(), kmlsSettingsDialog.getPersistent(), kmlsEventListener[kmlsSettingsDialog.getWhichMap()]);
+            KMLS kmls = new KMLS(activity, kmlsSettingsDialog.getUrl(), kmlsEventListener[kmlsSettingsDialog.getWhichMap()]);
             kmls.setName(kmlsSettingsDialog.getName());
             kmlsSettingsDialog.getMap().addMapService(kmls);
         } catch (Exception e) {

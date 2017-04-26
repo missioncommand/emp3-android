@@ -53,6 +53,7 @@ import mil.emp3.api.interfaces.core.storage.IParentRelationship;
 import mil.emp3.api.interfaces.core.storage.IStorageObjectWrapper;
 import mil.emp3.api.utils.ContainerSet;
 import mil.emp3.api.utils.UUIDSet;
+import mil.emp3.core.services.kml.KMLSRequest;
 import mil.emp3.core.utils.IdentifierVisibilityHash;
 import mil.emp3.core.services.kml.KMLSProvider;
 import mil.emp3.core.utils.milstd2525.icons.BitmapCacheFactory;
@@ -1650,6 +1651,8 @@ public class StorageManager implements IStorageManager {
         } else {
             oList = new ArrayList<>();
         }
+
+        KMLSRequest.listKmlsRoot();
         return oList;
     }
 

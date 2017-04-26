@@ -25,6 +25,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
@@ -131,6 +132,9 @@ public class MockMapInstance_ extends CoreMapInstance {
 
     List<FeatureTypeEnum> kmlsFeatureTypes = new ArrayList<>();
     int kmlsImageCount = 0;
+    IKML kmlFeatureAddedViaService = null;
+    IKML kmlFeatureRemovedViaService = null;
+
     @Override
     public void addMapService(IMapService mapService) {
         Log.d(TAG, "In addMapService ");
@@ -138,6 +142,8 @@ public class MockMapInstance_ extends CoreMapInstance {
         kmlsImageCount = 0;
         if(mapService instanceof IKMLS) {
             IKMLS kmlService = (IKMLS) mapService;
+            kmlFeatureAddedViaService = kmlService.getFeature();
+            Log.d(TAG, "Added " + kmlFeatureAddedViaService.getGeoId().toString());
             if((null != kmlService.getFeature()) && (null != kmlService.getFeature().getFeatureList())) {
                 for(IFeature f: kmlService.getFeature().getFeatureList()) {
                     Log.d(TAG, "KML Feature " + f.getFeatureType().toString());
@@ -182,9 +188,28 @@ public class MockMapInstance_ extends CoreMapInstance {
 
     @Override
     public void removeMapService(IMapService mapService) {
+        Log.d(TAG, "In removeMapService ");
+        if(mapService instanceof IKMLS) {
+            IKMLS kmlService = (IKMLS) mapService;
+            kmlFeatureRemovedViaService = kmlService.getFeature();
+            Log.d(TAG, "Removed " + kmlFeatureRemovedViaService.getGeoId().toString());
+            if(null != kmlFeatureAddedViaService) {
+                Log.d(TAG, "Added " + kmlFeatureAddedViaService.getGeoId().toString());
+            }
 
+        }
     }
-
+    public boolean validateRemoveKmlService() {
+        boolean status = false;
+        if(null != kmlFeatureAddedViaService && null != kmlFeatureRemovedViaService) {
+            if(kmlFeatureAddedViaService.getGeoId().equals(kmlFeatureRemovedViaService.getGeoId())) {
+                status = true;
+            }
+        }
+        kmlFeatureAddedViaService = null;
+        kmlFeatureRemovedViaService = null;
+        return status;
+    }
     @Override
     public ICamera getCamera() {
         return currentCamera;

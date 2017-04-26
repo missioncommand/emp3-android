@@ -95,9 +95,10 @@ public class KMLSProvider {
             KMLSRequest request = mapMapping.getKmlsRequestMap().get(mapService.getGeoId());
             if(request != null) {
                 mapMapping.removeMapService(request.getService());
-                mapMapping.getMapInstance().removeMapService(request.getService());
+                IKMLS tmpKMLS = new KMLS(request.getService().getContext(), request.getService().getURL().toString(), request.getService().getListener());
+                tmpKMLS.setFeature(request.getFeature());
+                mapMapping.getMapInstance().removeMapService(tmpKMLS);
                 mapMapping.getKmlsRequestMap().remove(mapService.getGeoId());
-                request.clean();
             }
             return true;
         } catch (Exception e) {
@@ -135,8 +136,9 @@ public class KMLSProvider {
         @Override
         public void run() {
             while(!Thread.interrupted()) {
+                KMLSRequest request = null;
                 try {
-                    KMLSRequest request = queue.take();
+                    request = queue.take();
                     Log.d(TAG, "KMLSProcessor processing " + request.getService().getURL());
 
                     try {
@@ -163,13 +165,13 @@ public class KMLSProvider {
                         }
                     }
 
-                    // Parse the KML file and build a KML Feature and pass it on to the MapInstance for drawing.
+                    // Parse the KML file and build a KML Feature
                     if((null != request.getKmlFilePath()) && (0 != request.getKmlFilePath().length())) {
                         try {
                             ((KMLS) request.getService()).setStatus(request.getMap(), KMLSStatusEnum.PARSING);
                             KML kmlFeature = new KML(new File(request.getKmlFilePath()).toURI().toURL(), request.getKmzDirectory().getAbsolutePath());
                             Log.d(TAG, "kmlFeature created " + request.getKmlFilePath());
-                            request.getService().setFeature(kmlFeature);
+                            request.setFeature(kmlFeature);
                             if(null != kmlFeature) {
                                 kmlFeature.setName(request.getService().getName());
                             }
@@ -177,17 +179,19 @@ public class KMLSProvider {
                         } catch (Exception e) {
                             Log.e(TAG, "Failed to parse request.kmlFilePath ", e);
                             reporter.generateEvent(request.getMap(), request.getService(), KMLSEventEnum.KML_SERVICE_PARSE_FAILED);
-                            reporter.generateEvent(request.getMap(), request.getService(), KMLSEventEnum.KML_SERVICE_INSTALL_FAILED);
                         }
+                    }
 
-                        if(null != request.getService().getFeature()) {
-                            ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(request.getMap());
-                            mapMapping.getKmlsRequestMap().put(request.getService().getGeoId(), request);
-                            if ((null != mapMapping) && (null != mapMapping.getMapInstance())) {
-                                mapMapping.getMapInstance().addMapService(request.getService());
-                                ((KMLS) request.getService()).setStatus(request.getMap(), KMLSStatusEnum.DRAWN);
-                                reporter.generateEvent(request.getMap(), request.getService(), KMLSEventEnum.KML_SERVICE_FEATURES_DRAWN);
-                            }
+                    // Pass the KML Feature to map engine
+                    if(null != request.getFeature()) {
+                        ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(request.getMap());
+                        mapMapping.getKmlsRequestMap().put(request.getService().getGeoId(), request);
+                        if ((null != mapMapping) && (null != mapMapping.getMapInstance())) {
+                            IKMLS tmpKMLS = new KMLS(request.getService().getContext(), request.getService().getURL().toString(), request.getService().getListener());
+                            tmpKMLS.setFeature(request.getFeature());
+                            mapMapping.getMapInstance().addMapService(tmpKMLS);
+                            ((KMLS) request.getService()).setStatus(request.getMap(), KMLSStatusEnum.DRAWN);
+                            reporter.generateEvent(request.getMap(), request.getService(), KMLSEventEnum.KML_SERVICE_FEATURES_DRAWN);
                         }
                     } else {
                         reporter.generateEvent(request.getMap(), request.getService(), KMLSEventEnum.KML_SERVICE_INSTALL_FAILED);

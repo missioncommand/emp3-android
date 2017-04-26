@@ -1,7 +1,6 @@
 package mil.emp3.api;
 
 import android.graphics.Color;
-import android.os.Looper;
 import android.test.mock.MockContext;
 import android.util.Log;
 
@@ -24,20 +23,18 @@ import java.util.concurrent.TimeUnit;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.KMLSEventEnum;
+import mil.emp3.api.enums.KMLSStatusEnum;
 import mil.emp3.api.events.KMLSEvent;
+import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.listeners.IKMLSEventListener;
 
-//@RunWith(RobolectricTestRunner.class)
-//@Config(constants = mil.emp3.view.BuildConfig.class)
 @PrepareForTest({Color.class})
 public class KMLSTest extends TestBaseSingleMap {
 
     private static String TAG = KMLSTest.class.getSimpleName();
-//    private Context context;
     @Before
     public void setUp() throws Exception {
-//        context = RuntimeEnvironment.application;
         setupSingleMap(TAG);
         PowerMockito.mockStatic(Color.class);
         PowerMockito.when(Color.class, "parseColor", Mockito.any(String.class)).thenReturn(0);
@@ -52,7 +49,7 @@ public class KMLSTest extends TestBaseSingleMap {
         @Override
         public File getDir(String name, int mode) {
             Log.d(TAG, "Current Dir " + System.getProperty("user.dir"));
-            return new File(System.getProperty("user.dir"));
+            return new File(System.getProperty("user.dir") + File.separator + name);
         }
     }
     class KMLSServiceListener implements IKMLSEventListener {
@@ -78,7 +75,7 @@ public class KMLSTest extends TestBaseSingleMap {
         Log.d(TAG, "url " + url.toString());
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
-        new KMLS(null, url.toString(), true, new KMLSServiceListener(queue));
+        new KMLS(null, url.toString(), new KMLSServiceListener(queue));
     }
 
     @Test (expected=IllegalArgumentException.class)
@@ -87,7 +84,7 @@ public class KMLSTest extends TestBaseSingleMap {
         Log.d(TAG, "url " + url.toString());
         MockContext context = new MyMockContext();
         mapInstance.cleanKmls();
-        new KMLS(context, url.toString(), true, null);
+        new KMLS(context, url.toString(), null);
     }
 
     @Test (expected=IllegalArgumentException.class)
@@ -97,7 +94,7 @@ public class KMLSTest extends TestBaseSingleMap {
         MockContext context = new MyMockContext();
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
-        new KMLS(context, url.toString(), true, new KMLSServiceListener(queue), null);
+        new KMLS(context, url.toString(), new KMLSServiceListener(queue), null);
     }
 
     @Test (expected=MalformedURLException.class)
@@ -105,7 +102,7 @@ public class KMLSTest extends TestBaseSingleMap {
         MockContext context = new MyMockContext();
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
-        new KMLS(context, "example.kmz", true, new KMLSServiceListener(queue));
+        new KMLS(context, "example.kmz", new KMLSServiceListener(queue));
     }
 
     @Test
@@ -116,7 +113,8 @@ public class KMLSTest extends TestBaseSingleMap {
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
-        IMapService mapService = new KMLS(context, url.toString(), true, new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        mapService.setName("kmzSample_Test");
         remoteMap.addMapService(mapService);
 
         KMLSEventEnum eventEnum = queue.poll(1, TimeUnit.SECONDS);
@@ -138,6 +136,36 @@ public class KMLSTest extends TestBaseSingleMap {
         Assert.assertTrue("Service Add GEO_POINT Count ", mapInstance.validateAddKmlsFeatureCount(FeatureTypeEnum.GEO_POINT, 12));
         Assert.assertTrue("Service Add GEO_PATH Count ", mapInstance.validateAddKmlsFeatureCount(FeatureTypeEnum.GEO_PATH, 3));
         Assert.assertTrue("Service Add Image Count ", mapInstance.validateAddKmlsImageCount(0));
+
+        Assert.assertNull("KMLS feature should be null", ((IKMLS)mapService).getFeature());
+
+        List<IMapService> services = remoteMap.getMapServices();
+        Assert.assertNotNull("services should not be null", services);
+        IKMLS foundService = null;
+        for(IMapService s: services) {
+            if(s instanceof IKMLS && s.getName().equals("kmzSample_Test")) {
+                foundService = (IKMLS) s;
+                break;
+            }
+        }
+        Assert.assertNotNull("It should be KML Service kmzSample_Test", foundService);
+        Assert.assertEquals("Status of retrieved service should be KML_SERVICE_FEATURES_DRAWN", KMLSStatusEnum.DRAWN, foundService.getStatus(remoteMap));
+
+        remoteMap.removeMapService(mapService);
+        Assert.assertTrue("Removed features GeoId must match ", mapInstance.validateRemoveKmlService());
+
+        // Make sure service is gone from the EMP Core.
+        services = remoteMap.getMapServices();
+        if(null != services) {
+            foundService = null;
+            for (IMapService s : services) {
+                if (s instanceof IKMLS && s.getName().equals("kmzSample_Test")) {
+                    foundService = (IKMLS) s;
+                    break;
+                }
+            }
+            Assert.assertTrue("kmzSample_Test should no longer exist", null == foundService);
+        }
         mapInstance.cleanKmls();
 
     }
@@ -150,7 +178,8 @@ public class KMLSTest extends TestBaseSingleMap {
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
-        IMapService mapService = new KMLS(context, url.toString(), true, new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        mapService.setName("kmlSample_Test");
         remoteMap.addMapService(mapService);
 
         KMLSEventEnum eventEnum = queue.poll(1, TimeUnit.SECONDS);
@@ -173,6 +202,23 @@ public class KMLSTest extends TestBaseSingleMap {
         Assert.assertTrue("Service Add GEO_POLYGON Count ", mapInstance.validateAddKmlsFeatureCount(FeatureTypeEnum.GEO_POLYGON, 9));
         Assert.assertTrue("Service Add GEO_PATH Count ", mapInstance.validateAddKmlsFeatureCount(FeatureTypeEnum.GEO_PATH, 6));
         Assert.assertTrue("Service Add Image Count ", mapInstance.validateAddKmlsImageCount(1));
+
+        Assert.assertNull("KMLS feature should be null", ((IKMLS)mapService).getFeature());
+
+        List<IMapService> services = remoteMap.getMapServices();
+        Assert.assertNotNull("services should not be null", services);
+        IKMLS foundService = null;
+        for(IMapService s: services) {
+            if(s instanceof IKMLS && s.getName().equals("kmlSample_Test")) {
+                foundService = (IKMLS) s;
+                break;
+            }
+        }
+        Assert.assertNotNull("It should be KML Service kmlSample_Test", foundService);
+        Assert.assertEquals("Status of retrieved service should be KML_SERVICE_FEATURES_DRAWN", KMLSStatusEnum.DRAWN, foundService.getStatus(remoteMap));
+
+        remoteMap.removeMapService(mapService);
+        Assert.assertTrue("Removed features GeoId must match ", mapInstance.validateRemoveKmlService());
         mapInstance.cleanKmls();
 
     }
@@ -188,7 +234,8 @@ public class KMLSTest extends TestBaseSingleMap {
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString().replace("example.kmz", "not_exist.kmz"), true, new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(context, url.toString().replace("example.kmz", "not_exist.kmz"), new KMLSServiceListener(queue));
+        mapService.setName("File_Not_Exist_Test");
         remoteMap.addMapService(mapService);
 
         KMLSEventEnum eventEnum = queue.poll(1, TimeUnit.SECONDS);
@@ -198,6 +245,18 @@ public class KMLSTest extends TestBaseSingleMap {
         eventEnum = queue.poll(1, TimeUnit.SECONDS);
         Assert.assertNotNull("Not Received KMLSEventEnum.KML_SERVICE_INSTALL_FAILED ", eventEnum);
         Assert.assertEquals("Expected KMLSEventEnum.KML_SERVICE_INSTALL_FAILED", KMLSEventEnum.KML_SERVICE_INSTALL_FAILED, eventEnum);
+
+        List<IMapService> services = remoteMap.getMapServices();
+        Assert.assertNotNull("services should not be null", services);
+        IKMLS foundService = null;
+        for(IMapService s: services) {
+            if(s instanceof IKMLS && s.getName().equals("File_Not_Exist_Test")) {
+                foundService = (IKMLS) s;
+                break;
+            }
+        }
+        Assert.assertNotNull("It should be KML Service File_Not_Exist_Test", foundService);
+        Assert.assertEquals("Status of retrieved service should be FETCHING", KMLSStatusEnum.FETCHING, foundService.getStatus(remoteMap));
     }
 
     @Test
@@ -210,7 +269,8 @@ public class KMLSTest extends TestBaseSingleMap {
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString(), true, new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        mapService.setName("UnZip_Fail_Test");
         remoteMap.addMapService(mapService);
 
         KMLSEventEnum eventEnum = queue.poll(1, TimeUnit.SECONDS);
@@ -224,6 +284,18 @@ public class KMLSTest extends TestBaseSingleMap {
         eventEnum = queue.poll(1, TimeUnit.SECONDS);
         Assert.assertNotNull("Not Received KMLSEventEnum.KML_SERVICE_INSTALL_FAILED ", eventEnum);
         Assert.assertEquals("Expected KMLSEventEnum.KML_SERVICE_INSTALL_FAILED", KMLSEventEnum.KML_SERVICE_INSTALL_FAILED, eventEnum);
+
+        List<IMapService> services = remoteMap.getMapServices();
+        Assert.assertNotNull("services should not be null", services);
+        IKMLS foundService = null;
+        for(IMapService s: services) {
+            if(s instanceof IKMLS && s.getName().equals("UnZip_Fail_Test")) {
+                foundService = (IKMLS) s;
+                break;
+            }
+        }
+        Assert.assertNotNull("It should be KML Service UnZip_Fail_Test", foundService);
+        Assert.assertEquals("Status of retrieved service should be EXPLODING", KMLSStatusEnum.EXPLODING, foundService.getStatus(remoteMap));
     }
 
     @Test
@@ -236,7 +308,8 @@ public class KMLSTest extends TestBaseSingleMap {
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString(), true, new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        mapService.setName("Invalid_KML_Test");
         remoteMap.addMapService(mapService);
 
         KMLSEventEnum eventEnum = queue.poll(1, TimeUnit.SECONDS);
@@ -254,5 +327,17 @@ public class KMLSTest extends TestBaseSingleMap {
         eventEnum = queue.poll(1, TimeUnit.SECONDS);
         Assert.assertNotNull("Not Received KMLSEventEnum.KML_SERVICE_INSTALL_FAILED ", eventEnum);
         Assert.assertEquals("Expected KMLSEventEnum.KML_SERVICE_INSTALL_FAILED", KMLSEventEnum.KML_SERVICE_INSTALL_FAILED, eventEnum);
+
+        List<IMapService> services = remoteMap.getMapServices();
+        Assert.assertNotNull("services should not be null", services);
+        IKMLS foundService = null;
+        for(IMapService s: services) {
+            if(s instanceof IKMLS && s.getName().equals("Invalid_KML_Test")) {
+                foundService = (IKMLS) s;
+                break;
+            }
+        }
+        Assert.assertNotNull("It should be KML Service Invalid_KML_Test", foundService);
+        Assert.assertEquals("Status of retrieved service should be PARSING", KMLSStatusEnum.PARSING, foundService.getStatus(remoteMap));
     }
 }

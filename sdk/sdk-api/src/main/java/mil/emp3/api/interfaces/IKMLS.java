@@ -39,20 +39,17 @@ public interface IKMLS extends IMapService {
     Context getContext();
 
     /**
-     * Returns true if service was created with Persistent flag on.
-     * @return
-     */
-    boolean isPersistent();
-    /**
      * Returns application installed listener.
      * @return
      */
     IKMLSEventListener getListener();
+
     /**
      * KML Feature generated from the downloaded KMZ file is set by this method. Client applications should not use this method.
      * @param feature
      */
-    void setFeature(KML feature);
+    void setFeature(IKML feature);
+
     /**
      * Get the KML Features created from the KMZ file that was specified when KMLS object was created. Client applications
      * should not make any changes to this object.

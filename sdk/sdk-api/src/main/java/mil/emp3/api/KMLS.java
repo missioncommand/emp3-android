@@ -22,20 +22,18 @@ import mil.emp3.api.listeners.IKMLSEventListener;
 public class KMLS extends MapService implements IKMLS {
     private Map<UUID, KMLSStatusEnum> KMLSStatusMap = new HashMap<>();
     private final Context context;
-    private final boolean isPersistent;
     private final IKMLSEventListener listener;
-    private KML feature;
-
+    private IKML feature; // We need to store the feature in this class because MapEngine API needs it to inert in the Layer.
+                         // Client application should never set or get this feature.
     /**
      * Create a KMLS service
      * @param context Android context, required to find a directory to copy the fetched KMZ file
      * @param serviceURL URL for the KMZ.
      * @param listener client application must install a listener
-     * @param isPersistent decides if service should remain installed across application restarts
      * @throws MalformedURLException
      * @throws IllegalArgumentException
      */
-    public KMLS(Context context, String serviceURL, boolean isPersistent, IKMLSEventListener listener) throws MalformedURLException {
+    public KMLS(Context context, String serviceURL, IKMLSEventListener listener) throws MalformedURLException {
         super(serviceURL);
         if(null == context) {
             throw new IllegalArgumentException("context must be specified");
@@ -44,7 +42,6 @@ public class KMLS extends MapService implements IKMLS {
             throw new IllegalArgumentException("Listener must not be null");
         }
         this.context = context;
-        this.isPersistent = isPersistent;
         this.listener = listener;
     }
 
@@ -52,14 +49,13 @@ public class KMLS extends MapService implements IKMLS {
      * Creates a KMLS service using application specified UUID.
      * @param context Android context, required to find a directory to copy the fetched KMZ file
      * @param serviceURL URL for the KMZ.
-     * @param isPersistent decides if service should remain installed across application restarts
      * @param listener client application must install a listener
      * @param geoId
      * @throws MalformedURLException
      * @throws IllegalArgumentException
      */
-    public KMLS(Context context, String serviceURL, boolean isPersistent, IKMLSEventListener listener, UUID geoId) throws MalformedURLException {
-        this(context, serviceURL, isPersistent, listener);
+    public KMLS(Context context, String serviceURL, IKMLSEventListener listener, UUID geoId) throws MalformedURLException {
+        this(context, serviceURL, listener);
         if(null == geoId) {
             throw new IllegalArgumentException("geoId must be non-null");
         }
@@ -102,39 +98,11 @@ public class KMLS extends MapService implements IKMLS {
     }
 
     /**
-     * Returns true if service was created as persistent service else returns false
-     * @return
-     */
-    public boolean isPersistent() {
-        return isPersistent;
-    }
-
-    /**
      * Returns reference to client application installed listener.
      * @return
      */
     public IKMLSEventListener getListener() {
         return listener;
-    }
-
-    /**
-     * Sets the KML feature. This is used internally for EMP to store the feature that generated from the KMZ.
-     * Client applications shouldn't use this method.
-     * @param feature
-     */
-
-    @Override
-    public void setFeature(KML feature) {
-        this.feature = feature;
-    }
-
-    /**
-     * Fetches the feature that was generated from the KMZ.
-     * @return
-     */
-    @Override
-    public IKML getFeature() {
-        return feature;
     }
 
     @Override
@@ -143,11 +111,20 @@ public class KMLS extends MapService implements IKMLS {
         if(null != getName()) {
             str += "name: " + getName() + " ";
         }
-        str += super.toString() + "persistent: " + isPersistent;
         return str;
     }
 
     public void setGeoId(java.util.UUID geoId){
         throw new IllegalStateException("GeoId can't be changed after construction");
+    }
+
+    @Override
+    public void setFeature(IKML feature) {
+        this.feature = feature;
+    }
+
+    @Override
+    public IKML getFeature() {
+        return feature;
     }
 }

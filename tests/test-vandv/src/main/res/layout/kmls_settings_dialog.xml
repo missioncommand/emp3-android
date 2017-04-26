@@ -15,11 +15,5 @@
         android:layout_height="wrap_content"
         android:hint="Service URL{required}" />
 
-    <CheckBox
-        android:id="@+id/KmlsPersistent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="persistent"/>
-
     <include android:id="@+id/kmls_apply_done" layout="@layout/apply_done" />
 </LinearLayout>

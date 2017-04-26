@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 
 import mil.emp3.api.interfaces.IMap;
@@ -20,7 +19,6 @@ public class KmlsSettingsDialog extends Emp3TesterDialogBase {
 
     EditText kmlsName;
     EditText kmlsURL;
-    CheckBox kmlsPersistent;
 
     int whichMap;
     String url;
@@ -74,14 +72,6 @@ public class KmlsSettingsDialog extends Emp3TesterDialogBase {
         }
     }
 
-    public boolean getPersistent() {
-        if(null != kmlsPersistent) {
-            return kmlsPersistent.isChecked();
-        } else {
-            return false;
-        }
-    }
-
     public int getWhichMap() {
         return whichMap;
     }
@@ -99,7 +89,6 @@ public class KmlsSettingsDialog extends Emp3TesterDialogBase {
 
         kmlsName = (EditText) view.findViewById(R.id.KmlsName);
         kmlsURL = (EditText) view.findViewById(R.id.KmlsUrl);
-        kmlsPersistent = (CheckBox) view.findViewById(R.id.KmlsPersistent);
 
         if(null != url) {
             kmlsURL.setVisibility(View.GONE);

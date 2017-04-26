@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.URLConnection;
 
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
 
@@ -20,18 +21,17 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
     private final int READ_BUFFER_SIZE = 4096;
 
     private final String KMLS_ROOT = "KMLS";
-    private final String PERSISTENT_ROOT = "PERSISTENT";
-    private final String VOLATILE_ROOT = "VOLATILE";
 
-    private boolean directoryBuilt = false;
-    private File persistentRoot;
-    private File volatileRoot;
+    private static boolean directoryBuilt = false;
+    private static File kmlsRoot;
 
     private IMap map;
     private IKMLS service;
     private String kmzFilePath = null;
     private File kmzDirectory = null;
     private String kmlFilePath = null;
+    private IKML feature;
+
     KMLSRequest(IMap map, IKMLS service) {
         this.map = map;
         this.service = service;
@@ -77,21 +77,18 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
 
     public String getKmzFilePath() { return kmzFilePath; }
 
-    public void clean() {
-        if(null != kmzDirectory) {
-            cleanDirectory(kmzDirectory);
-        }
-    }
+    public IKML getFeature() { return feature; }
+
+    public void setFeature(IKML feature) { this.feature = feature; }
 
     private void buildDirectory(Context context) {
         try {
             if (!directoryBuilt) {
-                File kmlsRoot = context.getDir(KMLS_ROOT, Context.MODE_PRIVATE);
-                persistentRoot = new File(kmlsRoot + File.separator + PERSISTENT_ROOT);
-                persistentRoot.mkdirs();
-                volatileRoot = new File(kmlsRoot + File.separator + VOLATILE_ROOT);
-                volatileRoot.mkdirs();
-                cleanDirectory(volatileRoot);   // Cleanup the space used by volatile service from previous run.
+                Log.d(TAG, "buildDirectory");
+                kmlsRoot = context.getDir(KMLS_ROOT, Context.MODE_PRIVATE);
+                this.kmlsRoot.mkdirs();
+                cleanDirectory(this.kmlsRoot);   // Cleanup the space used by volatile service from previous run. This will remove the root itself.
+                this.kmlsRoot.mkdirs();
                 directoryBuilt = true;
             }
         } catch (Exception e) {
@@ -131,32 +128,19 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
             File directory;
             String fileName;
             String targetFilePath;
-            if(service.isPersistent()) {
-                if(service.getURL().getProtocol().equals("file")) {
-                    String file = service.getURL().getFile();
-                    if(file.contains(":")) {
-                        String split[] = file.split(":");
-                        file = split[split.length -1];
-                    }
-                    fileName = file.substring(file.lastIndexOf(forwardSlashChar) + 1);
-                    directory = new File(persistentRoot + File.separator + file.replace(forwardSlashChar, '.'));
-                } else {
-                    directory = new File(persistentRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
-                    fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
+
+            // Figure out the destination directory and destination file path.
+            if (service.getURL().getProtocol().equals("file")) {
+                String file = service.getURL().getFile();
+                if (file.contains(":")) {
+                    String split[] = file.split(":");
+                    file = split[split.length - 1];
                 }
+                fileName = file.substring(file.lastIndexOf(forwardSlashChar) + 1);
+                directory = new File(kmlsRoot + File.separator + file.replace(forwardSlashChar, '.'));
             } else {
-                if(service.getURL().getProtocol().equals("file")) {
-                    String file = service.getURL().getFile();
-                    if(file.contains(":")) {
-                        String split[] = file.split(":");
-                        file = split[split.length -1];
-                    }
-                    fileName = file.substring(file.lastIndexOf(forwardSlashChar) + 1);
-                    directory = new File(volatileRoot + File.separator + file.replace(forwardSlashChar, '.'));
-                } else {
-                    directory = new File(volatileRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
-                    fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
-                }
+                directory = new File(kmlsRoot + File.separator + hostName.replace(File.separatorChar, '.') + path.replace(File.separatorChar, '.'));
+                fileName = path.substring(path.lastIndexOf(File.separatorChar) + 1);
             }
 
             targetFilePath = directory + File.separator + fileName;
@@ -203,6 +187,7 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
             for(File file: listOfFiles) {
                 if(file.isDirectory()) {
                     cleanDirectory(file);
+                    file.delete();
                 } else {
                     file.delete();
                 }
@@ -214,7 +199,7 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
      * Recursively lists files in a directory.
      * @param directory
      */
-    void listFiles(File directory) {
+    static void listFiles(File directory) {
         if(null != directory) {
             Log.v(TAG, "listFiles for " + directory.getAbsolutePath());
             File[] files = directory.listFiles();
@@ -227,6 +212,15 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * This is used in debug mode only
+     */
+    public static void listKmlsRoot() {
+        if(null != kmlsRoot) {
+            listFiles(kmlsRoot);
         }
     }
 }
