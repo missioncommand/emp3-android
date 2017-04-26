@@ -2098,16 +2098,19 @@ public class MainActivity extends AppCompatActivity
                 try {
                     stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
                     IFeature feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
                     feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
                     feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
