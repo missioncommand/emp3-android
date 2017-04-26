@@ -90,4 +90,19 @@ public class GeoJSON extends Feature<IGeoRenderable> implements IGeoJSON {
     public String getDocumentMIMEType() {
         return geoDocument.getDocumentMIMEType();
     }
+    @Override
+    public String toString() {
+        String str = getFeatureType().toString() + " ";
+        if(null != getName()) {
+            str += getName() + "\n";
+        } else {
+            str += "\n";
+        }
+
+        if(null != getFeatureList() && getFeatureList().size() > 0) {
+            str += "Feature Count " + getFeatureList().size() + " " + getFeatureList().get(0).toString();
+        }
+        return str;
+    }
+
 }

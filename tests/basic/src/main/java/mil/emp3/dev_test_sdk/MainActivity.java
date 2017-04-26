@@ -92,6 +92,7 @@ import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.WCS;
 import mil.emp3.api.Text;
 import mil.emp3.api.WMS;
 import mil.emp3.api.WMTS;
@@ -136,6 +137,7 @@ import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
 import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
+import mil.emp3.dev_test_sdk.utils.CameraUtility;
 import mil.emp3.json.geoJson.GeoJsonCaller;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -149,6 +151,7 @@ public class MainActivity extends AppCompatActivity
     protected Overlay oRootOverlay;
     private ICamera oCamera;
     private ILookAt oLookAt;
+    private WCS wcsService;
     private WMS wmsService;
     private WMTS wmtsService;
     private mil.emp3.api.GeoPackage geoPackage;
@@ -2117,16 +2120,19 @@ public class MainActivity extends AppCompatActivity
                 try {
                     stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
                     IFeature feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
                     feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
                     feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
@@ -2221,6 +2227,34 @@ public class MainActivity extends AppCompatActivity
                     oItem = this.oMenu.findItem(R.id.action_addWMTS);
                     oItem.setEnabled(true);
                 } catch (EMP_Exception ex) {
+                }
+                return true;
+            case R.id.action_addWCS:
+                try {
+                    wcsService = new WCS("https://worldwind26.arc.nasa.gov/wcs",
+                            "aster_v2");
+                    map.addMapService(wcsService);
+                    MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
+                    oItem.setEnabled(true);
+                    oItem = MainActivity.this.oMenu.findItem(R.id.action_addWCS);
+                    oItem.setEnabled(false);
+                    // 37.577227, -105.485845, 4374
+                    ILookAt calculatedLookAt = CameraUtility.setupLookAt(37.5, -105.5, 5000,
+                            37.577227, -105.485845, 4374);
+                    map.setLookAt(calculatedLookAt, false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return true;
+            case R.id.action_removeWCS:
+                try {
+                    map.removeMapService(this.wcsService);
+                    MenuItem oItem = this.oMenu.findItem(R.id.action_removeWCS);
+                    oItem.setEnabled(false);
+                    oItem = this.oMenu.findItem(R.id.action_addWCS);
+                    oItem.setEnabled(true);
+                } catch (EMP_Exception ex) {
+                    ex.printStackTrace();
                 }
                 return true;
             case R.id.action_addWMS:
