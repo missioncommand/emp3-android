@@ -25,4 +25,12 @@ public class WCS extends MapService implements IWCS {
     public String getCoverageName() {
         return coverageName;
     }
+
+    /**
+     * Prints all configuration parameters
+     */
+    @Override
+    public String toString() {
+        return "URL: " + serviceURL + "\n" + "Coverage: " + coverageName;
+    }
 }
