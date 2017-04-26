@@ -15,22 +15,27 @@ import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
 
+/**
+ * Holds the KML Request till it is removed via removeMapService.
+ *    1. Maintains the current state of the request.
+ *    2. Copies the file to application private folder.
+ */
 public class KMLSRequest implements KMZFile.IKMZFileRerquest{
     private static String TAG = KMLSRequest.class.getSimpleName();
 
     private final int READ_BUFFER_SIZE = 4096;
 
-    private final String KMLS_ROOT = "KMLS";
+    private final String KMLS_ROOT = "KMLS";     // Root folder under which all KMLS service files are stored.
 
     private static boolean directoryBuilt = false;
     private static File kmlsRoot;
 
-    private IMap map;
-    private IKMLS service;
-    private String kmzFilePath = null;
-    private File kmzDirectory = null;
-    private String kmlFilePath = null;
-    private IKML feature;
+    private IMap map;                           // Client on which the request was initiated
+    private IKMLS service;                      // KMLS service object built by the application.
+    private String kmzFilePath = null;          // KMZ file that was copied using user supplied URL (could be kml file also)
+    private File kmzDirectory = null;           // Directory where files for this request are stored.
+    private String kmlFilePath = null;          // Extracted kml file or file specified in the URL. This is the file that will be parsed.
+    private IKML feature;                       // Feature that was created by the parser.
 
     KMLSRequest(IMap map, IKMLS service) {
         this.map = map;
@@ -81,6 +86,10 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
 
     public void setFeature(IKML feature) { this.feature = feature; }
 
+    /**
+     * First request triggers building of a clean KMLS root directory. On first request all the existing files are deleted.
+     * @param context
+     */
     private void buildDirectory(Context context) {
         try {
             if (!directoryBuilt) {
@@ -113,6 +122,9 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
         try {
             buildDirectory(service.getContext());
             char forwardSlashChar = '/';
+
+            // Based on the URL build the directory in which we will copy the file.
+            // kmzFilePath and kmzDirectory are final products of this processing.
 
             Log.d(TAG, "protocol " + service.getURL().getProtocol() + " HOST " + service.getURL().getHost()
                     + " File " + service.getURL().getFile());
@@ -151,9 +163,14 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
                 directory.mkdirs();
             }
             File targetFile = new File(targetFilePath);
+
+            // If target file already exists then no need to fetch it. This can happen if client application
+            // does add/remove/add or there are multiple map instances.
             if(targetFile.exists() && (targetFile.length() > 0) && (targetFile.canRead())) {
                 Log.i(TAG, "file " + targetFilePath + " exists, no need to fetch");
             } else {
+
+                // Clean directory just in case and then copy the file over.
                 cleanDirectory(directory);
 
                 try (InputStream input = connection.getInputStream();
@@ -178,7 +195,7 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
     }
 
     /**
-     * Cleans the directory. Avoiding get apache io-commons?
+     * Cleans the directory. Specified directory is also removed.
      * @param directory
      */
     private void cleanDirectory(File directory) {

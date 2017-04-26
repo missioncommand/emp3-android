@@ -3,8 +3,8 @@ package mil.emp3.api.enums;
 import mil.emp3.api.interfaces.IEventEnum;
 
 /**
- * KML add service action executes in the background. This event notifies the client application when background procedure
- * is complete.
+ * {@link mil.emp3.api.KMLS} service executes in the background. {@link mil.emp3.api.events.KMLSEvent} notifies the client application when
+ * background procedure is complete. KMLSEventEnum enumerates the various events.
  */
 
 public enum KMLSEventEnum implements IEventEnum {

@@ -8,20 +8,24 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IKMLSEventListener;
 
 /**
- * 3.4.1.4 Display KML Service Data
- * Requirement: The Map Engine (Smart Client) shall display data loaded obtained from external KML services.
+ * Requirement 3.4.1.4: Display KML Service Data, the Map Engine (Smart Client) shall display data loaded obtained from external KML services.
+ * <p>
  * Rationale: At times, it may be necessary to display geo-spatial information from other systems.
+ * </p><p>
  * The KML format is XML notation for geographic annotation and visualization.
+ * </p><p>
+ * Please see <a href="https://developers.google.com/kml/documentation/kmzarchives"> for structure of KMZ file</a>
+ * </p>
+ * Some design decisions:
+ * <ul>
+ * <li>Features created by KMZ are treated as a special layer in Map Instance. They are not added to any overlay within the core.</li>
+ * <li>Features created via KMZ are not returned when getAllMapFeatures is executed.</li>
+ * <li>KMZ referring to another KMZ is not supported as our parser skips over network links.</li>
+ * <li>Decision regarding replication via mirror-cache is pending.</li>
+ * </ul>
  *
- * https://developers.google.com/kml/documentation/kmzarchives for structure of KMZ file, Important thing to note is:
- *
- * Some design decisions (also listed in the issue)
- *
- * 1. Features created by KMZ are treated as a special layer in Map Instance. They are not added to any overlay within the core.
- * 2. Features created via KMZ are not returned when getAllMapFeatures is executed.
- * 3. No event is generated when KMZ processing is complete or fails.
- * 4. KMZ referring to another KMZ is not supported as our parser skips over network links.
- * 5. Decision regarding replication via mirror-cache is pending.
+ * Application client creates an instance of {@link mil.emp3.api.KMLS} object and uses the {@link IMap#addMapService(IMapService)} to add the KML service
+ * to an existing Map.
  */
 public interface IKMLS extends IMapService {
     /**

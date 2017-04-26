@@ -28,6 +28,13 @@ import mil.emp3.core.storage.ClientMapToMapInstance;
  * 2. Features created via KMZ are not returned when getAllMapFeatures is executed.
  * 3. Events are generated and reported via the listener as service processing goes through phases.
  * 4. KMZ referring to another KMZ is not supported as our parser skips over network links.
+ *
+ * This class contains two nested classes that perform the actual work. Each of those classes run on their own thread and interface
+ * is via a Blocking Queue.
+ *
+ * KMLSProcessor - Process the Service Request
+ * KMLSReporter - Reports events to the client application via the user supplied listener.
+ *
  */
 
 public class KMLSProvider {
@@ -39,7 +46,7 @@ public class KMLSProvider {
     private KMLSReporter reporter;
 
     /**
-     * KMLProvider is singleton.
+     * KMLProvider is singleton. All client maps are services by one instance of the class.
      * @param storageManager
      * @return
      */
@@ -75,8 +82,8 @@ public class KMLSProvider {
                 Log.i(TAG, "Attempting to add same KML Service that already exists");
                 return false;
             }
-            mapMapping.addMapService(mapService);
-            processor.generateRequest(map, mapService);
+            mapMapping.addMapService(mapService);   // Add the MapStatus in-line so that duplicate cannot be added
+            processor.generateRequest(map, mapService); // Process the actual request on a background thread.
             return true;
         } catch (Exception e) {
             Log.e(TAG, "addMapService ", e);
@@ -84,6 +91,13 @@ public class KMLSProvider {
         return false;
     }
 
+    /**
+     * This is processed in-line like any other removeFeature.
+     * @param map
+     * @param mapService
+     * @return
+     * @throws EMP_Exception
+     */
     public boolean removeMapService(IMap map, IKMLS mapService) throws EMP_Exception
     {
         try {
@@ -94,10 +108,16 @@ public class KMLSProvider {
             }
             KMLSRequest request = mapMapping.getKmlsRequestMap().get(mapService.getGeoId());
             if(request != null) {
-                mapMapping.removeMapService(request.getService());
-                IKMLS tmpKMLS = new KMLS(request.getService().getContext(), request.getService().getURL().toString(), request.getService().getListener());
-                tmpKMLS.setFeature(request.getFeature());
-                mapMapping.getMapInstance().removeMapService(tmpKMLS);
+                mapMapping.removeMapService(request.getService());   // Remove from the map status
+
+                if(null != request.getFeature()) { // Remember failed request may still be in the queue.
+                    // Build a KMLS request and set the Feature to be removed and then invoke map engine API.
+                    IKMLS tmpKMLS = new KMLS(request.getService().getContext(), request.getService().getURL().toString(), request.getService().getListener());
+                    tmpKMLS.setFeature(request.getFeature());
+                    mapMapping.getMapInstance().removeMapService(tmpKMLS);
+                }
+
+                // Remove the request from the queue
                 mapMapping.getKmlsRequestMap().remove(mapService.getGeoId());
             }
             return true;
@@ -124,6 +144,11 @@ public class KMLSProvider {
             }
         }
 
+        /**
+         * Adds a request to the queue and starts the thread if it is not already started.
+         * @param map
+         * @param mapService
+         */
         void generateRequest(IMap map, IKMLS mapService) {
             queue.add(new KMLSRequest(map, mapService));
             if(mapService instanceof KMLS) {
@@ -133,6 +158,14 @@ public class KMLSProvider {
             startThread();
         }
 
+        /**
+         * This is where the actual request processing takes place.
+         *   1. Copy the file using the application specified URL
+         *   2. Explode the file if necessary
+         *   3. Parse the file and generate KML Feature.
+         *   4. Add the map service to map engine
+         *   5. Update status and generate events for application along the way.
+         */
         @Override
         public void run() {
             while(!Thread.interrupted()) {
@@ -141,6 +174,7 @@ public class KMLSProvider {
                     request = queue.take();
                     Log.d(TAG, "KMLSProcessor processing " + request.getService().getURL());
 
+                    // Copy the file to application private folder, this could a file or network URL.
                     try {
                         ((KMLS) request.getService()).setStatus(request.getMap(), KMLSStatusEnum.FETCHING);
                         request.copyKMZ();  // Fetch the KMZ either file URL or network URL
@@ -151,7 +185,8 @@ public class KMLSProvider {
                         reporter.generateEvent(request.getMap(), request.getService(), KMLSEventEnum.KML_SERVICE_FILE_RETRIEVAL_FAILED);
                     }
 
-                    // File could be either a KMZ file or KML file.
+                    // If it is a KMZ file then it will be unzipped (exploded), remember that this could simply be
+                    // a KML file also.
                     if((null != request.getKmzDirectory()) && (null != request.getKmzFilePath())) {
                         try {
                             ((KMLS) request.getService()).setStatus(request.getMap(), KMLSStatusEnum.EXPLODING);

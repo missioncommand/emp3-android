@@ -13,11 +13,74 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.listeners.IKMLSEventListener;
 
 /**
- * Implements the KML Map Service. This service used by the application to fetch a KMZ file, convert it to KMLFeature and
+ * KMLS Implements the KML Map Service. This service used by the application to fetch a KMZ/KML file, convert it to KMLFeature and
  * draw it on a background Layer.
+ * <p>
+ * The URL specified when constructing the KML Service must be a valid "file" or "network" URL. If applications developer expects that the host machine
+ * may loose network connectivity then it is recommended that client application fetch the KMZ/KML file and store it locally. EMP doesn't store the
+ * fetched file, it removes the previously fetched files on startup. This approach was chosen to avoid having to manage the storage space usage.
+ * Additionally, if the KML file references any network resources and host machine looses network connectivity then rendering of those artifacts
+ * shall fail. To avoid this scenario it is recommended that you build the KMZ archives that are self sufficient.
+ * </p>
+ * <p>
+ * The KMZ file is copied to the applications private storage, root KMLS directory is created under the folder returned by executing 'getDir()' on the
+ * the context object supplied by the client application. Each KMZ/KML is stored in its own folder.
+ * </p>
+ * <p>
+ * There are four steps involved in completing the addMapService request:
+ * <ul>
+ * <li>Fetch the KMZ/KML file using the application supplied URL</li>
+ * <li>Explode the KMZ file archive, if it is a KMZ file</li>
+ * <li>Parse the KML file and build a list of features to be rendered</li>
+ * <li>Request the map engine to render the features on a background layer</li>
+ * </ul>
+ * As each of these steps are completed, user supplied listener is invoked with appropriate event {@link mil.emp3.api.events.KMLSEvent}. Client applications
+ * may also use the {@link #getStatus(IMap)} to check the current status of the service.
+ * </p>
+ * <p>
+ * It is client applications responsibility to use {@link IMap#removeMapService(IMapService)} to remove failed map service from the map.
+ * </p>
+ * <p>
+ * In the current implementation storage is cleaned up only on application restart. This limitation is in effect to support the case where there are
+ * multiple map engines and a service was was added to multiple map engines. Once a better
+ * </p>
+ * <p>
+ * The feature member of this class is for use by the EMP core component. Client application should never set it or get it.
+ * </p>
+ *
+ * <pre>
+
+     class KMLSServiceListener implements IKMLSEventListener {
+         final IMap map;
+         KMLSServiceListener(IMap map) {
+             this.map = map;
+         }
+
+         public void onEvent(KMLSEvent event) {
+             try {
+                 Log.d(TAG, "KMLSServiceListener-onEvent " + event.getEvent().toString() + " status " + event.getTarget().getStatus(map));
+             } catch(EMP_Exception e) {
+                 Log.e(TAG, e.getMessage(), e);
+             }
+         }
+     }
+
+     // Somewhere in your activity
+     IMap map;
+     .....
+     ....
+     try {
+         KMLS kmls = new KMLS(activity, "https://github.com/downloads/brazzy/nikki/example.kmz", new KMLSServiceListener(map));
+         kmls.setName("example");
+         map.addMapService(kmls);
+     } catch (Exception e) {
+         Log.e(TAG, e.getMessage(), e);
+     }
+ * </pre>
  */
 public class KMLS extends MapService implements IKMLS {
     private Map<UUID, KMLSStatusEnum> KMLSStatusMap = new HashMap<>();
