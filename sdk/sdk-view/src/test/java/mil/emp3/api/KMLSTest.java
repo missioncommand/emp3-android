@@ -149,7 +149,7 @@ public class KMLSTest extends TestBaseSingleMap {
             }
         }
         Assert.assertNotNull("It should be KML Service kmzSample_Test", foundService);
-        Assert.assertEquals("Status of retrieved service should be KML_SERVICE_FEATURES_DRAWN", KMLSStatusEnum.DRAWN, foundService.getStatus(remoteMap));
+        Assert.assertEquals("Status of retrieved service should be KML_SERVICE_FEATURES_DRAWN", KMLSStatusEnum.DRAWN.toString(), foundService.getStatus(remoteMap).toString());
 
         remoteMap.removeMapService(mapService);
         Assert.assertTrue("Removed features GeoId must match ", mapInstance.validateRemoveKmlService());
@@ -215,7 +215,7 @@ public class KMLSTest extends TestBaseSingleMap {
             }
         }
         Assert.assertNotNull("It should be KML Service kmlSample_Test", foundService);
-        Assert.assertEquals("Status of retrieved service should be KML_SERVICE_FEATURES_DRAWN", KMLSStatusEnum.DRAWN, foundService.getStatus(remoteMap));
+        Assert.assertEquals("Status of retrieved service should be KML_SERVICE_FEATURES_DRAWN", KMLSStatusEnum.DRAWN.toString(), foundService.getStatus(remoteMap).toString());
 
         remoteMap.removeMapService(mapService);
         Assert.assertTrue("Removed features GeoId must match ", mapInstance.validateRemoveKmlService());
@@ -256,7 +256,7 @@ public class KMLSTest extends TestBaseSingleMap {
             }
         }
         Assert.assertNotNull("It should be KML Service File_Not_Exist_Test", foundService);
-        Assert.assertEquals("Status of retrieved service should be FETCHING", KMLSStatusEnum.FETCHING, foundService.getStatus(remoteMap));
+        Assert.assertEquals("Status of retrieved service should be FETCHING", KMLSStatusEnum.FETCHING.toString(), foundService.getStatus(remoteMap).toString());
     }
 
     @Test
@@ -295,7 +295,7 @@ public class KMLSTest extends TestBaseSingleMap {
             }
         }
         Assert.assertNotNull("It should be KML Service UnZip_Fail_Test", foundService);
-        Assert.assertEquals("Status of retrieved service should be EXPLODING", KMLSStatusEnum.EXPLODING, foundService.getStatus(remoteMap));
+        Assert.assertEquals("Status of retrieved service should be EXPLODING", KMLSStatusEnum.EXPLODING.toString(), foundService.getStatus(remoteMap).toString());
     }
 
     @Test
@@ -338,9 +338,6 @@ public class KMLSTest extends TestBaseSingleMap {
             }
         }
         Assert.assertNotNull("It should be KML Service Invalid_KML_Test", foundService);
-
-        // Not sure why the following is failing on Travis, for now comment out.
-//        System.err.println("Invalid_KML_Test status " + foundService.getStatus(remoteMap));
-//        Assert.assertEquals("Status of retrieved service should be PARSING", KMLSStatusEnum.PARSING, foundService.getStatus(remoteMap));
+        Assert.assertEquals("Status of retrieved service should be PARSING", KMLSStatusEnum.PARSING.toString(), foundService.getStatus(remoteMap).toString());
     }
 }
