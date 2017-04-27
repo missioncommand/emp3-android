@@ -1678,9 +1678,9 @@ public class StorageManager implements IStorageManager {
             oList = new ArrayList<>();
         }
 
-        if(Log.isLoggable(TAG, Log.VERBOSE)) {
-            KMLSRequest.listKmlsRoot();
-        }
+        // if(Log.isLoggable(TAG, Log.VERBOSE)) { This causes unit test issue. We need to fix how unit testst are setup.
+        KMLSRequest.listKmlsRoot();
+        // }
         return oList;
     }
 
