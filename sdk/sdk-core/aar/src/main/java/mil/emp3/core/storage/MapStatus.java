@@ -81,7 +81,7 @@ public abstract class MapStatus implements IMapStatus {
     private MilStdLabelSettingEnum eLabelSetting = MilStdLabelSettingEnum.COMMON_LABELS;
     // This hash map contains all the map services the map is currently handling.
     private final java.util.HashMap<java.util.UUID, IMapService> mapServiceHash;
-    // Actiove KML Service requests
+    // Active KML Service requests
     private Map<UUID, KMLSRequest> kmlsRequestMap = new HashMap<>();
     // This value is the map's current width in pixels.
     private int iMapViewWidth = 0;

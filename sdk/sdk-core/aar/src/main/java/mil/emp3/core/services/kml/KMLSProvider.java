@@ -15,7 +15,9 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.IStorageManager;
+import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
 import mil.emp3.api.listeners.IKMLSEventListener;
+import mil.emp3.core.storage.ClientMapRestoreData;
 import mil.emp3.core.storage.ClientMapToMapInstance;
 
 /**
@@ -71,10 +73,11 @@ public class KMLSProvider {
      * Queue up the request for KMLProcessor as we don't want to execute it on the UI thread.
      * @param map
      * @param mapService
+     * @param cmrd
      * @return
      * @throws EMP_Exception
      */
-    public boolean addMapService(IMap map, IKMLS mapService) throws EMP_Exception
+    public boolean addMapService(IMap map, IKMLS mapService, ClientMapRestoreData cmrd) throws EMP_Exception
     {
         try {
             ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(map);
@@ -83,7 +86,10 @@ public class KMLSProvider {
                 return false;
             }
             mapMapping.addMapService(mapService);   // Add the MapStatus in-line so that duplicate cannot be added
-            processor.generateRequest(map, mapService); // Process the actual request on a background thread.
+            IKMLSRequest request = processor.generateRequest(map, mapService); // Process the actual request on a background thread.
+            if(null != cmrd) {
+                cmrd.addKmlRequest(request);
+            }
             return true;
         } catch (Exception e) {
             Log.e(TAG, "addMapService ", e);
@@ -98,7 +104,7 @@ public class KMLSProvider {
      * @return
      * @throws EMP_Exception
      */
-    public boolean removeMapService(IMap map, IKMLS mapService) throws EMP_Exception
+    public boolean removeMapService(IMap map, IKMLS mapService, ClientMapRestoreData cmrd) throws EMP_Exception
     {
         try {
             ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(map);
@@ -119,6 +125,9 @@ public class KMLSProvider {
 
                 // Remove the request from the queue
                 mapMapping.getKmlsRequestMap().remove(mapService.getGeoId());
+                if(null != cmrd) {
+                    cmrd.removeKmlRequest(request);
+                }
             }
             return true;
         } catch (Exception e) {
@@ -149,13 +158,15 @@ public class KMLSProvider {
          * @param map
          * @param mapService
          */
-        void generateRequest(IMap map, IKMLS mapService) {
-            queue.add(new KMLSRequest(map, mapService));
+        IKMLSRequest generateRequest(IMap map, IKMLS mapService) {
+            KMLSRequest kmlsRequest = new KMLSRequest(map, mapService);
+            queue.add(kmlsRequest);
             if(mapService instanceof KMLS) {
                 KMLS kmls = (KMLS) mapService;
                 kmls.setStatus(map, KMLSStatusEnum.QUEUED);
             }
             startThread();
+            return kmlsRequest;
         }
 
         /**

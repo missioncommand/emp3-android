@@ -6,6 +6,7 @@ import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -92,7 +93,7 @@ public interface IStorageManager {
 
     void removeChildren(IContainer parentContainer, Object userContext) throws EMP_Exception;
 
-    void redrawAllFeatures(IMap clientMap, Object userContext);
+    void redrawAllFeaturesAndServices(IMap clientMap, Object userContext, IClientMapRestoreData clientMapToRestoreData);
 
     void addMapService(IMap map, IMapService mapService) throws EMP_Exception;
 

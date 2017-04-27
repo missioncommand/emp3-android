@@ -9,18 +9,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
+import java.util.UUID;
 
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
 
 /**
  * Holds the KML Request till it is removed via removeMapService.
  *    1. Maintains the current state of the request.
  *    2. Copies the file to application private folder.
  */
-public class KMLSRequest implements KMZFile.IKMZFileRerquest{
+public class KMLSRequest implements KMZFile.IKMZFileRerquest, IKMLSRequest {
     private static String TAG = KMLSRequest.class.getSimpleName();
 
     private final int READ_BUFFER_SIZE = 4096;
@@ -35,7 +37,7 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
     private String kmzFilePath = null;          // KMZ file that was copied using user supplied URL (could be kml file also)
     private File kmzDirectory = null;           // Directory where files for this request are stored.
     private String kmlFilePath = null;          // Extracted kml file or file specified in the URL. This is the file that will be parsed.
-    private IKML feature;                       // Feature that was created by the parser.
+    private IKML feature = null;                       // Feature that was created by the parser.
 
     KMLSRequest(IMap map, IKMLS service) {
         this.map = map;
@@ -85,6 +87,16 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
     public IKML getFeature() { return feature; }
 
     public void setFeature(IKML feature) { this.feature = feature; }
+
+    @Override
+    public UUID getId() {
+        if(null != getService()) {
+            return getService().getGeoId();
+        } else {
+            Log.e(TAG, "getId service is null");
+            return null;
+        }
+    }
 
     /**
      * First request triggers building of a clean KMLS root directory. On first request all the existing files are deleted.
@@ -183,11 +195,10 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest{
                         total += n;
                     }
                     Log.v(TAG, "transferred " + total);
+                    kmzFilePath = targetFilePath;
+                    kmzDirectory = directory;
                 }
             }
-
-            kmzFilePath = targetFilePath;
-            kmzDirectory = directory;
         } catch (IOException ioe) {
             Log.e(TAG, "KMLSProcessor-copyKMZ failed " + service.getURL(), ioe);
             throw new EMP_Exception(EMP_Exception.ErrorDetail.OTHER, ioe.getMessage());
