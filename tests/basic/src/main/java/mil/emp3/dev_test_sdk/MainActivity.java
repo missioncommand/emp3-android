@@ -2205,6 +2205,7 @@ public class MainActivity extends AppCompatActivity
                     wmtsService = new WMTS(
                             "http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts",
                             null, null, layers);
+                    Log.i(TAG, wmtsService.toString());
                     map.addMapService(MainActivity.this.wmtsService);
                     ICamera camera = this.map.getCamera();
                     camera.setLatitude(64.27);
@@ -2233,6 +2234,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     wcsService = new WCS("https://worldwind26.arc.nasa.gov/wcs",
                             "aster_v2");
+                    Log.i(TAG, wcsService.toString());
                     map.addMapService(wcsService);
                     MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
                     oItem.setEnabled(true);
@@ -2307,6 +2309,7 @@ public class MainActivity extends AppCompatActivity
                                         transparent.equalsIgnoreCase("true"),
                                         layers
                                 );
+                                Log.i(TAG, wmsService.toString());
                             } catch (MalformedURLException ex) {
                                 ex.printStackTrace();
                             }
@@ -2364,7 +2367,7 @@ public class MainActivity extends AppCompatActivity
 
                     oPoint.setPosition(oPosList.get(0));
                     this.oRootOverlay.addFeature(oPoint, true);
-
+                    Log.i(TAG, oPoint.toString());
                 } catch (EMP_Exception ex) {
                 }
                 return true;
@@ -2380,7 +2383,7 @@ public class MainActivity extends AppCompatActivity
                     oIconStyle.setOffSetX(20);
                     oPoint.setIconStyle(oIconStyle);
                     this.oRootOverlay.addFeature(oPoint, true);
-
+                    Log.i(TAG, oPoint.toString());
                 } catch (EMP_Exception ex) {
                 }
                 return true;
@@ -2574,7 +2577,7 @@ public class MainActivity extends AppCompatActivity
                 textFeature.setName("Text");
                 textFeature.setDescription("Draw Text Feature.");
                 //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-
+                Log.i(TAG, textFeature.toString());
                 try {
                     this.map.drawFeature(textFeature, new FeatureDrawListener(textFeature));
                 } catch(EMP_Exception Ex) {
@@ -2596,7 +2599,7 @@ public class MainActivity extends AppCompatActivity
                 linePath.setName("Line");
                 linePath.setDescription("Draw Line Feature.");
                 //linePath.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-
+                Log.i(TAG, linePath.toString());
                 try {
                     this.map.drawFeature(linePath, new FeatureDrawListener(linePath));
                 } catch(EMP_Exception Ex) {
@@ -2625,6 +2628,7 @@ public class MainActivity extends AppCompatActivity
                 polygon.setDescription("Draw Polygon Feature.");
 
                 //polygon.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, polygon.toString());
                 try {
                     this.map.drawFeature(polygon, new FeatureDrawListener(polygon));
                 } catch(EMP_Exception Ex) {
@@ -2653,6 +2657,7 @@ public class MainActivity extends AppCompatActivity
                 circle.setDescription("Draw Circle Feature.");
 
                 circle.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, circle.toString());
                 try {
                     this.map.drawFeature(circle, new FeatureDrawListener(circle));
                 } catch(EMP_Exception Ex) {
@@ -2681,6 +2686,7 @@ public class MainActivity extends AppCompatActivity
                 ellipse.setDescription("Draw Ellipse Feature.");
 
                 ellipse.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, ellipse.toString());
                 try {
                     this.map.drawFeature(ellipse, new FeatureDrawListener(ellipse));
                 } catch(EMP_Exception Ex) {
@@ -2709,6 +2715,7 @@ public class MainActivity extends AppCompatActivity
                 feature.setDescription("Draw Rectangle Feature.");
 
                 feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, feature.toString());
                 try {
                     this.map.drawFeature(feature, new FeatureDrawListener(feature));
                 } catch(EMP_Exception Ex) {
@@ -2737,6 +2744,7 @@ public class MainActivity extends AppCompatActivity
                 feature.setDescription("Draw Square Feature.");
 
                 feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, feature.toString());
                 try {
                     this.map.drawFeature(feature, new FeatureDrawListener(feature));
                 } catch(EMP_Exception Ex) {
