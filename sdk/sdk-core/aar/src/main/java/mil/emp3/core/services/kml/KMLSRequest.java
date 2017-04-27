@@ -22,7 +22,7 @@ import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
  *    1. Maintains the current state of the request.
  *    2. Copies the file to application private folder.
  */
-public class KMLSRequest implements KMZFile.IKMZFileRerquest, IKMLSRequest {
+public class KMLSRequest implements KMZFile.IKMZFileRequest, IKMLSRequest {
     private static String TAG = KMLSRequest.class.getSimpleName();
 
     private final int READ_BUFFER_SIZE = 4096;
@@ -93,7 +93,7 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest, IKMLSRequest {
         if(null != getService()) {
             return getService().getGeoId();
         } else {
-            Log.e(TAG, "getId service is null");
+            Log.e(TAG, "getId service is null This should never happen");
             return null;
         }
     }
@@ -180,6 +180,8 @@ public class KMLSRequest implements KMZFile.IKMZFileRerquest, IKMLSRequest {
             // does add/remove/add or there are multiple map instances.
             if(targetFile.exists() && (targetFile.length() > 0) && (targetFile.canRead())) {
                 Log.i(TAG, "file " + targetFilePath + " exists, no need to fetch");
+                kmzFilePath = targetFilePath;
+                kmzDirectory = directory;
             } else {
 
                 // Clean directory just in case and then copy the file over.

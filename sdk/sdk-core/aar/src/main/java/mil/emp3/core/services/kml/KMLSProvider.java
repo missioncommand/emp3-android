@@ -74,7 +74,7 @@ public class KMLSProvider {
      * @param map
      * @param mapService
      * @param cmrd
-     * @return
+     * @return if service was added then returns true else returns false.
      * @throws EMP_Exception
      */
     public boolean addMapService(IMap map, IKMLS mapService, ClientMapRestoreData cmrd) throws EMP_Exception
@@ -101,7 +101,7 @@ public class KMLSProvider {
      * This is processed in-line like any other removeFeature.
      * @param map
      * @param mapService
-     * @return
+     * @return If service exista and is removed then returns true else returns false.
      * @throws EMP_Exception
      */
     public boolean removeMapService(IMap map, IKMLS mapService, ClientMapRestoreData cmrd) throws EMP_Exception
@@ -206,7 +206,7 @@ public class KMLSProvider {
                             reporter.generateEvent(request.getMap(), request.getService(), KMLSEventEnum.KML_SERVICE_FILE_EXPLODED);
                             request.listFiles(request.getKmzDirectory());
                         } catch (EMP_Exception e) {
-                            Log.i(TAG, "KMLProcessor-run " + e.getMessage(), e);
+                            Log.e(TAG, "KMLProcessor-run " + e.getMessage(), e);
                             reporter.generateEvent(request.getMap(), request.getService(), KMLSEventEnum.KML_SERVICE_FILE_INVALID);
                         }
                     }

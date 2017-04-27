@@ -242,7 +242,7 @@ public class EmpKMLParser {
                         // If the IconUrl is already a well formed URL then don't touch it. Otherwise it is probably a relative
                         // path from the KMZ file, so create a file URL for the path.
                         try {
-                            URL url = new URL(kmlStyle.getIconUrl());
+                            new URL(kmlStyle.getIconUrl());   // This is done to check validity of URL, don't remove, we process the exception.
                             newPoint.setIconURI(kmlStyle.getIconUrl());
                         } catch (MalformedURLException e) {
                             try {

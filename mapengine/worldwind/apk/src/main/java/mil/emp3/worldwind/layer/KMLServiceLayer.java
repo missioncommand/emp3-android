@@ -9,7 +9,7 @@ import mil.emp3.worldwind.feature.KMLFeature;
  * KMLService creates KMLFeature(s) and they will get added to this layer.
  */
 public class KMLServiceLayer extends EmpLayer<IKML> {
-    final static private String TAG = KMLLayer.class.getSimpleName();
+    final static private String TAG = KMLServiceLayer.class.getSimpleName();
 
     public KMLServiceLayer(MapInstance mapInstance) {
         super(TAG, mapInstance);

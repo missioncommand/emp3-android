@@ -1678,7 +1678,9 @@ public class StorageManager implements IStorageManager {
             oList = new ArrayList<>();
         }
 
-        KMLSRequest.listKmlsRoot();
+        if(Log.isLoggable(TAG, Log.VERBOSE)) {
+            KMLSRequest.listKmlsRoot();
+        }
         return oList;
     }
 

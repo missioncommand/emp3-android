@@ -170,7 +170,7 @@ public class KMLS extends MapService implements IKMLS {
 
     @Override
     public String toString() {
-        String str = "KMLS: ";
+        String str = "KMLS: " + super.toString();
         if(null != getName()) {
             str += "name: " + getName() + " ";
         }

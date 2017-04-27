@@ -132,7 +132,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     /**
      * This constructor creates a KML feature from the KML obtained from the URL.
      * @param url A valid URL to a KML resource.
-     * @param documentBase A valid filesystem path (e.g. where KMZ fro adding of KML Service was exploded)
+     * @param documentBase A valid filesystem path (e.g. where KMZ from adding of KML Service was exploded)
      * @throws IllegalArgumentException This exception is raised if the url is null.
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.

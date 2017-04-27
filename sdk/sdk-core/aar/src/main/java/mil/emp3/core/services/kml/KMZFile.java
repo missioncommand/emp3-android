@@ -21,7 +21,7 @@ public class KMZFile {
     private static String TAG = KMZFile.class.getSimpleName();
     private final int READ_BUFFER_SIZE = 4096;
 
-    public interface IKMZFileRerquest {
+    public interface IKMZFileRequest {
         File getDestinationDir();
         String getSourceFilePath();
         String getKmlFilePath();
@@ -37,7 +37,7 @@ public class KMZFile {
      * @param request
      * @throws EMP_Exception
      */
-    protected void unzipKMZFile(IKMZFileRerquest request) throws EMP_Exception {
+    protected void unzipKMZFile(IKMZFileRequest request) throws EMP_Exception {
 
         try {
             String kmlFilePath = null;

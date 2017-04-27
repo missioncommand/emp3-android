@@ -259,11 +259,7 @@ public abstract class MapStatus implements IMapStatus {
 
     @Override
     public boolean serviceExists(UUID uuid) {
-        if(this.mapServiceHash.containsKey(uuid)) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.mapServiceHash.containsKey(uuid);
     }
 
     @Override
