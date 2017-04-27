@@ -2181,6 +2181,7 @@ public class MainActivity extends AppCompatActivity
                     wmtsService = new WMTS(
                             "http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts",
                             null, null, layers);
+                    Log.i(TAG, wmtsService.toString());
                     map.addMapService(MainActivity.this.wmtsService);
                     ICamera camera = this.map.getCamera();
                     camera.setLatitude(64.27);
@@ -2209,6 +2210,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     wcsService = new WCS("https://worldwind26.arc.nasa.gov/wcs",
                             "aster_v2");
+                    Log.i(TAG, wcsService.toString());
                     map.addMapService(wcsService);
                     MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
                     oItem.setEnabled(true);
@@ -2283,6 +2285,7 @@ public class MainActivity extends AppCompatActivity
                                         transparent.equalsIgnoreCase("true"),
                                         layers
                                 );
+                                Log.i(TAG, wmsService.toString());
                             } catch (MalformedURLException ex) {
                                 ex.printStackTrace();
                             }
