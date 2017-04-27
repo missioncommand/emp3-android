@@ -73,6 +73,7 @@ dependencyManagement {
         dependency ("org.mockito:mockito-core:2.0.43-beta")
         dependency ("org.powermock:powermock-api-mockito:1.6.2")
         dependency ("org.powermock:powermock-module-junit4:1.6.2")
+        dependency ("org.robolectric:robolectric:3.3.2")
     }
 }
 
