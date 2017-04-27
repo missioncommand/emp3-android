@@ -70,5 +70,20 @@ public class Text extends Feature<IGeoText> implements IGeoText {
     public void setRotationAngle(double value) {
         this.setAzimuth(value);
     }
+
+    /**
+     *
+     * @return String gives point parameters
+     */
+
+    @Override
+    public String toString() {
+        return "Text at\n" +
+                "\tlatitude: " + getPosition().getLatitude() + "\n" +
+                "\tlongitude: " + getPosition().getLongitude() + "\n" +
+                "\taltitude: " + getPosition().getAltitude() + "\n" +
+                "\ttext: " +  getText();
+    }
+
 }
 
