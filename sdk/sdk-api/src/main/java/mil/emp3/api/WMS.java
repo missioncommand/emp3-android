@@ -154,4 +154,22 @@ public class WMS extends MapService implements IWMS {
     public List<String> getLayers() {
         return this.oLayers;
     }
+
+    /**
+     * Prints all configuration parameters
+     */
+    @Override
+    public String toString() {
+        String str = "URL: " + getURL() + "\n"
+                + "WMS Version: " + eVersion.toString() + "\n"
+                + "Transparent: " + bTransparent + "\n"
+                + "Tile format: " + sTileFormat + "\n";
+        if (oLayers != null && oLayers.size() > 0) {
+            str += "Layers: \n";
+            for (String layer : oLayers) {
+                str += "\t" + layer + "\n";
+            }
+        }
+        return str;
+    }
 }
