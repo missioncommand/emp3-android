@@ -35,9 +35,12 @@ import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layer.BackgroundLayer;
+import gov.nasa.worldwind.layer.BlueMarbleLandsatLayer;
 import gov.nasa.worldwind.layer.Layer;
 import gov.nasa.worldwind.layer.LayerFactory;
 import gov.nasa.worldwind.layer.RenderableLayer;
+
+import gov.nasa.worldwind.ogc.Wcs100ElevationCoverage;
 import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderResourceCache;
 import gov.nasa.worldwind.shape.SurfaceImage;
@@ -59,6 +62,7 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.interfaces.IUUIDSet;
+import mil.emp3.api.interfaces.IWCS;
 import mil.emp3.api.interfaces.IWMS;
 import mil.emp3.api.interfaces.IWMTS;
 import mil.emp3.api.interfaces.core.IStorageManager;
@@ -576,6 +580,24 @@ public class MapInstance extends CoreMapInstance {
         }
     }
 
+    private void addWCSService(final IWCS wcs) {
+
+        // Specify the bounding sector - provided by the WCS
+        Sector coverageSector = Sector.fromDegrees(-83.0, -180.0, 173.0, 360.0);
+        // Specify the number of levels to match data resolution
+        int numberOfLevels = 12;
+        // Specify the version 1.0.0 WCS address
+        // Create an elevation coverage from a version 1.0.0 WCS
+        Wcs100ElevationCoverage aster = new Wcs100ElevationCoverage(coverageSector, numberOfLevels,
+                wcs.getServiceURL(), wcs.getCoverageName());
+
+        // Remove any existing coverages from the Globe
+        ww.getGlobe().getElevationModel().clearCoverages();
+
+        // Add the coverage to the Globes elevation model
+        ww.getGlobe().getElevationModel().addCoverage(aster);
+    }
+
     private void addWMSService(final IWMS wms) {
         // Create a layer factory, World Wind's general component for creating layers
         // from complex data sources.
@@ -710,7 +732,9 @@ public class MapInstance extends CoreMapInstance {
             addGeoPackage((IGeoPackage) mapService);
         } else if (mapService instanceof IWMTS) {
             addWMTSService((IWMTS) mapService);
-        } else if(mapService instanceof IKMLS) {
+        } else if (mapService instanceof IWCS) {
+                this.addWCSService((IWCS) mapService);
+	} else if(mapService instanceof IKMLS) {
             // clientApplication used addMapService for KMLService. Features generated based on that add are added directly
             // to a special background layer. We need to investigate if we should generate an event for this.
             kmlServiceLayer.plot(((IKMLS)mapService).getFeature(), true);
@@ -767,6 +791,9 @@ public class MapInstance extends CoreMapInstance {
                     this.miniMap.requestRedraw();
                 }
             }
+        } else if (mapService instanceof  IWCS) {
+            ww.getGlobe().getElevationModel().clearCoverages();
+            ww.requestRedraw();
         } else if (mapService instanceof IKMLS) {
             IKMLS kmlService = (IKMLS) mapService;
             if(null != kmlService.getFeature()) {
@@ -775,7 +802,7 @@ public class MapInstance extends CoreMapInstance {
             ww.requestRedraw();
         } else {
             Log.e(TAG, "removing unsupported MapService " + mapService.getClass().getCanonicalName());
-        }
+        } 
     }
 
     @Override

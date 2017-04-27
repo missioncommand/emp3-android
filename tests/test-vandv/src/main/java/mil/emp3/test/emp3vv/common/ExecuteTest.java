@@ -37,9 +37,11 @@ import mil.emp3.test.emp3vv.optItems.MapGridMGRSAction;
 import mil.emp3.test.emp3vv.optItems.MapGridNoneAction;
 import mil.emp3.test.emp3vv.optItems.MapGridUTMAction;
 import mil.emp3.test.emp3vv.optItems.RemoveGeoPackageSettings;
+import mil.emp3.test.emp3vv.optItems.RemoveWcsSettings;
 import mil.emp3.test.emp3vv.optItems.RemoveWmsSettings;
 import mil.emp3.test.emp3vv.optItems.RemoveWmtsSettings;
 import mil.emp3.test.emp3vv.optItems.ScreenCaptureAction;
+import mil.emp3.test.emp3vv.optItems.WcsSettings;
 import mil.emp3.test.emp3vv.optItems.WmsSettings;
 import mil.emp3.test.emp3vv.optItems.WmtsSettings;
 
@@ -76,6 +78,8 @@ public class ExecuteTest {
         optionSettings.put("Bounds", Bounds.class);
         optionSettings.put("Look At", LookAt.class);
         optionSettings.put("Map", Map.class);
+        optionSettings.put("Add WCS", WcsSettings.class);
+        optionSettings.put("Remove WCS", RemoveWcsSettings.class);
         optionSettings.put("Add WMS", WmsSettings.class);
         optionSettings.put("Remove WMS", RemoveWmsSettings.class);
         optionSettings.put("Add WMTS", WmtsSettings.class);
