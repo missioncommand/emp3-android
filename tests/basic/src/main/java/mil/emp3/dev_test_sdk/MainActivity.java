@@ -2343,7 +2343,7 @@ public class MainActivity extends AppCompatActivity
 
                     oPoint.setPosition(oPosList.get(0));
                     this.oRootOverlay.addFeature(oPoint, true);
-
+                    Log.i(TAG, oPoint.toString());
                 } catch (EMP_Exception ex) {
                 }
                 return true;
@@ -2359,7 +2359,7 @@ public class MainActivity extends AppCompatActivity
                     oIconStyle.setOffSetX(20);
                     oPoint.setIconStyle(oIconStyle);
                     this.oRootOverlay.addFeature(oPoint, true);
-
+                    Log.i(TAG, oPoint.toString());
                 } catch (EMP_Exception ex) {
                 }
                 return true;
@@ -2553,7 +2553,7 @@ public class MainActivity extends AppCompatActivity
                 textFeature.setName("Text");
                 textFeature.setDescription("Draw Text Feature.");
                 //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-
+                Log.i(TAG, textFeature.toString());
                 try {
                     this.map.drawFeature(textFeature, new FeatureDrawListener(textFeature));
                 } catch(EMP_Exception Ex) {
@@ -2575,7 +2575,7 @@ public class MainActivity extends AppCompatActivity
                 linePath.setName("Line");
                 linePath.setDescription("Draw Line Feature.");
                 //linePath.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-
+                Log.i(TAG, linePath.toString());
                 try {
                     this.map.drawFeature(linePath, new FeatureDrawListener(linePath));
                 } catch(EMP_Exception Ex) {
@@ -2604,6 +2604,7 @@ public class MainActivity extends AppCompatActivity
                 polygon.setDescription("Draw Polygon Feature.");
 
                 //polygon.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, polygon.toString());
                 try {
                     this.map.drawFeature(polygon, new FeatureDrawListener(polygon));
                 } catch(EMP_Exception Ex) {
@@ -2632,6 +2633,7 @@ public class MainActivity extends AppCompatActivity
                 circle.setDescription("Draw Circle Feature.");
 
                 circle.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, circle.toString());
                 try {
                     this.map.drawFeature(circle, new FeatureDrawListener(circle));
                 } catch(EMP_Exception Ex) {
@@ -2660,6 +2662,7 @@ public class MainActivity extends AppCompatActivity
                 ellipse.setDescription("Draw Ellipse Feature.");
 
                 ellipse.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, ellipse.toString());
                 try {
                     this.map.drawFeature(ellipse, new FeatureDrawListener(ellipse));
                 } catch(EMP_Exception Ex) {
@@ -2688,6 +2691,7 @@ public class MainActivity extends AppCompatActivity
                 feature.setDescription("Draw Rectangle Feature.");
 
                 feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, feature.toString());
                 try {
                     this.map.drawFeature(feature, new FeatureDrawListener(feature));
                 } catch(EMP_Exception Ex) {
@@ -2716,6 +2720,7 @@ public class MainActivity extends AppCompatActivity
                 feature.setDescription("Draw Square Feature.");
 
                 feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, feature.toString());
                 try {
                     this.map.drawFeature(feature, new FeatureDrawListener(feature));
                 } catch(EMP_Exception Ex) {

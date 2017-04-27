@@ -126,4 +126,17 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     public int getResourceId() {
         return this.resourceId;
     }
+
+    /**
+     *
+     * @return String gives point parameters
+     */
+
+    @Override
+    public String toString() {
+        return "Point at\n" +
+                "\tlatitude: " + getPosition().getLatitude() + "\n" +
+                "\tlongitude: " + getPosition().getLongitude() + "\n" +
+                "\taltitude: " + getPosition().getAltitude();
+    }
 }

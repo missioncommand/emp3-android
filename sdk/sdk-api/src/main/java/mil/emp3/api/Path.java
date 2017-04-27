@@ -42,4 +42,26 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
     public Path(IGeoRenderable oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_PATH);
     }
+
+    /**
+     *
+     * @return String gives path parameters
+     */
+
+    @Override
+    public String toString() {
+        String str =  "Path ";
+        if (getPositions() != null && !getPositions().isEmpty()) {
+            str += "with " + getPositions().size() + " points\n";
+            for (IGeoPosition position : getPositions()) {
+                str += "\tlatitude: " + position.getLatitude() + ", " +
+                        "\tlongitude: " + position.getLongitude() + ", " +
+                        "\taltitude: " + position.getAltitude() + "\n";
+            }
+        } else {
+            str +="with zero points";
+        }
+        return str;
+    }
+
 }
