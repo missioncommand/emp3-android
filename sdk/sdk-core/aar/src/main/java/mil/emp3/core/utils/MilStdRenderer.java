@@ -39,6 +39,7 @@ import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ColorUtils;
 import mil.emp3.api.utils.EmpGeoColor;
+import mil.emp3.api.utils.EmpStyles;
 import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.MilStdUtilities;
 import mil.emp3.core.utils.milstd2525.icons.BitmapCacheFactory;
@@ -55,9 +56,6 @@ import sec.web.render.SECWebRenderer;
 public class MilStdRenderer implements IMilStdRenderer {
     private static final String TAG = MilStdRenderer.class.getSimpleName();
     private static boolean debugMe = false; // Added to debug Issue #92. Will remove when all problems related to it are resolved.
-
-    // The pixel density of the device display.
-    private static final double STIPPLE_FACTOR_DISPLAY_DENSITY_MODIFIER = (double) Resources.getSystem().getDisplayMetrics().densityDpi / 96.0;
 
     public static final String METOC_PRESSURE_INSTABILITY_LINE = "WA-DPXIL---L---";
     public static final String METOC_PRESSURE_SHEAR_LINE = "WA-DPXSH---L---";
@@ -288,11 +286,7 @@ public class MilStdRenderer implements IMilStdRenderer {
             if (lineColor != null) {
                 currentStrokeStyle = new GeoStrokeStyle();
                 currentStrokeStyle.setStrokeWidth((symbolStrokeStyle == null)? 3: symbolStrokeStyle.getStrokeWidth());
-                newLineColor = currentStrokeStyle.getStrokeColor();
-                newLineColor.setAlpha((double) lineColor.getAlpha() / 255.0);
-                newLineColor.setRed(lineColor.getRed());
-                newLineColor.setGreen(lineColor.getGreen());
-                newLineColor.setBlue(lineColor.getBlue());
+                EmpStyles.copyColor(currentStrokeStyle.getStrokeColor(), lineColor);
             }
 
             if (selected) {
@@ -302,12 +296,7 @@ public class MilStdRenderer implements IMilStdRenderer {
                 if (null == currentStrokeStyle) {
                     currentStrokeStyle = new GeoStrokeStyle();
                 }
-                newLineColor = currentStrokeStyle.getStrokeColor();
-
-                newLineColor.setAlpha(selectedColor.getAlpha());
-                newLineColor.setRed(selectedColor.getRed());
-                newLineColor.setGreen(selectedColor.getGreen());
-                newLineColor.setBlue(selectedColor.getBlue());
+                EmpStyles.copyColor(currentStrokeStyle.getStrokeColor(), selectedColor);
                 currentStrokeStyle.setStrokeWidth(selectedLineStyle.getStrokeWidth());
             }
 
@@ -324,11 +313,7 @@ public class MilStdRenderer implements IMilStdRenderer {
             fillColor = shapeInfo.getFillColor();
             if (fillColor != null) {
                 currentFillStyle = new GeoFillStyle();
-                geoFillColor =  currentFillStyle.getFillColor();
-                geoFillColor.setAlpha((double) fillColor.getAlpha() / 255.0);
-                geoFillColor.setRed(fillColor.getRed());
-                geoFillColor.setGreen(fillColor.getGreen());
-                geoFillColor.setBlue(fillColor.getBlue());
+                EmpStyles.copyColor(currentFillStyle.getFillColor(), fillColor);
             }
 
             switch (shapeInfo.getShapeType()) {
@@ -559,7 +544,7 @@ public class MilStdRenderer implements IMilStdRenderer {
                 break;
         }
 
-        return (int) Math.round((double) factor * STIPPLE_FACTOR_DISPLAY_DENSITY_MODIFIER);
+        return factor;
     }
 
     /**
@@ -730,11 +715,7 @@ public class MilStdRenderer implements IMilStdRenderer {
                 IGeoStrokeStyle selectedStrokeStyle = storageManager.getSelectedStrokeStyle(mapInstance);
 
                 if (null != selectedStrokeStyle.getStrokeColor()) {
-                    IGeoColor selectedColor = selectedStrokeStyle.getStrokeColor();
-                    currentStrokeStyle.getStrokeColor().setAlpha(selectedColor.getAlpha());
-                    currentStrokeStyle.getStrokeColor().setRed(selectedColor.getRed());
-                    currentStrokeStyle.getStrokeColor().setGreen(selectedColor.getGreen());
-                    currentStrokeStyle.getStrokeColor().setBlue(selectedColor.getBlue());
+                    EmpStyles.copyColor(currentStrokeStyle.getStrokeColor(), selectedStrokeStyle.getStrokeColor());
                 }
 
                 currentStrokeStyle.setStrokeWidth(selectedStrokeStyle.getStrokeWidth());
@@ -743,11 +724,7 @@ public class MilStdRenderer implements IMilStdRenderer {
                     currentStrokeStyle.setStipplingPattern(featureStrokeStyle.getStipplingPattern());
                 }
             } else if ((null != featureStrokeStyle) && (null != featureStrokeStyle.getStrokeColor())) {
-                IGeoColor featureColor = featureStrokeStyle.getStrokeColor();
-                currentStrokeStyle.getStrokeColor().setAlpha(featureColor.getAlpha());
-                currentStrokeStyle.getStrokeColor().setRed(featureColor.getRed());
-                currentStrokeStyle.getStrokeColor().setGreen(featureColor.getGreen());
-                currentStrokeStyle.getStrokeColor().setBlue(featureColor.getBlue());
+                EmpStyles.copyColor(currentStrokeStyle.getStrokeColor(), featureStrokeStyle.getStrokeColor());
 
                 currentStrokeStyle.setStrokeWidth(featureStrokeStyle.getStrokeWidth());
                 currentStrokeStyle.setStipplingFactor(featureStrokeStyle.getStipplingFactor());

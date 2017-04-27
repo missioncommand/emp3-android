@@ -86,4 +86,36 @@ public class EmpStyles {
         geoStrokeStyle.setStipplingPattern(stipplingPattern);
         return geoStrokeStyle;
     }
+
+    /**
+     * This method copies a renderer color to a geo color.
+     * @param toColor       The geo color to copy to.
+     * @param fromColor     the renderer color to copy from.
+     */
+    public static void copyColor(IGeoColor toColor, armyc2.c2sd.renderer.utilities.Color fromColor) {
+        if ((null == toColor) || (null == fromColor)) {
+            throw new IllegalArgumentException("toColor and fromColor can not be null.");
+        }
+
+        toColor.setAlpha((double) fromColor.getAlpha() / 255.0);
+        toColor.setRed(fromColor.getRed());
+        toColor.setGreen(fromColor.getGreen());
+        toColor.setBlue(fromColor.getBlue());
+    }
+
+    /**
+     * This method copies a geo color to another geo color.
+     * @param toColor       The geo color to copy to.
+     * @param fromColor     the geo color to copy from.
+     */
+    public static void copyColor(IGeoColor toColor, IGeoColor fromColor) {
+        if ((null == toColor) || (null == fromColor)) {
+            throw new IllegalArgumentException("toColor and fromColor can not be null.");
+        }
+
+        toColor.setAlpha(fromColor.getAlpha());
+        toColor.setRed(fromColor.getRed());
+        toColor.setGreen(fromColor.getGreen());
+        toColor.setBlue(fromColor.getBlue());
+    }
 }
