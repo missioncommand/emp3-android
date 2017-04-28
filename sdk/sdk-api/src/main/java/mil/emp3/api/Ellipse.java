@@ -206,12 +206,19 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
 
     @Override
     public String toString() {
-        return "Ellipse at\n" +
-                "\tlatitude: " + getPosition().getLatitude() + "\n" +
-                "\tlongitude: " + getPosition().getLongitude() + "\n" +
-                "\taltitude: " + getPosition().getAltitude() + "\n" +
-                "\tsemi-major: " + getSemiMajor() + "\n" +
-                "\tsemi-minor: " + getSemiMinor() + "\n" +
-                "\tazimuth: " + getAzimuth() + "\n";
+        if (getPosition() != null) {
+            return "Ellipse at\n" +
+                    "\tlatitude: " + getPosition().getLatitude() + "\n" +
+                    "\tlongitude: " + getPosition().getLongitude() + "\n" +
+                    "\taltitude: " + getPosition().getAltitude() + "\n" +
+                    "\tsemi-major: " + getSemiMajor() + "\n" +
+                    "\tsemi-minor: " + getSemiMinor() + "\n" +
+                    "\tazimuth: " + getAzimuth() + "\n";
+        } else {
+            return "Ellipse \n" +
+                    "\tsemi-major: " + getSemiMajor() + "\n" +
+                    "\tsemi-minor: " + getSemiMinor() + "\n" +
+                    "\tazimuth: " + getAzimuth() + "\n";
+        }
     }
 }
