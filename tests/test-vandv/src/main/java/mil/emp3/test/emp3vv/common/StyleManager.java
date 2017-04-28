@@ -51,10 +51,14 @@ public class StyleManager implements LabelStyleDialog.ILabelStyleDialogListener,
                 "Set Label Style", "Set Stroke Style", "Set Fill Style",
                 "Default Label Style", "Default Stroke Style", "Default Fill Style", "Apply Styles"};
 
-        String combined[] = new String[actions.length + styleActions.length];
-        System.arraycopy(actions, 0, combined, 0, actions.length);
-        System.arraycopy(styleActions, 0, combined, actions.length, styleActions.length);
-        return combined;
+        if((null != actions) && (actions.length > 0)) {
+            String combined[] = new String[actions.length + styleActions.length];
+            System.arraycopy(actions, 0, combined, 0, actions.length);
+            System.arraycopy(styleActions, 0, combined, actions.length, styleActions.length);
+            return combined;
+        } else {
+            return styleActions;
+        }
     }
 
     /**

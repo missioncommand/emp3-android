@@ -57,6 +57,7 @@ import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IGeoPackage;
 import mil.emp3.api.interfaces.IImageLayer;
+import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
@@ -83,6 +84,7 @@ import mil.emp3.worldwind.layer.EmpLayer;
 import mil.emp3.worldwind.layer.GeoJSONLayer;
 import mil.emp3.worldwind.layer.IconLayer;
 import mil.emp3.worldwind.layer.KMLLayer;
+import mil.emp3.worldwind.layer.KMLServiceLayer;
 import mil.emp3.worldwind.layer.MapGridLayer;
 import mil.emp3.worldwind.layer.MilStdSymbolLayer;
 import mil.emp3.worldwind.layer.PathLayer;
@@ -133,6 +135,7 @@ public class MapInstance extends CoreMapInstance {
     private ImageSource hatchImageSource;
     private ImageSource crossHatchImageSource;
     private MapGridLayer gridLayer = null;
+    private KMLServiceLayer kmlServiceLayer = null; // KML Service created KML Features are added her.
 
     private final Map<FeatureTypeEnum, EmpLayer> empLayerMap = new HashMap<>();
 
@@ -273,6 +276,9 @@ public class MapInstance extends CoreMapInstance {
 
         this.imageLayer = new RenderableLayer();
         ww.getLayers().addLayer(this.imageLayer);
+
+        this.kmlServiceLayer = new KMLServiceLayer(this); // Is this the correct order?
+        ww.getLayers().addLayer(kmlServiceLayer);
 
         this.brightnessLayer = new RenderableLayer();
         ww.getLayers().addLayer(this.brightnessLayer);
@@ -714,78 +720,43 @@ public class MapInstance extends CoreMapInstance {
         );
     }
 
+    private void addMapServiceEx(final IMapService mapService) {
+        if(null == mapService) {
+            return;
+        }
+        if (mapService instanceof IWMS) {
+            addWMSService((IWMS) mapService);
+        } else if (mapService instanceof IImageLayer) {
+            addImageLayer((IImageLayer) mapService);
+        } else if (mapService instanceof IGeoPackage) {
+            addGeoPackage((IGeoPackage) mapService);
+        } else if (mapService instanceof IWMTS) {
+            addWMTSService((IWMTS) mapService);
+        } else if (mapService instanceof IWCS) {
+                this.addWCSService((IWCS) mapService);
+	} else if(mapService instanceof IKMLS) {
+            // clientApplication used addMapService for KMLService. Features generated based on that add are added directly
+            // to a special background layer. We need to investigate if we should generate an event for this.
+            kmlServiceLayer.plot(((IKMLS)mapService).getFeature(), true);
+            ww.requestRedraw();
+        } else {
+            Log.e(TAG, "This MapService is NOT supported " + mapService.getClass().getName());
+        }
+    }
     @Override
     public void addMapService(final IMapService mapService) {
-        if (mapService instanceof IWMS) {
-            if (!SystemUtils.isCurrentThreadUIThread()) {
+        if (!SystemUtils.isCurrentThreadUIThread()) {
                 /*
                  * SEE HANDLER NOTES ABOVE.
                  */
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        MapInstance.this.addWMSService((IWMS) mapService);
-                    }
-                });
-            } else {
-                this.addWMSService((IWMS) mapService);
-            }
-        } else if (mapService instanceof IImageLayer) {
-            if (!SystemUtils.isCurrentThreadUIThread()) {
-                /*
-                 * SEE HANDLER NOTES ABOVE.
-                 */
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        MapInstance.this.addImageLayer((IImageLayer) mapService);
-                    }
-                });
-            } else {
-                this.addImageLayer((IImageLayer) mapService);
-            }
-        } else if (mapService instanceof IGeoPackage) {
-            if (!SystemUtils.isCurrentThreadUIThread()) {
-                /*
-                 * SEE HANDLER NOTES ABOVE.
-                 */
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        MapInstance.this.addGeoPackage((IGeoPackage) mapService);
-                    }
-                });
-            } else {
-                this.addGeoPackage((IGeoPackage) mapService);
-            }
-        } else if (mapService instanceof IWMTS) {
-            if (!SystemUtils.isCurrentThreadUIThread()) {
-                /*
-                 * SEE HANDLER NOTES ABOVE.
-                 */
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        MapInstance.this.addWMTSService((IWMTS) mapService);
-                    }
-                });
-            } else {
-                this.addWMTSService((IWMTS) mapService);
-            }
-        } else if (mapService instanceof IWCS) {
-            if (!SystemUtils.isCurrentThreadUIThread()) {
-                /*
-                 * SEE HANDLER NOTES ABOVE.
-                 */
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        MapInstance.this.addWCSService((IWCS) mapService);
-                    }
-                });
-            } else {
-                this.addWCSService((IWCS) mapService);
-            }
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    addMapServiceEx(mapService);
+                }
+            });
+        } else {
+            addMapServiceEx(mapService);
         }
     }
 
@@ -823,7 +794,15 @@ public class MapInstance extends CoreMapInstance {
         } else if (mapService instanceof  IWCS) {
             ww.getGlobe().getElevationModel().clearCoverages();
             ww.requestRedraw();
-        }
+        } else if (mapService instanceof IKMLS) {
+            IKMLS kmlService = (IKMLS) mapService;
+            if(null != kmlService.getFeature()) {
+                removeFeature(kmlService.getFeature().getGeoId(), null);
+            }
+            ww.requestRedraw();
+        } else {
+            Log.e(TAG, "removing unsupported MapService " + mapService.getClass().getCanonicalName());
+        } 
     }
 
     @Override

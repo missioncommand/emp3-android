@@ -58,7 +58,7 @@ public class Emp3LifeCycleManager {
     }
 
     /**
-     * Mark the state as puaing
+     * Mark the state as pausing
      */
     public static void onPause() {
         pausing = true;

@@ -39,6 +39,7 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IContainerSet;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
@@ -52,7 +53,9 @@ import mil.emp3.api.interfaces.core.storage.IParentRelationship;
 import mil.emp3.api.interfaces.core.storage.IStorageObjectWrapper;
 import mil.emp3.api.utils.ContainerSet;
 import mil.emp3.api.utils.UUIDSet;
+import mil.emp3.core.services.kml.KMLSRequest;
 import mil.emp3.core.utils.IdentifierVisibilityHash;
+import mil.emp3.core.services.kml.KMLSProvider;
 import mil.emp3.core.utils.milstd2525.icons.BitmapCacheFactory;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
@@ -1538,8 +1541,16 @@ public class StorageManager implements IStorageManager {
         }
     }
 
+    /**
+     * This is invoked on MAP_READY to redraw all map features and add all services as activity has restarted. We may want to push this
+     * on a background thread.
+     *
+     * @param clientMap
+     * @param userContext
+     * @param cmrd
+     */
     @Override
-    public void redrawAllFeatures(IMap clientMap, Object userContext) {
+    public void redrawAllFeaturesAndServices(IMap clientMap, Object userContext, IClientMapRestoreData cmrd) {
         IMapInstance mapInstance = getMapInstance(clientMap);
         if (null == mapInstance) {
             //Log.i(TAG, "redrawAllFeatures: mapInstance is null, skip");
@@ -1549,25 +1560,40 @@ public class StorageManager implements IStorageManager {
         try {
             lock.lock();
             List<IFeature> features = getChildFeatures(clientMap);
-            if ((null == features) || (0 == features.size())) {
-                //Log.i(TAG, "redrawAllfeatures: there are no features.");
-                return;
-            }
-
-            FeatureVisibilityList fvList = new FeatureVisibilityList();
-            for (IFeature feature : features) {
-                if (VisibilityStateEnum.VISIBLE == getVisibilityOnMap(clientMap, feature)) {
-                    fvList.add(new FeatureVisibility(feature, true));
+            if ((null != features) || (0 < features.size())) {
+                FeatureVisibilityList fvList = new FeatureVisibilityList();
+                for (IFeature feature : features) {
+                    if (VisibilityStateEnum.VISIBLE == getVisibilityOnMap(clientMap, feature)) {
+                        fvList.add(new FeatureVisibility(feature, true));
+                    } else {
+                        //Log.d(TAG, "feature is not visible " + feature.getClass().getSimpleName() + " " + feature.getGeoId());
+                    }
+                }
+                if (fvList.size() > 0) {
+                    mapInstance.addFeatures(fvList, userContext);
+                    mapInstance.selectFeatures(this.getSelected(clientMap));
                 } else {
-                    //Log.d(TAG, "feature is not visible " + feature.getClass().getSimpleName() + " " + feature.getGeoId());
+                    //Log.i(TAG, "redrawAllFeatures: There are no visible faetures");
                 }
             }
-            if (fvList.size() > 0) {
-                mapInstance.addFeatures(fvList, userContext);
-                mapInstance.selectFeatures(this.getSelected(clientMap));
-            } else {
-                //Log.i(TAG, "redrawAllFeatures: There are no visible faetures");
+            // add All Services
+            Collection<IMapService> services;
+            if ((null != cmrd) && (null != (services = cmrd.getMapServiceHash().values()))) {
+                for (IMapService mapService : services) {
+                    try {
+                        if (mapService instanceof IKMLS) {
+                            // KML Service is different than other services. Look at KMLSProcessor
+                            KMLSProvider.create(this).restoreMapService(clientMap, (IKMLS) mapService,
+                                    (KMLSRequest) cmrd.getKmlRequest(mapService.getGeoId()));
+                        } else {
+                            addMapService(clientMap, mapService);
+                        }
+                    } catch (EMP_Exception e) {
+                        Log.e(TAG, "restoring of map service " + mapService.getClass().getSimpleName() + " Failed ", e);
+                    }
+                }
             }
+
         } finally {
             lock.unlock();
         }
@@ -1578,14 +1604,16 @@ public class StorageManager implements IStorageManager {
 
         try {
             lock.lock();
-            if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
+            ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
+            if(mapService instanceof IKMLS) {
+                KMLSProvider.create(this).addMapService(map, (IKMLS) mapService, cmrd);
+            } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 mapMapping.getMapInstance().addMapService(mapService);
                 mapMapping.addMapService(mapService);
 
                 // We will need this when client does a swap engine or activity is restored.
                 // When activity is restored we still save the entire list anyway, that may be redundant
-                ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
                 if (null != cmrd) {
                     cmrd.addMapService(mapService);
                 }
@@ -1598,17 +1626,18 @@ public class StorageManager implements IStorageManager {
     @Override
     public void removeMapService(IMap map, IMapService mapService) throws EMP_Exception {
         ClientMapToMapInstance mapMapping;
-
+        ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
         try {
             lock.lock();
-            if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
+            if(mapService instanceof IKMLS) {
+                KMLSProvider.create(this).removeMapService(map, (IKMLS) mapService, cmrd);
+            } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 if (mapMapping.removeMapService(mapService)) {
                     mapMapping.getMapInstance().removeMapService(mapService);
                 }
                 // We will need this when client does a swap engine or activity is restored.
                 // When activity is restored we still save the entire list anyway, that may be redundant
-                ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
                 if (null != cmrd) {
                     cmrd.removeMapService(mapService);
                 }
@@ -1630,6 +1659,10 @@ public class StorageManager implements IStorageManager {
         } else {
             oList = new ArrayList<>();
         }
+
+        // if(Log.isLoggable(TAG, Log.VERBOSE)) { This causes unit test issue. We need to fix how unit testst are setup.
+        KMLSRequest.listKmlsRoot();
+        // }
         return oList;
     }
 

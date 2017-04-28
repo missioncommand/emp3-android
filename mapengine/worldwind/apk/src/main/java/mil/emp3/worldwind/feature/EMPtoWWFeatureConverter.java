@@ -12,7 +12,6 @@ import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class EMPtoWWFeatureConverter {
      */
     public Placemark createPlacemark(mil.emp3.api.Point feature, boolean isSelected) {
         Offset imageOffset;
-        PlacemarkAttributes oAttr;
+        PlacemarkAttributes oAttr = null;
         IGeoIconStyle oIconStyle = feature.getIconStyle();
         IGeoPosition oPos = feature.getPosition();
         String sURL = feature.getIconURI();

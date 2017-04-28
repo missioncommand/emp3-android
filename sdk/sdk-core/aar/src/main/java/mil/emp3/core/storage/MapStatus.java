@@ -16,7 +16,10 @@ import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import mil.emp3.api.Camera;
 import mil.emp3.api.MilStdSymbol;
@@ -33,6 +36,7 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
+import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
 import mil.emp3.api.interfaces.core.storage.IMapStatus;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
@@ -49,6 +53,7 @@ import mil.emp3.core.editors.RectangleEditor;
 import mil.emp3.core.editors.SquareEditor;
 import mil.emp3.core.editors.TextEditor;
 import mil.emp3.core.editors.milstd.MilStdSinglePointEditor;
+import mil.emp3.core.services.kml.KMLSRequest;
 import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.mapengine.interfaces.IMapEngineCapabilities;
@@ -77,6 +82,8 @@ public abstract class MapStatus implements IMapStatus {
     private MilStdLabelSettingEnum eLabelSetting = MilStdLabelSettingEnum.COMMON_LABELS;
     // This hash map contains all the map services the map is currently handling.
     private final java.util.HashMap<java.util.UUID, IMapService> mapServiceHash;
+    // Active KML Service requests
+    private Map<UUID, IKMLSRequest> kmlsRequestMap = new HashMap<>();
     // This value is the map's current width in pixels.
     private int iMapViewWidth = 0;
     // this value is the map's current height in pixels.
@@ -249,6 +256,11 @@ public abstract class MapStatus implements IMapStatus {
         }
 
         return oList;
+    }
+
+    @Override
+    public boolean serviceExists(UUID uuid) {
+        return this.mapServiceHash.containsKey(uuid);
     }
 
     @Override
@@ -562,5 +574,20 @@ public abstract class MapStatus implements IMapStatus {
     @Override
     public IGeoFillStyle getBufferFillStyle() {
         return bufferFillStyle;
+    }
+
+    @Override
+    public void addKmlRequest(IKMLSRequest kmlRequest) {
+        kmlsRequestMap.put(kmlRequest.getId(), kmlRequest);
+    }
+
+    @Override
+    public void removeKmlRequest(IKMLSRequest kmlRequest) {
+        kmlsRequestMap.remove(kmlRequest.getId());
+    }
+
+    @Override
+    public IKMLSRequest getKmlRequest(UUID id) {
+        return kmlsRequestMap.get(id);
     }
 }
