@@ -74,67 +74,125 @@ public class KMLSProvider {
      * @param map
      * @param mapService
      * @param cmrd
-     * @return if service was added then returns true else returns false.
      * @throws EMP_Exception
      */
-    public boolean addMapService(IMap map, IKMLS mapService, ClientMapRestoreData cmrd) throws EMP_Exception
-    {
-        try {
-            ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(map);
-            if (mapMapping.serviceExists(mapService.getGeoId())) {
-                Log.i(TAG, "Attempting to add same KML Service that already exists");
-                return false;
-            }
-            mapMapping.addMapService(mapService);   // Add the MapStatus in-line so that duplicate cannot be added
-            IKMLSRequest request = processor.generateRequest(map, mapService); // Process the actual request on a background thread.
-            if(null != cmrd) {
-                cmrd.addKmlRequest(request);
-            }
-            return true;
-        } catch (Exception e) {
-            Log.e(TAG, "addMapService ", e);
-        }
-        return false;
-    }
-
-    /**
-     * This is processed in-line like any other removeFeature.
-     * @param map
-     * @param mapService
-     * @return If service exista and is removed then returns true else returns false.
-     * @throws EMP_Exception
-     */
-    public boolean removeMapService(IMap map, IKMLS mapService, ClientMapRestoreData cmrd) throws EMP_Exception
+    public void addMapService(IMap map, IKMLS mapService, ClientMapRestoreData cmrd) throws EMP_Exception
     {
         try {
             ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(map);
             if (!mapMapping.serviceExists(mapService.getGeoId())) {
-                Log.i(TAG, "Attempting remove KMLS Service that was never added");
-                return false;
-            }
-            KMLSRequest request = mapMapping.getKmlsRequestMap().get(mapService.getGeoId());
-            if(request != null) {
-                mapMapping.removeMapService(request.getService());   // Remove from the map status
 
-                if(null != request.getFeature()) { // Remember failed request may still be in the queue.
-                    // Build a KMLS request and set the Feature to be removed and then invoke map engine API.
-                    IKMLS tmpKMLS = new KMLS(request.getService().getContext(), request.getService().getURL().toString(), request.getService().getListener());
-                    tmpKMLS.setFeature(request.getFeature());
-                    mapMapping.getMapInstance().removeMapService(tmpKMLS);
+                mapMapping.addMapService(mapService);   // Add the MapStatus in-line so that duplicate cannot be added
+
+                // We will need this when client does a swap engine or activity is restored.
+                // When activity is restored we still save the entire list anyway, that may be redundant
+                if (null != cmrd) {
+                    cmrd.addMapService(mapService);
                 }
 
-                // Remove the request from the queue
-                mapMapping.getKmlsRequestMap().remove(mapService.getGeoId());
-                if(null != cmrd) {
-                    cmrd.removeKmlRequest(request);
+                try {
+                    KMLSRequest request = processor.generateRequest(map, mapService); // Process the actual request on a background thread.
+                    mapMapping.addKmlRequest(request);
+                    if (null != cmrd) {
+                        cmrd.addKmlRequest(request);
+                    }
+                } catch (IllegalArgumentException iae) {
+                    Log.e(TAG, "addMapService ", iae);
+                    mapMapping.removeMapService(mapService);
+                    if(null != cmrd) {
+                        cmrd.removeMapService(mapService);
+                    }
                 }
+            } else {
+                Log.i(TAG, "Attempting to add KML Service that already exists " + mapService.getGeoId().toString());
             }
-            return true;
         } catch (Exception e) {
             Log.e(TAG, "addMapService ", e);
         }
-        return false;
     }
+
+    /**
+     * This is processed in-line like any other removeFeature. Update the state by removing map service from MapStatus and
+     * Restore Data. Remove it from Map Engine if it was added.
+     * @param map
+     * @param mapService
+     * @throws EMP_Exception
+     */
+    public void removeMapService(IMap map, IKMLS mapService, ClientMapRestoreData cmrd) throws EMP_Exception
+    {
+        try {
+            ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(map);
+            if (mapMapping.serviceExists(mapService.getGeoId())) {
+                // Update State
+                mapMapping.removeMapService(mapService);
+                if (null != cmrd) {
+                    cmrd.removeMapService(mapService);
+                }
+
+                IKMLSRequest request = mapMapping.getKmlRequest(mapService.getGeoId());
+                if (null != request) {
+                    // Remove the request from the queue
+                    mapMapping.removeKmlRequest(request);
+                    if (null != cmrd) {
+                        cmrd.removeKmlRequest(request);
+                    }
+                    // Remove from map engine
+                    if (null != request.getFeature()) {
+                        // Build a KMLS request and set the Feature to be removed and then invoke map engine API.
+                        IKMLS tmpKMLS = new KMLS(request.getService().getContext(), request.getService().getURL().toString(), request.getService().getListener());
+                        tmpKMLS.setFeature(request.getFeature());
+                        mapMapping.getMapInstance().removeMapService(tmpKMLS);
+                    }
+                }
+            } else {
+                Log.i(TAG, "Attempting remove KMLS Service that was never added " + mapService.getGeoId().toString());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "addMapService ", e);
+        }
+    }
+
+    /**
+     * Restores a KMLS service when activity is restarted. We use the the generated feature rather than recreate it.
+     * You can look at {@link mil.emp3.api.Emp3LifeCycleManager} for further details.
+     * @param map
+     * @param mapService
+     * @param request this can be null if KMLS service installation had failed
+     * @throws EMP_Exception
+     */
+    public void restoreMapService(IMap map, IKMLS mapService, KMLSRequest request) throws EMP_Exception
+    {
+        try {
+            ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(map);
+            if (!mapMapping.serviceExists(mapService.getGeoId())) {
+                // Restore state
+                mapMapping.addMapService(mapService);
+
+                // Draw on Map
+                // Pass the KML Feature to map engine. We are not storing the generated KML Feature in the KMLS service object
+                // supplied by the client application as we don't want the application to act on this feature in any manner.
+                // So a temporary KMLS object is generated and passed on to the Map Engine.
+
+                if(request != null) {
+                    mapMapping.addKmlRequest(request);
+                }
+                if ((null != request) && (null != request.getFeature())) {
+                    try {
+                        KMLS tmpKmls = new KMLS(mapService.getContext(), mapService.getURL().toString(), mapService.getListener());
+                        tmpKmls.setFeature(request.getFeature());
+                        mapMapping.getMapInstance().addMapService(tmpKmls);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Trying to redraw KMLS", e);
+                    }
+                }
+            } else {
+                Log.i(TAG, "Attempting to restore KML Service that already exists " + mapService.getGeoId().toString());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "addMapService ", e);
+        }
+    }
+
     /**
      * Waits on the queue and serially process incoming KML Service Requests.
      */
@@ -158,7 +216,7 @@ public class KMLSProvider {
          * @param map
          * @param mapService
          */
-        IKMLSRequest generateRequest(IMap map, IKMLS mapService) {
+        KMLSRequest generateRequest(IMap map, IKMLS mapService) {
             KMLSRequest kmlsRequest = new KMLSRequest(map, mapService);
             queue.add(kmlsRequest);
             if(mapService instanceof KMLS) {
@@ -228,10 +286,11 @@ public class KMLSProvider {
                         }
                     }
 
-                    // Pass the KML Feature to map engine
+                    // Pass the KML Feature to map engine. We are not storing the generated KML Feature in the KMLS service object
+                    // supplied by the client application as we don't want the application to act on this feature in any manner.
+                    // So a temporary KMLS object is generated and passed on to the Map Engine.
                     if(null != request.getFeature()) {
                         ClientMapToMapInstance mapMapping = (ClientMapToMapInstance) storageManager.getMapMapping(request.getMap());
-                        mapMapping.getKmlsRequestMap().put(request.getService().getGeoId(), request);
                         if ((null != mapMapping) && (null != mapMapping.getMapInstance())) {
                             IKMLS tmpKMLS = new KMLS(request.getService().getContext(), request.getService().getURL().toString(), request.getService().getListener());
                             tmpKMLS.setFeature(request.getFeature());

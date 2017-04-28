@@ -36,6 +36,7 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
+import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
 import mil.emp3.api.interfaces.core.storage.IMapStatus;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
@@ -82,7 +83,7 @@ public abstract class MapStatus implements IMapStatus {
     // This hash map contains all the map services the map is currently handling.
     private final java.util.HashMap<java.util.UUID, IMapService> mapServiceHash;
     // Active KML Service requests
-    private Map<UUID, KMLSRequest> kmlsRequestMap = new HashMap<>();
+    private Map<UUID, IKMLSRequest> kmlsRequestMap = new HashMap<>();
     // This value is the map's current width in pixels.
     private int iMapViewWidth = 0;
     // this value is the map's current height in pixels.
@@ -575,12 +576,18 @@ public abstract class MapStatus implements IMapStatus {
         return bufferFillStyle;
     }
 
-    /**
-     * KMLSProvider maintains a Map of all active KML Service Requests for each Map Client.
-     * @return
-     */
-    public Map<UUID, KMLSRequest> getKmlsRequestMap() {
-        return kmlsRequestMap;
+    @Override
+    public void addKmlRequest(IKMLSRequest kmlRequest) {
+        kmlsRequestMap.put(kmlRequest.getId(), kmlRequest);
     }
 
+    @Override
+    public void removeKmlRequest(IKMLSRequest kmlRequest) {
+        kmlsRequestMap.remove(kmlRequest.getId());
+    }
+
+    @Override
+    public IKMLSRequest getKmlRequest(UUID id) {
+        return kmlsRequestMap.get(id);
+    }
 }

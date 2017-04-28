@@ -25,7 +25,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
 import mil.emp3.api.Camera;
-import mil.emp3.api.KMLS;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Point;
 import mil.emp3.api.enums.ContainerEventEnum;
@@ -50,7 +49,6 @@ import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
-import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
 import mil.emp3.api.interfaces.core.storage.IParentRelationship;
 import mil.emp3.api.interfaces.core.storage.IStorageObjectWrapper;
 import mil.emp3.api.utils.ContainerSet;
@@ -1582,20 +1580,16 @@ public class StorageManager implements IStorageManager {
             Collection<IMapService> services;
             if ((null != cmrd) && (null != (services = cmrd.getMapServiceHash().values()))) {
                 for (IMapService mapService : services) {
-                    if (mapService instanceof IKMLS) {
-                        // KML Service is different than other services. Look at KMLSProcessor
-                        IKMLSRequest kmlsRequest = cmrd.getKmlRequest(mapService.getGeoId());
-                        if(null != kmlsRequest) {
-                            try {
-                                KMLS tmpKmls = new KMLS(((KMLS) mapService).getContext(), ((KMLS) mapService).getURL().toString(), ((KMLS) mapService).getListener());
-                                tmpKmls.setFeature(kmlsRequest.getFeature());
-                                mapInstance.addMapService(tmpKmls);
-                            } catch (Exception e) {
-                                Log.e(TAG, "Trying to redraw KMLS", e);
-                            }
+                    try {
+                        if (mapService instanceof IKMLS) {
+                            // KML Service is different than other services. Look at KMLSProcessor
+                            KMLSProvider.create(this).restoreMapService(clientMap, (IKMLS) mapService,
+                                    (KMLSRequest) cmrd.getKmlRequest(mapService.getGeoId()));
+                        } else {
+                            addMapService(clientMap, mapService);
                         }
-                    } else {
-                        mapInstance.addMapService(mapService);
+                    } catch (EMP_Exception e) {
+                        Log.e(TAG, "restoring of map service " + mapService.getClass().getSimpleName() + " Failed ", e);
                     }
                 }
             }
@@ -1612,13 +1606,7 @@ public class StorageManager implements IStorageManager {
             lock.lock();
             ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
             if(mapService instanceof IKMLS) {
-                if(KMLSProvider.create(this).addMapService(map, (IKMLS) mapService, cmrd)) {
-                    // We will need this when client does a swap engine or activity is restored.
-                    // When activity is restored we still save the entire list anyway, that may be redundant
-                    if (null != cmrd) {
-                        cmrd.addMapService(mapService);
-                    }
-                }
+                KMLSProvider.create(this).addMapService(map, (IKMLS) mapService, cmrd);
             } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 mapMapping.getMapInstance().addMapService(mapService);
@@ -1642,13 +1630,7 @@ public class StorageManager implements IStorageManager {
         try {
             lock.lock();
             if(mapService instanceof IKMLS) {
-                if(KMLSProvider.create(this).removeMapService(map, (IKMLS) mapService, cmrd)) {
-                    // We will need this when client does a swap engine or activity is restored.
-                    // When activity is restored we still save the entire list anyway, that may be redundant
-                    if (null != cmrd) {
-                        cmrd.removeMapService(mapService);
-                    }
-                }
+                KMLSProvider.create(this).removeMapService(map, (IKMLS) mapService, cmrd);
             } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 if (mapMapping.removeMapService(mapService)) {

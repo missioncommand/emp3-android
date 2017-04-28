@@ -83,10 +83,14 @@ public interface IMapStatus {
     void setFontSizeModifier(FontSizeModifierEnum value);
     IGeoFillStyle getBufferFillStyle();
 
-    /**
+    /*
      * Returns true if a service with specified uuid has already been installed.
      * @param uuid
      * @return
      */
     boolean serviceExists(UUID uuid);
+
+    void addKmlRequest(IKMLSRequest kmlRequest);
+    void removeKmlRequest(IKMLSRequest kmlRequest);
+    IKMLSRequest getKmlRequest(UUID id);
 }

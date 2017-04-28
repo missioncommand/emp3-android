@@ -265,44 +265,6 @@ public class KMLServiceTest extends NavItemBase implements KmlsSettingsDialog.IK
         };
         mainHandler.post(myRunnable);
     }
-    /*
-    private void getServiceNameAndAdd(final IKMLS kmls, final int whichMap) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Service Name");
-
-        final EditText input = new EditText(activity);
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String m_Text = input.getText().toString();
-                kmls.setName(m_Text);
-                try {
-                    final Map<String, IKMLS> addedServices = getKMLServices(whichMap);
-                    if(!addedServices.containsKey(m_Text)) {
-                        maps[whichMap].addMapService(kmls);
-                        addedServices.put(m_Text, kmls);
-                    } else {
-                        ErrorDialog.showError(activity, "Duplicate Name, Service Not added");
-                    }
-                } catch (EMP_Exception e) {
-                    Log.e(TAG, "getServiceNameAndAdd ", e);
-                    ErrorDialog.showError(activity, e.getMessage());
-                }
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }
-    */
 
     @Override
     public void kmlsSet(KmlsSettingsDialog kmlsSettingsDialog) {

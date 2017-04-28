@@ -32,14 +32,17 @@ public class KMLSRequest implements KMZFile.IKMZFileRequest, IKMLSRequest {
     private static boolean directoryBuilt = false;
     private static File kmlsRoot;
 
-    private IMap map;                           // Client on which the request was initiated
-    private IKMLS service;                      // KMLS service object built by the application.
+    private final IMap map;                           // Client on which the request was initiated
+    private final IKMLS service;                      // KMLS service object built by the application.
     private String kmzFilePath = null;          // KMZ file that was copied using user supplied URL (could be kml file also)
     private File kmzDirectory = null;           // Directory where files for this request are stored.
     private String kmlFilePath = null;          // Extracted kml file or file specified in the URL. This is the file that will be parsed.
     private IKML feature = null;                       // Feature that was created by the parser.
 
     KMLSRequest(IMap map, IKMLS service) {
+        if((null == map) || (null == service) || (null == service.getGeoId())) {
+            throw new IllegalArgumentException("map, service and service.geoId must all be non-null");
+        }
         this.map = map;
         this.service = service;
     }
@@ -68,16 +71,8 @@ public class KMLSRequest implements KMZFile.IKMZFileRequest, IKMLSRequest {
         return map;
     }
 
-    public void setMap(IMap map) {
-        this.map = map;
-    }
-
     public IKMLS getService() {
         return service;
-    }
-
-    public void setService(IKMLS service) {
-        this.service = service;
     }
 
     public File getKmzDirectory() { return kmzDirectory; }
