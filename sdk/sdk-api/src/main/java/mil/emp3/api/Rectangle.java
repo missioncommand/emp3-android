@@ -215,12 +215,19 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
 
     @Override
     public String toString() {
-        return "Rectangle at\n" +
-                "\tlatitude: " + getPosition().getLatitude() + "\n" +
-                "\tlongitude: " + getPosition().getLongitude() + "\n" +
-                "\taltitude: " + getPosition().getAltitude() + "\n" +
-                "\theight: " + getHeight() + "\n" +
-                "\twidth: " + getWidth() + "\n" +
-                "\tazimuth: " + getAzimuth() + "\n";
+        if (getPosition() != null) {
+            return "Rectangle at\n" +
+                    "\tlatitude: " + getPosition().getLatitude() + "\n" +
+                    "\tlongitude: " + getPosition().getLongitude() + "\n" +
+                    "\taltitude: " + getPosition().getAltitude() + "\n" +
+                    "\theight: " + getHeight() + "\n" +
+                    "\twidth: " + getWidth() + "\n" +
+                    "\tazimuth: " + getAzimuth() + "\n";
+        } else {
+            return "Rectangle\n" +
+                    "\theight: " + getHeight() + "\n" +
+                    "\twidth: " + getWidth() + "\n" +
+                    "\tazimuth: " + getAzimuth() + "\n";
+        }
     }
 }
