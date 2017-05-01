@@ -1,6 +1,7 @@
 package mil.emp3.api.interfaces.core.storage;
 
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 
 import mil.emp3.api.interfaces.ICamera;
@@ -39,12 +40,15 @@ public interface IClientMapRestoreData {
 
     ILookAt getLookAt();
 
-    HashMap<UUID, IMapService> getMapServiceHash();
+    Map<UUID, IMapService> getMapServiceHash();
 
-    void setMapServiceHash(HashMap<UUID, IMapService> mapServiceHash);
-
-    // Call by StorageManager each time map service is added or removed. We will need this to set service on swapMapEngine
+    // Called by StorageManager each time map service is added or removed. We will need this to set service on swapMapEngine
     void addMapService(IMapService mapService);
 
     boolean removeMapService(IMapService mapService);
+
+    // used to restore KML Service on activity restart.
+    void addKmlRequest(IKMLSRequest kmlRequest);
+    void removeKmlRequest(IKMLSRequest kmlRequest);
+    IKMLSRequest getKmlRequest(UUID id);
 }

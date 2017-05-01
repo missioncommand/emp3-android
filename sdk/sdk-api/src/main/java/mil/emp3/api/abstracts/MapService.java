@@ -21,4 +21,13 @@ public abstract class MapService extends GeoBase implements IMapService {
     public java.net.URL getURL() {
         return this.mapServiceURL;
     }
+
+    @Override
+    public String toString() {
+        if(null != mapServiceURL) {
+            return "URL: " + mapServiceURL.toString() + " ";
+        } else {
+            return "URL: ";
+        }
+    }
 }

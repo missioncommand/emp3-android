@@ -255,6 +255,10 @@ public abstract class Map extends Container implements IMap {
     @Override
     public void addMapService(IMapService mapService)
             throws EMP_Exception {
+        if(null == mapService) {
+            Log.w(TAG, "addMapService: mapService is null");
+            return;
+        }
         storageManager.addMapService(this, mapService);
     }
 

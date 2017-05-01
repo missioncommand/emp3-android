@@ -385,7 +385,7 @@ public class StorageManagerTest extends TestBase {
         storageManager.addFeatures(mockOverlay, Arrays.asList(mockFeature), true, "NA");
 
 
-        storageManager.redrawAllFeatures(mockMap, contextData);
+        storageManager.redrawAllFeaturesAndServices(mockMap, contextData, null);
         verify(mockMapInstance, times(1)).addFeatures(any(FeatureVisibilityList.class), eq(contextData));
     }
 
