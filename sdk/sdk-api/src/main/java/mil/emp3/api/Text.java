@@ -78,11 +78,16 @@ public class Text extends Feature<IGeoText> implements IGeoText {
 
     @Override
     public String toString() {
-        return "Text at\n" +
-                "\tlatitude: " + getPosition().getLatitude() + "\n" +
-                "\tlongitude: " + getPosition().getLongitude() + "\n" +
-                "\taltitude: " + getPosition().getAltitude() + "\n" +
-                "\ttext: " +  getText();
+        if (getPosition() != null) {
+            return "Text at\n" +
+                    "\tlatitude: " + getPosition().getLatitude() + "\n" +
+                    "\tlongitude: " + getPosition().getLongitude() + "\n" +
+                    "\taltitude: " + getPosition().getAltitude() + "\n" +
+                    "\ttext: " + getText();
+        } else {
+            return "Text\n" +
+                    "\ttext: " + getText();
+        }
     }
 
 }

@@ -222,6 +222,8 @@ public interface IMap extends IContainer {
 
     /**
      * This method directs the map to utilize the map data provided by the service defined in the parameter.
+     * Currently following services are supported,
+     * {@link IKMLS} {@link IWMS} {@link IWMTS}
      * @param mapService This parameter provides the parameters necessary to access the service.
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */

@@ -139,12 +139,17 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
 
     @Override
     public String toString() {
-        return "Circle at\n" +
-                "\tlatitude: " + getPosition().getLatitude() + "\n" +
-                "\tlongitude: " + getPosition().getLongitude() + "\n" +
-                "\taltitude: " + getPosition().getAltitude() + "\n" +
-                "\tradius: " + getRadius() + "\n" +
-                "\tazimuth: " + getAzimuth() + "\n";
+        if (getPosition() != null) {
+            return "Circle at\n" +
+                    "\tlatitude: " + getPosition().getLatitude() + "\n" +
+                    "\tlongitude: " + getPosition().getLongitude() + "\n" +
+                    "\taltitude: " + getPosition().getAltitude() + "\n" +
+                    "\tradius: " + getRadius() + "\n" +
+                    "\tazimuth: " + getAzimuth() + "\n";
+        } else {
+            return "Circle\n" +
+                    "\tradius: " + getRadius() + "\n" +
+                    "\tazimuth: " + getAzimuth() + "\n";
+        }
     }
-
 }

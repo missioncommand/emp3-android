@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -1559,10 +1560,11 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.action_mirrorcache_connect: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(false);
-
+                LayoutInflater inflater = (LayoutInflater)this.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.mirrorcache_url_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                                .setMessage("WebSocket endpoint:")
-                               .setView(R.layout.mirrorcache_url_dialog)
+                               .setView(v)
                                .setNegativeButton(android.R.string.no, null)
                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                    public void onClick(DialogInterface dialog, int which) {
@@ -1617,10 +1619,11 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_mirrorcache_subscribe: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(false);
-
+                LayoutInflater inflater = (LayoutInflater)this.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.mirrorcache_subscribe_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                                .setMessage("Product Id:")
-                               .setView(R.layout.mirrorcache_subscribe_dialog)
+                               .setView(v)
                                .setNegativeButton(android.R.string.no, null)
                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                    public void onClick(DialogInterface dialog, int which) {
@@ -1659,10 +1662,11 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_mirrorcache_unsubscribe: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(false);
-
+                LayoutInflater inflater = (LayoutInflater)this.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.mirrorcache_subscribe_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                                .setMessage("Product Id:")
-                               .setView(R.layout.mirrorcache_subscribe_dialog)
+                               .setView(v)
                                .setNegativeButton(android.R.string.no, null)
                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                    public void onClick(DialogInterface dialog, int which) {
@@ -2132,9 +2136,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             case R.id.action_plot2units2525B:
+                LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.plot_unit_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage("Number of Units:")
-                        .setView(R.layout.plot_unit_dialog)
+                        .setView(v)
                         .setNegativeButton(android.R.string.no, null)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
