@@ -75,7 +75,7 @@ public class MilStd2525TacticalGraphic extends FeatureRenderableMapping<MilStdSy
         for (IFeature feature: featureList) {
             if (feature instanceof Path) {
                 // Create a WW path object.
-                tempRenderable = this.createWWPath((Path) feature, isSelected());
+                tempRenderable = this.createWWPath((Path) feature, false);
 
                 if (tempRenderable != null) {
                     tempRenderable.setPickDelegate(oSymbol);
@@ -83,7 +83,7 @@ public class MilStd2525TacticalGraphic extends FeatureRenderableMapping<MilStdSy
                 }
             } else if (feature instanceof Polygon) {
                 // Create a WW polygon object.
-                tempRenderable = this.createWWPolygon((Polygon) feature, isSelected());
+                tempRenderable = this.createWWPolygon((Polygon) feature, false);
 
                 if (tempRenderable != null) {
                     tempRenderable.setPickDelegate(oSymbol);
@@ -91,7 +91,7 @@ public class MilStd2525TacticalGraphic extends FeatureRenderableMapping<MilStdSy
                 }
             } else if (feature instanceof Text) {
                 // Create a WW text object.
-                tempRenderable = this.createWWLabel((Text) feature, isSelected());
+                tempRenderable = this.createWWLabel((Text) feature, false);
 
                 if (tempRenderable != null) {
                     tempRenderable.setPickDelegate(oSymbol);
