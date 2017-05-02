@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ListView
+        android:id="@+id/userPositions"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:scrollbars="vertical"></ListView>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/add_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add" />
+
+        <Button
+            android:id="@+id/delete_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete" />
+
+        <Button
+            android:id="@+id/move_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Move" />
+    </LinearLayout>
+
+    <include
+        android:id="@+id/position_list_apply_done"
+        layout="@layout/apply_done" />
+</LinearLayout>
