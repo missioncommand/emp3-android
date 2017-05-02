@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/item_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@android:drawable/ic_dialog_info" />
+
+    <EditText
+        android:id="@+id/latitude"
+        android:layout_width="100dip"  android:layout_height="wrap_content"
+        android:inputType="numberDecimal|numberSigned"
+        android:imeOptions="actionDone"
+        android:layout_gravity="left"
+        android:hint="latitude"/>
+
+    <EditText
+        android:id="@+id/longitude"
+        android:layout_width="100dip"  android:layout_height="wrap_content"
+        android:inputType="numberDecimal|numberSigned"
+        android:imeOptions="actionDone"
+        android:layout_gravity="left"
+        android:hint="longitude"/>
+
+    <EditText
+        android:id="@+id/altitude"
+        android:layout_width="100dip"  android:layout_height="wrap_content"
+        android:inputType="numberDecimal|numberSigned"
+        android:imeOptions="actionDone"
+        android:layout_gravity="left"
+        android:hint="altitude"/>
+
+</LinearLayout>
