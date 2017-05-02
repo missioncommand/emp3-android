@@ -162,6 +162,12 @@
             android:layout_height="wrap_content"
             android:text="Cancel" />
 
+        <Button
+            android:id="@+id/positionsList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Positions List" />
+
         <TextView
             android:id="@+id/position"
             android:text=""

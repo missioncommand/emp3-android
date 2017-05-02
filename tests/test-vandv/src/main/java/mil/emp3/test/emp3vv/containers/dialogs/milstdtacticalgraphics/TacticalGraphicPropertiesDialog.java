@@ -27,6 +27,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
+import mil.emp3.test.emp3vv.utils.PositionListUtility;
 import mil.emp3.test.emp3vv.utils.PositionUtility;
 
 /**
@@ -73,6 +74,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
     private List<String> parentList;
     private boolean featureVisible;
     private PositionUtility positionUtility;
+    private PositionListUtility positionListUtility;
 
     static {
         loadSymbolTables();
@@ -391,6 +393,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
                 TacticalGraphicPropertiesDialog.this.dismiss();
                 mListener.onCancelClick(TacticalGraphicPropertiesDialog.this);
                 positionUtility.stop();
+                positionListUtility.stop();
             }
         });
 
@@ -406,9 +409,11 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
                     if(mListener.onSaveClick(TacticalGraphicPropertiesDialog.this)) {
                         TacticalGraphicPropertiesDialog.this.dismiss();
                         positionUtility.stop();
+                        positionListUtility.stop();
                     }
                 } else {
                     positionUtility.stop();
+                    positionListUtility.stop();
                     TacticalGraphicPropertiesDialog.this.dismiss();
                 }
             }
@@ -419,6 +424,11 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
         } catch (EMP_Exception e) {
             Log.e(TAG, "positionUtility ", e);
         }
+
+        // Allows user to type in positions. Once this button is selected, position utility is turned off, i.e.
+        // Tapping on the map will have no consequences to position list.
+        positionListUtility = new PositionListUtility(view, getMap());
+        positionListUtility.onCreateView(getFragmentManager(), positionUtility);
     }
     public PositionUtility getPositionUtility() {
         return positionUtility;

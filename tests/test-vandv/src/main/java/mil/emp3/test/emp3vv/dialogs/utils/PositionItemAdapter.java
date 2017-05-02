@@ -16,6 +16,9 @@ import java.util.List;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.test.emp3vv.R;
 
+/**
+ * PositionListDialog has a list of editable positions. This class represents a row of that list.
+ */
 public class PositionItemAdapter extends BaseAdapter implements View.OnClickListener, View.OnFocusChangeListener, TextWatcher {
     private final static String TAG = PositionItemAdapter.class.getSimpleName();
     private final List<EmpGeoPosition> positionList;
@@ -139,9 +142,13 @@ public class PositionItemAdapter extends BaseAdapter implements View.OnClickList
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         try {
-            Log.d(TAG, "onFocusChange position " + v.getTag(0) + " property " + v.getTag(1) + " hasFocus " + hasFocus);
-            tagHoldeWithFocus = (TagHolder) v.getTag();
-            tagHoldeWithFocus.et = (EditText) v;
+            Log.d(TAG, "onFocusChange position " + ((TagHolder)v.getTag()).position + " property " + ((TagHolder)v.getTag()).property + " hasFocus " + hasFocus);
+            if(hasFocus) {
+                tagHoldeWithFocus = (TagHolder) v.getTag();
+                tagHoldeWithFocus.et = (EditText) v;
+            } else {
+                tagHoldeWithFocus = null;
+            }
 //            int position = th.position;
 //            EditText et = (EditText) v;
 //            if (th.property.equals("latitude")) {

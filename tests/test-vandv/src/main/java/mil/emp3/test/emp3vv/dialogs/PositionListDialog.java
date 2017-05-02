@@ -17,6 +17,11 @@ import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
 import mil.emp3.test.emp3vv.dialogs.utils.PositionItemAdapter;
 
+import static android.view.View.GONE;
+
+/**
+ * Used by PositionListUtility class to show a dialog where user can type in the positions.
+ */
 public class PositionListDialog extends Emp3TesterDialogBase {
 
     private static String TAG = PositionListDialog.class.getSimpleName();
@@ -110,23 +115,19 @@ public class PositionListDialog extends Emp3TesterDialogBase {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PositionListDialog.this.dismiss();
-            }
-        });
-
-        Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 if(positionItemAdapter.getCount() >= minRequiredPositions) {
                     if (null != PositionListDialog.this.listener) {
                         ((IPositionListDialogListener) PositionListDialog.this.listener).positionsSet(PositionListDialog.this);
+                        PositionListDialog.this.dismiss();
                     }
                 } else {
                     ErrorDialog.showError(getContext(), "need minimum " + minRequiredPositions + " positions");
                 }
             }
         });
+
+        Button applyButton = (Button) view.findViewById(R.id.apply);
+        applyButton.setVisibility(GONE);
     }
 }
 
