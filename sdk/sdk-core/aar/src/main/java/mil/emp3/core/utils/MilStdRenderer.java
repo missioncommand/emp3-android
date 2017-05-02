@@ -1,5 +1,6 @@
 package mil.emp3.core.utils;
 
+import android.content.res.Resources;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -38,6 +39,7 @@ import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ColorUtils;
 import mil.emp3.api.utils.EmpGeoColor;
+import mil.emp3.api.utils.EmpStyles;
 import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.MilStdUtilities;
 import mil.emp3.core.utils.milstd2525.icons.BitmapCacheFactory;
@@ -261,11 +263,11 @@ public class MilStdRenderer implements IMilStdRenderer {
             IFeature renderFeature,
             boolean selected) {
         IFeature feature;
-        IGeoColor geoLineColor;
+        IGeoColor newLineColor;
         IGeoColor geoFillColor;
         armyc2.c2sd.renderer.utilities.Color fillColor;
         armyc2.c2sd.renderer.utilities.Color lineColor;
-        IGeoStrokeStyle renderStrokeStyle = renderFeature.getStrokeStyle();
+        IGeoStrokeStyle symbolStrokeStyle = renderFeature.getStrokeStyle();
         //IGeoFillStyle symbolFillStyle = renderFeature.getFillStyle();
         IGeoLabelStyle symbolTextStyle = renderFeature.getLabelStyle();
         IGeoStrokeStyle currentStrokeStyle;
@@ -283,17 +285,19 @@ public class MilStdRenderer implements IMilStdRenderer {
             lineColor = shapeInfo.getLineColor();
             if (lineColor != null) {
                 currentStrokeStyle = new GeoStrokeStyle();
-                currentStrokeStyle.setStrokeWidth((renderStrokeStyle == null)? 3: renderStrokeStyle.getStrokeWidth());
-                geoLineColor = new EmpGeoColor((double) lineColor.getAlpha() / 255.0, lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue());
-                currentStrokeStyle.setStrokeColor(geoLineColor);
+                currentStrokeStyle.setStrokeWidth((symbolStrokeStyle == null)? 3: symbolStrokeStyle.getStrokeWidth());
+                EmpStyles.copyColor(currentStrokeStyle.getStrokeColor(), lineColor);
             }
 
             if (selected) {
+                IGeoStrokeStyle selectedLineStyle = storageManager.getSelectedStrokeStyle(mapInstance);
+                IGeoColor selectedColor = selectedLineStyle.getStrokeColor();
+
                 if (null == currentStrokeStyle) {
-                    currentStrokeStyle = storageManager.getSelectedStrokeStyle(mapInstance);
-                } else {
-                    currentStrokeStyle.setStrokeColor(storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor());
+                    currentStrokeStyle = new GeoStrokeStyle();
                 }
+                EmpStyles.copyColor(currentStrokeStyle.getStrokeColor(), selectedColor);
+                currentStrokeStyle.setStrokeWidth(selectedLineStyle.getStrokeWidth());
             }
 
             armyc2.c2sd.graphics2d.BasicStroke basicStroke = (armyc2.c2sd.graphics2d.BasicStroke) shapeInfo.getStroke();
@@ -308,9 +312,8 @@ public class MilStdRenderer implements IMilStdRenderer {
 
             fillColor = shapeInfo.getFillColor();
             if (fillColor != null) {
-                geoFillColor = new EmpGeoColor((double) fillColor.getAlpha() / 255.0, fillColor.getRed(), fillColor.getGreen(), fillColor.getBlue());
                 currentFillStyle = new GeoFillStyle();
-                currentFillStyle.setFillColor(geoFillColor);
+                EmpStyles.copyColor(currentFillStyle.getFillColor(), fillColor);
             }
 
             switch (shapeInfo.getShapeType()) {
@@ -693,6 +696,8 @@ public class MilStdRenderer implements IMilStdRenderer {
         if(null == renderFeature.getFillStyle()) {
             shapeTypeToUse = ShapeInfo.SHAPE_TYPE_POLYLINE;
         }
+        IGeoStrokeStyle featureStrokeStyle = renderFeature.getStrokeStyle();
+        IGeoFillStyle featureFillStyle = renderFeature.getFillStyle();
 
         for(ShapeInfo shapeInfo: renderSymbol.getSymbolShapes()) {
             if(shapeInfo.getShapeType() != shapeTypeToUse) {
@@ -704,25 +709,31 @@ public class MilStdRenderer implements IMilStdRenderer {
             // the renderer. We also need to override with 'selected' stroke color if feature is in selected state.
             //
 
-            IGeoStrokeStyle currentStrokeStyle = renderFeature.getStrokeStyle();
+            IGeoStrokeStyle currentStrokeStyle = new GeoStrokeStyle();
 
             if(selected) {
-                if(null == currentStrokeStyle) {
-                    currentStrokeStyle = storageManager.getSelectedStrokeStyle(mapInstance);
-                } else {
-                    currentStrokeStyle.setStrokeColor(storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor());
-                }
-            }
+                IGeoStrokeStyle selectedStrokeStyle = storageManager.getSelectedStrokeStyle(mapInstance);
 
-            if((null == currentStrokeStyle) || (null == currentStrokeStyle.getStrokeColor())) {
-                // Get the line/stroke color from the renderer.
+                if (null != selectedStrokeStyle.getStrokeColor()) {
+                    EmpStyles.copyColor(currentStrokeStyle.getStrokeColor(), selectedStrokeStyle.getStrokeColor());
+                }
+
+                currentStrokeStyle.setStrokeWidth(selectedStrokeStyle.getStrokeWidth());
+                if (null != featureStrokeStyle) {
+                    currentStrokeStyle.setStipplingFactor(featureStrokeStyle.getStipplingFactor());
+                    currentStrokeStyle.setStipplingPattern(featureStrokeStyle.getStipplingPattern());
+                }
+            } else if ((null != featureStrokeStyle) && (null != featureStrokeStyle.getStrokeColor())) {
+                EmpStyles.copyColor(currentStrokeStyle.getStrokeColor(), featureStrokeStyle.getStrokeColor());
+
+                currentStrokeStyle.setStrokeWidth(featureStrokeStyle.getStrokeWidth());
+                currentStrokeStyle.setStipplingFactor(featureStrokeStyle.getStipplingFactor());
+                currentStrokeStyle.setStipplingPattern(featureStrokeStyle.getStipplingPattern());
+            } else {
                 if(null != shapeInfo.getLineColor()) {
                     EmpGeoColor rendererStrokeColor = new EmpGeoColor((double) shapeInfo.getLineColor().getAlpha() / 255.0,
                             shapeInfo.getLineColor().getRed(), shapeInfo.getLineColor().getGreen(), shapeInfo.getLineColor().getBlue());
-                    if(null == currentStrokeStyle) {
-                        currentStrokeStyle = new GeoStrokeStyle();
-                        currentStrokeStyle.setStrokeWidth(DEFAULT_STROKE_WIDTH);
-                    }
+                    currentStrokeStyle.setStrokeWidth(DEFAULT_STROKE_WIDTH);
                     currentStrokeStyle.setStrokeColor(rendererStrokeColor);
                 }
             }
@@ -731,18 +742,18 @@ public class MilStdRenderer implements IMilStdRenderer {
             // If fill color is not specified by the application then we want to use whatever default was returned by
             // the renderer.
             //
-            IGeoFillStyle currentFillStyle = renderFeature.getFillStyle();
+            IGeoFillStyle currentFillStyle = null;
 
-            if((null == currentFillStyle) || (null == currentFillStyle.getFillColor())) {
+            if((null == featureFillStyle) || (null == featureFillStyle.getFillColor())) {
                 // Get the fill color from the renderer.
                 if(null != shapeInfo.getFillColor()) {
                     EmpGeoColor rendererFillColor = new EmpGeoColor((double) shapeInfo.getFillColor().getAlpha() / 255.0,
                             shapeInfo.getFillColor().getRed(), shapeInfo.getFillColor().getGreen(), shapeInfo.getFillColor().getBlue());
-                    if(null == currentFillStyle) {
-                        currentFillStyle = new GeoFillStyle();
-                    }
+                    currentFillStyle = new GeoFillStyle();
                     currentFillStyle.setFillColor(rendererFillColor);
                 }
+            } else {
+                currentFillStyle = featureFillStyle;
             }
 
             switch (shapeInfo.getShapeType()) {
