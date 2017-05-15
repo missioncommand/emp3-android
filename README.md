@@ -28,3 +28,6 @@ __Environment Variables__
 ```
 $ ./gradlew build
 ```
+
+### Releases
+Available on [Bintray](https://bintray.com/missioncommand/maven/emp3-android) for incorporation into your build system.
