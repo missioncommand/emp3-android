@@ -19,13 +19,15 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
+import mil.emp3.test.emp3vv.utils.PositionListUtility;
 import mil.emp3.test.emp3vv.utils.PositionUtility;
 
 /**
  * This class implements the base for feature property dialog boxes.
  */
 
-public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends Emp3TesterDialogBase implements PositionUtility.IPositionChangedListener {
+public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends Emp3TesterDialogBase
+        implements PositionUtility.IPositionChangedListener {
     private final static String TAG = FeaturePropertiesDialog.class.getSimpleName();
 
     private IFeature feature;
@@ -43,6 +45,8 @@ public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends 
     protected boolean isFeaturePositionSettable = true;
     private PositionUtility positionUtility;
     EditText bufferValue;
+
+    private PositionListUtility positionListUtility;
 
     public FeaturePropertiesDialog() {}
 
@@ -131,6 +135,7 @@ public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends 
                 FeaturePropertiesDialog.this.dismiss();
                 FeaturePropertiesDialog.this.listener.onFeaturePropertiesCancelClick((T)FeaturePropertiesDialog.this);
                 positionUtility.stop();
+                positionListUtility.stop();
             }
         });
 
@@ -142,10 +147,12 @@ public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends 
                     if(FeaturePropertiesDialog.this.listener.onFeaturePropertiesSaveClick((T) FeaturePropertiesDialog.this)) {
                         FeaturePropertiesDialog.this.dismiss();
                         positionUtility.stop();
+                        positionListUtility.stop();
                     }
                 } else {
                     FeaturePropertiesDialog.this.dismiss();
                     positionUtility.stop();
+                    positionListUtility.stop();
                 }
             }
         });
@@ -155,6 +162,11 @@ public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends 
         } catch (EMP_Exception e) {
             Log.e(TAG, "positionUtility ", e);
         }
+
+        // Allows user to type in positions. Once this button is selected, position utility is turned off, i.e.
+        // Tapping on the map will have no consequences to position list.
+        positionListUtility = new PositionListUtility(view, getMap());
+        positionListUtility.onCreateView(getFragmentManager(), positionUtility);
     }
 
     protected boolean isFeatureMultiPoint() {

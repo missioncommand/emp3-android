@@ -18,6 +18,8 @@
                 android:title="Camera and Look At" />
             <item android:id="@+id/nav_basic_shape_test"
                 android:title="Basic Shape" />
+            <item android:id="@+id/nav_kml_service_test"
+                android:title="KML Service" />
         </menu>
     </item>
 

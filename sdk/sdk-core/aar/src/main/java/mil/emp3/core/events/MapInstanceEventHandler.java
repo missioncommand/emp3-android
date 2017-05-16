@@ -133,18 +133,14 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
         if (oClientMap != null) {
             // Map Engine is ready, redraw any features that are present on client map.
             if (event.getState() == MapStateEnum.MAP_READY) {
-                storageManager.redrawAllFeatures(oClientMap, event.getUserContext());
                 IClientMapRestoreData cmrd = storageManager.getRestoreData(oClientMap);
+
+                storageManager.redrawAllFeaturesAndServices(oClientMap, event.getUserContext(), cmrd);
                 if ((null != cmrd) && (null != cmrd.getCamera())) {
                     try {
                         if (null != cmrd.getCamera()) {
                             coreManager.setCamera(oClientMap, cmrd.getCamera(),
                                     false, event.getUserContext()); // This will trigger bounds generation
-                        }
-                        if (null != cmrd.getMapServiceHash()) {
-                            for (IMapService mapService : cmrd.getMapServiceHash().values()) {
-                                storageManager.addMapService(oClientMap, mapService);
-                            }
                         }
                     } catch (EMP_Exception e) {
                         Log.e(TAG, "Cannot restore camera or mapService", e);

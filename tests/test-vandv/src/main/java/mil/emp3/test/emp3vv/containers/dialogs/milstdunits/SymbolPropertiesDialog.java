@@ -33,6 +33,7 @@ import mil.emp3.mapengine.interfaces.IEmpImageInfo;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
+import mil.emp3.test.emp3vv.utils.PositionListUtility;
 import mil.emp3.test.emp3vv.utils.PositionUtility;
 import mil.emp3.test.emp3vv.utils.StringUtils;
 import mil.emp3.test.emp3vv.utils.SymbolCodeUtils;
@@ -82,6 +83,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
     private List<String> parentList;
     private boolean featureVisible;
     private PositionUtility positionUtility;
+    private PositionListUtility positionListUtility;
 
     static {
         loadSymbolTables();
@@ -103,8 +105,6 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
 
     private void init() {
         String tempString;
-        EchelonSymbolModifierSpinnerItemString oEchelonSinnerItem;
-        EchelonSymbolModifierSpinnerItemString oEchelonSinnerItem2;
         this.oUnitSymbolTable = SymbolPropertiesDialog.oUnitSymbolTableList.get(GeoMilSymbol.SymbolStandard.MIL_STD_2525B);
 
         for (MilStdSymbol.Affiliation affiliation: MilStdSymbol.Affiliation.values()) {
@@ -619,6 +619,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
                 SymbolPropertiesDialog.this.dismiss();
                 mListener.onSymbolPropertiesCancelClick(SymbolPropertiesDialog.this);
                 positionUtility.stop();
+                positionListUtility.stop();
             }
         });
 
@@ -634,6 +635,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
 
                     mListener.onSymbolPropertiesSaveClick(SymbolPropertiesDialog.this);
                     positionUtility.stop();
+                    positionListUtility.stop();
                 }
             }
         });
@@ -643,6 +645,11 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
         } catch (EMP_Exception e) {
             Log.e(TAG, "positionUtility ", e);
         }
+
+        // Allows user to type in positions. Once this button is selected, position utility is turned off, i.e.
+        // Tapping on the map will have no consequences to position list.
+        positionListUtility = new PositionListUtility(view, getMap());
+        positionListUtility.onCreateView(getFragmentManager(), positionUtility);
     }
 
     public PositionUtility getPositionUtility() {

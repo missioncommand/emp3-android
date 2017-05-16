@@ -168,4 +168,24 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
 
         return bBox;
     }
+    /**
+     *
+     * @return String gives square parameters
+     */
+
+    @Override
+    public String toString() {
+        if (getPosition() != null) {
+            return "Square at\n" +
+                    "\tlatitude: " + getPosition().getLatitude() + "\n" +
+                    "\tlongitude: " + getPosition().getLongitude() + "\n" +
+                    "\taltitude: " + getPosition().getAltitude() + "\n" +
+                    "\twidth: " + getWidth() + "\n" +
+                    "\tazimuth: " + getAzimuth() + "\n";
+        } else {
+            return "Square\n" +
+                    "\twidth: " + getWidth() + "\n" +
+                    "\tazimuth: " + getAzimuth() + "\n";
+        }
+    }
 }

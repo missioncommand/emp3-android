@@ -1,6 +1,8 @@
 package mil.emp3.core.storage;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import mil.emp3.api.LookAt;
@@ -8,21 +10,24 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
+import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
 import mil.emp3.api.interfaces.core.storage.IStorageObjectWrapper;
+import mil.emp3.core.services.kml.KMLSRequest;
 
 /**
  * This class stores client map data that will be required to restore the map state after activity restart.
  * Please check Emp3DataManager for further details on activity restart.
  */
 public class ClientMapRestoreData implements IClientMapRestoreData {
-    String name;                           // map name, user is require to set name on map for restore capability
-    UUID uuid;                             // uuid of the clientMap when it is first created (name - uuid) pairing
-    String engineApkName;                  // map engine used
-    String engineClassName;
-    IStorageObjectWrapper objectWrapper;    // Helps restore children
-    ICamera camera;                         // We will restore camera as well
-    ILookAt lookAt;                         // restore lookAt
-    java.util.HashMap<java.util.UUID, IMapService> mapServiceHash;
+    private String name;                           // map name, user is require to set name on map for restore capability
+    private UUID uuid;                             // uuid of the clientMap when it is first created (name - uuid) pairing
+    private String engineApkName;                  // map engine used
+    private String engineClassName;
+    private IStorageObjectWrapper objectWrapper;    // Helps restore children
+    private ICamera camera;                         // We will restore camera as well
+    private ILookAt lookAt;                         // restore lookAt
+    final private Map<UUID, IMapService> mapServiceHash = new HashMap<>();;
+    final private Map<UUID, IKMLSRequest> kmlsRequestMap = new HashMap<>();
 
     @Override
     public String getName() {
@@ -95,21 +100,13 @@ public class ClientMapRestoreData implements IClientMapRestoreData {
     }
 
     @Override
-    public HashMap<UUID, IMapService> getMapServiceHash() {
+    public Map<UUID, IMapService> getMapServiceHash() {
         return mapServiceHash;
-    }
-
-    @Override
-    public void setMapServiceHash(HashMap<UUID, IMapService> mapServiceHash) {
-        this.mapServiceHash = mapServiceHash;
     }
 
     // Call by StorageManager each time map service is added or removed. We will need this to set service on swapMapEngine
     @Override
     public void addMapService(IMapService mapService) {
-        if(null == this.mapServiceHash) {
-            this.mapServiceHash = new HashMap<>();
-        }
         this.mapServiceHash.put(mapService.getGeoId(), mapService);
     }
 
@@ -124,5 +121,20 @@ public class ClientMapRestoreData implements IClientMapRestoreData {
         }
 
         return false;
+    }
+
+    @Override
+    public void addKmlRequest(IKMLSRequest kmlRequest) {
+        kmlsRequestMap.put(kmlRequest.getId(), kmlRequest);
+    }
+
+    @Override
+    public void removeKmlRequest(IKMLSRequest kmlRequest) {
+        kmlsRequestMap.remove(kmlRequest.getId());
+    }
+
+    @Override
+    public IKMLSRequest getKmlRequest(UUID id) {
+        return kmlsRequestMap.get(id);
     }
 }

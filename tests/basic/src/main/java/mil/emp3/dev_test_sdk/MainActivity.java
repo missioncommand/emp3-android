@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -1559,10 +1560,11 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.action_mirrorcache_connect: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(false);
-
+                LayoutInflater inflater = (LayoutInflater)this.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.mirrorcache_url_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                                .setMessage("WebSocket endpoint:")
-                               .setView(R.layout.mirrorcache_url_dialog)
+                               .setView(v)
                                .setNegativeButton(android.R.string.no, null)
                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                    public void onClick(DialogInterface dialog, int which) {
@@ -1617,10 +1619,11 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_mirrorcache_subscribe: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(false);
-
+                LayoutInflater inflater = (LayoutInflater)this.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.mirrorcache_subscribe_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                                .setMessage("Product Id:")
-                               .setView(R.layout.mirrorcache_subscribe_dialog)
+                               .setView(v)
                                .setNegativeButton(android.R.string.no, null)
                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                    public void onClick(DialogInterface dialog, int which) {
@@ -1659,10 +1662,11 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_mirrorcache_unsubscribe: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(false);
-
+                LayoutInflater inflater = (LayoutInflater)this.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.mirrorcache_subscribe_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                                .setMessage("Product Id:")
-                               .setView(R.layout.mirrorcache_subscribe_dialog)
+                               .setView(v)
                                .setNegativeButton(android.R.string.no, null)
                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                    public void onClick(DialogInterface dialog, int which) {
@@ -2098,16 +2102,19 @@ public class MainActivity extends AppCompatActivity
                 try {
                     stream = getApplicationContext().getResources().openRawResource(R.raw.communes_69);
                     IFeature feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     stream = getApplicationContext().getResources().openRawResource(R.raw.random_geoms);
                     feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
                     stream = getApplicationContext().getResources().openRawResource(R.raw.rhone);
                     feature = new GeoJSON(stream);
+                    Log.i(TAG, feature.toString());
                     this.oRootOverlay.addFeature(feature, true);
                     this.oFeatureHash.put(feature.getGeoId(), feature);
                     stream.close();
@@ -2129,9 +2136,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             case R.id.action_plot2units2525B:
+                LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                View v = inflater.inflate(R.layout.plot_unit_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage("Number of Units:")
-                        .setView(R.layout.plot_unit_dialog)
+                        .setView(v)
                         .setNegativeButton(android.R.string.no, null)
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -2178,6 +2187,7 @@ public class MainActivity extends AppCompatActivity
                     wmtsService = new WMTS(
                             "http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts",
                             null, null, layers);
+                    Log.i(TAG, wmtsService.toString());
                     map.addMapService(MainActivity.this.wmtsService);
                     ICamera camera = this.map.getCamera();
                     camera.setLatitude(64.27);
@@ -2206,6 +2216,7 @@ public class MainActivity extends AppCompatActivity
                 try {
                     wcsService = new WCS("https://worldwind26.arc.nasa.gov/wcs",
                             "aster_v2");
+                    Log.i(TAG, wcsService.toString());
                     map.addMapService(wcsService);
                     MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
                     oItem.setEnabled(true);
@@ -2280,6 +2291,7 @@ public class MainActivity extends AppCompatActivity
                                         transparent.equalsIgnoreCase("true"),
                                         layers
                                 );
+                                Log.i(TAG, wmsService.toString());
                             } catch (MalformedURLException ex) {
                                 ex.printStackTrace();
                             }
@@ -2337,7 +2349,7 @@ public class MainActivity extends AppCompatActivity
 
                     oPoint.setPosition(oPosList.get(0));
                     this.oRootOverlay.addFeature(oPoint, true);
-
+                    Log.i(TAG, oPoint.toString());
                 } catch (EMP_Exception ex) {
                 }
                 return true;
@@ -2353,7 +2365,7 @@ public class MainActivity extends AppCompatActivity
                     oIconStyle.setOffSetX(20);
                     oPoint.setIconStyle(oIconStyle);
                     this.oRootOverlay.addFeature(oPoint, true);
-
+                    Log.i(TAG, oPoint.toString());
                 } catch (EMP_Exception ex) {
                 }
                 return true;
@@ -2547,7 +2559,7 @@ public class MainActivity extends AppCompatActivity
                 textFeature.setName("Text");
                 textFeature.setDescription("Draw Text Feature.");
                 //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-
+                Log.i(TAG, textFeature.toString());
                 try {
                     this.map.drawFeature(textFeature, new FeatureDrawListener(textFeature));
                 } catch(EMP_Exception Ex) {
@@ -2569,7 +2581,7 @@ public class MainActivity extends AppCompatActivity
                 linePath.setName("Line");
                 linePath.setDescription("Draw Line Feature.");
                 //linePath.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-
+                Log.i(TAG, linePath.toString());
                 try {
                     this.map.drawFeature(linePath, new FeatureDrawListener(linePath));
                 } catch(EMP_Exception Ex) {
@@ -2598,6 +2610,7 @@ public class MainActivity extends AppCompatActivity
                 polygon.setDescription("Draw Polygon Feature.");
 
                 //polygon.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, polygon.toString());
                 try {
                     this.map.drawFeature(polygon, new FeatureDrawListener(polygon));
                 } catch(EMP_Exception Ex) {
@@ -2616,7 +2629,8 @@ public class MainActivity extends AppCompatActivity
 
                 strokeStyle.setStrokeColor(geoColor);
                 strokeStyle.setStrokeWidth(5);
-                strokeStyle.setStipplingPattern((short) 0);
+                strokeStyle.setStipplingPattern((short) 0xEEEE);
+                strokeStyle.setStipplingFactor(3);
                 circle.setStrokeStyle(strokeStyle);
 
                 fillStyle.setFillColor(geoFillColor);
@@ -2626,6 +2640,7 @@ public class MainActivity extends AppCompatActivity
                 circle.setDescription("Draw Circle Feature.");
 
                 circle.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, circle.toString());
                 try {
                     this.map.drawFeature(circle, new FeatureDrawListener(circle));
                 } catch(EMP_Exception Ex) {
@@ -2654,6 +2669,7 @@ public class MainActivity extends AppCompatActivity
                 ellipse.setDescription("Draw Ellipse Feature.");
 
                 ellipse.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, ellipse.toString());
                 try {
                     this.map.drawFeature(ellipse, new FeatureDrawListener(ellipse));
                 } catch(EMP_Exception Ex) {
@@ -2682,6 +2698,7 @@ public class MainActivity extends AppCompatActivity
                 feature.setDescription("Draw Rectangle Feature.");
 
                 feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, feature.toString());
                 try {
                     this.map.drawFeature(feature, new FeatureDrawListener(feature));
                 } catch(EMP_Exception Ex) {
@@ -2710,6 +2727,7 @@ public class MainActivity extends AppCompatActivity
                 feature.setDescription("Draw Square Feature.");
 
                 feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                Log.i(TAG, feature.toString());
                 try {
                     this.map.drawFeature(feature, new FeatureDrawListener(feature));
                 } catch(EMP_Exception Ex) {

@@ -12,7 +12,6 @@ import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
@@ -45,7 +44,15 @@ import mil.emp3.worldwind.utils.Conversion;
 public class EMPtoWWFeatureConverter {
     final static private String TAG = FeatureRenderableMapping.class.getSimpleName();
 
-    private static final float TEXT_OUTLINE_WIDTH = (float) (0.0125 * Resources.getSystem().getDisplayMetrics().densityDpi);
+    // The display density of the current device.
+    private static final double DISPLAY_PIXEL_DENSITY = (double) Resources.getSystem().getDisplayMetrics().densityDpi;
+
+    // The width of the text outline factored with the display density.
+    private static final float TEXT_OUTLINE_WIDTH = (float) (0.0125 * DISPLAY_PIXEL_DENSITY);
+
+    // The stippling factor provided by the GeoStrokeStyle applies to a display with 96 dpi. Therefore we need
+    // to apply an additional factor to account for the display density.
+    private static final double STIPPLE_FACTOR_DISPLAY_DENSITY_MODIFIER = DISPLAY_PIXEL_DENSITY / 96.0;
 
     private final MapInstance mapInstance;
 
@@ -65,7 +72,7 @@ public class EMPtoWWFeatureConverter {
      */
     public Placemark createPlacemark(mil.emp3.api.Point feature, boolean isSelected) {
         Offset imageOffset;
-        PlacemarkAttributes oAttr;
+        PlacemarkAttributes oAttr = null;
         IGeoIconStyle oIconStyle = feature.getIconStyle();
         IGeoPosition oPos = feature.getPosition();
         String sURL = feature.getIconURI();
@@ -382,7 +389,8 @@ public class EMPtoWWFeatureConverter {
             shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
 
             if (strokeStyle.getStipplingPattern() != 0) {
-                ImageSource imageSource = ImageSource.fromLineStipple(strokeStyle.getStipplingFactor(), strokeStyle.getStipplingPattern());
+                ImageSource imageSource = ImageSource.fromLineStipple((int) ((double) strokeStyle.getStipplingFactor() * STIPPLE_FACTOR_DISPLAY_DENSITY_MODIFIER),
+                        strokeStyle.getStipplingPattern());
                 shapeAttribute.setOutlineImageSource(imageSource);
             }
         } else {
@@ -452,7 +460,8 @@ public class EMPtoWWFeatureConverter {
             shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
 
             if (strokeStyle.getStipplingPattern() != 0) {
-                ImageSource imageSource = ImageSource.fromLineStipple(strokeStyle.getStipplingFactor(), strokeStyle.getStipplingPattern());
+                ImageSource imageSource = ImageSource.fromLineStipple((int) ((double) strokeStyle.getStipplingFactor() * STIPPLE_FACTOR_DISPLAY_DENSITY_MODIFIER),
+                        strokeStyle.getStipplingPattern());
                 shapeAttribute.setOutlineImageSource(imageSource);
             }
         } else {

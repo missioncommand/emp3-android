@@ -113,4 +113,22 @@ public class WMTS extends MapService implements IWMTS {
     public List<String> getLayers() {
         return this.oLayers;
     }
+
+    /**
+     * Prints all configuration parameters
+     */
+    @Override
+    public String toString() {
+        String str = "URL: " + getURL() + "\n"
+                + "WMTS Version: " + eVersion.toString() + "\n"
+                + "Tile format: " + sTileFormat + "\n";
+        if (oLayers != null && oLayers.size() > 0) {
+            str += "Layers: \n";
+            for (String layer : oLayers) {
+                str += "\t" + layer + "\n";
+            }
+        }
+        return str;
+    }
+
 }
