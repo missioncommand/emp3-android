@@ -4,7 +4,8 @@ dependencies {
     compile          ("com.android.support:support-annotations")
     provided project (":emp3-android-sdk")
     provided         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
-    compile project  (":worldwind-release")
+//compile project  (":worldwind-release")
+    compile ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
 }
 
 android {

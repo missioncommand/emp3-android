@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:4.9.1'
         classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.1.0'
         classpath 'org.ajoberstar:grgit:1.7.0'
@@ -44,7 +44,7 @@ def publishableModules() {
         , project(":emp3-android-sdk-core")
         , project(":emp3-gradle-plugin")
         , project(":mapengine-worldwind")
-        , project(":worldwind-release")
+      //  , project(":worldwind-release")
         , project(":google-maps-android-cmgn")
 
       //, project(":service:mirrorcache:service-mirrorcache-api")
