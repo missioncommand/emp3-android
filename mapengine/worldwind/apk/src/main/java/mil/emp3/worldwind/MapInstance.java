@@ -263,8 +263,8 @@ public class MapInstance extends CoreMapInstance {
 
         this.oMapViewController = new Emp3NavigationListener(this, ww);
         this.handler = new Handler(Looper.getMainLooper());
-        this.wmsHash = new HashMap<>();
-        this.wmtsHash = new HashMap<>();
+        this.wmsHash = new ConcurrentHashMap<>();
+        this.wmtsHash = new ConcurrentHashMap<>();
         this.featureHash = new ConcurrentHashMap<>(); // zoom operation and re-rendering of Tactical Graphics will otherwise crash
         this.dirtyOnMapMove = new HashSet<>();
         /*
@@ -683,9 +683,9 @@ public class MapInstance extends CoreMapInstance {
         if (this.surfaceLayerHash.containsKey(imageLayer.getGeoId())) {
             this.imageLayer.removeRenderable(this.surfaceLayerHash.get(imageLayer.getGeoId()));
         }
-        this.surfaceLayerHash.put(imageLayer.getGeoId(), surfaceImage);
         this.imageLayer.addRenderable(surfaceImage);
         ww.requestRedraw();
+        this.surfaceLayerHash.put(imageLayer.getGeoId(), surfaceImage);
     }
 
     private void addGeoPackage(final IGeoPackage geoPackage) {
@@ -765,31 +765,31 @@ public class MapInstance extends CoreMapInstance {
             if (this.wmsHash.containsKey(mapService.getGeoId())) {
                 Layer layer = this.wmsHash.get(mapService.getGeoId());
                 ww.getLayers().removeLayer(layer);
-                this.wmsHash.remove(mapService.getGeoId());
                 ww.requestRedraw();
 
                 if (null != this.miniMap) {
                     this.miniMap.getLayers().removeLayer(layer);
                     this.miniMap.requestRedraw();
                 }
+                this.wmsHash.remove(mapService.getGeoId());
             }
         } else if (mapService instanceof IImageLayer) {
             if (this.surfaceLayerHash.containsKey(mapService.getGeoId())) {
                 this.imageLayer.removeRenderable(this.surfaceLayerHash.get(mapService.getGeoId()));
-                this.surfaceLayerHash.remove(mapService.getGeoId());
                 ww.requestRedraw();
+                this.surfaceLayerHash.remove(mapService.getGeoId());
             }
         } else if (mapService instanceof IWMTS) {
             if (this.wmtsHash.containsKey(mapService.getGeoId())) {
                 Layer layer = this.wmtsHash.get(mapService.getGeoId());
                 ww.getLayers().removeLayer(layer);
-                this.wmtsHash.remove(mapService.getGeoId());
                 ww.requestRedraw();
 
                 if (null != this.miniMap) {
                     this.miniMap.getLayers().removeLayer(layer);
                     this.miniMap.requestRedraw();
                 }
+                this.wmtsHash.remove(mapService.getGeoId());
             }
         } else if (mapService instanceof  IWCS) {
             ww.getGlobe().getElevationModel().clearCoverages();
