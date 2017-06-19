@@ -97,6 +97,8 @@ public interface IStorageManager {
 
     void addMapService(IMap map, IMapService mapService) throws EMP_Exception;
 
+    void mapServiceAdded(IMapInstance mapInstance, IMapService mapService) throws EMP_Exception;
+
     void removeMapService(IMap map, IMapService mapService) throws EMP_Exception;
 
     List<IMapService> getMapServices(IMap map);
