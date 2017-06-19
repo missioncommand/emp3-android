@@ -10,7 +10,7 @@ targetCompatibility = rootProject.targetCompatibility
 dependencies {
     provided project   (":emp3-android-sdk")
 
-//    compileApi project (":worldwind-release")
+    compileApi         ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
     compileApi         ("com.android.support:support-annotations")
 }
 
