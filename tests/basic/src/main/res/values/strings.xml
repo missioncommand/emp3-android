@@ -160,13 +160,13 @@
     <string name="action_textsizeLargest">Largest</string>
 
     <!-- string name="UrlDefault">http://10.0.2.7:5000/WmsServerStrict</string -->
-    <string name="UrlDefault">http://10.0.2.2:8080/geoserver/cite/wms</string>
+    <string name="UrlDefault">https://neo.sci.gsfc.nasa.gov/wms/wms</string>
     <string name="VersionDefault">1.3.0</string>
     <string name="TileFormatDefault">image/png</string>
     <string name="TransparentDefault">true</string>
     <!-- string name="LayersDefault">imagery_part3-2.0.0.1-apg.gpkg</string -->
     <!-- string name="LayersDefault">bluemarble,country_bounds,cities</string -->
-    <string name="LayersDefault">us_aberdeen_md_usgs_20061201</string>
+    <string name="LayersDefault">MOD_LSTD_CLIM_M</string>
     <string name="ResolutionDefault">1.0</string>
     <string name="CancelButton">Cancel</string>
     <string name="OKButton">OK</string>
