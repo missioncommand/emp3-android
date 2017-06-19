@@ -1610,6 +1610,23 @@ public class StorageManager implements IStorageManager {
             } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 mapMapping.getMapInstance().addMapService(mapService);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void mapServiceAdded(IMapInstance mapInstance, IMapService mapService) throws EMP_Exception {
+        ClientMapToMapInstance mapMapping;
+
+        try {
+            lock.lock();
+
+            if (this.oMapInstanceToClientMapMapping.containsKey(mapInstance)) {
+                mapMapping = this.oMapInstanceToClientMapMapping.get(mapInstance);
+                IMap map = mapMapping.getClientMap();
+                ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
                 mapMapping.addMapService(mapService);
 
                 // We will need this when client does a swap engine or activity is restored.
