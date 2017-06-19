@@ -52,6 +52,7 @@ import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.api.enums.WMTSVersionEnum;
+import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
@@ -619,7 +620,12 @@ public class MapInstance extends CoreMapInstance {
                     } else {
                         throw new IllegalStateException("ERROR: unable to locate tactical graphic layer.");
                     }
-                    Log.i(TAG, "WMS layer creation succeeded");
+                    try {
+                        storageManager.mapServiceAdded(MapInstance.this, wms);
+                        Log.i(TAG, "WMS layer creation succeeded");
+                    } catch (EMP_Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
@@ -763,6 +769,7 @@ public class MapInstance extends CoreMapInstance {
     private void removeMapServiceEx(IMapService mapService) {
         if (mapService instanceof IWMS) {
             if (this.wmsHash.containsKey(mapService.getGeoId())) {
+                Log.i(TAG, "Removing layer " + mapService.getGeoId().toString());
                 Layer layer = this.wmsHash.get(mapService.getGeoId());
                 ww.getLayers().removeLayer(layer);
                 ww.requestRedraw();
@@ -772,6 +779,8 @@ public class MapInstance extends CoreMapInstance {
                     this.miniMap.requestRedraw();
                 }
                 this.wmsHash.remove(mapService.getGeoId());
+            } else {
+                Log.e(TAG, "Layer not found " + mapService.getGeoId().toString());
             }
         } else if (mapService instanceof IImageLayer) {
             if (this.surfaceLayerHash.containsKey(mapService.getGeoId())) {
