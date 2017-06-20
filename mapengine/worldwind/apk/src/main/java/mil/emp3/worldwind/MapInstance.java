@@ -597,6 +597,12 @@ public class MapInstance extends CoreMapInstance {
 
         // Add the coverage to the Globes elevation model
         ww.getGlobe().getElevationModel().addCoverage(aster);
+        try {
+            storageManager.mapServiceAdded(MapInstance.this, wcs);
+            Log.i(TAG, "WCS layer creation succeeded");
+        } catch (EMP_Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void addWMSService(final IWMS wms) {
@@ -665,7 +671,12 @@ public class MapInstance extends CoreMapInstance {
                         } else {
                             throw new IllegalStateException("ERROR: unable to locate tactical graphic layer.");
                         }
-                        Log.i(TAG, "WMTS layer creation succeeded");
+                        try {
+                            storageManager.mapServiceAdded(MapInstance.this, wmts);
+                            Log.i(TAG, "WMTS layer creation succeeded");
+                        } catch (EMP_Exception e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     @Override
@@ -692,6 +703,12 @@ public class MapInstance extends CoreMapInstance {
         this.imageLayer.addRenderable(surfaceImage);
         ww.requestRedraw();
         this.surfaceLayerHash.put(imageLayer.getGeoId(), surfaceImage);
+        try {
+            storageManager.mapServiceAdded(MapInstance.this, imageLayer);
+            Log.i(TAG, "Image layer creation succeeded");
+        } catch (EMP_Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void addGeoPackage(final IGeoPackage geoPackage) {
@@ -714,7 +731,12 @@ public class MapInstance extends CoreMapInstance {
                             throw new IllegalStateException("ERROR: unable to locate tactical graphic layer.");
                         }
                         ww.requestRedraw();
-                        Log.i(TAG, "GeoPackage layer creation succeeded");
+                        try {
+                            storageManager.mapServiceAdded(MapInstance.this, geoPackage);
+                            Log.i(TAG, "GeoPackage layer creation succeeded");
+                        } catch (EMP_Exception e) {
+                            e.printStackTrace();
+                        }
                     }
 
                     @Override
