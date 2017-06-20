@@ -1691,15 +1691,9 @@ public class StorageManager implements IStorageManager {
             lock.lock();
             for (ClientMapToMapInstance mapMapping : this.oClientMapToMapInstanceMapping.values()) {
                 if (mapMapping.hasWMS(wmsId)) {
-                    mapMapping.addMapService(mapService);
                     mapMapping.getMapInstance().addMapService(mapService);
-
-                    // We will need this when client does a swap engine or activity is restored.
-                    // When activity is restored we still save the entire list anyway, that may be redundant
-                    ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(mapMapping.getClientMap().getName());
-                    if (null != cmrd) {
-                        cmrd.addMapService(mapService);
-                    }
+                    // addMapService callback will update hashmap
+                    break;
                 }
             }
         } finally {
