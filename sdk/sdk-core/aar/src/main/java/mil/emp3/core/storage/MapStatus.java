@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import mil.emp3.api.Camera;
 import mil.emp3.api.MilStdSymbol;
@@ -81,7 +82,7 @@ public abstract class MapStatus implements IMapStatus {
     //This value is the current MilStd label setting.
     private MilStdLabelSettingEnum eLabelSetting = MilStdLabelSettingEnum.COMMON_LABELS;
     // This hash map contains all the map services the map is currently handling.
-    private final java.util.HashMap<java.util.UUID, IMapService> mapServiceHash;
+    private final ConcurrentHashMap<java.util.UUID, IMapService> mapServiceHash;
     // Active KML Service requests
     private Map<UUID, IKMLSRequest> kmlsRequestMap = new HashMap<>();
     // This value is the map's current width in pixels.
@@ -115,7 +116,7 @@ public abstract class MapStatus implements IMapStatus {
     private FontSizeModifierEnum fontSizeModifier = FontSizeModifierEnum.NORMAL;
 
     protected MapStatus() {
-        this.mapServiceHash = new java.util.HashMap<>();
+        this.mapServiceHash = new ConcurrentHashMap<>();
         this.setIconSize(IconSizeEnum.SMALL);
         IGeoColor color = new EmpGeoColor(1.0, 255, 255, 0);
         this.selectedStrokeStyle.setStrokeColor(color);

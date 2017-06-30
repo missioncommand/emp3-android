@@ -307,7 +307,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
         if (this.oFeaturePickList.isEmpty()) {
             if (this.eLockMode == MapMotionLockEnum.UNLOCKED) {
                 // If there are no picks and we are UNLOCKED, ignore and allow the map to pan.
-                Log.i(TAG, "Scroll Evt not dragging Unlocked. Picks 0.");
+                //Log.i(TAG, "Scroll Evt not dragging Unlocked. Picks 0.");
                 return consumed;
             }
         }
