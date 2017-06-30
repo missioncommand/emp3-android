@@ -15,7 +15,7 @@ ext {
 
     version_nasa_worldwind_sdk = "0.6.0"
     version_cmapi              = "0.0.7"
-    version_renderer           = "0.1.27"
+    version_renderer           = "0.1.28"
     version_mirrorcache        = "0.1.0"
 
     android_minSdkVersion     = 19
