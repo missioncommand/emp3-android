@@ -1610,23 +1610,6 @@ public class StorageManager implements IStorageManager {
             } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 mapMapping.getMapInstance().addMapService(mapService);
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void mapServiceAdded(IMapInstance mapInstance, IMapService mapService) throws EMP_Exception {
-        ClientMapToMapInstance mapMapping;
-
-        try {
-            lock.lock();
-
-            if (this.oMapInstanceToClientMapMapping.containsKey(mapInstance)) {
-                mapMapping = this.oMapInstanceToClientMapMapping.get(mapInstance);
-                IMap map = mapMapping.getClientMap();
-                ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
                 mapMapping.addMapService(mapService);
 
                 // We will need this when client does a swap engine or activity is restored.
@@ -1691,9 +1674,15 @@ public class StorageManager implements IStorageManager {
             lock.lock();
             for (ClientMapToMapInstance mapMapping : this.oClientMapToMapInstanceMapping.values()) {
                 if (mapMapping.hasWMS(wmsId)) {
+                    mapMapping.addMapService(mapService);
                     mapMapping.getMapInstance().addMapService(mapService);
-                    // addMapService callback will update hashmap
-                    break;
+
+                    // We will need this when client does a swap engine or activity is restored.
+                    // When activity is restored we still save the entire list anyway, that may be redundant
+                    ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(mapMapping.getClientMap().getName());
+                    if (null != cmrd) {
+                        cmrd.addMapService(mapService);
+                    }
                 }
             }
         } finally {
