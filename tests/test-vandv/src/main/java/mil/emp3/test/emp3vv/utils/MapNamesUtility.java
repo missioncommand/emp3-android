@@ -43,7 +43,7 @@ public class MapNamesUtility {
         if(includeFeatures) {
             List<IFeature> features = map.getAllFeatures();
             if (null != features) {
-                for (IFeature feature : features) {
+                for (IFeature<?> feature : features) {
                     if((feature.getName() != null) && (feature.getName().trim().length() != 0)) {
                         names.add(feature.getName());
                     }
@@ -99,7 +99,7 @@ public class MapNamesUtility {
 
         List<IFeature> features = map.getAllFeatures();
         if (null != features) {
-            for (IFeature feature : features) {
+            for (IFeature<?> feature : features) {
                 if((feature.getName() != null) && (feature.getName().equals(name))) {
                     return feature;
                 }

@@ -97,23 +97,17 @@ public class MapTestMenuFragment extends Fragment implements ITestMenuManager {
             final Button button = (Button) userActions.getChildAt(ii);
 
             if(button.getId() == R.id.More) {
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(null != moreHandler) {
-                            moreHandler.showMenu(MapTestMenuFragment.this.getActivity(), button);
-                        }
+                button.setOnClickListener(v -> {
+                    if(null != moreHandler) {
+                        moreHandler.showMenu(MapTestMenuFragment.this.getActivity(), button);
                     }
                 });
             } else {
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d(TAG, "UserAction " + ((Button) v).getText());
-                        if (null != mListener) {
-                            mListener.onNavItemUserAction(((Button) v).getText().toString());
-                            toggleButtonSensitivity(false);
-                        }
+                button.setOnClickListener(v -> {
+                    Log.d(TAG, "UserAction " + ((Button) v).getText());
+                    if (null != mListener) {
+                        mListener.onNavItemUserAction(((Button) v).getText().toString());
+                        toggleButtonSensitivity(false);
                     }
                 });
             }

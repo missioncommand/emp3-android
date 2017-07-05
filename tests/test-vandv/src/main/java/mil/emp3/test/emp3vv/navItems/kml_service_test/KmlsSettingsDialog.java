@@ -94,35 +94,27 @@ public class KmlsSettingsDialog extends Emp3TesterDialogBase {
             kmlsURL.setVisibility(View.GONE);
         }
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                KmlsSettingsDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> KmlsSettingsDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = kmlsName.getText().toString();
-                if (null == name || 0 == name.length()) {
-                    ErrorDialog.showError(getContext(), "Service name must non-null and unique");
+        applyButton.setOnClickListener(v -> {
+            String name = kmlsName.getText().toString();
+            if (null == name || 0 == name.length()) {
+                ErrorDialog.showError(getContext(), "Service name must non-null and unique");
+                return;
+            }
+
+            if (null == url) {
+                String url1 = kmlsURL.getText().toString();
+                if (null == url1 || 0 == url1.length()) {
+                    ErrorDialog.showError(getContext(), "URL must be non-null");
                     return;
                 }
+            }
 
-                if (null == url) {
-                    String url = kmlsURL.getText().toString();
-                    if (null == url || 0 == url.length()) {
-                        ErrorDialog.showError(getContext(), "URL must be non-null");
-                        return;
-                    }
-                }
-
-                KmlsSettingsDialog.this.dismiss();
-                if (null != listener) {
-                    ((IKmlsSettingsDialogListener) listener).kmlsSet(KmlsSettingsDialog.this);
-                }
+            KmlsSettingsDialog.this.dismiss();
+            if (null != listener) {
+                ((IKmlsSettingsDialogListener) listener).kmlsSet(KmlsSettingsDialog.this);
             }
         });
     }

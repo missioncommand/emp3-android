@@ -7,8 +7,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -83,40 +81,31 @@ public class SelectFeatureDialog extends Emp3TesterDialogBase {
         allFeaturesListAdapter = setupMultiChoiceList("All Features", allFeaturesList, allFeaturesListData);
 
         Button selectFeature = (Button) view.findViewById(R.id.select_feature);
-        selectFeature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(allFeaturesList.getCheckedItemCount() < 1) {
-                    ErrorDialog.showError(getContext(), "Please select at least one feature");
-                } else {
-                    ((ISelectFeatureDialogListener)SelectFeatureDialog.this.listener).selectFeature(SelectFeatureDialog.this);
-                    updateSelectedList();
-                }
+        selectFeature.setOnClickListener(v -> {
+            if(allFeaturesList.getCheckedItemCount() < 1) {
+                ErrorDialog.showError(getContext(), "Please select at least one feature");
+            } else {
+                ((ISelectFeatureDialogListener)SelectFeatureDialog.this.listener).selectFeature(SelectFeatureDialog.this);
+                updateSelectedList();
             }
         });
 
         Button deselectFeature = (Button) view.findViewById(R.id.deselect_feature);
-        deselectFeature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(allFeaturesList.getCheckedItemCount() < 1) {
-                    ErrorDialog.showError(getContext(), "Please select at least one feature");
-                } else {
-                    ((ISelectFeatureDialogListener)SelectFeatureDialog.this.listener).deselectFeature(SelectFeatureDialog.this);
-                    updateSelectedList();
-                }
+        deselectFeature.setOnClickListener(v -> {
+            if(allFeaturesList.getCheckedItemCount() < 1) {
+                ErrorDialog.showError(getContext(), "Please select at least one feature");
+            } else {
+                ((ISelectFeatureDialogListener)SelectFeatureDialog.this.listener).deselectFeature(SelectFeatureDialog.this);
+                updateSelectedList();
             }
         });
 
         Button isSelectedFeature = (Button) view.findViewById(R.id.is_selected_feature);
-        isSelectedFeature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(1 != allFeaturesList.getCheckedItemCount()) {
-                    ErrorDialog.showError(getContext(), "Please select one and only one feature");
-                } else {
-                    ((ISelectFeatureDialogListener)SelectFeatureDialog.this.listener).isSelectedFeature(SelectFeatureDialog.this);
-                }
+        isSelectedFeature.setOnClickListener(v -> {
+            if(1 != allFeaturesList.getCheckedItemCount()) {
+                ErrorDialog.showError(getContext(), "Please select one and only one feature");
+            } else {
+                ((ISelectFeatureDialogListener)SelectFeatureDialog.this.listener).isSelectedFeature(SelectFeatureDialog.this);
             }
         });
 
@@ -135,30 +124,21 @@ public class SelectFeatureDialog extends Emp3TesterDialogBase {
         listenerInvokedListAdapter = setupMultiChoiceList("Listener", listenerInvokedList, listenerInvokedListData);
 
         Button cleanListenerInvokedList = (Button) view.findViewById(R.id.clear_listener_invoked_list);
-        cleanListenerInvokedList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listenerInvokedListData.clear();
-                listenerInvokedListAdapter.notifyDataSetChanged();
-            }
+        cleanListenerInvokedList.setOnClickListener(v -> {
+            listenerInvokedListData.clear();
+            listenerInvokedListAdapter.notifyDataSetChanged();
         });
 
         Button clearSelected = (Button) view.findViewById(R.id.clear_selected);
-        clearSelected.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ISelectFeatureDialogListener)SelectFeatureDialog.this.listener).clearSelected(SelectFeatureDialog.this);
-                updateSelectedList();
-            }
+        clearSelected.setOnClickListener(v -> {
+            ((ISelectFeatureDialogListener)SelectFeatureDialog.this.listener).clearSelected(SelectFeatureDialog.this);
+            updateSelectedList();
         });
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                map.removeEventListener(featureEventListenerHandle);
-                SelectFeatureDialog.this.dismiss();
-            }
+        doneButton.setOnClickListener(v -> {
+            map.removeEventListener(featureEventListenerHandle);
+            SelectFeatureDialog.this.dismiss();
         });
 
         try {

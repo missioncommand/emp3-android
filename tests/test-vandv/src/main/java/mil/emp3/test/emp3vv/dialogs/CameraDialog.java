@@ -87,26 +87,20 @@ public class CameraDialog extends Emp3TesterDialogBase implements ICameraEventLi
         cameraComponents.onViewCreated(view, savedInstanceState, startPosition);
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CameraDialog.this.dismiss();
-                map.removeEventListener(cameraEventListenerHandle);
-            }
+        doneButton.setOnClickListener(v -> {
+            CameraDialog.this.dismiss();
+            map.removeEventListener(cameraEventListenerHandle);
         });
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String isValid = cameraComponents.validate();
-                if(isValid.equals(CameraComponents.isValid)) {
-                    if (null != CameraDialog.this.listener) {
-                        ((ICameraDialogListener) CameraDialog.this.listener).cameraSet(CameraDialog.this);
-                    }
-                } else {
-                    ErrorDialog.showError(getContext(), isValid);
+        applyButton.setOnClickListener(v -> {
+            String isValid = cameraComponents.validate();
+            if(isValid.equals(CameraComponents.isValid)) {
+                if (null != CameraDialog.this.listener) {
+                    ((ICameraDialogListener) CameraDialog.this.listener).cameraSet(CameraDialog.this);
                 }
+            } else {
+                ErrorDialog.showError(getContext(), isValid);
             }
         });
 
@@ -123,12 +117,7 @@ public class CameraDialog extends Emp3TesterDialogBase implements ICameraEventLi
 
     @Override
     public void onEvent(final CameraEvent event) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                cameraComponents.cameraMoved(event.getCamera());
-            }
-        });
+        getActivity().runOnUiThread(() -> cameraComponents.cameraMoved(event.getCamera()));
 
     }
 }

@@ -6,20 +6,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import java.util.List;
-
-import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.common.Emp3TesterDialogBase;
 import mil.emp3.test.emp3vv.dialogs.utils.IncrementDecrement;
-import mil.emp3.test.emp3vv.optItems.DistanceThresholds;
 
 /**
  * Dialog to setup mid distance and far distance thresholds.
@@ -102,12 +94,7 @@ public class DistanceThresholdsDialog extends Emp3TesterDialogBase {
         mdt.onViewCreated(view.findViewById(R.id.mid_distance_threshold), savedInstanceState, true, new IncDecListener("MDT"));
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DistanceThresholdsDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> DistanceThresholdsDialog.this.dismiss());
     }
 
     public interface IDistanceThresholdsDialogListener extends IEmp3TesterDialogBaseListener {

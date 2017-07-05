@@ -48,27 +48,21 @@ public class IncrementDecrement<T extends Number> {
             updateDisplay(currentValue);
             ImageButton valueUpBtn = (ImageButton) view.findViewById(R.id.increment_value);
             if (valueUpBtn != null) {
-                valueUpBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        double newValue = (currentValue + resolution.doubleValue());
-                        newValue = Math.round(newValue / resolution.doubleValue()) * resolution.doubleValue();
-                        if(newValue <= maxValue.doubleValue()) {
-                            updateDisplay(newValue);
-                        }
+                valueUpBtn.setOnClickListener(v -> {
+                    double newValue = (currentValue + resolution.doubleValue());
+                    newValue = Math.round(newValue / resolution.doubleValue()) * resolution.doubleValue();
+                    if(newValue <= maxValue.doubleValue()) {
+                        updateDisplay(newValue);
                     }
                 });
             }
             ImageButton valueDownBtn = (ImageButton) view.findViewById(R.id.decrement_value);
             if (valueDownBtn != null) {
-                valueDownBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        double newValue = (currentValue - resolution.doubleValue());
-                        newValue = Math.round(newValue / resolution.doubleValue()) * resolution.doubleValue();
-                        if(newValue >= minValue.doubleValue()) {
-                            updateDisplay(newValue);
-                        }
+                valueDownBtn.setOnClickListener(v -> {
+                    double newValue = (currentValue - resolution.doubleValue());
+                    newValue = Math.round(newValue / resolution.doubleValue()) * resolution.doubleValue();
+                    if(newValue >= minValue.doubleValue()) {
+                        updateDisplay(newValue);
                     }
                 });
             }
@@ -78,14 +72,11 @@ public class IncrementDecrement<T extends Number> {
                 if(!enableFast) {
                     valueUpBtnFast.setVisibility(View.GONE);
                 } else {
-                    valueUpBtnFast.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            double newValue = (currentValue + (resolution.doubleValue() * fastMultiplier.doubleValue()));
-                            newValue = Math.round(newValue / resolution.doubleValue()) * resolution.doubleValue();
-                            if (newValue <= maxValue.doubleValue()) {
-                                updateDisplay(newValue);
-                            }
+                    valueUpBtnFast.setOnClickListener(v -> {
+                        double newValue = (currentValue + (resolution.doubleValue() * fastMultiplier.doubleValue()));
+                        newValue = Math.round(newValue / resolution.doubleValue()) * resolution.doubleValue();
+                        if (newValue <= maxValue.doubleValue()) {
+                            updateDisplay(newValue);
                         }
                     });
                 }
@@ -95,14 +86,11 @@ public class IncrementDecrement<T extends Number> {
                 if(!enableFast) {
                     valueDownBtnFast.setVisibility(View.GONE);
                 } else {
-                    valueDownBtnFast.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            double newValue = (currentValue - (resolution.doubleValue() * fastMultiplier.doubleValue()));
-                            newValue = Math.round(newValue / resolution.doubleValue()) * resolution.doubleValue();
-                            if (newValue >= minValue.doubleValue()) {
-                                updateDisplay(newValue);
-                            }
+                    valueDownBtnFast.setOnClickListener(v -> {
+                        double newValue = (currentValue - (resolution.doubleValue() * fastMultiplier.doubleValue()));
+                        newValue = Math.round(newValue / resolution.doubleValue()) * resolution.doubleValue();
+                        if (newValue >= minValue.doubleValue()) {
+                            updateDisplay(newValue);
                         }
                     });
                 }

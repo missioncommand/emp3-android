@@ -85,38 +85,30 @@ public class WmtsSettingsDialog extends Emp3TesterDialogBase {
         layer3 = (EditText) view.findViewById(R.id.WmtsLayer3Text);
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WmtsSettingsDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> WmtsSettingsDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != WmtsSettingsDialog.this.listener) {
-                    List<String> layers = new ArrayList<String>();
-                    if (!layer1.getText().toString().isEmpty()) {
-                        layers.add(layer1.getText().toString());
-                    }
-                    if (!layer2.getText().toString().isEmpty()) {
-                        layers.add(layer2.getText().toString());
-                    }
-                    if (!layer3.getText().toString().isEmpty()) {
-                        layers.add(layer3.getText().toString());
-                    }
-                    WMTSVersionEnum wmtsVersion = WMTSVersionEnum.valueOf(version.getSelectedItem().toString());
-
-                    ((IWmtsSettingsDialogListener) WmtsSettingsDialog.this.listener)
-                            .addWmtsService(map,
-                                    name.getText().toString(),
-                                    url.getText().toString(),
-                                    wmtsVersion,
-                                    tileFormat.getSelectedItem().toString(),
-                                    layers);
+        applyButton.setOnClickListener(v -> {
+            if (null != WmtsSettingsDialog.this.listener) {
+                List<String> layers = new ArrayList<String>();
+                if (!layer1.getText().toString().isEmpty()) {
+                    layers.add(layer1.getText().toString());
                 }
+                if (!layer2.getText().toString().isEmpty()) {
+                    layers.add(layer2.getText().toString());
+                }
+                if (!layer3.getText().toString().isEmpty()) {
+                    layers.add(layer3.getText().toString());
+                }
+                WMTSVersionEnum wmtsVersion = WMTSVersionEnum.valueOf(version.getSelectedItem().toString());
+
+                ((IWmtsSettingsDialogListener) WmtsSettingsDialog.this.listener)
+                        .addWmtsService(map,
+                                name.getText().toString(),
+                                url.getText().toString(),
+                                wmtsVersion,
+                                tileFormat.getSelectedItem().toString(),
+                                layers);
             }
         });
     }

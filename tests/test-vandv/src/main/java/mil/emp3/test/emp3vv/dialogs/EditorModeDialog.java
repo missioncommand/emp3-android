@@ -94,32 +94,19 @@ public class EditorModeDialog extends Emp3TesterDialogBase {
         mapMotionListAdapter = setupSingleChoiceList("Map Motion Lock Modes", mapMotionList, mapMotionListData);
 
         // Single choice getSelected doesn't work, so use this listener.
-        mapMotionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedMotionLockMode = MapMotionLockEnum.valueOf(mapMotionListAdapter.getItem(position-1));
-            }
-        });
+        mapMotionList.setOnItemClickListener((parent, view1, position, id) -> selectedMotionLockMode = MapMotionLockEnum.valueOf(mapMotionListAdapter.getItem(position-1)));
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditorModeDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> EditorModeDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != EditorModeDialog.this.listener) {
-                    ((IEditorModeDialogListener)EditorModeDialog.this.listener).setMapMotionLockMode(EditorModeDialog.this);
-                    try {
-                        mapMotionLockMode.setText(map.getMotionLockMode().toString());
-                    } catch(EMP_Exception e) {
-                        Log.e(TAG, "motionLockMode ", e);
-                    }
+        applyButton.setOnClickListener(v -> {
+            if (null != EditorModeDialog.this.listener) {
+                ((IEditorModeDialogListener)EditorModeDialog.this.listener).setMapMotionLockMode(EditorModeDialog.this);
+                try {
+                    mapMotionLockMode.setText(map.getMotionLockMode().toString());
+                } catch(EMP_Exception e) {
+                    Log.e(TAG, "motionLockMode ", e);
                 }
             }
         });

@@ -36,19 +36,16 @@ public class PositionListUtility implements PositionListDialog.IPositionListDial
         // Tapping on the map will have no consequences to position list.
 
         final Button positionsList = (Button) view.findViewById(R.id.positionsList);
-        positionsList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(null == userPositionsList) {
-                    userPositionsList = new ArrayList<>();
-                    userPositionsList.add(new EmpGeoPosition());
-                }
-                if(null != positionUtility) {
-                    positionUtility.switchToManual(userPositionsList);
-                }
-                positionListDialog = PositionListDialog.newInstanceForOptItem("Positions List", PositionListUtility.this, map, userPositionsList, 1);
-                positionListDialog.show(fm, "position_list_fragment");
+        positionsList.setOnClickListener(v -> {
+            if(null == userPositionsList) {
+                userPositionsList = new ArrayList<>();
+                userPositionsList.add(new EmpGeoPosition());
             }
+            if(null != positionUtility) {
+                positionUtility.switchToManual(userPositionsList);
+            }
+            positionListDialog = PositionListDialog.newInstanceForOptItem("Positions List", PositionListUtility.this, map, userPositionsList, 1);
+            positionListDialog.show(fm, "position_list_fragment");
         });
     }
 
