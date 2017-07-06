@@ -70,6 +70,9 @@ public class MapGridLayer extends RenderableLayer {
                         case GEO_TEXT:
                             renderable = this.featureConverter.createWWLabel((Text) feature, false);
                             break;
+                        default:
+                            Log.d(TAG, "Invalid feature type for pre-rendering " + feature.getFeatureType().toString());
+                            break;
                     }
 
                     if (null != renderable) {
