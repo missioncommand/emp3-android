@@ -2068,23 +2068,21 @@ public class MainActivity extends AppCompatActivity
                         .setMessage("Number of Units:")
                         .setView(v)
                         .setNegativeButton(android.R.string.no, null)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
-                                final CheckBox checkBox = (CheckBox) (((Dialog) dialog).findViewById(R.id.remove_features));
+                        .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                            final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                            final CheckBox checkBox = (CheckBox) (((Dialog) dialog).findViewById(R.id.remove_features));
 
-                                final String numUnits = text.getText().toString();
-                                Log.d(TAG, "numUnits: " + numUnits);
+                            final String numUnits = text.getText().toString();
+                            Log.d(TAG, "numUnits: " + numUnits);
 
-                                final boolean shouldRemoveAllFeatures = checkBox.isChecked();
-                                Log.d(TAG, "shouldRemoveAllFeatures: " + shouldRemoveAllFeatures);
+                            final boolean shouldRemoveAllFeatures = checkBox.isChecked();
+                            Log.d(TAG, "shouldRemoveAllFeatures: " + shouldRemoveAllFeatures);
 
-                                if (shouldRemoveAllFeatures) {
-                                    removeAllFeatures();
-                                }
-
-                                plotManyMilStd(Integer.parseInt(numUnits));
+                            if (shouldRemoveAllFeatures) {
+                                removeAllFeatures();
                             }
+
+                            plotManyMilStd(Integer.parseInt(numUnits));
                         }).create().show();
                 return true;
             case R.id.action_plotunits2525B:
@@ -2140,18 +2138,35 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_addWCS:
                 try {
-                    wcsService = new WCS("https://worldwind26.arc.nasa.gov/wcs",
-                            "aster_v2");
-                    Log.i(TAG, wcsService.toString());
-                    map.addMapService(wcsService);
-                    MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
-                    oItem.setEnabled(true);
-                    oItem = MainActivity.this.oMenu.findItem(R.id.action_addWCS);
-                    oItem.setEnabled(false);
-                    // 37.577227, -105.485845, 4374
-                    ILookAt calculatedLookAt = CameraUtility.setupLookAt(37.5, -105.5, 5000,
-                            37.577227, -105.485845, 4374);
-                    map.setLookAt(calculatedLookAt, false);
+                    final Dialog dialog = new Dialog(MainActivity.this);
+                    dialog.setContentView(R.layout.wcs_parameters_dialog);
+                    dialog.setTitle("Title...");
+                    Button okButton = (Button) dialog.findViewById(R.id.OKButton);
+                    // if button is clicked, close the custom dialog
+                    okButton.setOnClickListener(v1 -> {
+                        EditText urlText = (EditText) dialog.findViewById(R.id.WcsUrlText);
+                        EditText coverageText = (EditText) dialog.findViewById(R.id.CoverageText);
+
+                        String url = urlText.getText().toString();
+                        dialog.dismiss();
+
+                        try {
+                            wcsService = new WCS(url,
+                                    coverageText.getText().toString());
+                            Log.i(TAG, wcsService.toString());
+                            map.addMapService(wcsService);
+                            MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
+                            oItem.setEnabled(true);
+                            oItem = MainActivity.this.oMenu.findItem(R.id.action_addWCS);
+                            oItem.setEnabled(false);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    Button cancelButton = (Button) dialog.findViewById(R.id.CancelButton);
+                    // if button is clicked, don't add WMS service
+                    cancelButton.setOnClickListener(v12 -> dialog.dismiss());
+                    dialog.show();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
