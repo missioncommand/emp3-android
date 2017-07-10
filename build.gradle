@@ -28,7 +28,6 @@ ext {
 
     git = org.ajoberstar.grgit.Grgit.open(file('.')) // Open the Git repository in the current directory.
     revision = git.head().id                         // Get commitId of HEAD.
-    //revision = git.head().abbreviatedId            // An alternative way using the abbreviatedId.
 }
 
 allprojects {
@@ -36,7 +35,6 @@ allprojects {
 }
 
 def publishableModules() {
-    //subprojects.findAll { it.pluginManager.hasPlugin('org.gradle.maven-publish') } // MavenPublishPlugin
     [
           project(":emp3-android-sdk")
         , project(":emp3-android-sdk-apk")
@@ -46,9 +44,6 @@ def publishableModules() {
         , project(":mapengine-worldwind")
         , project(":google-maps-android-cmgn")
 
-      //, project(":service:mirrorcache:service-mirrorcache-api")
-      //, project(":service:mirrorcache:service-mirrorcache-mirrorables")
-      //, project(":service:mirrorcache:service-mirrorcache-service")
     ]
 }
 
