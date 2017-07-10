@@ -170,8 +170,8 @@
     <string name="ResolutionDefault">1.0</string>
     <string name="CancelButton">Cancel</string>
     <string name="OKButton">OK</string>
-    <string name="WcsUrlDefault">https://worldwind26.arc.nasa.gov/wcs</string>
-    <string name="CoverageDefault">aster_v2</string>
+    <string name="WcsUrlDefault">http://192.168.1.6:8080/worldwind-geoserver/wcs</string>
+    <string name="CoverageDefault">gebco:gebco</string>
 
     <string name="action_minimap">Toggle Mini Map</string>
     <string name="action_brightnessLabel">Brightness:</string>

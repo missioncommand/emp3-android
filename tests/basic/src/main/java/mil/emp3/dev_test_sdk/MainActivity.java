@@ -137,6 +137,7 @@ import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPrope
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.dev_test_sdk.utils.CameraUtility;
 import mil.emp3.json.geoJson.GeoJsonCaller;
+import mil.emp3.worldwind.utils.SystemUtils;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -2159,6 +2160,9 @@ public class MainActivity extends AppCompatActivity
                             oItem.setEnabled(true);
                             oItem = MainActivity.this.oMenu.findItem(R.id.action_addWCS);
                             oItem.setEnabled(false);
+                            ILookAt calculatedLookAt = CameraUtility.setupLookAt(37.5, -105.5, 5000,
+                                    37.577227, -105.485845, 4374);
+                            map.setLookAt(calculatedLookAt, false);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
