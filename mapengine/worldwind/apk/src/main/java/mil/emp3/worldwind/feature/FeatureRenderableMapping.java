@@ -1,44 +1,15 @@
 package mil.emp3.worldwind.feature;
 
-import android.content.res.Resources;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.Typeface;
-import android.util.Log;
-
-import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoBounds;
-import org.cmapi.primitives.IGeoFillStyle;
-import org.cmapi.primitives.IGeoIconStyle;
-import org.cmapi.primitives.IGeoLabelStyle;
-import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoStrokeStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import gov.nasa.worldwind.WorldWind;
-import gov.nasa.worldwind.geom.Offset;
-import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.geom.Sector;
-import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.render.Renderable;
-import gov.nasa.worldwind.shape.Placemark;
-import gov.nasa.worldwind.shape.PlacemarkAttributes;
-import gov.nasa.worldwind.shape.SurfaceImage;
 import mil.emp3.api.Path;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Text;
-import mil.emp3.api.enums.IconSizeEnum;
-import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
-import mil.emp3.api.interfaces.IImageLayer;
-import mil.emp3.api.utils.EmpBoundingBox;
-import mil.emp3.api.utils.FontUtilities;
-import mil.emp3.mapengine.interfaces.IEmpImageInfo;
 import mil.emp3.worldwind.MapInstance;
-import mil.emp3.worldwind.utils.Conversion;
 
 /**
  * This is the base class for all WW to EMP feature mapping. It implements the Renderable interface

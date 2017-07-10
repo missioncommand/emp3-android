@@ -138,7 +138,7 @@ public class StyleManager implements LabelStyleDialog.ILabelStyleDialogListener,
             } else if (userAction.equals("Default Fill Style")) {
                 fillStyle[ExecuteTest.getCurrentMap()] = null;
             } else if (userAction.equals("Apply Styles")) {
-                for(IFeature f : maps[whichMap].getAllFeatures()) {
+                for(IFeature<?> f : maps[whichMap].getAllFeatures()) {
                     applyStyles(f);
                     f.apply();
                 }
@@ -158,7 +158,7 @@ public class StyleManager implements LabelStyleDialog.ILabelStyleDialogListener,
      * Override the style only if user has set a style, DO NOT make the style null.
      * @param feature
      */
-    public void setStyles(IFeature feature) {
+    public void setStyles(IFeature<?> feature) {
         if(null != fillStyle[ExecuteTest.getCurrentMap()]) {
             feature.setFillStyle(fillStyle[ExecuteTest.getCurrentMap()]);
         }
@@ -177,7 +177,7 @@ public class StyleManager implements LabelStyleDialog.ILabelStyleDialogListener,
      * all the features.
      * @param feature
      */
-    public void applyStyles(IFeature feature) {
+    public void applyStyles(IFeature<?> feature) {
         if(null != fillStyle[ExecuteTest.getCurrentMap()]) {
             feature.setFillStyle(fillStyle[ExecuteTest.getCurrentMap()]);
         } else {

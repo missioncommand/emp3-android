@@ -116,20 +116,12 @@ public class PerformanceTestConfigureDialog extends Emp3TesterDialogBase {
         }
 
         Button applyButton = (Button) view.findViewById(R.id.configure_apply_done).findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != PerformanceTestConfigureDialog.this.listener) {
-                    ((IPerformanceTestConfigureDialogListener)PerformanceTestConfigureDialog.this.listener).configure(PerformanceTestConfigureDialog.this);
-                }
+        applyButton.setOnClickListener(v -> {
+            if (null != PerformanceTestConfigureDialog.this.listener) {
+                ((IPerformanceTestConfigureDialogListener)PerformanceTestConfigureDialog.this.listener).configure(PerformanceTestConfigureDialog.this);
             }
         });
         Button doneButton = (Button) view.findViewById(R.id.configure_apply_done).findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PerformanceTestConfigureDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> PerformanceTestConfigureDialog.this.dismiss());
     }
 }

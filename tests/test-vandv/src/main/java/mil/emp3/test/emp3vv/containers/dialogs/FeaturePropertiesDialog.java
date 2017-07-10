@@ -129,31 +129,25 @@ public class FeaturePropertiesDialog<T extends FeaturePropertiesDialog> extends 
         }
 
         Button doneButton = (Button) view.findViewById(R.id.cancel);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FeaturePropertiesDialog.this.dismiss();
-                FeaturePropertiesDialog.this.listener.onFeaturePropertiesCancelClick((T)FeaturePropertiesDialog.this);
-                positionUtility.stop();
-                positionListUtility.stop();
-            }
+        doneButton.setOnClickListener(v -> {
+            FeaturePropertiesDialog.this.dismiss();
+            FeaturePropertiesDialog.this.listener.onFeaturePropertiesCancelClick((T)FeaturePropertiesDialog.this);
+            positionUtility.stop();
+            positionListUtility.stop();
         });
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != FeaturePropertiesDialog.this.listener) {
-                    if(FeaturePropertiesDialog.this.listener.onFeaturePropertiesSaveClick((T) FeaturePropertiesDialog.this)) {
-                        FeaturePropertiesDialog.this.dismiss();
-                        positionUtility.stop();
-                        positionListUtility.stop();
-                    }
-                } else {
+        applyButton.setOnClickListener(v -> {
+            if (null != FeaturePropertiesDialog.this.listener) {
+                if(FeaturePropertiesDialog.this.listener.onFeaturePropertiesSaveClick((T) FeaturePropertiesDialog.this)) {
                     FeaturePropertiesDialog.this.dismiss();
                     positionUtility.stop();
                     positionListUtility.stop();
                 }
+            } else {
+                FeaturePropertiesDialog.this.dismiss();
+                positionUtility.stop();
+                positionListUtility.stop();
             }
         });
 

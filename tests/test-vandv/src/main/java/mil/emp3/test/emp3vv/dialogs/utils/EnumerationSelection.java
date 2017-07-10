@@ -49,45 +49,36 @@ public class EnumerationSelection<E extends Enum<E>> {
         tvSelected.setText(userSelected.toString());
         enumerationButton = (Button) view.findViewById(R.id.enumeration);
         enumerationButton.setText(clazz.getSimpleName());
-        enumerationButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.runOnUiThread(new Runnable() {
-                    public void run() {
-                        final List<String> enumerations = new ArrayList<>();
-                        int index = 0;
-                        int selection = index;
-                        for (E ise : EnumSet.allOf(clazz)) {
-                            enumerations.add(ise.toString());
-                            if(ise.equals(userSelected)) {
-                                selection = index;
-                            }
-                            index++;
-                        }
-                        Log.d(TAG, "onViewCreated selection " + selection + " userSelected " + userSelected.toString());
-
-                        final ArrayAdapter<String> adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_checked, enumerations);
-                        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
-                                .setTitle("Choose " + clazz.getSimpleName())
-                                .setSingleChoiceItems(adapter, selection, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        for (E ise : EnumSet.allOf(clazz)) {
-                                            if(ise.toString().equals(enumerations.get(which)) ) {
-                                                userSelected = ise;
-                                                if(null != listener) {
-                                                    listener.onValueChanged(userSelected);
-                                                }
-                                            }
-                                        }
-                                        tvSelected.setText(enumerations.get(which));
-                                        dialog.cancel();
-                                    }
-                                });
-                        final AlertDialog dialog = builder.create();
-                        dialog.show();
-                    }
-                });
+        enumerationButton.setOnClickListener(v -> activity.runOnUiThread(() -> {
+            final List<String> enumerations = new ArrayList<>();
+            int index = 0;
+            int selection = index;
+            for (E ise : EnumSet.allOf(clazz)) {
+                enumerations.add(ise.toString());
+                if(ise.equals(userSelected)) {
+                    selection = index;
+                }
+                index++;
             }
-        });
+            Log.d(TAG, "onViewCreated selection " + selection + " userSelected " + userSelected.toString());
+
+            final ArrayAdapter<String> adapter = new ArrayAdapter(activity, android.R.layout.simple_list_item_checked, enumerations);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+                    .setTitle("Choose " + clazz.getSimpleName())
+                    .setSingleChoiceItems(adapter, selection, (dialog, which) -> {
+                        for (E ise : EnumSet.allOf(clazz)) {
+                            if(ise.toString().equals(enumerations.get(which)) ) {
+                                userSelected = ise;
+                                if(null != listener) {
+                                    listener.onValueChanged(userSelected);
+                                }
+                            }
+                        }
+                        tvSelected.setText(enumerations.get(which));
+                        dialog.cancel();
+                    });
+            final AlertDialog dialog = builder.create();
+            dialog.show();
+        }));
     }
 }

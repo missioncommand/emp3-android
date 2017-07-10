@@ -134,21 +134,13 @@ public class LabelStyleDialog extends Emp3TesterDialogBase {
         fontFamily.onViewCreated(getActivity(), view.findViewById(R.id.label_style_font_family), savedInstanceState);
 
         Button applyButton = (Button) view.findViewById(R.id.label_style_apply_done).findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != LabelStyleDialog.this.listener) {
-                    ((ILabelStyleDialogListener)LabelStyleDialog.this.listener).setLabelStyle(LabelStyleDialog.this);
-                }
+        applyButton.setOnClickListener(v -> {
+            if (null != LabelStyleDialog.this.listener) {
+                ((ILabelStyleDialogListener)LabelStyleDialog.this.listener).setLabelStyle(LabelStyleDialog.this);
             }
         });
         Button doneButton = (Button) view.findViewById(R.id.label_style_apply_done).findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LabelStyleDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> LabelStyleDialog.this.dismiss());
     }
 
     public interface ILabelStyleDialogListener extends IEmp3TesterDialogBaseListener {

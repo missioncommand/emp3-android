@@ -125,22 +125,19 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
         meName.setText(me.getName());
         final Button updateMeName = (Button) view.findViewById(R.id.update_me_name);
         if(!showOnly) {
-            updateMeName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(meName.getText().toString().trim().equals(me.getName())) {
-                        return;
-                    }
+            updateMeName.setOnClickListener(v -> {
+                if(meName.getText().toString().trim().equals(me.getName())) {
+                    return;
+                }
 
-                    boolean nameInUse = MapNamesUtility.isNameInUse(map, meName.getText().toString().trim());
-                    if(nameInUse) {
-                        ErrorDialog.showError(getContext(),"Name is already in use, please select another");
-                    } else {
-                        ((IUpdateContainerDialogListener)listener).updateName(UpdateContainerDialog.this);
-                        resetListsOnDataChange();
-                        updateName(meName.getText().toString().trim());
-                        // need to repopulate all the lists as name has changed
-                    }
+                boolean nameInUse = MapNamesUtility.isNameInUse(map, meName.getText().toString().trim());
+                if(nameInUse) {
+                    ErrorDialog.showError(getContext(),"Name is already in use, please select another");
+                } else {
+                    ((IUpdateContainerDialogListener)listener).updateName(UpdateContainerDialog.this);
+                    resetListsOnDataChange();
+                    updateName(meName.getText().toString().trim());
+                    // need to repopulate all the lists as name has changed
                 }
             });
         } else {
@@ -152,13 +149,10 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
         meVisible.setChecked( map.getVisibility(me) == VisibilityStateEnum.HIDDEN ? false : true);
         Button updateMeVisible = (Button) view.findViewById(R.id.update_me_visible);
         if(!showOnly) {
-            updateMeVisible.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "getCheckedCount " + myParentList.getCheckedItemCount());
-                    if(!((IUpdateContainerDialogListener)listener).updateVisibility(UpdateContainerDialog.this)) {
-                        meVisible.setChecked(map.getVisibility(me) == VisibilityStateEnum.HIDDEN ? false : true);
-                    }
+            updateMeVisible.setOnClickListener(v -> {
+                Log.d(TAG, "getCheckedCount " + myParentList.getCheckedItemCount());
+                if(!((IUpdateContainerDialogListener)listener).updateVisibility(UpdateContainerDialog.this)) {
+                    meVisible.setChecked(map.getVisibility(me) == VisibilityStateEnum.HIDDEN ? false : true);
                 }
             });
         } else {
@@ -177,24 +171,18 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
         }
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(null != positionUtility) {
-                    positionUtility.stop();
-                }
-                UpdateContainerDialog.this.dismiss();
+        doneButton.setOnClickListener(v -> {
+            if(null != positionUtility) {
+                positionUtility.stop();
             }
+            UpdateContainerDialog.this.dismiss();
         });
 
         Button removeMeButton = (Button) view.findViewById(R.id.remove_me);
         if(!showOnly) {
-            removeMeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ((IUpdateContainerDialogListener)listener).removeMe(UpdateContainerDialog.this);
-                    UpdateContainerDialog.this.dismiss();
-                }
+            removeMeButton.setOnClickListener(v -> {
+                ((IUpdateContainerDialogListener)listener).removeMe(UpdateContainerDialog.this);
+                UpdateContainerDialog.this.dismiss();
             });
         } else {
             removeMeButton.setVisibility(View.GONE);
@@ -222,17 +210,14 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
         myParentListAdapter = setupMultiChoiceList("Parents", myParentList, myParentListData);
         Button removeFromButton = (Button) view.findViewById(R.id.remove_from_parent);
         if(!showOnly) {
-            removeFromButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(myParentList.getCheckedItemCount() == 0) {
-                        ErrorDialog.showError(getContext(),"You must select at least one parent");
-                        return;
-                    } else {
-                        Log.d(TAG, "getCheckedCount " + myParentList.getCheckedItemCount());
-                        ((IUpdateContainerDialogListener)listener).removeFromParents(UpdateContainerDialog.this);
-                        resetListsOnDataChange();
-                    }
+            removeFromButton.setOnClickListener(v -> {
+                if(myParentList.getCheckedItemCount() == 0) {
+                    ErrorDialog.showError(getContext(),"You must select at least one parent");
+                    return;
+                } else {
+                    Log.d(TAG, "getCheckedCount " + myParentList.getCheckedItemCount());
+                    ((IUpdateContainerDialogListener)listener).removeFromParents(UpdateContainerDialog.this);
+                    resetListsOnDataChange();
                 }
             });
         } else {
@@ -252,17 +237,14 @@ abstract public class UpdateContainerDialog extends Emp3TesterDialogBase {
         myChildrenListAdapter = setupMultiChoiceList("Children", myChildrenList, myChildrenListData);
         Button removeChildrenButton = (Button) view.findViewById(R.id.remove_children);
         if(!showOnly) {
-            removeChildrenButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(myChildrenList.getCheckedItemCount() == 0) {
-                        ErrorDialog.showError(getContext(),"You must select at least one child");
-                        return;
-                    } else {
-                        Log.d(TAG, "getCheckedCount " + myChildrenList.getCheckedItemCount());
-                        ((IUpdateContainerDialogListener)listener).removeChildren(UpdateContainerDialog.this);
-                        resetListsOnDataChange();
-                    }
+            removeChildrenButton.setOnClickListener(v -> {
+                if(myChildrenList.getCheckedItemCount() == 0) {
+                    ErrorDialog.showError(getContext(),"You must select at least one child");
+                    return;
+                } else {
+                    Log.d(TAG, "getCheckedCount " + myChildrenList.getCheckedItemCount());
+                    ((IUpdateContainerDialogListener)listener).removeChildren(UpdateContainerDialog.this);
+                    resetListsOnDataChange();
                 }
             });
         } else {

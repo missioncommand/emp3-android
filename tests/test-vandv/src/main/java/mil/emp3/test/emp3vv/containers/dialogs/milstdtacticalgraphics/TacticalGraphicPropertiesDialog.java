@@ -387,35 +387,29 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
         });
 
         Button doneButton = (Button) view.findViewById(R.id.cancel);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TacticalGraphicPropertiesDialog.this.dismiss();
-                mListener.onCancelClick(TacticalGraphicPropertiesDialog.this);
-                positionUtility.stop();
-                positionListUtility.stop();
-            }
+        doneButton.setOnClickListener(v -> {
+            TacticalGraphicPropertiesDialog.this.dismiss();
+            mListener.onCancelClick(TacticalGraphicPropertiesDialog.this);
+            positionUtility.stop();
+            positionListUtility.stop();
         });
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != TacticalGraphicPropertiesDialog.this.mListener) {
+        applyButton.setOnClickListener(v -> {
+            if (null != TacticalGraphicPropertiesDialog.this.mListener) {
 
-                    EditText mEdit = (EditText) TacticalGraphicPropertiesDialog.this.oDialogView.findViewById(R.id.featurename);
-                    TacticalGraphicPropertiesDialog.this.sFeatureName = mEdit.getText().toString();
+                EditText mEdit = (EditText) TacticalGraphicPropertiesDialog.this.oDialogView.findViewById(R.id.featurename);
+                TacticalGraphicPropertiesDialog.this.sFeatureName = mEdit.getText().toString();
 
-                    if(mListener.onSaveClick(TacticalGraphicPropertiesDialog.this)) {
-                        TacticalGraphicPropertiesDialog.this.dismiss();
-                        positionUtility.stop();
-                        positionListUtility.stop();
-                    }
-                } else {
+                if(mListener.onSaveClick(TacticalGraphicPropertiesDialog.this)) {
+                    TacticalGraphicPropertiesDialog.this.dismiss();
                     positionUtility.stop();
                     positionListUtility.stop();
-                    TacticalGraphicPropertiesDialog.this.dismiss();
                 }
+            } else {
+                positionUtility.stop();
+                positionListUtility.stop();
+                TacticalGraphicPropertiesDialog.this.dismiss();
             }
         });
 

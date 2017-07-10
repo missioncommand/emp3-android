@@ -69,45 +69,34 @@ public class MapBrightnessDialog extends Emp3TesterDialogBase {
 
             ImageButton increaseBrightnessBtn = (ImageButton) view.findViewById(R.id.brightnessUp);
             if (null != increaseBrightnessBtn) {
-                increaseBrightnessBtn.setOnClickListener(new View.OnClickListener() {
+                increaseBrightnessBtn.setOnClickListener(v -> {
+                    int value = Integer.parseInt(brightnessCtrl.getText().toString()) + 5;
 
-                    @Override
-                    public void onClick(View v) {
-                        int value = Integer.parseInt(brightnessCtrl.getText().toString()) + 5;
-
-                        if (value > 100) {
-                            value = 100;
-                        }
-                        brightnessCtrl.setText("" + value);
-                        MapBrightnessDialog.this.map.setBackgroundBrightness(value);
+                    if (value > 100) {
+                        value = 100;
                     }
+                    brightnessCtrl.setText("" + value);
+                    MapBrightnessDialog.this.map.setBackgroundBrightness(value);
                 });
             }
 
             ImageButton decreaseBrightnessBtn = (ImageButton) view.findViewById(R.id.brightnessDown);
             if (null != decreaseBrightnessBtn) {
-                decreaseBrightnessBtn.setOnClickListener(new View.OnClickListener() {
+                decreaseBrightnessBtn.setOnClickListener(v -> {
+                    int value = Integer.parseInt(brightnessCtrl.getText().toString()) - 5;
 
-                    @Override
-                    public void onClick(View v) {
-                        int value = Integer.parseInt(brightnessCtrl.getText().toString()) - 5;
-
-                        if (value < 0) {
-                            value = 0;
-                        }
-                        brightnessCtrl.setText("" + value);
-                        MapBrightnessDialog.this.map.setBackgroundBrightness(value);
+                    if (value < 0) {
+                        value = 0;
                     }
+                    brightnessCtrl.setText("" + value);
+                    MapBrightnessDialog.this.map.setBackgroundBrightness(value);
                 });
             }
             Button doneBtn = (Button) view.findViewById(R.id.doneBtn);
             if (null != doneBtn) {
-                doneBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ((IBrightnessDialogListener) MapBrightnessDialog.this.listener).onDone();
-                        MapBrightnessDialog.this.dismiss();
-                    }
+                doneBtn.setOnClickListener(v -> {
+                    ((IBrightnessDialogListener) MapBrightnessDialog.this.listener).onDone();
+                    MapBrightnessDialog.this.dismiss();
                 });
             }
         }

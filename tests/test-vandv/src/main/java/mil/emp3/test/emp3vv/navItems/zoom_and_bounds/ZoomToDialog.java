@@ -79,14 +79,11 @@ public class ZoomToDialog extends Emp3TesterDialogBase {
         allFeaturesListAdapter = setupMultiChoiceList("All Features", allFeaturesList, allFeaturesListData);
 
         Button zoomToFeatures = (Button) view.findViewById(R.id.zoom_to_features);
-        zoomToFeatures.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(allFeaturesList.getCheckedItemCount() < 1) {
-                    ErrorDialog.showError(getContext(), "Please select at least one feature");
-                } else {
-                    ((IZoomToDialogListener)ZoomToDialog.this.listener).zoomToFeatures(ZoomToDialog.this);
-                }
+        zoomToFeatures.setOnClickListener(v -> {
+            if(allFeaturesList.getCheckedItemCount() < 1) {
+                ErrorDialog.showError(getContext(), "Please select at least one feature");
+            } else {
+                ((IZoomToDialogListener)ZoomToDialog.this.listener).zoomToFeatures(ZoomToDialog.this);
             }
         });
 
@@ -95,23 +92,15 @@ public class ZoomToDialog extends Emp3TesterDialogBase {
         allOverlaysListAdapter = setupMultiChoiceList("All Overlays", allOverlaysList, allOverlaysListData);
 
         Button zoomToOverlay = (Button) view.findViewById(R.id.zoom_to_overlay);
-        zoomToOverlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(allOverlaysList.getCheckedItemCount() != 1) {
-                    ErrorDialog.showError(getContext(), "Please select one and only one overlay");
-                } else {
-                    ((IZoomToDialogListener)ZoomToDialog.this.listener).zoomToOverlay(ZoomToDialog.this);
-                }
+        zoomToOverlay.setOnClickListener(v -> {
+            if(allOverlaysList.getCheckedItemCount() != 1) {
+                ErrorDialog.showError(getContext(), "Please select one and only one overlay");
+            } else {
+                ((IZoomToDialogListener)ZoomToDialog.this.listener).zoomToOverlay(ZoomToDialog.this);
             }
         });
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ZoomToDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> ZoomToDialog.this.dismiss());
     }
 }

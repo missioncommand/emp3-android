@@ -87,21 +87,15 @@ public class LookAtDialog extends Emp3TesterDialogBase implements ILookAtEventLi
         lookAtComponents.onViewCreated(view, savedInstanceState, startPosition);
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                myLookAt.removeEventListener(lookAtEventListenerHandle);
-                LookAtDialog.this.dismiss();
-            }
+        doneButton.setOnClickListener(v -> {
+            myLookAt.removeEventListener(lookAtEventListenerHandle);
+            LookAtDialog.this.dismiss();
         });
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != LookAtDialog.this.listener) {
-                    ((ILookAtDialogListener)LookAtDialog.this.listener).lookAtSet(LookAtDialog.this);
-                }
+        applyButton.setOnClickListener(v -> {
+            if (null != LookAtDialog.this.listener) {
+                ((ILookAtDialogListener)LookAtDialog.this.listener).lookAtSet(LookAtDialog.this);
             }
         });
 
@@ -121,12 +115,7 @@ public class LookAtDialog extends Emp3TesterDialogBase implements ILookAtEventLi
     @Override
     public void onEvent(final LookAtEvent event) {
         if((null != getActivity()) && (null != lookAtComponents)) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    lookAtComponents.lookAtMoved(event.getLookAt());
-                }
-            });
+            getActivity().runOnUiThread(() -> lookAtComponents.lookAtMoved(event.getLookAt()));
         } else {
             Log.e(TAG, "onEvent shouldn't be invoked");
         }

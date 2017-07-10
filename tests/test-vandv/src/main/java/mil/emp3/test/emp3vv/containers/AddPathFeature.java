@@ -3,14 +3,9 @@ package mil.emp3.test.emp3vv.containers;
 import android.app.Activity;
 import android.util.Log;
 
-import org.cmapi.primitives.IGeoFillStyle;
-import org.cmapi.primitives.IGeoLabelStyle;
-import org.cmapi.primitives.IGeoStrokeStyle;
-
 import java.util.List;
 
 import mil.emp3.api.Path;
-import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.test.emp3vv.common.StyleManager;
 import mil.emp3.test.emp3vv.containers.dialogs.FeaturePropertiesDialog;

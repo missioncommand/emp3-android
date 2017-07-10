@@ -83,46 +83,32 @@ public class PositionListDialog extends Emp3TesterDialogBase {
         listView.setAdapter(positionItemAdapter);
 
         Button addPositionItem = (Button) view.findViewById(R.id.add_position);
-        addPositionItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // positionItemAdapter.saveUserInput(listView);
-                positionItemAdapter.addEmptyPosition(-1);
+        addPositionItem.setOnClickListener(v -> {
+            // positionItemAdapter.saveUserInput(listView);
+            positionItemAdapter.addEmptyPosition(-1);
+            positionItemAdapter.notifyDataSetChanged();
+        });
+
+        Button deletePositionItem = (Button) view.findViewById(R.id.delete_position);
+        deletePositionItem.setOnClickListener(v -> {
+            // positionItemAdapter.saveUserInput(listView);
+            if(positionItemAdapter.deleteSelectedPosition()) {
                 positionItemAdapter.notifyDataSetChanged();
             }
         });
 
-        Button deletePositionItem = (Button) view.findViewById(R.id.delete_position);
-        deletePositionItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // positionItemAdapter.saveUserInput(listView);
-                if(positionItemAdapter.deleteSelectedPosition()) {
-                    positionItemAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-
         Button movePositionItem = (Button) view.findViewById(R.id.move_position);
-        movePositionItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ErrorDialog.showError(getContext(), "Move, not yet supported");
-            }
-        });
+        movePositionItem.setOnClickListener(v -> ErrorDialog.showError(getContext(), "Move, not yet supported"));
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(positionItemAdapter.getCount() >= minRequiredPositions) {
-                    if (null != PositionListDialog.this.listener) {
-                        ((IPositionListDialogListener) PositionListDialog.this.listener).positionsSet(PositionListDialog.this);
-                        PositionListDialog.this.dismiss();
-                    }
-                } else {
-                    ErrorDialog.showError(getContext(), "need minimum " + minRequiredPositions + " positions");
+        doneButton.setOnClickListener(v -> {
+            if(positionItemAdapter.getCount() >= minRequiredPositions) {
+                if (null != PositionListDialog.this.listener) {
+                    ((IPositionListDialogListener) PositionListDialog.this.listener).positionsSet(PositionListDialog.this);
+                    PositionListDialog.this.dismiss();
                 }
+            } else {
+                ErrorDialog.showError(getContext(), "need minimum " + minRequiredPositions + " positions");
             }
         });
 

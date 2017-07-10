@@ -1,18 +1,13 @@
 package mil.emp3.test.emp3vv.dialogs;
 
-import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -77,42 +72,28 @@ public class WmtsRemoveDialog extends Emp3TesterDialogBase {
                 android.R.layout.simple_list_item_multiple_choice, wmtsNames);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                final String item = (String) parent.getItemAtPosition(position);
-            }
-
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            final String item = (String) parent.getItemAtPosition(position);
         });
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WmtsRemoveDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> WmtsRemoveDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != WmtsRemoveDialog.this.listener) {
-                    SparseBooleanArray checked = listView.getCheckedItemPositions();
-                    ArrayList<String> selectedItems = new ArrayList<String>();
-                    for (int i = 0; i < checked.size(); i++) {
-                        int position = checked.keyAt(i);
-                        if (checked.valueAt(i)) {
-                            String item = (String) adapter.getItem(position);
-                            selectedItems.add(item);
-                        }
+        applyButton.setOnClickListener(v -> {
+            if (null != WmtsRemoveDialog.this.listener) {
+                SparseBooleanArray checked = listView.getCheckedItemPositions();
+                ArrayList<String> selectedItems = new ArrayList<String>();
+                for (int i = 0; i < checked.size(); i++) {
+                    int position = checked.keyAt(i);
+                    if (checked.valueAt(i)) {
+                        String item = (String) adapter.getItem(position);
+                        selectedItems.add(item);
                     }
-                    for (String item : selectedItems) {
-                        ((IWmtsRemoveDialogListener) WmtsRemoveDialog.this.listener).
-                                removeWmtsService(map,
-                                        item);
-                    }
+                }
+                for (String item : selectedItems) {
+                    ((IWmtsRemoveDialogListener) WmtsRemoveDialog.this.listener).
+                            removeWmtsService(map,
+                                    item);
                 }
             }
         });

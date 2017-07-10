@@ -1,19 +1,11 @@
 package mil.emp3.test.emp3vv.dialogs;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
@@ -86,12 +78,7 @@ public class GraphicsDialog extends Emp3TesterDialogBase {
         fontSizeModifier.onViewCreated(getActivity(), view.findViewById(R.id.graphic_font_size_modifier), savedInstanceState);
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GraphicsDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> GraphicsDialog.this.dismiss());
     }
 
     class IconSizeListener implements EnumerationSelection.IEnumerationSelectionListener<IconSizeEnum> {

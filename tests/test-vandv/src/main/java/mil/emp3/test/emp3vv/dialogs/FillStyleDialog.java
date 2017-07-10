@@ -89,20 +89,12 @@ public class FillStyleDialog extends Emp3TesterDialogBase {
         fillPattern.onViewCreated(getActivity(), fillStylePattern, savedInstanceState);
 
         Button applyButton = (Button) view.findViewById(R.id.fill_style_apply_done).findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != FillStyleDialog.this.listener) {
-                    ((IFillStyleDialogListener)FillStyleDialog.this.listener).set(FillStyleDialog.this);
-                }
+        applyButton.setOnClickListener(v -> {
+            if (null != FillStyleDialog.this.listener) {
+                ((IFillStyleDialogListener)FillStyleDialog.this.listener).set(FillStyleDialog.this);
             }
         });
         Button doneButton = (Button) view.findViewById(R.id.fill_style_apply_done).findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FillStyleDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> FillStyleDialog.this.dismiss());
     }
 }
