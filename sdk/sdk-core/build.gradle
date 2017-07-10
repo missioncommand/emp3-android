@@ -9,8 +9,7 @@ targetCompatibility = rootProject.targetCompatibility
 
 dependencies {
     provided project (":emp3-android-sdk")
-    provided         ("org.cmapi.primitives:common-map-geospatial-notation")
-
+    provided files ("$rootDir/3rdpartylibrary/cmapi/cmapi.jar")
     provided         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
 }
 
