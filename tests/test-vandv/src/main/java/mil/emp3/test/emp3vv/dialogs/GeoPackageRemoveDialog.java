@@ -72,42 +72,28 @@ public class GeoPackageRemoveDialog extends Emp3TesterDialogBase {
                 android.R.layout.simple_list_item_multiple_choice, geoPackageNames);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                final String item = (String) parent.getItemAtPosition(position);
-            }
-
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            final String item = (String) parent.getItemAtPosition(position);
         });
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GeoPackageRemoveDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> GeoPackageRemoveDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != GeoPackageRemoveDialog.this.listener) {
-                    SparseBooleanArray checked = listView.getCheckedItemPositions();
-                    ArrayList<String> selectedItems = new ArrayList<String>();
-                    for (int i = 0; i < checked.size(); i++) {
-                        int position = checked.keyAt(i);
-                        if (checked.valueAt(i)) {
-                            String item = (String) adapter.getItem(position);
-                            selectedItems.add(item);
-                        }
+        applyButton.setOnClickListener(v -> {
+            if (null != GeoPackageRemoveDialog.this.listener) {
+                SparseBooleanArray checked = listView.getCheckedItemPositions();
+                ArrayList<String> selectedItems = new ArrayList<String>();
+                for (int i = 0; i < checked.size(); i++) {
+                    int position = checked.keyAt(i);
+                    if (checked.valueAt(i)) {
+                        String item = (String) adapter.getItem(position);
+                        selectedItems.add(item);
                     }
-                    for (String item : selectedItems) {
-                        ((IGeoPackageRemoveDialogListener) GeoPackageRemoveDialog.this.listener).
-                                removeGeoPackageService(map,
-                                        item);
-                    }
+                }
+                for (String item : selectedItems) {
+                    ((IGeoPackageRemoveDialogListener) GeoPackageRemoveDialog.this.listener).
+                            removeGeoPackageService(map,
+                                    item);
                 }
             }
         });

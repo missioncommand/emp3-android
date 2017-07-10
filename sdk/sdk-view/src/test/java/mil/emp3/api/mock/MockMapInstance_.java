@@ -130,10 +130,10 @@ public class MockMapInstance_ extends CoreMapInstance {
         }
     }
 
-    List<FeatureTypeEnum> kmlsFeatureTypes = new ArrayList<>();
-    int kmlsImageCount = 0;
-    IKML kmlFeatureAddedViaService = null;
-    IKML kmlFeatureRemovedViaService = null;
+    private List<FeatureTypeEnum> kmlsFeatureTypes = new ArrayList<>();
+    private int kmlsImageCount = 0;
+    private IKML kmlFeatureAddedViaService = null;
+    private IKML kmlFeatureRemovedViaService = null;
 
     @Override
     public void addMapService(IMapService mapService) {

@@ -8,8 +8,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -99,40 +97,32 @@ public class AddOverlayDialog extends Emp3TesterDialogBase {
 
         overlayParentListAdapter = setupMultiChoiceList("Choose Parent Map/Overlay", overlayParentList, parentList);
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AddOverlayDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> AddOverlayDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != AddOverlayDialog.this.listener) {
+        applyButton.setOnClickListener(v -> {
+            if (null != AddOverlayDialog.this.listener) {
 
-                    if((overlayName.getText().toString() == null) || (overlayName.getText().toString().trim().length() == 0)) {
-                        ErrorDialog.showError(getContext(),"Please enter a non-null overlay name");
-                        return;
-                    }
+                if((overlayName.getText().toString() == null) || (overlayName.getText().toString().trim().length() == 0)) {
+                    ErrorDialog.showError(getContext(),"Please enter a non-null overlay name");
+                    return;
+                }
 
-                    if((parentList.contains(overlayName.getText().toString())) || (namesInUse.contains(overlayName.getText().toString()))) {
-                        ErrorDialog.showError(getContext(), "Overlay name " + overlayName.getText().toString() + " is already in use");
-                        return;
-                    }
+                if((parentList.contains(overlayName.getText().toString())) || (namesInUse.contains(overlayName.getText().toString()))) {
+                    ErrorDialog.showError(getContext(), "Overlay name " + overlayName.getText().toString() + " is already in use");
+                    return;
+                }
 
-                    if(overlayParentList.getCheckedItemCount() == 0) {
-                        ErrorDialog.showError(getContext(),"You must select at least one parent");
-                        return;
-                    } else {
-                        Log.d(TAG, "getCheckedCount " + overlayParentList.getCheckedItemCount());
-                    }
+                if(overlayParentList.getCheckedItemCount() == 0) {
+                    ErrorDialog.showError(getContext(),"You must select at least one parent");
+                    return;
+                } else {
+                    Log.d(TAG, "getCheckedCount " + overlayParentList.getCheckedItemCount());
+                }
 
-                    if(((IAddOverlayDialogListener) AddOverlayDialog.this.listener).overlaySet(AddOverlayDialog.this)) {
-                        parentList.add(overlayName.getText().toString());
-                        overlayParentListAdapter.notifyDataSetChanged();
-                    }
+                if(((IAddOverlayDialogListener) AddOverlayDialog.this.listener).overlaySet(AddOverlayDialog.this)) {
+                    parentList.add(overlayName.getText().toString());
+                    overlayParentListAdapter.notifyDataSetChanged();
                 }
             }
         });

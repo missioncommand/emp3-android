@@ -39,17 +39,14 @@ public class UpdateOverlayDialog extends UpdateContainerDialog {
         addParentsListAdapter = setupMultiChoiceList("New Parents", addParentsList, addParentListData);
 
         Button addParentsButton = (Button) view.findViewById(R.id.add_parents);
-        addParentsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(addParentsList.getCheckedItemCount() == 0) {
-                    ErrorDialog.showError(getContext(),"You must select at least one parent");
-                    return;
-                } else {
-                    Log.d(TAG, "getCheckedCount " + addParentsList.getCheckedItemCount());
-                    ((IUpdateContainerDialogListener)listener).addParents(UpdateOverlayDialog.this);
-                    resetListsOnDataChange();
-                }
+        addParentsButton.setOnClickListener(v -> {
+            if(addParentsList.getCheckedItemCount() == 0) {
+                ErrorDialog.showError(getContext(),"You must select at least one parent");
+                return;
+            } else {
+                Log.d(TAG, "getCheckedCount " + addParentsList.getCheckedItemCount());
+                ((IUpdateContainerDialogListener)listener).addParents(UpdateOverlayDialog.this);
+                resetListsOnDataChange();
             }
         });
     }
@@ -61,17 +58,14 @@ public class UpdateOverlayDialog extends UpdateContainerDialog {
         addChildrenListAdapter = setupMultiChoiceList("New Children", addChildrenList, addChildrenListData);
 
         Button addChildrenButton = (Button) view.findViewById(R.id.add_children);
-        addChildrenButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(addChildrenList.getCheckedItemCount() == 0) {
-                    ErrorDialog.showError(getContext(),"You must select at least one child");
-                    return;
-                } else {
-                    Log.d(TAG, "addChildrenList getCheckedCount " + addChildrenList.getCheckedItemCount());
-                    ((IUpdateContainerDialogListener)listener).addChildren(UpdateOverlayDialog.this);
-                    resetListsOnDataChange();
-                }
+        addChildrenButton.setOnClickListener(v -> {
+            if(addChildrenList.getCheckedItemCount() == 0) {
+                ErrorDialog.showError(getContext(),"You must select at least one child");
+                return;
+            } else {
+                Log.d(TAG, "addChildrenList getCheckedCount " + addChildrenList.getCheckedItemCount());
+                ((IUpdateContainerDialogListener)listener).addChildren(UpdateOverlayDialog.this);
+                resetListsOnDataChange();
             }
         });
     }

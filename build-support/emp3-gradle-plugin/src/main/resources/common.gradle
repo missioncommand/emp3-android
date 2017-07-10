@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE"
     }
 }
 
@@ -15,7 +15,7 @@ ext {
 
     version_nasa_worldwind_sdk = "0.6.0"
     version_cmapi              = "0.0.7"
-    version_renderer           = "0.1.28"
+    version_renderer           = "0.1.30"
     version_mirrorcache        = "0.1.0"
 
     android_minSdkVersion     = 19
@@ -70,7 +70,7 @@ dependencyManagement {
 
         // TEST-related
         dependency ("junit:junit:4.12")
-        dependency ("org.mockito:mockito-core:2.0.43-beta")
+        dependency ("org.mockito:mockito-core:2.8.9")
         dependency ("org.powermock:powermock-api-mockito:1.6.2")
         dependency ("org.powermock:powermock-module-junit4:1.6.2")
         dependency ("org.robolectric:robolectric:3.3.2")

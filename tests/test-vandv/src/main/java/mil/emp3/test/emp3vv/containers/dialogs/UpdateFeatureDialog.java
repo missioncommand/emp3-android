@@ -59,19 +59,16 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
         addParentsListAdapter = setupMultiChoiceList("New Parents", addParentsList, addParentListData);
 
         Button addParentsButton = (Button) view.findViewById(R.id.add_parents);
-            addParentsButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(addParentsList.getCheckedItemCount() == 0) {
-                        ErrorDialog.showError(getContext(),"You must select at least one parent");
-                        return;
-                    } else {
-                        Log.d(TAG, "getCheckedCount " + addParentsList.getCheckedItemCount());
-                        ((IUpdateContainerDialogListener)listener).addParents(UpdateFeatureDialog.this);
-                        resetListsOnDataChange();
-                    }
-                   }
-             });
+            addParentsButton.setOnClickListener(v -> {
+                if(addParentsList.getCheckedItemCount() == 0) {
+                    ErrorDialog.showError(getContext(),"You must select at least one parent");
+                    return;
+                } else {
+                    Log.d(TAG, "getCheckedCount " + addParentsList.getCheckedItemCount());
+                    ((IUpdateContainerDialogListener)listener).addParents(UpdateFeatureDialog.this);
+                    resetListsOnDataChange();
+                }
+               });
     }
 
     @Override
@@ -81,17 +78,14 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
         addChildrenListAdapter = setupMultiChoiceList("New Children", addChildrenList, addChildrenListData);
 
         Button addChildrenButton = (Button) view.findViewById(R.id.add_children);
-        addChildrenButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(addChildrenList.getCheckedItemCount() == 0) {
-                    ErrorDialog.showError(getContext(),"You must select at least one child");
-                    return;
-                } else {
-                    Log.d(TAG, "getCheckedCount " + addChildrenList.getCheckedItemCount());
-                    ((IUpdateContainerDialogListener)listener).addChildren(UpdateFeatureDialog.this);
-                    resetListsOnDataChange();
-                }
+        addChildrenButton.setOnClickListener(v -> {
+            if(addChildrenList.getCheckedItemCount() == 0) {
+                ErrorDialog.showError(getContext(),"You must select at least one child");
+                return;
+            } else {
+                Log.d(TAG, "getCheckedCount " + addChildrenList.getCheckedItemCount());
+                ((IUpdateContainerDialogListener)listener).addChildren(UpdateFeatureDialog.this);
+                resetListsOnDataChange();
             }
         });
     }
@@ -134,41 +128,35 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
             if(feature.getPositions().size() > 1) {
                 // Launch a dialog with list of positions, make it a modal dialog
                 positionButton.setText("Show");
-                positionButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Launch a dialog with list of positions, make it a modal dialog
-                    }
+                positionButton.setOnClickListener(v -> {
+                    // Launch a dialog with list of positions, make it a modal dialog
                 });
 
             } else {
                 positionButton.setVisibility(View.GONE);
             }
         } else {
-            positionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (feature.getPositions().size() > 1) {
-                        // Launch a dialog with list of positions, make it a modal dialog
-                        if(positionUtility.getPositionList().size() > 1) {
-                            feature.getPositions().clear();
-                            feature.getPositions().addAll(positionUtility.getPositionList());
-                            positionUtility.reset();
-                            feature.apply();
-                        }
-                    } else {
-                        // update the position based on user input on this screen
-                        try {
-                            EmpGeoPosition newPosition = new EmpGeoPosition(Double.parseDouble(latitude.getText().toString()),
-                                    Double.parseDouble(longitude.getText().toString()),
-                                    Double.parseDouble(altitude.getText().toString()));
-                            feature.getPositions().clear();
-                            feature.getPositions().add(newPosition);
-                            positionUtility.reset();
-                            feature.apply();
-                        } catch (Exception e) {
-                            Log.e(TAG, "Exception processing position update ", e);
-                        }
+            positionButton.setOnClickListener(v -> {
+                if (feature.getPositions().size() > 1) {
+                    // Launch a dialog with list of positions, make it a modal dialog
+                    if(positionUtility.getPositionList().size() > 1) {
+                        feature.getPositions().clear();
+                        feature.getPositions().addAll(positionUtility.getPositionList());
+                        positionUtility.reset();
+                        feature.apply();
+                    }
+                } else {
+                    // update the position based on user input on this screen
+                    try {
+                        EmpGeoPosition newPosition = new EmpGeoPosition(Double.parseDouble(latitude.getText().toString()),
+                                Double.parseDouble(longitude.getText().toString()),
+                                Double.parseDouble(altitude.getText().toString()));
+                        feature.getPositions().clear();
+                        feature.getPositions().add(newPosition);
+                        positionUtility.reset();
+                        feature.apply();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Exception processing position update ", e);
                     }
                 }
             });
@@ -181,11 +169,8 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
             symbolCode.setText(milStdSymbol.getSymbolCode());
             Button symbolButton = (Button) view.findViewById(R.id.update_symbol);
             if(!showOnly) {
-                symbolButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Launch the symbol_properties_dialogi, might want to make it modal
-                    }
+                symbolButton.setOnClickListener(v -> {
+                    // Launch the symbol_properties_dialogi, might want to make it modal
                 });
             } else {
                 symbolButton.setVisibility(View.GONE);
@@ -201,13 +186,10 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
 
             Button bufferButton = (Button) view.findViewById(R.id.update_buffer);
             if(!showOnly) {
-                bufferButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Launch the symbol_properties_dialogi, might want to make it modal
-                        feature.setBuffer(Double.parseDouble(bufferValue.getText().toString()));
-                        feature.apply();
-                    }
+                bufferButton.setOnClickListener(v -> {
+                    // Launch the symbol_properties_dialogi, might want to make it modal
+                    feature.setBuffer(Double.parseDouble(bufferValue.getText().toString()));
+                    feature.apply();
                 });
             } else {
                 bufferButton.setVisibility(View.GONE);
@@ -260,13 +242,8 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
     protected void setupUpdatePropertiesButton(View view, final List<String> parentList) {
         final Button updateProperties = (Button) view.findViewById(R.id.update_other_properties);
         if((me instanceof IFeature) && (!showOnly) && hasUpdatableProperties(((IFeature) me).getFeatureType())) {
-            updateProperties.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    updateOtherProperties(parentList, me.getName(),
-                            ( map.getVisibility(me) == VisibilityStateEnum.HIDDEN ? false : true));
-                }
-            });
+            updateProperties.setOnClickListener(v -> updateOtherProperties(parentList, me.getName(),
+                    ( map.getVisibility(me) == VisibilityStateEnum.HIDDEN ? false : true)));
         } else {
             updateProperties.setVisibility(View.GONE);
         }

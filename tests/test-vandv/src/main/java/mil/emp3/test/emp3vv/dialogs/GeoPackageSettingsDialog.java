@@ -5,8 +5,6 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -77,43 +75,35 @@ public class GeoPackageSettingsDialog extends Emp3TesterDialogBase {
         }
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GeoPackageSettingsDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> GeoPackageSettingsDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != GeoPackageSettingsDialog.this.listener) {
-                    if (relocateCamera) {
-                        boolean oldCamera = true;
-                        ICamera camera = map.getCamera();
-                        if (camera == null) {
-                            camera = new Camera();
-                            oldCamera = false;
-                        }
-                        camera.setLatitude(cameraLatitude);
-                        camera.setLongitude(cameraLongitude);
-                        camera.setAltitude(cameraAltitude);
-                        if (oldCamera) {
-                            camera.apply(true);
-                        } else {
-                            try {
-                                map.setCamera(camera, true);
-                            } catch (EMP_Exception e) {
-                                e.printStackTrace();
-                            }
+        applyButton.setOnClickListener(v -> {
+            if (null != GeoPackageSettingsDialog.this.listener) {
+                if (relocateCamera) {
+                    boolean oldCamera = true;
+                    ICamera camera = map.getCamera();
+                    if (camera == null) {
+                        camera = new Camera();
+                        oldCamera = false;
+                    }
+                    camera.setLatitude(cameraLatitude);
+                    camera.setLongitude(cameraLongitude);
+                    camera.setAltitude(cameraAltitude);
+                    if (oldCamera) {
+                        camera.apply(true);
+                    } else {
+                        try {
+                            map.setCamera(camera, true);
+                        } catch (EMP_Exception e) {
+                            e.printStackTrace();
                         }
                     }
-                    ((IGeoPackageSettingsDialogListener) GeoPackageSettingsDialog.this.listener).
-                            addGeoPackageService(map,
-                                    name.getText().toString(),
-                                    geoPackageFileName);
                 }
+                ((IGeoPackageSettingsDialogListener) GeoPackageSettingsDialog.this.listener).
+                        addGeoPackageService(map,
+                                name.getText().toString(),
+                                geoPackageFileName);
             }
         });
     }

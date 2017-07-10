@@ -6,13 +6,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoFillStyle;
-import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoMilSymbol;
-import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.List;
 

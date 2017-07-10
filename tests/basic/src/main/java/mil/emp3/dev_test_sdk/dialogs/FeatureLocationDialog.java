@@ -163,6 +163,8 @@ public class FeatureLocationDialog extends DialogFragment {
             case GEO_POLYGON:
                 this.oFeatureNameField.setText(this.oFeature.getName() + " (Polygon)");
                 break;
+            default:
+                break;
         }
         this.oFeatureNameField.setTypeface(Typeface.DEFAULT_BOLD, 0);
 

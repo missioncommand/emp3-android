@@ -11,13 +11,13 @@ dependencies {
     provided            ("org.cmapi.primitives:common-map-geospatial-notation")
 
     testCompile project (":emp3-android-sdk-core-aar")
-    testCompile         ("junit:junit")
+    testCompile         ("junit:junit:4.12")
     //testCompile         ("org.mockito:mockito-core")
-    testCompile         ("org.powermock:powermock-api-mockito") { // PowerMockito is required to mock static methods like Logger.log
+    testCompile         ("org.powermock:powermock-api-mockito:1.6.2") { // PowerMockito is required to mock static methods like Logger.log
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testCompile         ("org.powermock:powermock-module-junit4") {
+    testCompile         ("org.powermock:powermock-module-junit4:1.6.2") {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }

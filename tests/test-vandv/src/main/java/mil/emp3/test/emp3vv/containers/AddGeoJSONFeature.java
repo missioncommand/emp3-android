@@ -3,6 +3,8 @@ package mil.emp3.test.emp3vv.containers;
 import android.app.Activity;
 import android.util.Log;
 
+import org.cmapi.primitives.IGeoRenderable;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +45,7 @@ public class AddGeoJSONFeature extends AddEntityBase implements FeaturePropertie
         Log.i(TAG, "GeoJSON file " + fileName);
         try {
             InputStream stream = new FileInputStream(fileName);
-            IFeature newFeature = new GeoJSON(stream);
+            IFeature<IGeoRenderable> newFeature = new GeoJSON(stream);
             addFeature(newFeature, dialog);
             return true;
         } catch (EMP_Exception | IOException e) {
