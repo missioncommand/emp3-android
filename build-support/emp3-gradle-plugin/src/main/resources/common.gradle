@@ -53,7 +53,7 @@ repositories {
 dependencyManagement {
     dependencies {
         // MISSION_COMMAND-related
-        dependency ("org.cmapi.primitives:common-map-geospatial-notation:${version_cmapi}")
+        //dependency ("org.cmapi.primitives:common-map-geospatial-notation:${version_cmapi}")
         dependency ("mil.army.missioncommand:mil-sym-android-renderer:${version_renderer}")
         dependency ("mil.army.missioncommand:mirrorcache-api:${version_mirrorcache}")
         dependency ("mil.army.missioncommand:mirrorcache-impl-core:${version_mirrorcache}")
