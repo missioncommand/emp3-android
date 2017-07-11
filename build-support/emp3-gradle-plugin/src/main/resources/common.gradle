@@ -35,13 +35,13 @@ repositories {
     /*maven {
         url "file://${System.env['ANDROID_HOME']}/extras/google/m2repository"
     }*/
-    maven {
-        url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
+//    maven {
+//        url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
+//        credentials {
+//            username empUsername
+//            password empPassword
+//        }
+//    }
     maven {
         url "https://dl.bintray.com/missioncommand/maven/"
     }
