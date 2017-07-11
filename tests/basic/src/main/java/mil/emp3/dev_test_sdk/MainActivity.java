@@ -84,7 +84,7 @@ import mil.emp3.api.GeoPackage;
 import mil.emp3.api.ImageLayer;
 import mil.emp3.api.KML;
 import mil.emp3.api.MilStdSymbol;
-import mil.emp3.api.MirrorCache;
+//import mil.emp3.api.MirrorCache;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.Path;
 import mil.emp3.api.Point;
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity
     private String gpkgPick;
     private static final String SUFFIX = ".gpkg";
 
-    private MirrorCache mc;
+//    private MirrorCache mc;
 
     public enum PlotModeEnum {
         IDLE,
@@ -823,14 +823,14 @@ public class MainActivity extends AppCompatActivity
             map.removeEventListener(viewChange);
             oCamera.removeEventListener(cameraHandler);
         }
-        if (mc != null) {
+/*        if (mc != null) {
             try {
                 mc.disconnect();
 
             } catch (EMP_Exception e) {
                 Log.e(TAG, e.getMessage(), e);
             }
-        }
+        }*/
         super.onDestroy();
     }
 
@@ -1491,6 +1491,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
+            /*
             case R.id.action_mirrorcache_connect: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(false);
                 LayoutInflater inflater = (LayoutInflater)this.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
@@ -1656,7 +1657,7 @@ public class MainActivity extends AppCompatActivity
                     MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_deleteproduct).setEnabled(false);
                 }
                 return true;
-            }
+            }*/
             case R.id.action_mapgridnone: {
                 this.map.setGridType(MapGridTypeEnum.NONE);
                 return true;
