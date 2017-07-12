@@ -342,14 +342,12 @@ public class MilStdRenderer implements IMilStdRenderer {
                 }
                 case ShapeInfo.SHAPE_TYPE_FILL: {
                     List<List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
-
-                    //if ((currentStrokeStyle != null) || (currentFillStyle != null)) {
-                    if (currentStrokeStyle != null) {
-                        // We create the feature if it has at least one style.
+                    if (currentFillStyle != null) {
                         for (List<IGeoPosition> posList: listOfPosList) {
-                            feature = new Path(posList); //new Polygon(posList);
-                            feature.setStrokeStyle(currentStrokeStyle);
-                            //feature.setFillStyle(currentFillStyle);
+                            feature = new Polygon(posList);
+                            if(currentStrokeStyle != null)
+                                feature.setStrokeStyle(currentStrokeStyle);
+                            feature.setFillStyle(currentFillStyle);
                             feature.setAltitudeMode(altitudeMode);
                             featureList.add(feature);
                         }
