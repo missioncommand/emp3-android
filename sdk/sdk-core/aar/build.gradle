@@ -2,6 +2,6 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 
 dependencies {
     provided project (":emp3-android-sdk")
-    provided files ("$rootDir/3rdpartylibrary/cmapi/cmapi.jar")
+    provided project (":cmapi")
     provided         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
 }

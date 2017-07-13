@@ -14,6 +14,10 @@ buildscript {
 }
 
 ext {
+    // User / pass kept here for backward compatibility
+    empUsername = ""
+    empPassword = ""
+
     bintrayUser = System.getenv("BINTRAY_USER") ?: project.hasProperty('bintrayUser') ? bintrayUser : ''
     bintrayKey  = System.getenv("BINTRAY_KEY")  ?: project.hasProperty('bintrayKey') ? bintrayKey : ''
 
@@ -40,6 +44,7 @@ def publishableModules() {
         , project(":emp3-gradle-plugin")
         , project(":mapengine-worldwind")
         , project(":google-maps-android-cmgn")
+          , project (":cmapi")
 
     ]
 }

@@ -18,7 +18,6 @@ dependencies {
     compile         ("com.android.support:appcompat-v7")
     compile         ("com.android.support:design")
     compile         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
-
-    compile files ("$rootDir/3rdpartylibrary/cmapi/cmapi.jar")
+    provided project (":cmapi")
     testCompile     ("junit:junit")
 }
