@@ -14,9 +14,8 @@ buildscript {
 }
 
 ext {
-    // User / pass kept here for backward compatibility
-    empUsername = ""
-    empPassword = ""
+    empUsername = System.getenv("CI_USERNAME") ?: empUsername
+    empPassword = System.getenv("CI_PASSWORD") ?: empPassword
 
     bintrayUser = System.getenv("BINTRAY_USER") ?: project.hasProperty('bintrayUser') ? bintrayUser : ''
     bintrayKey  = System.getenv("BINTRAY_KEY")  ?: project.hasProperty('bintrayKey') ? bintrayKey : ''
