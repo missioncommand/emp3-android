@@ -43,7 +43,7 @@ def publishableModules() {
         , project(":emp3-gradle-plugin")
         , project(":mapengine-worldwind")
         , project(":google-maps-android-cmgn")
-          , project (":cmapi")
+//          , project (":cmapi")
 
     ]
 }
