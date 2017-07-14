@@ -8,7 +8,7 @@ sourceCompatibility = rootProject.sourceCompatibility
 targetCompatibility = rootProject.targetCompatibility
 
 dependencies {
-    provided project(":cmapi")
+    provided (group:'org.cmapi.primitives', name:'common-map-geospatial-notation', ext:'jar')
     provided files("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
 }
 

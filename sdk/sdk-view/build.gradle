@@ -8,7 +8,8 @@ dependencies {
     compile             ("com.android.support:appcompat-v7")
     compile             ("mil.army.missioncommand:mil-sym-android-renderer")
 
-    provided project (":cmapi")
+    provided            ("org.cmapi.primitives:common-map-geospatial-notation")
+
     testCompile project (":emp3-android-sdk-core-aar")
     testCompile         ("junit:junit:4.12")
     //testCompile         ("org.mockito:mockito-core")
