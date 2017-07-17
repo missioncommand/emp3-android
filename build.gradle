@@ -44,7 +44,6 @@ def publishableModules() {
         , project(":mapengine-worldwind")
         , project(":google-maps-android-cmgn")
 //          , project (":cmapi")
-
     ]
 }
 
