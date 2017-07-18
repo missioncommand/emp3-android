@@ -14,8 +14,8 @@ buildscript {
 }
 
 ext {
-    empUsername = System.getenv("CI_USERNAME") ?: empUsername
-    empPassword = System.getenv("CI_PASSWORD") ?: empPassword
+    empUsername = System.getenv("CI_USERNAME") ?: ""
+    empPassword = System.getenv("CI_PASSWORD") ?: ""
 
     bintrayUser = System.getenv("BINTRAY_USER") ?: project.hasProperty('bintrayUser') ? bintrayUser : ''
     bintrayKey  = System.getenv("BINTRAY_KEY")  ?: project.hasProperty('bintrayKey') ? bintrayKey : ''
