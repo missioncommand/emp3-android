@@ -68,6 +68,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,6 +117,7 @@ import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.IMapServiceResult;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ICameraEventListener;
@@ -2206,7 +2208,14 @@ public class MainActivity extends AppCompatActivity
                         }
                         MainActivity.this.wmsService.setLayerResolution(Double.valueOf(resolution));
                         try {
-                            map.addMapService(MainActivity.this.wmsService);
+                            map.addMapService(MainActivity.this.wmsService,
+                                    (success, geoId, t) -> {
+                                        if (success) {
+                                            Toast.makeText(MainActivity.this, "WMS connected", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                         } catch (EMP_Exception e) {
                             e.printStackTrace();
                         }

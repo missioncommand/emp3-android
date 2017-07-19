@@ -572,7 +572,7 @@ public class MapInstance extends CoreMapInstance {
     private void addWCSService(final IWCS wcs) {
 
         // Specify the bounding sector - provided by the WCS
-        Sector coverageSector = Sector.fromDegrees(-83.0, -180.0, 173.0, 360.0);
+        Sector coverageSector = Sector.fromDegrees(-90.0, -180.0, 180.0, 360.0);
         // Specify the number of levels to match data resolution
         int numberOfLevels = 12;
         // Specify the version 1.0.0 WCS address
@@ -739,23 +739,35 @@ public class MapInstance extends CoreMapInstance {
 
     private void addMapServiceEx(final IMapService mapService, IMapServiceResult result) {
         if (null == mapService) {
+            if (result != null) {
+                result.result(false, null, new IllegalArgumentException("ERROR: map service argument is null "));
+            }
             return;
         }
         if (mapService instanceof IWMS) {
             addWMSService((IWMS) mapService, result);
         } else if (mapService instanceof IImageLayer) {
             addImageLayer((IImageLayer) mapService);
+            if (result != null) {
+                result.result(true, mapService.getGeoId(), null);
+            }
         } else if (mapService instanceof IGeoPackage) {
             addGeoPackage((IGeoPackage) mapService, result);
         } else if (mapService instanceof IWMTS) {
             addWMTSService((IWMTS) mapService, result);
         } else if (mapService instanceof IWCS) {
-                this.addWCSService((IWCS) mapService);
-	} else if(mapService instanceof IKMLS) {
+            this.addWCSService((IWCS) mapService);
+            if (result != null) {
+                result.result(true, mapService.getGeoId(), null);
+            }
+        } else if (mapService instanceof IKMLS) {
             // clientApplication used addMapService for KMLService. Features generated based on that add are added directly
             // to a special background layer. We need to investigate if we should generate an event for this.
-            kmlServiceLayer.plot(((IKMLS)mapService).getFeature(), true);
+            kmlServiceLayer.plot(((IKMLS) mapService).getFeature(), true);
             ww.requestRedraw();
+            if (result != null) {
+                result.result(true, mapService.getGeoId(), null);
+            }
         } else {
             Log.e(TAG, "This MapService is NOT supported " + mapService.getClass().getName());
         }
@@ -828,6 +840,9 @@ public class MapInstance extends CoreMapInstance {
                 if (result != null) {
                     result.result(true, mapService.getGeoId(), null);
                 }
+                if (result != null) {
+                    result.result(true, mapService.getGeoId(), null);
+                }
             } else {
                 if (result != null) {
                     result.result(false, null, new IllegalStateException("ERROR: unable to locate tactical graphic layer."));
@@ -838,6 +853,9 @@ public class MapInstance extends CoreMapInstance {
                 this.imageLayer.removeRenderable(this.surfaceLayerHash.get(mapService.getGeoId()));
                 ww.requestRedraw();
                 this.surfaceLayerHash.remove(mapService.getGeoId());
+                if (result != null) {
+                    result.result(true, mapService.getGeoId(), null);
+                }
             } else {
                 if (result != null) {
                     result.result(false, null, new IllegalStateException("ERROR: unable to locate tactical graphic layer."));
@@ -846,12 +864,18 @@ public class MapInstance extends CoreMapInstance {
         } else if (mapService instanceof  IWCS) {
             ww.getGlobe().getElevationModel().clearCoverages();
             ww.requestRedraw();
+            if (result != null) {
+                result.result(true, mapService.getGeoId(), null);
+            }
         } else if (mapService instanceof IKMLS) {
             IKMLS kmlService = (IKMLS) mapService;
             if(null != kmlService.getFeature()) {
                 removeFeature(kmlService.getFeature().getGeoId(), null);
             }
             ww.requestRedraw();
+            if (result != null) {
+                result.result(true, mapService.getGeoId(), null);
+            }
         } else {
             Log.e(TAG, "Failed removing unsupported MapService " + mapService.getClass().getCanonicalName());
         }
