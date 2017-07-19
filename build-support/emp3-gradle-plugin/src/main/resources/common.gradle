@@ -14,7 +14,7 @@ ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
     version_nasa_worldwind_sdk = "0.6.0"
-    version_cmapi              = "0.0.7"
+    version_cmapi              = "2.7.1"
     version_renderer           = "0.1.30"
     version_mirrorcache        = "0.1.0"
 
