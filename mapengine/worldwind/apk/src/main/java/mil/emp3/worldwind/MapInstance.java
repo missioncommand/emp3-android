@@ -840,9 +840,6 @@ public class MapInstance extends CoreMapInstance {
                 if (result != null) {
                     result.result(true, mapService.getGeoId(), null);
                 }
-                if (result != null) {
-                    result.result(true, mapService.getGeoId(), null);
-                }
             } else {
                 if (result != null) {
                     result.result(false, null, new IllegalStateException("ERROR: unable to locate tactical graphic layer."));
