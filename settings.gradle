@@ -6,6 +6,10 @@ rootProject.name = 'emp3-android'
 include 'google-maps-android-cmgn' // Google Maps android utils
 project(':google-maps-android-cmgn').projectDir = new File(settingsDir, '3rdpartylibrary/google-maps-android-cmgn')
 
+include 'cmapi' // common geospatial notation
+project(':cmapi').projectDir = new File(settingsDir, '3rdpartylibrary/cmapi')
+
+
 //
 // SDK
 //
