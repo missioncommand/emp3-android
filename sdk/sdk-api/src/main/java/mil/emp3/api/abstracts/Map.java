@@ -35,6 +35,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
+import mil.emp3.api.interfaces.IMapServiceResult;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
@@ -267,7 +268,23 @@ public abstract class Map extends Container implements IMap {
             throws EMP_Exception {
         storageManager.removeMapService(this, mapService);
     }
-    
+
+    @Override
+    public void addMapService(IMapService mapService, IMapServiceResult result)
+            throws EMP_Exception {
+        if(null == mapService) {
+            Log.w(TAG, "addMapService: mapService is null");
+            return;
+        }
+        storageManager.addMapService(this, mapService, result);
+    }
+
+    @Override
+    public void removeMapService(IMapService mapService, IMapServiceResult result)
+            throws EMP_Exception {
+        storageManager.removeMapService(this, mapService, result);
+    }
+
     @Override
     public List<IMapService> getMapServices()
     {

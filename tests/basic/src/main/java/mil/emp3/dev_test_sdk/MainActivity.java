@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -64,7 +63,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -101,11 +99,8 @@ import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.enums.Property;
 import mil.emp3.api.enums.WMSVersionEnum;
-import mil.emp3.api.events.CameraEvent;
 import mil.emp3.api.events.FeatureUserInteractionEvent;
-import mil.emp3.api.events.MapStateChangeEvent;
 import mil.emp3.api.events.MapUserInteractionEvent;
-import mil.emp3.api.events.MapViewChangeEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
@@ -118,14 +113,11 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.listeners.EventListenerHandle;
-import mil.emp3.api.listeners.ICameraEventListener;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.listeners.IFeatureInteractionEventListener;
 import mil.emp3.api.listeners.IFreehandEventListener;
 import mil.emp3.api.listeners.IMapInteractionEventListener;
-import mil.emp3.api.listeners.IMapStateChangeEventListener;
-import mil.emp3.api.listeners.IMapViewChangeEventListener;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
@@ -137,7 +129,6 @@ import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPrope
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.dev_test_sdk.utils.CameraUtility;
 import mil.emp3.json.geoJson.GeoJsonCaller;
-import mil.emp3.worldwind.utils.SystemUtils;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -877,52 +868,38 @@ public class MainActivity extends AppCompatActivity
         oLookAt.setTilt(0.0);
 
         try {
-            stateHandler = map.addMapStateChangeEventListener(new IMapStateChangeEventListener() {
-                @Override
-                public void onEvent(MapStateChangeEvent event) {
-                    Log.d(TAG, "mapStateChangeEvent " + event.getNewState());
-                    MainActivity.this.oRootOverlay = new Overlay();
-                    MainActivity.this.oRootOverlay.setName("Test Overlay");
-                    try {
-                        if (event.getNewState() == MapStateEnum.MAP_READY) {
-                            MainActivity.this.map.setName("EMP V3 Map");
-                            MainActivity.this.map.addOverlay(MainActivity.this.oRootOverlay, true);
-                            MainActivity.this.setEventListeners();
+            stateHandler = map.addMapStateChangeEventListener(event -> {
+                Log.d(TAG, "mapStateChangeEvent " + event.getNewState());
+                MainActivity.this.oRootOverlay = new Overlay();
+                MainActivity.this.oRootOverlay.setName("Test Overlay");
+                try {
+                    if (event.getNewState() == MapStateEnum.MAP_READY) {
+                        MainActivity.this.map.setName("EMP V3 Map");
+                        MainActivity.this.map.addOverlay(MainActivity.this.oRootOverlay, true);
+                        MainActivity.this.setEventListeners();
 
-                            MainActivity.this.createCrossHair();
-                            //Log.i(TAG, "Map State: " + MainActivity.this.map.getState().name());
-                            MainActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
-                                        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,
-                                                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                                        if (permissionCheck !=  PERMISSION_GRANTED) {
-                                            ActivityCompat.requestPermissions(MainActivity.this,
-                                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                                        }
-                                    } catch (EMP_Exception e) {
-                                        e.printStackTrace();
-                                    }
+                        MainActivity.this.createCrossHair();
+                        //Log.i(TAG, "Map State: " + MainActivity.this.map.getState().name());
+                        MainActivity.this.runOnUiThread(() -> {
+                            try {
+                                MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
+                                int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                if (permissionCheck !=  PERMISSION_GRANTED) {
+                                    ActivityCompat.requestPermissions(MainActivity.this,
+                                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                                 }
-                            });
+                            } catch (EMP_Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
 
-                            map.addCameraEventListener(new ICameraEventListener() {
-                                @Override
-                                public void onEvent(final CameraEvent event) {
-                                    MainActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() { // to indicate that an imap camera event was triggered
-                                            //Toast.makeText(MainActivity.this, "IMap.cameraEventListener.onEvent() triggered: " + event.getEvent(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "ERROR: " + e.getMessage(), e);
+                        map.addCameraEventListener(event1 -> MainActivity.this.runOnUiThread(() -> { // to indicate that an imap camera event was triggered
+                            //Toast.makeText(MainActivity.this, "IMap.cameraEventListener.onEvent() triggered: " + event.getEvent(), Toast.LENGTH_SHORT).show();
+                        }));
                     }
+                } catch (Exception e) {
+                    Log.e(TAG, "ERROR: " + e.getMessage(), e);
                 }
             });
         } catch (EMP_Exception e) {
@@ -1049,59 +1026,50 @@ public class MainActivity extends AppCompatActivity
         }
 
         try {
-            viewChange = map.addMapViewChangeEventListener(new IMapViewChangeEventListener() {
-                @Override
-                public void onEvent(MapViewChangeEvent mapViewChangeEvent) {
-                    Log.d(TAG, "mapViewChangeEvent");
-                    if (mapViewChangeEvent.getCamera().getGeoId().compareTo(MainActivity.this.oCamera.getGeoId()) == 0) {
-                        //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
-                    }
-                    if (mapViewChangeEvent.getLookAt().getGeoId().compareTo(MainActivity.this.oLookAt.getGeoId()) == 0) {
-                        //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
-                    }
-/*
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ICamera camera = MainActivity.this.oCamera;
-                            if (MainActivity.this.CoordToast != null) {
-                                MainActivity.this.CoordToast.cancel();
-                                MainActivity.this.CoordToast = null;
-                            }
-                            MainActivity.this.CoordToast = Toast.makeText(MainActivity.this, "Center Latitude: " + camera.getLatitude() + " Longitude: " +
-                                    camera.getLongitude(), Toast.LENGTH_LONG);
-                            MainActivity.this.CoordToast.show();
-                        }
-                    });
-*/
+            viewChange = map.addMapViewChangeEventListener(mapViewChangeEvent -> {
+                Log.d(TAG, "mapViewChangeEvent");
+                if (mapViewChangeEvent.getCamera().getGeoId().compareTo(MainActivity.this.oCamera.getGeoId()) == 0) {
+                    //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
                 }
+                if (mapViewChangeEvent.getLookAt().getGeoId().compareTo(MainActivity.this.oLookAt.getGeoId()) == 0) {
+                    //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
+                }
+/*
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ICamera camera = MainActivity.this.oCamera;
+                        if (MainActivity.this.CoordToast != null) {
+                            MainActivity.this.CoordToast.cancel();
+                            MainActivity.this.CoordToast = null;
+                        }
+                        MainActivity.this.CoordToast = Toast.makeText(MainActivity.this, "Center Latitude: " + camera.getLatitude() + " Longitude: " +
+                                camera.getLongitude(), Toast.LENGTH_LONG);
+                        MainActivity.this.CoordToast.show();
+                    }
+                });
+*/
             });
         } catch (EMP_Exception e) {
             Log.e(TAG, "addMapViewChangeEventListener failed. " + e.toString());
         }
 
         try {
-            cameraHandler = oCamera.addCameraEventListener(new ICameraEventListener() {
-                @Override
-                public void onEvent(CameraEvent cameraEvent) {
-                    //Log.d(TAG, "cameraEvent on " + cameraEvent.getCamera().getName());
+            cameraHandler = oCamera.addCameraEventListener(cameraEvent -> {
+                //Log.d(TAG, "cameraEvent on " + cameraEvent.getCamera().getName());
 
-                    final ICamera oCamera = cameraEvent.getTarget();
+                final ICamera oCamera1 = cameraEvent.getTarget();
 
-                    if (Thread.currentThread().getId() != Looper.getMainLooper().getThread().getId()) {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                TextView oCameraSetting = (TextView) MainActivity.this.findViewById(R.id.camerasettings);
-                                String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%,.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(), oCamera.getHeading(), oCamera.getTilt(), oCamera.getRoll());
-                                oCameraSetting.setText(sTemp);
-                            }
-                        });
-                    } else {
+                if (Thread.currentThread().getId() != Looper.getMainLooper().getThread().getId()) {
+                    MainActivity.this.runOnUiThread(() -> {
                         TextView oCameraSetting = (TextView) MainActivity.this.findViewById(R.id.camerasettings);
-                        String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%,.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(), oCamera.getHeading(), oCamera.getTilt(), oCamera.getRoll());
+                        String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%,.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera1.getLatitude(), oCamera1.getLongitude(), oCamera1.getAltitude(), oCamera1.getHeading(), oCamera1.getTilt(), oCamera1.getRoll());
                         oCameraSetting.setText(sTemp);
-                    }
+                    });
+                } else {
+                    TextView oCameraSetting = (TextView) MainActivity.this.findViewById(R.id.camerasettings);
+                    String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%,.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera1.getLatitude(), oCamera1.getLongitude(), oCamera1.getAltitude(), oCamera1.getHeading(), oCamera1.getTilt(), oCamera1.getRoll());
+                    oCameraSetting.setText(sTemp);
                 }
             });
         } catch (EMP_Exception e) {
@@ -1111,30 +1079,27 @@ public class MainActivity extends AppCompatActivity
         final TextView oFarField = (TextView) this.findViewById(R.id.farThreshold);
 
         if (oFarField != null) {
-            oFarField.post(new Runnable() {
-                @Override
-                public void run() {
-                    oFarField.setText(MainActivity.this.map.getFarDistanceThreshold() + " m");
-                    ImageButton oFarUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdUp);
-                    if (oFarUpBtn != null) {
-                        oFarUpBtn.setOnClickListener(v -> {
-                            double dValue = MainActivity.this.map.getFarDistanceThreshold();
-                            dValue += 5000.0;
-                            MainActivity.this.map.setFarDistanceThreshold(dValue);
-                            dValue = MainActivity.this.map.getFarDistanceThreshold();
-                            oFarField.setText(dValue + " m");
-                        });
-                    }
-                    ImageButton oFarDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdDown);
-                    if (oFarDownBtn != null) {
-                        oFarDownBtn.setOnClickListener(v -> {
-                            double dValue = MainActivity.this.map.getFarDistanceThreshold();
-                            dValue -= 5000.0;
-                            MainActivity.this.map.setFarDistanceThreshold(dValue);
-                            dValue = MainActivity.this.map.getFarDistanceThreshold();
-                            oFarField.setText(dValue + " m");
-                        });
-                    }
+            oFarField.post(() -> {
+                oFarField.setText(MainActivity.this.map.getFarDistanceThreshold() + " m");
+                ImageButton oFarUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdUp);
+                if (oFarUpBtn != null) {
+                    oFarUpBtn.setOnClickListener(v -> {
+                        double dValue = MainActivity.this.map.getFarDistanceThreshold();
+                        dValue += 5000.0;
+                        MainActivity.this.map.setFarDistanceThreshold(dValue);
+                        dValue = MainActivity.this.map.getFarDistanceThreshold();
+                        oFarField.setText(dValue + " m");
+                    });
+                }
+                ImageButton oFarDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdDown);
+                if (oFarDownBtn != null) {
+                    oFarDownBtn.setOnClickListener(v -> {
+                        double dValue = MainActivity.this.map.getFarDistanceThreshold();
+                        dValue -= 5000.0;
+                        MainActivity.this.map.setFarDistanceThreshold(dValue);
+                        dValue = MainActivity.this.map.getFarDistanceThreshold();
+                        oFarField.setText(dValue + " m");
+                    });
                 }
             });
         }
@@ -1142,30 +1107,27 @@ public class MainActivity extends AppCompatActivity
         final TextView oMidField = (TextView) this.findViewById(R.id.midThreshold);
 
         if (oMidField != null) {
-            oMidField.post(new Runnable() {
-                @Override
-                public void run() {
-                    oMidField.setText(MainActivity.this.map.getMidDistanceThreshold() + " m");
-                    ImageButton oMidUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdUp);
-                    if (oMidUpBtn != null) {
-                        oMidUpBtn.setOnClickListener(v -> {
-                            double dValue = MainActivity.this.map.getMidDistanceThreshold();
-                            dValue += 5000.0;
-                            MainActivity.this.map.setMidDistanceThreshold(dValue);
-                            dValue = MainActivity.this.map.getMidDistanceThreshold();
-                            oMidField.setText(dValue + " m");
-                        });
-                    }
-                    ImageButton oMidDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdDown);
-                    if (oMidDownBtn != null) {
-                        oMidDownBtn.setOnClickListener(v -> {
-                            double dValue = MainActivity.this.map.getMidDistanceThreshold();
-                            dValue -= 5000.0;
-                            MainActivity.this.map.setMidDistanceThreshold(dValue);
-                            dValue = MainActivity.this.map.getMidDistanceThreshold();
-                            oMidField.setText(dValue + " m");
-                        });
-                    }
+            oMidField.post(() -> {
+                oMidField.setText(MainActivity.this.map.getMidDistanceThreshold() + " m");
+                ImageButton oMidUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdUp);
+                if (oMidUpBtn != null) {
+                    oMidUpBtn.setOnClickListener(v -> {
+                        double dValue = MainActivity.this.map.getMidDistanceThreshold();
+                        dValue += 5000.0;
+                        MainActivity.this.map.setMidDistanceThreshold(dValue);
+                        dValue = MainActivity.this.map.getMidDistanceThreshold();
+                        oMidField.setText(dValue + " m");
+                    });
+                }
+                ImageButton oMidDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdDown);
+                if (oMidDownBtn != null) {
+                    oMidDownBtn.setOnClickListener(v -> {
+                        double dValue = MainActivity.this.map.getMidDistanceThreshold();
+                        dValue -= 5000.0;
+                        MainActivity.this.map.setMidDistanceThreshold(dValue);
+                        dValue = MainActivity.this.map.getMidDistanceThreshold();
+                        oMidField.setText(dValue + " m");
+                    });
                 }
             });
         }
@@ -1925,30 +1887,24 @@ public class MainActivity extends AppCompatActivity
                         dialog.setTitle("GeoPackage Chooser");
                         dialog.setMessage("No geopackage file found");
                         dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
+                                (dialog1, which) -> dialog1.dismiss());
                         dialog.show();
                     } else {
                         builder.setTitle("Choose GeoPackage file");
-                        builder.setItems(gpkgList, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                gpkgPick = gpkgList[which];
-                                Log.i(TAG, "File picked is " + gpkgPick);
-                                try {
-                                    geoPackage = new GeoPackage("File:///sdcard/Download/" + gpkgPick);
-                                    MainActivity.this.map.addMapService(geoPackage);
-                                    ICamera camera = MainActivity.this.map.getCamera();
-                                    // Place the camera directly over the GeoPackage image.
-                                    camera.setLatitude(39.54795);
-                                    camera.setLongitude(-76.16334);
-                                    camera.setAltitude(2580);
-                                    camera.apply(true);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                        builder.setItems(gpkgList, (dialog, which) -> {
+                            gpkgPick = gpkgList[which];
+                            Log.i(TAG, "File picked is " + gpkgPick);
+                            try {
+                                geoPackage = new GeoPackage("File:///sdcard/Download/" + gpkgPick);
+                                MainActivity.this.map.addMapService(geoPackage);
+                                ICamera camera = MainActivity.this.map.getCamera();
+                                // Place the camera directly over the GeoPackage image.
+                                camera.setLatitude(39.54795);
+                                camera.setLongitude(-76.16334);
+                                camera.setAltitude(2580);
+                                camera.apply(true);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         });
                         builder.show();
@@ -2241,7 +2197,14 @@ public class MainActivity extends AppCompatActivity
                         }
                         MainActivity.this.wmsService.setLayerResolution(Double.valueOf(resolution));
                         try {
-                            map.addMapService(MainActivity.this.wmsService);
+                            map.addMapService(MainActivity.this.wmsService,
+                                    (success, geoId, t) -> {
+                                        if (success) {
+                                            Toast.makeText(MainActivity.this, "WMS connected", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                         } catch (EMP_Exception e) {
                             e.printStackTrace();
                         }
@@ -3752,11 +3715,6 @@ public class MainActivity extends AppCompatActivity
 
 
     private void makeToast(final String text) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
-            }
-        });
+        handler.post(() -> Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show());
     }
 }

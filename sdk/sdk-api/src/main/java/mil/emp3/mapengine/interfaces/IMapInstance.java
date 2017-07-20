@@ -15,6 +15,7 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
+import mil.emp3.api.interfaces.IMapServiceResult;
 import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
@@ -121,6 +122,21 @@ public interface IMapInstance {
      * @param mapService The list of one or more map services to remove from the map.
      */
     void removeMapService(IMapService mapService);
+
+    /**
+     * This method is called by the EMP core to add a service to the map.
+     * @param mapService The list of one or more map services to add to the map.
+     * @param result callback method for service result
+     *
+     */
+    void addMapService(IMapService mapService, IMapServiceResult result);
+
+    /**
+     * This method is called by the EMP core to remove map services from the map.
+     * @param mapService The list of one or more map services to remove from the map.
+     * @param result callback method for service result
+     */
+    void removeMapService(IMapService mapService, IMapServiceResult result);
 
     /**
      * This method is used to retrieve the map's current camera.

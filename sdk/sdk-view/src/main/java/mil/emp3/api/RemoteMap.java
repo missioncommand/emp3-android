@@ -41,6 +41,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
+import mil.emp3.api.interfaces.IMapServiceResult;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.interfaces.IUUIDSet;
@@ -263,6 +264,16 @@ public class RemoteMap implements IMap {
     @Override
     public void removeMapService(IMapService mapService) throws EMP_Exception {
         this.oClientMap.removeMapService(mapService);
+    }
+
+    @Override
+    public void addMapService(IMapService mapService, IMapServiceResult result) throws EMP_Exception {
+        this.oClientMap.addMapService(mapService, result);
+    }
+
+    @Override
+    public void removeMapService(IMapService mapService, IMapServiceResult result) throws EMP_Exception {
+        this.oClientMap.removeMapService(mapService, result);
     }
 
     @Override
@@ -858,6 +869,16 @@ public class RemoteMap implements IMap {
 
         @Override
         public void removeMapService(IMapService mapService) {
+
+        }
+
+        @Override
+        public void addMapService(IMapService mapService, IMapServiceResult result) {
+
+        }
+
+        @Override
+        public void removeMapService(IMapService mapService, IMapServiceResult result) {
 
         }
 

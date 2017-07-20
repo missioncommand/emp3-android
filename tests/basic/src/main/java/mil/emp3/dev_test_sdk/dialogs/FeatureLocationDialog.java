@@ -97,6 +97,8 @@ public class FeatureLocationDialog extends DialogFragment {
                 }
                 this.oFeatureDescriptionField.setText(sDesc);
                 break;
+            default:
+                break;
         }
     }
 /*
