@@ -1,7 +1,5 @@
 package mil.emp3.dev_test_sdk.utils;
 
-import mil.emp3.api.MilStdSymbol;
-
 /**
  *
  */
