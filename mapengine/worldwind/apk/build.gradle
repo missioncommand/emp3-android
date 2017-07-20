@@ -3,6 +3,7 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 dependencies {
     compile          ("com.android.support:support-annotations")
     provided project (":emp3-android-sdk")
+    provided project (":cmapi")
     provided         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
     compile          ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
 }
