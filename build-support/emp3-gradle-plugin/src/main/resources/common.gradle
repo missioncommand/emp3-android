@@ -21,7 +21,7 @@ ext {
     android_minSdkVersion     = 19
     android_targetSdkVersion  = 23
     android_compileSdkVersion = 23
-    android_buildToolsVersion = "25.0.2"
+    android_buildToolsVersion = "26.0.0"
 }
 
 group = "mil.army.missioncommand"
@@ -68,7 +68,7 @@ dependencyManagement {
 }
 
 task wrapper(type: Wrapper, description: "Generates gradlew[.bat] scripts") {
-    gradleVersion = '3.4.1'
+    gradleVersion = '4.0.1'
 }
 
 if (JavaVersion.current().isJava8Compatible()) { // disable lint for java8
