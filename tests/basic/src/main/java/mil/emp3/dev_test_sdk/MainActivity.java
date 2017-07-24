@@ -157,8 +157,6 @@ public class MainActivity extends AppCompatActivity
     private IFeature oCurrentSelectedFeature;
     private final org.cmapi.primitives.IGeoStrokeStyle oSelectedStrokeStyle = new org.cmapi.primitives.GeoStrokeStyle();
     private HashMap<UUID, FeatureLocationDialog> oSelectedDialogHash = new HashMap<>();
-    private FloatingActionButton oEditorCompleteBtn;
-    private FloatingActionButton oEditorCancelBtn;
     private Menu oMenu = null;
     private RelativeLayout oPerformanceDlg;
     private EditText oCountTb;
@@ -351,8 +349,8 @@ public class MainActivity extends AppCompatActivity
         public void onEditStart(IMap map) {
             Log.d(TAG, "Edit Start.");
             MainActivity.this.ePlotMode = PlotModeEnum.EDIT_FEATURE;
-            MainActivity.this.oEditorCompleteBtn.show();
-            MainActivity.this.oEditorCancelBtn.show();
+            mainBinding.editorCompleteBtn.show();
+            mainBinding.editorCancelBtn.show();
         }
 
         @Override
@@ -368,8 +366,8 @@ public class MainActivity extends AppCompatActivity
         public void onEditComplete(IMap map, IFeature feature) {
             Log.d(TAG, "Edit Complete.");
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-            MainActivity.this.oEditorCompleteBtn.hide();
-            MainActivity.this.oEditorCancelBtn.hide();
+            mainBinding.editorCompleteBtn.hide();
+            mainBinding.editorCancelBtn.hide();
             if (MainActivity.this.oSelectedDialogHash.containsKey(feature.getGeoId())) {
                 FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(feature.getGeoId());
                 oDialog.updateDialog();
@@ -380,8 +378,8 @@ public class MainActivity extends AppCompatActivity
         public void onEditCancel(IMap map, IFeature originalFeature) {
             Log.d(TAG, "Edit Canceled.");
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-            MainActivity.this.oEditorCompleteBtn.hide();
-            MainActivity.this.oEditorCancelBtn.hide();
+            mainBinding.editorCompleteBtn.hide();
+            mainBinding.editorCancelBtn.hide();
             if (MainActivity.this.oSelectedDialogHash.containsKey(originalFeature.getGeoId())) {
                 FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(originalFeature.getGeoId());
                 oDialog.updateDialog();
@@ -403,8 +401,8 @@ public class MainActivity extends AppCompatActivity
         public void onDrawStart(IMap map) {
             Log.d(TAG, "Draw Start.");
             MainActivity.this.ePlotMode = PlotModeEnum.DRAW_FEATURE;
-            MainActivity.this.oEditorCompleteBtn.show();
-            MainActivity.this.oEditorCancelBtn.show();
+            mainBinding.editorCompleteBtn.show();
+            mainBinding.editorCancelBtn.show();
         }
 
         @Override
@@ -453,8 +451,8 @@ public class MainActivity extends AppCompatActivity
         public void onDrawComplete(IMap map, IFeature feature) {
             Log.d(TAG, "Draw Complete.");
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-            MainActivity.this.oEditorCompleteBtn.hide();
-            MainActivity.this.oEditorCancelBtn.hide();
+            mainBinding.editorCompleteBtn.hide();
+            mainBinding.editorCancelBtn.hide();
             if (!MainActivity.this.oFeatureHash.containsKey(feature.getGeoId())) {
                 // Only add it if it does not exists. A feature can be placed back into draw mode.
                 try {
@@ -470,8 +468,8 @@ public class MainActivity extends AppCompatActivity
         public void onDrawCancel(IMap map, IFeature originalFeature) {
             Log.d(TAG, "Draw Canceled.");
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-            MainActivity.this.oEditorCompleteBtn.hide();
-            MainActivity.this.oEditorCancelBtn.hide();
+            mainBinding.editorCompleteBtn.hide();
+            mainBinding.editorCancelBtn.hide();
             FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(originalFeature.getGeoId());
             if (null != oDialog) {
                 oDialog.dismiss();
@@ -911,17 +909,15 @@ public class MainActivity extends AppCompatActivity
         oLayers.add("imagery_part2-2.0.0.1-wsmr.gpkg");
 
 
-        this.oEditorCompleteBtn = mainBinding.editorCompleteBtn;
-        this.oEditorCancelBtn = mainBinding.editorCancelBtn;
-        this.oEditorCompleteBtn.hide();
-        this.oEditorCancelBtn.hide();
+        mainBinding.editorCompleteBtn.hide();
+        mainBinding.editorCancelBtn.hide();
         registerComponentCallbacks(new MyComponentCallbacks());
 
         ActivityManager am = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
         Log.e(TAG, "Get Memory Class " + am.getMemoryClass());
     }
 
-    public void editorCompleteBtn(View view) {
+    public void editorComplete(View view) {
         try {
             switch (MainActivity.this.ePlotMode) {
                 case EDIT_FEATURE:
@@ -938,7 +934,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void editorCancelBtn(View view) {
+    public void editorCancel(View view) {
         try {
             //Log.d(TAG, "Edit/Draw Canceled.");
             switch (MainActivity.this.ePlotMode) {
@@ -1057,8 +1053,6 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "addCameraEventListener failed. " + e.toString());
         }
 
-        final TextView oFarField = mainBinding.farThreshold;
-        final TextView oMidField = mainBinding.midThreshold;
         this.oPerformanceDlg = mainBinding.performanceDialog;
         this.oCountTb = mainBinding.prfCount;
         this.oAffiliationCkb = mainBinding.prfChangeaffiliation;
@@ -1068,62 +1062,46 @@ public class MainActivity extends AppCompatActivity
         this.oResultTextView.setMovementMethod(new ScrollingMovementMethod());
         brightnessCtrl = mainBinding.brightnessValue;
         brightnessCtrl.setText("" + MainActivity.this.map.getBackgroundBrightness());
-        if (oFarField != null) {
-            oFarField.post(() -> {
-                oFarField.setText(MainActivity.this.map.getFarDistanceThreshold() + " m");
-                ImageButton oFarUpBtn = mainBinding.farThresholdUp;
-                if (oFarUpBtn != null) {
-                    oFarUpBtn.setOnClickListener(v -> {
-                        double dValue = MainActivity.this.map.getFarDistanceThreshold();
-                        dValue += 5000.0;
-                        MainActivity.this.map.setFarDistanceThreshold(dValue);
-                        dValue = MainActivity.this.map.getFarDistanceThreshold();
-                        oFarField.setText(dValue + " m");
-                    });
-                }
-                ImageButton oFarDownBtn = mainBinding.farThresholdDown;
-                if (oFarDownBtn != null) {
-                    oFarDownBtn.setOnClickListener(v -> {
-                        double dValue = MainActivity.this.map.getFarDistanceThreshold();
-                        dValue -= 5000.0;
-                        MainActivity.this.map.setFarDistanceThreshold(dValue);
-                        dValue = MainActivity.this.map.getFarDistanceThreshold();
-                        oFarField.setText(dValue + " m");
-                    });
-                }
-            });
-        }
-
-
-
-        if (oMidField != null) {
-            oMidField.post(() -> {
-                oMidField.setText(MainActivity.this.map.getMidDistanceThreshold() + " m");
-                ImageButton oMidUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdUp);
-                if (oMidUpBtn != null) {
-                    oMidUpBtn.setOnClickListener(v -> {
-                        double dValue = MainActivity.this.map.getMidDistanceThreshold();
-                        dValue += 5000.0;
-                        MainActivity.this.map.setMidDistanceThreshold(dValue);
-                        dValue = MainActivity.this.map.getMidDistanceThreshold();
-                        oMidField.setText(dValue + " m");
-                    });
-                }
-                ImageButton oMidDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdDown);
-                if (oMidDownBtn != null) {
-                    oMidDownBtn.setOnClickListener(v -> {
-                        double dValue = MainActivity.this.map.getMidDistanceThreshold();
-                        dValue -= 5000.0;
-                        MainActivity.this.map.setMidDistanceThreshold(dValue);
-                        dValue = MainActivity.this.map.getMidDistanceThreshold();
-                        oMidField.setText(dValue + " m");
-                    });
-                }
-            });
-        }
-
+        mainBinding.farThreshold.post(() -> {
+            mainBinding.farThreshold.setText(MainActivity.this.map.getFarDistanceThreshold() + " m");
+        });
+        mainBinding.midThreshold.post(() -> {
+            mainBinding.midThreshold.setText(MainActivity.this.map.getMidDistanceThreshold() + " m");
+        });
     }
 
+    public void farUp(View v) {
+        double dValue = MainActivity.this.map.getFarDistanceThreshold();
+        dValue += 5000.0;
+        MainActivity.this.map.setFarDistanceThreshold(dValue);
+        dValue = MainActivity.this.map.getFarDistanceThreshold();
+        mainBinding.farThreshold.setText(dValue + " m");
+    }
+
+    public void farDown(View v) {
+        double dValue = MainActivity.this.map.getFarDistanceThreshold();
+        dValue -= 5000.0;
+        MainActivity.this.map.setFarDistanceThreshold(dValue);
+        dValue = MainActivity.this.map.getFarDistanceThreshold();
+        mainBinding.farThreshold.setText(dValue + " m");
+    }
+
+    public void midUp(View v) {
+        double dValue = MainActivity.this.map.getMidDistanceThreshold();
+        dValue += 5000.0;
+        MainActivity.this.map.setMidDistanceThreshold(dValue);
+        dValue = MainActivity.this.map.getMidDistanceThreshold();
+        mainBinding.midThreshold.setText(dValue + " m");
+    }
+
+    public void midDown(View v) {
+        double dValue = MainActivity.this.map.getMidDistanceThreshold();
+        dValue -= 5000.0;
+        MainActivity.this.map.setMidDistanceThreshold(dValue);
+        dValue = MainActivity.this.map.getMidDistanceThreshold();
+        mainBinding.midThreshold.setText(dValue + " m");
+    }
+    
     public void startBtn(View v) {
         mainBinding.startBtn.setEnabled(false);
         mainBinding.trackBtn.setEnabled(true);
@@ -1200,8 +1178,7 @@ public class MainActivity extends AppCompatActivity
             camera.apply(false);
         }
     }
-
-
+    
     // The Zoom+ button zooms 20% each time it is pressed
     // The altitude is limited to 10 m
     public void zoomIn(View v) {
@@ -3525,8 +3502,8 @@ public class MainActivity extends AppCompatActivity
                         public void onDrawStart(IMap map) {
                             Log.d(TAG, "Draw Start");
                             MainActivity.this.ePlotMode = PlotModeEnum.DRAW_FEATURE;
-                            MainActivity.this.oEditorCompleteBtn.show();
-                            MainActivity.this.oEditorCancelBtn.show();
+                            mainBinding.editorCompleteBtn.show();
+                            mainBinding.editorCancelBtn.show();
                             FeatureLocationDialog oDialog = new FeatureLocationDialog();
                             oDialog.setFeature(oNewSymbol);
                             oDialog.show(MainActivity.this.getFragmentManager(), null);
@@ -3546,8 +3523,8 @@ public class MainActivity extends AppCompatActivity
                         public void onDrawComplete(IMap map, IFeature feature) {
                             Log.d(TAG, "Draw Complete");
                             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-                            MainActivity.this.oEditorCompleteBtn.hide();
-                            MainActivity.this.oEditorCancelBtn.hide();
+                            mainBinding.editorCompleteBtn.hide();
+                            mainBinding.editorCancelBtn.hide();
                             try {
                                 MainActivity.this.oRootOverlay.addFeature(oNewSymbol, true);
                                 MainActivity.this.oFeatureHash.put(oNewSymbol.getGeoId(), oNewSymbol);
@@ -3566,8 +3543,8 @@ public class MainActivity extends AppCompatActivity
                         public void onDrawCancel(IMap map, IFeature originalFeature) {
                             Log.d(TAG, "Draw Cancel");
                             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-                            MainActivity.this.oEditorCompleteBtn.hide();
-                            MainActivity.this.oEditorCancelBtn.hide();
+                            mainBinding.editorCompleteBtn.hide();
+                            mainBinding.editorCancelBtn.hide();
                             if (MainActivity.this.oSelectedDialogHash.containsKey(originalFeature.getGeoId())) {
                                 FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(originalFeature.getGeoId());
                                 oDialog.updateDialog();

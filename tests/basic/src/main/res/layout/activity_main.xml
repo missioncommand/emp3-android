@@ -160,18 +160,18 @@
                         android:layout_marginLeft="8dp" />
 
                     <ImageButton
-                        android:id="@+id/farThresholdUp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:src="@android:drawable/arrow_up_float" />
+                        android:src="@android:drawable/arrow_up_float"
+                        android:onClick="farUp"/>
 
                     <ImageButton
-                        android:id="@+id/farThresholdDown"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:src="@android:drawable/arrow_down_float" />
+                        android:src="@android:drawable/arrow_down_float"
+                        android:onClick="farDown"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -194,18 +194,18 @@
                         android:layout_marginLeft="8dp" />
 
                     <ImageButton
-                        android:id="@+id/midThresholdUp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:src="@android:drawable/arrow_up_float" />
+                        android:src="@android:drawable/arrow_up_float"
+                        android:onClick="midUp"/>
 
                     <ImageButton
-                        android:id="@+id/midThresholdDown"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:src="@android:drawable/arrow_down_float" />
+                        android:src="@android:drawable/arrow_down_float"
+                        android:onClick="midDown"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -396,7 +396,7 @@
                 android:layout_margin="@dimen/fab_margin"
                 android:src="@android:drawable/ic_menu_save"
                 app:backgroundTint="#00ff00"
-                android:onClick="editorCompleteBtn"/>
+                android:onClick="editorComplete"/>
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/editorCancelBtn"
@@ -405,7 +405,7 @@
                 android:layout_margin="@dimen/fab_margin"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
                 app:backgroundTint="#ff0000"
-                android:onClick="editorCancelBtn"/>
+                android:onClick="editorCancel"/>
         </LinearLayout>
     </RelativeLayout>
 </layout>
