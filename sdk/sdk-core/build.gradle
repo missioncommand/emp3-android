@@ -1,17 +1,5 @@
-apply plugin: 'java'
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
-apply plugin: 'nebula.provided-base'
-apply plugin: 'nebula.compile-api'
-
-sourceCompatibility = rootProject.sourceCompatibility
-targetCompatibility = rootProject.targetCompatibility
-
-dependencies {
-    provided project (":emp3-android-sdk")
-    provided project (":cmapi")
-    provided         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
-}
 
 publishing.publications {
     nebula(MavenPublication) {

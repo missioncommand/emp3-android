@@ -1,6 +1,5 @@
 apply plugin: 'java'
 
-apply plugin: 'nebula.provided-base'
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
 
@@ -8,8 +7,8 @@ sourceCompatibility = rootProject.sourceCompatibility
 targetCompatibility = rootProject.targetCompatibility
 
 dependencies {
-    provided project(":cmapi")
-    provided files("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
+    compileOnly project(":cmapi")
+    compileOnly files("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
 }
 
 publishing {
