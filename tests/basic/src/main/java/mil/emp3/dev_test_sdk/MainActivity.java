@@ -929,6 +929,7 @@ public class MainActivity extends AppCompatActivity
                     MainActivity.this.map.completeDraw();
                     break;
                 default:
+                    Log.i(TAG, "Invalid draw mode");
                     break;
             }
         } catch (EMP_Exception e) {
@@ -947,6 +948,7 @@ public class MainActivity extends AppCompatActivity
                     MainActivity.this.map.cancelDraw();
                     break;
                 default:
+                    Log.i(TAG, "Invalid draw mode");
                     break;
             }
         } catch (EMP_Exception e) {
