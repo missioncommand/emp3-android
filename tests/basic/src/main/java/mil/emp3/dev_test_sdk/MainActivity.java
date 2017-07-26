@@ -262,6 +262,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     break;
                 default:
+                    Log.i(TAG, "Unsupported touch event");
                     break;
             }
         }
@@ -335,6 +336,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     break;
                 default:
+                    Log.i(TAG, "Unsupported touch event");
                     break;
             }
         }
