@@ -1,396 +1,411 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical"
     tools:context="mil.emp3.dev_test_sdk.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
+    <data>
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:minHeight="?attr/actionBarSize"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:background="?attr/colorPrimary"/>
-    </android.support.design.widget.AppBarLayout>
+        <import type="android.view.View" />
 
-    <TextView
-        android:id="@+id/camerasettings"
-        android:layout_below="@id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
-    <LinearLayout
-        android:id="@+id/line3"
-        android:layout_below="@id/camerasettings"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <GridLayout
-            android:id="@+id/buttongrid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:useDefaultMargins="false"
-            android:alignmentMode="alignBounds"
-            android:columnOrderPreserved="false"
-            android:columnCount="5">
-
-            <ImageButton
-                android:id="@+id/ZoomOut"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="0"
-                android:layout_column="0"
-                android:src="@drawable/ic_zoom_out_black_24dp"
-                />
-
-            <ImageButton
-                android:id="@+id/ZoomIn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="1"
-                android:layout_column="0"
-                android:src="@drawable/ic_zoom_in_black_24dp"
-                />
-
-            <ImageButton
-                android:id="@+id/PanLeft"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="0"
-                android:layout_column="1"
-                android:src="@drawable/ic_undo_black_24dp"
-                />
-
-            <ImageButton
-                android:id="@+id/PanRight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="1"
-                android:layout_column="1"
-                android:src="@drawable/ic_redo_black_24dp"
-                />
-
-            <ImageButton
-                android:id="@+id/TiltUp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="0"
-                android:layout_column="2"
-                android:src="@drawable/ic_vertical_align_top_black_24dp"
-                />
-
-            <ImageButton
-                android:id="@+id/TiltDown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="1"
-                android:layout_column="2"
-                android:src="@drawable/ic_vertical_align_bottom_black_24dp"
-                />
-
-            <ImageButton
-                android:id="@+id/rollCCW"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="0"
-                android:layout_column="3"
-                android:src="@drawable/ic_replay_5_black_24dp"
-                />
-
-            <ImageButton
-                android:id="@+id/rollCW"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="1"
-                android:layout_column="3"
-                android:src="@drawable/ic_forward_5_black_24dp"
-                />
-
-            <ImageButton
-                android:id="@+id/reset"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="0"
-                android:layout_column="4"
-                android:src="@drawable/ic_forward_5_black_24dp"
-                />
-        </GridLayout>
-        <LinearLayout
-            android:id="@+id/thresholds"
-            android:layout_toEndOf="@id/buttongrid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:orientation="vertical"
-            >
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/farThresholdLabel"
-                    android:text="@string/action_farThresholdLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    />
-                <TextView
-                    android:id="@+id/farThreshold"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_centerVertical="true"
-                    />
-                <ImageButton
-                    android:id="@+id/farThresholdUp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/arrow_up_float"
-                    />
-                <ImageButton
-                    android:id="@+id/farThresholdDown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/arrow_down_float"
-                    />
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/midThresholdLabel"
-                    android:text="@string/action_midThresholdLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    />
-                <TextView
-                    android:id="@+id/midThreshold"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_centerVertical="true"
-                    />
-                <ImageButton
-                    android:id="@+id/midThresholdUp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/arrow_up_float"
-                    />
-                <ImageButton
-                    android:id="@+id/midThresholdDown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/arrow_down_float"
-                    />
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/brightnessLabel"
-                    android:text="@string/action_brightnessLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    />
-                <TextView
-                    android:id="@+id/brightnessValue"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    />
-                <ImageButton
-                    android:id="@+id/brightnessUp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@android:drawable/arrow_up_float"
-                    />
-                <ImageButton
-                    android:id="@+id/brightnessDown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/arrow_down_float"
-                    />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+        <variable
+            name="mainmap"
+            type="mil.emp3.dev_test_sdk.MainActivity" />
+    </data>
 
     <RelativeLayout
-        android:id="@+id/variablePannel"
-        android:layout_below="@id/line3"
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <RelativeLayout
-            android:id="@+id/performance_dialog"
-            android:visibility="gone"
-            android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <LinearLayout
-                android:id="@+id/performancefeaturecount"
-                android:orientation="horizontal"
-                android:layout_marginLeft="4dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:text="@string/PRF_CountLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <EditText
-                    android:id="@+id/prf_count"
-                    android:inputType="number"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"/>
-                <CheckBox
-                    android:id="@+id/prf_changeaffiliation"
-                    android:layout_marginLeft="4dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:drawableLeft="@android:color/transparent"
-                    android:drawablePadding="8dp"
-                    android:text="Change Affiliation"/>
-                <CheckBox
-                    android:id="@+id/prf_batch"
-                    android:layout_marginLeft="4dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:drawableLeft="@android:color/transparent"
-                    android:drawablePadding="8dp"
-                    android:text="Batch Updates"/>
-                <Button
-                    android:id="@+id/prf_start"
-                    android:enabled="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Start"
-                    />
-                <Button
-                    android:id="@+id/prf_track"
-                    android:enabled="false"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Track On"
-                    />
-                <Button
-                    android:id="@+id/prf_stop"
-                    android:enabled="false"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Stop"
-                    />
-                <Button
-                    android:id="@+id/prf_close"
-                    android:enabled="false"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Close"
-                    />
-            </LinearLayout>
-            <TextView
-                android:id="@+id/prf_results"
-                android:layout_below="@id/performancefeaturecount"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                />
+                android:layout_alignParentTop="true"
+                android:background="?attr/colorPrimary"
+                android:minHeight="?attr/actionBarSize" />
+        </android.support.design.widget.AppBarLayout>
+
+        <TextView
+            android:id="@+id/camerasettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/appbar" />
+
+        <LinearLayout
+            android:id="@+id/line3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/camerasettings"
+            android:orientation="horizontal">
+
+            <GridLayout
+                android:id="@+id/buttongrid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alignmentMode="alignBounds"
+                android:columnCount="5"
+                android:columnOrderPreserved="false"
+                android:useDefaultMargins="false">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_row="0"
+                    android:onClick="zoomOut"
+                    android:src="@drawable/ic_zoom_out_black_24dp" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_row="1"
+                    android:onClick="zoomIn"
+                    android:src="@drawable/ic_zoom_in_black_24dp" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_row="0"
+                    android:onClick="panLeft"
+                    android:src="@drawable/ic_undo_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/PanRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_row="1"
+                    android:onClick="panRight"
+                    android:src="@drawable/ic_redo_black_24dp" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:layout_row="0"
+                    android:onClick="tiltUp"
+                    android:src="@drawable/ic_vertical_align_top_black_24dp" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:layout_row="1"
+                    android:onClick="tiltDown"
+                    android:src="@drawable/ic_vertical_align_bottom_black_24dp" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="3"
+                    android:layout_row="0"
+                    android:onClick="rollCCW"
+                    android:src="@drawable/ic_replay_5_black_24dp" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="3"
+                    android:layout_row="1"
+                    android:onClick="rollCW"
+                    android:src="@drawable/ic_forward_5_black_24dp" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="4"
+                    android:layout_row="0"
+                    android:onClick="resetCamera"
+                    android:src="@drawable/ic_forward_5_black_24dp" />
+            </GridLayout>
+
+            <LinearLayout
+                android:id="@+id/thresholds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_toEndOf="@id/buttongrid"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/farThresholdLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:text="@string/action_farThresholdLabel" />
+
+                    <TextView
+                        android:id="@+id/farThreshold"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="8dp" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:src="@android:drawable/arrow_up_float"
+                        android:onClick="farUp"/>
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:src="@android:drawable/arrow_down_float"
+                        android:onClick="farDown"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/midThresholdLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:text="@string/action_midThresholdLabel" />
+
+                    <TextView
+                        android:id="@+id/midThreshold"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="8dp" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:src="@android:drawable/arrow_up_float"
+                        android:onClick="midUp"/>
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:src="@android:drawable/arrow_down_float"
+                        android:onClick="midDown"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/brightnessLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:text="@string/action_brightnessLabel" />
+
+                    <TextView
+                        android:id="@+id/brightnessValue"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:onClick="brightnessUp"
+                        android:src="@android:drawable/arrow_up_float" />
+
+                    <ImageButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:onClick="brightnessDown"
+                        android:src="@android:drawable/arrow_down_float" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/variablePannel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/line3"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/performance_dialog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/performancefeaturecount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/PRF_CountLabel" />
+
+                    <EditText
+                        android:id="@+id/prf_count"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+
+                    <CheckBox
+                        android:id="@+id/prf_changeaffiliation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dp"
+                        android:drawableLeft="@android:color/transparent"
+                        android:drawablePadding="8dp"
+                        android:text="Change Affiliation" />
+
+                    <CheckBox
+                        android:id="@+id/prf_batch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dp"
+                        android:drawableLeft="@android:color/transparent"
+                        android:drawablePadding="8dp"
+                        android:text="Batch Updates" />
+
+                    <Button
+                        android:id="@+id/startBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:enabled="true"
+                        android:onClick="startBtn"
+                        android:text="Start" />
+
+                    <Button
+                        android:id="@+id/trackBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:onClick="trackBtn"
+                        android:text="Track On" />
+
+                    <Button
+                        android:id="@+id/stopBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:onClick="stopBtn"
+                        android:text="Stop" />
+
+                    <Button
+                        android:id="@+id/closeBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:onClick="closeBtn"
+                        android:text="Close" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/prf_results"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/performancefeaturecount"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="4dp" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/resultPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/resultText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lines="10"
+                    android:scrollbars="vertical"
+                    android:text="Draw Points.\n" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <mil.emp3.api.MapView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/variablePannel"
+            app:map_engine_apk_name="mil.emp3.worldwind"
+            app:map_engine_name="mil.emp3.worldwind.MapInstance"
+            app:map_name="map1" />
+
+        <RelativeLayout
+            android:id="@+id/CrossHairLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/CrossHairImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="3dp"
+                android:minWidth="3dp" />
         </RelativeLayout>
 
         <LinearLayout
-            android:id="@+id/resultPanel"
-            android:visibility="gone"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:id="@+id/resultText"
-                android:lines="10"
-                android:scrollbars="vertical"
-                android:layout_width="match_parent"
+            android:id="@+id/main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|end"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/editorCompleteBtn"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Draw Points.\n"/>
+                android:layout_margin="@dimen/fab_margin"
+                android:src="@android:drawable/ic_menu_save"
+                app:backgroundTint="#00ff00"
+                android:onClick="editorComplete"/>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/editorCancelBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/fab_margin"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:backgroundTint="#ff0000"
+                android:onClick="editorCancel"/>
         </LinearLayout>
     </RelativeLayout>
-
-    <mil.emp3.api.MapView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/map"
-        app:map_engine_name="mil.emp3.worldwind.MapInstance"
-        app:map_engine_apk_name = "mil.emp3.worldwind"
-        app:map_name="map1"
-        android:layout_width = "match_parent"
-        android:layout_height = "wrap_content"
-        android:layout_below="@id/variablePannel"
-        />
-
-    <RelativeLayout
-        android:id="@+id/CrossHairLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="visible"
-        >
-        <ImageView
-            android:id="@+id/CrossHairImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minWidth="3dp"
-            android:minHeight="3dp"
-            />
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/main"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="bottom|end"
-        >
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/editorCompleteBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            app:backgroundTint="#00ff00"
-            android:src="@android:drawable/ic_menu_save" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/editorCancelBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            app:backgroundTint="#ff0000"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" />
-    </LinearLayout>
-</RelativeLayout>
+</layout>

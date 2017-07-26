@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -64,8 +65,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -123,6 +129,8 @@ import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 import mil.emp3.core.utils.CoreMilStdUtilities;
+import mil.emp3.dev_test_sdk.databinding.ActivityMainBinding;
+import mil.emp3.dev_test_sdk.databinding.WmsParametersDialogBinding;
 import mil.emp3.dev_test_sdk.dialogs.FeatureLocationDialog;
 import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
@@ -145,26 +153,18 @@ public class MainActivity extends AppCompatActivity
     private WMS wmsService;
     private WMTS wmtsService;
     private mil.emp3.api.GeoPackage geoPackage;
-    protected java.util.HashMap<java.util.UUID, IFeature> oFeatureHash = new java.util.HashMap<>();
+    protected HashMap<UUID, IFeature> oFeatureHash = new HashMap<>();
     private IFeature oCurrentSelectedFeature;
     private final org.cmapi.primitives.IGeoStrokeStyle oSelectedStrokeStyle = new org.cmapi.primitives.GeoStrokeStyle();
-    private java.util.HashMap<java.util.UUID, FeatureLocationDialog> oSelectedDialogHash = new java.util.HashMap<>();
-    private boolean bFeatureUIEventProcessed = false;
-    private FloatingActionButton oEditorCompleteBtn;
-    private FloatingActionButton oEditorCancelBtn;
+    private HashMap<UUID, FeatureLocationDialog> oSelectedDialogHash = new HashMap<>();
     private Menu oMenu = null;
     private RelativeLayout oPerformanceDlg;
-    private Button oStartBtn;
-    private Button oTrackBtn;
-    private Button oStopBtn;
-    private Button oCloseBtn;
     private EditText oCountTb;
     private CheckBox oAffiliationCkb;
     private CheckBox oBatchUpdateCkb;
     protected TextView oResults;
     private PerformanceTestThread oPerformanceTestThread;
     protected TextView oResultTextView;
-    protected LinearLayout oResultPanel;
     private EventListenerHandle stateHandler = null;
     private EventListenerHandle userInteraction = null;
     private EventListenerHandle featureInteraction = null;
@@ -172,11 +172,9 @@ public class MainActivity extends AppCompatActivity
     private EventListenerHandle cameraHandler = null;
     private Handler handler;
     private MiniMapDialog miniMapDialog = null;
-
-    private boolean swapMapFlag;
+    private TextView brightnessCtrl = null;
 
     private boolean bCrossHairsOn = false;
-    private Toast CoordToast = null;
 
     private IGeoFillStyle iconStyleFill     = new GeoFillStyle();
     private IGeoStrokeStyle iconStyleStroke = new GeoStrokeStyle();
@@ -186,6 +184,8 @@ public class MainActivity extends AppCompatActivity
     private File downloadFolder = new File("/sdcard/Download/");
     private String gpkgPick;
     private static final String SUFFIX = ".gpkg";
+    private WmsParametersDialogBinding wmsBinding = null;
+    private ActivityMainBinding mainBinding = null;
 
 //    private MirrorCache mc;
 
@@ -220,7 +220,6 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onEvent(MapUserInteractionEvent event) {
-            bFeatureUIEventProcessed = false;
             if (event.getCoordinate() == null) {
                 Log.d(TAG, "Map User Interactive Event: " + event.getEvent().name() + " X/Y: " + event.getPoint().x + " / " +
                         event.getPoint().y + "  Lat/Lon: null");
@@ -243,7 +242,6 @@ public class MainActivity extends AppCompatActivity
                                 pos.getLongitude(), Toast.LENGTH_LONG).show();
                     } catch (EMP_Exception e) {
                         e.printStackTrace();
-                        bFeatureUIEventProcessed = true;
                     }
                     break;
                 case DOUBLE_CLICKED:
@@ -261,10 +259,10 @@ public class MainActivity extends AppCompatActivity
                                 pos.getLongitude(), Toast.LENGTH_LONG).show();
                     } catch (EMP_Exception e) {
                         e.printStackTrace();
-                        bFeatureUIEventProcessed = true;
                     }
                     break;
-                case DRAG:
+                default:
+                    Log.i(TAG, "Unsupported touch event");
                     break;
             }
         }
@@ -277,7 +275,6 @@ public class MainActivity extends AppCompatActivity
             IFeature oFeature = event.getTarget().get(0);
             //SelectedFeature oSelectedItem;
 
-            bFeatureUIEventProcessed = true;
             if (event.getCoordinate() == null) {
                 Log.d(TAG, "Feature User Interactive Event: " + event.getEvent().name() + " Feature Count: " + event.getTarget().size() + " X/Y: " + event.getPoint().x + " / " +
                         event.getPoint().y + "  Lat/Lon: null");
@@ -338,7 +335,8 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                     break;
-                case DRAG:
+                default:
+                    Log.i(TAG, "Unsupported touch event");
                     break;
             }
         }
@@ -353,8 +351,8 @@ public class MainActivity extends AppCompatActivity
         public void onEditStart(IMap map) {
             Log.d(TAG, "Edit Start.");
             MainActivity.this.ePlotMode = PlotModeEnum.EDIT_FEATURE;
-            MainActivity.this.oEditorCompleteBtn.show();
-            MainActivity.this.oEditorCancelBtn.show();
+            mainBinding.editorCompleteBtn.show();
+            mainBinding.editorCancelBtn.show();
         }
 
         @Override
@@ -370,8 +368,8 @@ public class MainActivity extends AppCompatActivity
         public void onEditComplete(IMap map, IFeature feature) {
             Log.d(TAG, "Edit Complete.");
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-            MainActivity.this.oEditorCompleteBtn.hide();
-            MainActivity.this.oEditorCancelBtn.hide();
+            mainBinding.editorCompleteBtn.hide();
+            mainBinding.editorCancelBtn.hide();
             if (MainActivity.this.oSelectedDialogHash.containsKey(feature.getGeoId())) {
                 FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(feature.getGeoId());
                 oDialog.updateDialog();
@@ -382,8 +380,8 @@ public class MainActivity extends AppCompatActivity
         public void onEditCancel(IMap map, IFeature originalFeature) {
             Log.d(TAG, "Edit Canceled.");
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-            MainActivity.this.oEditorCompleteBtn.hide();
-            MainActivity.this.oEditorCancelBtn.hide();
+            mainBinding.editorCompleteBtn.hide();
+            mainBinding.editorCancelBtn.hide();
             if (MainActivity.this.oSelectedDialogHash.containsKey(originalFeature.getGeoId())) {
                 FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(originalFeature.getGeoId());
                 oDialog.updateDialog();
@@ -405,8 +403,8 @@ public class MainActivity extends AppCompatActivity
         public void onDrawStart(IMap map) {
             Log.d(TAG, "Draw Start.");
             MainActivity.this.ePlotMode = PlotModeEnum.DRAW_FEATURE;
-            MainActivity.this.oEditorCompleteBtn.show();
-            MainActivity.this.oEditorCancelBtn.show();
+            mainBinding.editorCompleteBtn.show();
+            mainBinding.editorCancelBtn.show();
         }
 
         @Override
@@ -455,8 +453,8 @@ public class MainActivity extends AppCompatActivity
         public void onDrawComplete(IMap map, IFeature feature) {
             Log.d(TAG, "Draw Complete.");
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-            MainActivity.this.oEditorCompleteBtn.hide();
-            MainActivity.this.oEditorCancelBtn.hide();
+            mainBinding.editorCompleteBtn.hide();
+            mainBinding.editorCancelBtn.hide();
             if (!MainActivity.this.oFeatureHash.containsKey(feature.getGeoId())) {
                 // Only add it if it does not exists. A feature can be placed back into draw mode.
                 try {
@@ -472,8 +470,8 @@ public class MainActivity extends AppCompatActivity
         public void onDrawCancel(IMap map, IFeature originalFeature) {
             Log.d(TAG, "Draw Canceled.");
             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-            MainActivity.this.oEditorCompleteBtn.hide();
-            MainActivity.this.oEditorCancelBtn.hide();
+            mainBinding.editorCompleteBtn.hide();
+            mainBinding.editorCancelBtn.hide();
             FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(originalFeature.getGeoId());
             if (null != oDialog) {
                 oDialog.dismiss();
@@ -526,8 +524,8 @@ public class MainActivity extends AppCompatActivity
         return oPos;
     }
 
-    private java.util.List<IGeoPosition> getCameraPosition() {
-        java.util.List<IGeoPosition> oPosList = new java.util.ArrayList<>();
+    private List<IGeoPosition> getCameraPosition() {
+        List<IGeoPosition> oPosList = new ArrayList<>();
         IGeoPosition oPos = new GeoPosition();
 
         oPos.setLatitude(this.oCamera.getLatitude());
@@ -538,9 +536,9 @@ public class MainActivity extends AppCompatActivity
         return oPosList;
     }
 
-    private java.util.List<IGeoPosition> getPositions(int iCount, double dAltitude) {
+    private List<IGeoPosition> getPositions(int iCount, double dAltitude) {
         IGeoPosition oPos;
-        java.util.List<IGeoPosition> oPosList = new java.util.ArrayList<>();
+        List<IGeoPosition> oPosList = new ArrayList<>();
         double dLat = this.randomLocalLatitude();
         double dLong = this.randomLocalLongitude();
 
@@ -582,26 +580,22 @@ public class MainActivity extends AppCompatActivity
         org.cmapi.primitives.GeoMilSymbol.SymbolStandard eStandard =  org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525C;
         int iMilStdVersion = (eStandard == org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525B) ? armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525Bch2_USAS_13_14 :
                 armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525C;
-        java.util.Map<java.lang.String,UnitDef> oDefMap = oDefTable.getAllUnitDefs(iMilStdVersion);
-        java.util.Set<String> oSymbols = oDefMap.keySet();
+        Map<String,UnitDef> oDefMap = oDefTable.getAllUnitDefs(iMilStdVersion);
+        Set<String> oSymbols = oDefMap.keySet();
         UnitDef oSymDef;
         int iCount = 0;
-        java.util.List<IFeature> oFeatureList = new java.util.ArrayList<>();
-        java.util.List<IGeoPosition> oPosList;
-        java.util.List<MilStdSymbol.Affiliation> oAffiliationList = new java.util.ArrayList<>();
-        java.util.List<MilStdSymbol.Echelon> oEchelonList = new java.util.ArrayList<>();
-
-        oAffiliationList.add(MilStdSymbol.Affiliation.FRIEND);
-        oAffiliationList.add(MilStdSymbol.Affiliation.HOSTILE);
-        oAffiliationList.add(MilStdSymbol.Affiliation.NEUTRAL);
-        //oAffiliationList.add(MilStdSymbol.Affiliation.SUSPECT);
-
-        oEchelonList.add(MilStdSymbol.Echelon.UNIT);
-        oEchelonList.add(MilStdSymbol.Echelon.SQUAD);
-        oEchelonList.add(MilStdSymbol.Echelon.PLATOON_DETACHMENT);
-        oEchelonList.add(MilStdSymbol.Echelon.COMPANY_BATTERY_TROOP);
-        oEchelonList.add(MilStdSymbol.Echelon.BATTALION_SQUADRON);
-        oEchelonList.add(MilStdSymbol.Echelon.BRIGADE);
+        List<IFeature> oFeatureList = new ArrayList<>();
+        List<IGeoPosition> oPosList;
+        final List<MilStdSymbol.Affiliation> oAffiliationList = Arrays.asList(MilStdSymbol.Affiliation.FRIEND,
+                MilStdSymbol.Affiliation.HOSTILE,
+                MilStdSymbol.Affiliation.NEUTRAL);
+        //,MilStdSymbol.Affiliation.SUSPECT);
+        final List<MilStdSymbol.Echelon> oEchelonList = Arrays.asList(MilStdSymbol.Echelon.UNIT,
+                MilStdSymbol.Echelon.SQUAD,
+                MilStdSymbol.Echelon.PLATOON_DETACHMENT,
+                MilStdSymbol.Echelon.COMPANY_BATTERY_TROOP,
+                MilStdSymbol.Echelon.BATTALION_SQUADRON,
+                MilStdSymbol.Echelon.BRIGADE);
 
         top: {
             for (String sBasicSymbolCode : oSymbols) {
@@ -611,7 +605,7 @@ public class MainActivity extends AppCompatActivity
                         if (SymbolUtilities.isWarfighting(sBasicSymbolCode)) {
                             oSymDef = oDefMap.get(sBasicSymbolCode);
 
-                            oPosList = new java.util.ArrayList<>();
+                            oPosList = new ArrayList<>();
                             oPosList.add(this.getRandomCoordinate());
 
                             try {
@@ -681,22 +675,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void processSymbolTable(java.util.Map<java.lang.String,UnitDef> oDefMap,
+    private void processSymbolTable(Map<java.lang.String,UnitDef> oDefMap,
             org.cmapi.primitives.GeoMilSymbol.SymbolStandard eStandard,
             int iMilStdVersion,
             int iMaxCount) {
-        java.util.Set<String> oSymbols = oDefMap.keySet();
+        Set<String> oSymbols = oDefMap.keySet();
         UnitDef oSymDef;
         String sSymbolCode;
         int iCount = 0;
-        java.util.List<IFeature> oFeatureList = new java.util.ArrayList<>();
+        List<IFeature> oFeatureList = new ArrayList<>();
 
         for (String sBasicSymbolCode: oSymbols) {
             //Log.d(TAG, "Symbol " + sBasicSymbolCode);
             if (SymbolUtilities.isWarfighting(sBasicSymbolCode)) {
                 oSymDef = oDefMap.get(sBasicSymbolCode);
 
-                java.util.List<IGeoPosition> oPosList = this.getPositions(1, 20000.0);
+                List<IGeoPosition> oPosList = this.getPositions(1, 20000.0);
 
                 try {
                     // Allocate the new MilStd Symbol with a MilStd version and the symbol code.
@@ -753,16 +747,16 @@ public class MainActivity extends AppCompatActivity
         int iMilStdVersion = (eStandard == org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525B)? armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525Bch2_USAS_13_14:
                 armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525C;
         UnitDefTable oDefTable = UnitDefTable.getInstance();
-        java.util.Map<java.lang.String,UnitDef> oDefMap = oDefTable.getAllUnitDefs(iMilStdVersion);
+        Map<java.lang.String,UnitDef> oDefMap = oDefTable.getAllUnitDefs(iMilStdVersion);
 
         processSymbolTable(oDefMap, eStandard, iMilStdVersion, iCount);
     }
 
     protected void removeAllFeatures() {
         if (!this.oFeatureHash.isEmpty()) {
-            java.util.List<IFeature> oFeatureList = new java.util.ArrayList<>();
+            List<IFeature> oFeatureList = new ArrayList<>();
 
-            for (java.util.UUID uuid: this.oFeatureHash.keySet()) {
+            for (UUID uuid: this.oFeatureHash.keySet()) {
                 oFeatureList.add(this.oFeatureHash.get(uuid));
                 if (MainActivity.this.oSelectedDialogHash.containsKey(uuid)) {
                     FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(uuid);
@@ -828,8 +822,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mainBinding.setMainmap(this);
+        Toolbar toolbar = mainBinding.toolbar;
         setSupportActionBar(toolbar);
         SymbolPropertiesDialog.loadSymbolTables();
         TacticalGraphicPropertiesDialog.loadSymbolTables();
@@ -843,7 +838,7 @@ public class MainActivity extends AppCompatActivity
         this.oSelectedStrokeStyle.setStrokeColor(oColor);
         this.oSelectedStrokeStyle.setStrokeWidth(5);
 
-        map = (IMap) findViewById(R.id.map);
+        map = mainBinding.map;
 
         oCamera = new mil.emp3.api.Camera();
         oCamera.setName("Main Cam");
@@ -907,78 +902,64 @@ public class MainActivity extends AppCompatActivity
         }
         //Log.d(TAG, "Registered for Map Ready.");
 
-        TextView oCameraSetting = (TextView) this.findViewById(R.id.camerasettings);
+        TextView oCameraSetting = mainBinding.camerasettings;
         String sTemp = String.format(Locale.US, "Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(), oCamera.getHeading(), oCamera.getTilt(), oCamera.getRoll());
         oCameraSetting.setText(sTemp);
 
-        java.util.List<String> oLayers = new java.util.ArrayList<>();
+        List<String> oLayers = new ArrayList<>();
 
         oLayers.add("imagery_part2-2.0.0.1-wsmr.gpkg");
-/*
-        try {
-            this.wmsService = new mil.emp3.api.WMS(
-                    "http://172.16.20.99:5000/WmsServerStrict",
-                    WMSVersionEnum.VERSION_1_3_0,
-                    "image/png",
-                    true,
-                    oLayers
-            );
-            //this.wmsService.setLayerResolution(1.0);
-            //oCamera.setLatitude(32.897);
-            //oCamera.setLongitude(-105.939);
-            //oCamera.setAltitude(500.0);
-            //oCamera.apply(false);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-*/
 
-        this.oEditorCompleteBtn = (FloatingActionButton) this.findViewById(R.id.editorCompleteBtn);
-        this.oEditorCancelBtn = (FloatingActionButton) this.findViewById(R.id.editorCancelBtn);
-        this.oEditorCompleteBtn.hide();
-        this.oEditorCancelBtn.hide();
 
-        this.oEditorCompleteBtn.setOnClickListener(v -> {
-            try {
-                switch (MainActivity.this.ePlotMode) {
-                    case EDIT_FEATURE:
-                        MainActivity.this.map.completeEdit();
-                        break;
-                    case DRAW_FEATURE:
-                        MainActivity.this.map.completeDraw();
-                        break;
-                }
-            } catch (EMP_Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        this.oEditorCancelBtn.setOnClickListener(v -> {
-            try {
-                //Log.d(TAG, "Edit/Draw Canceled.");
-                switch (MainActivity.this.ePlotMode) {
-                    case EDIT_FEATURE:
-                        MainActivity.this.map.cancelEdit();
-                        break;
-                    case DRAW_FEATURE:
-                        MainActivity.this.map.cancelDraw();
-                        break;
-                }
-            } catch (EMP_Exception e) {
-                e.printStackTrace();
-            }
-        });
-
+        mainBinding.editorCompleteBtn.hide();
+        mainBinding.editorCancelBtn.hide();
         registerComponentCallbacks(new MyComponentCallbacks());
 
         ActivityManager am = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
         Log.e(TAG, "Get Memory Class " + am.getMemoryClass());
     }
 
+    public void editorComplete(View view) {
+        try {
+            switch (MainActivity.this.ePlotMode) {
+                case EDIT_FEATURE:
+                    MainActivity.this.map.completeEdit();
+                    break;
+                case DRAW_FEATURE:
+                    MainActivity.this.map.completeDraw();
+                    break;
+                default:
+                    Log.i(TAG, "Invalid draw mode");
+                    break;
+            }
+        } catch (EMP_Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void editorCancel(View view) {
+        try {
+            //Log.d(TAG, "Edit/Draw Canceled.");
+            switch (MainActivity.this.ePlotMode) {
+                case EDIT_FEATURE:
+                    MainActivity.this.map.cancelEdit();
+                    break;
+                case DRAW_FEATURE:
+                    MainActivity.this.map.cancelDraw();
+                    break;
+                default:
+                    Log.i(TAG, "Invalid draw mode");
+                    break;
+            }
+        } catch (EMP_Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void createCrossHair() {
-        final mil.emp3.api.MapView mapView = (mil.emp3.api.MapView) MainActivity.this.findViewById(R.id.map);
-        final ImageView crossHairImage = (ImageView) MainActivity.this.findViewById(R.id.CrossHairImage);
-        final RelativeLayout crossHairLayout = (RelativeLayout) MainActivity.this.findViewById(R.id.CrossHairLayout);
+        final mil.emp3.api.MapView mapView = mainBinding.map;
+        final ImageView crossHairImage = mainBinding.CrossHairImage;
+        final RelativeLayout crossHairLayout = mainBinding.CrossHairLayout;
         int lineLength = getResources().getDisplayMetrics().densityDpi / 2;
         final int mapWidth = mapView.getWidth();
         final int mapHeight = mapView.getHeight();
@@ -1076,336 +1057,247 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "addCameraEventListener failed. " + e.toString());
         }
 
-        final TextView oFarField = (TextView) this.findViewById(R.id.farThreshold);
-
-        if (oFarField != null) {
-            oFarField.post(() -> {
-                oFarField.setText(MainActivity.this.map.getFarDistanceThreshold() + " m");
-                ImageButton oFarUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdUp);
-                if (oFarUpBtn != null) {
-                    oFarUpBtn.setOnClickListener(v -> {
-                        double dValue = MainActivity.this.map.getFarDistanceThreshold();
-                        dValue += 5000.0;
-                        MainActivity.this.map.setFarDistanceThreshold(dValue);
-                        dValue = MainActivity.this.map.getFarDistanceThreshold();
-                        oFarField.setText(dValue + " m");
-                    });
-                }
-                ImageButton oFarDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdDown);
-                if (oFarDownBtn != null) {
-                    oFarDownBtn.setOnClickListener(v -> {
-                        double dValue = MainActivity.this.map.getFarDistanceThreshold();
-                        dValue -= 5000.0;
-                        MainActivity.this.map.setFarDistanceThreshold(dValue);
-                        dValue = MainActivity.this.map.getFarDistanceThreshold();
-                        oFarField.setText(dValue + " m");
-                    });
-                }
-            });
-        }
-
-        final TextView oMidField = (TextView) this.findViewById(R.id.midThreshold);
-
-        if (oMidField != null) {
-            oMidField.post(() -> {
-                oMidField.setText(MainActivity.this.map.getMidDistanceThreshold() + " m");
-                ImageButton oMidUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdUp);
-                if (oMidUpBtn != null) {
-                    oMidUpBtn.setOnClickListener(v -> {
-                        double dValue = MainActivity.this.map.getMidDistanceThreshold();
-                        dValue += 5000.0;
-                        MainActivity.this.map.setMidDistanceThreshold(dValue);
-                        dValue = MainActivity.this.map.getMidDistanceThreshold();
-                        oMidField.setText(dValue + " m");
-                    });
-                }
-                ImageButton oMidDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdDown);
-                if (oMidDownBtn != null) {
-                    oMidDownBtn.setOnClickListener(v -> {
-                        double dValue = MainActivity.this.map.getMidDistanceThreshold();
-                        dValue -= 5000.0;
-                        MainActivity.this.map.setMidDistanceThreshold(dValue);
-                        dValue = MainActivity.this.map.getMidDistanceThreshold();
-                        oMidField.setText(dValue + " m");
-                    });
-                }
-            });
-        }
-        this.oPerformanceDlg = (RelativeLayout) this.findViewById(R.id.performance_dialog);
-        this.oStartBtn = (Button) this.findViewById(R.id.prf_start);
-        this.oTrackBtn = (Button) this.findViewById(R.id.prf_track);
-        this.oStopBtn = (Button) this.findViewById(R.id.prf_stop);
-        this.oCloseBtn = (Button) this.findViewById(R.id.prf_close);
-        this.oCountTb = (EditText) this.findViewById(R.id.prf_count);
-        this.oAffiliationCkb = (CheckBox) this.findViewById(R.id.prf_changeaffiliation);
-        this.oBatchUpdateCkb = (CheckBox) this.findViewById(R.id.prf_batch);
-        this.oResults = (TextView) this.findViewById(R.id.prf_results);
-
-        if ((oStartBtn == null) || (oStopBtn == null) || (oCloseBtn == null) ||
-                (oCountTb == null) || (oAffiliationCkb == null) || (null == oTrackBtn)) {
-            Log.e(TAG, "Button not found.");
-        }
-
-        this.oStartBtn.setOnClickListener(v -> {
-            MainActivity.this.oStartBtn.setEnabled(false);
-            MainActivity.this.oTrackBtn.setEnabled(true);
-            MainActivity.this.oStopBtn.setEnabled(true);
-            MainActivity.this.oCloseBtn.setEnabled(false);
-            int iCount = 5000;
-
-            try {
-                iCount = Integer.parseInt(MainActivity.this.oCountTb.getText().toString());
-            } catch (NumberFormatException ex) {
-                iCount = 5000;
-            }
-            boolean bBatch = MainActivity.this.oBatchUpdateCkb.isChecked();
-            boolean bAff = MainActivity.this.oAffiliationCkb.isChecked();
-
-            MainActivity.this.oPerformanceTestThread = new PerformanceTestThread(MainActivity.this, iCount, bAff, bBatch);
-            MainActivity.this.oPerformanceTestThread.start();
-        });
-
-        this.oTrackBtn.setOnClickListener(v -> {
-            if (MainActivity.this.oPerformanceTestThread != null) {
-                MainActivity.this.oPerformanceTestThread.toggleTrackingMode();
-            }
-        });
-
-        this.oStopBtn.setOnClickListener(v -> {
-            if (MainActivity.this.oPerformanceTestThread != null) {
-                MainActivity.this.oPerformanceTestThread.stopTest();
-                MainActivity.this.oPerformanceTestThread = null;
-
-                MainActivity.this.oStartBtn.setEnabled(true);
-                MainActivity.this.oTrackBtn.setEnabled(false);
-                MainActivity.this.oStopBtn.setEnabled(false);
-                MainActivity.this.oCloseBtn.setEnabled(true);
-            }
-        });
-
-        this.oCloseBtn.setOnClickListener(v -> {
-            MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_tests);
-            oItem.setEnabled(true);
-
-            MainActivity.this.oPerformanceDlg.setVisibility(View.GONE);
-            MainActivity.this.oPerformanceDlg.setEnabled(false);
-        });
-        this.oResultTextView = (TextView) this.findViewById(R.id.resultText);
+        this.oPerformanceDlg = mainBinding.performanceDialog;
+        this.oCountTb = mainBinding.prfCount;
+        this.oAffiliationCkb = mainBinding.prfChangeaffiliation;
+        this.oBatchUpdateCkb = mainBinding.prfBatch;
+        this.oResults = mainBinding.prfResults;
+        this.oResultTextView = mainBinding.resultText;
         this.oResultTextView.setMovementMethod(new ScrollingMovementMethod());
-        this.oResultPanel = (LinearLayout) this.findViewById(R.id.resultPanel);
+        brightnessCtrl = mainBinding.brightnessValue;
+        brightnessCtrl.setText("" + MainActivity.this.map.getBackgroundBrightness());
+        mainBinding.farThreshold.post(() -> {
+            mainBinding.farThreshold.setText(MainActivity.this.map.getFarDistanceThreshold() + " m");
+        });
+        mainBinding.midThreshold.post(() -> {
+            mainBinding.midThreshold.setText(MainActivity.this.map.getMidDistanceThreshold() + " m");
+        });
+    }
 
-        ImageButton zoomOutButton = (ImageButton) findViewById(R.id.ZoomOut);
-        if (zoomOutButton != null) {
-            zoomOutButton.setOnClickListener(view -> {
-                ICamera camera = MainActivity.this.oCamera;
-                double initAltitude = camera.getAltitude();
-                if (initAltitude <= 1e8 / 1.2) {
-                    initAltitude *= 1.2;
-                    camera.setAltitude(initAltitude);
-                    camera.apply(false);
-                } else {
-                    //Toast.makeText(CustomActivity.this, "Can't zoom out any more, altitude " + initAltitude, Toast.LENGTH_LONG).show();
-                }
-            });
-        } else {
-            Log.e(TAG, "Zoom out button not found");
+    public void farUp(View v) {
+        double dValue = MainActivity.this.map.getFarDistanceThreshold();
+        dValue += 5000.0;
+        MainActivity.this.map.setFarDistanceThreshold(dValue);
+        dValue = MainActivity.this.map.getFarDistanceThreshold();
+        mainBinding.farThreshold.setText(dValue + " m");
+    }
+
+    public void farDown(View v) {
+        double dValue = MainActivity.this.map.getFarDistanceThreshold();
+        dValue -= 5000.0;
+        MainActivity.this.map.setFarDistanceThreshold(dValue);
+        dValue = MainActivity.this.map.getFarDistanceThreshold();
+        mainBinding.farThreshold.setText(dValue + " m");
+    }
+
+    public void midUp(View v) {
+        double dValue = MainActivity.this.map.getMidDistanceThreshold();
+        dValue += 5000.0;
+        MainActivity.this.map.setMidDistanceThreshold(dValue);
+        dValue = MainActivity.this.map.getMidDistanceThreshold();
+        mainBinding.midThreshold.setText(dValue + " m");
+    }
+
+    public void midDown(View v) {
+        double dValue = MainActivity.this.map.getMidDistanceThreshold();
+        dValue -= 5000.0;
+        MainActivity.this.map.setMidDistanceThreshold(dValue);
+        dValue = MainActivity.this.map.getMidDistanceThreshold();
+        mainBinding.midThreshold.setText(dValue + " m");
+    }
+    
+    public void startBtn(View v) {
+        mainBinding.startBtn.setEnabled(false);
+        mainBinding.trackBtn.setEnabled(true);
+        mainBinding.stopBtn.setEnabled(true);
+        mainBinding.closeBtn.setEnabled(false);
+        int iCount = 5000;
+
+        try {
+            iCount = Integer.parseInt(MainActivity.this.oCountTb.getText().toString());
+        } catch (NumberFormatException ex) {
+            iCount = 5000;
         }
-        // The Zoom+ button zooms 20% each time it is pressed
-        // The altitude is limited to 10 m
-        ImageButton zoomInButton = (ImageButton) findViewById(R.id.ZoomIn);
-        if (zoomInButton != null) {
-            zoomInButton.setOnClickListener(view -> {
-                ICamera camera = MainActivity.this.oCamera;
-                double initAltitude = camera.getAltitude();
-                // lowest possible camera altitude set to 10 meters
-                if (initAltitude > 10) {
-                    initAltitude /= 1.2;
-                    camera.setAltitude(initAltitude);
-                    camera.apply(false);
-                } else {
-                    //Toast.makeText(CustomActivity.this, "Can't zoom in any more, altitude " + initAltitude, Toast.LENGTH_LONG).show();
-                }
-            });
-        } else {
-            Log.e(TAG, "Zoom in button not found");
+        boolean bBatch = MainActivity.this.oBatchUpdateCkb.isChecked();
+        boolean bAff = MainActivity.this.oAffiliationCkb.isChecked();
+
+        MainActivity.this.oPerformanceTestThread = new PerformanceTestThread(MainActivity.this, iCount, bAff, bBatch);
+        MainActivity.this.oPerformanceTestThread.start();
+    }
+
+    public void trackBtn(View v) {
+        if (MainActivity.this.oPerformanceTestThread != null) {
+            MainActivity.this.oPerformanceTestThread.toggleTrackingMode();
         }
-        // Pan left turns the camera left 5 degrees
-        // each time the button is pressed
-        ImageButton panLeft = (ImageButton) findViewById(R.id.PanLeft);
-        if (panLeft != null) {
-            panLeft.setOnClickListener(v -> {
-                ICamera camera = MainActivity.this.oCamera;
-                try {
-                    double dPan = camera.getHeading();
+    }
 
-                    dPan -= 5.0;
-                    if (dPan < 0.0) {
-                        dPan += 360.0;
-                    }
+    public void stopBtn(View v) {
+        if (MainActivity.this.oPerformanceTestThread != null) {
+            MainActivity.this.oPerformanceTestThread.stopTest();
+            MainActivity.this.oPerformanceTestThread = null;
 
-                    camera.setHeading(dPan);
-                    camera.apply(false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        } else {
-            Log.e(TAG, "Pan left button not found");
+            mainBinding.startBtn.setEnabled(true);
+            mainBinding.trackBtn.setEnabled(false);
+            mainBinding.stopBtn.setEnabled(false);
+            mainBinding.closeBtn.setEnabled(true);
         }
-        // Pan right turns the camera right 5 degrees
-        // each time the button is pressed
-        ImageButton panRight = (ImageButton) findViewById(R.id.PanRight);
-        if (panRight != null) {
-            panRight.setOnClickListener(v -> {
-                ICamera camera = MainActivity.this.oCamera;
-                try {
-                    double dPan = camera.getHeading();
+    }
 
-                    dPan += 5.0;
-                    if (dPan >= 360.0) {
-                        dPan -= 360.0;
-                    }
+    public void closeBtn(View v) {
+        MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_tests);
+        oItem.setEnabled(true);
 
-                    camera.setHeading(dPan);
-                    camera.apply(false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        } else {
-            Log.e(TAG, "Pan right button not found");
+        MainActivity.this.oPerformanceDlg.setVisibility(View.GONE);
+        MainActivity.this.oPerformanceDlg.setEnabled(false);
+    }
+
+
+    public void brightnessUp(View v) {
+        int value = Integer.parseInt(brightnessCtrl.getText().toString()) + 5;
+
+        if (value > 100) {
+            value = 100;
         }
+        brightnessCtrl.setText("" + value);
+        MainActivity.this.map.setBackgroundBrightness(value);
+    }
 
-        // Tilt up another 5 degrees, within limits
-        ImageButton tiltUp = (ImageButton) findViewById(R.id.TiltUp);
-        if (tiltUp != null) {
-            tiltUp.setOnClickListener(v -> {
-                ICamera camera = MainActivity.this.oCamera;
-                try {
-                    double dTilt = camera.getTilt();
+    public void brightnessDown(View v) {
+        int value = Integer.parseInt(brightnessCtrl.getText().toString()) - 5;
 
-                    if (dTilt < global.CAMERA_TILT_MAXIMUM) {
-                        dTilt += 5;
-                        camera.setTilt(dTilt);
-                        camera.apply(false);
-                    } else {
-                        //Toast.makeText(CustomActivity.this, "Can't tilt any higher", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    //e.printStackTrace();
-                }
-            });
-        } else {
-            Log.e(TAG, "Tilt up button not found");
+        if (value < 0) {
+            value = 0;
         }
+        brightnessCtrl.setText("" + value);
+        MainActivity.this.map.setBackgroundBrightness(value);
+    }
 
-        // Tilt down another 5 degrees, within limits
-        ImageButton tiltDown = (ImageButton) findViewById(R.id.TiltDown);
-        if (tiltDown != null) {
-            tiltDown.setOnClickListener(v -> {
-                ICamera camera = MainActivity.this.oCamera;
-                try {
-                    double dTilt = camera.getTilt();
 
-                    if (dTilt > global.CAMERA_TILT_MINIMUM) {
-                        dTilt -= 5;
-                        camera.setTilt(dTilt);
-                        camera.apply(false);
-                    } else {
-                        //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    //e.printStackTrace();
-                }
-            });
-        } else {
-            Log.e(TAG, "Tilt down button not found");
+    public void zoomOut(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        double initAltitude = camera.getAltitude();
+        if (initAltitude <= 1e8 / 1.2) {
+            initAltitude *= 1.2;
+            camera.setAltitude(initAltitude);
+            camera.apply(false);
         }
-
-        ImageButton rollCCW = (ImageButton) findViewById(R.id.rollCCW);
-        if (rollCCW != null) {
-            rollCCW.setOnClickListener(v -> {
-                ICamera camera = MainActivity.this.oCamera;
-                try {
-                    double dRoll = camera.getRoll();
-
-                    if (dRoll <= 175.0) {
-                        dRoll += 5;
-                        camera.setRoll(dRoll);
-                        camera.apply(false);
-                    } else {
-                        //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+    }
+    
+    // The Zoom+ button zooms 20% each time it is pressed
+    // The altitude is limited to 10 m
+    public void zoomIn(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        double initAltitude = camera.getAltitude();
+        // lowest possible camera altitude set to 10 meters
+        if (initAltitude > 10) {
+            initAltitude /= 1.2;
+            camera.setAltitude(initAltitude);
+            camera.apply(false);
         }
+    }
 
-        ImageButton rollCW = (ImageButton) findViewById(R.id.rollCW);
-        if (rollCW != null) {
-            rollCW.setOnClickListener(v -> {
-                ICamera camera = MainActivity.this.oCamera;
-                try {
-                    double dRoll = camera.getRoll();
-
-                    if (dRoll >= -175.0) {
-                        dRoll -= 5;
-                        camera.setRoll(dRoll);
-                        camera.apply(false);
-                    } else {
-                        //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-
-        ImageButton resetCameraBtn = (ImageButton) findViewById(R.id.reset);
-        if (resetCameraBtn != null) {
-            resetCameraBtn.setOnClickListener(v -> {
-                ICamera camera = MainActivity.this.oCamera;
-                try {
-                    camera.setHeading(0);
-                    camera.setTilt(0);
-                    camera.setRoll(0);
-                    camera.apply(false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }
-
-        final TextView brightnessCtrl = (TextView) findViewById(R.id.brightnessValue);
-        if (null != brightnessCtrl) {
-            brightnessCtrl.setText("" + MainActivity.this.map.getBackgroundBrightness());
-
-            ImageButton increaseBrightnessBtn = (ImageButton) findViewById(R.id.brightnessUp);
-            if (null != increaseBrightnessBtn) {
-                increaseBrightnessBtn.setOnClickListener(v -> {
-                    int value = Integer.parseInt(brightnessCtrl.getText().toString()) + 5;
-
-                    if (value > 100) {
-                        value = 100;
-                    }
-                    brightnessCtrl.setText("" + value);
-                    MainActivity.this.map.setBackgroundBrightness(value);
-                });
+    // Pan left turns the camera left 5 degrees
+    // each time the button is pressed
+    public void panLeft(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        try {
+            double dPan = camera.getHeading();
+            dPan -= 5.0;
+            if (dPan < 0.0) {
+                dPan += 360.0;
             }
+            camera.setHeading(dPan);
+            camera.apply(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-            ImageButton decreaseBrightnessBtn = (ImageButton) findViewById(R.id.brightnessDown);
-            if (null != decreaseBrightnessBtn) {
-                decreaseBrightnessBtn.setOnClickListener(v -> {
-                    int value = Integer.parseInt(brightnessCtrl.getText().toString()) - 5;
-
-                    if (value < 0) {
-                        value = 0;
-                    }
-                    brightnessCtrl.setText("" + value);
-                    MainActivity.this.map.setBackgroundBrightness(value);
-                });
+    // Pan right turns the camera right 5 degrees
+    // each time the button is pressed
+    public void panRight(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        try {
+            double dPan = camera.getHeading();
+            dPan += 5.0;
+            if (dPan >= 360.0) {
+                dPan -= 360.0;
             }
+            camera.setHeading(dPan);
+            camera.apply(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Tilt up another 5 degrees, within limits
+    public void tiltUp(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        try {
+            double dTilt = camera.getTilt();
+            if (dTilt < global.CAMERA_TILT_MAXIMUM) {
+                dTilt += 5;
+                camera.setTilt(dTilt);
+                camera.apply(false);
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+    }
+
+    // Tilt down another 5 degrees, within limits
+    public void tiltDown(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        try {
+            double dTilt = camera.getTilt();
+
+            if (dTilt > global.CAMERA_TILT_MINIMUM) {
+                dTilt -= 5;
+                camera.setTilt(dTilt);
+                camera.apply(false);
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+    }
+
+    public void rollCCW(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        try {
+            double dRoll = camera.getRoll();
+            if (dRoll <= 175.0) {
+                dRoll += 5;
+                camera.setRoll(dRoll);
+                camera.apply(false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void rollCW(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        try {
+            double dRoll = camera.getRoll();
+            if (dRoll >= -175.0) {
+                dRoll -= 5;
+                camera.setRoll(dRoll);
+                camera.apply(false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void resetCamera(View v) {
+        ICamera camera = MainActivity.this.oCamera;
+        try {
+            camera.setHeading(0);
+            camera.setTilt(0);
+            camera.setRoll(0);
+            camera.apply(false);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -2145,27 +2037,24 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_addWMS:
                 try {
+                    if (wmsBinding == null) {
+                        wmsBinding = DataBindingUtil.inflate(LayoutInflater.from(MainActivity.this),
+                        R.layout.wms_parameters_dialog, null, false);
+                    }
                     final Dialog dialog = new Dialog(MainActivity.this);
-                    dialog.setContentView(R.layout.wms_parameters_dialog);
+                    dialog.setContentView(wmsBinding.getRoot());
                     dialog.setTitle("Title...");
                     Button okButton = (Button) dialog.findViewById(R.id.OKButton);
                     // if button is clicked, close the custom dialog
                     okButton.setOnClickListener(v1 -> {
-                        EditText urlText = (EditText) dialog.findViewById(R.id.UrlText);
-                        EditText versionText = (EditText) dialog.findViewById(R.id.VersionText);
-                        EditText tileFormatText = (EditText) dialog.findViewById(R.id.TileFormatText);
-                        EditText transparentText = (EditText) dialog.findViewById(R.id.TransparentText);
-                        EditText layerText = (EditText) dialog.findViewById(R.id.LayerText);
-                        EditText resolutionText = (EditText) dialog.findViewById(R.id.ResolutionText);
-
-                        String url = urlText.getText().toString();
-                        String version = versionText.getText().toString();
+                        String url = wmsBinding.UrlText.getText().toString();
+                        String version = wmsBinding.VersionText.getText().toString();
                         if (version == null)
                             version = "";
-                        String tileFormat = tileFormatText.getText().toString();
-                        String transparent = transparentText.getText().toString();
-                        String layer = layerText.getText().toString();
-                        String resolution = resolutionText.getText().toString();
+                        String tileFormat = wmsBinding.TileFormatText.getText().toString();
+                        String transparent = wmsBinding.TransparentText.getText().toString();
+                        String layer = wmsBinding.LayerText.getText().toString();
+                        String resolution = wmsBinding.ResolutionText.getText().toString();
                         Resources res = getBaseContext().getResources();
                         dialog.dismiss();
                         WMSVersionEnum wmsVersion = null;
@@ -2320,9 +2209,9 @@ public class MainActivity extends AppCompatActivity
                     this.oPerformanceDlg.setVisibility(View.VISIBLE);
                     this.oPerformanceDlg.setEnabled(true);
 
-                    this.oStartBtn.setEnabled(true);
-                    this.oStopBtn.setEnabled(false);
-                    this.oCloseBtn.setEnabled(true);
+                    mainBinding.startBtn.setEnabled(true);
+                    mainBinding.stopBtn.setEnabled(false);
+                    mainBinding.closeBtn.setEnabled(true);
                 }
 
                 return true;
@@ -2419,11 +2308,8 @@ public class MainActivity extends AppCompatActivity
 
                     oItem = this.oMenu.findItem(R.id.action_freehandDrawExit);
                     oItem.setEnabled(true);
-
-                    if (this.oResultPanel != null) {
-                        this.oResultPanel.setVisibility(View.VISIBLE);
-                        this.oResultPanel.setEnabled(true);
-                    }
+                    mainBinding.resultPanel.setVisibility(View.VISIBLE);
+                    mainBinding.resultPanel.setEnabled(true);
                 } catch (EMP_Exception e) {
                     Log.e(TAG, "ERROR: " + e.getMessage(), e);
                 }
@@ -2437,11 +2323,8 @@ public class MainActivity extends AppCompatActivity
 
                 oItem = this.oMenu.findItem(R.id.action_freehandDrawExit);
                 oItem.setEnabled(false);
-
-                if (this.oResultPanel != null) {
-                    this.oResultPanel.setVisibility(View.GONE);
-                    this.oResultPanel.setEnabled(false);
-                }
+                mainBinding.resultPanel.setVisibility(View.GONE);
+                mainBinding.resultPanel.setEnabled(false);
                 try {
                     this.map.drawFreehandExit();
                 } catch(EMP_Exception Ex) {
@@ -3105,7 +2988,7 @@ public class MainActivity extends AppCompatActivity
         ICamera camera = this.map.getCamera();
         IGeoPosition position = new GeoPosition();
         SymbolDefTable oDefTable = SymbolDefTable.getInstance();
-        java.util.Map<java.lang.String, armyc2.c2sd.renderer.utilities.SymbolDef> oDefList = oDefTable.GetAllSymbolDefs( armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525C);
+        Map<java.lang.String, armyc2.c2sd.renderer.utilities.SymbolDef> oDefList = oDefTable.GetAllSymbolDefs( armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525C);
 
         position.setLatitude(camera.getLatitude());
         position.setLongitude(camera.getLongitude());
@@ -3137,7 +3020,7 @@ public class MainActivity extends AppCompatActivity
 
     private void plotTacticalGraphic(String name, armyc2.c2sd.renderer.utilities.SymbolDef oSymbolDef, IGeoPosition position) {
         try {
-            java.util.List<IGeoPosition> posList = new java.util.ArrayList<>();
+            List<IGeoPosition> posList = new ArrayList<>();
             IGeoPosition pos;
             MilStdSymbol symbol = new MilStdSymbol(IGeoMilSymbol.SymbolStandard.MIL_STD_2525C, oSymbolDef.getBasicSymbolId());
 
@@ -3596,7 +3479,7 @@ public class MainActivity extends AppCompatActivity
             //Log.d(TAG, "Symbol properties Save Btn");
             switch (this.ePlotMode) {
                 case NEW:
-                    java.util.List<IGeoPosition> oPositionList = new java.util.ArrayList<>();
+                    List<IGeoPosition> oPositionList = new ArrayList<>();
                     //IGeoPosition oPosition;
                     //oPosition = new GeoPosition();
                     //oPosition.setLatitude(randomLocalLatitude());
@@ -3623,8 +3506,8 @@ public class MainActivity extends AppCompatActivity
                         public void onDrawStart(IMap map) {
                             Log.d(TAG, "Draw Start");
                             MainActivity.this.ePlotMode = PlotModeEnum.DRAW_FEATURE;
-                            MainActivity.this.oEditorCompleteBtn.show();
-                            MainActivity.this.oEditorCancelBtn.show();
+                            mainBinding.editorCompleteBtn.show();
+                            mainBinding.editorCancelBtn.show();
                             FeatureLocationDialog oDialog = new FeatureLocationDialog();
                             oDialog.setFeature(oNewSymbol);
                             oDialog.show(MainActivity.this.getFragmentManager(), null);
@@ -3644,8 +3527,8 @@ public class MainActivity extends AppCompatActivity
                         public void onDrawComplete(IMap map, IFeature feature) {
                             Log.d(TAG, "Draw Complete");
                             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-                            MainActivity.this.oEditorCompleteBtn.hide();
-                            MainActivity.this.oEditorCancelBtn.hide();
+                            mainBinding.editorCompleteBtn.hide();
+                            mainBinding.editorCancelBtn.hide();
                             try {
                                 MainActivity.this.oRootOverlay.addFeature(oNewSymbol, true);
                                 MainActivity.this.oFeatureHash.put(oNewSymbol.getGeoId(), oNewSymbol);
@@ -3664,8 +3547,8 @@ public class MainActivity extends AppCompatActivity
                         public void onDrawCancel(IMap map, IFeature originalFeature) {
                             Log.d(TAG, "Draw Cancel");
                             MainActivity.this.ePlotMode = PlotModeEnum.IDLE;
-                            MainActivity.this.oEditorCompleteBtn.hide();
-                            MainActivity.this.oEditorCancelBtn.hide();
+                            mainBinding.editorCompleteBtn.hide();
+                            mainBinding.editorCancelBtn.hide();
                             if (MainActivity.this.oSelectedDialogHash.containsKey(originalFeature.getGeoId())) {
                                 FeatureLocationDialog oDialog = MainActivity.this.oSelectedDialogHash.get(originalFeature.getGeoId());
                                 oDialog.updateDialog();

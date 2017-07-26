@@ -1,6 +1,9 @@
 apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-app.gradle"
 
 android {
+    dataBinding {
+        enabled true
+    }
     defaultConfig {
         applicationId "mil.emp3.dev_test_sdk"
     }
