@@ -57,24 +57,16 @@ public class WcsSettingsDialog extends Emp3TesterDialogBase {
         coverage = (EditText) view.findViewById(R.id.WcsCoverage);
         name = (EditText) view.findViewById(R.id.WcsName);
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WcsSettingsDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> WcsSettingsDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != WcsSettingsDialog.this.listener) {
-                    String urlS = url.getText().toString();
-                    String covS = coverage.getText().toString();
-                    String nameS = name.getText().toString();
-                    ((IWcsSettingsDialogListener)WcsSettingsDialog.this.listener)
-                            .addWcsService(map, nameS, urlS, covS);
-                }
+        applyButton.setOnClickListener(v -> {
+            if (null != WcsSettingsDialog.this.listener) {
+                String urlS = url.getText().toString();
+                String covS = coverage.getText().toString();
+                String nameS = name.getText().toString();
+                ((IWcsSettingsDialogListener)WcsSettingsDialog.this.listener)
+                        .addWcsService(map, nameS, urlS, covS);
             }
         });
     }

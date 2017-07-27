@@ -12,14 +12,12 @@ dependencies {
     compile project (":emp3-android-sdk-view")
     compile project (":mapengine-worldwind-aar")
 
-    compile         ("mil.army.missioncommand:mirrorcache-api")
-    compile         ("mil.army.missioncommand:mirrorcache-impl-core")
-    compile         ("mil.army.missioncommand:mirrorcache-impl-transport-ws-nv")
+//    compile         ("mil.army.missioncommand:mirrorcache-api")
+//    compile         ("mil.army.missioncommand:mirrorcache-impl-core")
+//    compile         ("mil.army.missioncommand:mirrorcache-impl-transport-ws-nv")
     compile         ("com.android.support:appcompat-v7")
     compile         ("com.android.support:design")
     compile         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
-
-    provided        ("org.cmapi.primitives:common-map-geospatial-notation")
-
+    provided project (":cmapi")
     testCompile     ("junit:junit")
 }

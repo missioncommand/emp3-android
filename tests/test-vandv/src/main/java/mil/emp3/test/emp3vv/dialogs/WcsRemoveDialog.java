@@ -6,7 +6,6 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -73,42 +72,28 @@ public class WcsRemoveDialog extends Emp3TesterDialogBase {
                 android.R.layout.simple_list_item_multiple_choice, wcsNames);
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                final String item = (String) parent.getItemAtPosition(position);
-            }
-
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            final String item = (String) parent.getItemAtPosition(position);
         });
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WcsRemoveDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> WcsRemoveDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != WcsRemoveDialog.this.listener) {
-                    SparseBooleanArray checked = listView.getCheckedItemPositions();
-                    ArrayList<String> selectedItems = new ArrayList<String>();
-                    for (int i = 0; i < checked.size(); i++) {
-                        int position = checked.keyAt(i);
-                        if (checked.valueAt(i)) {
-                            String item = (String) adapter.getItem(position);
-                            selectedItems.add(item);
-                        }
+        applyButton.setOnClickListener(v -> {
+            if (null != WcsRemoveDialog.this.listener) {
+                SparseBooleanArray checked = listView.getCheckedItemPositions();
+                ArrayList<String> selectedItems = new ArrayList<String>();
+                for (int i = 0; i < checked.size(); i++) {
+                    int position = checked.keyAt(i);
+                    if (checked.valueAt(i)) {
+                        String item = (String) adapter.getItem(position);
+                        selectedItems.add(item);
                     }
-                    for (String item : selectedItems) {
-                        ((IWcsRemoveDialogListener) WcsRemoveDialog.this.listener).
-                                removeWcsService(map,
-                                        item);
-                    }
+                }
+                for (String item : selectedItems) {
+                    ((IWcsRemoveDialogListener) WcsRemoveDialog.this.listener).
+                            removeWcsService(map,
+                                    item);
                 }
             }
         });

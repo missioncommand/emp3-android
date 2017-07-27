@@ -14,21 +14,20 @@ buildscript {
 }
 
 ext {
-    empUsername = System.getenv("CI_USERNAME") ?: empUsername
-    empPassword = System.getenv("CI_PASSWORD") ?: empPassword
+    empUsername = System.getenv("CI_USERNAME") ?: ""
+    empPassword = System.getenv("CI_PASSWORD") ?: ""
 
     bintrayUser = System.getenv("BINTRAY_USER") ?: project.hasProperty('bintrayUser') ? bintrayUser : ''
     bintrayKey  = System.getenv("BINTRAY_KEY")  ?: project.hasProperty('bintrayKey') ? bintrayKey : ''
 
     description = "Extensible Map Platform (EMP)"
 
-    sourceCompatibility = JavaVersion.VERSION_1_7
-    targetCompatibility = JavaVersion.VERSION_1_7
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
 
     git = org.ajoberstar.grgit.Grgit.open(file('.')) // Open the Git repository in the current directory.
     revision = git.head().id                         // Get commitId of HEAD.
-    //revision = git.head().abbreviatedId            // An alternative way using the abbreviatedId.
 }
 
 allprojects {
@@ -36,7 +35,6 @@ allprojects {
 }
 
 def publishableModules() {
-    //subprojects.findAll { it.pluginManager.hasPlugin('org.gradle.maven-publish') } // MavenPublishPlugin
     [
           project(":emp3-android-sdk")
         , project(":emp3-android-sdk-apk")
@@ -45,10 +43,8 @@ def publishableModules() {
         , project(":emp3-gradle-plugin")
         , project(":mapengine-worldwind")
         , project(":google-maps-android-cmgn")
+          , project (":cmapi")
 
-      //, project(":service:mirrorcache:service-mirrorcache-api")
-      //, project(":service:mirrorcache:service-mirrorcache-mirrorables")
-      //, project(":service:mirrorcache:service-mirrorcache-service")
     ]
 }
 

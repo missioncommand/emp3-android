@@ -149,33 +149,20 @@ public class CameraAndLookAtDialog extends Emp3TesterDialogBase {
         cameraComponents.onViewCreated(cameraView, savedInstanceState, getMap().getCamera());
 
         Button applyCameraButton = (Button) view.findViewById(R.id.apply_camera);
-        applyCameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String isValid = cameraComponents.validate();
-                if(isValid.equals(CameraComponents.isValid)) {
-                    ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).applyCamera(CameraAndLookAtDialog.this);
-                } else {
-                    ErrorDialog.showError(getContext(), isValid);
-                }
+        applyCameraButton.setOnClickListener(v -> {
+            String isValid = cameraComponents.validate();
+            if(isValid.equals(CameraComponents.isValid)) {
+                ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).applyCamera(CameraAndLookAtDialog.this);
+            } else {
+                ErrorDialog.showError(getContext(), isValid);
             }
         });
 
         Button setCameraButton = (Button) view.findViewById(R.id.set_camera);
-        setCameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).setCamera(CameraAndLookAtDialog.this);
-            }
-        });
+        setCameraButton.setOnClickListener(v -> ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).setCamera(CameraAndLookAtDialog.this));
 
         Button getCameraButton = (Button) view.findViewById(R.id.get_camera);
-        getCameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cameraComponents.setCamera(getMap().getCamera());
-            }
-        });
+        getCameraButton.setOnClickListener(v -> cameraComponents.setCamera(getMap().getCamera()));
 
         if(isLookAtTest) {
             // Setup LookAt panel
@@ -213,28 +200,13 @@ public class CameraAndLookAtDialog extends Emp3TesterDialogBase {
             });
 
             Button applyLookAtButton = (Button) view.findViewById(R.id.apply_look_at);
-            applyLookAtButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).applyLookAt(CameraAndLookAtDialog.this);
-                }
-            });
+            applyLookAtButton.setOnClickListener(v -> ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).applyLookAt(CameraAndLookAtDialog.this));
 
             Button setLookAtButton = (Button) view.findViewById(R.id.set_look_at);
-            setLookAtButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).setLookAt(CameraAndLookAtDialog.this);
-                }
-            });
+            setLookAtButton.setOnClickListener(v -> ((ICameraAndLookAtDialogListener)CameraAndLookAtDialog.this.listener).setLookAt(CameraAndLookAtDialog.this));
 
             Button getLookAtButton = (Button) view.findViewById(R.id.get_look_at);
-            getLookAtButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    lookAtComponents.setLookAt(getMap().getLookAt());
-                }
-            });
+            getLookAtButton.setOnClickListener(v -> lookAtComponents.setLookAt(getMap().getLookAt()));
 
             View lookAtView = view.findViewById(R.id.look_at);
             lookAtComponents = new CameraComponents();
@@ -248,11 +220,6 @@ public class CameraAndLookAtDialog extends Emp3TesterDialogBase {
         }
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CameraAndLookAtDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> CameraAndLookAtDialog.this.dismiss());
     }
 }

@@ -119,53 +119,45 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
         featureTypeAdapter = setupMultiChoiceList("Choose Type", featureTypeList, typeList);
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AddFeatureDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> AddFeatureDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != AddFeatureDialog.this.listener) {
-                    if((featureName.getText().toString() == null) || (featureName.getText().toString().trim().length() == 0)) {
-                        ErrorDialog.showError(getContext(), "Feature Name must be specified");
-                        return;
-                    }
+        applyButton.setOnClickListener(v -> {
+            if (null != AddFeatureDialog.this.listener) {
+                if((featureName.getText().toString() == null) || (featureName.getText().toString().trim().length() == 0)) {
+                    ErrorDialog.showError(getContext(), "Feature Name must be specified");
+                    return;
+                }
 
-                    if((parentList.contains(featureName.getText().toString())) || (namesInUse.contains(featureName.getText().toString()))) {
-                        ErrorDialog.showError(getContext(), "Feature name " + featureName.getText().toString() + " is already in use");
-                        return;
-                    }
+                if((parentList.contains(featureName.getText().toString())) || (namesInUse.contains(featureName.getText().toString()))) {
+                    ErrorDialog.showError(getContext(), "Feature name " + featureName.getText().toString() + " is already in use");
+                    return;
+                }
 
-                    if(featureParentList.getCheckedItemCount() == 0) {
-                        ErrorDialog.showError(getContext(),"You must select at least one parent");
-                        return;
-                    }
+                if(featureParentList.getCheckedItemCount() == 0) {
+                    ErrorDialog.showError(getContext(),"You must select at least one parent");
+                    return;
+                }
 
-                    if(featureTypeList.getCheckedItemCount() != 1) {
-                        ErrorDialog.showError(getContext(),"You must select one and only one feature type");
-                        return;
-                    }
+                if(featureTypeList.getCheckedItemCount() != 1) {
+                    ErrorDialog.showError(getContext(),"You must select one and only one feature type");
+                    return;
+                }
 
-                    if (getSelectedFeatureType() == null) {
-                        ErrorDialog.showError(getContext(),"You must select a feature type");
-                        return;
-                    }
+                if (getSelectedFeatureType() == null) {
+                    ErrorDialog.showError(getContext(),"You must select a feature type");
+                    return;
+                }
 
-                    if(!supportedFeatures.containsKey(getSelectedFeatureType())) {
-                        ErrorDialog.showError(getContext(),getSelectedFeatureType() + " features are currently not supported.");
-                        return;
-                    }
+                if(!supportedFeatures.containsKey(getSelectedFeatureType())) {
+                    ErrorDialog.showError(getContext(),getSelectedFeatureType() + " features are currently not supported.");
+                    return;
+                }
 
-                    AddFeatureDialog.this.dismiss();
-                    if(((IAddFeatureDialogListener)AddFeatureDialog.this.listener).featureSet(AddFeatureDialog.this)) {
-                        parentList.add(featureName.getText().toString());
-                        featureParentListAdapter.notifyDataSetChanged();
-                    }
+                AddFeatureDialog.this.dismiss();
+                if(((IAddFeatureDialogListener)AddFeatureDialog.this.listener).featureSet(AddFeatureDialog.this)) {
+                    parentList.add(featureName.getText().toString());
+                    featureParentListAdapter.notifyDataSetChanged();
                 }
             }
         });

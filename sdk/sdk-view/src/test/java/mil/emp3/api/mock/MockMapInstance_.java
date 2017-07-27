@@ -29,6 +29,7 @@ import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
+import mil.emp3.api.interfaces.IMapServiceResult;
 import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.listeners.ICameraEventListener;
 import mil.emp3.mapengine.abstracts.CoreMapInstance;
@@ -130,10 +131,10 @@ public class MockMapInstance_ extends CoreMapInstance {
         }
     }
 
-    List<FeatureTypeEnum> kmlsFeatureTypes = new ArrayList<>();
-    int kmlsImageCount = 0;
-    IKML kmlFeatureAddedViaService = null;
-    IKML kmlFeatureRemovedViaService = null;
+    private List<FeatureTypeEnum> kmlsFeatureTypes = new ArrayList<>();
+    private int kmlsImageCount = 0;
+    private IKML kmlFeatureAddedViaService = null;
+    private IKML kmlFeatureRemovedViaService = null;
 
     @Override
     public void addMapService(IMapService mapService) {
@@ -156,6 +157,11 @@ public class MockMapInstance_ extends CoreMapInstance {
                 kmlsImageCount = kmlService.getFeature().getImageLayerList().size();
             }
         }
+    }
+
+    @Override
+    public void addMapService(IMapService mapService, IMapServiceResult result) {
+        addMapService(mapService);
     }
 
     public boolean validateAddKmlsFeatureCount(FeatureTypeEnum featureType, int expectedCount) {
@@ -199,6 +205,12 @@ public class MockMapInstance_ extends CoreMapInstance {
 
         }
     }
+
+    @Override
+    public void removeMapService(IMapService mapService, IMapServiceResult result) {
+        removeMapService(mapService);
+    }
+
     public boolean validateRemoveKmlService() {
         boolean status = false;
         if(null != kmlFeatureAddedViaService && null != kmlFeatureRemovedViaService) {

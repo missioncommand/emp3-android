@@ -3,6 +3,7 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 dependencies {
     compile          ("com.android.support:support-annotations")
     provided project (":emp3-android-sdk")
+    provided project (":cmapi")
     provided         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
     compile          ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
 }
@@ -12,6 +13,15 @@ android {
 
     defaultConfig {
         applicationId "mil.emp3.worldwind"
+    }
+
+    build.doLast { task ->
+        def sourceDir = "$projectDir/build/outputs/apk/"
+        def fileName = "mapengine-worldwind-apk-release-unsigned.apk"
+        
+        def checksumTarget = sourceDir + fileName
+        ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+        ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
     }
 
     // Add map engine id and version information to BuildConfig to be retrieved by About class.

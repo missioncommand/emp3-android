@@ -43,6 +43,7 @@ import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
+import mil.emp3.api.interfaces.IMapServiceResult;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.IUUIDSet;
 import mil.emp3.api.interfaces.core.IEventManager;
@@ -1598,8 +1599,19 @@ public class StorageManager implements IStorageManager {
             lock.unlock();
         }
     }
+
     @Override
     public void addMapService(IMap map, IMapService mapService) throws EMP_Exception {
+        addMapService(map, mapService, null);
+    }
+
+    @Override
+    public void removeMapService(IMap map, IMapService mapService) throws EMP_Exception {
+        removeMapService(map, mapService, null);
+    }
+
+        @Override
+    public void addMapService(IMap map, IMapService mapService, IMapServiceResult result) throws EMP_Exception {
         ClientMapToMapInstance mapMapping;
 
         try {
@@ -1609,7 +1621,7 @@ public class StorageManager implements IStorageManager {
                 KMLSProvider.create(this).addMapService(map, (IKMLS) mapService, cmrd);
             } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
-                mapMapping.getMapInstance().addMapService(mapService);
+                mapMapping.getMapInstance().addMapService(mapService, result);
                 mapMapping.addMapService(mapService);
 
                 // We will need this when client does a swap engine or activity is restored.
@@ -1624,7 +1636,7 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
-    public void removeMapService(IMap map, IMapService mapService) throws EMP_Exception {
+    public void removeMapService(IMap map, IMapService mapService, IMapServiceResult result) throws EMP_Exception {
         ClientMapToMapInstance mapMapping;
         ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
         try {
@@ -1634,7 +1646,7 @@ public class StorageManager implements IStorageManager {
             } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
                 mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 if (mapMapping.removeMapService(mapService)) {
-                    mapMapping.getMapInstance().removeMapService(mapService);
+                    mapMapping.getMapInstance().removeMapService(mapService, result);
                 }
                 // We will need this when client does a swap engine or activity is restored.
                 // When activity is restored we still save the entire list anyway, that may be redundant

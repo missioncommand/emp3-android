@@ -89,37 +89,29 @@ public class BoundsDialog extends Emp3TesterDialogBase {
         south.setText(String.format("%1$6.3f", bounds.getSouth()));
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                BoundsDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> BoundsDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != BoundsDialog.this.listener) {
-                    IGeoBounds bounds = getBounds();
-                    if(bounds.getNorth() > 90.0 || (bounds.getNorth() < -90.0)) {
-                        ErrorDialog.showError(getContext(), "-90.0 <= North <= 90.0");
-                        return;
-                    }
-                    if(bounds.getEast() > 180.0 || (bounds.getEast() < -180.0)) {
-                        ErrorDialog.showError(getContext(), "-180.0 <= East <= 180.0");
-                        return;
-                    }
-                    if(bounds.getWest() > 180.0 || (bounds.getWest() < -180.0)) {
-                        ErrorDialog.showError(getContext(), "-180.0 <= West <= 180.0");
-                        return;
-                    }
-                    if(bounds.getSouth() > 90.0 || (bounds.getSouth() < -90.0)) {
-                        ErrorDialog.showError(getContext(), "-90.0 <= South <= 90.0");
-                        return;
-                    }
-                    ((IBoundsDialogListener)BoundsDialog.this.listener).boundsSet(BoundsDialog.this);
+        applyButton.setOnClickListener(v -> {
+            if (null != BoundsDialog.this.listener) {
+                IGeoBounds bounds1 = getBounds();
+                if(bounds1.getNorth() > 90.0 || (bounds1.getNorth() < -90.0)) {
+                    ErrorDialog.showError(getContext(), "-90.0 <= North <= 90.0");
+                    return;
                 }
+                if(bounds1.getEast() > 180.0 || (bounds1.getEast() < -180.0)) {
+                    ErrorDialog.showError(getContext(), "-180.0 <= East <= 180.0");
+                    return;
+                }
+                if(bounds1.getWest() > 180.0 || (bounds1.getWest() < -180.0)) {
+                    ErrorDialog.showError(getContext(), "-180.0 <= West <= 180.0");
+                    return;
+                }
+                if(bounds1.getSouth() > 90.0 || (bounds1.getSouth() < -90.0)) {
+                    ErrorDialog.showError(getContext(), "-90.0 <= South <= 90.0");
+                    return;
+                }
+                ((IBoundsDialogListener)BoundsDialog.this.listener).boundsSet(BoundsDialog.this);
             }
         });
     }

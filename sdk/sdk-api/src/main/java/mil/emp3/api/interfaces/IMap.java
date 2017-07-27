@@ -239,6 +239,26 @@ public interface IMap extends IContainer {
             throws EMP_Exception;
 
     /**
+     * This method directs the map to utilize the map data provided by the service defined in the parameter.
+     * Currently following services are supported,
+     * {@link IKMLS} {@link IWMS} {@link IWMTS}
+     * @param mapService This parameter provides the parameters necessary to access the service.
+     * @param result returns the result of creating the map service
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void addMapService(IMapService mapService, IMapServiceResult result)
+            throws EMP_Exception;
+
+    /**
+     * This method removes the service from the map.
+     * @param mapService This parameter identifies the service.
+     * @param result returns the result of removing the service
+     * @throws EMP_Exception The exception is raised if a processing error is encountered.
+     */
+    void removeMapService(IMapService mapService, IMapServiceResult result)
+            throws EMP_Exception;
+
+    /**
      * This method retrieves a list of map services that are being used by this map.
      * @return a java.util.List of IMapService.
      */

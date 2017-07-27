@@ -5,8 +5,6 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -92,40 +90,32 @@ public class WmsSettingsDialog extends Emp3TesterDialogBase {
         resolution = (EditText) view.findViewById(R.id.ResolutionText);
 
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WmsSettingsDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> WmsSettingsDialog.this.dismiss());
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != WmsSettingsDialog.this.listener) {
-                    List<String> layers = new ArrayList<String>();
-                    if (!layer1.getText().toString().isEmpty()) {
-                        layers.add(layer1.getText().toString());
-                    }
-                    if (!layer2.getText().toString().isEmpty()) {
-                        layers.add(layer2.getText().toString());
-                    }
-                    if (!layer3.getText().toString().isEmpty()) {
-                        layers.add(layer3.getText().toString());
-                    }
-                    WMSVersionEnum wmsVersion = WMSVersionEnum.valueOf(version.getSelectedItem().toString());
-
-                    ((IWmsSettingsDialogListener) WmsSettingsDialog.this.listener)
-                            .addWmsService(map,
-                                    name.getText().toString(),
-                                    url.getText().toString(),
-                                    wmsVersion,
-                                    tileFormat.getSelectedItem().toString(),
-                                    transparent.getSelectedItem().toString().equalsIgnoreCase("true"),
-                                    layers,
-                                    Double.valueOf(resolution.getText().toString()));
+        applyButton.setOnClickListener(v -> {
+            if (null != WmsSettingsDialog.this.listener) {
+                List<String> layers = new ArrayList<String>();
+                if (!layer1.getText().toString().isEmpty()) {
+                    layers.add(layer1.getText().toString());
                 }
+                if (!layer2.getText().toString().isEmpty()) {
+                    layers.add(layer2.getText().toString());
+                }
+                if (!layer3.getText().toString().isEmpty()) {
+                    layers.add(layer3.getText().toString());
+                }
+                WMSVersionEnum wmsVersion = WMSVersionEnum.valueOf(version.getSelectedItem().toString());
+
+                ((IWmsSettingsDialogListener) WmsSettingsDialog.this.listener)
+                        .addWmsService(map,
+                                name.getText().toString(),
+                                url.getText().toString(),
+                                wmsVersion,
+                                tileFormat.getSelectedItem().toString(),
+                                transparent.getSelectedItem().toString().equalsIgnoreCase("true"),
+                                layers,
+                                Double.valueOf(resolution.getText().toString()));
             }
         });
     }

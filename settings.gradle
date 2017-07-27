@@ -6,8 +6,8 @@ rootProject.name = 'emp3-android'
 include 'google-maps-android-cmgn' // Google Maps android utils
 project(':google-maps-android-cmgn').projectDir = new File(settingsDir, '3rdpartylibrary/google-maps-android-cmgn')
 
-//include 'worldwind-release' // NASA WorldWind Android
-//project(':worldwind-release').projectDir = new File(settingsDir, '3rdpartylibrary/worldwind-release')
+include 'cmapi' // common geospatial notation
+project(':cmapi').projectDir = new File(settingsDir, '3rdpartylibrary/cmapi')
 
 
 //
@@ -32,7 +32,6 @@ project(':emp3-android-sdk-core-aar').projectDir = new File(settingsDir, 'sdk/sd
 include 'emp3-android-sdk-core-apk'
 project(':emp3-android-sdk-core-apk').projectDir = new File(settingsDir, 'sdk/sdk-core/apk')
 
-
 //
 // MAP-ENGINE
 //
@@ -44,7 +43,6 @@ project(':mapengine-worldwind-aar').projectDir = new File(settingsDir, 'mapengin
 
 include 'mapengine-worldwind-apk'
 project(':mapengine-worldwind-apk').projectDir = new File(settingsDir, 'mapengine/worldwind/apk')
-
 
 //
 // SERVICES
@@ -61,7 +59,6 @@ project(':mapengine-worldwind-apk').projectDir = new File(settingsDir, 'mapengin
 //include ':service:wallpaper'
 //project(':service:wallpaper').name = 'service-wallpaper'
 
-
 //
 // TESTS
 //
@@ -70,7 +67,6 @@ project(':test-basic').projectDir = new File(settingsDir, 'tests/basic')
 
 include 'test-vandv'
 project(':test-vandv').projectDir = new File(settingsDir, 'tests/test-vandv')
-
 
 //
 // BUILD-SUPPORT

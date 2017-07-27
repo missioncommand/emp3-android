@@ -172,6 +172,7 @@ public class EMPtoWWFeatureConverter {
         setWWPathAttributes(feature, wwPath, selectedStrokeStyle);
 
         wwPath.setPickDelegate(feature);
+        wwPath.setPathType(WorldWind.RHUMB_LINE);
 
         return wwPath;
     }
@@ -196,7 +197,7 @@ public class EMPtoWWFeatureConverter {
         setWWPolygonAttributes(feature, wwPolygon, selectedStrokeStyle);
 
         wwPolygon.setPickDelegate(feature);
-        wwPolygon.setPathType(WorldWind.GREAT_CIRCLE);
+        wwPolygon.setPathType(WorldWind.RHUMB_LINE);
 
         return wwPolygon;
     }

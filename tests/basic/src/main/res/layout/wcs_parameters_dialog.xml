@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/WcsParametersLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/WcsUrlText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Service"
+            android:text="@string/WcsUrlDefault" />
+
+        <EditText
+            android:id="@+id/CoverageText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Layer"
+            android:text="@string/CoverageDefault" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/CancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/CancelButton" />
+
+            <Button
+                android:id="@+id/OKButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/OKButton" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

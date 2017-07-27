@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE"
     }
 }
 
@@ -14,8 +14,8 @@ ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
     version_nasa_worldwind_sdk = "0.6.0"
-    version_cmapi              = "0.0.7"
-    version_renderer           = "0.1.27"
+    version_cmapi              = "${version}"
+    version_renderer           = "0.1.30"
     version_mirrorcache        = "0.1.0"
 
     android_minSdkVersion     = 19
@@ -32,16 +32,6 @@ repositories {
     maven {
         url "file://${System.env['ANDROID_HOME']}/extras/android/m2repository"
     }
-    /*maven {
-        url "file://${System.env['ANDROID_HOME']}/extras/google/m2repository"
-    }*/
-    maven {
-        url = "https://nexus.di2e.net/nexus/content/repositories/releases/"
-        credentials {
-            username empUsername
-            password empPassword
-        }
-    }
     maven {
         url "https://dl.bintray.com/missioncommand/maven/"
     }
@@ -53,7 +43,7 @@ repositories {
 dependencyManagement {
     dependencies {
         // MISSION_COMMAND-related
-        dependency ("org.cmapi.primitives:common-map-geospatial-notation:${version_cmapi}")
+        dependency ("mil.army.missioncommand:cmapi:${version_cmapi}")
         dependency ("mil.army.missioncommand:mil-sym-android-renderer:${version_renderer}")
         dependency ("mil.army.missioncommand:mirrorcache-api:${version_mirrorcache}")
         dependency ("mil.army.missioncommand:mirrorcache-impl-core:${version_mirrorcache}")
@@ -70,7 +60,7 @@ dependencyManagement {
 
         // TEST-related
         dependency ("junit:junit:4.12")
-        dependency ("org.mockito:mockito-core:2.0.43-beta")
+        dependency ("org.mockito:mockito-core:2.8.9")
         dependency ("org.powermock:powermock-api-mockito:1.6.2")
         dependency ("org.powermock:powermock-module-junit4:1.6.2")
         dependency ("org.robolectric:robolectric:3.3.2")

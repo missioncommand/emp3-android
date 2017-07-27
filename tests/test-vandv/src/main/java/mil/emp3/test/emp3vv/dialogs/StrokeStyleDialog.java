@@ -116,21 +116,13 @@ public class StrokeStyleDialog extends Emp3TesterDialogBase {
         strokeWidthIncDec.onViewCreated(view.findViewById(R.id.stroke_style_width), savedInstanceState, false);
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != StrokeStyleDialog.this.listener) {
-                    ((IStrokeStyleDialogListener)StrokeStyleDialog.this.listener).setStrokeStyle(StrokeStyleDialog.this);
-                }
+        applyButton.setOnClickListener(v -> {
+            if (null != StrokeStyleDialog.this.listener) {
+                ((IStrokeStyleDialogListener)StrokeStyleDialog.this.listener).setStrokeStyle(StrokeStyleDialog.this);
             }
         });
         Button doneButton = (Button) view.findViewById(R.id.done);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                StrokeStyleDialog.this.dismiss();
-            }
-        });
+        doneButton.setOnClickListener(v -> StrokeStyleDialog.this.dismiss());
     }
 
     /**

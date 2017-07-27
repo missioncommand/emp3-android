@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -64,7 +63,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -84,7 +82,7 @@ import mil.emp3.api.GeoPackage;
 import mil.emp3.api.ImageLayer;
 import mil.emp3.api.KML;
 import mil.emp3.api.MilStdSymbol;
-import mil.emp3.api.MirrorCache;
+//import mil.emp3.api.MirrorCache;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.Path;
 import mil.emp3.api.Point;
@@ -101,11 +99,8 @@ import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.enums.Property;
 import mil.emp3.api.enums.WMSVersionEnum;
-import mil.emp3.api.events.CameraEvent;
 import mil.emp3.api.events.FeatureUserInteractionEvent;
-import mil.emp3.api.events.MapStateChangeEvent;
 import mil.emp3.api.events.MapUserInteractionEvent;
-import mil.emp3.api.events.MapViewChangeEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
@@ -118,14 +113,11 @@ import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.listeners.EventListenerHandle;
-import mil.emp3.api.listeners.ICameraEventListener;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.listeners.IFeatureInteractionEventListener;
 import mil.emp3.api.listeners.IFreehandEventListener;
 import mil.emp3.api.listeners.IMapInteractionEventListener;
-import mil.emp3.api.listeners.IMapStateChangeEventListener;
-import mil.emp3.api.listeners.IMapViewChangeEventListener;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
@@ -195,7 +187,7 @@ public class MainActivity extends AppCompatActivity
     private String gpkgPick;
     private static final String SUFFIX = ".gpkg";
 
-    private MirrorCache mc;
+//    private MirrorCache mc;
 
     public enum PlotModeEnum {
         IDLE,
@@ -822,14 +814,14 @@ public class MainActivity extends AppCompatActivity
             map.removeEventListener(viewChange);
             oCamera.removeEventListener(cameraHandler);
         }
-        if (mc != null) {
+/*        if (mc != null) {
             try {
                 mc.disconnect();
 
             } catch (EMP_Exception e) {
                 Log.e(TAG, e.getMessage(), e);
             }
-        }
+        }*/
         super.onDestroy();
     }
 
@@ -876,52 +868,38 @@ public class MainActivity extends AppCompatActivity
         oLookAt.setTilt(0.0);
 
         try {
-            stateHandler = map.addMapStateChangeEventListener(new IMapStateChangeEventListener() {
-                @Override
-                public void onEvent(MapStateChangeEvent event) {
-                    Log.d(TAG, "mapStateChangeEvent " + event.getNewState());
-                    MainActivity.this.oRootOverlay = new Overlay();
-                    MainActivity.this.oRootOverlay.setName("Test Overlay");
-                    try {
-                        if (event.getNewState() == MapStateEnum.MAP_READY) {
-                            MainActivity.this.map.setName("EMP V3 Map");
-                            MainActivity.this.map.addOverlay(MainActivity.this.oRootOverlay, true);
-                            MainActivity.this.setEventListeners();
+            stateHandler = map.addMapStateChangeEventListener(event -> {
+                Log.d(TAG, "mapStateChangeEvent " + event.getNewState());
+                MainActivity.this.oRootOverlay = new Overlay();
+                MainActivity.this.oRootOverlay.setName("Test Overlay");
+                try {
+                    if (event.getNewState() == MapStateEnum.MAP_READY) {
+                        MainActivity.this.map.setName("EMP V3 Map");
+                        MainActivity.this.map.addOverlay(MainActivity.this.oRootOverlay, true);
+                        MainActivity.this.setEventListeners();
 
-                            MainActivity.this.createCrossHair();
-                            //Log.i(TAG, "Map State: " + MainActivity.this.map.getState().name());
-                            MainActivity.this.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
-                                        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,
-                                                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                                        if (permissionCheck !=  PERMISSION_GRANTED) {
-                                            ActivityCompat.requestPermissions(MainActivity.this,
-                                                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                                        }
-                                    } catch (EMP_Exception e) {
-                                        e.printStackTrace();
-                                    }
+                        MainActivity.this.createCrossHair();
+                        //Log.i(TAG, "Map State: " + MainActivity.this.map.getState().name());
+                        MainActivity.this.runOnUiThread(() -> {
+                            try {
+                                MainActivity.this.map.setCamera(MainActivity.this.oCamera, false);
+                                int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                if (permissionCheck !=  PERMISSION_GRANTED) {
+                                    ActivityCompat.requestPermissions(MainActivity.this,
+                                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                                 }
-                            });
+                            } catch (EMP_Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
 
-                            map.addCameraEventListener(new ICameraEventListener() {
-                                @Override
-                                public void onEvent(final CameraEvent event) {
-                                    MainActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() { // to indicate that an imap camera event was triggered
-                                            //Toast.makeText(MainActivity.this, "IMap.cameraEventListener.onEvent() triggered: " + event.getEvent(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "ERROR: " + e.getMessage(), e);
+                        map.addCameraEventListener(event1 -> MainActivity.this.runOnUiThread(() -> { // to indicate that an imap camera event was triggered
+                            //Toast.makeText(MainActivity.this, "IMap.cameraEventListener.onEvent() triggered: " + event.getEvent(), Toast.LENGTH_SHORT).show();
+                        }));
                     }
+                } catch (Exception e) {
+                    Log.e(TAG, "ERROR: " + e.getMessage(), e);
                 }
             });
         } catch (EMP_Exception e) {
@@ -960,38 +938,34 @@ public class MainActivity extends AppCompatActivity
         this.oEditorCompleteBtn.hide();
         this.oEditorCancelBtn.hide();
 
-        this.oEditorCompleteBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    switch (MainActivity.this.ePlotMode) {
-                        case EDIT_FEATURE:
-                            MainActivity.this.map.completeEdit();
-                            break;
-                        case DRAW_FEATURE:
-                            MainActivity.this.map.completeDraw();
-                            break;
-                    }
-                } catch (EMP_Exception e) {
-                    e.printStackTrace();
+        this.oEditorCompleteBtn.setOnClickListener(v -> {
+            try {
+                switch (MainActivity.this.ePlotMode) {
+                    case EDIT_FEATURE:
+                        MainActivity.this.map.completeEdit();
+                        break;
+                    case DRAW_FEATURE:
+                        MainActivity.this.map.completeDraw();
+                        break;
                 }
+            } catch (EMP_Exception e) {
+                e.printStackTrace();
             }
         });
 
-        this.oEditorCancelBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    //Log.d(TAG, "Edit/Draw Canceled.");
-                    switch (MainActivity.this.ePlotMode) {
-                        case EDIT_FEATURE:
-                            MainActivity.this.map.cancelEdit();
-                            break;
-                        case DRAW_FEATURE:
-                            MainActivity.this.map.cancelDraw();
-                            break;
-                    }
-                } catch (EMP_Exception e) {
-                    e.printStackTrace();
+        this.oEditorCancelBtn.setOnClickListener(v -> {
+            try {
+                //Log.d(TAG, "Edit/Draw Canceled.");
+                switch (MainActivity.this.ePlotMode) {
+                    case EDIT_FEATURE:
+                        MainActivity.this.map.cancelEdit();
+                        break;
+                    case DRAW_FEATURE:
+                        MainActivity.this.map.cancelDraw();
+                        break;
                 }
+            } catch (EMP_Exception e) {
+                e.printStackTrace();
             }
         });
 
@@ -1052,59 +1026,50 @@ public class MainActivity extends AppCompatActivity
         }
 
         try {
-            viewChange = map.addMapViewChangeEventListener(new IMapViewChangeEventListener() {
-                @Override
-                public void onEvent(MapViewChangeEvent mapViewChangeEvent) {
-                    Log.d(TAG, "mapViewChangeEvent");
-                    if (mapViewChangeEvent.getCamera().getGeoId().compareTo(MainActivity.this.oCamera.getGeoId()) == 0) {
-                        //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
-                    }
-                    if (mapViewChangeEvent.getLookAt().getGeoId().compareTo(MainActivity.this.oLookAt.getGeoId()) == 0) {
-                        //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
-                    }
-/*
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ICamera camera = MainActivity.this.oCamera;
-                            if (MainActivity.this.CoordToast != null) {
-                                MainActivity.this.CoordToast.cancel();
-                                MainActivity.this.CoordToast = null;
-                            }
-                            MainActivity.this.CoordToast = Toast.makeText(MainActivity.this, "Center Latitude: " + camera.getLatitude() + " Longitude: " +
-                                    camera.getLongitude(), Toast.LENGTH_LONG);
-                            MainActivity.this.CoordToast.show();
-                        }
-                    });
-*/
+            viewChange = map.addMapViewChangeEventListener(mapViewChangeEvent -> {
+                Log.d(TAG, "mapViewChangeEvent");
+                if (mapViewChangeEvent.getCamera().getGeoId().compareTo(MainActivity.this.oCamera.getGeoId()) == 0) {
+                    //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
                 }
+                if (mapViewChangeEvent.getLookAt().getGeoId().compareTo(MainActivity.this.oLookAt.getGeoId()) == 0) {
+                    //oCamera.copySettingsFrom(mapViewChangeEvent.getCamera());
+                }
+/*
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ICamera camera = MainActivity.this.oCamera;
+                        if (MainActivity.this.CoordToast != null) {
+                            MainActivity.this.CoordToast.cancel();
+                            MainActivity.this.CoordToast = null;
+                        }
+                        MainActivity.this.CoordToast = Toast.makeText(MainActivity.this, "Center Latitude: " + camera.getLatitude() + " Longitude: " +
+                                camera.getLongitude(), Toast.LENGTH_LONG);
+                        MainActivity.this.CoordToast.show();
+                    }
+                });
+*/
             });
         } catch (EMP_Exception e) {
             Log.e(TAG, "addMapViewChangeEventListener failed. " + e.toString());
         }
 
         try {
-            cameraHandler = oCamera.addCameraEventListener(new ICameraEventListener() {
-                @Override
-                public void onEvent(CameraEvent cameraEvent) {
-                    //Log.d(TAG, "cameraEvent on " + cameraEvent.getCamera().getName());
+            cameraHandler = oCamera.addCameraEventListener(cameraEvent -> {
+                //Log.d(TAG, "cameraEvent on " + cameraEvent.getCamera().getName());
 
-                    final ICamera oCamera = cameraEvent.getTarget();
+                final ICamera oCamera1 = cameraEvent.getTarget();
 
-                    if (Thread.currentThread().getId() != Looper.getMainLooper().getThread().getId()) {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                TextView oCameraSetting = (TextView) MainActivity.this.findViewById(R.id.camerasettings);
-                                String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%,.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(), oCamera.getHeading(), oCamera.getTilt(), oCamera.getRoll());
-                                oCameraSetting.setText(sTemp);
-                            }
-                        });
-                    } else {
+                if (Thread.currentThread().getId() != Looper.getMainLooper().getThread().getId()) {
+                    MainActivity.this.runOnUiThread(() -> {
                         TextView oCameraSetting = (TextView) MainActivity.this.findViewById(R.id.camerasettings);
-                        String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%,.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera.getLatitude(), oCamera.getLongitude(), oCamera.getAltitude(), oCamera.getHeading(), oCamera.getTilt(), oCamera.getRoll());
+                        String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%,.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera1.getLatitude(), oCamera1.getLongitude(), oCamera1.getAltitude(), oCamera1.getHeading(), oCamera1.getTilt(), oCamera1.getRoll());
                         oCameraSetting.setText(sTemp);
-                    }
+                    });
+                } else {
+                    TextView oCameraSetting = (TextView) MainActivity.this.findViewById(R.id.camerasettings);
+                    String sTemp = String.format("Lat:%7.5f\u00b0 Lon:%8.5f\u00b0 Alt:%,.0f m Heading:%3.0f\u00b0 Tilt:%3.0f\u00b0 Roll:%3.0f\u00b0", oCamera1.getLatitude(), oCamera1.getLongitude(), oCamera1.getAltitude(), oCamera1.getHeading(), oCamera1.getTilt(), oCamera1.getRoll());
+                    oCameraSetting.setText(sTemp);
                 }
             });
         } catch (EMP_Exception e) {
@@ -1114,36 +1079,27 @@ public class MainActivity extends AppCompatActivity
         final TextView oFarField = (TextView) this.findViewById(R.id.farThreshold);
 
         if (oFarField != null) {
-            oFarField.post(new Runnable() {
-                @Override
-                public void run() {
-                    oFarField.setText(MainActivity.this.map.getFarDistanceThreshold() + " m");
-                    ImageButton oFarUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdUp);
-                    if (oFarUpBtn != null) {
-                        oFarUpBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                double dValue = MainActivity.this.map.getFarDistanceThreshold();
-                                dValue += 5000.0;
-                                MainActivity.this.map.setFarDistanceThreshold(dValue);
-                                dValue = MainActivity.this.map.getFarDistanceThreshold();
-                                oFarField.setText(dValue + " m");
-                            }
-                        });
-                    }
-                    ImageButton oFarDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdDown);
-                    if (oFarDownBtn != null) {
-                        oFarDownBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                double dValue = MainActivity.this.map.getFarDistanceThreshold();
-                                dValue -= 5000.0;
-                                MainActivity.this.map.setFarDistanceThreshold(dValue);
-                                dValue = MainActivity.this.map.getFarDistanceThreshold();
-                                oFarField.setText(dValue + " m");
-                            }
-                        });
-                    }
+            oFarField.post(() -> {
+                oFarField.setText(MainActivity.this.map.getFarDistanceThreshold() + " m");
+                ImageButton oFarUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdUp);
+                if (oFarUpBtn != null) {
+                    oFarUpBtn.setOnClickListener(v -> {
+                        double dValue = MainActivity.this.map.getFarDistanceThreshold();
+                        dValue += 5000.0;
+                        MainActivity.this.map.setFarDistanceThreshold(dValue);
+                        dValue = MainActivity.this.map.getFarDistanceThreshold();
+                        oFarField.setText(dValue + " m");
+                    });
+                }
+                ImageButton oFarDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.farThresholdDown);
+                if (oFarDownBtn != null) {
+                    oFarDownBtn.setOnClickListener(v -> {
+                        double dValue = MainActivity.this.map.getFarDistanceThreshold();
+                        dValue -= 5000.0;
+                        MainActivity.this.map.setFarDistanceThreshold(dValue);
+                        dValue = MainActivity.this.map.getFarDistanceThreshold();
+                        oFarField.setText(dValue + " m");
+                    });
                 }
             });
         }
@@ -1151,36 +1107,27 @@ public class MainActivity extends AppCompatActivity
         final TextView oMidField = (TextView) this.findViewById(R.id.midThreshold);
 
         if (oMidField != null) {
-            oMidField.post(new Runnable() {
-                @Override
-                public void run() {
-                    oMidField.setText(MainActivity.this.map.getMidDistanceThreshold() + " m");
-                    ImageButton oMidUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdUp);
-                    if (oMidUpBtn != null) {
-                        oMidUpBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                double dValue = MainActivity.this.map.getMidDistanceThreshold();
-                                dValue += 5000.0;
-                                MainActivity.this.map.setMidDistanceThreshold(dValue);
-                                dValue = MainActivity.this.map.getMidDistanceThreshold();
-                                oMidField.setText(dValue + " m");
-                            }
-                        });
-                    }
-                    ImageButton oMidDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdDown);
-                    if (oMidDownBtn != null) {
-                        oMidDownBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                double dValue = MainActivity.this.map.getMidDistanceThreshold();
-                                dValue -= 5000.0;
-                                MainActivity.this.map.setMidDistanceThreshold(dValue);
-                                dValue = MainActivity.this.map.getMidDistanceThreshold();
-                                oMidField.setText(dValue + " m");
-                            }
-                        });
-                    }
+            oMidField.post(() -> {
+                oMidField.setText(MainActivity.this.map.getMidDistanceThreshold() + " m");
+                ImageButton oMidUpBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdUp);
+                if (oMidUpBtn != null) {
+                    oMidUpBtn.setOnClickListener(v -> {
+                        double dValue = MainActivity.this.map.getMidDistanceThreshold();
+                        dValue += 5000.0;
+                        MainActivity.this.map.setMidDistanceThreshold(dValue);
+                        dValue = MainActivity.this.map.getMidDistanceThreshold();
+                        oMidField.setText(dValue + " m");
+                    });
+                }
+                ImageButton oMidDownBtn = (ImageButton) MainActivity.this.findViewById(R.id.midThresholdDown);
+                if (oMidDownBtn != null) {
+                    oMidDownBtn.setOnClickListener(v -> {
+                        double dValue = MainActivity.this.map.getMidDistanceThreshold();
+                        dValue -= 5000.0;
+                        MainActivity.this.map.setMidDistanceThreshold(dValue);
+                        dValue = MainActivity.this.map.getMidDistanceThreshold();
+                        oMidField.setText(dValue + " m");
+                    });
                 }
             });
         }
@@ -1199,61 +1146,49 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "Button not found.");
         }
 
-        this.oStartBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MainActivity.this.oStartBtn.setEnabled(false);
-                MainActivity.this.oTrackBtn.setEnabled(true);
-                MainActivity.this.oStopBtn.setEnabled(true);
-                MainActivity.this.oCloseBtn.setEnabled(false);
-                int iCount = 5000;
+        this.oStartBtn.setOnClickListener(v -> {
+            MainActivity.this.oStartBtn.setEnabled(false);
+            MainActivity.this.oTrackBtn.setEnabled(true);
+            MainActivity.this.oStopBtn.setEnabled(true);
+            MainActivity.this.oCloseBtn.setEnabled(false);
+            int iCount = 5000;
 
-                try {
-                    iCount = Integer.parseInt(MainActivity.this.oCountTb.getText().toString());
-                } catch (NumberFormatException ex) {
-                    iCount = 5000;
-                }
-                boolean bBatch = MainActivity.this.oBatchUpdateCkb.isChecked();
-                boolean bAff = MainActivity.this.oAffiliationCkb.isChecked();
+            try {
+                iCount = Integer.parseInt(MainActivity.this.oCountTb.getText().toString());
+            } catch (NumberFormatException ex) {
+                iCount = 5000;
+            }
+            boolean bBatch = MainActivity.this.oBatchUpdateCkb.isChecked();
+            boolean bAff = MainActivity.this.oAffiliationCkb.isChecked();
 
-                MainActivity.this.oPerformanceTestThread = new PerformanceTestThread(MainActivity.this, iCount, bAff, bBatch);
-                MainActivity.this.oPerformanceTestThread.start();
+            MainActivity.this.oPerformanceTestThread = new PerformanceTestThread(MainActivity.this, iCount, bAff, bBatch);
+            MainActivity.this.oPerformanceTestThread.start();
+        });
+
+        this.oTrackBtn.setOnClickListener(v -> {
+            if (MainActivity.this.oPerformanceTestThread != null) {
+                MainActivity.this.oPerformanceTestThread.toggleTrackingMode();
             }
         });
 
-        this.oTrackBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (MainActivity.this.oPerformanceTestThread != null) {
-                    MainActivity.this.oPerformanceTestThread.toggleTrackingMode();
-                }
+        this.oStopBtn.setOnClickListener(v -> {
+            if (MainActivity.this.oPerformanceTestThread != null) {
+                MainActivity.this.oPerformanceTestThread.stopTest();
+                MainActivity.this.oPerformanceTestThread = null;
+
+                MainActivity.this.oStartBtn.setEnabled(true);
+                MainActivity.this.oTrackBtn.setEnabled(false);
+                MainActivity.this.oStopBtn.setEnabled(false);
+                MainActivity.this.oCloseBtn.setEnabled(true);
             }
         });
 
-        this.oStopBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (MainActivity.this.oPerformanceTestThread != null) {
-                    MainActivity.this.oPerformanceTestThread.stopTest();
-                    MainActivity.this.oPerformanceTestThread = null;
+        this.oCloseBtn.setOnClickListener(v -> {
+            MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_tests);
+            oItem.setEnabled(true);
 
-                    MainActivity.this.oStartBtn.setEnabled(true);
-                    MainActivity.this.oTrackBtn.setEnabled(false);
-                    MainActivity.this.oStopBtn.setEnabled(false);
-                    MainActivity.this.oCloseBtn.setEnabled(true);
-                }
-            }
-        });
-
-        this.oCloseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_tests);
-                oItem.setEnabled(true);
-
-                MainActivity.this.oPerformanceDlg.setVisibility(View.GONE);
-                MainActivity.this.oPerformanceDlg.setEnabled(false);
-            }
+            MainActivity.this.oPerformanceDlg.setVisibility(View.GONE);
+            MainActivity.this.oPerformanceDlg.setEnabled(false);
         });
         this.oResultTextView = (TextView) this.findViewById(R.id.resultText);
         this.oResultTextView.setMovementMethod(new ScrollingMovementMethod());
@@ -1261,18 +1196,15 @@ public class MainActivity extends AppCompatActivity
 
         ImageButton zoomOutButton = (ImageButton) findViewById(R.id.ZoomOut);
         if (zoomOutButton != null) {
-            zoomOutButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    double initAltitude = camera.getAltitude();
-                    if (initAltitude <= 1e8 / 1.2) {
-                        initAltitude *= 1.2;
-                        camera.setAltitude(initAltitude);
-                        camera.apply(false);
-                    } else {
-                        //Toast.makeText(CustomActivity.this, "Can't zoom out any more, altitude " + initAltitude, Toast.LENGTH_LONG).show();
-                    }
+            zoomOutButton.setOnClickListener(view -> {
+                ICamera camera = MainActivity.this.oCamera;
+                double initAltitude = camera.getAltitude();
+                if (initAltitude <= 1e8 / 1.2) {
+                    initAltitude *= 1.2;
+                    camera.setAltitude(initAltitude);
+                    camera.apply(false);
+                } else {
+                    //Toast.makeText(CustomActivity.this, "Can't zoom out any more, altitude " + initAltitude, Toast.LENGTH_LONG).show();
                 }
             });
         } else {
@@ -1282,19 +1214,16 @@ public class MainActivity extends AppCompatActivity
         // The altitude is limited to 10 m
         ImageButton zoomInButton = (ImageButton) findViewById(R.id.ZoomIn);
         if (zoomInButton != null) {
-            zoomInButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    double initAltitude = camera.getAltitude();
-                    // lowest possible camera altitude set to 10 meters
-                    if (initAltitude > 10) {
-                        initAltitude /= 1.2;
-                        camera.setAltitude(initAltitude);
-                        camera.apply(false);
-                    } else {
-                        //Toast.makeText(CustomActivity.this, "Can't zoom in any more, altitude " + initAltitude, Toast.LENGTH_LONG).show();
-                    }
+            zoomInButton.setOnClickListener(view -> {
+                ICamera camera = MainActivity.this.oCamera;
+                double initAltitude = camera.getAltitude();
+                // lowest possible camera altitude set to 10 meters
+                if (initAltitude > 10) {
+                    initAltitude /= 1.2;
+                    camera.setAltitude(initAltitude);
+                    camera.apply(false);
+                } else {
+                    //Toast.makeText(CustomActivity.this, "Can't zoom in any more, altitude " + initAltitude, Toast.LENGTH_LONG).show();
                 }
             });
         } else {
@@ -1304,23 +1233,20 @@ public class MainActivity extends AppCompatActivity
         // each time the button is pressed
         ImageButton panLeft = (ImageButton) findViewById(R.id.PanLeft);
         if (panLeft != null) {
-            panLeft.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    try {
-                        double dPan = camera.getHeading();
+            panLeft.setOnClickListener(v -> {
+                ICamera camera = MainActivity.this.oCamera;
+                try {
+                    double dPan = camera.getHeading();
 
-                        dPan -= 5.0;
-                        if (dPan < 0.0) {
-                            dPan += 360.0;
-                        }
-
-                        camera.setHeading(dPan);
-                        camera.apply(false);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    dPan -= 5.0;
+                    if (dPan < 0.0) {
+                        dPan += 360.0;
                     }
+
+                    camera.setHeading(dPan);
+                    camera.apply(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         } else {
@@ -1330,23 +1256,20 @@ public class MainActivity extends AppCompatActivity
         // each time the button is pressed
         ImageButton panRight = (ImageButton) findViewById(R.id.PanRight);
         if (panRight != null) {
-            panRight.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    try {
-                        double dPan = camera.getHeading();
+            panRight.setOnClickListener(v -> {
+                ICamera camera = MainActivity.this.oCamera;
+                try {
+                    double dPan = camera.getHeading();
 
-                        dPan += 5.0;
-                        if (dPan >= 360.0) {
-                            dPan -= 360.0;
-                        }
-
-                        camera.setHeading(dPan);
-                        camera.apply(false);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    dPan += 5.0;
+                    if (dPan >= 360.0) {
+                        dPan -= 360.0;
                     }
+
+                    camera.setHeading(dPan);
+                    camera.apply(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         } else {
@@ -1356,23 +1279,20 @@ public class MainActivity extends AppCompatActivity
         // Tilt up another 5 degrees, within limits
         ImageButton tiltUp = (ImageButton) findViewById(R.id.TiltUp);
         if (tiltUp != null) {
-            tiltUp.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    try {
-                        double dTilt = camera.getTilt();
+            tiltUp.setOnClickListener(v -> {
+                ICamera camera = MainActivity.this.oCamera;
+                try {
+                    double dTilt = camera.getTilt();
 
-                        if (dTilt < global.CAMERA_TILT_MAXIMUM) {
-                            dTilt += 5;
-                            camera.setTilt(dTilt);
-                            camera.apply(false);
-                        } else {
-                            //Toast.makeText(CustomActivity.this, "Can't tilt any higher", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        //e.printStackTrace();
+                    if (dTilt < global.CAMERA_TILT_MAXIMUM) {
+                        dTilt += 5;
+                        camera.setTilt(dTilt);
+                        camera.apply(false);
+                    } else {
+                        //Toast.makeText(CustomActivity.this, "Can't tilt any higher", Toast.LENGTH_SHORT).show();
                     }
+                } catch (Exception e) {
+                    //e.printStackTrace();
                 }
             });
         } else {
@@ -1382,23 +1302,20 @@ public class MainActivity extends AppCompatActivity
         // Tilt down another 5 degrees, within limits
         ImageButton tiltDown = (ImageButton) findViewById(R.id.TiltDown);
         if (tiltDown != null) {
-            tiltDown.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    try {
-                        double dTilt = camera.getTilt();
+            tiltDown.setOnClickListener(v -> {
+                ICamera camera = MainActivity.this.oCamera;
+                try {
+                    double dTilt = camera.getTilt();
 
-                        if (dTilt > global.CAMERA_TILT_MINIMUM) {
-                            dTilt -= 5;
-                            camera.setTilt(dTilt);
-                            camera.apply(false);
-                        } else {
-                            //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        //e.printStackTrace();
+                    if (dTilt > global.CAMERA_TILT_MINIMUM) {
+                        dTilt -= 5;
+                        camera.setTilt(dTilt);
+                        camera.apply(false);
+                    } else {
+                        //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
                     }
+                } catch (Exception e) {
+                    //e.printStackTrace();
                 }
             });
         } else {
@@ -1407,64 +1324,55 @@ public class MainActivity extends AppCompatActivity
 
         ImageButton rollCCW = (ImageButton) findViewById(R.id.rollCCW);
         if (rollCCW != null) {
-            rollCCW.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    try {
-                        double dRoll = camera.getRoll();
+            rollCCW.setOnClickListener(v -> {
+                ICamera camera = MainActivity.this.oCamera;
+                try {
+                    double dRoll = camera.getRoll();
 
-                        if (dRoll <= 175.0) {
-                            dRoll += 5;
-                            camera.setRoll(dRoll);
-                            camera.apply(false);
-                        } else {
-                            //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (dRoll <= 175.0) {
+                        dRoll += 5;
+                        camera.setRoll(dRoll);
+                        camera.apply(false);
+                    } else {
+                        //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         }
 
         ImageButton rollCW = (ImageButton) findViewById(R.id.rollCW);
         if (rollCW != null) {
-            rollCW.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    try {
-                        double dRoll = camera.getRoll();
+            rollCW.setOnClickListener(v -> {
+                ICamera camera = MainActivity.this.oCamera;
+                try {
+                    double dRoll = camera.getRoll();
 
-                        if (dRoll >= -175.0) {
-                            dRoll -= 5;
-                            camera.setRoll(dRoll);
-                            camera.apply(false);
-                        } else {
-                            //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (dRoll >= -175.0) {
+                        dRoll -= 5;
+                        camera.setRoll(dRoll);
+                        camera.apply(false);
+                    } else {
+                        //Toast.makeText(CustomActivity.this, "Can't tilt any lower", Toast.LENGTH_SHORT).show();
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         }
 
         ImageButton resetCameraBtn = (ImageButton) findViewById(R.id.reset);
         if (resetCameraBtn != null) {
-            resetCameraBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ICamera camera = MainActivity.this.oCamera;
-                    try {
-                        camera.setHeading(0);
-                        camera.setTilt(0);
-                        camera.setRoll(0);
-                        camera.apply(false);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            resetCameraBtn.setOnClickListener(v -> {
+                ICamera camera = MainActivity.this.oCamera;
+                try {
+                    camera.setHeading(0);
+                    camera.setTilt(0);
+                    camera.setRoll(0);
+                    camera.apply(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         }
@@ -1475,35 +1383,27 @@ public class MainActivity extends AppCompatActivity
 
             ImageButton increaseBrightnessBtn = (ImageButton) findViewById(R.id.brightnessUp);
             if (null != increaseBrightnessBtn) {
-                increaseBrightnessBtn.setOnClickListener(new View.OnClickListener() {
+                increaseBrightnessBtn.setOnClickListener(v -> {
+                    int value = Integer.parseInt(brightnessCtrl.getText().toString()) + 5;
 
-                    @Override
-                    public void onClick(View v) {
-                        int value = Integer.parseInt(brightnessCtrl.getText().toString()) + 5;
-
-                        if (value > 100) {
-                            value = 100;
-                        }
-                        brightnessCtrl.setText("" + value);
-                        MainActivity.this.map.setBackgroundBrightness(value);
+                    if (value > 100) {
+                        value = 100;
                     }
+                    brightnessCtrl.setText("" + value);
+                    MainActivity.this.map.setBackgroundBrightness(value);
                 });
             }
 
             ImageButton decreaseBrightnessBtn = (ImageButton) findViewById(R.id.brightnessDown);
             if (null != decreaseBrightnessBtn) {
-                decreaseBrightnessBtn.setOnClickListener(new View.OnClickListener() {
+                decreaseBrightnessBtn.setOnClickListener(v -> {
+                    int value = Integer.parseInt(brightnessCtrl.getText().toString()) - 5;
 
-                    @Override
-                    public void onClick(View v) {
-                        int value = Integer.parseInt(brightnessCtrl.getText().toString()) - 5;
-
-                        if (value < 0) {
-                            value = 0;
-                        }
-                        brightnessCtrl.setText("" + value);
-                        MainActivity.this.map.setBackgroundBrightness(value);
+                    if (value < 0) {
+                        value = 0;
                     }
+                    brightnessCtrl.setText("" + value);
+                    MainActivity.this.map.setBackgroundBrightness(value);
                 });
             }
         }
@@ -1516,14 +1416,9 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
         if (downloadFolder.exists()) {
-            FilenameFilter filter = new FilenameFilter() {
-
-                @Override
-                public boolean accept(File dir, String filename) {
-                    File sel = new File(dir, filename);
-                    return filename.contains(SUFFIX) || sel.isDirectory();
-                }
-
+            FilenameFilter filter = (dir, filename) -> {
+                File sel = new File(dir, filename);
+                return filename.contains(SUFFIX) || sel.isDirectory();
             };
             gpkgList = downloadFolder.list(filter);
         } else {
@@ -1558,6 +1453,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
+            /*
             case R.id.action_mirrorcache_connect: {
                 MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(false);
                 LayoutInflater inflater = (LayoutInflater)this.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
@@ -1566,40 +1462,38 @@ public class MainActivity extends AppCompatActivity
                                .setMessage("WebSocket endpoint:")
                                .setView(v)
                                .setNegativeButton(android.R.string.no, null)
-                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                               .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                                   final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
 
-                                       final String endpointStr = text.getText().toString();
-                                       Log.d(TAG, "endpointStr: " + endpointStr);
+                                   final String endpointStr = text.getText().toString();
+                                   Log.d(TAG, "endpointStr: " + endpointStr);
 
-                                       new AsyncTask<Void, Void, Exception>() {
-                                           @Override
-                                           protected Exception doInBackground(final Void... params) {
-                                               try {
-                                                   mc = new MirrorCache(new URI(endpointStr));
-                                                   mc.connect();
+                                   new AsyncTask<Void, Void, Exception>() {
+                                       @Override
+                                       protected Exception doInBackground(final Void... params) {
+                                           try {
+                                               mc = new MirrorCache(new URI(endpointStr));
+                                               mc.connect();
 
-                                               } catch (Exception e) {
-                                                   return e;
-                                               }
-                                               return null;
+                                           } catch (Exception e) {
+                                               return e;
                                            }
-                                           @Override
-                                           protected void onPostExecute(final Exception e) {
-                                               if (e == null) {
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(true);
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_addproduct).setEnabled(true);
+                                           return null;
+                                       }
+                                       @Override
+                                       protected void onPostExecute(final Exception e) {
+                                           if (e == null) {
+                                               MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_disconnect).setEnabled(true);
+                                               MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+                                               MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_addproduct).setEnabled(true);
 
-                                               } else if (e != null) {
-                                                   Log.e(TAG, e.getMessage(), e);
-                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(true);
-                                               }
+                                           } else if (e != null) {
+                                               Log.e(TAG, e.getMessage(), e);
+                                               new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                               MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_connect).setEnabled(true);
                                            }
-                                       }.execute();
-                                   }
+                                       }
+                                   }.execute();
                                }).create().show();
                 return true;
             }
@@ -1625,38 +1519,36 @@ public class MainActivity extends AppCompatActivity
                                .setMessage("Product Id:")
                                .setView(v)
                                .setNegativeButton(android.R.string.no, null)
-                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                               .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                                   final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
 
-                                       final String productId = text.getText().toString();
-                                       Log.d(TAG, "productId: " + productId);
+                                   final String productId = text.getText().toString();
+                                   Log.d(TAG, "productId: " + productId);
 
-                                       new AsyncTask<Void, Void, EMP_Exception>() {
-                                           @Override
-                                           protected EMP_Exception doInBackground(final Void... params) {
-                                               try {
-                                                   final Overlay overlay = mc.subscribe(productId);
-                                                   MainActivity.this.map.addOverlay(overlay, true);
+                                   new AsyncTask<Void, Void, EMP_Exception>() {
+                                       @Override
+                                       protected EMP_Exception doInBackground(final Void... params) {
+                                           try {
+                                               final Overlay overlay = mc.subscribe(productId);
+                                               MainActivity.this.map.addOverlay(overlay, true);
 
-                                               } catch (EMP_Exception e) {
-                                                   return e;
-                                               }
-                                               return null;
+                                           } catch (EMP_Exception e) {
+                                               return e;
                                            }
-                                           @Override
-                                           protected void onPostExecute(final EMP_Exception e) {
-                                               if (e == null) {
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
+                                           return null;
+                                       }
+                                       @Override
+                                       protected void onPostExecute(final EMP_Exception e) {
+                                           if (e == null) {
+                                               MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
 
-                                               } else if (e != null) {
-                                                   Log.e(TAG, e.getMessage(), e);
-                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
-                                               }
+                                           } else if (e != null) {
+                                               Log.e(TAG, e.getMessage(), e);
+                                               new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                               MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
                                            }
-                                       }.execute();
-                                   }
+                                       }
+                                   }.execute();
                                }).create().show();
                 return true;
             }
@@ -1668,37 +1560,35 @@ public class MainActivity extends AppCompatActivity
                                .setMessage("Product Id:")
                                .setView(v)
                                .setNegativeButton(android.R.string.no, null)
-                               .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                               .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                                   final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
 
-                                       final String productId = text.getText().toString();
-                                       Log.d(TAG, "productId: " + productId);
+                                   final String productId = text.getText().toString();
+                                   Log.d(TAG, "productId: " + productId);
 
-                                       new AsyncTask<Void, Void, EMP_Exception>() {
-                                           @Override
-                                           protected EMP_Exception doInBackground(final Void... params) {
-                                               try {
-                                                   mc.unsubscribe(productId);
+                                   new AsyncTask<Void, Void, EMP_Exception>() {
+                                       @Override
+                                       protected EMP_Exception doInBackground(final Void... params) {
+                                           try {
+                                               mc.unsubscribe(productId);
 
-                                               } catch (EMP_Exception e) {
-                                                   return e;
-                                               }
-                                               return null;
+                                           } catch (EMP_Exception e) {
+                                               return e;
                                            }
-                                           @Override
-                                           protected void onPostExecute(final EMP_Exception e) {
-                                               if (e == null) {
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
+                                           return null;
+                                       }
+                                       @Override
+                                       protected void onPostExecute(final EMP_Exception e) {
+                                           if (e == null) {
+                                               MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_subscribe).setEnabled(true);
 
-                                               } else if (e != null) {
-                                                   Log.e(TAG, e.getMessage(), e);
-                                                   new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
-                                                   MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
-                                               }
+                                           } else if (e != null) {
+                                               Log.e(TAG, e.getMessage(), e);
+                                               new AlertDialog.Builder(MainActivity.this).setTitle("ERROR:").setMessage(e.getMessage()).create().show();
+                                               MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_unsubscribe).setEnabled(true);
                                            }
-                                       }.execute();
-                                   }
+                                       }
+                                   }.execute();
                                }).create().show();
                 return true;
             }
@@ -1729,7 +1619,7 @@ public class MainActivity extends AppCompatActivity
                     MainActivity.this.oMenu.findItem(R.id.action_mirrorcache_deleteproduct).setEnabled(false);
                 }
                 return true;
-            }
+            }*/
             case R.id.action_mapgridnone: {
                 this.map.setGridType(MapGridTypeEnum.NONE);
                 return true;
@@ -1997,30 +1887,24 @@ public class MainActivity extends AppCompatActivity
                         dialog.setTitle("GeoPackage Chooser");
                         dialog.setMessage("No geopackage file found");
                         dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
+                                (dialog1, which) -> dialog1.dismiss());
                         dialog.show();
                     } else {
                         builder.setTitle("Choose GeoPackage file");
-                        builder.setItems(gpkgList, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                gpkgPick = gpkgList[which];
-                                Log.i(TAG, "File picked is " + gpkgPick);
-                                try {
-                                    geoPackage = new GeoPackage("File:///sdcard/Download/" + gpkgPick);
-                                    MainActivity.this.map.addMapService(geoPackage);
-                                    ICamera camera = MainActivity.this.map.getCamera();
-                                    // Place the camera directly over the GeoPackage image.
-                                    camera.setLatitude(39.54795);
-                                    camera.setLongitude(-76.16334);
-                                    camera.setAltitude(2580);
-                                    camera.apply(true);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                        builder.setItems(gpkgList, (dialog, which) -> {
+                            gpkgPick = gpkgList[which];
+                            Log.i(TAG, "File picked is " + gpkgPick);
+                            try {
+                                geoPackage = new GeoPackage("File:///sdcard/Download/" + gpkgPick);
+                                MainActivity.this.map.addMapService(geoPackage);
+                                ICamera camera = MainActivity.this.map.getCamera();
+                                // Place the camera directly over the GeoPackage image.
+                                camera.setLatitude(39.54795);
+                                camera.setLongitude(-76.16334);
+                                camera.setAltitude(2580);
+                                camera.apply(true);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         });
                         builder.show();
@@ -2142,23 +2026,21 @@ public class MainActivity extends AppCompatActivity
                         .setMessage("Number of Units:")
                         .setView(v)
                         .setNegativeButton(android.R.string.no, null)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
-                                final CheckBox checkBox = (CheckBox) (((Dialog) dialog).findViewById(R.id.remove_features));
+                        .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                            final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+                            final CheckBox checkBox = (CheckBox) (((Dialog) dialog).findViewById(R.id.remove_features));
 
-                                final String numUnits = text.getText().toString();
-                                Log.d(TAG, "numUnits: " + numUnits);
+                            final String numUnits = text.getText().toString();
+                            Log.d(TAG, "numUnits: " + numUnits);
 
-                                final boolean shouldRemoveAllFeatures = checkBox.isChecked();
-                                Log.d(TAG, "shouldRemoveAllFeatures: " + shouldRemoveAllFeatures);
+                            final boolean shouldRemoveAllFeatures = checkBox.isChecked();
+                            Log.d(TAG, "shouldRemoveAllFeatures: " + shouldRemoveAllFeatures);
 
-                                if (shouldRemoveAllFeatures) {
-                                    removeAllFeatures();
-                                }
-
-                                plotManyMilStd(Integer.parseInt(numUnits));
+                            if (shouldRemoveAllFeatures) {
+                                removeAllFeatures();
                             }
+
+                            plotManyMilStd(Integer.parseInt(numUnits));
                         }).create().show();
                 return true;
             case R.id.action_plotunits2525B:
@@ -2214,18 +2096,38 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_addWCS:
                 try {
-                    wcsService = new WCS("https://worldwind26.arc.nasa.gov/wcs",
-                            "aster_v2");
-                    Log.i(TAG, wcsService.toString());
-                    map.addMapService(wcsService);
-                    MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
-                    oItem.setEnabled(true);
-                    oItem = MainActivity.this.oMenu.findItem(R.id.action_addWCS);
-                    oItem.setEnabled(false);
-                    // 37.577227, -105.485845, 4374
-                    ILookAt calculatedLookAt = CameraUtility.setupLookAt(37.5, -105.5, 5000,
-                            37.577227, -105.485845, 4374);
-                    map.setLookAt(calculatedLookAt, false);
+                    final Dialog dialog = new Dialog(MainActivity.this);
+                    dialog.setContentView(R.layout.wcs_parameters_dialog);
+                    dialog.setTitle("Title...");
+                    Button okButton = (Button) dialog.findViewById(R.id.OKButton);
+                    // if button is clicked, close the custom dialog
+                    okButton.setOnClickListener(v1 -> {
+                        EditText urlText = (EditText) dialog.findViewById(R.id.WcsUrlText);
+                        EditText coverageText = (EditText) dialog.findViewById(R.id.CoverageText);
+
+                        String url = urlText.getText().toString();
+                        dialog.dismiss();
+
+                        try {
+                            wcsService = new WCS(url,
+                                    coverageText.getText().toString());
+                            Log.i(TAG, wcsService.toString());
+                            map.addMapService(wcsService);
+                            MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWCS);
+                            oItem.setEnabled(true);
+                            oItem = MainActivity.this.oMenu.findItem(R.id.action_addWCS);
+                            oItem.setEnabled(false);
+                            ILookAt calculatedLookAt = CameraUtility.setupLookAt(37.5, -105.5, 5000,
+                                    37.577227, -105.485845, 4374);
+                            map.setLookAt(calculatedLookAt, false);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    Button cancelButton = (Button) dialog.findViewById(R.id.CancelButton);
+                    // if button is clicked, don't add WMS service
+                    cancelButton.setOnClickListener(v12 -> dialog.dismiss());
+                    dialog.show();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -2248,73 +2150,72 @@ public class MainActivity extends AppCompatActivity
                     dialog.setTitle("Title...");
                     Button okButton = (Button) dialog.findViewById(R.id.OKButton);
                     // if button is clicked, close the custom dialog
-                    okButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            EditText urlText = (EditText) dialog.findViewById(R.id.UrlText);
-                            EditText versionText = (EditText) dialog.findViewById(R.id.VersionText);
-                            EditText tileFormatText = (EditText) dialog.findViewById(R.id.TileFormatText);
-                            EditText transparentText = (EditText) dialog.findViewById(R.id.TransparentText);
-                            EditText layerText = (EditText) dialog.findViewById(R.id.LayerText);
-                            EditText resolutionText = (EditText) dialog.findViewById(R.id.ResolutionText);
+                    okButton.setOnClickListener(v1 -> {
+                        EditText urlText = (EditText) dialog.findViewById(R.id.UrlText);
+                        EditText versionText = (EditText) dialog.findViewById(R.id.VersionText);
+                        EditText tileFormatText = (EditText) dialog.findViewById(R.id.TileFormatText);
+                        EditText transparentText = (EditText) dialog.findViewById(R.id.TransparentText);
+                        EditText layerText = (EditText) dialog.findViewById(R.id.LayerText);
+                        EditText resolutionText = (EditText) dialog.findViewById(R.id.ResolutionText);
 
-                            String url = urlText.getText().toString();
-                            String version = versionText.getText().toString();
-                            if (version == null)
-                                version = "";
-                            String tileFormat = tileFormatText.getText().toString();
-                            String transparent = transparentText.getText().toString();
-                            String layer = layerText.getText().toString();
-                            String resolution = resolutionText.getText().toString();
-                            Resources res = getBaseContext().getResources();
-                            dialog.dismiss();
-                            WMSVersionEnum wmsVersion = null;
-                            switch (version) {
-                                case "1.1.1" : wmsVersion = WMSVersionEnum.VERSION_1_1_1;
-                                    break;
-                                case "1.1" : wmsVersion = WMSVersionEnum.VERSION_1_1;
-                                    break;
-                                case "1.3.0" :wmsVersion = WMSVersionEnum.VERSION_1_3_0;
-                                    break;
-                                case "1.3" : wmsVersion = WMSVersionEnum.VERSION_1_3;
-                                    break;
-                                default:
-                                    wmsVersion = WMSVersionEnum.VERSION_1_3_0;;
-                            }
-                            ArrayList<String> layers = new ArrayList<>();
-                            layers.add(layer);
-                            try {
-                                wmsService = new mil.emp3.api.WMS(
-                                        url,
-                                        wmsVersion,
-                                        tileFormat,
-                                        transparent.equalsIgnoreCase("true"),
-                                        layers
-                                );
-                                Log.i(TAG, wmsService.toString());
-                            } catch (MalformedURLException ex) {
-                                ex.printStackTrace();
-                            }
-                            MainActivity.this.wmsService.setLayerResolution(Double.valueOf(resolution));
-                            try {
-                                map.addMapService(MainActivity.this.wmsService);
-                            } catch (EMP_Exception e) {
-                                e.printStackTrace();
-                            }
-                            MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWMS);
-                            oItem.setEnabled(true);
-                            oItem = MainActivity.this.oMenu.findItem(R.id.action_addWMS);
-                            oItem.setEnabled(false);
+                        String url = urlText.getText().toString();
+                        String version = versionText.getText().toString();
+                        if (version == null)
+                            version = "";
+                        String tileFormat = tileFormatText.getText().toString();
+                        String transparent = transparentText.getText().toString();
+                        String layer = layerText.getText().toString();
+                        String resolution = resolutionText.getText().toString();
+                        Resources res = getBaseContext().getResources();
+                        dialog.dismiss();
+                        WMSVersionEnum wmsVersion = null;
+                        switch (version) {
+                            case "1.1.1" : wmsVersion = WMSVersionEnum.VERSION_1_1_1;
+                                break;
+                            case "1.1" : wmsVersion = WMSVersionEnum.VERSION_1_1;
+                                break;
+                            case "1.3.0" :wmsVersion = WMSVersionEnum.VERSION_1_3_0;
+                                break;
+                            case "1.3" : wmsVersion = WMSVersionEnum.VERSION_1_3;
+                                break;
+                            default:
+                                wmsVersion = WMSVersionEnum.VERSION_1_3_0;;
                         }
+                        ArrayList<String> layers1 = new ArrayList<>();
+                        layers1.add(layer);
+                        try {
+                            wmsService = new WMS(
+                                    url,
+                                    wmsVersion,
+                                    tileFormat,
+                                    transparent.equalsIgnoreCase("true"),
+                                    layers1
+                            );
+                            Log.i(TAG, wmsService.toString());
+                        } catch (MalformedURLException ex) {
+                            ex.printStackTrace();
+                        }
+                        MainActivity.this.wmsService.setLayerResolution(Double.valueOf(resolution));
+                        try {
+                            map.addMapService(MainActivity.this.wmsService,
+                                    (success, geoId, t) -> {
+                                        if (success) {
+                                            Toast.makeText(MainActivity.this, "WMS connected", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        } catch (EMP_Exception e) {
+                            e.printStackTrace();
+                        }
+                        MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWMS);
+                        oItem.setEnabled(true);
+                        oItem = MainActivity.this.oMenu.findItem(R.id.action_addWMS);
+                        oItem.setEnabled(false);
                     });
                     Button cancelButton = (Button) dialog.findViewById(R.id.CancelButton);
                     // if button is clicked, don't add WMS service
-                    cancelButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.dismiss();
-                        }
-                    });
+                    cancelButton.setOnClickListener(v12 -> dialog.dismiss());
                     dialog.show();
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -3814,11 +3715,6 @@ public class MainActivity extends AppCompatActivity
 
 
     private void makeToast(final String text) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
-            }
-        });
+        handler.post(() -> Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show());
     }
 }
