@@ -1,4 +1,3 @@
-apply plugin: 'java'
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
 
