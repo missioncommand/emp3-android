@@ -1,5 +1,14 @@
+apply plugin: 'java'
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
+apply plugin: 'nebula.compile-api'
+
+dependencies {
+    compileOnly project   (":emp3-android-sdk")
+
+    compileApi         ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
+    compileApi         ("com.android.support:support-annotations")
+}
 
 publishing.publications {
     nebula(MavenPublication) {
