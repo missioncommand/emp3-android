@@ -32,7 +32,7 @@ publishing {
             artifact("$buildDir/outputs/aar/${project.name}-release.aar.sha256"){
                 extension "aar.sha256"
             }
-            artifact "$buildDIr/outputs/aar/${project.name}-release.aar.md5" {
+            artifact("$buildDir/outputs/aar/${project.name}-release.aar.md5") {
                 extension "aar.md5"
             }
             pom.withXml {
