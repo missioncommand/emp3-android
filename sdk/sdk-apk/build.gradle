@@ -49,15 +49,15 @@ publishing {
                 }
             }
 
-            artifact("$buildDir/../apk/build/outputs/apk/emp3-android-sdk-apk-release-unsigned.apk") {
+            artifact("$buildDir//outputs/apk/emp3-android-sdk-apk-release-unsigned.apk") {
                 extension "apk"
             }
 
-            artifact("$buildDir/../apk/build/outputs/apk/emp3-android-sdk-apk-release-unsigned.apk.sha256") {
+            artifact("$buildDir/outputs/apk/emp3-android-sdk-apk-release-unsigned.apk.sha256") {
                 extension "apk.sha256"
             }
 
-            artifact("$buildDir/../apk/build/outputs/apk/emp3-android-sdk-apk-release-unsigned.apk.md5") {
+            artifact("$buildDir/outputs/apk/emp3-android-sdk-apk-release-unsigned.apk.md5") {
                 extension "apk.md5"
             }
 
