@@ -60,19 +60,5 @@ publishing.publications {
                 }
             }
         }
-
-        artifactId = "emp3-android-sdk"
-
-        artifact("./emp3-android-sdk.jar") {
-            extension "jar"
-        }
-
-        artifact("./emp3-android-sdk.jar.md5") {
-            extension "jar.md5"
-        }
-
-        artifact("./emp3-android-sdk.jar.sha256") {
-            extension "jar.sha256"
-        }
     }
 }
