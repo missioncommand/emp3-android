@@ -29,15 +29,6 @@ tasks.withType(Test) {
     include "**/*Test.class"
 }
 
-build.doLast { task ->
-    def sourceDir = "$projectDir/"
-    def fileName = "emp3-android-sdk.jar"
-
-    def checksumTarget = sourceDir + fileName
-    ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
-    ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
-}
-
 javadoc {
     options {
         failOnError = true
@@ -85,4 +76,12 @@ publishing.publications {
             extension "jar.sha256"
         }
     }
+}
+build.doLast { task ->
+    def sourceDir = "$projectDir/../sdk-core/aar/build/outputs/aar/"
+    def fileName = "emp3-android-sdk-core-aar-release.aar"
+
+    def checksumTarget = sourceDir + fileName
+    ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+    ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
 }

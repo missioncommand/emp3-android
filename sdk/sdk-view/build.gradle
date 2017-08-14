@@ -67,7 +67,7 @@ android {
 
     build.doLast { task ->
         def sourceDir = "$projectDir/build/outputs/aar/"
-        def fileName = "emp3-android-sdk-view-apk-release.aar"
+        def fileName = "emp3-android-sdk-view-release.aar"
 
         def checksumTarget = sourceDir + fileName
         ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
