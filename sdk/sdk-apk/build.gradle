@@ -28,7 +28,6 @@ build.doLast { task ->
 publishing {
     publications {
         nebula(MavenPublication) {
-            artifact "$buildDir/outputs/apk/${project.name}-debug.apk"
 
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
