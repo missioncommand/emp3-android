@@ -8,14 +8,6 @@ dependencies {
     compileApi         ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
     compileApi         ("com.android.support:support-annotations")
 }
-build.doLast { task ->
-    def sourceDir = "$projectDir/../../sdk/sdk-core/aar/build/outputs/aar/"
-    def fileName = "emp3-android-sdk-core-aar-release.aar"
-
-    def checksumTarget = sourceDir + fileName
-    ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
-    ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
-}
 publishing.publications {
     nebula(MavenPublication) {
         artifactId = "emp3-android-worldwind"
@@ -27,7 +19,12 @@ publishing.publications {
         artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar") {
             extension "aar"
         }
-
+        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.sha256") {
+            extension "aar.sha256"
+        }
+        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
+            extension "aar.md5"
+        }
         artifact("$buildDir/../apk/build/outputs/apk/mapengine-worldwind-apk-release-unsigned.apk.sha256") {
             extension "apk.sha256"
         }
