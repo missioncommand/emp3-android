@@ -24,6 +24,7 @@ build.doLast { task ->
     ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
     ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
 }
+
 publishing {
     publications {
         nebula(MavenPublication) {
