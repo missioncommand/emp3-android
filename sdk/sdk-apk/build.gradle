@@ -50,10 +50,6 @@ publishing {
                 }
             }
 
-            artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk") {
-                extension "apk"
-            }
-
             artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.sha256") {
                 extension "apk.sha256"
             }
