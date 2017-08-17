@@ -1,0 +1,21 @@
+apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-lib.gradle"
+
+android {
+    sourceSets {
+        main {
+            //jni.srcDirs = ['src/main/jni']
+            jni.srcDirs = ['src/main/java']
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+    externalNativeBuild {
+        ndkBuild {
+            // Application.mk in the same directory will be used automatically
+            path 'src/main/jni/Android.mk'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
