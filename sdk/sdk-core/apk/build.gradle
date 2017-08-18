@@ -1,7 +1,7 @@
 apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-app.gradle"
 
 dependencies {
-    compile project (":emp3-android-sdk-core-aar")
+    implementation project (":emp3-android-sdk-core-aar")
 }
 
 android {
@@ -10,7 +10,7 @@ android {
     }
 
     build.doLast { task ->
-        def sourceDir = "$projectDir/build/outputs/apk/"
+        def sourceDir = "$projectDir/build/outputs/apk/release/"
         def fileName = "emp3-android-sdk-core-apk-release-unsigned.apk"
         
         def checksumTarget = sourceDir + fileName

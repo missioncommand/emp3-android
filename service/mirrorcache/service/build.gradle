@@ -13,7 +13,7 @@ android {
 }
 
 dependencies {
-    compile project (":service:mirrorcache:service-mirrorcache-api")
+    implementation project (":service:mirrorcache:service-mirrorcache-api")
 }
 
 publishing {

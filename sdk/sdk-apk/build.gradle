@@ -2,13 +2,13 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 apply plugin: 'maven-publish'
 
 dependencies {
-    compile project (":emp3-android-sdk")
-    //compile project (":service:mirrorcache:service-mirrorcache-api")
-    //compile project (":service:mirrorcache:service-mirrorcache-mirrorables")
+    implementation project (":emp3-android-sdk")
+    //implementation project (":service:mirrorcache:service-mirrorcache-api")
+    //implementation project (":service:mirrorcache:service-mirrorcache-mirrorables")
 
-    compile         ("com.android.support:appcompat-v7")
+    implementation         ("com.android.support:appcompat-v7")
 
-    testCompile     ("junit:junit")
+    testImplementation     ("junit:junit")
 }
 
 android {
@@ -20,7 +20,7 @@ android {
 publishing {
     publications {
         nebula(MavenPublication) {
-            artifact "$buildDir/outputs/apk/${project.name}-debug.apk"
+            artifact "$buildDir/outputs/apk/debug/${project.name}-debug.apk"
 
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
