@@ -17,6 +17,7 @@ Under jni copy the src/main/cpp/*.mk files from this module.
 Build with these commands:
 
 ndk-build clean
+
 ndk-build
 
 The libraries (shared objects) for all Android ABIs will be output in the libs directory under CCS.  Move those libs to jniLibs.
