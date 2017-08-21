@@ -575,7 +575,7 @@ public class MapInstance extends CoreMapInstance {
         // Specify the number of levels to match data resolution
         // Specify the version 1.0.0 WCS address
         // Create an elevation coverage from a version 1.0.0 WCS
-        Wcs100ElevationCoverage aster = new Wcs100ElevationCoverage(coverageSector, wcs.getNumberOfLayers(),
+        Wcs100ElevationCoverage aster = new Wcs100ElevationCoverage(coverageSector, wcs.getNumberOfLevels(),
                 wcs.getServiceURL(), wcs.getCoverageName());
 
         // Remove any existing coverages from the Globe
