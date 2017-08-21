@@ -20,6 +20,6 @@ public interface IWCS extends IMapService {
     double getLongitudeDegree();
     double getDeltaLatitudeDegree();
     double getDeltaLongitudeDegree();
-    int getNumberOfLayers();
+    int getNumberOfLevels();
 
 }
