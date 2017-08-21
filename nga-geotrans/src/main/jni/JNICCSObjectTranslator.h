@@ -11,9 +11,9 @@ extern "C" {
 
 using namespace MSP::CCS;
 
-class MSP::CCS::CoordinateSystemParameters;
-class MSP::CCS::CoordinateTuple;
-class MSP::CCS::Accuracy;
+namespace MSP { namespace CCS { class CoordinateSystemParameters; } }
+namespace MSP { namespace CCS { class CoordinateTuple; } }
+namespace MSP { namespace CCS { class Accuracy; } }
 
   MSP::CCS::CoordinateSystemParameters* translateFromJNIParameters( JNIEnv *env, jobject parameters );
 
