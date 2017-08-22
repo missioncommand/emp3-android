@@ -16,7 +16,7 @@ configurations {
 }
 
 dependencies {
-    implementation project    (":google-maps-android-cmgn")
+    compile project    (":google-maps-android-cmgn")
     compileApi project (":cmapi")
     compileApi         ("com.eclipsesource.minimal-json:minimal-json")
     compileApi         ("mil.army.missioncommand:mirrorcache-api")

@@ -9,11 +9,11 @@ android {
 }
 
 dependencies {
-    implementation project (":service:mirrorcache:service-mirrorcache-api")
-    implementation project (":sdk:emp3-android-sdk")
-    implementation         ("org.cmapi.primitives:common-map-geospatial-notation")
+    compile project (":service:mirrorcache:service-mirrorcache-api")
+    compile project (":sdk:emp3-android-sdk")
+    compile         ("org.cmapi.primitives:common-map-geospatial-notation")
 
-    testImplementation     ("junit:junit")
+    testCompile     ("junit:junit")
 }
 
 publishing {

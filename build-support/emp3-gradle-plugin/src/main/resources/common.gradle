@@ -29,9 +29,12 @@ group = "mil.army.missioncommand"
 repositories {
     mavenLocal()
     jcenter()
-    google()
     maven {
         url "file://${System.env['ANDROID_HOME']}/extras/android/m2repository"
+    }
+    maven {
+        url 'https://maven.google.com'
+        // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
     }
     maven {
         url "https://dl.bintray.com/missioncommand/maven/"
