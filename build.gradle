@@ -2,9 +2,13 @@ buildscript {
     repositories {
         mavenLocal()
         jcenter()
+        maven {
+            url 'https://maven.google.com'
+            // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.0.0-beta2'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.1'
         classpath 'org.ajoberstar:grgit:1.7.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'

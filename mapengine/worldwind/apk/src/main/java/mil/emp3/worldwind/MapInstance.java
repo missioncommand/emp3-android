@@ -44,6 +44,8 @@ import gov.nasa.worldwind.ogc.Wcs100ElevationCoverage;
 import gov.nasa.worldwind.ogc.gpkg.GeoPackage;
 import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderResourceCache;
+import gov.nasa.worldwind.shape.OmnidirectionalSightline;
+import gov.nasa.worldwind.shape.ShapeAttributes;
 import gov.nasa.worldwind.shape.SurfaceImage;
 import gov.nasa.worldwind.util.Logger;
 import mil.emp3.api.enums.FeatureTypeEnum;
@@ -59,6 +61,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IGeoPackage;
 import mil.emp3.api.interfaces.IImageLayer;
 import mil.emp3.api.interfaces.IKMLS;
+import mil.emp3.api.interfaces.ILineOfSight;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IMapServiceResult;
@@ -768,6 +771,8 @@ public class MapInstance extends CoreMapInstance {
             if (result != null) {
                 result.result(true, mapService.getGeoId(), null);
             }
+        } else if (mapService instanceof ILineOfSight){
+            addLineOfSight((ILineOfSight)mapService);
         } else {
             Log.e(TAG, "This MapService is NOT supported " + mapService.getClass().getName());
         }
@@ -789,6 +794,44 @@ public class MapInstance extends CoreMapInstance {
             addMapServiceEx(mapService, result);
         }
     }
+
+    private void addLineOfSight(final ILineOfSight los) {
+        // Specify the sightline position, which is the origin of the line of sight calculation
+        Position position = new Position(los.getPosition().getLatitude(),
+                los.getPosition().getLongitude(),
+                los.getPosition().getAltitude());
+        // Specify the range of the sightline (meters)
+        double range = los.getRange();
+        // Create attributes for the visible terrain
+        ShapeAttributes visibleAttributes = new ShapeAttributes();
+        visibleAttributes.setInteriorColor(new gov.nasa.worldwind.render.Color(
+                los.getVisibleAttributes().getRed() / (float) 0xFF,
+                los.getVisibleAttributes().getGreen() / (float) 0xFF,
+                los.getVisibleAttributes().getBlue() / (float) 0xFF,
+                (float)los.getVisibleAttributes().getAlpha()));
+        // Create attributes for the occluded terrain
+        ShapeAttributes occludedAttributes = new ShapeAttributes();
+        occludedAttributes.setInteriorColor(new gov.nasa.worldwind.render.Color(
+                los.getOccludeAttributes().getRed() / (float) 0xFF,
+                los.getOccludeAttributes().getGreen() / (float) 0xFF,
+                los.getOccludeAttributes().getBlue() / (float) 0xFF,
+                (float)los.getOccludeAttributes().getAlpha()));
+        // Create the sightline
+        OmnidirectionalSightline sightline = new OmnidirectionalSightline(position, range);
+        // Set the attributes
+        sightline.setAttributes(visibleAttributes);
+        sightline.setOccludeAttributes(occludedAttributes);
+
+        // Create a layer for the sightline
+        RenderableLayer sightlineLayer = new RenderableLayer();
+        sightlineLayer.addRenderable(sightline);
+            ww.getLayers().addLayer(sightlineLayer);
+            MapInstance.this.layerHash.put(los.getGeoId(), sightlineLayer);
+            sightlineLayer.putUserProperty(los.getGeoId(), "LOS");
+            Log.i(TAG, "LoS layer creation succeeded");
+            ww.requestRedraw();
+    }
+
 
     @Override
     public void addMapService(final IMapService mapService) {
@@ -829,7 +872,7 @@ public class MapInstance extends CoreMapInstance {
 
     private void removeMapServiceEx(IMapService mapService, IMapServiceResult result) {
         if (mapService instanceof IWMS || mapService instanceof IWMTS
-                || mapService instanceof GeoPackage) {
+                || mapService instanceof GeoPackage || mapService instanceof ILineOfSight) {
             if (this.layerHash.containsKey(mapService.getGeoId())) {
                 removeLayers(ww, mapService);
 
@@ -866,7 +909,7 @@ public class MapInstance extends CoreMapInstance {
             }
         } else if (mapService instanceof IKMLS) {
             IKMLS kmlService = (IKMLS) mapService;
-            if(null != kmlService.getFeature()) {
+            if (null != kmlService.getFeature()) {
                 removeFeature(kmlService.getFeature().getGeoId(), null);
             }
             ww.requestRedraw();
