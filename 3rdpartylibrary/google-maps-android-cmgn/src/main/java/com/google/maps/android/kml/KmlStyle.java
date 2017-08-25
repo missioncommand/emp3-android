@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 
-
 /**
  * Represents the defined styles in the KML document
  *

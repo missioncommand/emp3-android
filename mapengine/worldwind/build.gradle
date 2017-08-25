@@ -8,28 +8,32 @@ dependencies {
     compileApi         ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
     compileApi         ("com.android.support:support-annotations")
 }
-
 publishing.publications {
     nebula(MavenPublication) {
         artifactId = "emp3-android-worldwind"
 
-        artifact("$buildDir/../apk/build/outputs/apk/mapengine-worldwind-apk-release-unsigned.apk.md5") {
+        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.md5") {
             extension "apk.md5"
         }
 
         artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar") {
             extension "aar"
         }
-
-        artifact("$buildDir/../apk/build/outputs/apk/mapengine-worldwind-apk-release-unsigned.apk.sha256") {
+        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.sha256") {
+            extension "aar.sha256"
+        }
+        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
+            extension "aar.md5"
+        }
+        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.sha256") {
             extension "apk.sha256"
         }
 
-        artifact("$buildDir/../apk/build/outputs/apk/mapengine-worldwind-apk-release-unsigned.apk") {
+        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk") {
             extension "apk"
         }
 
-        artifact("$buildDir/../apk/build/outputs/apk/mapengine-worldwind-apk-debug.apk") {
+        artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk") {
             classifier "debug"
             extension "apk"
         }
