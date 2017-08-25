@@ -13,7 +13,7 @@ apply plugin: io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
-    version_nasa_worldwind_sdk = "0.7.0"
+    version_nasa_worldwind_sdk = "0.8.0-SNAPSHOT"
     version_cmapi              = "${version}"
     version_renderer           = "0.1.31"
     version_mirrorcache        = "0.1.0"
