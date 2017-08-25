@@ -3,7 +3,12 @@ apply plugin: 'maven-publish'
 
 sourceCompatibility = rootProject.sourceCompatibility
 targetCompatibility = rootProject.targetCompatibility
-
+repositories {
+    maven {
+        url 'https://maven.google.com'
+        // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
+    }
+}
 dependencies {
     implementation gradleApi()
     implementation localGroovy()

@@ -5,7 +5,12 @@ android {
         applicationId "mil.emp3.test.emp3vv"
     }
 }
-
+repositories {
+    maven {
+        url 'https://maven.google.com'
+        // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
+    }
+}
 dependencies {
     implementation         ("com.android.support:appcompat-v7")
     implementation         ("com.android.support:design")

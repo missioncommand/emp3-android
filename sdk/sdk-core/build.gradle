@@ -15,7 +15,12 @@ publishing.publications {
         artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar") {
             extension "aar"
         }
-
+        artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.sha256") {
+            extension "aar.sha256"
+        }
+        artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.md5") {
+            extension "aar.md5"
+        }
         artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk") {
             extension "apk"
         }

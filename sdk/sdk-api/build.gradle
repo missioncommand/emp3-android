@@ -14,7 +14,6 @@ configurations {
         transitive false
     }
 }
-
 dependencies {
     implementation project (":google-maps-android-cmgn")
     compileApi project     (":cmapi")

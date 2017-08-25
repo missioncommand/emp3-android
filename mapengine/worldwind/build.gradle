@@ -20,7 +20,12 @@ publishing.publications {
         artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar") {
             extension "aar"
         }
-
+        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.sha256") {
+            extension "aar.sha256"
+        }
+        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
+            extension "aar.md5"
+        }
         artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.sha256") {
             extension "apk.sha256"
         }

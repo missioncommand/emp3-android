@@ -3,18 +3,16 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 dependencies {
     implementation project (":emp3-android-sdk-core-aar")
 }
+build.doLast { task ->
+    def sourceDir = "$projectDir/build/outputs/apk/release/"
+    def fileName = "emp3-android-sdk-core-apk-release-unsigned.apk"
 
+    def checksumTarget = sourceDir + fileName
+    ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+    ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
+}
 android {
     defaultConfig {
         applicationId "mil.emp3.emp3_android_sdk_core_apk"
-    }
-
-    build.doLast { task ->
-        def sourceDir = "$projectDir/build/outputs/apk/release/"
-        def fileName = "emp3-android-sdk-core-apk-release-unsigned.apk"
-        
-        def checksumTarget = sourceDir + fileName
-        ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
-        ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
     }
 }
