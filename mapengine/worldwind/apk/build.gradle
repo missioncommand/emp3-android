@@ -16,8 +16,8 @@ android {
     }
 
     build.doLast { task ->
-        def sourceDir = "$projectDir/build/outputs/apk/release/"
-        def fileName = "mapengine-worldwind-apk-release-unsigned.apk"
+        def sourceDir = "$projectDir/build/outputs/apk/debug/"
+        def fileName = "mapengine-worldwind-apk-debug.apk"
         
         def checksumTarget = sourceDir + fileName
         ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
