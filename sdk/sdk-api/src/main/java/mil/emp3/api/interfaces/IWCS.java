@@ -15,4 +15,11 @@ public interface IWCS extends IMapService {
      */
 
     String getCoverageName();
+
+    double getLatitudeDegree();
+    double getLongitudeDegree();
+    double getDeltaLatitudeDegree();
+    double getDeltaLongitudeDegree();
+    int getNumberOfLevels();
+
 }
