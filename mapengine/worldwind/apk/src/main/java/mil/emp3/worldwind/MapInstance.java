@@ -518,13 +518,12 @@ public class MapInstance extends CoreMapInstance {
     private void addWCSService(final IWCS wcs) {
 
         // Specify the bounding sector - provided by the WCS
-        Sector coverageSector = Sector.fromDegrees(-90.0, -180.0, 180.0, 360.0);
+//        Sector coverageSector = Sector.fromDegrees(-90.0, -180.0, 180.0, 360.0);
         // Specify the number of levels to match data resolution
-        int numberOfLevels = 12;
+//        int numberOfLevels = 12;
         // Specify the version 1.0.0 WCS address
         // Create an elevation coverage from a version 1.0.0 WCS
-        Wcs100ElevationCoverage aster = new Wcs100ElevationCoverage(coverageSector, numberOfLevels,
-                wcs.getServiceURL(), wcs.getCoverageName());
+        Wcs201ElevationCoverage aster = new Wcs201ElevationCoverage(wcs.getServiceURL(), wcs.getCoverageName());
 
         // Remove any existing coverages from the Globe
         ww.getGlobe().getElevationModel().clearCoverages();

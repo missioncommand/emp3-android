@@ -172,8 +172,8 @@
     <string name="ResolutionDefault">1.0</string>
     <string name="CancelButton">Cancel</string>
     <string name="OKButton">OK</string>
-    <string name="WcsUrlDefault">http://192.168.1.6:8080/worldwind-geoserver/wcs</string>
-    <string name="CoverageDefault">gebco:gebco</string>
+    <string name="WcsUrlDefault">http://192.168.1.6:8080/geoserver/wcs</string>
+    <string name="CoverageDefault">nasa__geotiff_coverage</string>
 
     <string name="action_minimap">Toggle Mini Map</string>
     <string name="action_brightnessLabel">Brightness:</string>

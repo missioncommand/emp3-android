@@ -2128,10 +2128,11 @@ public class MainActivity extends AppCompatActivity
             return true;
             case R.id.action_addLoS:
                 try {
-                    if (wcsService != null) {
-                        map.removeMapService(wcsService);
-                    }
-                    wcsService = new WCS ("https://worldwind26.arc.nasa.gov/wcs", "USGS-NED");
+//                    if (wcsService != null) {
+//                        map.removeMapService(wcsService);
+//                    }
+//                    wcsService = new WCS ("https://worldwind26.arc.nasa.gov/wcs", "USGS-NED");
+                    // instead of hard coding, let user add WCS first
                     map.addMapService(wcsService);
                     Thread.sleep(1000);
                     EmpGeoPosition position = new EmpGeoPosition(46.230, -122.190, 2500.0);
@@ -2151,7 +2152,7 @@ public class MainActivity extends AppCompatActivity
                     oItem.setEnabled(false);
                     oItem = this.oMenu.findItem(R.id.action_removeLoS);
                     oItem.setEnabled(true);
-                } catch (EMP_Exception | MalformedURLException | InterruptedException e) {
+                } catch (EMP_Exception | InterruptedException e) {
                     e.printStackTrace();
                 }
                 return true;
