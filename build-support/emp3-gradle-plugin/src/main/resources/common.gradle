@@ -13,15 +13,15 @@ apply plugin: io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
-    version_nasa_worldwind_sdk = "0.6.0"
+    version_nasa_worldwind_sdk = "0.8.0-SNAPSHOT"
     version_cmapi              = "${version}"
-    version_renderer           = "0.1.30"
+    version_renderer           = "0.1.31"
     version_mirrorcache        = "0.1.0"
 
     android_minSdkVersion     = 19
     android_targetSdkVersion  = 23
     android_compileSdkVersion = 23
-    android_buildToolsVersion = "25.0.2"
+    android_buildToolsVersion = "25.0.3"
 }
 
 group = "mil.army.missioncommand"
@@ -31,6 +31,13 @@ repositories {
     jcenter()
     maven {
         url "file://${System.env['ANDROID_HOME']}/extras/android/m2repository"
+    }
+    maven {
+        url 'https://maven.google.com'
+        // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
+    }
+    maven {
+        url 'https://bintray.com/nasaworldwind/maven/WorldWindAndroid/'
     }
     maven {
         url "https://dl.bintray.com/missioncommand/maven/"
@@ -68,7 +75,7 @@ dependencyManagement {
 }
 
 task wrapper(type: Wrapper, description: "Generates gradlew[.bat] scripts") {
-    gradleVersion = '4.0.1'
+    gradleVersion = '4.1'
 }
 
 if (JavaVersion.current().isJava8Compatible()) { // disable lint for java8

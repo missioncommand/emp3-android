@@ -2,13 +2,13 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 apply plugin: 'maven-publish'
 
 dependencies {
-    compile project (":emp3-android-sdk")
+    implementation project (":emp3-android-sdk")
     //compile project (":service:mirrorcache:service-mirrorcache-api")
     //compile project (":service:mirrorcache:service-mirrorcache-mirrorables")
 
-    compile         ("com.android.support:appcompat-v7")
+    implementation         ("com.android.support:appcompat-v7")
 
-    testCompile     ("junit:junit")
+    testImplementation     ("junit:junit")
 }
 
 android {
@@ -17,8 +17,8 @@ android {
     }
 }
 build.doLast { task ->
-    def sourceDir = "$projectDir/../sdk-apk/build/outputs/apk/release/"
-    def fileName = "emp3-android-sdk-apk-release-unsigned.apk"
+    def sourceDir = "$projectDir/../sdk-apk/build/outputs/apk/debug/"
+    def fileName = "emp3-android-sdk-apk-debug.apk"
 
     def checksumTarget = sourceDir + fileName
     ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
@@ -50,11 +50,11 @@ publishing {
                 }
             }
 
-            artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.sha256") {
+            artifact("$buildDir/outputs/apk/debug/emp3-android-sdk-apk-debug.apk.sha256") {
                 extension "apk.sha256"
             }
 
-            artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.md5") {
+            artifact("$buildDir/outputs/apk/debug/emp3-android-sdk-apk-debug.apk.md5") {
                 extension "apk.md5"
             }
 

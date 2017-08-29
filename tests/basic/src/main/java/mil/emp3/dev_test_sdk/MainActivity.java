@@ -87,6 +87,8 @@ import mil.emp3.api.GeoJSON;
 import mil.emp3.api.GeoPackage;
 import mil.emp3.api.ImageLayer;
 import mil.emp3.api.KML;
+import mil.emp3.api.LineOfSight;
+import mil.emp3.api.LookAt;
 import mil.emp3.api.MilStdSymbol;
 //import mil.emp3.api.MirrorCache;
 import mil.emp3.api.Overlay;
@@ -115,6 +117,7 @@ import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.ILineOfSight;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
@@ -125,6 +128,7 @@ import mil.emp3.api.listeners.IFeatureInteractionEventListener;
 import mil.emp3.api.listeners.IFreehandEventListener;
 import mil.emp3.api.listeners.IMapInteractionEventListener;
 import mil.emp3.api.utils.EmpGeoColor;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
@@ -137,6 +141,7 @@ import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPrope
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.dev_test_sdk.utils.CameraUtility;
 import mil.emp3.json.geoJson.GeoJsonCaller;
+import sec.geo.kml.KmlOptions;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -149,9 +154,10 @@ public class MainActivity extends AppCompatActivity
     protected Overlay oRootOverlay;
     private ICamera oCamera;
     private ILookAt oLookAt;
-    private WCS wcsService;
-    private WMS wmsService;
-    private WMTS wmtsService;
+    private WCS wcsService = null;
+    private WMS wmsService = null;
+    private WMTS wmtsService = null;
+    private LineOfSight los = null;
     private mil.emp3.api.GeoPackage geoPackage;
     protected HashMap<UUID, IFeature> oFeatureHash = new HashMap<>();
     private IFeature oCurrentSelectedFeature;
@@ -2120,6 +2126,47 @@ public class MainActivity extends AppCompatActivity
                 } catch (EMP_Exception ex) {
                 }
             return true;
+            case R.id.action_addLoS:
+                try {
+//                    if (wcsService != null) {
+//                        map.removeMapService(wcsService);
+//                    }
+//                    wcsService = new WCS ("https://worldwind26.arc.nasa.gov/wcs", "USGS-NED");
+                    // instead of hard coding, let user add WCS first
+                    map.addMapService(wcsService);
+                    Thread.sleep(1000);
+                    EmpGeoPosition position = new EmpGeoPosition(46.230, -122.190, 2500.0);
+                    EmpGeoColor visibleAttr = new EmpGeoColor(0.5d, 0, 25, 0);
+                    EmpGeoColor occludeAttr = new EmpGeoColor(0.8d, 25, 25, 25);
+                    double range = 10000.0d;
+                    los = new LineOfSight(position, range, visibleAttr, occludeAttr);
+                    map.addMapService(los);
+                    LookAt lookAt = new LookAt(46.230, -122.190, 500, IGeoAltitudeMode.AltitudeMode.ABSOLUTE);
+                    lookAt.setRange(1.5e4); /*range*/
+                    lookAt.setHeading(45.0); /*heading*/
+                    lookAt.setTilt(70.0); /*tilt*/
+                    /*0 roll*/
+                    ;
+                    map.setLookAt(lookAt, false);
+                    MenuItem oItem = this.oMenu.findItem(R.id.action_addLoS);
+                    oItem.setEnabled(false);
+                    oItem = this.oMenu.findItem(R.id.action_removeLoS);
+                    oItem.setEnabled(true);
+                } catch (EMP_Exception | InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            case R.id.action_removeLoS:
+                try {
+                    map.removeMapService(los);
+                    MenuItem oItem = this.oMenu.findItem(R.id.action_removeLoS);
+                    oItem.setEnabled(false);
+                    oItem = this.oMenu.findItem(R.id.action_addLoS);
+                    oItem.setEnabled(true);
+                } catch (EMP_Exception e) {
+                    e.printStackTrace();
+                }
+                return true;
 /*
             case R.id.action_plotsymbol:
                 if (this.ePlotMode == PlotModeEnum.IDLE) {

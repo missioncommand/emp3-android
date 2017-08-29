@@ -2,26 +2,26 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 apply plugin: 'maven-publish'
 
 dependencies {
-    compile project     (":emp3-android-sdk")
+    compile project            (":emp3-android-sdk")
     //compile project     (":service:mirrorcache:service-mirrorcache-api")
     //compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
-    compile             ("com.android.support:appcompat-v7")
-    compile             ("mil.army.missioncommand:mil-sym-android-renderer")
+    implementation             ("com.android.support:appcompat-v7")
+    compile                    ("mil.army.missioncommand:mil-sym-android-renderer")
 
-    provided project (":cmapi")
-    testCompile project (":emp3-android-sdk-core-aar")
-    testCompile         ("junit:junit:4.12")
-    //testCompile         ("org.mockito:mockito-core")
-    testCompile         ("org.powermock:powermock-api-mockito:1.6.2") { // PowerMockito is required to mock static methods like Logger.log
+    compileOnly project        (":cmapi")
+    testImplementation project (":emp3-android-sdk-core-aar")
+    testImplementation         ("junit:junit:4.12")
+    //testImplementation         ("org.mockito:mockito-core")
+    testImplementation         ("org.powermock:powermock-api-mockito:1.6.2") { // PowerMockito is required to mock static methods like Logger.log
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testCompile         ("org.powermock:powermock-module-junit4:1.6.2") {
+    testImplementation         ("org.powermock:powermock-module-junit4:1.6.2") {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
 
-    testCompile ("org.robolectric:robolectric")
+    testImplementation         ("org.robolectric:robolectric")
 }
 
 
@@ -29,12 +29,12 @@ publishing {
     publications {
         nebula(MavenPublication) {
             artifact "$buildDir/outputs/aar/${project.name}-release.aar"
-            artifact("$buildDir/outputs/aar/${project.name}-release.aar.sha256"){
-                extension "aar.sha256"
-            }
-            artifact("$buildDir/outputs/aar/${project.name}-release.aar.md5") {
-                extension "aar.md5"
-            }
+//            artifact("$buildDir/outputs/aar/${project.name}-release.aar.sha256"){
+//                extension "aar.sha256"
+//            }
+//            artifact("$buildDir/outputs/aar/${project.name}-release.aar.md5") {
+//                extension "aar.md5"
+//            }
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
 
