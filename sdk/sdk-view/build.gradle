@@ -29,12 +29,12 @@ publishing {
     publications {
         nebula(MavenPublication) {
             artifact "$buildDir/outputs/aar/${project.name}-release.aar"
-            artifact("$buildDir/outputs/aar/${project.name}-release.aar.sha256"){
-                extension "aar.sha256"
-            }
-            artifact("$buildDir/outputs/aar/${project.name}-release.aar.md5") {
-                extension "aar.md5"
-            }
+//            artifact("$buildDir/outputs/aar/${project.name}-release.aar.sha256"){
+//                extension "aar.sha256"
+//            }
+//            artifact("$buildDir/outputs/aar/${project.name}-release.aar.md5") {
+//                extension "aar.md5"
+//            }
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
 
