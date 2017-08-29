@@ -1,6 +1,7 @@
 apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-lib.gradle"
-apply plugin: 'maven-publish'
 
+apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.maven-nebula-publish'
 dependencies {
     compile project            (":emp3-android-sdk")
     //compile project     (":service:mirrorcache:service-mirrorcache-api")
@@ -29,12 +30,12 @@ publishing {
     publications {
         nebula(MavenPublication) {
             artifact "$buildDir/outputs/aar/${project.name}-release.aar"
-//            artifact("$buildDir/outputs/aar/${project.name}-release.aar.sha256"){
-//                extension "aar.sha256"
-//            }
-//            artifact("$buildDir/outputs/aar/${project.name}-release.aar.md5") {
-//                extension "aar.md5"
-//            }
+            artifact("$buildDir/outputs/aar/${project.name}-release.aar.sha256"){
+                extension "aar.sha256"
+            }
+            artifact("$buildDir/outputs/aar/${project.name}-release.aar.md5") {
+                extension "aar.md5"
+            }
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
 
