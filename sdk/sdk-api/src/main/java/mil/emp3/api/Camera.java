@@ -16,6 +16,7 @@ import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ICameraEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.ManagerFactory;
 
 /**
@@ -97,6 +98,9 @@ public class Camera implements ICamera {
      * @param position
      */
     public Camera(IGeoPosition position) {
+        if (!EmpGeoPosition.validate(position)) {
+            throw new IllegalArgumentException("GeoPosition is invalid");
+        }
         this.geoCamera = new GeoCamera();
         if (this.geoCamera.getAltitudeMode() == null) {
             this.geoCamera.setAltitudeMode(AltitudeMode.ABSOLUTE);

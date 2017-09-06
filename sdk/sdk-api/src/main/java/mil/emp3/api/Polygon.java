@@ -9,6 +9,7 @@ import java.util.List;
 import mil.emp3.api.abstracts.Feature;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.utils.EmpGeoPosition;
 
 /**
  * This class implements an polygon. It requires 3 or more geographic coordinates.
@@ -30,6 +31,11 @@ public class Polygon extends Feature<IGeoPolygon> implements IGeoPolygon {
         super(new GeoPolygon(), FeatureTypeEnum.GEO_POLYGON);
         if (null == oPositionList) {
             throw new IllegalArgumentException("The position list parameter can NOT be null");
+        }
+        for (IGeoPosition geoPosition : oPositionList) {
+            if (!EmpGeoPosition.validate(geoPosition)) {
+                throw new IllegalArgumentException("GeoPosition is invalid");
+            }
         }
         this.getRenderable().getPositions().addAll(oPositionList);
     }

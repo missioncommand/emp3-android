@@ -16,6 +16,7 @@ import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.ILookAtEventListener;
+import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.ManagerFactory;
 
 /**
@@ -97,6 +98,9 @@ public class LookAt implements ILookAt{
      * @param position
      */
     public LookAt(IGeoPosition position) {
+        if (!EmpGeoPosition.validate(position)) {
+            throw new IllegalArgumentException("GeoPosition is invalid");
+        }
         this.geoLookAt = new GeoLookAt();
         if (this.geoLookAt.getAltitudeMode() == null) {
             this.geoLookAt.setAltitudeMode(AltitudeMode.RELATIVE_TO_GROUND);
