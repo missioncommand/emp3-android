@@ -17,7 +17,7 @@ configurations {
 dependencies {
     implementation project (":google-maps-android-cmgn")
     compileApi project     (":cmapi")
-    implementation         ("com.eclipsesource.minimal-json:minimal-json")
+    implementation         ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
     compileApi             ("mil.army.missioncommand:mirrorcache-api")
     compileOnly            (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
     compileOnly files      ("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
