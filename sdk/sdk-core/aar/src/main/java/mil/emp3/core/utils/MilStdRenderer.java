@@ -319,8 +319,16 @@ public class MilStdRenderer implements IMilStdRenderer {
             switch (shapeInfo.getShapeType()) {
                 case ShapeInfo.SHAPE_TYPE_POLYLINE: {
                     List<List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
-
-                    if (currentFillStyle != null) {
+                    if (shapeInfo.getPatternFillImage() != null) {
+                        for (List<IGeoPosition> posList : listOfPosList) {
+                            feature = new Polygon(posList);
+                            if (currentStrokeStyle != null)
+                                feature.setStrokeStyle(currentStrokeStyle);
+                            ((Polygon) feature).setPatternFillImage(shapeInfo.getPatternFillImage());
+                            feature.setAltitudeMode(altitudeMode);
+                            featureList.add(feature);
+                        }
+                    } else if (currentFillStyle != null) {
                         // We create the polygon feature if it has a fill style.
                         for (List<IGeoPosition> posList : listOfPosList) {
                             feature = new Polygon(posList);
@@ -342,7 +350,16 @@ public class MilStdRenderer implements IMilStdRenderer {
                 }
                 case ShapeInfo.SHAPE_TYPE_FILL: {
                     List<List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
-                    if (currentFillStyle != null) {
+                    if (shapeInfo.getPatternFillImage() != null) {
+                        for (List<IGeoPosition> posList: listOfPosList) {
+                            feature = new Polygon(posList);
+                            if(currentStrokeStyle != null)
+                                feature.setStrokeStyle(currentStrokeStyle);
+                            ((Polygon)feature).setPatternFillImage(shapeInfo.getPatternFillImage());
+                            feature.setAltitudeMode(altitudeMode);
+                            featureList.add(feature);
+                        }
+                    } else if (currentFillStyle != null) {
                         for (List<IGeoPosition> posList: listOfPosList) {
                             feature = new Polygon(posList);
                             if(currentStrokeStyle != null)

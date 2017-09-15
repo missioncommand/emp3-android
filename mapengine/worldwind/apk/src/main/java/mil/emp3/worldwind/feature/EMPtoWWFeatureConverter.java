@@ -469,7 +469,9 @@ public class EMPtoWWFeatureConverter {
             shapeAttribute.setDrawOutline(false);
         }
 
-        if (feature.getFillStyle() != null) {
+        if (((Polygon)feature).getPatternFillImage() != null) {
+            shapeAttribute.setInteriorImageSource(ImageSource.fromBitmap(((Polygon)feature).getPatternFillImage()));
+        } else if (feature.getFillStyle() != null) {
             IGeoFillStyle fillStyle = feature.getFillStyle();
 
             shapeAttribute.setDrawInterior(true);
