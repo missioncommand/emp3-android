@@ -10,9 +10,6 @@
         android:text="Remove All Features?"
         android:checked="true"/>
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
         <AutoCompleteTextView
             android:id="@+id/input"
@@ -22,5 +19,4 @@
             android:inputType="text"
             android:text="@string/text_plot_units"/>
 
-    </android.support.design.widget.TextInputLayout>
 </LinearLayout>
