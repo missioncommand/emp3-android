@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,13 +31,13 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
     private EditText featureName;
     private CheckBox featureVisible;
     private ListView featureParentList;
-    private ListView featureTypeList;
 
     private List<String> parentList;
     private List<String> typeList;
 
-    ArrayAdapter<String> featureParentListAdapter;
-    ArrayAdapter<String> featureTypeAdapter;
+    private ArrayAdapter<String> featureParentListAdapter;
+    private Spinner featureType;
+    private ArrayAdapter<CharSequence> featureTypeAdapter;
     private List<String> namesInUse;
     Map<FeatureTypeEnum, Class<? extends AddEntityBase>> supportedFeatures;
 
@@ -88,8 +89,8 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
     }
 
     public FeatureTypeEnum getSelectedFeatureType() {
-        List<String> selectedFeatureTypes = getSelectedFromMultiChoiceList(featureTypeList);
-        return FeatureTypeEnum.valueOf(selectedFeatureTypes.get(0));
+        String featureTypeSelected = (featureType.getSelectedItem().toString());
+        return FeatureTypeEnum.valueOf(featureTypeSelected);
     }
 
     @Override
@@ -108,7 +109,7 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
         featureVisible = (CheckBox) view.findViewById(R.id.feature_visible);
         featureVisible.setChecked(true);
         featureParentList = (ListView) view.findViewById(R.id.feature_parent_list);
-        featureTypeList = (ListView) view.findViewById(R.id.feature_type_list);
+        featureType = (Spinner) view.findViewById(R.id.feature_type);
 
         featureParentListAdapter = setupMultiChoiceList("Choose Parent",  featureParentList, parentList);
 
@@ -116,7 +117,9 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
         for(FeatureTypeEnum typeEnum: FeatureTypeEnum.values()) {
             typeList.add(typeEnum.toString());
         }
-        featureTypeAdapter = setupMultiChoiceList("Choose Type", featureTypeList, typeList);
+        featureTypeAdapter = ArrayAdapter.createFromResource(this.getContext(), R.array.feature_types,
+                android.R.layout.simple_spinner_item);
+        featureType.setAdapter(featureTypeAdapter);
 
         Button doneButton = (Button) view.findViewById(R.id.done);
         doneButton.setOnClickListener(v -> AddFeatureDialog.this.dismiss());
@@ -136,11 +139,6 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
 
                 if(featureParentList.getCheckedItemCount() == 0) {
                     ErrorDialog.showError(getContext(),"You must select at least one parent");
-                    return;
-                }
-
-                if(featureTypeList.getCheckedItemCount() != 1) {
-                    ErrorDialog.showError(getContext(),"You must select one and only one feature type");
                     return;
                 }
 
