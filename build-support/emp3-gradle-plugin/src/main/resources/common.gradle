@@ -59,7 +59,7 @@ dependencyManagement {
         // ANDROID-related
         dependency ("com.android.support:multidex:1.0.1")
         dependency ("com.android.support:appcompat-v7:23.2.1")
-        dependency ("com.android.support:support-annotations:24.0.0")
+        dependency ("com.android.support:support-annotations:23.1.1")
         dependency ("com.android.support:design:23.2.1")
 
         // OTHER
