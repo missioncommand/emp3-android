@@ -8,6 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Remove All Features?"
+        android:textColor="#000000"
         android:checked="true"/>
 
 
@@ -17,6 +18,7 @@
             android:layout_height="wrap_content"
             android:imeOptions="actionDone"
             android:inputType="text"
+            android:textColor="#000000"
             android:text="@string/text_plot_units"/>
 
 </LinearLayout>
