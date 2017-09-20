@@ -94,4 +94,20 @@
     <string name="CameraLatitude">39.54795</string>
     <string name="CameraLongitude">-76.16334</string>
     <string name="CameraAltitude">2580</string>
+
+
+    <string-array name="feature_types">
+        <item>GEO_CIRCLE</item>
+        <item>GEO_ELLIPSE</item>
+        <item>GEO_PATH</item>
+        <item>GEO_POINT</item>
+        <item>GEO_POLYGON</item>
+        <item>GEO_RECTANGLE</item>
+        <item>GEO_SQUARE</item>
+        <item>GEO_MIL_SYMBOL</item>
+        <item>GEO_ACM</item>
+        <item>GEO_TEXT</item>
+        <item>KML</item>
+        <item>GEOJSON</item>
+    </string-array>
 </resources>

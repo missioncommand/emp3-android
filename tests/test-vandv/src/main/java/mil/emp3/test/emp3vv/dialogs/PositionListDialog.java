@@ -113,7 +113,15 @@ public class PositionListDialog extends Emp3TesterDialogBase {
         });
 
         Button applyButton = (Button) view.findViewById(R.id.apply);
-        applyButton.setVisibility(GONE);
+        applyButton.setOnClickListener(v -> {
+            if(positionItemAdapter.getCount() >= minRequiredPositions) {
+                if (null != PositionListDialog.this.listener) {
+                    ((IPositionListDialogListener) PositionListDialog.this.listener).positionsSet(PositionListDialog.this);
+                }
+            } else {
+                ErrorDialog.showError(getContext(), "need minimum " + minRequiredPositions + " positions");
+            }
+        });
     }
 }
 
