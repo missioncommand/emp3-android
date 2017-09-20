@@ -7,6 +7,7 @@ import java.util.List;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.utils.EmpGeoPosition;
 
 import org.cmapi.primitives.GeoRenderable;
 import org.cmapi.primitives.IGeoRenderable;
@@ -31,6 +32,11 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
         super(new GeoRenderable(), FeatureTypeEnum.GEO_PATH);
         if (null == oPositionList) {
             throw new IllegalArgumentException("The coordinate parameter can NOT be null");
+        }
+        for (IGeoPosition geoPosition : oPositionList) {
+            if (!EmpGeoPosition.validate(geoPosition)) {
+                throw new IllegalArgumentException("GeoPosition is invalid");
+            }
         }
         this.getRenderable().getPositions().addAll(oPositionList);
     }
