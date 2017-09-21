@@ -3,11 +3,11 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
 dependencies {
-    compile project            (":emp3-android-sdk")
+    api project                (":emp3-android-sdk")
     //compile project     (":service:mirrorcache:service-mirrorcache-api")
     //compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
     implementation             ("com.android.support:appcompat-v7")
-    compile                    ("mil.army.missioncommand:mil-sym-android-renderer")
+    api                        ("mil.army.missioncommand:mil-sym-android-renderer")
 
     compileOnly project        (":cmapi")
     testImplementation project (":emp3-android-sdk-core-aar")
@@ -22,7 +22,7 @@ dependencies {
         exclude module: 'objenesis'
     }
 
-    testImplementation         ("org.robolectric:robolectric")
+    testImplementation         ("org.robolectric:robolectric:3.3.2")
 }
 
 
@@ -42,7 +42,7 @@ publishing {
                 // inject the compile-time dependencies
                 // TODO: this handles basic case;
                 //       need to find existing plugin and/or add more robustness
-                configurations.compile.allDependencies.each {
+                configurations.api.allDependencies.each {
                     if (it.name != 'unspecified') {
 
                         def dependencyNode = dependenciesNode.appendNode('dependency')
