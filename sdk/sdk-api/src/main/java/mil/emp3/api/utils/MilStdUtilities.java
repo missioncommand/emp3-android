@@ -6,6 +6,8 @@ import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoMilSymbol;
 
+import armyc2.c2sd.renderer.MilStdIconRenderer;
+import armyc2.c2sd.renderer.utilities.ImageInfo;
 import armyc2.c2sd.renderer.utilities.MilStdAttributes;
 import armyc2.c2sd.renderer.utilities.RendererSettings;
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
@@ -210,6 +212,9 @@ public class MilStdUtilities {
             }
         }
 
+        MilStdIconRenderer mir = MilStdIconRenderer.getInstance();
+        ImageInfo icon = mir.RenderIcon(feature.getSymbolCode(), feature.getUnitModifiers(MilStdLabelSettingEnum.ALL_LABELS),attributes);
+        //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         return "http://localhost:8080/mil-sym-service/renderer/image/" + feature.getSymbolCode() + "?" + params;
     }
 }
