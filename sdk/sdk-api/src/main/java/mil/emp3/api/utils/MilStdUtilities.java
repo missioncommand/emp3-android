@@ -214,6 +214,7 @@ public class MilStdUtilities {
 
         MilStdIconRenderer mir = MilStdIconRenderer.getInstance();
         ImageInfo icon = mir.RenderIcon(feature.getSymbolCode(), feature.getUnitModifiers(MilStdLabelSettingEnum.ALL_LABELS),attributes);
+         // JAVA
         //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         return "http://localhost:8080/mil-sym-service/renderer/image/" + feature.getSymbolCode() + "?" + params;
     }
