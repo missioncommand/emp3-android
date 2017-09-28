@@ -27,9 +27,11 @@ publishing.publications {
             extension "apk"
         }
         artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk.sha256") {
+            classifier "debug"
             extension "apk.sha256"
         }
         artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk.md5") {
+            classifier "debug"
             extension "apk.md5"
         }
 
