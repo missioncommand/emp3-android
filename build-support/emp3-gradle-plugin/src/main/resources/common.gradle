@@ -13,15 +13,15 @@ apply plugin: io.spring.gradle.dependencymanagement.DependencyManagementPlugin
 ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
-    version_nasa_worldwind_sdk = "0.6.0"
+    version_nasa_worldwind_sdk = "0.8.0-SNAPSHOT"
     version_cmapi              = "${version}"
-    version_renderer           = "0.1.30"
+    version_renderer           = "0.1.34"
     version_mirrorcache        = "0.1.0"
 
     android_minSdkVersion     = 19
     android_targetSdkVersion  = 23
     android_compileSdkVersion = 23
-    android_buildToolsVersion = "25.0.2"
+    android_buildToolsVersion = "25.0.3"
 }
 
 group = "mil.army.missioncommand"
@@ -35,6 +35,9 @@ repositories {
     maven {
         url 'https://maven.google.com'
         // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
+    }
+    maven {
+        url 'https://bintray.com/nasaworldwind/maven/WorldWindAndroid/'
     }
     maven {
         url "https://dl.bintray.com/missioncommand/maven/"
@@ -58,21 +61,11 @@ dependencyManagement {
         dependency ("com.android.support:appcompat-v7:23.2.1")
         dependency ("com.android.support:support-annotations:23.1.1")
         dependency ("com.android.support:design:23.2.1")
-
-        // OTHER
-        dependency ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
-
-        // TEST-related
-        dependency ("junit:junit:4.12")
-        dependency ("org.mockito:mockito-core:2.8.9")
-        dependency ("org.powermock:powermock-api-mockito:1.6.2")
-        dependency ("org.powermock:powermock-module-junit4:1.6.2")
-        dependency ("org.robolectric:robolectric:3.3.2")
     }
 }
 
 task wrapper(type: Wrapper, description: "Generates gradlew[.bat] scripts") {
-    gradleVersion = '4.1-rc-2'
+    gradleVersion = '4.1'
 }
 
 if (JavaVersion.current().isJava8Compatible()) { // disable lint for java8

@@ -110,20 +110,20 @@
         </LinearLayout>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/update_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update [Tap For Positions]" />
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:id="@+id/position_layout"
         android:visibility="invisible"
         android:orientation="horizontal"  >
 
-        <Button
-            android:id="@+id/update_position"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Update [Tap For Positions]" />
-
         <TextView
-            android:text="Latitude:"
+            android:text="Lat:"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/latitude_label" />
@@ -135,7 +135,7 @@
             android:id="@+id/latitude" />
 
         <TextView
-            android:text="Longitude:"
+            android:text="Lon:"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/longitude_label" />
@@ -147,7 +147,7 @@
             android:id="@+id/longitude" />
 
         <TextView
-            android:text="Altitude:"
+            android:text="Alt:"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/altitude_label" />

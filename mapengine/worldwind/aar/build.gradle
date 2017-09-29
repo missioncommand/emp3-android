@@ -2,22 +2,28 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 
 dependencies {
     implementation   ("com.android.support:support-annotations")
-    provided project (":emp3-android-sdk")
-    provided project (":cmapi")
+    compileOnly project (":emp3-android-sdk")
+    compileOnly project (":cmapi")
     compileOnly      (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
     implementation   ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
 }
+build.doLast { task ->
+    def sourceDir = "$projectDir/build/outputs/aar/"
+    def fileName = "mapengine-worldwind-aar-release.aar"
 
+    def checksumTarget = sourceDir + fileName
+    ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+    ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
+}
 android {
-    //def engine_version = dependencyManagement.importedProperties['version_nasa_worldwind_sdk']
+    def engine_version = dependencyManagement.importedProperties['version_nasa_worldwind_sdk']
     sourceSets {
         main.res.srcDirs  = ["$rootDir/mapengine/worldwind/apk/src/main/res"]
         main.java.srcDirs = ["$rootDir/mapengine/worldwind/apk/src/main/java"]
     }
 
     // Add map engine id and version information to BuildConfig to be retrieved by About class.
-    // Following is temporarily commented out until NASA publishes a version release to maven.
-//    buildTypes.each {
-//        it.buildConfigField "String", "Implementation_Map_Engine_Id", "\"worldwind_android_sdk ${engine_version}\""
-//    }
+    buildTypes.each {
+        it.buildConfigField "String", "Implementation_Map_Engine_Id", "\"worldwind_android_sdk ${engine_version}\""
+    }
 }

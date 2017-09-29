@@ -1,12 +1,13 @@
 apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-lib.gradle"
-apply plugin: 'maven-publish'
 
+apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.maven-nebula-publish'
 dependencies {
-    compile project            (":emp3-android-sdk")
+    api project                (":emp3-android-sdk")
     //compile project     (":service:mirrorcache:service-mirrorcache-api")
     //compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
     implementation             ("com.android.support:appcompat-v7")
-    compile                    ("mil.army.missioncommand:mil-sym-android-renderer")
+    api                        ("mil.army.missioncommand:mil-sym-android-renderer")
 
     compileOnly project        (":cmapi")
     testImplementation project (":emp3-android-sdk-core-aar")
@@ -21,7 +22,7 @@ dependencies {
         exclude module: 'objenesis'
     }
 
-    testImplementation         ("org.robolectric:robolectric")
+    testImplementation         ("org.robolectric:robolectric:3.3.2")
 }
 
 
@@ -29,14 +30,19 @@ publishing {
     publications {
         nebula(MavenPublication) {
             artifact "$buildDir/outputs/aar/${project.name}-release.aar"
-
+            artifact("$buildDir/outputs/aar/${project.name}-release.aar.sha256"){
+                extension "aar.sha256"
+            }
+            artifact("$buildDir/outputs/aar/${project.name}-release.aar.md5") {
+                extension "aar.md5"
+            }
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
 
                 // inject the compile-time dependencies
                 // TODO: this handles basic case;
                 //       need to find existing plugin and/or add more robustness
-                configurations.compile.allDependencies.each {
+                configurations.api.allDependencies.each {
                     if (it.name != 'unspecified') {
 
                         def dependencyNode = dependenciesNode.appendNode('dependency')
@@ -58,6 +64,15 @@ android {
     buildTypes.each {
         it.buildConfigField "String", "Implementation_Sec_Renderer_Id", "\"sec.web.renderer:mil-sym-android-renderer ${version_renderer}\""
         it.buildConfigField "String", "Implementation_Sec_Cmapi_Id", "\"org.cmapi.primitives:common-map-geospatial-notation ${version_cmapi}\""
+    }
+
+    build.doLast { task ->
+        def sourceDir = "$projectDir/build/outputs/aar/"
+        def fileName = "emp3-android-sdk-view-release.aar"
+
+        def checksumTarget = sourceDir + fileName
+        ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+        ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
     }
 
     lintOptions {

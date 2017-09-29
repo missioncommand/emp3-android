@@ -13,25 +13,27 @@ publishing.publications {
     nebula(MavenPublication) {
         artifactId = "emp3-android-worldwind"
 
-        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.md5") {
-            extension "apk.md5"
-        }
-
         artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar") {
             extension "aar"
         }
-
-        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.sha256") {
-            extension "apk.sha256"
+        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.sha256") {
+            extension "aar.sha256"
         }
-
-        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk") {
-            extension "apk"
+        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
+            extension "aar.md5"
         }
-
         artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk") {
             classifier "debug"
             extension "apk"
         }
+        artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk.sha256") {
+            classifier "debug"
+            extension "apk.sha256"
+        }
+        artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk.md5") {
+            classifier "debug"
+            extension "apk.md5"
+        }
+
     }
 }

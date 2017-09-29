@@ -1,6 +1,8 @@
 package mil.emp3.api;
 
 
+import android.graphics.Bitmap;
+
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.IGeoPolygon;
 import org.cmapi.primitives.IGeoPosition;
@@ -9,12 +11,14 @@ import java.util.List;
 import mil.emp3.api.abstracts.Feature;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.utils.EmpGeoPosition;
 
 /**
  * This class implements an polygon. It requires 3 or more geographic coordinates.
  */
 public class Polygon extends Feature<IGeoPolygon> implements IGeoPolygon {
 
+    private Bitmap patternFill = null;
     /**
      * This constructor creates a default geo polygon.
      */
@@ -31,6 +35,11 @@ public class Polygon extends Feature<IGeoPolygon> implements IGeoPolygon {
         if (null == oPositionList) {
             throw new IllegalArgumentException("The position list parameter can NOT be null");
         }
+        for (IGeoPosition geoPosition : oPositionList) {
+            if (!EmpGeoPosition.validate(geoPosition)) {
+                throw new IllegalArgumentException("GeoPosition is invalid");
+            }
+        }
         this.getRenderable().getPositions().addAll(oPositionList);
     }
 
@@ -42,6 +51,8 @@ public class Polygon extends Feature<IGeoPolygon> implements IGeoPolygon {
         super(oRenderable, FeatureTypeEnum.GEO_POLYGON);
     }
 
+    public void setPatternFillImage(Bitmap bmp){patternFill = bmp;}
+    public Bitmap getPatternFillImage(){return patternFill;}
     /**
      *
      * @return String gives polygon parameters

@@ -101,6 +101,9 @@ public class EmpGeoPosition extends GeoPosition {
      * @return
      */
     public static boolean validate(IGeoPosition position) {
+        if (position == null) {
+            return false;
+        }
         return validate(position.getLatitude(), position.getLongitude(), position.getAltitude());
     }
 

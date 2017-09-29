@@ -1,12 +1,6 @@
-apply plugin: 'java-library'
+apply plugin: 'java'
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
-
-dependencies {
-    compileOnly project (":emp3-android-sdk")
-    compileOnly project (":cmapi")
-    compileOnly         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
-}
 
 publishing.publications {
     nebula(MavenPublication) {
@@ -15,21 +9,22 @@ publishing.publications {
         artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar") {
             extension "aar"
         }
-
-        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk") {
-            extension "apk"
+        artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.sha256") {
+            extension "aar.sha256"
         }
-
+        artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.md5") {
+            extension "aar.md5"
+        }
         artifact("$buildDir/../apk/build/outputs/apk/debug/emp3-android-sdk-core-apk-debug.apk") {
             classifier "debug"
             extension "apk"
         }
-
-        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk.md5") {
+        artifact("$buildDir/../apk/build/outputs/apk/debug/emp3-android-sdk-core-apk-debug.apk.md5") {
+            classifier "debug"
             extension "apk.md5"
         }
-
-        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk.sha256") {
+        artifact("$buildDir/../apk/build/outputs/apk/debug/emp3-android-sdk-core-apk-debug.apk.sha256") {
+            classifier "debug"
             extension "apk.sha256"
         }
     }

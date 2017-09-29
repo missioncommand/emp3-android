@@ -8,7 +8,12 @@ android {
         applicationId "mil.emp3.dev_test_sdk"
     }
 }
-
+repositories {
+    maven {
+        url 'https://maven.google.com'
+        // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
+    }
+}
 dependencies {
     implementation project (":emp3-android-sdk")
     implementation project (":emp3-android-sdk-core-aar")

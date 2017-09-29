@@ -8,13 +8,21 @@ dependencies {
 
     implementation         ("com.android.support:appcompat-v7")
 
-    testImplementation     ("junit:junit")
+    testImplementation     ("junit:junit:4.12")
 }
 
 android {
     defaultConfig {
         applicationId "mil.emp3.emp3_android_sdk_apk"
     }
+}
+build.doLast { task ->
+    def sourceDir = "$projectDir/../sdk-apk/build/outputs/apk/debug/"
+    def fileName = "emp3-android-sdk-apk-debug.apk"
+
+    def checksumTarget = sourceDir + fileName
+    ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+    ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
 }
 
 publishing {
@@ -41,6 +49,15 @@ publishing {
                     }
                 }
             }
+
+            artifact("$buildDir/outputs/apk/debug/emp3-android-sdk-apk-debug.apk.sha256") {
+                extension "apk.sha256"
+            }
+
+            artifact("$buildDir/outputs/apk/debug/emp3-android-sdk-apk-debug.apk.md5") {
+                extension "apk.md5"
+            }
+
         }
     }
 }
