@@ -57,25 +57,32 @@ public class MilStdUtilities {
         return "";
     }
 
-    public static String getMilStdSinglePointIconURL(final MilStdSymbol feature,
-            MilStdLabelSettingEnum eLabelSetting, java.util.Set<IGeoMilSymbol.Modifier> labelSet,
-            SparseArray<String> attributes) {
+    public static String getMilStdSinglePointParams(final MilStdSymbol                    feature,
+                                                    MilStdLabelSettingEnum                eLabelSetting,
+                                                    java.util.Set<IGeoMilSymbol.Modifier> labelSet,
+                                                    SparseArray<String>                   attributes)
+    {
         int iKey;
         String value;
         String UniqueDesignator1 = null;
         String params = "";
         java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = feature.getModifiers();
 
-        if (null != attributes) {
-            for (int iIndex = 0; iIndex < attributes.size(); iIndex++) {
+        if (null != attributes)
+        {
+            for (int iIndex = 0; iIndex < attributes.size(); iIndex++)
+            {
                 iKey = attributes.keyAt(iIndex);
                 value = attributes.valueAt(iIndex);
-                switch (iKey) {
+                switch (iKey)
+                {
                     case MilStdAttributes.SymbologyStandard:
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
-                        switch (value) {
+                        switch (value)
+                        {
                             case "0":
                                 params += "symStd=2525B";
                                 break;
@@ -86,37 +93,43 @@ public class MilStdUtilities {
                         }
                         break;
                     case MilStdAttributes.PixelSize:
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
                         params += "Size=" + value;
                         break;
                     case MilStdAttributes.FillColor:
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
                         params += "fillColor=" + value;
                         break;
                     case MilStdAttributes.LineColor:
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
                         params += "lineColor=" + value;
                         break;
                     case MilStdAttributes.IconColor:
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
                         params += "lineColor=" + value;
                         break;
                     case MilStdAttributes.TextColor:
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
                         params += "textColor=" + value;
                         break;
                     case MilStdAttributes.FontSize:
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
                         params += "fontSize=" + value;
@@ -124,11 +137,14 @@ public class MilStdUtilities {
                 }
             }
         }
-        if ((geoModifiers != null) && !geoModifiers.isEmpty()) {
+        if ((geoModifiers != null) && !geoModifiers.isEmpty())
+        {
             java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
 
-            for (IGeoMilSymbol.Modifier eModifier: oModifierList) {
-                if ((labelSet != null) && !labelSet.contains(eModifier)) {
+            for (IGeoMilSymbol.Modifier eModifier: oModifierList)
+            {
+                if ((labelSet != null) && !labelSet.contains(eModifier))
+                {
                     // Its not on the list.
                     continue;
                 }
@@ -175,14 +191,16 @@ public class MilStdUtilities {
                     case ENGAGEMENT_BAR:
                     case COUNTRY_CODE:
                     case SONAR_CLASSIFICATION_CONFIDENCE:
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
                         params += eModifier.valueOf() + "=" + geoModifiers.get(eModifier);
                         break;
                     case UNIQUE_DESIGNATOR_1:
                         UniqueDesignator1 = geoModifiers.get(eModifier);
-                        if (!params.isEmpty()) {
+                        if (!params.isEmpty())
+                        {
                             params += "&";
                         }
                         params += eModifier.valueOf() + "=" + geoModifiers.get(eModifier);
@@ -194,15 +212,20 @@ public class MilStdUtilities {
             }
         }
 
-        if ((feature.getName() != null) && !feature.getName().isEmpty()) {
-            if (eLabelSetting != null) {
-                switch (eLabelSetting) {
+        if ((feature.getName() != null) && !feature.getName().isEmpty())
+        {
+            if (eLabelSetting != null)
+            {
+                switch (eLabelSetting)
+                {
                     case REQUIRED_LABELS:
                         break;
                     case COMMON_LABELS:
                     case ALL_LABELS:
-                        if ((UniqueDesignator1 == null) || UniqueDesignator1.isEmpty() || !UniqueDesignator1.toUpperCase().equals(feature.getName().toUpperCase())) {
-                            if (!params.isEmpty()) {
+                        if ((UniqueDesignator1 == null) || UniqueDesignator1.isEmpty() || !UniqueDesignator1.toUpperCase().equals(feature.getName().toUpperCase()))
+                        {
+                            if (!params.isEmpty())
+                            {
                                 params += "&";
                             }
                             params += "CN=" + feature.getName();
@@ -211,11 +234,13 @@ public class MilStdUtilities {
                 }
             }
         }
+        return params;
+    }
 
-        MilStdIconRenderer mir = MilStdIconRenderer.getInstance();
-        ImageInfo icon = mir.RenderIcon(feature.getSymbolCode(), feature.getUnitModifiers(MilStdLabelSettingEnum.ALL_LABELS),attributes);
-         // JAVA
-        //Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        return "http://localhost:8080/mil-sym-service/renderer/image/" + feature.getSymbolCode() + "?" + params;
+    public static String getMilStdSinglePointIconURL(final MilStdSymbol feature,
+            MilStdLabelSettingEnum eLabelSetting, java.util.Set<IGeoMilSymbol.Modifier> labelSet,
+            SparseArray<String> attributes)
+    {
+        return "http://localhost:8080/mil-sym-service/renderer/image/" + feature.getSymbolCode() + "?" + getMilStdSinglePointParams(feature, eLabelSetting, labelSet, attributes);
     }
 }
