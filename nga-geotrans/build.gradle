@@ -19,3 +19,20 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    destinationDir = file("build/javadoc/")
+    failOnError false
+}
+
+
+task javadocZip(type: Zip) {
+    dependsOn javadoc
+    from 'build/javadoc/'
+    include '*'
+    include '*/*' //to include contents of a folder present inside Reports directory
+    archiveName 'geotrans-javadoc.zip'
+    destinationDir(file('build/outputs/libs'))
+}
