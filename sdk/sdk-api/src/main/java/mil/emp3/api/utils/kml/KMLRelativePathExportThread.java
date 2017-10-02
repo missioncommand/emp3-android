@@ -11,10 +11,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Set;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
 import armyc2.c2sd.renderer.utilities.ImageInfo;
@@ -43,7 +39,7 @@ class KMLRelativePathExportThread extends KMLExportThread
         super(map, extendedData, callback);
         if(!directoryExists(outputDirectory))
         {
-            throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid ");
+            throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid and existing directory.");
         }
         this.outputDirectory = outputDirectory;
     }
@@ -57,7 +53,7 @@ class KMLRelativePathExportThread extends KMLExportThread
         super(map, overlay, extendedData, callback);
         if(!directoryExists(outputDirectory))
         {
-            throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid ");
+            throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid and existing directory.");
         }
         this.outputDirectory = outputDirectory;
     }
@@ -67,7 +63,7 @@ class KMLRelativePathExportThread extends KMLExportThread
         super(map, feature, extendedData, callback);
         if(!directoryExists(outputDirectory))
         {
-            throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid ");
+            throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid and existing directory.");
         }
         this.outputDirectory = outputDirectory;
     }
@@ -102,6 +98,7 @@ class KMLRelativePathExportThread extends KMLExportThread
             Log.d(TAG, "Error accessing file: " + e.getMessage());
         }
     }
+
     /** Create a File for saving an image or video */
     private  File getOutputMediaFile(String outputDirectory, String fileName) throws IOException
     {
