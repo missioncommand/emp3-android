@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Set;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
 import armyc2.c2sd.renderer.utilities.ImageInfo;
@@ -20,15 +21,18 @@ import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.utils.MilStdUtilities;
 
 /**
  * Created by jenifer.Cochran on 9/28/2017.
  */
 
-class KMLRelativePathExportThread extends KMLExportThread
+public class KMLRelativePathExportThread extends KMLExportThread
 {
 
     private static final String TAG = "KMZExporterThread";
+    private static final String ImageDirectory = "Image";
+    private static final String ImageExtension = ".png";
     private final String outputDirectory;
 
     protected KMLRelativePathExportThread(IMap                       map,
@@ -37,12 +41,17 @@ class KMLRelativePathExportThread extends KMLExportThread
                                           String                     outputDirectory)
     {
         super(map, extendedData, callback);
+
         if(!directoryExists(outputDirectory))
         {
             throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid and existing directory.");
         }
+
         this.outputDirectory = outputDirectory;
+        createImageDirectory(outputDirectory);
     }
+
+
 
     protected KMLRelativePathExportThread(IMap                       map,
                                           IOverlay                   overlay,
@@ -51,21 +60,31 @@ class KMLRelativePathExportThread extends KMLExportThread
                                           String                     outputDirectory)
     {
         super(map, overlay, extendedData, callback);
+
         if(!directoryExists(outputDirectory))
         {
             throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid and existing directory.");
         }
+
         this.outputDirectory = outputDirectory;
+        createImageDirectory(outputDirectory);
     }
 
-    protected KMLRelativePathExportThread(IMap map, IFeature feature, boolean extendedData, IEmpExportToStringCallback callback, String outputDirectory)
+    protected KMLRelativePathExportThread(IMap                       map,
+                                          IFeature                   feature,
+                                          boolean                    extendedData,
+                                          IEmpExportToStringCallback callback,
+                                          String                     outputDirectory)
     {
         super(map, feature, extendedData, callback);
+
         if(!directoryExists(outputDirectory))
         {
             throw new IllegalArgumentException("The directory %s does not exist. Must pass a valid and existing directory.");
         }
+
         this.outputDirectory = outputDirectory;
+        createImageDirectory(outputDirectory);
     }
 
     @Override
@@ -76,25 +95,50 @@ class KMLRelativePathExportThread extends KMLExportThread
     {
         MilStdIconRenderer mir = MilStdIconRenderer.getInstance();
         ImageInfo icon = mir.RenderIcon(feature.getSymbolCode(), feature.getUnitModifiers(MilStdLabelSettingEnum.ALL_LABELS),attributes);
-//        icon.getImage().
-        return super.getMilStdSinglePointIconURL(feature, eLabelSetting, labelSet, attributes);
+        String fileName = MilStdUtilities.getMilStdSinglePointParams(feature, eLabelSetting, labelSet, attributes) + ImageExtension;
+
+        try
+        {
+
+            storeImage(icon.getImage(), fileName);
+        }
+        catch (IOException e)
+        {
+            //TODO handle exception
+            e.printStackTrace();
+        }
+
+        return fileName;
     }
 
-    private void storeImage(Bitmap image) throws IOException
+    private static void createImageDirectory(String outputDirectory)
     {
-        File pictureFile = getOutputMediaFile(this.outputDirectory, "asdfasdf.PNG");
+        File imageDirectory = new File(outputDirectory + File.separator + ImageDirectory);
+        imageDirectory.mkdir();
+    }
+
+    private void storeImage(Bitmap image, String fileName) throws IOException
+    {
+        File pictureFile = getOutputMediaFile(this.outputDirectory, fileName);
+
         if (pictureFile == null)
         {
-            Log.d(TAG, "Error creating media file, check storage permissions: ");// e.getMessage());
+            Log.d(TAG, "Error creating media file, check storage permissions: ");
             return;
         }
-        try {
+
+        try
+        {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             image.compress(Bitmap.CompressFormat.PNG, 90, fos);
             fos.close();
-        } catch (FileNotFoundException e) {
+        }
+        catch (FileNotFoundException e)
+        {
             Log.d(TAG, "File not found: " + e.getMessage());
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             Log.d(TAG, "Error accessing file: " + e.getMessage());
         }
     }
@@ -109,7 +153,7 @@ class KMLRelativePathExportThread extends KMLExportThread
             throw new IOException("Unable to write to external storage");
         }
 
-        return new File(outputDirectory + File.separator + fileName);
+        return new File(outputDirectory + File.separator + ImageDirectory + File.separator + fileName);
     }
 
     public static boolean directoryExists(String directoryPath)
