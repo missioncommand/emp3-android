@@ -1,147 +1,189 @@
-package mil.emp3.api.utils.kmz
+package mil.emp3.api.utils.kmz;
 
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.zip.ZipOutputStream
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.ZipOutputStream;
 
-import mil.emp3.api.interfaces.IEmpExportToStringCallback
-import mil.emp3.api.interfaces.IEmpExportToTypeCallBack
-import mil.emp3.api.interfaces.IFeature
-import mil.emp3.api.interfaces.IMap
-import mil.emp3.api.interfaces.IOverlay
+import mil.emp3.api.interfaces.IEmpExportToStringCallback;
+import mil.emp3.api.interfaces.IEmpExportToTypeCallBack;
+import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.IOverlay;
 
 /**
  * Created by jenifer.Cochran on 9/28/2017.
-
+ *
  */
 
-class KMZExporterThread : Thread {
-    private val outputDirectory: File
-    private val callback: IEmpExportToTypeCallBack<File>
-    private val map: IMap
-    private val extendedData: Boolean
-    private val overlay: IOverlay?
-    private val feature: IFeature<*>?
-    private val exportType: ExportType
+public class KMZExporterThread extends Thread
+{
+    private final File                           outputDirectory;
+    private final IEmpExportToTypeCallBack<File> callback;
+    private final IMap                           map;
+    private final boolean                        extendedData;
+    private final IOverlay                       overlay;
+    private final IFeature                       feature;
+    private final ExportType                     exportType;
 
 
-    protected enum class ExportType {
+    protected enum ExportType
+    {
         Map,
         Overlay,
         Feature
     }
 
 
-    constructor(map: IMap,
-                extendedData: Boolean,
-                callback: IEmpExportToTypeCallBack<File>,
-                outputDirectory: String) {
-        this.outputDirectory = File(outputDirectory)
-        createOutputDirectory(outputDirectory)
-        this.callback = callback
-        this.map = map
-        this.extendedData = extendedData
-        this.overlay = null
-        this.feature = null
-        this.exportType = ExportType.Map
+    public KMZExporterThread(final IMap                           map,
+                             final boolean                        extendedData,
+                             final IEmpExportToTypeCallBack<File> callback,
+                             final String                         outputDirectory)
+    {
+        this.outputDirectory = new File(outputDirectory);
+        createOutputDirectory(outputDirectory);
+
+        this.callback     = callback;
+        this.map          = map;
+        this.extendedData = extendedData;
+        this.overlay      = null;
+        this.feature      = null;
+        this.exportType   = ExportType.Map;
     }
 
 
-    constructor(map: IMap,
-                overlay: IOverlay,
-                extendedData: Boolean,
-                callback: IEmpExportToTypeCallBack<File>,
-                outputDirectory: String) {
-        this.outputDirectory = File(outputDirectory)
-        createOutputDirectory(outputDirectory)
-        this.callback = callback
-        this.map = map
-        this.extendedData = extendedData
-        this.overlay = overlay
-        this.feature = null
-        this.exportType = ExportType.Overlay
+
+    protected KMZExporterThread(IMap                           map,
+                                IOverlay                       overlay,
+                                boolean                        extendedData,
+                                IEmpExportToTypeCallBack<File> callback,
+                                String                         outputDirectory)
+    {
+        this.outputDirectory = new File(outputDirectory);
+        createOutputDirectory(outputDirectory);
+
+        this.callback     = callback;
+        this.map          = map;
+        this.extendedData = extendedData;
+        this.overlay      = overlay;
+        this.feature      = null;
+        this.exportType   = ExportType.Overlay;
 
     }
 
-    constructor(map: IMap,
-                feature: IFeature<*>,
-                extendedData: Boolean,
-                callback: IEmpExportToTypeCallBack<File>,
-                outputDirectory: String) {
-        this.outputDirectory = File(outputDirectory)
-        createOutputDirectory(outputDirectory)
-        this.callback = callback
-        this.map = map
-        this.extendedData = extendedData
-        this.overlay = null
-        this.feature = feature
-        this.exportType = ExportType.Feature
+    protected KMZExporterThread(IMap                           map,
+                                IFeature                       feature,
+                                boolean                        extendedData,
+                                IEmpExportToTypeCallBack<File> callback,
+                                String                         outputDirectory)
+    {
+        this.outputDirectory = new File(outputDirectory);
+        createOutputDirectory(outputDirectory);
+
+        this.callback     = callback;
+        this.map          = map;
+        this.extendedData = extendedData;
+        this.overlay      = null;
+        this.feature      = feature;
+        this.exportType   = ExportType.Feature;
     }
 
-    private fun createOutputDirectory(outputDirectory: String) {
-        val directory = File(outputDirectory)
-        directory.mkdirs()
-        if (!directory.isDirectory) {
-            throw IllegalArgumentException(String.format("The outputDirectory must be a path to a Directory. %s is not a directory.", outputDirectory))
+    private static void createOutputDirectory(String outputDirectory)
+    {
+        File directory = new File(outputDirectory);
+        directory.mkdirs();
+        if(!directory.isDirectory())
+        {
+            throw new IllegalArgumentException(String.format("The outputDirectory must be a path to a Directory. %s is not a directory.", outputDirectory));
         }
 
     }
 
-    override fun run() {
-        super.run()
+    @Override
+    public void run()
+    {
+        super.run();
 
-        var kmlRelativePathExportThread: KMLRelativePathExportThread? = null
+        KMLRelativePathExportThread kmlRelativePathExportThread = null;
 
-        when (this.exportType) {
+        switch (this.exportType)
+        {
 
-            KMZExporterThread.ExportType.Map -> kmlRelativePathExportThread = KMLRelativePathExportThread(this.map,
-                    this.extendedData,
-                    object : IEmpExportToStringCallback {
-                        override fun exportSuccess(stringFmt: String) {
-                            CreateKMZfile(stringFmt, this@KMZExporterThread.outputDirectory)
-                        }
+            case Map:
+                 kmlRelativePathExportThread = new KMLRelativePathExportThread(this.map,
+                                                                               this.extendedData,
+                                                                               new IEmpExportToStringCallback(){
+                                                                                                                   @Override
+                                                                                                                   public void exportSuccess(String stringFmt)
+                                                                                                                   {
+                                                                                                                         CreateKMZfile(stringFmt,
+                                                                                                                                       KMZExporterThread.this.outputDirectory,
+                                                                                                                                       KMZExporterThread.this.callback);
+                                                                                                                   }
 
-                        override fun exportFailed(Ex: Exception) {
+                                                                                                                   @Override
+                                                                                                                   public void exportFailed(Exception Ex)
+                                                                                                                   {
+                                                                                                                       KMZExporterThread.this.callback.exportFailed(Ex);
+                                                                                                                   }
+                                                                                                               },
+                                                                               this.outputDirectory.getAbsolutePath());
 
-                        }
-                    },
-                    this.outputDirectory.absolutePath)
-            KMZExporterThread.ExportType.Overlay -> kmlRelativePathExportThread = KMLRelativePathExportThread(this.map,
-                    this.overlay,
-                    this.extendedData,
-                    object : IEmpExportToStringCallback {
-                        override fun exportSuccess(stringFmt: String) {
-                            CreateKMZfile(stringFmt, this@KMZExporterThread.outputDirectory)
-                        }
+                break;
+            case Overlay:
+                 kmlRelativePathExportThread = new KMLRelativePathExportThread(this.map,
+                                                                               this.overlay,
+                                                                               this.extendedData,
+                                                                               new IEmpExportToStringCallback()
+                                                                               {
+                                                                                   @Override
+                                                                                   public void exportSuccess(String stringFmt)
+                                                                                   {
+                                                                                       CreateKMZfile(stringFmt,
+                                                                                                     KMZExporterThread.this.outputDirectory,
+                                                                                                     KMZExporterThread.this.callback);
+                                                                                   }
 
-                        override fun exportFailed(Ex: Exception) {
-                            this@KMZExporterThread.callback.exportFailed(Ex)
-                        }
-                    },
-                    this.outputDirectory.absolutePath)
-            KMZExporterThread.ExportType.Feature -> kmlRelativePathExportThread = KMLRelativePathExportThread(this.map,
-                    this.feature,
-                    this.extendedData,
-                    object : IEmpExportToStringCallback {
-                        override fun exportSuccess(stringFmt: String) {
-                            CreateKMZfile(stringFmt, this@KMZExporterThread.outputDirectory)
-                        }
+                                                                                   @Override
+                                                                                   public void exportFailed(Exception Ex)
+                                                                                   {
+                                                                                        KMZExporterThread.this.callback.exportFailed(Ex);
+                                                                                   }
+                                                                               },
+                                                                               this.outputDirectory.getAbsolutePath());
+                break;
+            case Feature:
+                 kmlRelativePathExportThread = new KMLRelativePathExportThread(this.map,
+                                                                               this.feature,
+                                                                               this.extendedData,
+                                                                               new IEmpExportToStringCallback()
+                                                                               {
+                                                                                   @Override
+                                                                                   public void exportSuccess(String stringFmt)
+                                                                                   {
+                                                                                       CreateKMZfile(stringFmt,
+                                                                                                     KMZExporterThread.this.outputDirectory,
+                                                                                                     KMZExporterThread.this.callback);
+                                                                                   }
 
-                        override fun exportFailed(Ex: Exception) {
-                            this@KMZExporterThread.callback.exportFailed(Ex)
-                        }
-                    },
-                    this.outputDirectory.absolutePath)
+                                                                                   @Override
+                                                                                   public void exportFailed(Exception Ex)
+                                                                                   {
+                                                                                        KMZExporterThread.this.callback.exportFailed(Ex);
+                                                                                   }
+                                                                               },
+                                                                               this.outputDirectory.getAbsolutePath());
+                break;
         }
 
-        kmlRelativePathExportThread.run()
-        kmlRelativePathExportThread.start()
+        kmlRelativePathExportThread.run();
+        kmlRelativePathExportThread.start();
 
     }
 
-    private fun CreateKMZfile(kmlString: String, kmzDirectory: File) {
+    private static void CreateKMZfile(final String kmlString, final File kmzDirectory, final IEmpExportToTypeCallBack<File> callback)
+    {
 
     }
 

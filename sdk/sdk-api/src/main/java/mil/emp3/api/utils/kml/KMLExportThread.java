@@ -1436,8 +1436,9 @@ public class KMLExportThread extends java.lang.Thread {
             } else if (null != this.map) {
                 kmlString = export(this.map, xmlSerializer);
             }
+            String exportSuccessString = getExportSuccessString(kmlString);
             try {
-                this.callback.exportSuccess(kmlString);
+                this.callback.exportSuccess(exportSuccessString);
             } catch (Exception Ex) {
                 Log.e(TAG, "Exception raised in export callback.", Ex);
             }
@@ -1461,6 +1462,10 @@ public class KMLExportThread extends java.lang.Thread {
             }
             dump = null;
         }
+    }
+
+    protected String getExportSuccessString(String kmlString) throws IOException {
+        return kmlString;
     }
 
     protected KMLExportThread(IMap map, boolean extendedData, IEmpExportToStringCallback callback) {

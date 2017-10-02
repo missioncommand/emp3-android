@@ -1,4 +1,4 @@
-package mil.emp3.api.utils.kml;
+package mil.emp3.api.utils.kmz;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -22,6 +22,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.utils.MilStdUtilities;
+import mil.emp3.api.utils.kml.KMLExportThread;
 
 /**
  * Created by jenifer.Cochran on 9/28/2017.
@@ -99,7 +100,6 @@ public class KMLRelativePathExportThread extends KMLExportThread
 
         try
         {
-
             storeImage(icon.getImage(), fileName);
         }
         catch (IOException e)
@@ -108,7 +108,20 @@ public class KMLRelativePathExportThread extends KMLExportThread
             e.printStackTrace();
         }
 
-        return fileName;
+        return ImageDirectory + File.separator + fileName;
+    }
+
+    @Override
+    protected String getExportSuccessString(String kmlString) throws IOException
+    {
+        File dest = new File(this.outputDirectory + File.separator + "mapexport.kml");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(dest))
+        {
+            byte[] byteArray = kmlString.getBytes();
+            fileOutputStream.write(byteArray, 0, byteArray.length);
+            fileOutputStream.flush();
+        }
+        return dest.getAbsolutePath();
     }
 
     private static void createImageDirectory(String outputDirectory)
@@ -121,17 +134,20 @@ public class KMLRelativePathExportThread extends KMLExportThread
     {
         File pictureFile = getOutputMediaFile(this.outputDirectory, fileName);
 
+        if(pictureFile.exists())
+        {
+            return;
+        }
+
         if (pictureFile == null)
         {
             Log.d(TAG, "Error creating media file, check storage permissions: ");
             return;
         }
 
-        try
+        try(FileOutputStream fos = new FileOutputStream(pictureFile))
         {
-            FileOutputStream fos = new FileOutputStream(pictureFile);
             image.compress(Bitmap.CompressFormat.PNG, 90, fos);
-            fos.close();
         }
         catch (FileNotFoundException e)
         {
