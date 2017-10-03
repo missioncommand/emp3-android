@@ -111,19 +111,6 @@ public class KMLRelativePathExportThread extends KMLExportThread
         return ImageDirectory + File.separator + fileName;
     }
 
-    @Override
-    protected String getExportSuccessString(String kmlString) throws IOException
-    {
-        File dest = new File(this.outputDirectory + File.separator + "mapexport.kml");
-        try (FileOutputStream fileOutputStream = new FileOutputStream(dest))
-        {
-            byte[] byteArray = kmlString.getBytes();
-            fileOutputStream.write(byteArray, 0, byteArray.length);
-            fileOutputStream.flush();
-        }
-        return dest.getAbsolutePath();
-    }
-
     private static void createImageDirectory(String outputDirectory)
     {
         File imageDirectory = new File(outputDirectory + File.separator + ImageDirectory);

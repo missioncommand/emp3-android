@@ -36,7 +36,7 @@ public class EmpKMZExporter
         KMZExporterThread kmzExporterThread = new KMZExporterThread(map,
                                                                     extendedData,
                                                                     callBack,
-                                                       DefaultExportDirectory + File.separator + KMZdirectoryName);
+                                                                    DefaultExportDirectory + File.separator + KMZdirectoryName);
         kmzExporterThread.run();
         kmzExporterThread.start();
     }
@@ -57,7 +57,7 @@ public class EmpKMZExporter
                                                                     overlay,
                                                                     extendedData,
                                                                     callBack,
-                                                       DefaultExportDirectory + File.separator + KMZdirectoryName);
+                                                                    DefaultExportDirectory + File.separator + KMZdirectoryName);
         kmzExporterThread.run();
         kmzExporterThread.start();
     }
@@ -78,7 +78,7 @@ public class EmpKMZExporter
                                                                     feature,
                                                                     extendedData,
                                                                     callBack,
-                                                       DefaultExportDirectory + File.separator + KMZdirectoryName);
+                                                                    DefaultExportDirectory + File.separator + KMZdirectoryName);
         kmzExporterThread.run();
         kmzExporterThread.start();
     }
