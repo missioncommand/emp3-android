@@ -2,10 +2,16 @@ package mil.emp3.api.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -30,92 +36,61 @@ public class ZipUtility
      * Zips a file at a location and places the resulting zip file at the toLocation
      * Example: zipFileAtPath("downloads/myfolder", "downloads/myFolder.zip");
      *
-     * @param sourcePath the location of the file/folder that needs to be zipped
-     * @param toLocation the location where the file/folder will be zipped to
+     * @param directory the location of the file/folder that needs to be zipped
+     * @param zipfile the location where the file/folder will be zipped to
      * @return true if the zipping was successful, false otherwise
      */
-
-    public boolean zipFileAtPath(String sourcePath, String toLocation)
+    public static void zip(File directory, File zipfile) throws IOException
     {
-        File sourceFile = new File(sourcePath);
+        URI         base  = directory.toURI();
+        Deque<File> queue = new LinkedList<File>();
+        queue.push(directory);
 
-        try (FileOutputStream dest = new FileOutputStream(toLocation);
-             ZipOutputStream  out = new ZipOutputStream(new BufferedOutputStream(dest)))
+        try (OutputStream out = new FileOutputStream(zipfile);
+             ZipOutputStream zout = new ZipOutputStream(out);)
         {
-
-            if (sourceFile.isDirectory())
+            while (!queue.isEmpty())
             {
-                zipSubFolder(out, sourceFile, sourceFile.getParent().length());
-            }
-            else
-            {
-                addZipFileEntry(sourcePath, sourcePath, out);
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Zips a Subfolder
-     *
-     * @param out    ZipOutputStream to write to
-     * @param folder  the folder to zip
-     * @param basePathLength  the length of the base path
-     * @throws IOException if read/write error or if the file doesn't exist
-     */
-    private void zipSubFolder(final ZipOutputStream out,
-                              final File            folder,
-                              final int             basePathLength) throws IOException
-    {
-        File[] fileList = folder.listFiles();
-        for (File file : fileList)
-        {
-            if (file.isDirectory())
-            {
-                zipSubFolder(out, file, basePathLength);
-            }
-            else
-            {
-                String unmodifiedFilePath = file.getPath();
-                String relativePath       = unmodifiedFilePath.substring(basePathLength);
-
-                addZipFileEntry(unmodifiedFilePath, relativePath, out);
+                directory = queue.pop();
+                for (File kid : directory.listFiles())
+                {
+                    String name = base.relativize(kid.toURI()).getPath();
+                    if (kid.isDirectory())
+                    {
+                        queue.push(kid);
+                        name = name.endsWith("/") ? name : name + "/";
+                        zout.putNextEntry(new ZipEntry(name));
+                    }
+                    else
+                    {
+                        zout.putNextEntry(new ZipEntry(name));
+                        copy(kid, zout);
+                        zout.closeEntry();
+                    }
+                }
             }
         }
     }
 
-    /**
-     * Zips a file into the ZipOutputStream
-     *
-     * @param filePath  the location of the file to zip
-     * @param zipEntryPath the location of where the zip entry needs to be stored
-     * @param out  the ZipOutputStream to write the data to
-     * @throws IOException if there are file reading/writing exceptions or if the file doesn't exist
-     */
-    private static void addZipFileEntry(final String          filePath,
-                                        final String          zipEntryPath,
-                                        final ZipOutputStream out) throws IOException
+    private static void copy(InputStream in, OutputStream out) throws IOException
     {
-
-        byte data[] = new byte[BUFFER];
-
-        try (FileInputStream     fi     = new FileInputStream(filePath);
-             BufferedInputStream origin = new BufferedInputStream(fi, BUFFER))
+        byte[] buffer = new byte[1024];
+        while (true)
         {
-            ZipEntry entry = new ZipEntry(zipEntryPath);
-
-            out.putNextEntry(entry);
-            int count;
-
-            while ((count = origin.read(data, 0, BUFFER)) != -1)
+            int readCount = in.read(buffer);
+            if (readCount < 0)
             {
-                out.write(data, 0, count);
+                break;
             }
+            out.write(buffer, 0, readCount);
+        }
+    }
+
+    private static void copy(File file, OutputStream out) throws IOException
+    {
+        try (InputStream in = new FileInputStream(file))
+        {
+            copy(in, out);
         }
     }
 }
