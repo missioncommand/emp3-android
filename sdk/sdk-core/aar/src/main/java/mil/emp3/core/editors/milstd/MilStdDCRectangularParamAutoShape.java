@@ -12,7 +12,7 @@ import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -201,7 +201,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         // Add width control point.
         pos = new GeoPosition();
         // Place it at half the width distance at an azimuth of attitude.
-        GeoLibrary.computePositionAt(attitude, length / 2, posList.get(0), pos);
+        GeographicLib.computePositionAt(attitude, length / 2, posList.get(0), pos);
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.LENGTH_CP, 0, -1);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
@@ -209,7 +209,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         // Add length control point.
         pos = new GeoPosition();
         // Place it at the half the length distance at an azimuth of 90 + attitude.
-        GeoLibrary.computePositionAt((90.0 + attitude) % 360, width / 2, posList.get(0), pos);
+        GeographicLib.computePositionAt((90.0 + attitude) % 360, width / 2, posList.get(0), pos);
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 1, -1);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
@@ -217,7 +217,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         // Add attitude control point.
         pos = new GeoPosition();
         // Place it at half the length distance at an azimuth of 270 + attitude.
-        GeoLibrary.computePositionAt((270.0 + attitude) % 360, width / 2, posList.get(0), pos);
+        GeographicLib.computePositionAt((270.0 + attitude) % 360, width / 2, posList.get(0), pos);
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.ATTITUDE_CP, 0, -1);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
@@ -233,17 +233,17 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
         // Get length control point.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.LENGTH_CP, 0, -1);
         // Place it at half the width distance at an azimuth of attitude.
-        GeoLibrary.computePositionAt(attitude, length / 2, posList.get(0), controlPoint.getPosition());
+        GeographicLib.computePositionAt(attitude, length / 2, posList.get(0), controlPoint.getPosition());
 
         // Get width control point.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 1, -1);
         // Place it at the half the width distance at an azimuth of 90 + attitude.
-        GeoLibrary.computePositionAt((90.0 + attitude) % 360, width / 2, posList.get(0), controlPoint.getPosition());
+        GeographicLib.computePositionAt((90.0 + attitude) % 360, width / 2, posList.get(0), controlPoint.getPosition());
 
         // Get attitude control point.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.ATTITUDE_CP, 0, -1);
         // Place it at half the width distance at an azimuth of 270 + attitude.
-        GeoLibrary.computePositionAt((270.0 + attitude) % 360, width / 2, posList.get(0), controlPoint.getPosition());
+        GeographicLib.computePositionAt((270.0 + attitude) % 360, width / 2, posList.get(0), controlPoint.getPosition());
     }
 
     @Override
@@ -267,7 +267,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
             case WIDTH_CP: {
                 // The width CP was moved.
                 ControlPoint centerCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
-                float newWidth = Math.round(GeoLibrary.computeDistanceBetween(centerCP.getPosition(), dragPosition)) * 2;
+                float newWidth = Math.round(GeographicLib.computeDistanceBetween(centerCP.getPosition(), dragPosition)) * 2;
 
                 // Save the new value
                 this.setWidthModifier(newWidth);
@@ -280,7 +280,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
             case LENGTH_CP: {
                 // The Length CP was moved.
                 ControlPoint centerCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
-                float newLength = Math.round(GeoLibrary.computeDistanceBetween(centerCP.getPosition(), dragPosition)) * 2;
+                float newLength = Math.round(GeographicLib.computeDistanceBetween(centerCP.getPosition(), dragPosition)) * 2;
 
                 // Save the new value
                 this.setLengthModifier(newLength);
@@ -293,7 +293,7 @@ public class MilStdDCRectangularParamAutoShape extends AbstractMilStdMultiPointE
             case ATTITUDE_CP: {
                 // The attitude CP was moved.
                 ControlPoint centerCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
-                double bearingNewPosition = GeoLibrary.computeBearing(centerCP.getPosition(), dragPosition);
+                double bearingNewPosition = GeographicLib.computeBearing(centerCP.getPosition(), dragPosition);
 
                 // The attitude is displayed at a 270 deg of its value.
                 // So we must account for it when we set the new value.
