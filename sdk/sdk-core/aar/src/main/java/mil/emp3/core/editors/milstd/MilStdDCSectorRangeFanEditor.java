@@ -12,7 +12,7 @@ import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -180,7 +180,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
             rangeCPBearing = (rangeCPBearing + 180) % 360;
         }
         // Calculate the position for the range CP.
-        GeoLibrary.computePositionAt(rangeCPBearing, range, centerPos, oCP.getPosition());
+        GeographicLib.computePositionAt(rangeCPBearing, range, centerPos, oCP.getPosition());
     }
 
     private void positionRangeAndAzimuths(int index) {
@@ -214,11 +214,11 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         distanceAzimuthCP = (range + prevRange) / 2;
         // Get left azimuth CP.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, index, azimuthIndex);
-        GeoLibrary.computePositionAt(leftAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
+        GeographicLib.computePositionAt(leftAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
 
         // Get right azimuth CP.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, index, azimuthIndex + 1);
-        GeoLibrary.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
+        GeographicLib.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
     }
 
     private void createRangeAndAzimuths(int index, List<ControlPoint> cpList) {
@@ -256,14 +256,14 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         // Create left azimuth CP.
         pos = new GeoPosition();
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, index, azimuthIndex);
-        GeoLibrary.computePositionAt(leftAzimuth, distanceAzimuthCP, centerPos, pos);
+        GeographicLib.computePositionAt(leftAzimuth, distanceAzimuthCP, centerPos, pos);
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
 
         // Create right azimuth CP.
         pos = new GeoPosition();
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, index, azimuthIndex + 1);
-        GeoLibrary.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, pos);
+        GeographicLib.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, pos);
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
     }
@@ -379,7 +379,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                 ControlPoint azimuthCP;
 
                 // Calculate the new range.
-                newRange = (float) GeoLibrary.computeDistanceBetween(centerPos, dragPosition);
+                newRange = (float) GeographicLib.computeDistanceBetween(centerPos, dragPosition);
 
                 // Now we need to make sure that the new range is not < (prevRange + threshold)
                 if (newRange < (prevRange + 100)) {
@@ -406,12 +406,12 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                     // Reposition the left azimuth CP.
                     azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, cpIndex, azimuthIndex);
                     if (null != azimuthCP) {
-                        GeoLibrary.computePositionAt(leftAzimuth, avgRange, centerPos, azimuthCP.getPosition());
+                        GeographicLib.computePositionAt(leftAzimuth, avgRange, centerPos, azimuthCP.getPosition());
                     }
                     // Reposition the right azimuth CP.
                     azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, cpIndex, azimuthIndex + 1);
                     if (null != azimuthCP) {
-                        GeoLibrary.computePositionAt(rightAzimuth, avgRange, centerPos, azimuthCP.getPosition());
+                        GeographicLib.computePositionAt(rightAzimuth, avgRange, centerPos, azimuthCP.getPosition());
                     }
                 }
 
@@ -428,7 +428,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                     // Reposition the left azimuth CP.
                     azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, cpIndex + 1, azimuthIndex + 2);
                     if (null != azimuthCP) {
-                        GeoLibrary.computePositionAt(leftAzimuth, avgRange, centerPos, azimuthCP.getPosition());
+                        GeographicLib.computePositionAt(leftAzimuth, avgRange, centerPos, azimuthCP.getPosition());
                     }
 
                     // Now reposition the right azimuth CP.
@@ -438,7 +438,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                         // Reposition the right azimuth CP.
                         azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, cpIndex + 1, azimuthIndex + 3);
                         if (null != azimuthCP) {
-                            GeoLibrary.computePositionAt(rightAzimuth, avgRange, centerPos, azimuthCP.getPosition());
+                            GeographicLib.computePositionAt(rightAzimuth, avgRange, centerPos, azimuthCP.getPosition());
                         }
 
                     }
@@ -451,13 +451,13 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
                 int leftAzimuthIndex = (oCP.getCPType() == ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP)? cpSubIndex: cpSubIndex - 1;
                 ControlPoint rangeCP = this.findControlPoint(ControlPoint.CPTypeEnum.RANGE_CP, cpIndex, -1);
                 IGeoPosition centerPos = this.getPositions().get(0);
-                float newAzimuth = (float) GeoLibrary.computeBearing(centerPos, dragPosition);
+                float newAzimuth = (float) GeographicLib.computeBearing(centerPos, dragPosition);
                 float range = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.DISTANCE, cpIndex);
                 float prevRange = this.getPreviousRangeValue(cpIndex);
                 float avgRange = (range + prevRange) / 2;
 
                 // Move the azimuth CP.
-                GeoLibrary.computePositionAt(newAzimuth, avgRange, centerPos, oCP.getPosition());
+                GeographicLib.computePositionAt(newAzimuth, avgRange, centerPos, oCP.getPosition());
                 this.setAzimuthValue(cpSubIndex, newAzimuth);
 
                 float leftAzimuth = this.oFeature.getNumericModifier(IGeoMilSymbol.Modifier.AZIMUTH, leftAzimuthIndex);
@@ -487,7 +487,7 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
 
     protected List<ControlPoint> doAddControlPoint(IGeoPosition newPosition) {
         IGeoPosition centerPos = this.getPositions().get(0);
-        float newRange = (float) GeoLibrary.computeDistanceBetween(centerPos, newPosition);
+        float newRange = (float) GeographicLib.computeDistanceBetween(centerPos, newPosition);
         int newRangeIndex = this.getIndexForNewRange(newRange);
         int azimuthIndex = this.getAzimuthIndexForRange(newRangeIndex);
 
@@ -565,11 +565,11 @@ public class MilStdDCSectorRangeFanEditor extends AbstractMilStdMultiPointEditor
         distanceAzimuthCP = (range + prevRange) / 2;
         // Update left azimuth CP.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.LEFT_AZIMUTH_CP, index, azimuthIndex);
-        GeoLibrary.computePositionAt(leftAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
+        GeographicLib.computePositionAt(leftAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
 
         // Update right azimuth CP.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.RIGHT_AZIMUTH_CP, index, azimuthIndex + 1);
-        GeoLibrary.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
+        GeographicLib.computePositionAt(rightAzimuth, distanceAzimuthCP, centerPos, controlPoint.getPosition());
     }
 
     private void updateControlPointPositions() {
