@@ -167,10 +167,6 @@
                           android:title="@string/action_plotKML"
                           android:orderInCategory="100"
                           app:showAsAction="never" />
-                    <item android:id="@+id/action_importKMZ"
-                          android:title="Import KMZ"
-                          android:orderInCategory="100"
-                          app:showAsAction="never" />
                     <item android:id="@+id/action_plotRectangle"
                           android:title="@string/action_plotRectangle"
                           android:orderInCategory="100"
@@ -235,6 +231,29 @@
                   app:showAsAction="never" />
         </menu>
     </item>
+    <item android:id="@+id/action_exportToKMZ"
+    android:title="Export To KMZ"
+    android:orderInCategory="100"
+    app:showAsAction="never">
+    <menu>
+        <item android:id="@+id/action_exportMapToKMZ"
+            android:title="@string/action_exportMapToKML"
+            android:orderInCategory="101"
+            app:showAsAction="never" />
+        <item android:id="@+id/action_exportOverlayToKMZ"
+            android:title="@string/action_exportOverlayToKML"
+            android:orderInCategory="101"
+            app:showAsAction="never" />
+        <item android:id="@+id/action_exportFeatureToKMZ"
+            android:title="@string/action_exportFeatureToKML"
+            android:orderInCategory="101"
+            app:showAsAction="never" />
+    </menu>
+</item>
+    <item android:id="@+id/action_importKMZ"
+        android:title="Import KMZ"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
     <item android:id="@+id/action_exportFeatureToGeoJSON"
         android:title="Export Feature To GeoJSON"
         android:orderInCategory="101"

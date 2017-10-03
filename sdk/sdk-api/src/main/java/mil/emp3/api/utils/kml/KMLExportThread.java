@@ -72,10 +72,10 @@ public class KMLExportThread extends java.lang.Thread {
     private static final String TEMP_DATAURL_STRING = "temp.dataURL";
 
     private final boolean addExtendedData;
-    private final IMap map;
-    private final IOverlay overlay;
-    private final IFeature feature;
-    private final IEmpExportToStringCallback callback;
+    final IMap map;
+    final IOverlay overlay;
+    final IFeature feature;
+    final IEmpExportToStringCallback callback;
     private final MilStdLabelSettingEnum eLabelSetting;
     private final java.util.Set<IGeoMilSymbol.Modifier> oLabels;
     private final static MilStdIconRenderer oIconRenderer = MilStdIconRenderer.getInstance();
@@ -1267,7 +1267,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private String export(IMap map, XmlSerializer xmlSerializer)
+    String export(IMap map, XmlSerializer xmlSerializer)
             throws IOException {
         StringWriter writer = new StringWriter();
 
@@ -1317,7 +1317,7 @@ public class KMLExportThread extends java.lang.Thread {
         return writer.toString();
     }
 
-    private String export(IOverlay overlay, XmlSerializer xmlSerializer)
+    String export(IOverlay overlay, XmlSerializer xmlSerializer)
             throws IOException {
 
         StringWriter writer = new StringWriter();
@@ -1368,7 +1368,7 @@ public class KMLExportThread extends java.lang.Thread {
         return writer.toString();
     }
 
-    private String export(IFeature feature, XmlSerializer xmlSerializer)
+    String export(IFeature feature, XmlSerializer xmlSerializer)
             throws IOException {
 
         StringWriter writer = new StringWriter();

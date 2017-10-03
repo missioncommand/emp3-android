@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,12 +60,14 @@ import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -77,6 +80,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 import armyc2.c2sd.renderer.utilities.SymbolDef;
 import armyc2.c2sd.renderer.utilities.SymbolDefTable;
@@ -138,7 +142,7 @@ import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
-import mil.emp3.core.services.kml.KMLSServiceListener;
+import mil.emp3.core.services.kml.KMZFile;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.databinding.ActivityMainBinding;
 import mil.emp3.dev_test_sdk.databinding.WmsParametersDialogBinding;
@@ -147,9 +151,9 @@ import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.dev_test_sdk.utils.CameraUtility;
+import mil.emp3.dev_test_sdk.utils.KMLSServiceListener;
 import mil.emp3.json.geoJson.GeoJsonCaller;
 import sec.geo.kml.KmlOptions;
-
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 
@@ -1646,6 +1650,51 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            case R.id.action_exportOverlayToKMZ: {
+                try {
+                    EmpKMLExporter.exportToString(this.map, this.oRootOverlay, true, new IEmpExportToStringCallback() {
+
+                        @Override
+                        public void exportSuccess(String kmlString) {
+                            FileOutputStream out = null;
+                            File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES+"/kmz");
+                            File dest = new File(sd, "overlayexport.kml");
+                            if (dest.exists()) {
+                                dest.delete();
+                            }
+                            try {
+                                out = new FileOutputStream(dest);
+                                byte[] byteArray = kmlString.getBytes();
+                                out.write(byteArray, 0, byteArray.length);
+                                out.flush();
+                                MainActivity.this.makeToast("Export complete");
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to save kmz file.", e);
+                                MainActivity.this.makeToast("Export failed");
+                            } finally {
+                                try {
+                                    if (out != null) {
+                                        out.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        }
+
+                        @Override
+                        public void exportFailed(Exception Ex) {
+                            Log.e(TAG, "Map export to KMZ failed.", Ex);
+                            MainActivity.this.makeToast("Export failed");
+                        }
+                    });
+                } catch (Exception Ex) {
+                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
+                }
+                return true;
+            }
             case R.id.action_exportOverlayToKML: {
                 try {
                     EmpKMLExporter.exportToString(this.map, this.oRootOverlay, true, new IEmpExportToStringCallback() {
@@ -1855,8 +1904,8 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_plotKML: {
-                InputStream stream = null;
-                try {
+                try (InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.kml_samples))
+                {
 /*
                     KML kmlOverlay = new KML();
 
@@ -1897,8 +1946,7 @@ public class MainActivity extends AppCompatActivity
                             "                  </Document>\n" +
                             "                </kml>");
 */
-                    stream = getApplicationContext().getResources().openRawResource(R.raw.kml_samples);
-
+                    KMZFile kmz = new KMZFile();
                     KML kmlFeature = new KML(stream);
                     this.oRootOverlay.addFeature(kmlFeature, true);
                     this.oFeatureHash.put(kmlFeature.getGeoId(), kmlFeature);
@@ -1909,13 +1957,6 @@ public class MainActivity extends AppCompatActivity
                     camera.apply(true);
                 } catch (Exception Ex) {
                     Log.e(TAG, "KML failed.", Ex);
-                } finally {
-                    if (null != stream) {
-                        try {
-                            stream.close();
-                        }catch (IOException ex) {
-                        }
-                    }
                 }
                 return true;
             }
