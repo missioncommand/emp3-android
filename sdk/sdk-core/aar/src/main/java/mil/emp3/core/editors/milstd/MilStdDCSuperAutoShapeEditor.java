@@ -12,7 +12,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.mapengine.interfaces.IMapInstance;
@@ -130,7 +130,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             case CoreMilStdUtilities.TASK_DISRUPT:
             case CoreMilStdUtilities.TASK_DELAY: {
                 pos = new GeoPosition();
-                GeoLibrary.computePositionAt(270.0, distance, centerPos, pos);
+                GeographicLib.computePositionAt(270.0, distance, centerPos, pos);
                 pos.setAltitude(0);
                 posList.add(pos);
 
@@ -141,7 +141,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                 posList.add(pos);
 
                 pos = new GeoPosition();
-                GeoLibrary.computePositionAt(0.0, distance, centerPos, pos);
+                GeographicLib.computePositionAt(0.0, distance, centerPos, pos);
                 pos.setAltitude(0);
                 posList.add(pos);
 
@@ -156,14 +156,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                 int[] intArray = new int[this.getMinPoints()];
 
                 pos = new GeoPosition();
-                GeoLibrary.computePositionAt(dBrng, distance, centerPos, pos);
+                GeographicLib.computePositionAt(dBrng, distance, centerPos, pos);
                 pos.setAltitude(0);
                 posList.add(pos);
 
                 while (posList.size() <  this.getMinPoints()) {
                     dBrng += dBrngInc;
                     pos = new GeoPosition();
-                    GeoLibrary.computePositionAt(dBrng, distance, centerPos, pos);
+                    GeographicLib.computePositionAt(dBrng, distance, centerPos, pos);
                     pos.setAltitude(0);
                     posList.add(pos);
                 }
@@ -225,10 +225,10 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             cp3 = this.findControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 2, -1);
         }
 
-        IGeoPosition centerPos = GeoLibrary.midPointBetween(pivitCP.getPosition(), movedCP.getPosition());
-        double distanceCenterToP3 = GeoLibrary.computeDistanceBetween(centerPos, cp3.getPosition());
-        double bearingP1ToCenter = GeoLibrary.computeBearing(cp1.getPosition(), centerPos);
-        double angleP1P2ToP3 = bearingP1ToCenter - GeoLibrary.computeBearing(centerPos, cp3.getPosition());
+        IGeoPosition centerPos = GeographicLib.midPointBetween(pivitCP.getPosition(), movedCP.getPosition());
+        double distanceCenterToP3 = GeographicLib.computeDistanceBetween(centerPos, cp3.getPosition());
+        double bearingP1ToCenter = GeographicLib.computeBearing(cp1.getPosition(), centerPos);
+        double angleP1P2ToP3 = bearingP1ToCenter - GeographicLib.computeBearing(centerPos, cp3.getPosition());
         IGeoPosition tempPos = movedCP.getPosition();
 
         // Set the new position of the moved CP.
@@ -236,11 +236,11 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
         tempPos.setLongitude(eventPos.getLongitude());
 
         // Calculate the new center.
-        centerPos = GeoLibrary.midPointBetween(pivitCP.getPosition(), movedCP.getPosition());
+        centerPos = GeographicLib.midPointBetween(pivitCP.getPosition(), movedCP.getPosition());
         // The bearing from P1 to the new center.
-        bearingP1ToCenter = GeoLibrary.computeBearing(cp1.getPosition(), centerPos);
+        bearingP1ToCenter = GeographicLib.computeBearing(cp1.getPosition(), centerPos);
         // Move P3 to its new position.
-        GeoLibrary.computePositionAt(bearingP1ToCenter - angleP1P2ToP3, distanceCenterToP3, centerPos, cp3.getPosition());
+        GeographicLib.computePositionAt(bearingP1ToCenter - angleP1P2ToP3, distanceCenterToP3, centerPos, cp3.getPosition());
         cpList.add(movedCP);
         cpList.add(cp3);
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{movedCP.getCPIndex(), cp3.getCPIndex()});
@@ -267,27 +267,27 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             switch (cpIndex) {
                 case 0:
                     // Get the center point between PT2 and PT3.
-                    centerPos = GeoLibrary.midPointBetween(posList.get(1), posList.get(2));
+                    centerPos = GeographicLib.midPointBetween(posList.get(1), posList.get(2));
                     // Get the bearing from the center point and pt1.
-                    bearingCenterToP1 = GeoLibrary.computeBearing(centerPos, posList.get(0));
-                    bearingCenterToNewPos = GeoLibrary.computeBearing(centerPos, eventPos);
+                    bearingCenterToP1 = GeographicLib.computeBearing(centerPos, posList.get(0));
+                    bearingCenterToNewPos = GeographicLib.computeBearing(centerPos, eventPos);
                     // Get the distance from the center point to the new pos.
-                    distanceCenterToNewPos = GeoLibrary.computeDistanceBetween(centerPos, eventPos);
+                    distanceCenterToNewPos = GeographicLib.computeDistanceBetween(centerPos, eventPos);
                     // Project the CenterPos-newPos line onto the center Pt-Pt1 line;
                     distanceCenterToNewPos = distanceCenterToNewPos * Math.cos(Math.toRadians(bearingCenterToP1 - bearingCenterToNewPos));
                     // Calculate the new position of Pt1.
-                    GeoLibrary.computePositionAt(bearingCenterToP1, distanceCenterToNewPos, centerPos, oCP.getPosition());
+                    GeographicLib.computePositionAt(bearingCenterToP1, distanceCenterToNewPos, centerPos, oCP.getPosition());
                     cpList.add(oCP);
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{cpIndex});
                     break;
                 case 1:
                 case 2:
                     // Get the bearing between pt2 pt3.
-                    bearingP2ToP3 = GeoLibrary.computeBearing(posList.get(1), posList.get(2));
+                    bearingP2ToP3 = GeographicLib.computeBearing(posList.get(1), posList.get(2));
                     // Calculate the center pos.
-                    centerPos = GeoLibrary.midPointBetween(posList.get(1), posList.get(2));
+                    centerPos = GeographicLib.midPointBetween(posList.get(1), posList.get(2));
                     // Get the distance from the mid point to pt1 (the arrow).
-                    distanceCenterToP1 = GeoLibrary.computeDistanceBetween(centerPos, posList.get(0));
+                    distanceCenterToP1 = GeographicLib.computeDistanceBetween(centerPos, posList.get(0));
 
                     // Return if its NAN, infinity or < 20 meters.
                     if ((distanceCenterToP1 < 20.0) || Double.isNaN(distanceCenterToP1) || Double.isInfinite(distanceCenterToP1)) {
@@ -295,18 +295,18 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                     }
 
                     // Get the bearing from the center point and pt1.
-                    bearingCenterToP1 = GeoLibrary.computeBearing(centerPos, posList.get(0));
+                    bearingCenterToP1 = GeographicLib.computeBearing(centerPos, posList.get(0));
                     // Update the coordinates of th CP that was moved.
                     oCP.getPosition().setLatitude(eventPos.getLatitude());
                     oCP.getPosition().setLongitude(eventPos.getLongitude());
                     // Now get the new bearing of pt2 pt3. And the new mid point.
-                    double newBearingP2ToP3 = GeoLibrary.computeBearing(posList.get(1), posList.get(2));
+                    double newBearingP2ToP3 = GeographicLib.computeBearing(posList.get(1), posList.get(2));
                     // The new center pos.
-                    centerPos = GeoLibrary.midPointBetween(posList.get(1), posList.get(2));
+                    centerPos = GeographicLib.midPointBetween(posList.get(1), posList.get(2));
                     // Compute the new bearing of pt1. And get the coordinates.
                     double newBearingCenterPt1 = bearingCenterToP1 + (newBearingP2ToP3 - bearingP2ToP3);
                     ControlPoint point1CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
-                    GeoLibrary.computePositionAt(newBearingCenterPt1, distanceCenterToP1, centerPos, point1CP.getPosition());
+                    GeographicLib.computePositionAt(newBearingCenterPt1, distanceCenterToP1, centerPos, point1CP.getPosition());
 
                     cpList.add(oCP);
                     cpList.add(point1CP);
@@ -345,14 +345,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                     IGeoPosition cp3Pos = oCP.getPosition();
                     ControlPoint cp1 = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
                     ControlPoint cp2 = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 1, -1);
-                    IGeoPosition centerPos = GeoLibrary.midPointBetween(cp1.getPosition(), cp2.getPosition());
-                    double bearingCenterToP3 = GeoLibrary.computeBearing(centerPos, cp3Pos);
-                    double distanceCenterToNewPos = GeoLibrary.computeDistanceBetween(centerPos, eventPos);
-                    double angleP3CenterNewPos = GeoLibrary.computeBearing(centerPos, eventPos) - bearingCenterToP3;
+                    IGeoPosition centerPos = GeographicLib.midPointBetween(cp1.getPosition(), cp2.getPosition());
+                    double bearingCenterToP3 = GeographicLib.computeBearing(centerPos, cp3Pos);
+                    double distanceCenterToNewPos = GeographicLib.computeDistanceBetween(centerPos, eventPos);
+                    double angleP3CenterNewPos = GeographicLib.computeBearing(centerPos, eventPos) - bearingCenterToP3;
                     double distanceCenterToNewP3Pos = distanceCenterToNewPos * Math.cos(Math.toRadians(angleP3CenterNewPos));
 
                     // Move the position of P3.
-                    GeoLibrary.computePositionAt(bearingCenterToP3, distanceCenterToNewP3Pos, centerPos, cp3Pos);
+                    GeographicLib.computePositionAt(bearingCenterToP3, distanceCenterToNewP3Pos, centerPos, cp3Pos);
                     cpList.add(oCP);
 
                     // Add update data.
@@ -381,11 +381,11 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                     oCP.getPosition().setLongitude(eventPos.getLongitude());
 
                     // Get the bearing of CP with P2 which is the pivot.
-                    double bearingP1WithPivot = GeoLibrary.computeBearing(p2CP.getPosition(), oCP.getPosition());
+                    double bearingP1WithPivot = GeographicLib.computeBearing(p2CP.getPosition(), oCP.getPosition());
                     // Get thedistance of P3 from P2.
-                    double distanceP2P3 = GeoLibrary.computeDistanceBetween(p2CP.getPosition(), p3CP.getPosition());
+                    double distanceP2P3 = GeographicLib.computeDistanceBetween(p2CP.getPosition(), p3CP.getPosition());
                     // Rotate P3 by bearingP1WithPivot + 90deg.
-                    GeoLibrary.computePositionAt(bearingP1WithPivot + 90.0, distanceP2P3, p2CP.getPosition(), p3CP.getPosition());
+                    GeographicLib.computePositionAt(bearingP1WithPivot + 90.0, distanceP2P3, p2CP.getPosition(), p3CP.getPosition());
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0, 2});
                     cpList.add(oCP);
                     cpList.add(p3CP);
@@ -394,8 +394,8 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                 case 1: {
                     int[] intArray = new int[posList.size()];
                     // Get the distance and beraing of motion.
-                    double distanceOfMotion = GeoLibrary.computeDistanceBetween(oCP.getPosition(), eventPos);
-                    double bearingOfMotion = GeoLibrary.computeBearing(oCP.getPosition(), eventPos);
+                    double distanceOfMotion = GeographicLib.computeDistanceBetween(oCP.getPosition(), eventPos);
+                    double bearingOfMotion = GeographicLib.computeBearing(oCP.getPosition(), eventPos);
                     // Find P1 and P3
                     ControlPoint p1CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
                     ControlPoint p3CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 2, -1);
@@ -430,11 +430,11 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                     oCP.getPosition().setLongitude(eventPos.getLongitude());
 
                     // Get the bearing of CP with P2 which is the pivot.
-                    double bearingPivotP3 = GeoLibrary.computeBearing(p2CP.getPosition(), oCP.getPosition());
+                    double bearingPivotP3 = GeographicLib.computeBearing(p2CP.getPosition(), oCP.getPosition());
                     // Get the distance of P1 from P2.
-                    double distanceP2P1 = GeoLibrary.computeDistanceBetween(p2CP.getPosition(), p1CP.getPosition());
+                    double distanceP2P1 = GeographicLib.computeDistanceBetween(p2CP.getPosition(), p1CP.getPosition());
                     // Rotate P1 by bearingPivotP3 - 90deg.
-                    GeoLibrary.computePositionAt(bearingPivotP3 - 90.0, distanceP2P1, p2CP.getPosition(), p1CP.getPosition());
+                    GeographicLib.computePositionAt(bearingPivotP3 - 90.0, distanceP2P1, p2CP.getPosition(), p1CP.getPosition());
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0, 2});
                     cpList.add(oCP);
                     cpList.add(p1CP);
@@ -469,14 +469,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
 
                     // move P1 so P0P1 is perpendicular to P0P3 at P0
 
-                    double bearing = GeoLibrary.computeBearing(oCP.getPosition(), p3CP.getPosition());
-                    double distance = GeoLibrary.computeDistanceBetween(oCP.getPosition(), p1CP.getPosition());
-                    IGeoPosition newGP = GeoLibrary.computePositionAt(bearing - 90.0, distance, oCP.getPosition());
+                    double bearing = GeographicLib.computeBearing(oCP.getPosition(), p3CP.getPosition());
+                    double distance = GeographicLib.computeDistanceBetween(oCP.getPosition(), p1CP.getPosition());
+                    IGeoPosition newGP = GeographicLib.computePositionAt(bearing - 90.0, distance, oCP.getPosition());
                     moveCP(p1CP, newGP);
 
                     // move P2 to keep lines parallel and equal length
 
-                    newGP = GeoLibrary.computePositionAt(bearing - 90.0, distance, p3CP.getPosition());
+                    newGP = GeographicLib.computePositionAt(bearing - 90.0, distance, p3CP.getPosition());
                     moveCP(p2CP, newGP);
                     break;
                 }
@@ -484,14 +484,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
 
                     // move P0 so P0P1 is perpendicular to P1P2 at P1
 
-                    double bearing = GeoLibrary.computeBearing(oCP.getPosition(), p2CP.getPosition());
-                    double distance = GeoLibrary.computeDistanceBetween(oCP.getPosition(), p0CP.getPosition());
-                    IGeoPosition newGP = GeoLibrary.computePositionAt(bearing + 90.0, distance, oCP.getPosition());
+                    double bearing = GeographicLib.computeBearing(oCP.getPosition(), p2CP.getPosition());
+                    double distance = GeographicLib.computeDistanceBetween(oCP.getPosition(), p0CP.getPosition());
+                    IGeoPosition newGP = GeographicLib.computePositionAt(bearing + 90.0, distance, oCP.getPosition());
                     moveCP(p0CP, newGP);
 
                     // move P3 to keep lines parallel and equal length
 
-                    newGP = GeoLibrary.computePositionAt(bearing + 90.0, distance, p2CP.getPosition());
+                    newGP = GeographicLib.computePositionAt(bearing + 90.0, distance, p2CP.getPosition());
                     moveCP(p3CP, newGP);
                     break;
                 }
@@ -499,14 +499,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
 
                     // move P3 so P2P3 is perpendicular to P1P2 at P2
 
-                    double bearing = GeoLibrary.computeBearing(oCP.getPosition(), p1CP.getPosition());
-                    double distance = GeoLibrary.computeDistanceBetween(oCP.getPosition(), p3CP.getPosition());
-                    IGeoPosition newGP = GeoLibrary.computePositionAt(bearing - 90.0, distance, oCP.getPosition());
+                    double bearing = GeographicLib.computeBearing(oCP.getPosition(), p1CP.getPosition());
+                    double distance = GeographicLib.computeDistanceBetween(oCP.getPosition(), p3CP.getPosition());
+                    IGeoPosition newGP = GeographicLib.computePositionAt(bearing - 90.0, distance, oCP.getPosition());
                     moveCP(p3CP, newGP);
 
                     // move P0 so P0P1 is parallel to P2P3 and equal length
 
-                    newGP = GeoLibrary.computePositionAt(bearing - 90.0, distance, p1CP.getPosition());
+                    newGP = GeographicLib.computePositionAt(bearing - 90.0, distance, p1CP.getPosition());
                     moveCP(p0CP, newGP);
                     break;
                 }
@@ -514,14 +514,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
 
                     // move P2 so P2P3 is perpendicular to P0P3 at P3
 
-                    double bearing = GeoLibrary.computeBearing(oCP.getPosition(), p0CP.getPosition());
-                    double distance = GeoLibrary.computeDistanceBetween(oCP.getPosition(), p2CP.getPosition());
-                    IGeoPosition newGP = GeoLibrary.computePositionAt(bearing + 90.0, distance, oCP.getPosition());
+                    double bearing = GeographicLib.computeBearing(oCP.getPosition(), p0CP.getPosition());
+                    double distance = GeographicLib.computeDistanceBetween(oCP.getPosition(), p2CP.getPosition());
+                    IGeoPosition newGP = GeographicLib.computePositionAt(bearing + 90.0, distance, oCP.getPosition());
                     moveCP(p2CP, newGP);
 
                     // move P1 so P0P1 is parallel to P2P3 and equal length
 
-                    newGP = GeoLibrary.computePositionAt(bearing + 90.0, distance, p0CP.getPosition());
+                    newGP = GeographicLib.computePositionAt(bearing + 90.0, distance, p0CP.getPosition());
                     moveCP(p1CP, newGP);
                     break;
                 }
