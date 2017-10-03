@@ -130,7 +130,7 @@ import mil.emp3.api.listeners.IMapInteractionEventListener;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.EmpPropertyList;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.databinding.ActivityMainBinding;
@@ -3063,10 +3063,10 @@ public class MainActivity extends AppCompatActivity
             this.plotTacticalGraphic("TG-" + String.format("%04d", tgCount), oSymbolDef, position);
             if (countPerLine == 20) {
                 position.setLongitude(camera.getLongitude());
-                GeoLibrary.computePositionAt(180.0, 2500.0, position, position);
+                GeographicLib.computePositionAt(180.0, 2500.0, position, position);
                 countPerLine = 0;
             } else {
-                GeoLibrary.computePositionAt(90.0, 2500.0, position, position);
+                GeographicLib.computePositionAt(90.0, 2500.0, position, position);
             }
         }
     }
@@ -3103,10 +3103,10 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case 2:
                     if (oSymbolDef.getDrawCategory() == SymbolDef.DRAW_CATEGORY_LINE) {
-                        pos = GeoLibrary.computePositionAt(270, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(270, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(90, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(90, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
                     } else {
@@ -3115,7 +3115,7 @@ public class MainActivity extends AppCompatActivity
                         pos.setLongitude(position.getLongitude());
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(90, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(90, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
                     }
@@ -3123,13 +3123,13 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case 3:
                 default:
-                    pos = GeoLibrary.computePositionAt(240.0, 1000.0, position);
+                    pos = GeographicLib.computePositionAt(240.0, 1000.0, position);
                     pos.setAltitude(0.0);
                     posList.add(pos);
-                    pos = GeoLibrary.computePositionAt(0.0, 1000.0, position);
+                    pos = GeographicLib.computePositionAt(0.0, 1000.0, position);
                     pos.setAltitude(0.0);
                     posList.add(pos);
-                    pos = GeoLibrary.computePositionAt(120.0, 1000.0, position);
+                    pos = GeographicLib.computePositionAt(120.0, 1000.0, position);
                     pos.setAltitude(0.0);
                     posList.add(pos);
 
@@ -3143,30 +3143,30 @@ public class MainActivity extends AppCompatActivity
                         posList.add(pos);
 
                         pos = new GeoPosition();
-                        GeoLibrary.computePositionAt(90.0, 500.0, posList.get(0), pos);
+                        GeographicLib.computePositionAt(90.0, 500.0, posList.get(0), pos);
                         pos.setAltitude(0.0);
                         posList.add(pos);
 
                         pos = new GeoPosition();
-                        GeoLibrary.computePositionAt(90.0, 1000.0, posList.get(0), pos);
+                        GeographicLib.computePositionAt(90.0, 1000.0, posList.get(0), pos);
                         pos.setAltitude(0.0);
                         posList.add(pos);
 
                         pos = new GeoPosition();
-                        GeoLibrary.computePositionAt(90.0, 1500.0, posList.get(0), pos);
+                        GeographicLib.computePositionAt(90.0, 1500.0, posList.get(0), pos);
                         pos.setAltitude(0.0);
                         posList.add(pos);
                     } else {
-                        pos = GeoLibrary.computePositionAt(225.0, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(225.0, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(315.0, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(315.0, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(45.0, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(45.0, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(135.0, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(135.0, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
                     }
