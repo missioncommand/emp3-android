@@ -63,6 +63,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +73,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -87,6 +90,7 @@ import mil.emp3.api.GeoJSON;
 import mil.emp3.api.GeoPackage;
 import mil.emp3.api.ImageLayer;
 import mil.emp3.api.KML;
+import mil.emp3.api.KMLS;
 import mil.emp3.api.LineOfSight;
 import mil.emp3.api.LookAt;
 import mil.emp3.api.MilStdSymbol;
@@ -102,6 +106,7 @@ import mil.emp3.api.WMS;
 import mil.emp3.api.WMTS;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
+import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
@@ -120,6 +125,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILineOfSight;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.IDrawEventListener;
@@ -132,6 +138,7 @@ import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
+import mil.emp3.core.services.kml.KMLSServiceListener;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.databinding.ActivityMainBinding;
 import mil.emp3.dev_test_sdk.databinding.WmsParametersDialogBinding;
@@ -1558,6 +1565,39 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     this.miniMapDialog.dismiss();
                     this.miniMapDialog = null;
+                }
+                return true;
+            }
+            case R.id.action_importKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.example))
+                {
+                    byte[] buffer = new byte[stream.available()];
+                    stream.read(buffer);
+
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "copiedExample.kmz");
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+                    try(OutputStream outStream = new FileOutputStream(targetFile))
+                    {
+                        outStream.write(buffer);
+//                    URL url = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()+File.separator+"example.kmz").toURI().toURL();
+
+                        //  Log.d(TAG, "url " + url.toString());
+
+                        Context context = getApplicationContext();
+                        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+
+                        IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
+                        mapService.setName("kmzSample_Test");
+                        this.map.addMapService(mapService);
+                    }
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+
+                } catch (Exception e) {
+                    int a = 2;
                 }
                 return true;
             }

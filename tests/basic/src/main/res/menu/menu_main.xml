@@ -167,6 +167,10 @@
                           android:title="@string/action_plotKML"
                           android:orderInCategory="100"
                           app:showAsAction="never" />
+                    <item android:id="@+id/action_importKMZ"
+                          android:title="Import KMZ"
+                          android:orderInCategory="100"
+                          app:showAsAction="never" />
                     <item android:id="@+id/action_plotRectangle"
                           android:title="@string/action_plotRectangle"
                           android:orderInCategory="100"
