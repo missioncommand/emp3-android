@@ -49,7 +49,7 @@ public class GeographicLib {
     }
 
     /**
-     * This method return the azimuth of a line from from to oTo.
+     * This method return the azimuth of a line from p1 to p2.
      * @param p1
      * @param p2
      * @return the bearing is return in degrees.
@@ -95,6 +95,17 @@ public class GeographicLib {
         result.setLongitude(g.lon2);
     }
 
-
+    /**
+     * This method computes the midpoint between the two locations provided.
+     * @param p1
+     * @param p2
+     * @return The distance in meters.
+     * @throws IllegalArgumentException
+     */
+    public static IGeoPosition midPointBetween(IGeoPosition p1, IGeoPosition p2) {
+        GeodesicData g = getInverseGeodesicData(p1, p2);
+        double midpointDistance = g.s12 * 0.5;
+        return computePositionAt(g.azi1, midpointDistance, p1);
+    }
 
 }
