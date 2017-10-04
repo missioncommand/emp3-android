@@ -13,6 +13,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
+ * Zip utility to perform zipping operations on Files and Directories.
  * @author Jenifer Cochran
  * Resource: https://stackoverflow.com/questions/1399126/java-util-zip-recreating-directory-structure
  */
@@ -27,67 +28,82 @@ public class ZipUtility
 
     }
 
-    private final static int BUFFER = 2048;
-
     /**
      * Zips a file at a location and places the resulting zip file at the toLocation
      * Example: zipFileAtPath("downloads/myfolder", "downloads/myFolder.zip");
+     * Will maintain the directory structure.
      *
      * @param directory the location of the file/folder that needs to be zipped
-     * @param zipfile the location where the file/folder will be zipped to
+     * @param zipFile the location where the file/folder will be zipped to
      * @return true if the zipping was successful, false otherwise
      */
-    public static void zip(File directory, File zipfile) throws IOException
+    public static void zip(File directory,
+                           File zipFile) throws IOException
     {
         URI         base  = directory.toURI();
-        Deque<File> queue = new LinkedList<File>();
+        Deque<File> queue = new LinkedList<>();
         queue.push(directory);
 
-        try (OutputStream out = new FileOutputStream(zipfile);
-             ZipOutputStream zout = new ZipOutputStream(out);)
+        try (OutputStream    fileOutputStream = new FileOutputStream(zipFile);
+             ZipOutputStream zipOutputStream  = new ZipOutputStream(fileOutputStream);)
         {
             while (!queue.isEmpty())
             {
                 directory = queue.pop();
-                for (File kid : directory.listFiles())
+                for (File child : directory.listFiles())
                 {
-                    String name = base.relativize(kid.toURI()).getPath();
-                    if (kid.isDirectory())
+                    String name = base.relativize(child.toURI()).getPath();
+                    if (child.isDirectory())
                     {
-                        queue.push(kid);
-                        name = name.endsWith("/") ? name : name + "/";
-                        zout.putNextEntry(new ZipEntry(name));
+                        queue.push(child);
+                        name = name.endsWith(File.pathSeparator) ? name : name + File.pathSeparator;
+                        zipOutputStream.putNextEntry(new ZipEntry(name));
                     }
                     else
                     {
-                        zout.putNextEntry(new ZipEntry(name));
-                        copy(kid, zout);
-                        zout.closeEntry();
+                        zipOutputStream.putNextEntry(new ZipEntry(name));
+                        copy(child, zipOutputStream);
+                        zipOutputStream.closeEntry();
                     }
                 }
             }
         }
     }
 
-    private static void copy(InputStream in, OutputStream out) throws IOException
+    /**
+     * Copies the inputStream to the OutputStream
+     * @param inputStream the stream of data to read from
+     * @param outputStream the outputStream to write the data to
+     * @throws IOException Reading or Writing exception
+     */
+    private static void copy(InputStream  inputStream,
+                             OutputStream outputStream) throws IOException
     {
         byte[] buffer = new byte[1024];
         while (true)
         {
-            int readCount = in.read(buffer);
+            int readCount = inputStream.read(buffer);
             if (readCount < 0)
             {
                 break;
             }
-            out.write(buffer, 0, readCount);
+            outputStream.write(buffer, 0, readCount);
         }
     }
 
-    private static void copy(File file, OutputStream out) throws IOException
+
+    /**
+     * Copies the inputStream to the OutputStream
+     * @param file the data to read from
+     * @param outputStream the outputStream to write the data to
+     * @throws IOException Reading or Writing exception
+     */
+    private static void copy(File         file,
+                             OutputStream outputStream) throws IOException
     {
         try (InputStream in = new FileInputStream(file))
         {
-            copy(in, out);
+            copy(in, outputStream);
         }
     }
 }
