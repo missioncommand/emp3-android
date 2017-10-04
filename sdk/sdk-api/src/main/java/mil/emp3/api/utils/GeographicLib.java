@@ -13,14 +13,49 @@ public class GeographicLib {
 
     private static String TAG = GeographicLib.class.getSimpleName();
 
+    /* Conversions from azimuth to/from bearing would normally be
+       needed. However, calculations within EMP use a bearing
+       value of 0-360, like azimuth, rather than 0-90 as elsewhere.
+
+       One unresolved wrinkle is that GeographicLib returns an azimuth
+       of 180, rather than 0, between two identical points.
+     */
+    private static double azimuthToBearing(double azimuth) {
+        double bearing = azimuth % 360.0;
+        if (bearing >= 270.0) {
+            bearing = 360.0 - bearing;
+        } else if (bearing >= 180.0) {
+            bearing = bearing - 180.0;
+        } else if (bearing > 90.0) {
+            bearing = 180.0 - bearing;
+        }
+        Log.d(TAG, "Azimuth " + azimuth + " Bearing " + bearing);
+        return bearing;
+    }
+
+    private static double bearingToAzimuth(double bearing, double lat, double lon) {
+        if (Math.abs(lat) > 90.0) {
+            throw new IllegalArgumentException("Invalid latitude value " + lat);
+        }
+        if (Math.abs(lon) > 180.0) {
+            throw new IllegalArgumentException("Invalid longitude value " + lon);
+        }
+        double azimuth = lat >= 0.0 ?
+                lon >= 0.0 ? bearing : 360.0 - bearing :
+                lon >= 0.0 ? 180.0 - bearing : 180.0 + bearing;
+        Log.d(TAG,"Latitude " + lat + " Longitude " + lon);
+        Log.d(TAG, "Bearing " + bearing + " Azimuth " + azimuth);
+        return azimuth;
+    }
+
     private static GeodesicData getInverseGeodesicData(IGeoPosition p1, IGeoPosition p2, int mask) {
 
         if (p1 == null) {
-            throw new IllegalArgumentException("oLatLon1 can not be null.");
+            throw new IllegalArgumentException("GeoPosition cannot be null.");
         }
 
         if (p2 == null) {
-            throw new IllegalArgumentException("oLatLon2 can not be null.");
+            throw new IllegalArgumentException("GeoPosition cannot be null.");
         }
 
         double lat1 = p1.getLatitude();
@@ -33,12 +68,13 @@ public class GeographicLib {
     private static GeodesicData getDirectGeodesicData(IGeoPosition p1, double azimuth, double distance) {
 
         if (p1 == null) {
-            throw new IllegalArgumentException("oLatLon1 can not be null.");
+            throw new IllegalArgumentException("GeoPosition cannot be null.");
         }
 
         double lat1 = p1.getLatitude();
         double lon1 = p1.getLongitude();
-        return Geodesic.WGS84.Direct(lat1, lon1, azimuth, distance);
+        return Geodesic.WGS84.Direct(lat1, lon1, azimuth, distance,
+                GeodesicMask.LATITUDE + GeodesicMask.LONGITUDE);
     }
 
     /**
@@ -62,42 +98,50 @@ public class GeographicLib {
      */
     public static double computeBearing(IGeoPosition p1, IGeoPosition p2) {
         GeodesicData g = getInverseGeodesicData(p1, p2, GeodesicMask.AZIMUTH);
-        return g.azi1;
+        // keep compatibility with GeoLibrary
+        return (g.azi1 + 360.0) % 360.0;
     }
 
     /**
      * This method computes a location which is at the specified bearing at the specified distance from the
      * provided from location.
-     * @param azimuth The bearing in degrees
+     * @param bearing The bearing in degrees
      * @param distance The distance in meters.
      * @param from The starting position
      * @return position
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition computePositionAt(double azimuth, double distance, IGeoPosition from) {
+    public static IGeoPosition computePositionAt(double bearing, double distance, IGeoPosition from) {
         IGeoPosition position = new GeoPosition();
 
-        computePositionAt(azimuth, distance, from, position);
+        computePositionAt(bearing, distance, from, position);
         return position;
     }
 
     /**
      * This method computes a location which is at the specified bearing at the specified distance from the
      * provided from location.
-     * @param azimuth The bearing in degrees
+     * @param bearing The bearing in degrees
      * @param distance The distance in meters.
      * @param from The starting position
      * @param result the object to place the resulting position.
      * @throws IllegalArgumentException
      */
-    public static void computePositionAt(double azimuth, double distance, IGeoPosition from, IGeoPosition result) {
+    public static void computePositionAt(double bearing, double distance, IGeoPosition from, IGeoPosition result) {
         if (result == null) {
-            throw new IllegalArgumentException("result must be provided.");
+            throw new IllegalArgumentException("Null argument provided for result");
         }
-
-        GeodesicData g = getDirectGeodesicData(from, azimuth, distance);
-        result.setLatitude(g.lat2);
-        result.setLongitude(g.lon2);
+        Log.d(TAG, "Position at a distance of " + distance);
+        if (distance >= 1.0E-9) {
+            double azimuth = bearing;
+            GeodesicData g = getDirectGeodesicData(from, azimuth, distance);
+            Log.d(TAG, "Got back lat2 " + g.lat2 + " lon2 " + g.lon2);
+            result.setLatitude(g.lat2);
+            result.setLongitude(g.lon2);
+        } else {
+            result.setLatitude(from.getLatitude());
+            result.setLongitude(from.getLongitude());
+        }
     }
 
     /**

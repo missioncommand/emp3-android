@@ -1,6 +1,7 @@
 package mil.emp3.api;
 
 import junit.framework.TestCase;
+import junit.framework.Assert;
 /*
 import org.mockito.internal.matchers.Contains;
 
@@ -18,6 +19,12 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 */
 
 public class MirrorCacheTest extends TestCase {
+
+    // Keep JUnit happy, throw it a bone
+
+    public void testMirrorZero() {
+        assert(0 == 0);
+    }
 
     /*
     MirrorCache is not currently supported
