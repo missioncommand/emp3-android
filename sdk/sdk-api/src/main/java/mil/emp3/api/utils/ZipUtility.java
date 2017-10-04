@@ -1,8 +1,5 @@
 package mil.emp3.api.utils;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,7 +14,7 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * @author Jenifer Cochran
- * Resource: https://stackoverflow.com/questions/6683600/zip-compress-a-folder-full-of-files-on-android
+ * Resource: https://stackoverflow.com/questions/1399126/java-util-zip-recreating-directory-structure
  */
 
 public class ZipUtility
