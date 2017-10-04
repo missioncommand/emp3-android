@@ -52,7 +52,7 @@ public class EmpKMZExporter
         {
             throw new IllegalArgumentException("Parameters can't be null.");
         }
-
+   
         KMZExporterThread kmzExporterThread = new KMZExporterThread(map,
                                                                     overlay,
                                                                     extendedData,
