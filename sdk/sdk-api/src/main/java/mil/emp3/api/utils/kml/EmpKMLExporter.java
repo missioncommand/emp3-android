@@ -14,6 +14,7 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.utils.ManagerFactory;
+import mil.emp3.api.utils.kmz.EmpKMZExporter;
 import mil.emp3.api.utils.kmz.KMZExporterThread;
 
 /**
@@ -34,21 +35,6 @@ public class EmpKMLExporter {
             throw new IllegalArgumentException("Parameters can't be null.");
         }
 
-        KMZExporterThread kmzExporterThread = new KMZExporterThread(map, extendedData,new IEmpExportToTypeCallBack<File>() {
-
-            @Override
-            public void exportSuccess(File kmlString)
-            {
-                kmlString.exists();
-            }
-
-            @Override
-            public void exportFailed(Exception Ex)
-            {
-
-            }
-        }, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "KMZExport");
-        kmzExporterThread.run();
         KMLExportThread exporter = new KMLExportThread(map, extendedData, callback);
         exporter.start();
     }

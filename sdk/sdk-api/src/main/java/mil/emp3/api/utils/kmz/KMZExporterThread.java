@@ -1,92 +1,149 @@
 package mil.emp3.api.utils.kmz;
 
+import android.os.Environment;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.zip.ZipOutputStream;
 
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IEmpExportToTypeCallBack;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.utils.FileUtility;
+import mil.emp3.api.utils.ZipUtility;
 
 /**
- * Created by jenifer.Cochran on 9/28/2017.
+ * This exports the map's overlays or features on a separate thread to a
+ * KMZ file.
  *
+ * @author Jenifer Cochran
  */
 
-public class KMZExporterThread extends Thread
+public final class KMZExporterThread extends Thread
 {
-    private final File                           outputDirectory;
+    private final File                           temporaryDirectory;
     private final IEmpExportToTypeCallBack<File> callback;
-    private final IMap                           map;
-    private final boolean                        extendedData;
-    private final IOverlay                       overlay;
-    private final IFeature                       feature;
-    private final ExportType                     exportType;
+    private final String                         kmzFileName;
+    private final KMLRelativePathExportThread    kmlRelativePathExportThread;
 
-
-    protected enum ExportType
-    {
-        Map,
-        Overlay,
-        Feature
-    }
+    private final static String DefaultKMLFileName     = "kml_export.kml";
+    private final static String KMZFileExtension       = ".kmz";
+    private final static File   DefaultExportDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "KMZExport");
 
 
     public KMZExporterThread(final IMap                           map,
                              final boolean                        extendedData,
                              final IEmpExportToTypeCallBack<File> callback,
-                             final String                         outputDirectory)
+                             final String                         temporaryDirectory,
+                             final String                         kmzFileName)
     {
-        this.outputDirectory = new File(outputDirectory);
-        createOutputDirectory(outputDirectory);
+        this.callback           = callback;
+        this.temporaryDirectory = new File(temporaryDirectory);
+        this.kmzFileName        = kmzFileName.toLowerCase()
+                                             .endsWith(KMZFileExtension) ? kmzFileName
+                                                                         : kmzFileName + KMZFileExtension;
+        createOutputDirectory(DefaultExportDirectory.getAbsolutePath());
+        createOutputDirectory(temporaryDirectory);
 
-        this.callback     = callback;
-        this.map          = map;
-        this.extendedData = extendedData;
-        this.overlay      = null;
-        this.feature      = null;
-        this.exportType   = ExportType.Map;
+        this.kmlRelativePathExportThread = new KMLRelativePathExportThread(map,
+                                                                           extendedData,
+                                                                           new IEmpExportToStringCallback()
+                                                                           {
+                                                                               @Override
+                                                                               public void exportSuccess(String stringFmt)
+                                                                               {
+                                                                                   createKMZFile(stringFmt,
+                                                                                                 KMZExporterThread.this.temporaryDirectory,
+                                                                                                 KMZExporterThread.this.kmzFileName,
+                                                                                                 KMZExporterThread.this.callback);
+                                                                               }
+
+                                                                               @Override
+                                                                               public void exportFailed(Exception Ex)
+                                                                               {
+                                                                                   KMZExporterThread.this.callback.exportFailed(Ex);
+                                                                               }
+                                                                           },
+                                                                           temporaryDirectory);
     }
 
-
-
-    protected KMZExporterThread(IMap                           map,
-                                IOverlay                       overlay,
-                                boolean                        extendedData,
-                                IEmpExportToTypeCallBack<File> callback,
-                                String                         outputDirectory)
+    protected KMZExporterThread(final IMap                           map,
+                                final IOverlay                       overlay,
+                                final boolean                        extendedData,
+                                final IEmpExportToTypeCallBack<File> callback,
+                                final String temporaryDirectory,
+                                final String                         kmzFileName)
     {
-        this.outputDirectory = new File(outputDirectory);
-        createOutputDirectory(outputDirectory);
+        this.callback           = callback;
+        this.temporaryDirectory = new File(temporaryDirectory);
+        this.kmzFileName        = kmzFileName.toLowerCase()
+                                             .endsWith(KMZFileExtension) ? kmzFileName
+                                                                         : kmzFileName + KMZFileExtension;
+        createOutputDirectory(DefaultExportDirectory.getAbsolutePath());
+        createOutputDirectory(temporaryDirectory);
 
-        this.callback     = callback;
-        this.map          = map;
-        this.extendedData = extendedData;
-        this.overlay      = overlay;
-        this.feature      = null;
-        this.exportType   = ExportType.Overlay;
+        this.kmlRelativePathExportThread = new KMLRelativePathExportThread(map,
+                                                                           overlay,
+                                                                           extendedData,
+                                                                           new IEmpExportToStringCallback(){
+                                                                                                               @Override
+                                                                                                               public void exportSuccess(String stringFmt)
+                                                                                                               {
+                                                                                                                   createKMZFile(stringFmt,
+                                                                                                                                 KMZExporterThread.this.temporaryDirectory,
+                                                                                                                                 KMZExporterThread.this.kmzFileName,
+                                                                                                                                 KMZExporterThread.this.callback);
+                                                                                                               }
+
+                                                                                                               @Override
+                                                                                                               public void exportFailed(Exception Ex)
+                                                                                                               {
+                                                                                                                   KMZExporterThread.this.callback.exportFailed(Ex);
+                                                                                                               }
+                                                                                                           },
+                                                                           temporaryDirectory);
 
     }
 
-    protected KMZExporterThread(IMap                           map,
-                                IFeature                       feature,
-                                boolean                        extendedData,
-                                IEmpExportToTypeCallBack<File> callback,
-                                String                         outputDirectory)
+    protected KMZExporterThread(final IMap                           map,
+                                final IFeature                       feature,
+                                final boolean                        extendedData,
+                                final IEmpExportToTypeCallBack<File> callback,
+                                final String temporaryDirectory,
+                                final String                         kmzFileName)
     {
-        this.outputDirectory = new File(outputDirectory);
-        createOutputDirectory(outputDirectory);
+        this.callback           = callback;
+        this.temporaryDirectory = new File(temporaryDirectory);
+        this.kmzFileName        = kmzFileName.toLowerCase()
+                                             .endsWith(KMZFileExtension) ? kmzFileName
+                                                                         : kmzFileName + KMZFileExtension;
 
-        this.callback     = callback;
-        this.map          = map;
-        this.extendedData = extendedData;
-        this.overlay      = null;
-        this.feature      = feature;
-        this.exportType   = ExportType.Feature;
+        createOutputDirectory(DefaultExportDirectory.getAbsolutePath());
+        createOutputDirectory(temporaryDirectory);
+
+        this.kmlRelativePathExportThread = new KMLRelativePathExportThread(map,
+                                                                           feature,
+                                                                           extendedData,
+                                                                           new IEmpExportToStringCallback(){
+                                                                                                               @Override
+                                                                                                               public void exportSuccess(String stringFmt)
+                                                                                                               {
+                                                                                                                   createKMZFile(stringFmt,
+                                                                                                                                 KMZExporterThread.this.temporaryDirectory,
+                                                                                                                                 KMZExporterThread.this.kmzFileName,
+                                                                                                                                 KMZExporterThread.this.callback);
+                                                                                                               }
+
+                                                                                                               @Override
+                                                                                                               public void exportFailed(Exception Ex)
+                                                                                                               {
+                                                                                                                   KMZExporterThread.this.callback.exportFailed(Ex);
+                                                                                                               }
+                                                                                                           },
+                                                                           temporaryDirectory);
+
     }
 
     private static void createOutputDirectory(String outputDirectory)
@@ -95,97 +152,59 @@ public class KMZExporterThread extends Thread
         directory.mkdirs();
         if(!directory.isDirectory())
         {
-            throw new IllegalArgumentException(String.format("The outputDirectory must be a path to a Directory. %s is not a directory.", outputDirectory));
+            throw new IllegalArgumentException(String.format("The temporaryDirectory must be a path to a Directory. %s is not a directory.",
+                                               outputDirectory));
         }
-
     }
 
     @Override
     public void run()
     {
         super.run();
+        this.kmlRelativePathExportThread.run();
+        this.kmlRelativePathExportThread.start();
+    }
 
-        KMLRelativePathExportThread kmlRelativePathExportThread = null;
+    private static void createKMZFile(final String                         kmlString,
+                                      final File                           temporaryDirectory,
+                                      final String                         kmzFileName,
+                                      final IEmpExportToTypeCallBack<File> callback)
+    {
+        //create the zip file given
+        File zipFile = new File(DefaultExportDirectory +
+                                File.separator +
+                                kmzFileName);
 
-        switch (this.exportType)
+        //Zip files up and rename the extension to .kmz
+        //Create the kml file at the given kmz directory
+        File kmlFile = new File(temporaryDirectory.getAbsolutePath() + File.separator + DefaultKMLFileName);
+
+        try(FileOutputStream out = new FileOutputStream(kmlFile.getAbsoluteFile()))
         {
 
-            case Map:
-                 kmlRelativePathExportThread = new KMLRelativePathExportThread(this.map,
-                                                                               this.extendedData,
-                                                                               new IEmpExportToStringCallback(){
-                                                                                                                   @Override
-                                                                                                                   public void exportSuccess(String stringFmt)
-                                                                                                                   {
-                                                                                                                         CreateKMZfile(stringFmt,
-                                                                                                                                       KMZExporterThread.this.outputDirectory,
-                                                                                                                                       KMZExporterThread.this.callback);
-                                                                                                                   }
+            //write the kml to the temporary directory
+            byte[] byteArray = kmlString.getBytes();
+            out.write(byteArray, 0, byteArray.length);
+            out.flush();
 
-                                                                                                                   @Override
-                                                                                                                   public void exportFailed(Exception Ex)
-                                                                                                                   {
-                                                                                                                       KMZExporterThread.this.callback.exportFailed(Ex);
-                                                                                                                   }
-                                                                                                               },
-                                                                               this.outputDirectory.getAbsolutePath());
-
-                break;
-            case Overlay:
-                 kmlRelativePathExportThread = new KMLRelativePathExportThread(this.map,
-                                                                               this.overlay,
-                                                                               this.extendedData,
-                                                                               new IEmpExportToStringCallback()
-                                                                               {
-                                                                                   @Override
-                                                                                   public void exportSuccess(String stringFmt)
-                                                                                   {
-                                                                                       CreateKMZfile(stringFmt,
-                                                                                                     KMZExporterThread.this.outputDirectory,
-                                                                                                     KMZExporterThread.this.callback);
-                                                                                   }
-
-                                                                                   @Override
-                                                                                   public void exportFailed(Exception Ex)
-                                                                                   {
-                                                                                        KMZExporterThread.this.callback.exportFailed(Ex);
-                                                                                   }
-                                                                               },
-                                                                               this.outputDirectory.getAbsolutePath());
-                break;
-            case Feature:
-                 kmlRelativePathExportThread = new KMLRelativePathExportThread(this.map,
-                                                                               this.feature,
-                                                                               this.extendedData,
-                                                                               new IEmpExportToStringCallback()
-                                                                               {
-                                                                                   @Override
-                                                                                   public void exportSuccess(String stringFmt)
-                                                                                   {
-                                                                                       CreateKMZfile(stringFmt,
-                                                                                                     KMZExporterThread.this.outputDirectory,
-                                                                                                     KMZExporterThread.this.callback);
-                                                                                   }
-
-                                                                                   @Override
-                                                                                   public void exportFailed(Exception Ex)
-                                                                                   {
-                                                                                        KMZExporterThread.this.callback.exportFailed(Ex);
-                                                                                   }
-                                                                               },
-                                                                               this.outputDirectory.getAbsolutePath());
-                break;
+            ZipUtility.zip(temporaryDirectory, zipFile);
+            callback.exportSuccess(zipFile);
         }
-
-        kmlRelativePathExportThread.run();
-        kmlRelativePathExportThread.start();
-
+        catch (IOException e)
+        {
+            callback.exportFailed(e);
+        }
+        finally
+        {
+            //clean up the folders and files that are no longer needed
+            if(kmlFile.exists())
+            {
+                kmlFile.delete();
+            }
+            if(temporaryDirectory.exists())
+            {
+                FileUtility.deleteFolder(temporaryDirectory);
+            }
+        }
     }
-
-    private static void CreateKMZfile(final String kmlString, final File kmzDirectory, final IEmpExportToTypeCallBack<File> callback)
-    {
-
-    }
-
-
 }
