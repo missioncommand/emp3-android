@@ -1,4 +1,4 @@
-package mil.emp3.dev_test_sdk.utils;
+package mil.emp3.core.services.kml;
 
 import android.util.Log;
 
@@ -15,7 +15,7 @@ import mil.emp3.api.listeners.IKMLSEventListener;
  */
 
 public class KMLSServiceListener implements IKMLSEventListener {
-    private static String TAG = KMLSServiceListener.class.getSimpleName();
+    public static String TAG = KMLSServiceListener.class.getSimpleName();
     IMap map;
 
     BlockingQueue<KMLSEventEnum> queue;

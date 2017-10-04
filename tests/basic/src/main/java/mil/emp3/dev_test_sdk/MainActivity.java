@@ -19,14 +19,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,9 +32,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,14 +56,12 @@ import org.cmapi.primitives.IGeoPositionGroup;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -126,7 +120,6 @@ import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IFeature;
-import mil.emp3.api.interfaces.ILineOfSight;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
@@ -151,9 +144,9 @@ import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.dev_test_sdk.utils.CameraUtility;
-import mil.emp3.dev_test_sdk.utils.KMLSServiceListener;
+import mil.emp3.core.services.kml.KMLSServiceListener;
 import mil.emp3.json.geoJson.GeoJsonCaller;
-import sec.geo.kml.KmlOptions;
+
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 
@@ -1596,12 +1589,8 @@ public class MainActivity extends AppCompatActivity
                         mapService.setName("kmzSample_Test");
                         this.map.addMapService(mapService);
                     }
-                    if(targetFile.exists()){
-                        targetFile.delete();
-                    }
 
                 } catch (Exception e) {
-                    int a = 2;
                 }
                 return true;
             }
@@ -1646,51 +1635,6 @@ public class MainActivity extends AppCompatActivity
                     });
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
-                    MainActivity.this.makeToast("Export failed");
-                }
-                return true;
-            }
-            case R.id.action_exportOverlayToKMZ: {
-                try {
-                    EmpKMLExporter.exportToString(this.map, this.oRootOverlay, true, new IEmpExportToStringCallback() {
-
-                        @Override
-                        public void exportSuccess(String kmlString) {
-                            FileOutputStream out = null;
-                            File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES+"/kmz");
-                            File dest = new File(sd, "overlayexport.kml");
-                            if (dest.exists()) {
-                                dest.delete();
-                            }
-                            try {
-                                out = new FileOutputStream(dest);
-                                byte[] byteArray = kmlString.getBytes();
-                                out.write(byteArray, 0, byteArray.length);
-                                out.flush();
-                                MainActivity.this.makeToast("Export complete");
-                            } catch (Exception e) {
-                                Log.e(TAG, "Failed to save kmz file.", e);
-                                MainActivity.this.makeToast("Export failed");
-                            } finally {
-                                try {
-                                    if (out != null) {
-                                        out.close();
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                        }
-
-                        @Override
-                        public void exportFailed(Exception Ex) {
-                            Log.e(TAG, "Map export to KMZ failed.", Ex);
-                            MainActivity.this.makeToast("Export failed");
-                        }
-                    });
-                } catch (Exception Ex) {
-                    Log.e(TAG, "Map export to KMZ failed.", Ex);
                     MainActivity.this.makeToast("Export failed");
                 }
                 return true;
