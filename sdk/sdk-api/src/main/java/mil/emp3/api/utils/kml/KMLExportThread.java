@@ -438,7 +438,7 @@ public class KMLExportThread extends java.lang.Thread {
     protected String getMilStdSinglePointIconURL(final MilStdSymbol                    feature,
                                                  MilStdLabelSettingEnum                eLabelSetting,
                                                  java.util.Set<IGeoMilSymbol.Modifier> labelSet,
-                                                 SparseArray<String>                   attributes)
+                                                 SparseArray<String>                   attributes) throws IOException
     {
         return  MilStdUtilities.getMilStdSinglePointIconURL(feature, eLabelSetting, labelSet, attributes);
     }

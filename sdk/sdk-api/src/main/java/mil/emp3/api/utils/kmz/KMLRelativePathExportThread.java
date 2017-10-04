@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Set;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
@@ -21,6 +22,7 @@ import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.utils.FileUtility;
 import mil.emp3.api.utils.MilStdUtilities;
 import mil.emp3.api.utils.kml.KMLExportThread;
 
@@ -33,8 +35,11 @@ public class KMLRelativePathExportThread extends KMLExportThread
 
     private static final String TAG = "KMZExporterThread";
     private static final String ImageDirectory = "Image";
-    private static final String ImageExtension = ".png";
+    private static final String ImageExtension = ".PNG";
     private final String outputDirectory;
+
+    private static final HashMap<String, Integer> imageNameHash = new HashMap<>();
+    private static int uniqueImageCount = 0;
 
     protected KMLRelativePathExportThread(IMap                       map,
                                           boolean                    extendedData,
@@ -92,28 +97,52 @@ public class KMLRelativePathExportThread extends KMLExportThread
     protected String getMilStdSinglePointIconURL(MilStdSymbol                feature,
                                                  MilStdLabelSettingEnum      eLabelSetting,
                                                  Set<IGeoMilSymbol.Modifier> labelSet,
-                                                 SparseArray<String>         attributes)
+                                                 SparseArray<String>         attributes) throws IOException
     {
         MilStdIconRenderer mir = MilStdIconRenderer.getInstance();
         ImageInfo icon = mir.RenderIcon(feature.getSymbolCode(), feature.getUnitModifiers(MilStdLabelSettingEnum.ALL_LABELS),attributes);
-        String fileName = MilStdUtilities.getMilStdSinglePointParams(feature, eLabelSetting, labelSet, attributes) + ImageExtension;
+        String keyValue = MilStdUtilities.getMilStdSinglePointParams(feature, eLabelSetting, labelSet, attributes);
+        String fileName = KMLRelativePathExportThread.getImageFileName(keyValue);
 
-        try
-        {
-            storeImage(icon.getImage(), fileName);
-        }
-        catch (IOException e)
-        {
-            //TODO handle exception
-            e.printStackTrace();
-        }
+        storeImage(icon.getImage(), fileName);
 
         return ImageDirectory + File.separator + fileName;
     }
 
+    /**
+     * Gets an image file Name that if another image with the same
+     * image was created, it will reference the file name of a previous image
+     * (this will let us not duplicate image files when they are the same)
+     *
+     * @param militarySymbologyParams the parameters that make up the military symbology
+     * @return the name of the image file
+     */
+    private static String getImageFileName(String militarySymbologyParams)
+    {
+        String fileName = "";
+        if(imageNameHash.containsKey(militarySymbologyParams))
+        {
+            fileName = imageNameHash.get(militarySymbologyParams) + ImageExtension;
+        }
+        else
+        {
+            fileName = uniqueImageCount + ImageExtension;
+            imageNameHash.put(militarySymbologyParams, uniqueImageCount);
+            uniqueImageCount++;
+        }
+
+        return fileName;
+    }
+
+
+
     private static void createImageDirectory(String outputDirectory)
     {
         File imageDirectory = new File(outputDirectory + File.separator + ImageDirectory);
+        if(imageDirectory.exists())
+        {
+            FileUtility.deleteFolder(imageDirectory);
+        }
         imageDirectory.mkdir();
     }
 
