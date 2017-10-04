@@ -241,8 +241,8 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
         bearingP1ToCenter = GeoLibrary.computeBearing(cp1.getPosition(), centerPos);
         // Move P3 to its new position.
         GeoLibrary.computePositionAt(bearingP1ToCenter - angleP1P2ToP3, distanceCenterToP3, centerPos, cp3.getPosition());
-        this.cpList.add(movedCP);
-        this.cpList.add(cp3);
+        cpList.add(movedCP);
+        cpList.add(cp3);
         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{movedCP.getCPIndex(), cp3.getCPIndex()});
     }
 
@@ -277,7 +277,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                     distanceCenterToNewPos = distanceCenterToNewPos * Math.cos(Math.toRadians(bearingCenterToP1 - bearingCenterToNewPos));
                     // Calculate the new position of Pt1.
                     GeoLibrary.computePositionAt(bearingCenterToP1, distanceCenterToNewPos, centerPos, oCP.getPosition());
-                    this.cpList.add(oCP);
+                    cpList.add(oCP);
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{cpIndex});
                     break;
                 case 1:
@@ -314,7 +314,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                     break;
             }
         } else {
-            this.moveCP(oCP, eventPos);
+            moveCP(oCP, eventPos);
         }
     }
 
@@ -330,13 +330,13 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             switch (oCP.getCPIndex()) {
                 case 0: {
                     // PT1 was moved.
-                    this.moveCPRotateP3(0, 1, eventPos);
+                    moveCPRotateP3(0, 1, eventPos);
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0, 2});
                     break;
                 }
                 case 1: {
                     // PT2 was moved.
-                    this.moveCPRotateP3(1, 0, eventPos);
+                    moveCPRotateP3(1, 0, eventPos);
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{1, 2});
                     break;
                 }
@@ -353,7 +353,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
 
                     // Move the position of P3.
                     GeoLibrary.computePositionAt(bearingCenterToP3, distanceCenterToNewP3Pos, centerPos, cp3Pos);
-                    this.cpList.add(oCP);
+                    cpList.add(oCP);
 
                     // Add update data.
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{2});
@@ -361,7 +361,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                 }
             }
         } else {
-            this.moveCP(oCP, eventPos);
+            moveCP(oCP, eventPos);
         }
     }
 
@@ -387,8 +387,8 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                     // Rotate P3 by bearingP1WithPivot + 90deg.
                     GeoLibrary.computePositionAt(bearingP1WithPivot + 90.0, distanceP2P3, p2CP.getPosition(), p3CP.getPosition());
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0, 2});
-                    this.cpList.add(oCP);
-                    this.cpList.add(p3CP);
+                    cpList.add(oCP);
+                    cpList.add(p3CP);
                     break;
                 }
                 case 1: {
@@ -402,14 +402,14 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
 
                     // Move the CPs.
                     oCP.moveControlPoint(bearingOfMotion, distanceOfMotion);
-                    this.cpList.add(oCP);
+                    cpList.add(oCP);
                     if (p1CP != null) {
                         p1CP.moveControlPoint(bearingOfMotion, distanceOfMotion);
-                        this.cpList.add(p1CP);
+                        cpList.add(p1CP);
                     }
                     if (p3CP != null) {
                         p3CP.moveControlPoint(bearingOfMotion, distanceOfMotion);
-                        this.cpList.add(p3CP);
+                        cpList.add(p3CP);
                     }
 
                     // Now we add event update data.
@@ -436,13 +436,99 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
                     // Rotate P1 by bearingPivotP3 - 90deg.
                     GeoLibrary.computePositionAt(bearingPivotP3 - 90.0, distanceP2P1, p2CP.getPosition(), p1CP.getPosition());
                     this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0, 2});
-                    this.cpList.add(oCP);
-                    this.cpList.add(p1CP);
+                    cpList.add(oCP);
+                    cpList.add(p1CP);
                     break;
                 }
             }
         } else {
-            this.moveCP(oCP, eventPos);
+            moveCP(oCP, eventPos);
+        }
+    }
+
+    /* unlike the other methods in this class, the points here are numbered P0, P1, P2, P3
+        if user moves P0 or P2, move P1 and P3 to make a new rectangle
+        if user moves P1 or P3, move P0 and P2 to make a new rectangle
+     */
+
+    private void moveGraphicKeepParallel(ControlPoint oCP, IGeoPosition eventPos) {
+        List<IGeoPosition> posList = this.getPositions();
+        int cpIndex = oCP.getCPIndex();
+        // Find all current control points
+        ControlPoint p0CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
+        ControlPoint p1CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 1, -1);
+        ControlPoint p2CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 2, -1);
+        ControlPoint p3CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 3, -1);
+
+        // Move the CP.
+        oCP.getPosition().setLatitude(eventPos.getLatitude());
+        oCP.getPosition().setLongitude(eventPos.getLongitude());
+        if (posList.size() >= this.getMinPoints()) {
+            switch (cpIndex) {
+                case 0: {
+
+                    // move P1 so P0P1 is perpendicular to P0P3 at P0
+
+                    double bearing = GeoLibrary.computeBearing(oCP.getPosition(), p3CP.getPosition());
+                    double distance = GeoLibrary.computeDistanceBetween(oCP.getPosition(), p1CP.getPosition());
+                    IGeoPosition newGP = GeoLibrary.computePositionAt(bearing - 90.0, distance, oCP.getPosition());
+                    moveCP(p1CP, newGP);
+
+                    // move P2 to keep lines parallel and equal length
+
+                    newGP = GeoLibrary.computePositionAt(bearing - 90.0, distance, p3CP.getPosition());
+                    moveCP(p2CP, newGP);
+                    break;
+                }
+                case 1: {
+
+                    // move P0 so P0P1 is perpendicular to P1P2 at P1
+
+                    double bearing = GeoLibrary.computeBearing(oCP.getPosition(), p2CP.getPosition());
+                    double distance = GeoLibrary.computeDistanceBetween(oCP.getPosition(), p0CP.getPosition());
+                    IGeoPosition newGP = GeoLibrary.computePositionAt(bearing + 90.0, distance, oCP.getPosition());
+                    moveCP(p0CP, newGP);
+
+                    // move P3 to keep lines parallel and equal length
+
+                    newGP = GeoLibrary.computePositionAt(bearing + 90.0, distance, p2CP.getPosition());
+                    moveCP(p3CP, newGP);
+                    break;
+                }
+                case 2: {
+
+                    // move P3 so P2P3 is perpendicular to P1P2 at P2
+
+                    double bearing = GeoLibrary.computeBearing(oCP.getPosition(), p1CP.getPosition());
+                    double distance = GeoLibrary.computeDistanceBetween(oCP.getPosition(), p3CP.getPosition());
+                    IGeoPosition newGP = GeoLibrary.computePositionAt(bearing - 90.0, distance, oCP.getPosition());
+                    moveCP(p3CP, newGP);
+
+                    // move P0 so P0P1 is parallel to P2P3 and equal length
+
+                    newGP = GeoLibrary.computePositionAt(bearing - 90.0, distance, p1CP.getPosition());
+                    moveCP(p0CP, newGP);
+                    break;
+                }
+                case 3: {
+
+                    // move P2 so P2P3 is perpendicular to P0P3 at P3
+
+                    double bearing = GeoLibrary.computeBearing(oCP.getPosition(), p0CP.getPosition());
+                    double distance = GeoLibrary.computeDistanceBetween(oCP.getPosition(), p2CP.getPosition());
+                    IGeoPosition newGP = GeoLibrary.computePositionAt(bearing + 90.0, distance, oCP.getPosition());
+                    moveCP(p2CP, newGP);
+
+                    // move P1 so P0P1 is parallel to P2P3 and equal length
+
+                    newGP = GeoLibrary.computePositionAt(bearing + 90.0, distance, p0CP.getPosition());
+                    moveCP(p1CP, newGP);
+                    break;
+                }
+
+            }
+        } else {
+            moveCP(oCP, eventPos);
         }
     }
 
@@ -489,7 +575,7 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
 
         switch (basicSymbolCode) {
             case CoreMilStdUtilities.AMBUSH:
-                this.moveGraphicP1PerpendicularP2P3AtCenter(oCP, eventPos);
+                moveGraphicP1PerpendicularP2P3AtCenter(oCP, eventPos);
                 break;
             case CoreMilStdUtilities.BLOCK_TASK:
             case CoreMilStdUtilities.TASK_CONTAIN:
@@ -501,15 +587,26 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             case CoreMilStdUtilities.MS_OBSTACLES_RCBB_PLANNED:
             case CoreMilStdUtilities.MS_OBSTACLES_RCBB_ESR1_SAFE:
             case CoreMilStdUtilities.MS_OBSTACLES_RCBB_ESR2_ARMED_PASSABLE:
-                this.moveGraphicP3PerpendicularToP1P2Center(oCP, eventPos);
+                moveGraphicP3PerpendicularToP1P2Center(oCP, eventPos);
+                break;
+            case CoreMilStdUtilities.MS_OBSTACLES_BYPASS_BRIDGE_OR_GAP:
+                switch (this.oFeature.getSymbolStandard()) {
+                    case MIL_STD_2525B:
+                        moveCP(oCP, eventPos);
+                        break;
+                    case MIL_STD_2525C:
+                        // 2525C requires the two lines to be parallel
+                        moveGraphicKeepParallel(oCP, eventPos);
+                        break;
+                }
                 break;
             case CoreMilStdUtilities.TASK_CLEAR: {
                 switch (this.oFeature.getSymbolStandard()) {
                     case MIL_STD_2525B:
-                        this.moveCP(oCP, eventPos);
+                        moveCP(oCP, eventPos);
                         break;
                     case MIL_STD_2525C:
-                        this.moveGraphicP3PerpendicularToP1P2Center(oCP, eventPos);
+                        moveGraphicP3PerpendicularToP1P2Center(oCP, eventPos);
                         break;
                 }
                 break;
@@ -519,10 +616,10 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             case CoreMilStdUtilities.TASK_RETIREMENT:
             case CoreMilStdUtilities.TASK_WITHDRAW:
             case CoreMilStdUtilities.TASK_WITHDRAW_UNDER_PRESURE:
-                this.moveGraphicP3PerpendicularP1P2AtP2(oCP, eventPos);
+                moveGraphicP3PerpendicularP1P2AtP2(oCP, eventPos);
                 break;
             default:
-                this.moveCP(oCP, eventPos);
+                moveCP(oCP, eventPos);
                 break;
         }
 
