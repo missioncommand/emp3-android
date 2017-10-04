@@ -13,6 +13,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -174,7 +175,7 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
 
     private void adjustWidth(ControlPoint oCP, IGeoPosition oLatLon) {
         Log.d(TAG, oCP.getCPType().toString() + " B4 calc " + currentLength + " " + currentBearing);
-        currentLength = 2 * GeoLibrary.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
+        currentLength = 2 * GeographicLib.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
 
         if(currentLength < Square.MINIMUM_WIDTH) {
             currentLength = Square.MINIMUM_WIDTH;
@@ -213,7 +214,7 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
                 break;
 
             case AZIMUTH_CP:
-                currentBearing = GeoLibrary.computeBearing(this.oFeature.getPosition(), oLatLon) + 90.0;
+                currentBearing = GeographicLib.computeBearing(this.oFeature.getPosition(), oLatLon) + 90.0;
                 currentBearing = (currentBearing + 360) % 360;
                 recompute(this.oFeature.getPosition());
                 this.oFeature.setAzimuth(currentBearing);

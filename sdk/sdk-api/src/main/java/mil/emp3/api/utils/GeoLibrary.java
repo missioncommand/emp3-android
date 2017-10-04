@@ -179,7 +179,7 @@ public class GeoLibrary {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static double old_computeRhumbDistance(IGeoPosition oFrom, IGeoPosition oTo) {
+    public static double computeRhumbDistance(IGeoPosition oFrom, IGeoPosition oTo) {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
@@ -210,7 +210,7 @@ public class GeoLibrary {
      * @return The bearing is return in degrees.
      * @throws IllegalArgumentException
      */
-    public static double old_computeRhumbBearing(IGeoPosition oFrom, IGeoPosition oTo) {
+    public static double computeRhumbBearing(IGeoPosition oFrom, IGeoPosition oTo) {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
@@ -239,7 +239,7 @@ public class GeoLibrary {
      * @return Geo position
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition old_calculateRhumbPositionAt(double dBearing, double dDistance, IGeoPosition oFrom) {
+    public static IGeoPosition calculateRhumbPositionAt(double dBearing, double dDistance, IGeoPosition oFrom) {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
@@ -281,7 +281,7 @@ public class GeoLibrary {
      * @param dDegrees
      * @return The arc length in meters.
      */
-    public static double old_getArcLengthFromDegrees(double dDegrees) {
+    public static double getArcLengthFromDegrees(double dDegrees) {
         return 2.0 * Math.PI * GeoLibrary.DEFAULT_EARTH_RADIUS * dDegrees / 360.0;
     }
 
@@ -290,7 +290,7 @@ public class GeoLibrary {
      * @param dArcLength The length in meters.
      * @return the angle in degrees.
      */
-    public static double old_getDegreesFromArcLength(double dArcLength) {
+    public static double getDegreesFromArcLength(double dArcLength) {
         return dArcLength * 180.0 / (Math.PI * GeoLibrary.DEFAULT_EARTH_RADIUS);
     }
 

@@ -199,7 +199,7 @@ public class GeographicLib {
     }
 
 
-    public IGeoPosition intersection(IGeoPosition p1, double brng1, IGeoPosition p2, double brng2) {
+    public static IGeoPosition intersection(IGeoPosition p1, double brng1, IGeoPosition p2, double brng2) {
         //TODO
         return null;
     }

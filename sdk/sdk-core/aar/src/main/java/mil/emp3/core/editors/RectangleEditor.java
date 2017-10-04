@@ -13,6 +13,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -22,7 +23,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  *
  * * NOTES
  * Altitude mode is clamp to ground.
- * Zooming in/out cause the graphic to get re-rendererd.
+ * Zooming in/out cause the graphic to get re-rendered.
  *
  * Requirements
  * Each CP should have one function. Add the azimuth to be consistent with all other editors.
@@ -206,7 +207,7 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
 
     private void adjustWidth(ControlPoint oCP, IGeoPosition oLatLon) {
         Log.d(TAG, oCP.getCPType().toString() + " B4 calc " + currentWidth + " " + currentBearing);
-        currentWidth = 2 * GeoLibrary.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
+        currentWidth = 2 * GeographicLib.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
         if(currentWidth < Rectangle.MINIMUM_WIDTH) {
             currentWidth = Rectangle.MINIMUM_WIDTH;
         }
@@ -222,7 +223,7 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
 
     private void adjustHeight(ControlPoint oCP, IGeoPosition oLatLon) {
         Log.d(TAG, oCP.getCPType().toString() + " B4 calc " + currentWidth + " " + currentBearing);
-        currentHeight = 2 * GeoLibrary.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
+        currentHeight = 2 * GeographicLib.computeDistanceBetween(this.oFeature.getPosition(), oLatLon);
         if(currentHeight < Rectangle.MINIMUM_HEIGHT) {
             currentHeight = Rectangle.MINIMUM_HEIGHT;
         }
@@ -267,7 +268,7 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
                 break;
 
             case AZIMUTH_CP:
-                currentBearing = GeoLibrary.computeBearing(this.oFeature.getPosition(), oLatLon) + 90.0;
+                currentBearing = GeographicLib.computeBearing(this.oFeature.getPosition(), oLatLon) + 90.0;
                 currentBearing = (currentBearing + 360) % 360;
                 recompute(this.oFeature.getPosition());
                 this.oFeature.setAzimuth(currentBearing);

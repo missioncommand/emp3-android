@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.GeoLibrary;
 
 /**
@@ -46,27 +47,27 @@ public class GeoLibraryUnitTest {
         oPos2.setAltitude(0.0);
 
         oPos2.setLongitude(1.0 / 60.0);
-        double dDist = GeoLibrary.computeDistanceBetween(oPos1, oPos1);
+        double dDist = GeographicLib.computeDistanceBetween(oPos1, oPos1);
         Log.d(TAG, "    Testing 0 degree.");
         Assert.assertEquals(0.0, dDist, 0.0);
 
         oPos2.setLongitude(1.0 / 60.0);
-        dDist = GeoLibrary.computeDistanceBetween(oPos1, oPos2);
+        dDist = GeographicLib.computeDistanceBetween(oPos1, oPos2);
         Log.d(TAG, "    Testing 1 min.");
         Assert.assertEquals(NAUTICAL_MILE_IN_METERS, dDist, DISTANCE_ERROR_PER_DEGREE / 60.0);
 
         oPos2.setLongitude(1.0);
-        dDist = GeoLibrary.computeDistanceBetween(oPos1, oPos2);
+        dDist = GeographicLib.computeDistanceBetween(oPos1, oPos2);
         Log.d(TAG, "    Testing 1 degree.");
         Assert.assertEquals(METERS_1_DEGREE, dDist, DISTANCE_ERROR_PER_DEGREE);
 
         oPos2.setLongitude(10.0);
-        dDist = GeoLibrary.computeDistanceBetween(oPos1, oPos2);
+        dDist = GeographicLib.computeDistanceBetween(oPos1, oPos2);
         Log.d(TAG, "    Testing 10 degree.");
         Assert.assertEquals(METERS_1_DEGREE * 10, dDist, DISTANCE_ERROR_PER_DEGREE * 10.0);
 
         oPos2.setLongitude(100.0);
-        dDist = GeoLibrary.computeDistanceBetween(oPos1, oPos2);
+        dDist = GeographicLib.computeDistanceBetween(oPos1, oPos2);
         Log.d(TAG, "    Testing 100 degree.");
         Assert.assertEquals(METERS_1_DEGREE * 100, dDist, DISTANCE_ERROR_PER_DEGREE * 100.0);
 
@@ -88,49 +89,49 @@ public class GeoLibraryUnitTest {
 
         oPos2.setLatitude(1.0);
         oPos2.setLongitude(0.0);
-        dAzimuth = GeoLibrary.computeBearing(oPos1, oPos2);
+        dAzimuth = GeographicLib.computeBearing(oPos1, oPos2);
         Log.d(TAG, "    Testing 0 degrees.");
         Assert.assertEquals(0.0, dAzimuth, 0.005);
 
         oPos2.setLatitude(1.0);
         oPos2.setLongitude(1.0);
-        dAzimuth = GeoLibrary.computeBearing(oPos1, oPos2);
+        dAzimuth = GeographicLib.computeBearing(oPos1, oPos2);
         Log.d(TAG, "    Testing 45 degrees.");
         Assert.assertEquals(45.0, dAzimuth, 0.005);
 
         oPos2.setLatitude(0.0);
         oPos2.setLongitude(1.0);
-        dAzimuth = GeoLibrary.computeBearing(oPos1, oPos2);
+        dAzimuth = GeographicLib.computeBearing(oPos1, oPos2);
         Log.d(TAG, "    Testing 90 degrees.");
         Assert.assertEquals(90.0, dAzimuth, 0.005);
 
         oPos2.setLatitude(-1.0);
         oPos2.setLongitude(1.0);
-        dAzimuth = GeoLibrary.computeBearing(oPos1, oPos2);
+        dAzimuth = GeographicLib.computeBearing(oPos1, oPos2);
         Log.d(TAG, "    Testing 135 degrees.");
         Assert.assertEquals(135.0, dAzimuth, 0.005);
 
         oPos2.setLatitude(-1.0);
         oPos2.setLongitude(0.0);
-        dAzimuth = GeoLibrary.computeBearing(oPos1, oPos2);
+        dAzimuth = GeographicLib.computeBearing(oPos1, oPos2);
         Log.d(TAG, "    Testing 180 degrees.");
         Assert.assertEquals(180.0, dAzimuth, 0.005);
 
         oPos2.setLatitude(-1.0);
         oPos2.setLongitude(-1.0);
-        dAzimuth = GeoLibrary.computeBearing(oPos1, oPos2);
+        dAzimuth = GeographicLib.computeBearing(oPos1, oPos2);
         Log.d(TAG, "    Testing 225 degrees.");
         Assert.assertEquals(225.0, dAzimuth, 0.005);
 
         oPos2.setLatitude(0.0);
         oPos2.setLongitude(-1.0);
-        dAzimuth = GeoLibrary.computeBearing(oPos1, oPos2);
+        dAzimuth = GeographicLib.computeBearing(oPos1, oPos2);
         Log.d(TAG, "    Testing 270 degrees.");
         Assert.assertEquals(270.0, dAzimuth, 0.005);
 
         oPos2.setLatitude(1.0);
         oPos2.setLongitude(-1.0);
-        dAzimuth = GeoLibrary.computeBearing(oPos1, oPos2);
+        dAzimuth = GeographicLib.computeBearing(oPos1, oPos2);
         Log.d(TAG, "    Testing 315 degrees.");
         Assert.assertEquals(315.0, dAzimuth, 0.005);
 
@@ -143,13 +144,13 @@ public class GeoLibraryUnitTest {
         double dCalculateDist;
         double dCalculateBearing;
 
-        oPos2 = GeoLibrary.computePositionAt(dBearing, dDist, oPos1);
+        oPos2 = GeographicLib.computePositionAt(dBearing, dDist, oPos1);
         Log.d(TAG, "    Testing " + dBearing + "degrees Dist: " + dDist + " m.");
         Log.d(TAG, "            Bearing.");
-        dCalculateBearing = GeoLibrary.computeBearing(oPos1, oPos2);
+        dCalculateBearing = GeographicLib.computeBearing(oPos1, oPos2);
         Assert.assertEquals(dBearing, dCalculateBearing, 0.005);
         Log.d(TAG, "            Distance.");
-        dCalculateDist = GeoLibrary.computeDistanceBetween(oPos1, oPos2);
+        dCalculateDist = GeographicLib.computeDistanceBetween(oPos1, oPos2);
         Assert.assertEquals(dDist, dCalculateDist, DISTANCE_ERROR_PER_DEGREE * dDegreeDist);
     }
 
@@ -219,8 +220,8 @@ public class GeoLibraryUnitTest {
         oBottomRight.setLongitude(1.0);
         oBottomRight.setAltitude(0.0);
 
-        oCenter1 = GeoLibrary.midPointBetween(oTopLeft, oBottomRight);
-        oCenter2 = GeoLibrary.midPointBetween(oBottomLeft, oTopRight);
+        oCenter1 = GeographicLib.midPointBetween(oTopLeft, oBottomRight);
+        oCenter2 = GeographicLib.midPointBetween(oBottomLeft, oTopRight);
         Log.d(TAG, "  Testing Top Left to Bottom Right latitude.");
         Assert.assertEquals(0.0, oCenter1.getLatitude(), 0.1);
         Log.d(TAG, "  Testing Top Left to Bottom Right longitude.");

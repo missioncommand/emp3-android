@@ -332,17 +332,13 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     /**
      * This method returns the width in meters of the bounding box across the center.
      * @return The Width in meters.
-     * 
-     * In this class the width calculation previously used rhumb distance and
-     * the height class used normal distance, both from GeographicLib
-     * It has been updated to use normal distance from GeographicLib
      */
     @Override
     public double widthAcrossCenter() {
         IGeoPosition pos1 = this.centerWest();
         IGeoPosition pos2 = this.centerEast();
 
-        return GeographicLib.computeDistanceBetween(pos1, pos2);
+        return GeoLibrary.computeRhumbDistance(pos1, pos2);
     }
 
     /**
