@@ -18,6 +18,10 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 
 public class MirrorCacheTest extends TestCase {
 
+    /*
+    MirrorCache is not currently supported
+
+
     public void testThrowsWhenInvalidProductId() throws EMP_Exception {
         final MirrorCacheClient client = mock(MirrorCacheClient.class);
         MirrorCache mc = new MirrorCache(client);
@@ -153,5 +157,5 @@ public class MirrorCacheTest extends TestCase {
             fail();
         } catch (NullPointerException expected) { }
     }
-
+    */
 }
