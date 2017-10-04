@@ -30,42 +30,44 @@ public final class EmpKMZExporter
      * well as the desired name of the KMZ file.
      * @param map the map that contains the overlays and feature data to be exported.
      * @param extendedData whether or not extended data should be exported.
-     * @param callBack the callback which will provide the KMZ file created when the thread is finished or report a failure
-     * @param KMZDirectoryName the directory location where the KMZ file should be created. (i.e. /storage/emulated/0/Pictures/).
-     * @param KMZFileName  the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
+     * @param callback the callback which will provide the KMZ file created when the thread is finished or report a failure
+     * @param temporaryDirectoryLocation the temporary directory location( it is highly recommended to use
+     *                                   Context.getExternalFilesDir() as the temporary location).
+     *                                   The contents of this directory will be removed after export.
+     * @param kmzFileName  the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
      */
     public static void exportToKMZ(final IMap                           map,
                                    final boolean                        extendedData,
-                                   final IEmpExportToTypeCallBack<File> callBack,
-                                   final String                         KMZDirectoryName,
-                                   final String                         KMZFileName)
+                                   final IEmpExportToTypeCallBack<File> callback,
+                                   final String                         temporaryDirectoryLocation,
+                                   final String                         kmzFileName)
     {
 
-        if ((null == map)              ||
-            (null == KMZDirectoryName) ||
-            (null == callBack)         ||
-            (null == KMZFileName))
+        if ((null == map)                        ||
+            (null == temporaryDirectoryLocation) ||
+            (null == callback)                   ||
+            (null == kmzFileName))
         {
             throw new IllegalArgumentException("Parameters can't be null.");
         }
 
-        if(KMZDirectoryName.isEmpty())
+        if(temporaryDirectoryLocation.isEmpty())
         {
-            throw new IllegalArgumentException("The KMZDirectoryName cannot be an empty string.");
+            throw new IllegalArgumentException("The temporaryDirectoryLocation cannot be an empty string.");
         }
 
-        if(KMZFileName.isEmpty())
+        if(kmzFileName.isEmpty())
         {
-            throw new IllegalArgumentException("The KMZFileName cannot be an empty string.");
+            throw new IllegalArgumentException("The kmzFileName cannot be an empty string.");
         }
 
-        KMZExporterThread kmzExporterThread = new KMZExporterThread(map,
-                                                                    extendedData,
-                                                                    callBack,
-                                                                    KMZDirectoryName,
-                                                                    KMZFileName);
-        kmzExporterThread.run();
-        kmzExporterThread.start();
+        KMZExportThread kmzExportThread = new KMZExportThread(map,
+                                                              extendedData,
+                                                              callback,
+                                                              temporaryDirectoryLocation,
+                                                              kmzFileName);
+        kmzExportThread.run();
+        kmzExportThread.start();
     }
 
     /**
@@ -75,45 +77,48 @@ public final class EmpKMZExporter
      * @param map the map that contains the overlay to be exported.
      * @param overlay the overlay to be exported.
      * @param extendedData whether or not extended data should be exported
-     * @param callBack the callback which will provide the KMZ file created when the thread is finished or report a failure
-     * @param KMZDirectoryName the directory location where the KMZ file should be created. (i.e. /storage/emulated/0/Pictures/).
-     * @param KMZFileName the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
+     * @param callback the callback which will provide the KMZ file created when the thread is finished or report a failure
+     * @param temporaryDirectoryLocation the temporary directory location( it is highly recommended to use
+     *                                   Context.getExternalFilesDir() as the temporary location).
+     *                                   The contents of this directory will be removed after export.
+     * @param kmzFileName the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
      */
     public static void exportToKMZ(final IMap                           map,
                                    final IOverlay                       overlay,
                                    final boolean                        extendedData,
-                                   final IEmpExportToTypeCallBack<File> callBack,
-                                   final String                         KMZDirectoryName,
-                                   final String                         KMZFileName)
+                                   final IEmpExportToTypeCallBack<File> callback,
+                                   final String                         temporaryDirectoryLocation,
+                                   final String                         kmzFileName)
     {
 
-        if ((null == map)              ||
-            (null == overlay)          ||
-            (null == KMZDirectoryName) ||
-            (null == callBack)         ||
-            (null == KMZFileName))
+
+        if ((null == map)                        ||
+            (null == overlay)                    ||
+            (null == temporaryDirectoryLocation) ||
+            (null == callback)                   ||
+            (null == kmzFileName))
         {
             throw new IllegalArgumentException("Parameters can't be null.");
         }
 
-        if(KMZDirectoryName.isEmpty())
+        if(temporaryDirectoryLocation.isEmpty())
         {
-            throw new IllegalArgumentException("The KMZDirectoryName cannot be an empty string.");
+            throw new IllegalArgumentException("The temporaryDirectoryLocation cannot be an empty string.");
         }
 
-        if(KMZFileName.isEmpty())
+        if(kmzFileName.isEmpty())
         {
-            throw new IllegalArgumentException("The KMZFileName cannot be an empty string.");
+            throw new IllegalArgumentException("The kmzFileName cannot be an empty string.");
         }
    
-        KMZExporterThread kmzExporterThread = new KMZExporterThread(map,
-                                                                    overlay,
-                                                                    extendedData,
-                                                                    callBack,
-                                                                    KMZDirectoryName,
-                                                                    KMZFileName);
-        kmzExporterThread.run();
-        kmzExporterThread.start();
+        KMZExportThread kmzExportThread = new KMZExportThread(map,
+                                                              overlay,
+                                                              extendedData,
+                                                              callback,
+                                                              temporaryDirectoryLocation,
+                                                              kmzFileName);
+        kmzExportThread.run();
+        kmzExportThread.start();
     }
 
     /**
@@ -123,44 +128,46 @@ public final class EmpKMZExporter
      * @param map the map that contains the overlay to be exported.
      * @param feature the feature to be exported.
      * @param extendedData whether or not extended data should be exported
-     * @param callBack the callback which will provide the KMZ file created when the thread is finished or report a failure
-     * @param KMZDirectoryName the directory location where the KMZ file should be created. (i.e. /storage/emulated/0/Pictures/).
-     * @param KMZFileName the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
+     * @param callback the callback which will provide the KMZ file created when the thread is finished or report a failure
+     * @param temporaryDirectoryLocation the temporary directory location( it is highly recommended to use
+     *                                   Context.getExternalFilesDir() as the temporary location).
+     *                                   The contents of this directory will be removed after export.
+     * @param kmzFileName the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
      */
     public static void exportToKMZ(final IMap                           map,
                                    final IFeature                       feature,
                                    final boolean                        extendedData,
-                                   final IEmpExportToTypeCallBack<File> callBack,
-                                   final String                         KMZDirectoryName,
-                                   final String                         KMZFileName)
+                                   final IEmpExportToTypeCallBack<File> callback,
+                                   final String                         temporaryDirectoryLocation,
+                                   final String                         kmzFileName)
     {
 
-        if ((null == map)              ||
-            (null == feature)          ||
-            (null == KMZDirectoryName) ||
-            (null == callBack)         ||
-            (null == KMZFileName))
+        if ((null == map)                        ||
+            (null == feature)                    ||
+            (null == temporaryDirectoryLocation) ||
+            (null == callback)                   ||
+            (null == kmzFileName))
         {
             throw new IllegalArgumentException("Parameters can't be null.");
         }
 
-        if(KMZDirectoryName.isEmpty())
+        if(temporaryDirectoryLocation.isEmpty())
         {
-            throw new IllegalArgumentException("The KMZDirectoryName cannot be an empty string.");
+            throw new IllegalArgumentException("The temporaryDirectoryLocation cannot be an empty string.");
         }
 
-        if(KMZFileName.isEmpty())
+        if(kmzFileName.isEmpty())
         {
-            throw new IllegalArgumentException("The KMZFileName cannot be an empty string.");
+            throw new IllegalArgumentException("The kmzFileName cannot be an empty string.");
         }
 
-        KMZExporterThread kmzExporterThread = new KMZExporterThread(map,
-                                                                    feature,
-                                                                    extendedData,
-                                                                    callBack,
-                                                                    KMZDirectoryName,
-                                                                    KMZFileName);
-        kmzExporterThread.run();
-        kmzExporterThread.start();
+        KMZExportThread kmzExportThread = new KMZExportThread(map,
+                                                              feature,
+                                                              extendedData,
+                                                              callback,
+                                                              temporaryDirectoryLocation,
+                                                              kmzFileName);
+        kmzExportThread.run();
+        kmzExportThread.start();
     }
 }
