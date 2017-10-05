@@ -67,7 +67,6 @@ public final class EmpKMZExporter
                                                               temporaryDirectoryLocation,
                                                               kmzFileName);
         kmzExportThread.run();
-        kmzExportThread.start();
     }
 
     /**
@@ -118,7 +117,6 @@ public final class EmpKMZExporter
                                                               temporaryDirectoryLocation,
                                                               kmzFileName);
         kmzExportThread.run();
-        kmzExportThread.start();
     }
 
     /**
@@ -168,6 +166,5 @@ public final class EmpKMZExporter
                                                               temporaryDirectoryLocation,
                                                               kmzFileName);
         kmzExportThread.run();
-        kmzExportThread.start();
     }
 }
