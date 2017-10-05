@@ -37,6 +37,7 @@ public final class KMZExportThread extends Thread
      * This exports the map's overlays, and features displayed on the map
      * to a KMZ file given the directory where the KMZ file should be stored as
      * well as the desired name of the KMZ file.
+     *
      * @param map the map that contains the overlays and feature data to be exported.
      * @param extendedData whether or not extended data should be exported.
      * @param callback the callback which will provide the KMZ file created when the thread is finished or report a failure
@@ -45,11 +46,11 @@ public final class KMZExportThread extends Thread
      *                                   The contents of this directory will be removed after export.
      * @param kmzFileName  the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
      */
-    public KMZExportThread(final IMap                           map,
-                           final boolean                        extendedData,
-                           final IEmpExportToTypeCallBack<File> callback,
-                           final String                         temporaryDirectory,
-                           final String                         kmzFileName)
+    protected KMZExportThread(final IMap                           map,
+                              final boolean                        extendedData,
+                              final IEmpExportToTypeCallBack<File> callback,
+                              final String                         temporaryDirectory,
+                              final String                         kmzFileName)
     {
         this.callback           = callback;
         this.temporaryDirectory = new File(temporaryDirectory);
@@ -66,9 +67,9 @@ public final class KMZExportThread extends Thread
                                                                                                                public void exportSuccess(String stringFmt)
                                                                                                                {
                                                                                                                    KMZExportThread.createKMZFile(stringFmt,
-                                                                                                                                                   KMZExportThread.this.temporaryDirectory,
-                                                                                                                                                   KMZExportThread.this.kmzFileName,
-                                                                                                                                                   KMZExportThread.this.callback);
+                                                                                                                                                 KMZExportThread.this.temporaryDirectory,
+                                                                                                                                                 KMZExportThread.this.kmzFileName,
+                                                                                                                                                 KMZExportThread.this.callback);
                                                                                                                }
                                                                                                                @Override
                                                                                                                public void exportFailed(Exception Ex)
@@ -83,6 +84,7 @@ public final class KMZExportThread extends Thread
      * This exports the overlay specified that is displayed on the map
      * to a KMZ file given the directory where the KMZ file should be stored as
      * well as the desired name of the KMZ file.
+     *
      * @param map the map that contains the overlay to be exported.
      * @param overlay the overlay to be exported.
      * @param extendedData whether or not extended data should be exported
@@ -115,9 +117,9 @@ public final class KMZExportThread extends Thread
                                                                                                                public void exportSuccess(String stringFmt)
                                                                                                                {
                                                                                                                    KMZExportThread.createKMZFile(stringFmt,
-                                                                                                                                                   KMZExportThread.this.temporaryDirectory,
-                                                                                                                                                   KMZExportThread.this.kmzFileName,
-                                                                                                                                                   KMZExportThread.this.callback);
+                                                                                                                                                 KMZExportThread.this.temporaryDirectory,
+                                                                                                                                                 KMZExportThread.this.kmzFileName,
+                                                                                                                                                 KMZExportThread.this.callback);
                                                                                                                }
 
                                                                                                                @Override
@@ -134,6 +136,7 @@ public final class KMZExportThread extends Thread
      * This exports the feature specified that is displayed on the map
      * to a KMZ file given the directory where the KMZ file should be stored as
      * well as the desired name of the KMZ file.
+     *
      * @param map the map that contains the overlay to be exported.
      * @param feature the feature to be exported.
      * @param extendedData whether or not extended data should be exported
@@ -167,9 +170,9 @@ public final class KMZExportThread extends Thread
                                                                                                                public void exportSuccess(String stringFmt)
                                                                                                                {
                                                                                                                    KMZExportThread.createKMZFile(stringFmt,
-                                                                                                                                                   KMZExportThread.this.temporaryDirectory,
-                                                                                                                                                   KMZExportThread.this.kmzFileName,
-                                                                                                                                                   KMZExportThread.this.callback);
+                                                                                                                                                 KMZExportThread.this.temporaryDirectory,
+                                                                                                                                                 KMZExportThread.this.kmzFileName,
+                                                                                                                                                 KMZExportThread.this.callback);
                                                                                                                }
 
                                                                                                                @Override

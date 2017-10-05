@@ -14,6 +14,7 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Zip utility to perform zipping operations on Files and Directories.
+ *
  * @author Jenifer Cochran
  * Resource: https://stackoverflow.com/questions/1399126/java-util-zip-recreating-directory-structure
  */
@@ -72,6 +73,7 @@ public class ZipUtility
 
     /**
      * Copies the inputStream to the OutputStream
+     *
      * @param inputStream the stream of data to read from
      * @param outputStream the outputStream to write the data to
      * @throws IOException Reading or Writing exception
@@ -94,6 +96,7 @@ public class ZipUtility
 
     /**
      * Copies the inputStream to the OutputStream
+     *
      * @param file the data to read from
      * @param outputStream the outputStream to write the data to
      * @throws IOException Reading or Writing exception

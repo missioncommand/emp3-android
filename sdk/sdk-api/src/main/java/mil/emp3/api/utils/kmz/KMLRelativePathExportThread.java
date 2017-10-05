@@ -147,10 +147,15 @@ public class KMLRelativePathExportThread extends KMLExportThread
                                                  Set<IGeoMilSymbol.Modifier> labelSet,
                                                  SparseArray<String>         attributes) throws IOException
     {
-        MilStdIconRenderer mir = MilStdIconRenderer.getInstance();
-        ImageInfo icon = mir.RenderIcon(feature.getSymbolCode(), feature.getUnitModifiers(MilStdLabelSettingEnum.ALL_LABELS),attributes);
-        String keyValue = MilStdUtilities.getMilStdSinglePointParams(feature, eLabelSetting, labelSet, attributes);
-        String fileName = KMLRelativePathExportThread.getImageFileName(keyValue);
+        MilStdIconRenderer mir      = MilStdIconRenderer.getInstance();
+        ImageInfo          icon     = mir.RenderIcon(feature.getSymbolCode(),
+                                                     feature.getUnitModifiers(MilStdLabelSettingEnum.ALL_LABELS),
+                                                     attributes);
+        String             keyValue = MilStdUtilities.getMilStdSinglePointParams(feature,
+                                                                                 eLabelSetting,
+                                                                                 labelSet,
+                                                                                 attributes);
+        String             fileName = KMLRelativePathExportThread.getImageFileName(keyValue);
 
         storeImage(icon.getImage(), fileName);
 
@@ -232,6 +237,9 @@ public class KMLRelativePathExportThread extends KMLExportThread
 
         try(FileOutputStream fos = new FileOutputStream(pictureFile))
         {
+            //the 90 is the quality, which will be ignored since we are
+            //doing a PNG format which is lossless format
+            //Reference: https://developer.android.com/reference/android/graphics/Bitmap.html
             image.compress(Bitmap.CompressFormat.PNG, 90, fos);
         }
         catch (FileNotFoundException e)
