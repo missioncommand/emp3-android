@@ -12,6 +12,8 @@ import static java.lang.Double.isNaN;
 /**
  * This class provide utility function for geospatial computations.
  */
+
+@Deprecated
 public class GeoLibrary {
     private static String TAG = GeoLibrary.class.getSimpleName();
     public static double DEFAULT_EARTH_RADIUS = 6371000.0; // meters
@@ -30,9 +32,9 @@ public class GeoLibrary {
     /**
      * This method gives the earth's radius at a given latitude
      * @param Latitude
-     * @return double
+     * @return doublemil.emp3.core.utils.MapCircularRegion#getAltitudeOfConeVertexWithFOV
      */
-    public static double old_getEarthRadiusAt(double Latitude) {
+    public static double getEarthRadiusAt(double Latitude) {
         int newLat = (int) (Math.round(Math.abs(Latitude)) % 90);
 
         return GeoLibrary.earthRadius[newLat];
@@ -45,7 +47,7 @@ public class GeoLibrary {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static double old_computeDistanceBetween(IGeoPosition oLatLon1, IGeoPosition oLatLon2) {
+    public static double computeDistanceBetween(IGeoPosition oLatLon1, IGeoPosition oLatLon2) {
 
         if (oLatLon1 == null) {
             throw new IllegalArgumentException("oLatLon1 can not be null.");
@@ -66,7 +68,7 @@ public class GeoLibrary {
                 Math.cos(dLat1Rad) * Math.cos(dLat2Rad) *
                         Math.sin(dDeltaLon / 2.0) * Math.sin(dDeltaLon / 2.0);
         double c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return c * old_getEarthRadiusAt(oLatLon1.getLatitude());
+        return c * GeoLibrary.getEarthRadiusAt(oLatLon1.getLatitude());
     }
 
     /**
@@ -76,7 +78,7 @@ public class GeoLibrary {
      * @return the bearing is return in degrees.
      * @throws IllegalArgumentException
      */
-    public static double old_computeBearing(IGeoPosition oFrom, IGeoPosition oTo) {
+    public static double computeBearing(IGeoPosition oFrom, IGeoPosition oTo) {
 
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
@@ -105,10 +107,10 @@ public class GeoLibrary {
      * @return position
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition old_computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom) {
+    public static IGeoPosition computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom) {
         IGeoPosition oNewPos = new GeoPosition();
 
-        old_computePositionAt(dBearing, dDistance, oFrom, oNewPos);
+        GeoLibrary.computePositionAt(dBearing, dDistance, oFrom, oNewPos);
         return oNewPos;
     }
 
@@ -121,7 +123,7 @@ public class GeoLibrary {
      * @param result the object to place the resulting position.
      * @throws IllegalArgumentException
      */
-    public static void old_computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom, IGeoPosition result) {
+    public static void computePositionAt(double dBearing, double dDistance, IGeoPosition oFrom, IGeoPosition result) {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
@@ -129,7 +131,7 @@ public class GeoLibrary {
             throw new IllegalArgumentException("result must be provided.");
         }
 
-        double dAngularDistance = dDistance / old_getEarthRadiusAt(oFrom.getLatitude()); //DEFAULT_EARTH_RADIUS;
+        double dAngularDistance = dDistance / GeoLibrary.getEarthRadiusAt(oFrom.getLatitude()); //DEFAULT_EARTH_RADIUS;
         double dBearingRad = Math.toRadians(dBearing);
         double dLat1Rad = Math.toRadians(oFrom.getLatitude());
         double dLon1Rad = Math.toRadians(oFrom.getLongitude());
@@ -143,7 +145,7 @@ public class GeoLibrary {
         result.setLongitude(Math.toDegrees(dLon2Rad));
     }
 
-    public static IGeoPosition old_midPointBetween(IGeoPosition oLocation1, IGeoPosition oLocation2) {
+    public static IGeoPosition midPointBetween(IGeoPosition oLocation1, IGeoPosition oLocation2) {
         if (oLocation1 == null) {
             throw new IllegalArgumentException("oLocation1 can not be null.");
         }
@@ -198,7 +200,7 @@ public class GeoLibrary {
         if (dLon > Math.PI) {
             dLon = 2 * Math.PI - dLon;
         }
-        double dist = Math.sqrt(dLat * dLat + q * q * dLon * dLon) * old_getEarthRadiusAt(oFrom.getLatitude()); //DEFAULT_EARTH_RADIUS;
+        double dist = Math.sqrt(dLat * dLat + q * q * dLon * dLon) * GeoLibrary.getEarthRadiusAt(oFrom.getLatitude()); //DEFAULT_EARTH_RADIUS;
 
         return dist;
     }
@@ -243,7 +245,7 @@ public class GeoLibrary {
         if (oFrom == null) {
             throw new IllegalArgumentException("oFrom can not be null.");
         }
-        double d = dDistance / old_getEarthRadiusAt(oFrom.getLatitude()); // DEFAULT_EARTH_RADIUS; // d = angular distance covered on earth's surface
+        double d = dDistance / GeoLibrary.getEarthRadiusAt(oFrom.getLatitude()); // DEFAULT_EARTH_RADIUS; // d = angular distance covered on earth's surface
         double lat1 = Math.toRadians(oFrom.getLatitude()),
                lon1 = Math.toRadians(oFrom.getLongitude()),
                lon2;
@@ -272,7 +274,7 @@ public class GeoLibrary {
      * @param dLongitude
      * @return
      */
-    public static double old_wrapLongitude(double dLongitude) {
+    public static double wrapLongitude(double dLongitude) {
         return (((dLongitude + 540.0) % 360) - 180.0);
     }
 
@@ -304,7 +306,7 @@ public class GeoLibrary {
      *
      * @return true if p3 is on the left side of the line, false otherwise
      */
-    public static boolean old_isLeft(IGeoPosition p1, IGeoPosition p2, IGeoPosition p3) {
+    public static boolean isLeft(IGeoPosition p1, IGeoPosition p2, IGeoPosition p3) {
         double lat1 = Math.toRadians(p1.getLatitude());
         double lon1 = Math.toRadians(p1.getLongitude());
 
@@ -332,7 +334,7 @@ public class GeoLibrary {
      *     var p2 = LatLon(49.0034, 2.5735), brng2 =  32.435;
      *     var pInt = LatLon.intersection(p1, brng1, p2, brng2); // 50.9078°N, 004.5084°E
      */
-    public static IGeoPosition old_intersection(IGeoPosition p1, double brng1, IGeoPosition p2, double brng2) {
+    public static IGeoPosition intersection(IGeoPosition p1, double brng1, IGeoPosition p2, double brng2) {
 
         // see http://williams.best.vwh.net/avform.htm#Intersection
 
@@ -390,7 +392,7 @@ public class GeoLibrary {
      * @param positionList
      * @return
      */
-    public static IGeoPosition old_getCenter(List<IGeoPosition> positionList) {
+    public static IGeoPosition getCenter(List<IGeoPosition> positionList) {
 
         IGeoPosition center = null;
         if((null != positionList) && (0 != positionList.size())) {
