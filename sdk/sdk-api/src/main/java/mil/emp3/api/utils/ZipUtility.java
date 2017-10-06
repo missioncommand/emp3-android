@@ -57,7 +57,7 @@ public class ZipUtility
                     if (child.isDirectory())
                     {
                         queue.push(child);
-                        name = name.endsWith(File.pathSeparator) ? name : name + File.pathSeparator;
+                        name = name.endsWith(File.separator) ? name : name + File.separator;
                         zipOutputStream.putNextEntry(new ZipEntry(name));
                     }
                     else
