@@ -248,7 +248,6 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
      */
 
     protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
-        Log.d(TAG, "doControlPointMoved");
 
         switch (oCP.getCPType()) {
             case WIDTH_CP:

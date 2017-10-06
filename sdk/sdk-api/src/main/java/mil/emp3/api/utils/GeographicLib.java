@@ -131,17 +131,9 @@ public class GeographicLib {
         if (result == null) {
             throw new IllegalArgumentException("Null argument provided for result");
         }
-        Log.d(TAG, "Position at a distance of " + distance);
-        if (distance >= 1.0E-9) {
-            double azimuth = bearing;
-            GeodesicData g = getDirectGeodesicData(from, azimuth, distance);
-            Log.d(TAG, "Got back lat2 " + g.lat2 + " lon2 " + g.lon2);
-            result.setLatitude(g.lat2);
-            result.setLongitude(g.lon2);
-        } else {
-            result.setLatitude(from.getLatitude());
-            result.setLongitude(from.getLongitude());
-        }
+        GeodesicData g = getDirectGeodesicData(from, bearing, distance);
+        result.setLatitude(g.lat2);
+        result.setLongitude(g.lon2);
     }
 
     /**
@@ -242,10 +234,28 @@ public class GeographicLib {
         return center;
     }
 
-
+    /**
+     * The two positions here could be diagonal or adjacent corners of a rectangle
+     * The intersect method we have below needs four points. We have two points and
+     * two bearings. We calculate the other two points using a length of 2x distance
+     * between two points, because that will always be longer than either side.
+     *
+     * @param p1
+     * @param brng1
+     * @param p2
+     * @param brng2
+     * @return
+     */
     public static IGeoPosition intersection(IGeoPosition p1, double brng1, IGeoPosition p2, double brng2) {
-        //TODO
-        return null;
+        IGeoPosition cross = new GeoPosition();
+        double distance = computeDistanceBetween(p1, p2);
+        IGeoPosition p3 = computePositionAt(brng1, 2.0*distance, p1);
+        IGeoPosition p4 = computePositionAt(brng2, 2.0*distance, p2);
+        GeodesicData g = intersect(p1.getLatitude(), p1.getLongitude(), p3.getLatitude(), p3.getLongitude(),
+                p2.getLatitude(), p2.getLongitude(), p4.getLatitude(), p4.getLongitude());
+        cross.setLatitude(g.lat2);
+        cross.setLongitude(g.lon2);
+        return cross;
     }
 
     /* Intersect method taken from BMW Car IT GMBH
@@ -261,8 +271,8 @@ public class GeographicLib {
      * iterations. The default is 10.)
      */
     public static int maxit = 10;
-    private Geodesic earth = Geodesic.WGS84;
-    private Gnomonic gnom = new Gnomonic(earth);
+    private static Geodesic earth = Geodesic.WGS84;
+    private static Gnomonic gnom = new Gnomonic(earth);
 
     /**
      * Intersection of geodesics.
@@ -293,7 +303,7 @@ public class GeographicLib {
      * [&minus;540&deg;, 540&deg;). The values of <i>lon2</i> and
      * <i>azi2</i> returned are in the range [&minus;180&deg;, 180&deg;).
      */
-    public GeodesicData intersect(double lata1, double lona1, double lata2,
+    public static GeodesicData intersect(double lata1, double lona1, double lata2,
                                   double lona2, double latb1, double lonb1, double latb2, double lonb2) {
         double latp0 = (lata1 + lata2 + latb1 + latb2) / 4, latp0_ = Double.NaN, lonp0_ =
                 Double.NaN;
@@ -329,7 +339,7 @@ public class GeographicLib {
         return earth.Inverse(lata1, lona1, latp0, lonp0);
     }
 
-    private class Vector {
+    private static class Vector {
         public double x = Double.NaN;
         /**
          * Component in y dimension.

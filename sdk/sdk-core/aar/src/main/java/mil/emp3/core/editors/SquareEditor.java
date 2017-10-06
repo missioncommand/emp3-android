@@ -202,7 +202,6 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
      */
 
     protected boolean doControlPointMoved(ControlPoint oCP, IGeoPosition oLatLon) {
-        Log.d(TAG, "doControlPointMoved");
 
         switch (oCP.getCPType()) {
             case LENGTH_CP:
