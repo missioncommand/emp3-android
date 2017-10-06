@@ -1579,15 +1579,38 @@ public class MainActivity extends AppCompatActivity
                     try(OutputStream outStream = new FileOutputStream(targetFile))
                     {
                         outStream.write(buffer);
-//                    URL url = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()+File.separator+"example.kmz").toURI().toURL();
-
-                        //  Log.d(TAG, "url " + url.toString());
 
                         Context context = getApplicationContext();
                         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
 
                         IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
                         mapService.setName("kmzSample_Test");
+                        this.map.addMapService(mapService);
+                    }
+
+                } catch (Exception e) {
+                }
+                return true;
+            }
+            case R.id.action_importDifferentKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.notworking))
+                {
+                    byte[] buffer = new byte[stream.available()];
+                    stream.read(buffer);
+
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "new.kmz");
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+                    try(OutputStream outStream = new FileOutputStream(targetFile))
+                    {
+                        outStream.write(buffer);
+
+                        Context context = getApplicationContext();
+                        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+
+                        IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
+                        mapService.setName("kmzOutput_test");
                         this.map.addMapService(mapService);
                     }
 
@@ -1849,7 +1872,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_plotKML: {
-                try (InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.kml_samples))
+                try (InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.kmzkmltest))
                 {
 /*
                     KML kmlOverlay = new KML();

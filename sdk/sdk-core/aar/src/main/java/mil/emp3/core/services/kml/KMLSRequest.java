@@ -16,6 +16,7 @@ import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
+import mil.emp3.api.utils.FileUtility;
 
 /**
  * Holds the KML Request till it is removed via removeMapService.
@@ -206,7 +207,7 @@ public class KMLSRequest implements KMZFile.IKMZFileRequest, IKMLSRequest {
      * Cleans the directory. Specified directory is also removed.
      * @param directory
      */
-    private void cleanDirectory(File directory) {
+    public static void cleanDirectory(File directory) {
         File[] listOfFiles = directory.listFiles();
         if(listOfFiles != null) {
             for(File file: listOfFiles) {

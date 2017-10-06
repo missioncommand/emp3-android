@@ -26,8 +26,12 @@ import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.enums.KMLSStatusEnum;
 import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.interfaces.IKMLS;
+import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.listeners.IKMLSEventListener;
+import mil.emp3.api.utils.FileUtility;
+import mil.emp3.core.services.kml.KMLSProvider;
+import mil.emp3.core.services.kml.KMLSRequest;
 
 @PrepareForTest({Color.class})
 public class KMLSTest extends TestBaseSingleMap {
@@ -45,7 +49,10 @@ public class KMLSTest extends TestBaseSingleMap {
 
     @After
     public void tearDown() throws Exception {
-
+        File f = new File("KMLS");
+        if(f.exists()){
+        //    FileUtility.deleteFolder(f);
+        }
     }
 
     class MyMockContext extends MockContext {
@@ -172,6 +179,7 @@ public class KMLSTest extends TestBaseSingleMap {
             Assert.assertTrue("kmzSample_Test should no longer exist", null == foundService);
         }
         mapInstance.cleanKmls();
+
 
     }
 

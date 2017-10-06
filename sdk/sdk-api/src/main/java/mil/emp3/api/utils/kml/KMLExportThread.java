@@ -1267,7 +1267,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    protected String export(IMap map, XmlSerializer xmlSerializer)
+    private String export(IMap map, XmlSerializer xmlSerializer)
             throws IOException {
         StringWriter writer = new StringWriter();
 
@@ -1317,7 +1317,7 @@ public class KMLExportThread extends java.lang.Thread {
         return writer.toString();
     }
 
-    String export(IOverlay overlay, XmlSerializer xmlSerializer)
+    private String export(IOverlay overlay, XmlSerializer xmlSerializer)
             throws IOException {
 
         StringWriter writer = new StringWriter();
@@ -1368,7 +1368,7 @@ public class KMLExportThread extends java.lang.Thread {
         return writer.toString();
     }
 
-    String export(IFeature feature, XmlSerializer xmlSerializer)
+    private String export(IFeature feature, XmlSerializer xmlSerializer)
             throws IOException {
 
         StringWriter writer = new StringWriter();
