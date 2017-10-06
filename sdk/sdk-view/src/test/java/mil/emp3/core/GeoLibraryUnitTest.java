@@ -163,10 +163,7 @@ public class GeoLibraryUnitTest {
         oPos1.setLatitude(0.0);
         oPos1.setLongitude(0.0);
         oPos1.setAltitude(0.0);
-        // 2 identical points are currently returning a bearing of
-        // 180.0 in GeographicLib.  Formerly we had 0.0, so this
-        // test is temporarily disabled
-        // this.positionAtTest(0.0, 0, oPos1);
+        this.positionAtTest(0.0, 0, oPos1);
 
         this.positionAtTest(0.0, 1, oPos1);
         this.positionAtTest(45.0, 1, oPos1);

@@ -97,6 +97,11 @@ public class GeographicLib {
      * @throws IllegalArgumentException
      */
     public static double computeBearing(IGeoPosition p1, IGeoPosition p2) {
+        // keep compatibility with GeoLibrary
+        if (p1.getLatitude() == p2.getLatitude()
+                && p1.getLongitude() == p2.getLongitude()) {
+            return 0.0;
+        }
         GeodesicData g = getInverseGeodesicData(p1, p2, GeodesicMask.AZIMUTH);
         // keep compatibility with GeoLibrary
         return (g.azi1 + 360.0) % 360.0;
@@ -113,8 +118,12 @@ public class GeographicLib {
      */
     public static IGeoPosition computePositionAt(double bearing, double distance, IGeoPosition from) {
         IGeoPosition position = new GeoPosition();
-
-        computePositionAt(bearing, distance, from, position);
+        if (distance == 0.0) {
+            position.setLatitude(from.getLatitude());
+            position.setLongitude(from.getLongitude());
+        } else {
+            computePositionAt(bearing, distance, from, position);
+        }
         return position;
     }
 
@@ -144,7 +153,8 @@ public class GeographicLib {
      * @throws IllegalArgumentException
      */
     public static IGeoPosition midPointBetween(IGeoPosition p1, IGeoPosition p2) {
-        GeodesicData g = getInverseGeodesicData(p1, p2, GeodesicMask.ALL);
+        GeodesicData g = getInverseGeodesicData(p1, p2,
+                GeodesicMask.AZIMUTH + GeodesicMask.DISTANCE);
         double midpointDistance = g.s12 * 0.5;
         return computePositionAt(g.azi1, midpointDistance, p1);
     }
@@ -160,14 +170,14 @@ public class GeographicLib {
      * @return true if p3 is on the left side of the line, false otherwise
      */
     public static boolean isLeft(IGeoPosition p1, IGeoPosition p2, IGeoPosition p3) {
-        double lat1 = Math.toRadians(p1.getLatitude());
-        double lon1 = Math.toRadians(p1.getLongitude());
+        double lat1 = p1.getLatitude();
+        double lon1 = p1.getLongitude();
 
-        double lat2 = Math.toRadians(p2.getLatitude());
-        double lon2 = Math.toRadians(p2.getLongitude());
+        double lat2 = p2.getLatitude();
+        double lon2 = p2.getLongitude();
 
-        double lat3 = Math.toRadians(p3.getLatitude());
-        double lon3 = Math.toRadians(p3.getLongitude());
+        double lat3 = p3.getLatitude();
+        double lon3 = p3.getLongitude();
 
         return ((lat2 - lat1) * (lon3 - lon1) - (lon2 - lon1) * (lat3 - lat1)) > 0;
     }
@@ -182,6 +192,7 @@ public class GeographicLib {
     }
 
     /**
+     * https://stackoverflow.com/questions/6671183/calculate-the-center-point-of-multiple-latitude-longitude-coordinate-pairs
      * Method taken from GeoLibrary, may not be accurate
      * However the places it is used may not need the accuracy
      * Procedure:
@@ -241,16 +252,16 @@ public class GeographicLib {
      * between two points, because that will always be longer than either side.
      *
      * @param p1
-     * @param brng1
+     * @param bearing1
      * @param p2
-     * @param brng2
+     * @param bearing2
      * @return
      */
-    public static IGeoPosition intersection(IGeoPosition p1, double brng1, IGeoPosition p2, double brng2) {
+    public static IGeoPosition intersection(IGeoPosition p1, double bearing1, IGeoPosition p2, double bearing2) {
         IGeoPosition cross = new GeoPosition();
         double distance = computeDistanceBetween(p1, p2);
-        IGeoPosition p3 = computePositionAt(brng1, 2.0*distance, p1);
-        IGeoPosition p4 = computePositionAt(brng2, 2.0*distance, p2);
+        IGeoPosition p3 = computePositionAt(bearing1, 2.0*distance, p1);
+        IGeoPosition p4 = computePositionAt(bearing2, 2.0*distance, p2);
         GeodesicData g = intersect(p1.getLatitude(), p1.getLongitude(), p3.getLatitude(), p3.getLongitude(),
                 p2.getLatitude(), p2.getLongitude(), p4.getLatitude(), p4.getLongitude());
         cross.setLatitude(g.lat2);
