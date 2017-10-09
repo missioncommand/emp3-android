@@ -57,6 +57,13 @@ public final class KMZExportThread extends Thread
         this.kmzFileName        = kmzFileName.toLowerCase()
                                              .endsWith(KMZFileExtension) ? kmzFileName
                                                                          : kmzFileName + KMZFileExtension;
+
+         if(FileUtility.isChildDirectory(this.temporaryDirectory, DefaultExportDirectory))
+         {
+             throw new IllegalArgumentException(String.format("The temporary directory cannot be a parent directory of %s.  Must select a different temporary directory.",
+                                                              DefaultExportDirectory.getAbsolutePath()));
+         }
+
         FileUtility.createOutputDirectory(DefaultExportDirectory.getAbsolutePath());
         FileUtility.createOutputDirectory(temporaryDirectory);
 
@@ -106,6 +113,12 @@ public final class KMZExportThread extends Thread
         this.kmzFileName        = kmzFileName.toLowerCase()
                                              .endsWith(KMZFileExtension) ? kmzFileName
                                                                          : kmzFileName + KMZFileExtension;
+        if(FileUtility.isChildDirectory(this.temporaryDirectory, DefaultExportDirectory))
+        {
+            throw new IllegalArgumentException(String.format("The temporary directory cannot be a parent directory of %s.  Must select a different temporary directory.",
+                                                             DefaultExportDirectory.getAbsolutePath()));
+        }
+
         FileUtility.createOutputDirectory(DefaultExportDirectory.getAbsolutePath());
         FileUtility.createOutputDirectory(temporaryDirectory);
 
@@ -159,6 +172,12 @@ public final class KMZExportThread extends Thread
                                              .endsWith(KMZFileExtension) ? kmzFileName
                                                                          : kmzFileName + KMZFileExtension;
 
+        if(FileUtility.isChildDirectory(this.temporaryDirectory, DefaultExportDirectory))
+        {
+            throw new IllegalArgumentException(String.format("The temporary directory cannot be a parent directory of %s.  Must select a different temporary directory.",
+                                                             DefaultExportDirectory.getAbsolutePath()));
+        }
+
         FileUtility.createOutputDirectory(DefaultExportDirectory.getAbsolutePath());
         FileUtility.createOutputDirectory(temporaryDirectory);
 
@@ -210,7 +229,6 @@ public final class KMZExportThread extends Thread
 
         try(FileOutputStream out = new FileOutputStream(kmlFile.getAbsoluteFile()))
         {
-
             //write the kml to the temporary directory
             byte[] byteArray = kmlString.getBytes();
             out.write(byteArray, 0, byteArray.length);
