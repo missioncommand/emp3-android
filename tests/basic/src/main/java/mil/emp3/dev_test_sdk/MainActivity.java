@@ -1566,6 +1566,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            //Test for many features on the map
             case R.id.action_importManyKMZ: {
                 try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.many))
                 {
@@ -1592,6 +1593,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            //Test for handdrawn pictures and a few downloaded symbols
             case R.id.action_importExampleKMZ: {
                 try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.example))
                 {
@@ -1618,6 +1620,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            //Test more handdrawn symbols
             case R.id.action_importSymbolsKMZ: {
                 try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.symbols))
                 {
@@ -1644,6 +1647,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            //Test multiple overlayws
             case R.id.action_importOverlayKMZ: {
                 try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.overlays))
                 {

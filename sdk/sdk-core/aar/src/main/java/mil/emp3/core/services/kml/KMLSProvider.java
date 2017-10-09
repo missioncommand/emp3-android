@@ -144,6 +144,7 @@ public class KMLSProvider {
                         tmpKMLS.setFeature(request.getFeature());
                         mapMapping.getMapInstance().removeMapService(tmpKMLS);
                     }
+                    //When removing a feature from the map, delete the copied folder in order to save space on the device
                     FileUtility.deleteFolder(request.getKmzDirectory());
                 }
             } else {

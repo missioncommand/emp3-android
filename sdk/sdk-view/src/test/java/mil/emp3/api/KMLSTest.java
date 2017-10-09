@@ -49,10 +49,6 @@ public class KMLSTest extends TestBaseSingleMap {
 
     @After
     public void tearDown() throws Exception {
-        File f = new File("KMLS");
-        if(f.exists()){
-        //    FileUtility.deleteFolder(f);
-        }
     }
 
     class MyMockContext extends MockContext {
