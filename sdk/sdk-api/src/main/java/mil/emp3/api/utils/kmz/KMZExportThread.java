@@ -192,7 +192,6 @@ public final class KMZExportThread extends Thread
     {
         super.run();
         this.kmlRelativePathExportThread.run();
-        this.kmlRelativePathExportThread.start();
     }
 
     private static void createKMZFile(final String                         kmlString,
