@@ -192,6 +192,7 @@ public class MainActivity extends AppCompatActivity
     private static final String SUFFIX = ".gpkg";
     private WmsParametersDialogBinding wmsBinding = null;
     private ActivityMainBinding mainBinding = null;
+    private Dialog wmsDialog;
 
 //    private MirrorCache mc;
 
@@ -2045,73 +2046,78 @@ public class MainActivity extends AppCompatActivity
                 try {
                     if (wmsBinding == null) {
                         wmsBinding = DataBindingUtil.inflate(LayoutInflater.from(MainActivity.this),
-                        R.layout.wms_parameters_dialog, null, false);
+                                R.layout.wms_parameters_dialog, null, false);
+                        wmsDialog = new Dialog(MainActivity.this);
+                        wmsDialog.setContentView(wmsBinding.getRoot());
+                        wmsDialog.setTitle("Title...");
+                        Button okButton = (Button) wmsDialog.findViewById(R.id.OKButton);
+                        // if button is clicked, close the custom dialog
+                        okButton.setOnClickListener(v1 -> {
+                            String url = wmsBinding.UrlText.getText().toString();
+                            String version = wmsBinding.VersionText.getText().toString();
+                            if (version == null)
+                                version = "";
+                            String tileFormat = wmsBinding.TileFormatText.getText().toString();
+                            String transparent = wmsBinding.TransparentText.getText().toString();
+                            String layer = wmsBinding.LayerText.getText().toString();
+                            String resolution = wmsBinding.ResolutionText.getText().toString();
+                            Resources res = getBaseContext().getResources();
+                            wmsDialog.dismiss();
+                            WMSVersionEnum wmsVersion = null;
+                            switch (version) {
+                                case "1.1.1":
+                                    wmsVersion = WMSVersionEnum.VERSION_1_1_1;
+                                    break;
+                                case "1.1":
+                                    wmsVersion = WMSVersionEnum.VERSION_1_1;
+                                    break;
+                                case "1.3.0":
+                                    wmsVersion = WMSVersionEnum.VERSION_1_3_0;
+                                    break;
+                                case "1.3":
+                                    wmsVersion = WMSVersionEnum.VERSION_1_3;
+                                    break;
+                                default:
+                                    wmsVersion = WMSVersionEnum.VERSION_1_3_0;
+                                    ;
+                            }
+                            ArrayList<String> layers1 = new ArrayList<>();
+                            layers1.add(layer);
+                            try {
+                                wmsService = new WMS(
+                                        url,
+                                        wmsVersion,
+                                        tileFormat,
+                                        transparent.equalsIgnoreCase("true"),
+                                        layers1
+                                );
+                                Log.i(TAG, wmsService.toString());
+                            } catch (MalformedURLException ex) {
+                                ex.printStackTrace();
+                            }
+                            MainActivity.this.wmsService.setLayerResolution(Double.valueOf(resolution));
+                            try {
+                                map.addMapService(MainActivity.this.wmsService,
+                                        (success, geoId, t) -> {
+                                            if (success) {
+                                                Toast.makeText(MainActivity.this, "WMS connected", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            } catch (EMP_Exception e) {
+                                e.printStackTrace();
+                            }
+                            MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWMS);
+                            oItem.setEnabled(true);
+                            oItem = MainActivity.this.oMenu.findItem(R.id.action_addWMS);
+                            oItem.setEnabled(false);
+                        });
+                        Button cancelButton = (Button) wmsDialog.findViewById(R.id.CancelButton);
+                        // if button is clicked, don't add WMS service
+                        cancelButton.setOnClickListener(v12 -> wmsDialog.dismiss());
                     }
-                    final Dialog dialog = new Dialog(MainActivity.this);
-                    dialog.setContentView(wmsBinding.getRoot());
-                    dialog.setTitle("Title...");
-                    Button okButton = (Button) dialog.findViewById(R.id.OKButton);
-                    // if button is clicked, close the custom dialog
-                    okButton.setOnClickListener(v1 -> {
-                        String url = wmsBinding.UrlText.getText().toString();
-                        String version = wmsBinding.VersionText.getText().toString();
-                        if (version == null)
-                            version = "";
-                        String tileFormat = wmsBinding.TileFormatText.getText().toString();
-                        String transparent = wmsBinding.TransparentText.getText().toString();
-                        String layer = wmsBinding.LayerText.getText().toString();
-                        String resolution = wmsBinding.ResolutionText.getText().toString();
-                        Resources res = getBaseContext().getResources();
-                        dialog.dismiss();
-                        WMSVersionEnum wmsVersion = null;
-                        switch (version) {
-                            case "1.1.1" : wmsVersion = WMSVersionEnum.VERSION_1_1_1;
-                                break;
-                            case "1.1" : wmsVersion = WMSVersionEnum.VERSION_1_1;
-                                break;
-                            case "1.3.0" :wmsVersion = WMSVersionEnum.VERSION_1_3_0;
-                                break;
-                            case "1.3" : wmsVersion = WMSVersionEnum.VERSION_1_3;
-                                break;
-                            default:
-                                wmsVersion = WMSVersionEnum.VERSION_1_3_0;;
-                        }
-                        ArrayList<String> layers1 = new ArrayList<>();
-                        layers1.add(layer);
-                        try {
-                            wmsService = new WMS(
-                                    url,
-                                    wmsVersion,
-                                    tileFormat,
-                                    transparent.equalsIgnoreCase("true"),
-                                    layers1
-                            );
-                            Log.i(TAG, wmsService.toString());
-                        } catch (MalformedURLException ex) {
-                            ex.printStackTrace();
-                        }
-                        MainActivity.this.wmsService.setLayerResolution(Double.valueOf(resolution));
-                        try {
-                            map.addMapService(MainActivity.this.wmsService,
-                                    (success, geoId, t) -> {
-                                        if (success) {
-                                            Toast.makeText(MainActivity.this, "WMS connected", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        } catch (EMP_Exception e) {
-                            e.printStackTrace();
-                        }
-                        MenuItem oItem = MainActivity.this.oMenu.findItem(R.id.action_removeWMS);
-                        oItem.setEnabled(true);
-                        oItem = MainActivity.this.oMenu.findItem(R.id.action_addWMS);
-                        oItem.setEnabled(false);
-                    });
-                    Button cancelButton = (Button) dialog.findViewById(R.id.CancelButton);
-                    // if button is clicked, don't add WMS service
-                    cancelButton.setOnClickListener(v12 -> dialog.dismiss());
-                    dialog.show();
+                    wmsDialog.show();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
