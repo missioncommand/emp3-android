@@ -50,9 +50,9 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
      */
 
     /* package */
-    static KmlContainer createContainer(XmlPullParser parser)
+    static KmlContainer createContainer(XmlPullParser parser, String documentBase)
             throws XmlPullParserException, IOException {
-        return assignPropertiesToContainer(parser);
+        return assignPropertiesToContainer(parser, documentBase);
     }
 
     /**
@@ -62,7 +62,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
      * @param parser XmlPullParser object reading from a KML file
      * @return KmlContainer object with properties read from the XmlPullParser
      */
-    private static KmlContainer assignPropertiesToContainer(XmlPullParser parser)
+    private static KmlContainer assignPropertiesToContainer(XmlPullParser parser, String documentBase)
             throws XmlPullParserException, IOException {
         String startTag = parser.getName();
         String containerId = null;
@@ -85,7 +85,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
                 if (parser.getName().matches(UNSUPPORTED_REGEX)) {
                     KmlParser.skip(parser);
                 } else if (parser.getName().matches(CONTAINER_REGEX)) {
-                    nestedContainers.add(assignPropertiesToContainer(parser));
+                    nestedContainers.add(assignPropertiesToContainer(parser, documentBase));
                 } else if (parser.getName().matches(PROPERTY_REGEX)) {
                     containerProperties.put(parser.getName(), parser.nextText());
                 } else if (parser.getName().equals(STYLE_MAP)) {
@@ -97,7 +97,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
                 } else if (parser.getName().equals(EXTENDED_DATA)) {
                     setExtendedDataProperties(parser, containerProperties);
                 } else if (parser.getName().equals(GROUND_OVERLAY)) {
-                    containerGroundOverlays.put(KmlFeatureParser.createGroundOverlay(parser), null);
+                    containerGroundOverlays.put(KmlFeatureParser.createGroundOverlay(parser, documentBase), null);
                 }
             }
             eventType = parser.next();

@@ -1,5 +1,7 @@
 package com.google.maps.android.kml;
 
+import android.util.Patterns;
+
 import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
@@ -7,6 +9,7 @@ import org.cmapi.primitives.IGeoPosition;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,7 +91,7 @@ class KmlFeatureParser {
      * XmlPullParser) and assigns specific elements read from the parser to the GroundOverlay
      */
     /* package */
-    static KmlGroundOverlay createGroundOverlay(XmlPullParser parser)
+    static KmlGroundOverlay createGroundOverlay(XmlPullParser parser, String documentBase)
             throws IOException, XmlPullParserException {
         float drawOrder = 0.0f;
         float rotation = 0.0f;
@@ -102,7 +105,7 @@ class KmlFeatureParser {
         while (!(eventType == XmlPullParser.END_TAG && parser.getName().equals("GroundOverlay"))) {
             if (eventType == XmlPullParser.START_TAG) {
                 if (parser.getName().equals("Icon")) {
-                    imageUrl = getImageUrl(parser);
+                    imageUrl = getImageUrl(parser, documentBase);
                 } else if (parser.getName().equals("drawOrder")) {
                     drawOrder = Float.parseFloat(parser.nextText());
                 } else if (parser.getName().equals("visibility")) {
@@ -132,15 +135,21 @@ class KmlFeatureParser {
     /**
      * Retrieves a url from the "href" tag nested within an "Icon" tag, read by
      * the XmlPullParser.
+     * If the image is a local reference, get the absolute path from the documentBase
+     * and then cast it into a File URl.
      *
      * @return An image url
      */
-    private static String getImageUrl(XmlPullParser parser)
+    private static String getImageUrl(XmlPullParser parser, String documentBase)
             throws IOException, XmlPullParserException {
         int eventType = parser.getEventType();
         while (!(eventType == XmlPullParser.END_TAG && parser.getName().equals("Icon"))) {
             if (eventType == XmlPullParser.START_TAG && parser.getName().equals("href")) {
-                return parser.nextText();
+                String temp =  parser.nextText();
+                if(!Patterns.WEB_URL.matcher(temp).matches()) {
+                    return new File(documentBase+File.separator+temp).toURI().toURL().toString();
+                }
+                return temp;
             }
             eventType = parser.next();
         }

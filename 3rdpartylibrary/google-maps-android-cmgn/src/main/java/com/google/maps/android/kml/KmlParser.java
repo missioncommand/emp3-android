@@ -68,7 +68,7 @@ public class KmlParser {
      * Parses the KML file and stores the created KmlStyle and KmlPlacemark
      */
     /* package */
-    public void parseKml() throws XmlPullParserException, IOException {
+    public void parseKml(String documentBase) throws XmlPullParserException, IOException {
         int eventType = mParser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
@@ -76,7 +76,7 @@ public class KmlParser {
                    skip(mParser);
                 }
                 if (mParser.getName().matches(CONTAINER_REGEX)) {
-                    mContainers.add(KmlContainerParser.createContainer(mParser));
+                    mContainers.add(KmlContainerParser.createContainer(mParser, documentBase));
                 }
                 if (mParser.getName().equals(STYLE)) {
                     KmlStyle style = KmlStyleParser.createStyle(mParser);
@@ -89,7 +89,7 @@ public class KmlParser {
                     mPlacemarks.put(KmlFeatureParser.createPlacemark(mParser), null);
                 }
                 if (mParser.getName().equals(GROUND_OVERLAY)) {
-                    mGroundOverlays.put(KmlFeatureParser.createGroundOverlay(mParser), null);
+                    mGroundOverlays.put(KmlFeatureParser.createGroundOverlay(mParser, documentBase), null);
                 }
             }
             eventType = mParser.next();

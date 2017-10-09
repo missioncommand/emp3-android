@@ -1566,13 +1566,13 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
-            case R.id.action_importKMZ: {
-                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.example))
+            case R.id.action_importManyKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.many))
                 {
                     byte[] buffer = new byte[stream.available()];
                     stream.read(buffer);
 
-                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "copiedExample.kmz");
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "many.kmz");
                     if(targetFile.exists()){
                         targetFile.delete();
                     }
@@ -1592,13 +1592,65 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
-            case R.id.action_importDifferentKMZ: {
-                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.notworking))
+            case R.id.action_importExampleKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.example))
                 {
                     byte[] buffer = new byte[stream.available()];
                     stream.read(buffer);
 
-                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "new.kmz");
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "example.kmz");
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+                    try(OutputStream outStream = new FileOutputStream(targetFile))
+                    {
+                        outStream.write(buffer);
+
+                        Context context = getApplicationContext();
+                        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+
+                        IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
+                        mapService.setName("kmzSample_Test");
+                        this.map.addMapService(mapService);
+                    }
+
+                } catch (Exception e) {
+                }
+                return true;
+            }
+            case R.id.action_importSymbolsKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.symbols))
+                {
+                    byte[] buffer = new byte[stream.available()];
+                    stream.read(buffer);
+
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "symbols.kmz");
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+                    try(OutputStream outStream = new FileOutputStream(targetFile))
+                    {
+                        outStream.write(buffer);
+
+                        Context context = getApplicationContext();
+                        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+
+                        IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
+                        mapService.setName("kmzSample_Test");
+                        this.map.addMapService(mapService);
+                    }
+
+                } catch (Exception e) {
+                }
+                return true;
+            }
+            case R.id.action_importOverlayKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.overlays))
+                {
+                    byte[] buffer = new byte[stream.available()];
+                    stream.read(buffer);
+
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "overlay.kmz");
                     if(targetFile.exists()){
                         targetFile.delete();
                     }
@@ -1872,7 +1924,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_plotKML: {
-                try (InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.kmzkmltest))
+                try (InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.kml_samples))
                 {
 /*
                     KML kmlOverlay = new KML();
