@@ -3,6 +3,7 @@ package mil.emp3.api.utils;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * File Utility class to perform File and Directory operations.
@@ -42,6 +43,35 @@ public final class FileUtility
             }
         }
         folder.delete();
+    }
+
+    public static boolean isChildDirectory(File possibleParentDirectory, File possibleChildDirectory)
+    {
+        try
+        {
+            final File parent = possibleParentDirectory.getCanonicalFile();
+            if (!parent.exists() || !parent.isDirectory())
+            {
+                // this cannot possibly be the parent
+                return false;
+            }
+
+            File child = possibleChildDirectory.getCanonicalFile();
+            while (child != null)
+            {
+                if (child.equals(parent))
+                {
+                    return true;
+                }
+                child = child.getParentFile();
+            }
+            // No match found, and we've hit the root directory
+            return false;
+        }
+        catch (IOException e)
+        {
+            return false;
+        }
     }
 
     /**
