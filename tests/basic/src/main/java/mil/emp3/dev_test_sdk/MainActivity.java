@@ -1970,7 +1970,6 @@ public class MainActivity extends AppCompatActivity
                             "                  </Document>\n" +
                             "                </kml>");
 */
-                    KMZFile kmz = new KMZFile();
                     KML kmlFeature = new KML(stream);
                     this.oRootOverlay.addFeature(kmlFeature, true);
                     this.oFeatureHash.put(kmlFeature.getGeoId(), kmlFeature);

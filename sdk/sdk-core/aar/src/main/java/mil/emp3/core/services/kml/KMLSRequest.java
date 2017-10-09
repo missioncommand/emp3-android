@@ -207,7 +207,7 @@ public class KMLSRequest implements KMZFile.IKMZFileRequest, IKMLSRequest {
      * Cleans the directory. Specified directory is also removed.
      * @param directory
      */
-    public static void cleanDirectory(File directory) {
+    private void cleanDirectory(File directory) {
         File[] listOfFiles = directory.listFiles();
         if(listOfFiles != null) {
             for(File file: listOfFiles) {
