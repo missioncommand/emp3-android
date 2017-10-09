@@ -1667,22 +1667,6 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_exportMapToKML: {
                 try {
 
-
-                    EmpKMZExporter.exportToKMZ(this.map, true,new IEmpExportToTypeCallBack<File>() {
-
-                        @Override
-                        public void exportSuccess(File kmlString)
-                        {
-                            kmlString.exists();
-                        }
-
-                        @Override
-                        public void exportFailed(Exception Ex)
-                        {
-
-                        }
-                    }, this.getExternalCacheDir().getAbsolutePath(), "kmzMAPFileName.kmz");
-
                     EmpKMLExporter.exportToString(this.map, true, new IEmpExportToStringCallback() {
 
                         @Override
