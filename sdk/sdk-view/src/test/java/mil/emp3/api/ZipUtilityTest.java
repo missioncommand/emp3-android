@@ -1,4 +1,4 @@
-package mil.emp3.api.utils;
+package mil.emp3.api;
 
 import org.assertj.core.util.Files;
 import org.codehaus.plexus.util.IOUtil;
@@ -12,6 +12,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+
+import mil.emp3.api.utils.FileUtility;
+import mil.emp3.api.utils.ZipUtility;
 
 /**
  * @author Jenifer Cochran

@@ -1,4 +1,4 @@
-package mil.emp3.api.utils;
+package mil.emp3.api;
 
 
 import org.assertj.core.util.Files;
@@ -8,6 +8,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+
+import mil.emp3.api.utils.FileUtility;
 
 /**
  * @author Jenifer Cochran
