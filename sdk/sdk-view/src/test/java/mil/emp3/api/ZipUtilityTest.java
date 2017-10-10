@@ -132,34 +132,22 @@ public class ZipUtilityTest
         //Check Directory Structure
         File[] unzippedFiles = tempDirectory2.listFiles();
 
-        String expected = tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName();
-        String actual = unzippedFiles[0].getAbsolutePath();
-        System.out.println("expected: " + expected);
-        System.out.println("actual:   " + actual);
-
         //Check ChildFileA location
-        Assert.assertEquals(String.format("Expected %s  Actual %s",
-                                          expected,
-                                          actual),
-                            tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName(),
-                            unzippedFiles[0].getAbsolutePath());
+        Assert.assertTrue(new File(tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName()).exists());
 
         //Check ChildFileB location
-        Assert.assertEquals(tempDirectory2.getAbsolutePath() + File.separator + childFileB.getName(),
-                            unzippedFiles[1].getAbsolutePath());
+        Assert.assertTrue(new File(tempDirectory2.getAbsolutePath() + File.separator + childFileB.getName()).exists());
 
         //Check Subdirectory location
-        Assert.assertEquals(tempDirectory2.getAbsolutePath() + File.separator + subdirectory.getName(),
-                             unzippedFiles[2].getAbsolutePath());
+        Assert.assertTrue(new File(tempDirectory2.getAbsolutePath() + File.separator + subdirectory.getName()).exists());
 
         //Check subdirectory if it contains the the childFileC
         File[] subDirectoryFiles = unzippedFiles[2].listFiles();
-        Assert.assertEquals(tempDirectory2.getAbsolutePath() +
-                             File.separator +
-                             subdirectory.getName() +
-                             File.separator +
-                             childFileC.getName(),
-                             subDirectoryFiles[0].getAbsolutePath());
+        Assert.assertTrue(new File(tempDirectory2.getAbsolutePath() +
+                                   File.separator +
+                                   subdirectory.getName() +
+                                   File.separator +
+                                   childFileC.getName()).exists());
     }
 
     @Test
