@@ -15,5 +15,4 @@ android {
     defaultConfig {
         applicationId "mil.emp3.emp3_android_sdk_core_apk"
     }
-    buildToolsVersion '26.0.2'
 }

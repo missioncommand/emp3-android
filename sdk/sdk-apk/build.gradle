@@ -15,7 +15,6 @@ android {
     defaultConfig {
         applicationId "mil.emp3.emp3_android_sdk_apk"
     }
-    buildToolsVersion '26.0.2'
 }
 build.doLast { task ->
     def sourceDir = "$projectDir/../sdk-apk/build/outputs/apk/debug/"

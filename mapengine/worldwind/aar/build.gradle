@@ -26,5 +26,4 @@ android {
     buildTypes.each {
         it.buildConfigField "String", "Implementation_Map_Engine_Id", "\"worldwind_android_sdk ${engine_version}\""
     }
-    buildToolsVersion '26.0.2'
 }
