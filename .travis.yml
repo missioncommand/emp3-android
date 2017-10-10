@@ -42,7 +42,7 @@ before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
-  after_failure:
+after_failure:
   - if [ -f /file:///home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.html ]; then lynx -dump file:///home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.html; fi
   - if [ -f file:///home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.xml ]; then lynx -dump ffile:///home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.xml; fi
 
