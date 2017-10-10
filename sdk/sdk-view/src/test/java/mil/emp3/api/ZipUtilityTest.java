@@ -133,8 +133,8 @@ public class ZipUtilityTest
         File[] unzippedFiles = tempDirectory2.listFiles();
 
         //Check ChildFileA location
-        Assert.assertEquals((tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName()).toLowerCase(),
-                             unzippedFiles[0].getAbsolutePath().toLowerCase());
+        Assert.assertEquals(tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName(),
+                             unzippedFiles[0].getAbsolutePath());
 
         //Check ChildFileB location
         Assert.assertEquals(tempDirectory2.getAbsolutePath() + File.separator + childFileB.getName(),
