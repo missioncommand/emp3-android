@@ -3,8 +3,8 @@ package net.sf.geographiclib;
 public class Ellipsoid {
 
     private double stol_;
-    private double _a, _f, _f1, _f12, _e2, _es, _e12, _n, _b;
-    private EllipticFunction _ell;
+    double _a, _f, _f1, _f12, _e2, _es, _e12, _n, _b;
+    EllipticFunction _ell;
 
     Ellipsoid(double a, double f) {
         stol_ = 0.01 * Math.sqrt(GeoMath.epsilon);

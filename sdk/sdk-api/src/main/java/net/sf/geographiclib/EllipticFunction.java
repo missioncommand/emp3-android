@@ -53,6 +53,18 @@ public class EllipticFunction {
         return GeoMath.copysign(ei, sn);
     }
 
+    double deltaE(double sn, double cn, double dn) {
+        // Function is periodic with period pi
+        if (cn < 0) { cn = -cn; sn = -sn; }
+        return E(sn, cn, dn) * (Math.PI/2) / E() - Math.atan2(sn, cn);
+    }
+
+    double E(double phi) {
+        double sn = Math.sin(phi), cn = Math.cos(phi), dn = Delta(sn, cn);
+        return Math.abs(phi) < Math.PI ? E(sn, cn, dn) :
+                (deltaE(sn, cn, dn) + phi) * E() / (Math.PI/2);
+    }
+
     double RF(double x, double y, double z) {
         // Carlson, eqs 2.2 - 2.7
         final double tolRF =
