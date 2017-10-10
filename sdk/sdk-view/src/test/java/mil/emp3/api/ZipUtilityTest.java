@@ -133,25 +133,25 @@ public class ZipUtilityTest
         File[] unzippedFiles = tempDirectory2.listFiles();
 
         //Check ChildFileA location
-        Assert.assertEquals(tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName(),
-                unzippedFiles[0].getAbsolutePath());
+        Assert.assertEquals((tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName()).toLowerCase(),
+                             unzippedFiles[0].getAbsolutePath().toLowerCase());
 
         //Check ChildFileB location
         Assert.assertEquals(tempDirectory2.getAbsolutePath() + File.separator + childFileB.getName(),
-                unzippedFiles[1].getAbsolutePath());
+                            unzippedFiles[1].getAbsolutePath());
 
         //Check Subdirectory location
         Assert.assertEquals(tempDirectory2.getAbsolutePath() + File.separator + subdirectory.getName(),
-                unzippedFiles[2].getAbsolutePath());
+                             unzippedFiles[2].getAbsolutePath());
 
         //Check subdirectory if it contains the the childFileC
         File[] subDirectoryFiles = unzippedFiles[2].listFiles();
         Assert.assertEquals(tempDirectory2.getAbsolutePath() +
-                        File.separator +
-                        subdirectory.getName() +
-                        File.separator +
-                        childFileC.getName(),
-                subDirectoryFiles[0].getAbsolutePath());
+                             File.separator +
+                             subdirectory.getName() +
+                             File.separator +
+                             childFileC.getName(),
+                             subDirectoryFiles[0].getAbsolutePath());
     }
 
     @Test
