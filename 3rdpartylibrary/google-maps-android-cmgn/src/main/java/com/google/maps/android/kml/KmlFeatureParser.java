@@ -87,6 +87,7 @@ class KmlFeatureParser {
     /**
      * Creates a new GroundOverlay object (created if a GroundOverlay tag is read by the
      * XmlPullParser) and assigns specific elements read from the parser to the GroundOverlay
+     * @param documentBase Path leading to kml file directory to generate full path file url for worldwind.
      */
     /* package */
     static KmlGroundOverlay createGroundOverlay(XmlPullParser parser, String documentBase)
@@ -136,6 +137,7 @@ class KmlFeatureParser {
      * If the image is a local reference, get the absolute path from the documentBase
      * and then cast it into a File URl.
      *
+     * @param documentBase Path leading to kml file directory to generate full path file url for worldwind.
      * @return An image url
      */
     private static String getImageUrl(XmlPullParser parser, String documentBase)

@@ -135,7 +135,6 @@ import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
-import mil.emp3.core.services.kml.KMZFile;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.databinding.ActivityMainBinding;
 import mil.emp3.dev_test_sdk.databinding.WmsParametersDialogBinding;
@@ -144,7 +143,7 @@ import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.dev_test_sdk.utils.CameraUtility;
-import mil.emp3.core.services.kml.KMLSServiceListener;
+import mil.emp3.dev_test_sdk.utils.KMLSServiceListener;
 import mil.emp3.json.geoJson.GeoJsonCaller;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;

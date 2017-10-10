@@ -66,6 +66,7 @@ public class KmlParser {
 
     /**
      * Parses the KML file and stores the created KmlStyle and KmlPlacemark
+     * @param documentBase Path leading to kml file directory to generate full path file url for worldwind.
      */
     /* package */
     public void parseKml(String documentBase) throws XmlPullParserException, IOException {

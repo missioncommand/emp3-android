@@ -47,6 +47,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
     /**
      * Obtains a Container object (created if a Document or Folder start tag is read by the
      * XmlPullParser) and assigns specific elements read from the XmlPullParser to the container.
+     * @param documentBase Path leading to kml file directory to generate full path file url for worldwind.
      */
 
     /* package */
@@ -60,6 +61,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
      * to the new KmlContainer.
      *
      * @param parser XmlPullParser object reading from a KML file
+     * @param documentBase Path leading to kml file directory to generate full path file url for worldwind.
      * @return KmlContainer object with properties read from the XmlPullParser
      */
     private static KmlContainer assignPropertiesToContainer(XmlPullParser parser, String documentBase)

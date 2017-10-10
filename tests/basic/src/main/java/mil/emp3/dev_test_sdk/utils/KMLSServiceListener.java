@@ -1,8 +1,7 @@
-package mil.emp3.core.services.kml;
+package mil.emp3.dev_test_sdk.utils;
 
 import android.util.Log;
 
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
 import mil.emp3.api.enums.KMLSEventEnum;
