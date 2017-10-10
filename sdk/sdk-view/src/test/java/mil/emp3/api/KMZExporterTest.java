@@ -17,7 +17,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
+import java.util.UUID;
 
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IEmpExportToTypeCallBack;
@@ -32,7 +34,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
 /**
- * Created by jenifer.cochran@rgi-corp.local on 10/2/17.
+ * @author Jenifer Cochran
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Environment.class, Xml.class})
@@ -40,8 +42,8 @@ public class KMZExporterTest extends TestBaseSingleMap
 {
     private final static String TAG = KMZExporterTest.class.getName();
 
-    private static File outputDirectory          = Files.createTempDir();
-    private static File temporaryOutputDirectory = Files.createTempDir();
+    private static File outputDirectory;
+    private static File temporaryOutputDirectory;
 
     @Before
     public void setUp() throws Exception
@@ -54,14 +56,14 @@ public class KMZExporterTest extends TestBaseSingleMap
         mockStatic(Xml.class);
         when(Xml.newSerializer()).thenReturn(mockSerializer);
 
-        if(!outputDirectory.exists())
+        if(outputDirectory == null || !outputDirectory.exists())
         {
-            outputDirectory = Files.createTempDir();
+            outputDirectory = createTemporaryDirectory();
         }
 
-        if(!temporaryOutputDirectory.exists())
+        if(temporaryOutputDirectory == null || !temporaryOutputDirectory.exists())
         {
-            temporaryOutputDirectory = Files.createTempDir();
+            temporaryOutputDirectory = createTemporaryDirectory();
         }
 
         mockStatic(Environment.class);
@@ -77,50 +79,25 @@ public class KMZExporterTest extends TestBaseSingleMap
     @After
     public void tearDown()
     {
-        if(outputDirectory.exists())
+        if(outputDirectory != null && outputDirectory.exists())
         {
             FileUtility.deleteFolder(outputDirectory);
         }
 
-        if(temporaryOutputDirectory.exists())
+        if(temporaryOutputDirectory != null && temporaryOutputDirectory.exists())
         {
             FileUtility.deleteFolder(temporaryOutputDirectory);
         }
     }
 
-    // Tests the Map Constructor
-
-    @Test(expected = IllegalArgumentException.class)
-    public void invalidTemporaryDirectoryLocation()
+    private static File createTemporaryDirectory() throws IOException
     {
-        final boolean[] processEnded                = {false};
-        final String    kmzFileNameWithoutExtension = "TestKmzFileName";
-
-        EmpKMZExporter.exportToKMZ(this.remoteMap,
-                                   false,
-                                   new IEmpExportToTypeCallBack<File>(){
-                                                                           @Override
-                                                                           public void exportSuccess(File exportObject)
-                                                                           {
-                                                                               processEnded[0] = true;
-                                                                           }
-                                                                           @Override
-                                                                           public void exportFailed(Exception Ex)
-                                                                           {
-                                                                               processEnded[0] = true;
-                                                                               Assert.fail(Ex.getMessage());
-                                                                           }
-                                                                       },
-                                   outputDirectory.getAbsolutePath(),//invalid input
-                                   kmzFileNameWithoutExtension);
-
-        while(processEnded[0] == false)
-        {
-            //wait until the thread has ended to verify success
-        }
-
-        Assert.fail();
+        File tempDirectory = new File(org.assertj.core.util.Files.temporaryFolderPath() + File.separator + UUID.randomUUID().toString());
+        tempDirectory.mkdirs();
+        return tempDirectory;
     }
+
+    // Tests the Map Constructor
 
     @Test(expected = IllegalArgumentException.class)
     public void invalidMapParameter()

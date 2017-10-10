@@ -45,6 +45,19 @@ public final class FileUtility
         folder.delete();
     }
 
+    /***
+     * Returns true if the possible child directory shares a directory with the possibleParentDirectory
+     * (i.e. ParentDirectory : directoryA/directoryB/directoryC </br>
+     *       childDirectory :  directoryA/directoryB/directoryC/directoryD </br>
+     *       would return true and </br>
+     *       ParentDirectory : directoryB/directoryD </br>
+     *       childDirectory :  directoryB/directoryE
+     *       would return false)
+     *
+     * @param possibleParentDirectory the possible parent directory of the possibleChildDirectory passed in
+     * @param possibleChildDirectory the possible child directory of the possibleParentDirectory passed in
+     * @return true if the child shares a directory with its parent, false otherwise.
+     */
     public static boolean isChildDirectory(File possibleParentDirectory, File possibleChildDirectory)
     {
         try
