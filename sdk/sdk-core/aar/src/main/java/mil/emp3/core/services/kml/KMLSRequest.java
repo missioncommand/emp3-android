@@ -16,7 +16,6 @@ import mil.emp3.api.interfaces.IKML;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
-import mil.emp3.api.utils.FileUtility;
 
 /**
  * Holds the KML Request till it is removed via removeMapService.

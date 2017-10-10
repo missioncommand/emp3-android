@@ -1,6 +1,5 @@
 package com.google.maps.android.kml;
 
-import android.util.Patterns;
 import android.webkit.URLUtil;
 
 import org.cmapi.primitives.GeoBounds;
@@ -16,8 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.xmlpull.v1.XmlPullParser.END_TAG;
-import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 /**
  * Parses the feature of a given KML file into a KmlPlacemark or KmlGroundOverlay object

@@ -2,6 +2,7 @@ package mil.emp3.core.services.kml;
 
 import android.util.Log;
 
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
 import mil.emp3.api.enums.KMLSEventEnum;
@@ -22,13 +23,10 @@ public class KMLSServiceListener implements IKMLSEventListener {
     IMap map;
 
     BlockingQueue<KMLSEventEnum> queue;
-    public KMLSServiceListener(BlockingQueue<KMLSEventEnum> queue) {
+    public KMLSServiceListener(final BlockingQueue<KMLSEventEnum> queue) {
         this.queue = queue;
     }
 
-    KMLSServiceListener(IMap whichMap) {
-        this.map = whichMap;
-    }
 
     @Override
     public void onEvent(KMLSEvent event) {
