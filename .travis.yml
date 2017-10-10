@@ -43,8 +43,8 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
 after_failure:
-  - if [ -f /file:///home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.html ]; then lynx -dump file:///home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.html; fi
-  - if [ -f file:///home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.xml ]; then lynx -dump ffile:///home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.xml; fi
+  - if [ -f /home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.html ]; then lynx -dump /home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.html; fi
+  - if [ -f /home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.xml ]; then lynx -dump /home/travis/build/missioncommand/emp3-android/sdk/sdk-apk/build/reports/lint-results.xml; fi
 
 deploy: # travis by default will not invoke this step for PRs
   - provider: script
