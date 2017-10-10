@@ -132,10 +132,15 @@ public class ZipUtilityTest
         //Check Directory Structure
         File[] unzippedFiles = tempDirectory2.listFiles();
 
+        String expected = tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName();
+        String actual = unzippedFiles[0].getAbsolutePath();
+        System.out.println("expected: " + expected);
+        System.out.println("actual:   " + actual);
+
         //Check ChildFileA location
         Assert.assertEquals(String.format("Expected %s  Actual %s",
-                                          tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName(),
-                                          tempDirectory2.getAbsolutePath()),
+                                          expected,
+                                          actual),
                             tempDirectory2.getAbsolutePath() + File.separator + childFileA.getName(),
                             unzippedFiles[0].getAbsolutePath());
 
