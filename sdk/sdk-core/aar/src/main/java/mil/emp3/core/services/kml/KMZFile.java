@@ -55,18 +55,15 @@ public class KMZFile {
                     File directory = new File(request.getDestinationDir() + File.separator + zipEntry.getName());
                     directory.mkdirs();
                     continue;
-                // It is possible for the zip to not contain the directory but files under the
-                // directory.  This case generates the directory in that case
-//                } else if(zipEntry.getName().contains(File.separator)) {
-//                    File f = new File(zipEntry.getName());
-//                    File parent = f.getParentFile();
-////                    if(parent.isDirectory())
-////                    {
-//                    File zipParent = new File(request.getDestinationDir() + File.separator + parent.getPath());
-//                    if (!zipParent.exists()) {
-//                        zipParent.mkdirs();
-//                    }
-//                   }
+                 //It is possible for the zip to not contain the directory but files under the
+                 //directory.  This case generates the directory in that case
+                } else if(zipEntry.getName().contains(File.separator)) {
+                    File f = new File(zipEntry.getName());
+                    File parent = f.getParentFile();
+                    File zipParent = new File(request.getDestinationDir() + File.separator + parent.getPath());
+                    if (!zipParent.exists()) {
+                        zipParent.mkdirs();
+                    }
                 }
 
                 // Look for a kml file that needs to be parsed. We pick the first one that we find. Technically there should be only

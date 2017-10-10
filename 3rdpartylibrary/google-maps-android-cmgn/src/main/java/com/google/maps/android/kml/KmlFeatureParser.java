@@ -1,6 +1,7 @@
 package com.google.maps.android.kml;
 
 import android.util.Patterns;
+import android.webkit.URLUtil;
 
 import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoPosition;
@@ -146,7 +147,7 @@ class KmlFeatureParser {
         while (!(eventType == XmlPullParser.END_TAG && parser.getName().equals("Icon"))) {
             if (eventType == XmlPullParser.START_TAG && parser.getName().equals("href")) {
                 String temp =  parser.nextText();
-                if(!Patterns.WEB_URL.matcher(temp).matches()) {
+                if(!URLUtil.isValidUrl(temp)) {
                     return new File(documentBase+File.separator+temp).toURI().toURL().toString();
                 }
                 return temp;
