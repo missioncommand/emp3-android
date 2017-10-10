@@ -1712,22 +1712,6 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_exportOverlayToKML: {
                 try {
-                    EmpKMZExporter.exportToKMZ(this.map, this.oRootOverlay, true,new IEmpExportToTypeCallBack<File>() {
-
-                        @Override
-                        public void exportSuccess(File kmlString)
-                        {
-                            kmlString.exists();
-                        }
-
-                        @Override
-                        public void exportFailed(Exception Ex)
-                        {
-
-                        }
-                    }, this.getExternalCacheDir().getAbsolutePath(), "kmzOverLayFileName.kmz");
-
-
 
                     EmpKMLExporter.exportToString(this.map, this.oRootOverlay, true, new IEmpExportToStringCallback() {
 
@@ -1813,21 +1797,6 @@ public class MainActivity extends AppCompatActivity
                                 MainActivity.this.makeToast("Export failed");
                             }
                         });
-
-                        EmpKMZExporter.exportToKMZ(this.map, this.oCurrentSelectedFeature, true,new IEmpExportToTypeCallBack<File>() {
-
-                            @Override
-                            public void exportSuccess(File kmlString)
-                            {
-                                kmlString.exists();
-                            }
-
-                            @Override
-                            public void exportFailed(Exception Ex)
-                            {
-
-                            }
-                        }, this.getExternalCacheDir().getAbsolutePath(), "kmzFeatureFileName.kmz");
                     }
                 } catch (Exception Ex) {
                     Log.e(TAG, "Map export to KML failed.", Ex);
