@@ -91,7 +91,7 @@ class KmlFeatureParser {
      *                     For example if the file was in C:/Documents/MyKMZ.kmz/test.kml this value would be C:/Documents/MyKMZ.kmz
      */
     /* package */
-    static KmlGroundOverlay createGroundOverlay(XmlPullParser parser, String documentBase)
+    static KmlGroundOverlay createGroundOverlay(XmlPullParser parser, final String documentBase)
             throws IOException, XmlPullParserException {
         float drawOrder = 0.0f;
         float rotation = 0.0f;
@@ -142,7 +142,7 @@ class KmlFeatureParser {
      *                     For example if the file was in C:/Documents/MyKMZ.kmz/test.kml this value would be C:/Documents/MyKMZ.kmz
      * @return An image url
      */
-    private static String getImageUrl(XmlPullParser parser, String documentBase)
+    private static String getImageUrl(XmlPullParser parser, final String documentBase)
             throws IOException, XmlPullParserException {
         int eventType = parser.getEventType();
         while (!(eventType == XmlPullParser.END_TAG && parser.getName().equals("Icon"))) {

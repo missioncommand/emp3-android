@@ -42,25 +42,24 @@ public class KMZFile {
     protected void unzipKMZFile(IKMZFileRequest request) throws EMP_Exception {
 
         try {
-            String kmlFilePath = null;
-            ZipFile zipFile = new ZipFile(request.getSourceFilePath());
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            final ZipFile zipFile = new ZipFile(request.getSourceFilePath());
+            final Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
             while (entries.hasMoreElements()) {
-                ZipEntry zipEntry = entries.nextElement();
+                final ZipEntry zipEntry = entries.nextElement();
                 Log.v(TAG, "zipEntry " + zipEntry.getName());
 
                 // If it is a directory then make a new directory and continue.
                 if(zipEntry.isDirectory()) {
-                    File directory = new File(request.getDestinationDir() + File.separator + zipEntry.getName());
+                    final File directory = new File(request.getDestinationDir() + File.separator + zipEntry.getName());
                     directory.mkdirs();
                     continue;
                  //It is possible for the zip to not contain the directory but files under the
                  //directory.  This case generates the directory in that case
                 } else if(zipEntry.getName().contains(File.separator)) {
-                    File file_in_zip = new File(zipEntry.getName());
-                    File parent = file_in_zip.getParentFile();
-                    File zipParent = new File(request.getDestinationDir() + File.separator + parent.getPath());
+                    final File fileInZip = new File(zipEntry.getName());
+                    final File parent = fileInZip.getParentFile();
+                    final File zipParent = new File(request.getDestinationDir() + File.separator + parent.getPath());
                     if (!zipParent.exists()) {
                         zipParent.mkdirs();
                     }
@@ -68,7 +67,7 @@ public class KMZFile {
 
                 // Look for a kml file that needs to be parsed. We pick the first one that we find. Technically there should be only
                 // one KML file in the KMZ archive.
-                if(((null == kmlFilePath) || (0 == kmlFilePath.length())) && (zipEntry.getName().endsWith(".kml"))) {
+                if(zipEntry.getName().endsWith(".kml")) {
                     request.setKmlFilePath(request.getDestinationDir() + File.separator + zipEntry.getName());
                     Log.d(TAG, "kmlFilePath " + request.getKmlFilePath());
                 }

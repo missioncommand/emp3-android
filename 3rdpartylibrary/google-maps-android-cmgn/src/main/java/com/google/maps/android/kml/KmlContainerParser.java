@@ -52,7 +52,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
      */
 
     /* package */
-    static KmlContainer createContainer(XmlPullParser parser, String documentBase)
+    static KmlContainer createContainer(XmlPullParser parser, final String documentBase)
             throws XmlPullParserException, IOException {
         return assignPropertiesToContainer(parser, documentBase);
     }
@@ -66,7 +66,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
      *                     For example if the file was in C:/Documents/MyKMZ.kmz/test.kml this value would be C:/Documents/MyKMZ.kmz
      * @return KmlContainer object with properties read from the XmlPullParser
      */
-    private static KmlContainer assignPropertiesToContainer(XmlPullParser parser, String documentBase)
+    private static KmlContainer assignPropertiesToContainer(XmlPullParser parser, final String documentBase)
             throws XmlPullParserException, IOException {
         String startTag = parser.getName();
         String containerId = null;

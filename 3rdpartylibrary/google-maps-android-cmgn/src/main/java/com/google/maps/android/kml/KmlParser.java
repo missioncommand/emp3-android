@@ -70,7 +70,7 @@ public class KmlParser {
      *                     For example if the file was in C:/Documents/MyKMZ.kmz/test.kml this value would be C:/Documents/MyKMZ.kmz
      */
     /* package */
-    public void parseKml(String documentBase) throws XmlPullParserException, IOException {
+    public void parseKml(final String documentBase) throws XmlPullParserException, IOException {
         int eventType = mParser.getEventType();
         while (eventType != XmlPullParser.END_DOCUMENT) {
             if (eventType == XmlPullParser.START_TAG) {
