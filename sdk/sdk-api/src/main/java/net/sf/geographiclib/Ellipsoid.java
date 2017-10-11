@@ -1,115 +1,203 @@
 package net.sf.geographiclib;
 
+import static java.lang.Math.*;
+
 public class Ellipsoid {
 
     private double stol_;
-    double _a, _f, _f1, _f12, _e2, _es, _e12, _n, _b;
+    private double majorRadius,
+            flattening,
+            secondFlattening,
+            thirdFlattening,
+            _f12,
+            eccentricitySquared,
+            _es,
+            secondEccentricitySquared,
+            minorRadius;
     EllipticFunction _ell;
 
+
+    // Transverse Mercator coefficients brought over from another source
+    final private static double[] alpcoeff = {
+            // alp[1]/n^1, polynomial in n of order 5
+            31564, -66675, 34440, 47250, -100800, 75600, 151200,
+            // alp[2]/n^2, polynomial in n of order 4
+            -1983433, 863232, 748608, -1161216, 524160, 1935360,
+            // alp[3]/n^3, polynomial in n of order 3
+            670412, 406647, -533952, 184464, 725760,
+            // alp[4]/n^4, polynomial in n of order 2
+            6601661, -7732800, 2230245, 7257600,
+            // alp[5]/n^5, polynomial in n of order 1
+            -13675556, 3438171, 7983360,
+            // alp[6]/n^6, polynomial in n of order 0
+            212378941, 319334400,
+    };  // count = 27
+
+    final private static double[] betcoeff = {
+            // bet[1]/n^1, polynomial in n of order 5
+            384796, -382725, -6720, 932400, -1612800, 1209600, 2419200,
+            // bet[2]/n^2, polynomial in n of order 4
+            -1118711, 1695744, -1174656, 258048, 80640, 3870720,
+            // bet[3]/n^3, polynomial in n of order 3
+            22276, -16929, -15984, 12852, 362880,
+            // bet[4]/n^4, polynomial in n of order 2
+            -830251, -158400, 197865, 7257600,
+            // bet[5]/n^5, polynomial in n of order 1
+            -435388, 453717, 15966720,
+            // bet[6]/n^6, polynomial in n of order 0
+            20648693, 638668800,
+    };  // count = 27
+
     Ellipsoid(double a, double f) {
-        stol_ = 0.01 * Math.sqrt(GeoMath.epsilon);
-        _a = a;
-        _f = f;
-        _f1 = 1 - _f;
-        _f12 = GeoMath.sq(_f1);
-        _e2 = _f * (2 - _f);
-        _es = (_f < 0 ? -1 : 1) * Math.sqrt(Math.abs(_e2));
-        _e12 = _e2 / (1 - _e2);
-        _n = _f / (2 - _f);
-        _b = _a * _f1;
-//        _tm = _a, _f, real(1);
+        stol_ = 0.01 * sqrt(GeoMath.epsilon);
+        majorRadius = a;
+        flattening = f;
+        secondFlattening = 1 - flattening;
+        thirdFlattening = flattening / (2 - flattening);
+        _f12 = GeoMath.sq(secondFlattening);
+        eccentricitySquared = flattening * (2 - flattening);
+        _es = (flattening < 0 ? -1 : 1) * sqrt(abs(eccentricitySquared));
+        secondEccentricitySquared = eccentricitySquared / (1 - eccentricitySquared);
+        minorRadius = majorRadius * secondFlattening;
         // very doubtful this is converted properly from C++
-        _ell = new EllipticFunction(-_e12, 0);
+        _ell = new EllipticFunction(-secondEccentricitySquared, 0);
     }
 
-    double QuarterMeridian()
-    { return _b * _ell.E(); }
-
-    double Area() {
-        return 4 * Math.PI *
-                ((GeoMath.sq(_a) + GeoMath.sq(_b) *
-                (_e2 == 0 ? 1 :
-                        (_e2 > 0 ? GeoMath.atanh(Math.sqrt(_e2)) : Math.atan(Math.sqrt(-_e2))) /
-        Math.sqrt(Math.abs(_e2))))/2);
+    public double[] ConformalToRectifyingCoeffs() {
+        return alpcoeff;
     }
 
-    double ParametricLatitude(double phi)
-    { return MathGeo.atand(_f1 * MathGeo.tand(GeoMath.LatFix(phi))); }
+    public double[] RectifyingToConformalCoeffs() {
+        return betcoeff;
+    }
 
-    double InverseParametricLatitude(double beta)
-    { return MathGeo.atand(MathGeo.tand(GeoMath.LatFix(beta)) / _f1); }
+    public double Flattening() {
+        return flattening;
+    }
 
-    double GeocentricLatitude(double phi)
-    { return MathGeo.atand(_f12 * MathGeo.tand(GeoMath.LatFix(phi))); }
+    public double SecondFlattening() {
+        return secondFlattening;
+    }
 
-    double InverseGeocentricLatitude(double theta)
-    { return MathGeo.atand(MathGeo.tand(GeoMath.LatFix(theta)) / _f12); }
+    public double ThirdFlattening() {
+        return thirdFlattening;
+    }
+
+    public double MajorRadius() {
+        return majorRadius;
+    }
+
+    public double MinorRadius() {
+        return minorRadius;
+    }
+
+    public double EccentricitySquared() {
+        return eccentricitySquared;
+    }
+
+    public double QuarterMeridian() {
+        return minorRadius * _ell.E();
+    }
+
+    /* what is this number? */
+    public double ES() {
+        return _es;
+    }
+
+    public double Area() {
+        return 4 * PI *
+                ((GeoMath.sq(majorRadius) + GeoMath.sq(minorRadius) *
+                        (eccentricitySquared == 0 ? 1 :
+                                (eccentricitySquared > 0 ? GeoMath.atanh(sqrt(eccentricitySquared)) : atan(sqrt(-eccentricitySquared))) /
+                                        sqrt(abs(eccentricitySquared)))) / 2);
+    }
+
+    public double ParametricLatitude(double phi) {
+        return MathGeo.atand(secondFlattening * MathGeo.tand(GeoMath.LatFix(phi)));
+    }
+
+    public double InverseParametricLatitude(double beta) {
+        return MathGeo.atand(MathGeo.tand(GeoMath.LatFix(beta)) / secondFlattening);
+    }
+
+    public double GeocentricLatitude(double phi) {
+        return MathGeo.atand(_f12 * MathGeo.tand(GeoMath.LatFix(phi)));
+    }
+
+    public double InverseGeocentricLatitude(double theta) {
+        return MathGeo.atand(MathGeo.tand(GeoMath.LatFix(theta)) / _f12);
+    }
 
     double RectifyingLatitude(double phi) {
-        return Math.abs(phi) == 90 ? phi:
+        return abs(phi) == 90 ? phi :
                 90 * MeridianDistance(phi) / QuarterMeridian();
     }
 
-    double InverseRectifyingLatitude(double mu) {
-        if (Math.abs(mu) == 90)
+    public double InverseRectifyingLatitude(double mu) {
+        if (abs(mu) == 90)
             return mu;
         return InverseParametricLatitude(_ell.Einv(mu * _ell.E() / 90) /
                 MathGeo.RADIANS_TO_DEGREES);
     }
 
-/*    double AuthalicLatitude(double phi)
+/*    public double AuthalicLatitude(double phi)
     { return MathGeo.atand(_au.txif(MathGeo.tand(GeoMath.LatFix(phi)))); }
 
-    double InverseAuthalicLatitude(double xi)
+    public double InverseAuthalicLatitude(double xi)
     { return MathGeo.atand(_au.tphif(MathGeo.tand(GeoMath.LatFix(xi)))); }
     */
 
-    double ConformalLatitude(double phi)
-    { return MathGeo.atand(MathGeo.taupf(MathGeo.tand(GeoMath.LatFix(phi)), _es)); }
+    public double ConformalLatitude(double phi) {
+        return MathGeo.atand(MathGeo.taupf(MathGeo.tand(GeoMath.LatFix(phi)), _es));
+    }
 
-    double InverseConformalLatitude(double chi)
-    { return MathGeo.atand(MathGeo.tauf(MathGeo.tand(GeoMath.LatFix(chi)), _es)); }
+    public double InverseConformalLatitude(double chi) {
+        return MathGeo.atand(MathGeo.tauf(MathGeo.tand(GeoMath.LatFix(chi)), _es));
+    }
 
-    double IsometricLatitude(double phi)
-    { return MathGeo.asinh(MathGeo.taupf(MathGeo.tand(GeoMath.LatFix(phi)), _es)) /
-        MathGeo.RADIANS_TO_DEGREES; }
+    public double IsometricLatitude(double phi) {
+        return MathGeo.asinh(MathGeo.taupf(MathGeo.tand(GeoMath.LatFix(phi)), _es)) /
+                MathGeo.RADIANS_TO_DEGREES;
+    }
 
-    double InverseIsometricLatitude(double psi)
-    { return MathGeo.atand(MathGeo.tauf(Math.sinh(psi * MathGeo.RADIANS_TO_DEGREES), _es)); }
+    public double InverseIsometricLatitude(double psi) {
+        return MathGeo.atand(MathGeo.tauf(sinh(psi * MathGeo.RADIANS_TO_DEGREES), _es));
+    }
 
     double CircleRadius(double phi) {
-        return Math.abs(phi) == 90 ? 0 :
+        return abs(phi) == 90 ? 0 :
                 // a * cos(beta)
-                _a / GeoMath.hypot(1.0D, _f1 * MathGeo.tand(GeoMath.LatFix(phi)));
+                majorRadius / GeoMath.hypot(1.0D, secondFlattening * MathGeo.tand(GeoMath.LatFix(phi)));
     }
 
-    double CircleHeight(double phi) {
-        double tbeta = _f1 * MathGeo.tand(phi);
+    public double CircleHeight(double phi) {
+        double tbeta = secondFlattening * MathGeo.tand(phi);
         // b * sin(beta)
-        return _b * tbeta / GeoMath.hypot(1.0D,
-                _f1 * MathGeo.tand(GeoMath.LatFix(phi)));
+        return minorRadius * tbeta / GeoMath.hypot(1.0D,
+                secondFlattening * MathGeo.tand(GeoMath.LatFix(phi)));
     }
 
-    double MeridianDistance(double phi)
-    { return _b * _ell.Ed( ParametricLatitude(phi) ); }
+    public double MeridianDistance(double phi) {
+        return minorRadius * _ell.Ed(ParametricLatitude(phi));
+    }
 
     double MeridionalCurvatureRadius(double phi) {
-        double v = 1 - _e2 * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
-        return _a * (1 - _e2) / (v * Math.sqrt(v));
+        double v = 1 - eccentricitySquared * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
+        return majorRadius * (1 - eccentricitySquared) / (v * sqrt(v));
     }
 
-    double TransverseCurvatureRadius(double phi) {
-        double v = 1 - _e2 * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
-        return _a / Math.sqrt(v);
+    public double TransverseCurvatureRadius(double phi) {
+        double v = 1 - eccentricitySquared * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
+        return majorRadius / sqrt(v);
     }
 
-    double NormalCurvatureRadius(double phi, double azi) {
+    public double NormalCurvatureRadius(double phi, double azi) {
         double calp, salp,
-                v = 1 - _e2 * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
+                v = 1 - eccentricitySquared * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
         Pair scalp = GeoMath.sincosd(azi);
         salp = scalp.first;
         calp = scalp.second;
-        return _a / (Math.sqrt(v) * (GeoMath.sq(calp) * v / (1 - _e2) + GeoMath.sq(salp)));
+        return majorRadius / (sqrt(v) * (GeoMath.sq(calp) * v / (1 - eccentricitySquared) + GeoMath.sq(salp)));
     }
 
 }
