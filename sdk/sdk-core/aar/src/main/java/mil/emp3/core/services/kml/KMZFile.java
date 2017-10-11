@@ -58,8 +58,8 @@ public class KMZFile {
                  //It is possible for the zip to not contain the directory but files under the
                  //directory.  This case generates the directory in that case
                 } else if(zipEntry.getName().contains(File.separator)) {
-                    File f = new File(zipEntry.getName());
-                    File parent = f.getParentFile();
+                    File file_in_zip = new File(zipEntry.getName());
+                    File parent = file_in_zip.getParentFile();
                     File zipParent = new File(request.getDestinationDir() + File.separator + parent.getPath());
                     if (!zipParent.exists()) {
                         zipParent.mkdirs();
