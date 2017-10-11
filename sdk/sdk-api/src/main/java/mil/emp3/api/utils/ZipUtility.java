@@ -21,7 +21,7 @@ import java.util.zip.ZipOutputStream;
  * Resource: https://stackoverflow.com/questions/1399126/java-util-zip-recreating-directory-structure
  */
 
-public class ZipUtility
+public final class ZipUtility
 {
     /**
      * Private Constructor to avoid instantiation of the class
@@ -39,20 +39,20 @@ public class ZipUtility
      * @param directory the location of the file/folder that needs to be zipped
      * @param zipFile the location where the file/folder will be zipped to
      */
-    public static void zip(File directory,
-                           File zipFile) throws IOException
+    public static void zip(File  directory,
+                           final File zipFile) throws IOException
     {
-        URI         base  = directory.toURI();
-        Deque<File> queue = new LinkedList<>();
+        final URI         base  = directory.toURI();
+        final Deque<File> queue = new LinkedList<>();
         queue.push(directory);
 
-        try (OutputStream    fileOutputStream = new FileOutputStream(zipFile);
-             ZipOutputStream zipOutputStream  = new ZipOutputStream(fileOutputStream);)
+        try (final OutputStream    fileOutputStream = new FileOutputStream(zipFile);
+             final ZipOutputStream zipOutputStream  = new ZipOutputStream(fileOutputStream))
         {
             while (!queue.isEmpty())
             {
                 directory = queue.pop();
-                for (File child : directory.listFiles())
+                for (final File child : directory.listFiles())
                 {
                     String name = base.relativize(child.toURI()).getPath();
                     if (child.isDirectory())
@@ -88,8 +88,8 @@ public class ZipUtility
 
         while (entries.hasMoreElements())
         {
-            ZipEntry entry = entries.nextElement();
-            final File file = new File(directory, entry.getName());
+            final ZipEntry entry = entries.nextElement();
+            final File     file  = new File(directory, entry.getName());
 
             if (entry.isDirectory())
             {
@@ -114,13 +114,13 @@ public class ZipUtility
      * @param outputStream the outputStream to write the data to
      * @throws IOException Reading or Writing exception
      */
-    private static void copy(InputStream  inputStream,
-                             OutputStream outputStream) throws IOException
+    private static void copy(final InputStream  inputStream,
+                             final OutputStream outputStream) throws IOException
     {
-        byte[] buffer = new byte[1024];
+        final byte[] buffer = new byte[1024];
         while (true)
         {
-            int readCount = inputStream.read(buffer);
+            final int readCount = inputStream.read(buffer);
             if (readCount < 0)
             {
                 break;
@@ -137,8 +137,8 @@ public class ZipUtility
      * @param outputStream the outputStream to write the data to
      * @throws IOException Reading or Writing exception
      */
-    private static void copy(File         file,
-                             OutputStream outputStream) throws IOException
+    private static void copy(final File         file,
+                             final OutputStream outputStream) throws IOException
     {
         try (InputStream in = new FileInputStream(file))
         {
@@ -154,7 +154,8 @@ public class ZipUtility
      * @param inputStream the inputStream to copy from
      * @throws IOException Reading or Writing exception
      */
-    private static void copy(InputStream inputStream, File file) throws IOException
+    private static void copy(final InputStream inputStream,
+                             final File        file) throws IOException
     {
 
         try(OutputStream out = new FileOutputStream(file))

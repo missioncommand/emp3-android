@@ -13,8 +13,6 @@ import mil.emp3.api.interfaces.IOverlay;
 
 public final class EmpKMZExporter
 {
-    private static final String KMZExportDirectory = "KMZExport";
-
     /**
      * Private to prevent from calling this class
      * in a non-static fashion
@@ -61,11 +59,11 @@ public final class EmpKMZExporter
             throw new IllegalArgumentException("The kmzFileName cannot be an empty string.");
         }
 
-        KMZExportThread kmzExportThread = new KMZExportThread(map,
-                                                              extendedData,
-                                                              callback,
-                                                              temporaryDirectoryLocation,
-                                                              kmzFileName);
+        final KMZExportThread kmzExportThread = new KMZExportThread(map,
+                                                                    extendedData,
+                                                                    callback,
+                                                                    temporaryDirectoryLocation,
+                                                                    kmzFileName);
         kmzExportThread.run();
     }
 
@@ -110,12 +108,12 @@ public final class EmpKMZExporter
             throw new IllegalArgumentException("The kmzFileName cannot be an empty string.");
         }
    
-        KMZExportThread kmzExportThread = new KMZExportThread(map,
-                                                              overlay,
-                                                              extendedData,
-                                                              callback,
-                                                              temporaryDirectoryLocation,
-                                                              kmzFileName);
+        final KMZExportThread kmzExportThread = new KMZExportThread(map,
+                                                                    overlay,
+                                                                    extendedData,
+                                                                    callback,
+                                                                    temporaryDirectoryLocation,
+                                                                    kmzFileName);
         kmzExportThread.run();
     }
 
@@ -159,12 +157,12 @@ public final class EmpKMZExporter
             throw new IllegalArgumentException("The kmzFileName cannot be an empty string.");
         }
 
-        KMZExportThread kmzExportThread = new KMZExportThread(map,
-                                                              feature,
-                                                              extendedData,
-                                                              callback,
-                                                              temporaryDirectoryLocation,
-                                                              kmzFileName);
+        final KMZExportThread kmzExportThread = new KMZExportThread(map,
+                                                                    feature,
+                                                                    extendedData,
+                                                                    callback,
+                                                                    temporaryDirectoryLocation,
+                                                                    kmzFileName);
         kmzExportThread.run();
     }
 }

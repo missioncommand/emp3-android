@@ -26,12 +26,12 @@ public final class FileUtility
      *
      * @param folder the folder to delete
      */
-    public static void deleteFolder(File folder)
+    public static void deleteFolder(final File folder)
     {
-        File[] files = folder.listFiles();
+        final File[] files = folder.listFiles();
         if (files != null)
         {
-            for (File file : files)
+            for (final File file : files)
             {
                 if (file.isDirectory())
                 {
@@ -58,7 +58,8 @@ public final class FileUtility
      * @param possibleChildDirectory the possible child directory of the possibleParentDirectory passed in
      * @return true if the child shares a directory with its parent, false otherwise.
      */
-    public static boolean isChildDirectory(File possibleParentDirectory, File possibleChildDirectory)
+    public static boolean isChildDirectory(final File possibleParentDirectory,
+                                           final File possibleChildDirectory)
     {
         try
         {
@@ -81,7 +82,7 @@ public final class FileUtility
             // No match found, and we've hit the root directory
             return false;
         }
-        catch (IOException e)
+        catch (final IOException e)
         {
             return false;
         }
@@ -92,9 +93,9 @@ public final class FileUtility
      *
      * @param outputDirectory the location of the directory
      */
-    public static void createOutputDirectory(String outputDirectory)
+    public static void createOutputDirectory(final String outputDirectory)
     {
-        File directory = new File(outputDirectory);
+        final File directory = new File(outputDirectory);
         directory.mkdirs();
         if(!directory.isDirectory())
         {
@@ -110,7 +111,7 @@ public final class FileUtility
      */
     public static boolean isExternalStorageWritable()
     {
-        String state = Environment.getExternalStorageState();
+        final String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
@@ -122,9 +123,9 @@ public final class FileUtility
      * @param directoryPath the location of the directory to check
      * @return true if is a directory and it exists, false otherwise
      */
-    public static boolean directoryExists(String directoryPath)
+    public static boolean directoryExists(final String directoryPath)
     {
-        File dir = new File(directoryPath);
+        final File dir = new File(directoryPath);
         return dir.exists() && dir.isDirectory();
     }
 
