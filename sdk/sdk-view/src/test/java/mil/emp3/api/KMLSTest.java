@@ -196,7 +196,6 @@ public class KMLSTest extends TestBaseSingleMap {
         IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("kmlSample_Test");
         remoteMap.addMapService(mapService);
-        for(double i = -999999; i < 99999999; i+=0.000000000001);
 
         KMLSEventEnum eventEnum = queue.poll(1, TimeUnit.SECONDS);
         Assert.assertNotNull("Not Received KMLSEventEnum.KML_SERVICE_FILE_RETRIEVED ", eventEnum);
