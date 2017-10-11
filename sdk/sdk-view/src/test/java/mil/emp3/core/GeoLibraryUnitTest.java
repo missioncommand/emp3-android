@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.utils.GeographicLib;
-import mil.emp3.api.utils.GeoLibrary;
 
 /**
  * This class tests the Geo Library method.
@@ -248,17 +247,17 @@ public class GeoLibraryUnitTest {
         oPos2.setLongitude(1.0);
         oPos2.setAltitude(0.0);
 
-        double dDist = GeoLibrary.computeRhumbDistance(oPos1, oPos2);
+        double dDist = GeographicLib.computeRhumbDistance(oPos1, oPos2);
         Log.d(TAG, "    Testing 1 degree.");
         Assert.assertEquals(METERS_1_DEGREE, dDist, DISTANCE_ERROR_PER_DEGREE);
 
         oPos2.setLongitude(10.0);
-        dDist = GeoLibrary.computeRhumbDistance(oPos1, oPos2);
+        dDist = GeographicLib.computeRhumbDistance(oPos1, oPos2);
         Log.d(TAG, "    Testing 10 degree.");
         Assert.assertEquals(METERS_1_DEGREE * 10, dDist, DISTANCE_ERROR_PER_DEGREE * 10.0);
 
         oPos2.setLongitude(100.0);
-        dDist = GeoLibrary.computeRhumbDistance(oPos1, oPos2);
+        dDist = GeographicLib.computeRhumbDistance(oPos1, oPos2);
         Log.d(TAG, "    Testing 100 degree.");
         Assert.assertEquals(METERS_1_DEGREE * 100, dDist, DISTANCE_ERROR_PER_DEGREE * 100.0);
 

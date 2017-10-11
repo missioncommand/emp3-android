@@ -338,7 +338,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
         IGeoPosition pos1 = this.centerWest();
         IGeoPosition pos2 = this.centerEast();
 
-        return GeoLibrary.computeRhumbDistance(pos1, pos2);
+        return GeographicLib.computeRhumbDistance(pos1, pos2);
     }
 
     /**

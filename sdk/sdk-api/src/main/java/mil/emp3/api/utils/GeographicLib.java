@@ -77,6 +77,35 @@ public class GeographicLib {
                 GeodesicMask.LATITUDE + GeodesicMask.LONGITUDE);
     }
 
+    private static GeodesicData getInverseRhumbData(IGeoPosition p1, IGeoPosition p2, int mask) {
+
+        if (p1 == null) {
+            throw new IllegalArgumentException("GeoPosition cannot be null.");
+        }
+
+        if (p2 == null) {
+            throw new IllegalArgumentException("GeoPosition cannot be null.");
+        }
+
+        double lat1 = p1.getLatitude();
+        double lon1 = p1.getLongitude();
+        double lat2 = p2.getLatitude();
+        double lon2 = p2.getLongitude();
+        return Rhumb.WGS84.Inverse(lat1, lon1, lat2, lon2, mask);
+    }
+
+    private static GeodesicData getDirectRhumbData(IGeoPosition p1, double azimuth, double distance) {
+
+        if (p1 == null) {
+            throw new IllegalArgumentException("GeoPosition cannot be null.");
+        }
+
+        double lat1 = p1.getLatitude();
+        double lon1 = p1.getLongitude();
+        return Rhumb.WGS84.Direct(lat1, lon1, azimuth, distance,
+                GeodesicMask.LATITUDE + GeodesicMask.LONGITUDE);
+    }
+
     /**
      * This method computes the ground (arc) distance between the two locations provided.
      * @param p1
@@ -157,6 +186,52 @@ public class GeographicLib {
                 GeodesicMask.AZIMUTH + GeodesicMask.DISTANCE);
         double midpointDistance = g.s12 * 0.5;
         return computePositionAt(g.azi1, midpointDistance, p1);
+    }
+
+    /**
+     * This method compute the rhumb distance between to points.
+     * @param p1
+     * @param p2
+     * @return The distance in meters.
+     * @throws IllegalArgumentException
+     */
+    public static double computeRhumbDistance(IGeoPosition p1, IGeoPosition p2) {
+        GeodesicData g = getInverseRhumbData(p1, p2, GeodesicMask.DISTANCE);
+        return g.s12;
+    }
+
+    /**
+     * This method calculates the rhumb bearing of the line starting at oFrom and ending at oTo.
+     * @param p1
+     * @param p2
+     * @return The bearing is return in degrees.
+     * @throws IllegalArgumentException
+     */
+    public static double computeRhumbBearing(IGeoPosition p1, IGeoPosition p2) {
+        // keep compatibility with GeoLibrary
+        if (p1.getLatitude() == p2.getLatitude()
+                && p1.getLongitude() == p2.getLongitude()) {
+            return 0.0;
+        }
+        GeodesicData g = getInverseRhumbData(p1, p2, GeodesicMask.AZIMUTH);
+        // keep compatibility with GeoLibrary
+        return (g.azi2 + 360.0) % 360.0;
+    }
+
+    /**
+     * This method calculates a point at a specified distance at a specified angle from the specified position.
+     * @param bearing The bearing in degrees
+     * @param distance The distance in meters.
+     * @param from
+     * @return Geo position
+     * @throws IllegalArgumentException
+     */
+    public static IGeoPosition calculateRhumbPositionAt(double bearing, double distance, IGeoPosition from) {
+        IGeoPosition position = new GeoPosition();
+        GeodesicData g = getDirectRhumbData(from, bearing, distance);
+        position.setLatitude(g.lat2);
+        position.setLongitude(g.lon2);
+        return position;
     }
 
     /**

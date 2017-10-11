@@ -14,7 +14,6 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.utils.GeographicLib;
-import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
@@ -134,10 +133,10 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
             IGeoPosition pos = null;
             switch(cpType) {
                 case LENGTH_CP:
-                    pos = GeoLibrary.calculateRhumbPositionAt(currentBearing + 90.0, currentLength/2, center);
+                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing + 90.0, currentLength/2, center);
                     break;
                 case AZIMUTH_CP:
-                    pos = GeoLibrary.calculateRhumbPositionAt(currentBearing - 90.0, currentLength/2, center);
+                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing - 90.0, currentLength/2, center);
                     break;
                 default:
                     Log.e(TAG, "getCP illegal CPType " + cpType.toString());

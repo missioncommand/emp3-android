@@ -381,9 +381,9 @@ public class Rhumb {
      * \e lon1 indicates how many times and in what sense the rhumb line
      * encircles the ellipsoid.
      **********************************************************************/
-    public GeodesicData GenDirect(double lat1, double lon1, double azi12, double s12,
+    public GeodesicData Direct(double lat1, double lon1, double azi12, double s12,
                    int outmask) {
-        return Line(lat1, lon1, azi12).GenPosition(s12, outmask);
+        return Line(lat1, lon1, azi12).Position(s12, outmask);
     }
 
     /**
@@ -406,7 +406,7 @@ public class Rhumb {
      * - \e outmask |= Rhumb::AREA for the area \e S12;
      * - \e outmask |= Rhumb::ALL for all of the above;
      **********************************************************************/
-    public GeodesicData GenInverse(double lat1, double lon1, double lat2, double lon2,
+    public GeodesicData Inverse(double lat1, double lon1, double lat2, double lon2,
                     int outmask) {
 
         GeodesicData g = new GeodesicData();
@@ -475,9 +475,8 @@ public class Rhumb {
      * A global instantiation of Rhumb with the parameters for the WGS84
      * ellipsoid.
      **********************************************************************/
-    final static Rhumb WGS84() {
-        return new Rhumb(Constants.WGS84_a, Constants.WGS84_f, false);
-    }
+    final public static Rhumb WGS84 = new Rhumb(Constants.WGS84_a, Constants.WGS84_f, true);
+
 }
 
 /**
@@ -501,7 +500,6 @@ public class Rhumb {
 class RhumbLine {
 
     private final Rhumb rhumb;
-    private boolean _exact;
     private double _lat1, _lon1, _azi12, _salp, _calp, _mu1, _psi1, _r1;
 
     RhumbLine(Rhumb rh, double lat1, double lon1, double azi12,
@@ -510,7 +508,6 @@ class RhumbLine {
 
     {
         rhumb = rh;
-        _exact = exact;
         _lat1 = GeoMath.LatFix(lat1);
         _lon1 = lon1;
         _azi12 = GeoMath.AngNormalize(azi12);
@@ -550,7 +547,7 @@ class RhumbLine {
      * longitude of point 2 is indeterminate (a NaN is returned for \e lon2 and
      * \e S12).
      **********************************************************************/
-    public GeodesicData GenPosition(double s12, int outmask) {
+    public GeodesicData Position(double s12, int outmask) {
         GeodesicData g = new GeodesicData();
         double
                 mu12 = s12 * _calp * 90 / rhumb.ellipsoid.QuarterMeridian(),

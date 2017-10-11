@@ -44,7 +44,7 @@ public class GeoLibrary {
      * This method computes the ground (arc) distance between the two locations provided.
      * @param oLatLon1
      * @param oLatLon2
-     * @return The distance in meters.
+     * @return The distance in meters
      * @throws IllegalArgumentException
      */
     public static double computeDistanceBetween(IGeoPosition oLatLon1, IGeoPosition oLatLon2) {

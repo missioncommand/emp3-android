@@ -14,7 +14,6 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.utils.GeographicLib;
-import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
@@ -162,13 +161,13 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
             IGeoPosition pos = null;
             switch(cpType) {
                 case WIDTH_CP:
-                    pos = GeoLibrary.calculateRhumbPositionAt(currentBearing + 90.0, currentWidth/2, center);
+                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing + 90.0, currentWidth/2, center);
                     break;
                 case HEIGHT_CP:
-                    pos = GeoLibrary.calculateRhumbPositionAt(currentBearing, currentHeight/2, center);
+                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing, currentHeight/2, center);
                     break;
                 case AZIMUTH_CP:
-                    pos = GeoLibrary.calculateRhumbPositionAt(currentBearing - 90.0, currentWidth/2, center);
+                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing - 90.0, currentWidth/2, center);
                     break;
                 default:
                     Log.e(TAG, "getCP illegal CPType " + cpType.toString());
