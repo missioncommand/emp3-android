@@ -59,8 +59,7 @@ public class MilStdUtilities {
 
     public static String getMilStdSinglePointParams(final MilStdSymbol feature,
             MilStdLabelSettingEnum eLabelSetting, java.util.Set<IGeoMilSymbol.Modifier> labelSet,
-            SparseArray<String> attributes)
-    {
+            SparseArray<String> attributes) {
         int iKey;
         String value;
         String UniqueDesignator1 = null;
