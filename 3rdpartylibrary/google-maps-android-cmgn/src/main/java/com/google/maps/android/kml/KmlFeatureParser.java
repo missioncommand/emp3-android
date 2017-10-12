@@ -1,5 +1,7 @@
 package com.google.maps.android.kml;
 
+import android.webkit.URLUtil;
+
 import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
@@ -7,13 +9,12 @@ import org.cmapi.primitives.IGeoPosition;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.xmlpull.v1.XmlPullParser.END_TAG;
-import static org.xmlpull.v1.XmlPullParser.START_TAG;
 
 /**
  * Parses the feature of a given KML file into a KmlPlacemark or KmlGroundOverlay object
@@ -86,9 +87,11 @@ class KmlFeatureParser {
     /**
      * Creates a new GroundOverlay object (created if a GroundOverlay tag is read by the
      * XmlPullParser) and assigns specific elements read from the parser to the GroundOverlay
+     * @param documentBase Path leading to kml file directory to generate full path file url for map service.
+     *                     For example if the file was in C:/Documents/MyKMZ.kmz/test.kml this value would be C:/Documents/MyKMZ.kmz
      */
     /* package */
-    static KmlGroundOverlay createGroundOverlay(XmlPullParser parser)
+    static KmlGroundOverlay createGroundOverlay(XmlPullParser parser, final String documentBase)
             throws IOException, XmlPullParserException {
         float drawOrder = 0.0f;
         float rotation = 0.0f;
@@ -102,7 +105,7 @@ class KmlFeatureParser {
         while (!(eventType == XmlPullParser.END_TAG && parser.getName().equals("GroundOverlay"))) {
             if (eventType == XmlPullParser.START_TAG) {
                 if (parser.getName().equals("Icon")) {
-                    imageUrl = getImageUrl(parser);
+                    imageUrl = getImageUrl(parser, documentBase);
                 } else if (parser.getName().equals("drawOrder")) {
                     drawOrder = Float.parseFloat(parser.nextText());
                 } else if (parser.getName().equals("visibility")) {
@@ -132,15 +135,23 @@ class KmlFeatureParser {
     /**
      * Retrieves a url from the "href" tag nested within an "Icon" tag, read by
      * the XmlPullParser.
+     * If the image is a local reference, get the absolute path from the documentBase
+     * and then cast it into a File URl.
      *
+     * @param documentBase Path leading to kml file directory to generate full path file url for map service.
+     *                     For example if the file was in C:/Documents/MyKMZ.kmz/test.kml this value would be C:/Documents/MyKMZ.kmz
      * @return An image url
      */
-    private static String getImageUrl(XmlPullParser parser)
+    private static String getImageUrl(XmlPullParser parser, final String documentBase)
             throws IOException, XmlPullParserException {
         int eventType = parser.getEventType();
         while (!(eventType == XmlPullParser.END_TAG && parser.getName().equals("Icon"))) {
             if (eventType == XmlPullParser.START_TAG && parser.getName().equals("href")) {
-                return parser.nextText();
+                String imageUrl =  parser.nextText();
+                if(!URLUtil.isValidUrl(imageUrl)) {
+                    return new File(documentBase+File.separator+imageUrl).toURI().toURL().toString();
+                }
+                return imageUrl;
             }
             eventType = parser.next();
         }
