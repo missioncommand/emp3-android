@@ -242,10 +242,8 @@ public class Rhumb {
                 m = 2 * cp * cd, s = sp * sd;
         // 2x2 matrices stored in row-major order
         final double[] a = {m, -s * d * d, -4 * s, m};
-        double[] ba = {0, 0, 0, 0};
-        double[] bb = {0, 0, 0, 0};
-        double[] b1 = ba;
-        double[] b2 = bb;
+        double[] b1 = {0, 0, 0, 0};
+        double[] b2 = {0, 0, 0, 0};
         if (n > 0) b1[0] = b1[3] = c[n];
         for (int j = n - 1; j > 0; --j) { // j = n-1 .. 1
             // implemented C++ swap, somewhat doubtful with pointers std::swap (b1, b2);
@@ -475,7 +473,7 @@ public class Rhumb {
      * A global instantiation of Rhumb with the parameters for the WGS84
      * ellipsoid.
      **********************************************************************/
-    final public static Rhumb WGS84 = new Rhumb(Constants.WGS84_a, Constants.WGS84_f, true);
+    final public static Rhumb WGS84 = new Rhumb(Constants.WGS84_a, Constants.WGS84_f, false);
 
 }
 

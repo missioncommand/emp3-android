@@ -4,7 +4,9 @@ import static java.lang.Math.*;
 
 public class Ellipsoid {
 
-    private double stol_;
+    final private static int maxpow_ = 6;  // GEOGRAPHICLIB_RHUMBAREA_ORDER
+    private double[] _alp = new double[maxpow_ + 1];
+    private double[] _bet = new double[maxpow_ + 1];
     private double majorRadius,
             flattening,
             secondFlattening,
@@ -49,7 +51,6 @@ public class Ellipsoid {
     };  // count = 27
 
     Ellipsoid(double a, double f) {
-        stol_ = 0.01 * sqrt(GeoMath.epsilon);
         majorRadius = a;
         flattening = f;
         secondFlattening = 1 - flattening;
@@ -61,14 +62,24 @@ public class Ellipsoid {
         minorRadius = majorRadius * secondFlattening;
         // very doubtful this is converted properly from C++
         _ell = new EllipticFunction(-secondEccentricitySquared, 0);
+        int m = maxpow_ / 2;
+        int o = 0;
+        double d = thirdFlattening;
+        for (int l = 1; l <= maxpow_; ++l) {
+            m = maxpow_ - l;
+            _alp[l] = d * GeoMath.polyval(m, alpcoeff, o, thirdFlattening) / alpcoeff[o + m + 1];
+            _bet[l] = d * GeoMath.polyval(m, betcoeff, o, thirdFlattening) / betcoeff[o + m + 1];
+            o += m + 2;
+            d *= thirdFlattening;
+        }
     }
 
     public double[] ConformalToRectifyingCoeffs() {
-        return alpcoeff;
+        return _alp;
     }
 
     public double[] RectifyingToConformalCoeffs() {
-        return betcoeff;
+        return _bet;
     }
 
     public double Flattening() {
