@@ -1,4 +1,7 @@
-package net.sf.geographiclib;
+package mil.emp3.api.utils;
+
+import net.sf.geographiclib.GeoMath;
+import net.sf.geographiclib.GeographicErr;
 
 import static net.sf.geographiclib.GeoMath.atanh;
 

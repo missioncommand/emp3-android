@@ -1,11 +1,18 @@
-package net.sf.geographiclib;
+package mil.emp3.api.utils;
+
+import net.sf.geographiclib.Constants;
+import net.sf.geographiclib.GeoMath;
+import net.sf.geographiclib.GeodesicData;
+import net.sf.geographiclib.GeographicErr;
 
 import static java.lang.Math.*;
 import static net.sf.geographiclib.GeodesicMask.*;
-import static net.sf.geographiclib.MathGeo.*;
+import static mil.emp3.api.utils.MathGeo.*;
 
 public class Rhumb {
 /**
+ *
+ * This code was translated from the C++ versions of Rhumb.hpp and Rhumb.cpp
  * \file Rhumb.hpp
  * \brief Header for GeographicLib::Rhumb and GeographicLib::RhumbLine classes
  *
@@ -147,13 +154,13 @@ public class Rhumb {
 
     // Copied from LambertConformalConic...
     // Deatanhe(x,y) = eatanhe((x-y)/(1-e^2*x*y))/(x-y)
-    double Deatanhe(double x, double y) {
+    private double Deatanhe(double x, double y) {
         double t = x - y, d = 1 - ellipsoid.EccentricitySquared() * x * y;
         return t != 0 ? eatanhe(t / d, ellipsoid.ES()) / t : ellipsoid.EccentricitySquared() / d;
     }
 
     // (E(x) - E(y)) / (x - y) -- E = incomplete elliptic integral of 2nd kind
-    double DE(double x, double y) {
+    private double DE(double x, double y) {
         EllipticFunction ei = ellipsoid._ell;
         double d = x - y;
         if (x * y <= 0)
@@ -183,7 +190,7 @@ public class Rhumb {
     }
 
     // (mux - muy) / (phix - phiy) using elliptic integrals
-    double DRectifying(double latx, double laty) {
+    public double DRectifying(double latx, double laty) {
         double
                 tbetx = ellipsoid.SecondFlattening() * tand(latx),
                 tbety = ellipsoid.SecondFlattening() * tand(laty);
@@ -192,7 +199,7 @@ public class Rhumb {
     }
 
     // (psix - psiy) / (phix - phiy)
-    double DIsometric(double latx, double laty) {
+    public double DIsometric(double latx, double laty) {
         double
                 phix = latx * RADIANS_TO_DEGREES, tx = tand(latx),
                 phiy = laty * RADIANS_TO_DEGREES, ty = tand(laty);
@@ -201,7 +208,7 @@ public class Rhumb {
     }
 
     // (sum(c[j]*sin(2*j*x),j=1..n) - sum(c[j]*sin(2*j*x),j=1..n)) / (x - y)
-    private static double SinCosSeries(boolean sinp,
+    public static double SinCosSeries(boolean sinp,
                                        double x, double y, double c[], int n) {
         // N.B. n >= 0 and c[] has n+1 elements 0..n, of which c[0] is ignored.
         //
@@ -275,20 +282,20 @@ public class Rhumb {
 
 
     // (mux - muy) / (chix - chiy) using Krueger's series
-    double DConformalToRectifying(double chix, double chiy) {
+    public double DConformalToRectifying(double chix, double chiy) {
         return 1 + SinCosSeries(true, chix, chiy,
                 ellipsoid.ConformalToRectifyingCoeffs(), tm_maxord);
     }
 
     // (chix - chiy) / (mux - muy) using Krueger's series
-    double DRectifyingToConformal(double mux, double muy) {
+    private double DRectifyingToConformal(double mux, double muy) {
         return 1 - SinCosSeries(true, mux, muy,
                 ellipsoid.RectifyingToConformalCoeffs(), tm_maxord);
     }
 
     // (mux - muy) / (psix - psiy)
     // N.B., psix and psiy are in degrees
-    double DIsometricToRectifying(double psix, double psiy) {
+    public double DIsometricToRectifying(double psix, double psiy) {
         if (_exact) {
             double
                     latx = ellipsoid.InverseIsometricLatitude(psix),
@@ -302,7 +309,7 @@ public class Rhumb {
     }
 
     // (psix - psiy) / (mux - muy)
-    double DRectifyingToIsometric(double mux, double muy) {
+    public double DRectifyingToIsometric(double mux, double muy) {
         double
                 latx = ellipsoid.InverseRectifyingLatitude(mux / RADIANS_TO_DEGREES),
                 laty = ellipsoid.InverseRectifyingLatitude(muy / RADIANS_TO_DEGREES);
@@ -313,7 +320,7 @@ public class Rhumb {
                         DRectifyingToConformal(mux, muy);
     }
 
-    double MeanSinXi(double psix, double psiy) {
+    public double MeanSinXi(double psix, double psiy) {
         return Dlog(cosh(psix), cosh(psiy)) * Dcosh(psix, psiy)
                 + SinCosSeries(false, gd(psix), gd(psiy), _R, maxpow_) * Dgd(psix, psiy);
     }
@@ -380,7 +387,7 @@ public class Rhumb {
      * encircles the ellipsoid.
      **********************************************************************/
     public GeodesicData Direct(double lat1, double lon1, double azi12, double s12,
-                   int outmask) {
+                               int outmask) {
         return Line(lat1, lon1, azi12).Position(s12, outmask);
     }
 
@@ -453,7 +460,7 @@ public class Rhumb {
      * @return \e a the equatorial radius of the ellipsoid (meters).  This is
      * the value used in the constructor.
      **********************************************************************/
-    double MajorRadius() {
+    public double MajorRadius() {
         return ellipsoid.MajorRadius();
     }
 
@@ -461,11 +468,11 @@ public class Rhumb {
      * @return \e f the  flattening of the ellipsoid.  This is the
      * value used in the constructor.
      **********************************************************************/
-    double Flattening() {
+    public double Flattening() {
         return ellipsoid.Flattening();
     }
 
-    double EllipsoidArea() {
+    public double EllipsoidArea() {
         return ellipsoid.Area();
     }
 
