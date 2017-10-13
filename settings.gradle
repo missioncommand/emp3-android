@@ -1,3 +1,4 @@
+include ':geolib'
 rootProject.name = 'emp3-android'
 
 //
@@ -8,7 +9,6 @@ project(':google-maps-android-cmgn').projectDir = new File(settingsDir, '3rdpart
 
 include 'cmapi' // common geospatial notation
 project(':cmapi').projectDir = new File(settingsDir, '3rdpartylibrary/cmapi')
-
 
 //
 // SDK

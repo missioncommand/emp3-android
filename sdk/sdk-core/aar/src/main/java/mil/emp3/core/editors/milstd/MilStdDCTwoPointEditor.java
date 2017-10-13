@@ -1,21 +1,17 @@
 package mil.emp3.core.editors.milstd;
 
-import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import armyc2.c2sd.renderer.utilities.SymbolDef;
-import armyc2.c2sd.renderer.utilities.UnitDef;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
-import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.utils.EmpGeoPosition;
-import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 

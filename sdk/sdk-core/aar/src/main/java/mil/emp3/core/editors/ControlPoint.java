@@ -4,7 +4,7 @@ package mil.emp3.core.editors;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.apk.core.aar.R;
 import mil.emp3.mapengine.interfaces.IEmpImageInfo;
 
@@ -150,12 +150,12 @@ public class ControlPoint extends mil.emp3.api.Point {
      * @param pos2
      */
     public void moveCPBetween(IGeoPosition pos1, IGeoPosition pos2) {
-        double dDistance = GeoLibrary.computeDistanceBetween(pos1, pos2) / 2.0;
-        double dBearing = GeoLibrary.computeBearing(pos1, pos2);
+        double dDistance = GeographicLib.computeDistanceBetween(pos1, pos2) / 2.0;
+        double dBearing = GeographicLib.computeBearing(pos1, pos2);
         if (this.getPositions().size() == 0) {
             this.setPosition(new GeoPosition());
         }
-        GeoLibrary.computePositionAt(dBearing, dDistance, pos1, this.getPosition());
+        GeographicLib.computePositionAt(dBearing, dDistance, pos1, this.getPosition());
     }
 
     /**
@@ -168,6 +168,6 @@ public class ControlPoint extends mil.emp3.api.Point {
             // If there is not position it does nothing.
             return;
         }
-        GeoLibrary.computePositionAt(bearing, distance, this.getPosition(), this.getPosition());
+        GeographicLib.computePositionAt(bearing, distance, this.getPosition(), this.getPosition());
     }
 }

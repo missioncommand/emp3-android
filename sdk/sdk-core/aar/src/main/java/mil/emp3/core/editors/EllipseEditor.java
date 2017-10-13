@@ -13,7 +13,7 @@ import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
@@ -102,7 +102,7 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
         // Add semi Major control point.
         pos = new GeoPosition();
         // Place it to the right of the center at the semi major distance along the semi major axis.
-        GeoLibrary.computePositionAt(90.0 + azimuth, this.oFeature.getSemiMajor(), posList.get(0), pos);
+        GeographicLib.computePositionAt(90.0 + azimuth, this.oFeature.getSemiMajor(), posList.get(0), pos);
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.RADIUS_CP, EllipseEditor.SEMI_MAJOR_CP_INDEX, -1);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
@@ -110,7 +110,7 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
         // Add semi Minor control point.
         pos = new GeoPosition();
         // Place it above of the center at the semi minor distance along the semi minor axis.
-        GeoLibrary.computePositionAt(azimuth, this.oFeature.getSemiMinor(), posList.get(0), pos);
+        GeographicLib.computePositionAt(azimuth, this.oFeature.getSemiMinor(), posList.get(0), pos);
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.RADIUS_CP, EllipseEditor.SEMI_MINOR_CP_INDEX, -1);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
@@ -118,7 +118,7 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
         // Add azimuth control point.
         pos = new GeoPosition();
         // Place it to the left of the center at the semi major distance along the semi major axis.
-        GeoLibrary.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), posList.get(0), pos);
+        GeographicLib.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), posList.get(0), pos);
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.AZIMUTH_CP, 0, -1);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
@@ -134,9 +134,9 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
         centerCP.getPosition().setLatitude(centerPos.getLatitude());
         centerCP.getPosition().setLongitude(centerPos.getLongitude());
 
-        GeoLibrary.computePositionAt(azimuth + 90.0, this.oFeature.getSemiMajor(), centerPos, semiMajorCP.getPosition());
-        GeoLibrary.computePositionAt(azimuth, this.oFeature.getSemiMinor(), centerPos, semiMinorCP.getPosition());
-        GeoLibrary.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), centerPos, azimuthCP.getPosition());
+        GeographicLib.computePositionAt(azimuth + 90.0, this.oFeature.getSemiMajor(), centerPos, semiMajorCP.getPosition());
+        GeographicLib.computePositionAt(azimuth, this.oFeature.getSemiMinor(), centerPos, semiMinorCP.getPosition());
+        GeographicLib.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), centerPos, azimuthCP.getPosition());
     }
 
     @Override
@@ -159,7 +159,7 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
             case RADIUS_CP:
                 // The radius was moved.
                 centerCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
-                double newRadius = Math.rint(GeoLibrary.computeDistanceBetween(centerCP.getPosition(), newPosition));
+                double newRadius = Math.rint(GeographicLib.computeDistanceBetween(centerCP.getPosition(), newPosition));
 
                 switch (oCP.getCPIndex()) {
                     case EllipseEditor.SEMI_MAJOR_CP_INDEX:
@@ -167,14 +167,14 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
                             newRadius = Ellipse.MINIMUM_SEMI_MAJOR;
                         }
                         // set the semi major CP new position.
-                        GeoLibrary.computePositionAt(azimuth + 90.0, newRadius, centerCP.getPosition(), oCP.getPosition());
+                        GeographicLib.computePositionAt(azimuth + 90.0, newRadius, centerCP.getPosition(), oCP.getPosition());
                         // Store the new value.
                         this.oFeature.setSemiMajor(newRadius);
 
                         azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.AZIMUTH_CP, 0, -1);
                         if (azimuthCP != null) {
                             // Move the azimuth CP.
-                            GeoLibrary.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), centerCP.getPosition(), azimuthCP.getPosition());
+                            GeographicLib.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), centerCP.getPosition(), azimuthCP.getPosition());
                             moved = true;
                         }
                         this.addUpdateEventData(FeaturePropertyChangedEnum.SEMI_MAJOR_PROPERTY_CHANGED);
@@ -184,14 +184,14 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
                             newRadius = Ellipse.MINIMUM_SEMI_MINOR;
                         }
                         // set the semi major CP new position.
-                        GeoLibrary.computePositionAt(azimuth, newRadius, centerCP.getPosition(), oCP.getPosition());
+                        GeographicLib.computePositionAt(azimuth, newRadius, centerCP.getPosition(), oCP.getPosition());
                         // Store the new value.
                         this.oFeature.setSemiMinor(newRadius);
 
                         azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.AZIMUTH_CP, 0, -1);
                         if (azimuthCP != null) {
                             // Move the azimuth CP.
-                            GeoLibrary.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), centerCP.getPosition(), azimuthCP.getPosition());
+                            GeographicLib.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), centerCP.getPosition(), azimuthCP.getPosition());
                             moved = true;
                         }
                         this.addUpdateEventData(FeaturePropertyChangedEnum.SEMI_MINOR_PROPERTY_CHANGED);
@@ -211,37 +211,37 @@ public class EllipseEditor extends AbstractSinglePointEditor<Ellipse> {
 
                 // Move the semi major CP.
                 semiMajorCP = this.findControlPoint(ControlPoint.CPTypeEnum.RADIUS_CP, EllipseEditor.SEMI_MAJOR_CP_INDEX, -1);
-                GeoLibrary.computePositionAt(azimuth + 90.0, this.oFeature.getSemiMajor(), centerPos, semiMajorCP.getPosition());
+                GeographicLib.computePositionAt(azimuth + 90.0, this.oFeature.getSemiMajor(), centerPos, semiMajorCP.getPosition());
 
                 // Move the semi minor CP.
                 semiMinorCP = this.findControlPoint(ControlPoint.CPTypeEnum.RADIUS_CP, EllipseEditor.SEMI_MINOR_CP_INDEX, -1);
-                GeoLibrary.computePositionAt(azimuth, this.oFeature.getSemiMinor(), centerPos, semiMinorCP.getPosition());
+                GeographicLib.computePositionAt(azimuth, this.oFeature.getSemiMinor(), centerPos, semiMinorCP.getPosition());
 
                 // Move the azimuth CP.
                 azimuthCP = this.findControlPoint(ControlPoint.CPTypeEnum.AZIMUTH_CP, 0, -1);
-                GeoLibrary.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), centerPos, azimuthCP.getPosition());
+                GeographicLib.computePositionAt(azimuth - 90.0, this.oFeature.getSemiMajor(), centerPos, azimuthCP.getPosition());
                 moved = true;
 
                 break;
             case AZIMUTH_CP:
                 // The azimuth CP was moved.
                 centerCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
-                double newAzimuth = GeoLibrary.computeBearing(centerCP.getPosition(), newPosition) + 90.0;
+                double newAzimuth = GeographicLib.computeBearing(centerCP.getPosition(), newPosition) + 90.0;
                 if (newAzimuth > 360.0) {
                     newAzimuth -= 360.0;
                 }
 
                 this.oFeature.setAzimuth(newAzimuth);
-                GeoLibrary.computePositionAt(newAzimuth - 90.0, this.oFeature.getSemiMajor(), centerCP.getPosition(), oCP.getPosition());
+                GeographicLib.computePositionAt(newAzimuth - 90.0, this.oFeature.getSemiMajor(), centerCP.getPosition(), oCP.getPosition());
                 this.addUpdateEventData(FeaturePropertyChangedEnum.AZIMUTH_PROPERTY_CHANGED);
 
                 // Move the semi major CP.
                 semiMajorCP = this.findControlPoint(ControlPoint.CPTypeEnum.RADIUS_CP, EllipseEditor.SEMI_MAJOR_CP_INDEX, -1);
-                GeoLibrary.computePositionAt(newAzimuth + 90.0, this.oFeature.getSemiMajor(), centerCP.getPosition(), semiMajorCP.getPosition());
+                GeographicLib.computePositionAt(newAzimuth + 90.0, this.oFeature.getSemiMajor(), centerCP.getPosition(), semiMajorCP.getPosition());
 
                 // Move the semi minor CP.
                 semiMinorCP = this.findControlPoint(ControlPoint.CPTypeEnum.RADIUS_CP, EllipseEditor.SEMI_MINOR_CP_INDEX, -1);
-                GeoLibrary.computePositionAt(newAzimuth, this.oFeature.getSemiMinor(), centerCP.getPosition(), semiMinorCP.getPosition());
+                GeographicLib.computePositionAt(newAzimuth, this.oFeature.getSemiMinor(), centerCP.getPosition(), semiMinorCP.getPosition());
                 moved = true;
                 break;
         }

@@ -15,9 +15,12 @@ dependencies {
     implementation         ("com.android.support:appcompat-v7")
     implementation         ("com.android.support:design")
 
+    implementation project (":emp3-android-sdk")
     implementation project (":emp3-android-sdk-core-aar")
     implementation project (":emp3-android-sdk-view")
     implementation project (":mapengine-worldwind-aar")
+    compileOnly project    (":cmapi")
+    implementation project (":geolib")
 
     implementation         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
     testImplementation     ("junit:junit:4.12")

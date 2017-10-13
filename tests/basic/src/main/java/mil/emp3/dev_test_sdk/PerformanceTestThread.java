@@ -14,7 +14,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.EventListenerHandle;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 
 /**
  * This class execute the performance test
@@ -184,7 +184,7 @@ class PerformanceTestThread extends Thread {
                     dSpeed = (double) Integer.parseInt(oSPSymbol.getStringModifier(IGeoMilSymbol.Modifier.SPEED));
                     dDistance = dSpeed * 1609.0 * (double)(lStartTimestamp - lLastMoved) / 3.6e6;
 
-                    oNewPos = GeoLibrary.computePositionAt((double) iDOM, dDistance, oPos);
+                    oNewPos = GeographicLib.computePositionAt((double) iDOM, dDistance, oPos);
                     oPos.setLatitude(oNewPos.getLatitude());
                     oPos.setLongitude(oNewPos.getLongitude());
 
