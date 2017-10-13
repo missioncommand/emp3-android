@@ -589,6 +589,17 @@ public class MilStdDCSuperAutoShapeEditor extends AbstractMilStdMultiPointEditor
             case CoreMilStdUtilities.MS_OBSTACLES_RCBB_ESR2_ARMED_PASSABLE:
                 moveGraphicP3PerpendicularToP1P2Center(oCP, eventPos);
                 break;
+            case CoreMilStdUtilities.MS_OBSTACLES_BYPASS_DIFFICULTY_EASY:
+                switch (this.oFeature.getSymbolStandard()) {
+                    case MIL_STD_2525B:
+                        moveCP(oCP, eventPos);
+                        break;
+                    case MIL_STD_2525C:
+                        // 2525C requires a rectangular shape
+                        moveGraphicP3PerpendicularToP1P2Center(oCP, eventPos);
+                        break;
+                }
+                break;
             case CoreMilStdUtilities.MS_OBSTACLES_BYPASS_BRIDGE_OR_GAP:
                 switch (this.oFeature.getSymbolStandard()) {
                     case MIL_STD_2525B:
