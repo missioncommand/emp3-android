@@ -28,8 +28,6 @@ cache:
 before_install:
   - export GRADLE_OPTS="-Dorg.gradle.daemon=false -Xmx3072m $GRADLE_OPTS"
   - export DEFAULT_JVM_OPTS=
-  - git clone https://github.com/urho3d/android-ndk.git $HOME/android-ndk-root
-  - export ANDROID_NDK_HOME=$HOME/android-ndk-root
 
 install: true
 
