@@ -3,26 +3,25 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
 dependencies {
-    api project                (":emp3-android-sdk")
+    api project(':emp3-android-sdk')
     //compile project     (":service:mirrorcache:service-mirrorcache-api")
     //compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
-    implementation             ("com.android.support:appcompat-v7")
-    api                        ("mil.army.missioncommand:mil-sym-android-renderer")
-
-    implementation project     (":cmapi")
-    testImplementation project (":emp3-android-sdk-core-aar")
-    testImplementation         ("junit:junit:4.12")
+    implementation 'com.android.support:appcompat-v7'
+    api 'mil.army.missioncommand:mil-sym-android-renderer'
+    implementation project(':cmapi')
+    testImplementation project(':emp3-android-sdk-core-aar')
+    testImplementation 'junit:junit:4.12'
     //testImplementation         ("org.mockito:mockito-core")
-    testImplementation         ("org.powermock:powermock-api-mockito:1.6.2") { // PowerMockito is required to mock static methods like Logger.log
+    testImplementation('org.powermock:powermock-api-mockito:1.6.2') {
+        // PowerMockito is required to mock static methods like Logger.log
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testImplementation         ("org.powermock:powermock-module-junit4:1.6.2") {
+    testImplementation('org.powermock:powermock-module-junit4:1.6.2') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-
-    testImplementation         ("org.robolectric:robolectric:3.3.2")
+    testImplementation 'org.robolectric:robolectric:3.3.2'
 }
 
 
