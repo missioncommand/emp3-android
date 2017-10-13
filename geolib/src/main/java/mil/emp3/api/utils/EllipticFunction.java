@@ -17,9 +17,9 @@ public class EllipticFunction {
     // Carlson, eqs 2.36 - 2.39
     final private static double tolRG0 = 2.7D * sqrt(TINY);
     final private static double tolJAC = sqrt(TINY);
-    final static int num_ = 13; // max depth required for sncndn
-    double _k2, _kp2, _alpha2, _alphap2, _eps;
-    double _Kc, _Ec, _Dc, _Pic, _Gc, _Hc;
+    final private static int num_ = 13; // max depth required for sncndn
+    private double _k2, _kp2, _alpha2, _alphap2, _eps;
+    private double _Kc, _Ec, _Dc, _Pic, _Gc, _Hc;
 
     EllipticFunction() {
         Reset(0, 0);

@@ -1,3 +1,4 @@
+include ':geolib'
 rootProject.name = 'emp3-android'
 
 //

@@ -82,7 +82,7 @@ public class Rhumb {
     final private static int tm_maxord = 6;// GEOGRAPHICLIB_TRANSVERSEMERCATOR_ORDER
     final private static int maxpow_ = 6;  // GEOGRAPHICLIB_RHUMBAREA_ORDER
     // _R[0] unused
-    double[] _R = new double[maxpow_ + 1];
+    private double[] _R = new double[maxpow_ + 1];
 
     private static double gd(double x) {
         return atan(sinh(x));
@@ -190,7 +190,7 @@ public class Rhumb {
     }
 
     // (mux - muy) / (phix - phiy) using elliptic integrals
-    public double DRectifying(double latx, double laty) {
+    private double DRectifying(double latx, double laty) {
         double
                 tbetx = ellipsoid.SecondFlattening() * tand(latx),
                 tbety = ellipsoid.SecondFlattening() * tand(laty);
@@ -199,7 +199,7 @@ public class Rhumb {
     }
 
     // (psix - psiy) / (phix - phiy)
-    public double DIsometric(double latx, double laty) {
+    private double DIsometric(double latx, double laty) {
         double
                 phix = latx * RADIANS_TO_DEGREES, tx = tand(latx),
                 phiy = laty * RADIANS_TO_DEGREES, ty = tand(laty);
@@ -208,7 +208,7 @@ public class Rhumb {
     }
 
     // (sum(c[j]*sin(2*j*x),j=1..n) - sum(c[j]*sin(2*j*x),j=1..n)) / (x - y)
-    public static double SinCosSeries(boolean sinp,
+    private static double SinCosSeries(boolean sinp,
                                        double x, double y, double c[], int n) {
         // N.B. n >= 0 and c[] has n+1 elements 0..n, of which c[0] is ignored.
         //
@@ -282,7 +282,7 @@ public class Rhumb {
 
 
     // (mux - muy) / (chix - chiy) using Krueger's series
-    public double DConformalToRectifying(double chix, double chiy) {
+    private double DConformalToRectifying(double chix, double chiy) {
         return 1 + SinCosSeries(true, chix, chiy,
                 ellipsoid.ConformalToRectifyingCoeffs(), tm_maxord);
     }
@@ -295,7 +295,7 @@ public class Rhumb {
 
     // (mux - muy) / (psix - psiy)
     // N.B., psix and psiy are in degrees
-    public double DIsometricToRectifying(double psix, double psiy) {
+    private double DIsometricToRectifying(double psix, double psiy) {
         if (_exact) {
             double
                     latx = ellipsoid.InverseIsometricLatitude(psix),
@@ -332,10 +332,10 @@ public class Rhumb {
      *                       positive.
      *                       <p>
      *                       See \ref rhumb, for a detailed description of the \e exact parameter.
-     * @param[in] a equatorial radius (meters).
-     * @param[in] f flattening of ellipsoid.  Setting \e f = 0 gives a sphere.
+     * @param a equatorial radius (meters).
+     * @param f flattening of ellipsoid.  Setting \e f = 0 gives a sphere.
      * Negative \e f gives a prolate ellipsoid.
-     * @param[in] exact if true (the default) use an addition theorem for
+     * @param exact if true (the default) use an addition theorem for
      * elliptic integrals to compute divided differences; otherwise use
      * series expansion (accurate for |<i>f</i>| < 0.01).
      **********************************************************************/
@@ -363,16 +363,16 @@ public class Rhumb {
      * The general direct rhumb problem.  Rhumb::Direct is defined in terms
      * of this function.
      *
-     * @param[in] lat1 latitude of point 1 (degrees).
-     * @param[in] lon1 longitude of point 1 (degrees).
-     * @param[in] azi12 azimuth of the rhumb line (degrees).
-     * @param[in] s12 distance between point 1 and point 2 (meters); it can be
+     * @param lat1 latitude of point 1 (degrees).
+     * @param lon1 longitude of point 1 (degrees).
+     * @param azi12 azimuth of the rhumb line (degrees).
+     * @param s12 distance between point 1 and point 2 (meters); it can be
      * negative.
-     * @param[in] outmask a bitor'ed combination of Rhumb::mask values
+     * @param outmask a bitor'ed combination of Rhumb::mask values
      * specifying which of the following parameters should be set.
-     * @param[out] lat2 latitude of point 2 (degrees).
-     * @param[out] lon2 longitude of point 2 (degrees).
-     * @param[out] S12 area under the rhumb line (meters<sup>2</sup>).
+     * @return lat2 latitude of point 2 (degrees).
+     *         lon2 longitude of point 2 (degrees).
+     *         S12 area under the rhumb line (meters<sup>2</sup>).
      * <p>
      * The Rhumb::mask values possible for \e outmask are
      * - \e outmask |= Rhumb::LATITUDE for the latitude \e lat2;
@@ -395,15 +395,15 @@ public class Rhumb {
      * The general inverse rhumb problem.  Rhumb::Inverse is defined in terms
      * of this function.
      *
-     * @param[in] lat1 latitude of point 1 (degrees).
-     * @param[in] lon1 longitude of point 1 (degrees).
-     * @param[in] lat2 latitude of point 2 (degrees).
-     * @param[in] lon2 longitude of point 2 (degrees).
-     * @param[in] outmask a bitor'ed combination of Rhumb::mask values
+     * @param lat1 latitude of point 1 (degrees).
+     * @param lon1 longitude of point 1 (degrees).
+     * @param lat2 latitude of point 2 (degrees).
+     * @param lon2 longitude of point 2 (degrees).
+     * @param outmask a bitor'ed combination of Rhumb::mask values
      * specifying which of the following parameters should be set.
-     * @param[out] s12 rhumb distance between point 1 and point 2 (meters).
-     * @param[out] azi12 azimuth of the rhumb line (degrees).
-     * @param[out] S12 area under the rhumb line (meters<sup>2</sup>).
+     * @return s12 rhumb distance between point 1 and point 2 (meters).
+     *         azi2 azimuth of the rhumb line (degrees).
+     *         S12 area under the rhumb line (meters<sup>2</sup>).
      * <p>
      * The Rhumb::mask values possible for \e outmask are
      * - \e outmask |= Rhumb::DISTANCE for the latitude \e s12;
@@ -448,9 +448,9 @@ public class Rhumb {
      * 1/&epsilon;<sup>2</sup> (where &epsilon; is 2<sup>-52</sup>).  This
      * position, which is extremely close to the actual pole, allows the
      * calculation to be carried out in finite terms.
-     * @param[in] lat1 latitude of point 1 (degrees).
-     * @param[in] lon1 longitude of point 1 (degrees).
-     * @param[in] azi12 azimuth of the rhumb line (degrees).
+     * @param lat1 latitude of point 1 (degrees).
+     * @param lon1 longitude of point 1 (degrees).
+     * @param azi12 azimuth of the rhumb line (degrees).
      **********************************************************************/
     RhumbLine Line(double lat1, double lon1, double azi12) {
         return new RhumbLine(this,lat1, lon1, azi12, _exact);
@@ -528,13 +528,13 @@ class RhumbLine {
      * The general position routine.  RhumbLine::Position is defined in term so
      * this function.
      *
-     * @param[in] s12 distance between point 1 and point 2 (meters); it can be
+     * @param s12 distance between point 1 and point 2 (meters); it can be
      * negative.
-     * @param[in] outmask a bitor'ed combination of RhumbLine::mask values
+     * @param outmask a bitor'ed combination of RhumbLine::mask values
      * specifying which of the following parameters should be set.
-     * @param[out] lat2 latitude of point 2 (degrees).
-     * @param[out] lon2 longitude of point 2 (degrees).
-     * @param[out] S12 area under the rhumb line (meters<sup>2</sup>).
+     * @return lat2 latitude of point 2 (degrees).
+     *         lon2 longitude of point 2 (degrees).
+     *         S12 area under the rhumb line (meters<sup>2</sup>).
      * <p>
      * The RhumbLine::mask values possible for \e outmask are
      * - \e outmask |= RhumbLine::LATITUDE for the latitude \e lat2;
