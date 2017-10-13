@@ -118,6 +118,7 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
+import mil.emp3.api.interfaces.IEmpExportToTypeCallBack;
 import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.ILookAt;
@@ -135,6 +136,7 @@ import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.EmpPropertyList;
 import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
+import mil.emp3.api.utils.kmz.EmpKMZExporter;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.databinding.ActivityMainBinding;
 import mil.emp3.dev_test_sdk.databinding.WmsParametersDialogBinding;
@@ -1565,6 +1567,106 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            case R.id.action_exportMapToKMZ:
+            {
+                try
+                {
+                    EmpKMZExporter.exportToKMZ(this.map,
+                                               true,
+                                               new IEmpExportToTypeCallBack<File>(){
+                                                                                       @Override
+                                                                                       public void exportSuccess(File exportObject)
+                                                                                       {
+                                                                                           MainActivity.this.makeToast("Export Successful");
+                                                                                       }
+                                                                                       @Override
+                                                                                       public void exportFailed(Exception Ex)
+                                                                                       {
+                                                                                           Log.e(TAG, "Map export to KMZ failed.", Ex);
+                                                                                           MainActivity.this.makeToast("Export failed");
+                                                                                       }
+                                                                                   },
+                                               getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
+                                               "KmzMap");
+                }
+                catch (Exception Ex)
+                {
+                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
+                }
+
+                return true;
+            }
+            case R.id.action_exportOverlayToKMZ:
+            {
+                try
+                {
+                    EmpKMZExporter.exportToKMZ(this.map,
+                                               this.oRootOverlay,
+                                               true,
+                                               new IEmpExportToTypeCallBack<File>(){
+                                                                                       @Override
+                                                                                       public void exportSuccess(File exportObject)
+                                                                                       {
+                                                                                           MainActivity.this.makeToast("Export Successful");
+                                                                                       }
+
+                                                                                       @Override
+                                                                                       public void exportFailed(Exception Ex)
+                                                                                       {
+                                                                                           Log.e(TAG, "Map export to KMZ failed.", Ex);
+                                                                                           MainActivity.this.makeToast("Export failed");
+                                                                                       }
+                                                                                   },
+                                               getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
+                                              "KmzOverlay");
+                }
+                catch (Exception Ex)
+                {
+                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
+                }
+
+                return true;
+            }
+            case R.id.action_exportFeatureToKMZ:
+            {
+                try
+                {
+                    if (this.oCurrentSelectedFeature == null)
+                    {
+                        MainActivity.this.makeToast("Cannot Export Feature unless a feature is selected.");
+                        return true;
+                    }
+
+                    EmpKMZExporter.exportToKMZ(this.map,
+                            this.oCurrentSelectedFeature,
+                            true,
+                            new IEmpExportToTypeCallBack<File>()
+                            {
+                                @Override
+                                public void exportSuccess(File exportObject)
+                                {
+                                    MainActivity.this.makeToast("Export Successful");
+                                }
+
+                                @Override
+                                public void exportFailed(Exception Ex)
+                                {
+                                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                                    MainActivity.this.makeToast("Export failed");
+                                }
+                            },
+                            getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
+                            "KmzFeature");
+                } catch (Exception Ex)
+                {
+                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
+                }
+            }
+
+//=======
             //Test for many features on the map
             case R.id.action_importManyKMZ: {
                 try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.many))
@@ -1675,6 +1777,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_exportMapToKML: {
                 try {
+
                     EmpKMLExporter.exportToString(this.map, true, new IEmpExportToStringCallback() {
 
                         @Override
@@ -1720,6 +1823,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_exportOverlayToKML: {
                 try {
+
                     EmpKMLExporter.exportToString(this.map, this.oRootOverlay, true, new IEmpExportToStringCallback() {
 
                         @Override
@@ -1764,6 +1868,8 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_exportFeatureToKML: {
                 try {
+
+
                     if (null != this.oCurrentSelectedFeature) {
                         EmpKMLExporter.exportToString(this.map, this.oCurrentSelectedFeature, true, new IEmpExportToStringCallback() {
 
