@@ -20,7 +20,7 @@ public class GeographicLib {
        One unresolved wrinkle is that GeographicLib returns an azimuth
        of 180, rather than 0, between two identical points.
      */
-    private static double azimuthToBearing(double azimuth) {
+    private static double azimuthToBearing(final double azimuth) {
         double bearing = azimuth % 360.0;
         if (bearing >= 270.0) {
             bearing = 360.0 - bearing;
@@ -33,7 +33,7 @@ public class GeographicLib {
         return bearing;
     }
 
-    private static double bearingToAzimuth(double bearing, double lat, double lon) {
+    private static double bearingToAzimuth(final double bearing, final double lat, final double lon) {
         if (Math.abs(lat) > 90.0) {
             throw new IllegalArgumentException("Invalid latitude value " + lat);
         }
@@ -48,7 +48,7 @@ public class GeographicLib {
         return azimuth;
     }
 
-    private static GeodesicData getInverseGeodesicData(IGeoPosition p1, IGeoPosition p2, int mask) {
+    private static GeodesicData getInverseGeodesicData(final IGeoPosition p1, final IGeoPosition p2, final int mask) {
 
         if (p1 == null) {
             throw new IllegalArgumentException("GeoPosition cannot be null.");
@@ -65,7 +65,7 @@ public class GeographicLib {
         return Geodesic.WGS84.Inverse(lat1, lon1, lat2, lon2, mask);
     }
 
-    private static GeodesicData getDirectGeodesicData(IGeoPosition p1, double azimuth, double distance) {
+    private static GeodesicData getDirectGeodesicData(final IGeoPosition p1, final double azimuth, final double distance) {
 
         if (p1 == null) {
             throw new IllegalArgumentException("GeoPosition cannot be null.");
@@ -77,7 +77,7 @@ public class GeographicLib {
                 GeodesicMask.LATITUDE + GeodesicMask.LONGITUDE);
     }
 
-    private static GeodesicData getInverseRhumbData(IGeoPosition p1, IGeoPosition p2, int mask) {
+    private static GeodesicData getInverseRhumbData(final IGeoPosition p1, final IGeoPosition p2, final int mask) {
 
         if (p1 == null) {
             throw new IllegalArgumentException("GeoPosition cannot be null.");
@@ -94,7 +94,7 @@ public class GeographicLib {
         return Rhumb.WGS84.Inverse(lat1, lon1, lat2, lon2, mask);
     }
 
-    private static GeodesicData getDirectRhumbData(IGeoPosition p1, double azimuth, double distance) {
+    private static GeodesicData getDirectRhumbData(final IGeoPosition p1, final double azimuth, final double distance) {
 
         if (p1 == null) {
             throw new IllegalArgumentException("GeoPosition cannot be null.");
@@ -113,7 +113,7 @@ public class GeographicLib {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static double computeDistanceBetween(IGeoPosition p1, IGeoPosition p2) {
+    public static double computeDistanceBetween(final IGeoPosition p1, final IGeoPosition p2) {
         GeodesicData g = getInverseGeodesicData(p1, p2, GeodesicMask.DISTANCE);
         return g.s12;
     }
@@ -125,7 +125,7 @@ public class GeographicLib {
      * @return the bearing is return in degrees.
      * @throws IllegalArgumentException
      */
-    public static double computeBearing(IGeoPosition p1, IGeoPosition p2) {
+    public static double computeBearing(final IGeoPosition p1, final IGeoPosition p2) {
         // keep compatibility with GeoLibrary
         if (p1.getLatitude() == p2.getLatitude()
                 && p1.getLongitude() == p2.getLongitude()) {
@@ -145,7 +145,7 @@ public class GeographicLib {
      * @return position
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition computePositionAt(double bearing, double distance, IGeoPosition from) {
+    public static IGeoPosition computePositionAt(final double bearing, final double distance, final IGeoPosition from) {
         IGeoPosition position = new GeoPosition();
         if (distance == 0.0) {
             position.setLatitude(from.getLatitude());
@@ -165,7 +165,7 @@ public class GeographicLib {
      * @param result the object to place the resulting position.
      * @throws IllegalArgumentException
      */
-    public static void computePositionAt(double bearing, double distance, IGeoPosition from, IGeoPosition result) {
+    public static void computePositionAt(final double bearing, final double distance, final IGeoPosition from, final IGeoPosition result) {
         if (result == null) {
             throw new IllegalArgumentException("Null argument provided for result");
         }
@@ -181,7 +181,7 @@ public class GeographicLib {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition midPointBetween(IGeoPosition p1, IGeoPosition p2) {
+    public static IGeoPosition midPointBetween(final IGeoPosition p1, final IGeoPosition p2) {
         GeodesicData g = getInverseGeodesicData(p1, p2,
                 GeodesicMask.AZIMUTH + GeodesicMask.DISTANCE);
         double midpointDistance = g.s12 * 0.5;
@@ -195,7 +195,7 @@ public class GeographicLib {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static double computeRhumbDistance(IGeoPosition p1, IGeoPosition p2) {
+    public static double computeRhumbDistance(final IGeoPosition p1, final IGeoPosition p2) {
         GeodesicData g = getInverseRhumbData(p1, p2, GeodesicMask.DISTANCE);
         return g.s12;
     }
@@ -207,7 +207,7 @@ public class GeographicLib {
      * @return The bearing is return in degrees.
      * @throws IllegalArgumentException
      */
-    public static double computeRhumbBearing(IGeoPosition p1, IGeoPosition p2) {
+    public static double computeRhumbBearing(final IGeoPosition p1, final IGeoPosition p2) {
         // keep compatibility with GeoLibrary
         if (p1.getLatitude() == p2.getLatitude()
                 && p1.getLongitude() == p2.getLongitude()) {
@@ -226,7 +226,7 @@ public class GeographicLib {
      * @return Geo position
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition calculateRhumbPositionAt(double bearing, double distance, IGeoPosition from) {
+    public static IGeoPosition calculateRhumbPositionAt(final double bearing, double distance, IGeoPosition from) {
         IGeoPosition position = new GeoPosition();
         GeodesicData g = getDirectRhumbData(from, bearing, distance);
         position.setLatitude(g.lat2);
@@ -244,7 +244,7 @@ public class GeographicLib {
      *
      * @return true if p3 is on the left side of the line, false otherwise
      */
-    public static boolean isLeft(IGeoPosition p1, IGeoPosition p2, IGeoPosition p3) {
+    public static boolean isLeft(final IGeoPosition p1, final IGeoPosition p2, final IGeoPosition p3) {
         double lat1 = p1.getLatitude();
         double lon1 = p1.getLongitude();
 
@@ -262,7 +262,7 @@ public class GeographicLib {
      * @param longitude
      * @return
      */
-    public static double wrapLongitude(double longitude) {
+    public static double wrapLongitude(final double longitude) {
         return (((longitude + 540.0) % 360) - 180.0);
     }
 
@@ -332,7 +332,7 @@ public class GeographicLib {
      * @param bearing2
      * @return
      */
-    public static IGeoPosition intersection(IGeoPosition p1, double bearing1, IGeoPosition p2, double bearing2) {
+    public static IGeoPosition intersection(final IGeoPosition p1, double bearing1, final IGeoPosition p2, double bearing2) {
         IGeoPosition cross = new GeoPosition();
         double distance = computeDistanceBetween(p1, p2);
         IGeoPosition p3 = computePositionAt(bearing1, 2.0*distance, p1);
@@ -389,8 +389,8 @@ public class GeographicLib {
      * [&minus;540&deg;, 540&deg;). The values of <i>lon2</i> and
      * <i>azi2</i> returned are in the range [&minus;180&deg;, 180&deg;).
      */
-    public static GeodesicData intersect(double lata1, double lona1, double lata2,
-                                  double lona2, double latb1, double lonb1, double latb2, double lonb2) {
+    public static GeodesicData intersect(final double lata1, final double lona1, final double lata2,
+                                         final double lona2, final double latb1, final double lonb1, final double latb2, final double lonb2) {
         double latp0 = (lata1 + lata2 + latb1 + latb2) / 4, latp0_ = Double.NaN, lonp0_ =
                 Double.NaN;
         double lonp0 =
@@ -444,7 +444,7 @@ public class GeographicLib {
          * @param y Component in y dimension.
          * @param z Component in z dimension.
          */
-        public Vector(double x, double y, double z) {
+        public Vector(final double x, final double y, final double z) {
             this.x = x;
             this.y = y;
             this.z = z;
@@ -468,7 +468,7 @@ public class GeographicLib {
          * @param a Scalar multiplicator.
          * @return Scaled {@link Vector} object.
          */
-        public Vector multiply(double a) {
+        public Vector multiply(final double a) {
             return new Vector(this.x * a, this.y * a, this.z * a);
         }
 
@@ -479,7 +479,7 @@ public class GeographicLib {
          * @param other Vector for cross product.
          * @return {@link Vector} object as result of cross product.
          */
-        public Vector cross(Vector other) {
+        public Vector cross(final Vector other) {
             return new Vector((y * other.z) - (z * other.y), (z * other.x) - (x * other.z),
                     (x * other.y) - (y * other.x));
         }
@@ -491,7 +491,7 @@ public class GeographicLib {
          * @param other Vector for dot product.
          * @return Scalar as result of dot product.
          */
-        public double dot(Vector other) {
+        public double dot(final Vector other) {
             return this.x * other.x + this.y * other.y + this.z * other.z;
         }
     }
