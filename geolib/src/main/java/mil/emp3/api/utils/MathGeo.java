@@ -10,37 +10,37 @@ public class MathGeo {
     final static double DEGREES_TO_RADIANS = 180.0 / Math.PI;
     final static double RADIANS_TO_DEGREES = Math.PI / 180.0;
 
-    static double tand(double x) {
+    static double tand(final double x) {
         return Math.tan(x * Math.PI / 180.0);
     }
 
-    static double sind(double x) { return Math.sin(x * Math.PI / 180.0); }
+    static double sind(final double x) { return Math.sin(x * Math.PI / 180.0); }
 
-    static double atand(double x) {
+    static double atand(final double x) {
         return Math.atan(x) * 180.0 / Math.PI;
     }
 
-    static double asinh(double x)
+    static double asinh(final double x)
     {
         return Math.log(x + Math.sqrt(x*x + 1.0));
     }
 
-    static double acosh(double x)
+    static double acosh(final double x)
     {
         return Math.log(x + Math.sqrt(x*x - 1.0));
     }
-    static double eatanhe(double x, double es)  {
+    static double eatanhe(final double x, final double es)  {
         return es > 0 ? es * atanh(es * x) : -es * Math.atan(es * x);
     }
 
-    static double taupf(double tau, double es) {
+    static double taupf(final double tau, final double es) {
         double tau1 = GeoMath.hypot(1.0D, tau),
                 sig = Math.sinh( eatanhe(tau / tau1, es ) );
         return GeoMath.hypot(1.0D, sig) * tau - sig * tau1;
     }
     final static int numit = 5;
     final static double tol = Math.sqrt(GeoMath.epsilon) / 10.0D;
-    static double tauf(double taup, double es) {
+    static double tauf(final double taup, final double es) {
 
         double e2m = 1.0D - GeoMath.sq(es),
                 // To lowest order in e^2, taup = (1 - e^2) * tau = _e2m * tau; so use

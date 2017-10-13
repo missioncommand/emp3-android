@@ -25,11 +25,11 @@ public class EllipticFunction {
         Reset(0, 0);
     }
 
-    EllipticFunction(double k2, double alpha2) {
+    EllipticFunction(final double k2, double alpha2) {
         Reset(k2, alpha2);
     }
 
-    EllipticFunction(double k2, double alpha2,
+    EllipticFunction(final double k2, double alpha2,
                      double kp2, double alphap2) {
         Reset(k2, alpha2, kp2, alphap2);
     }
@@ -42,7 +42,7 @@ public class EllipticFunction {
         return _k2;
     }
 
-    double E(double sn, double cn, double dn) {
+    double E(final double sn, double cn, double dn) {
         double
                 cn2 = cn * cn, dn2 = dn * dn, sn2 = sn * sn,
                 ei = cn2 != 0 ?
@@ -74,13 +74,13 @@ public class EllipticFunction {
         return E(sn, cn, dn) * (PI / 2) / E() - atan2(sn, cn);
     }
 
-    double E(double phi) {
+    double E(final double phi) {
         double sn = sin(phi), cn = cos(phi), dn = Delta(sn, cn);
         return abs(phi) < PI ? E(sn, cn, dn) :
                 (deltaE(sn, cn, dn) + phi) * E() / (PI / 2);
     }
 
-    double RF(double x, double y, double z) {
+    double RF(final double x, final double y, final double z) {
 
         double
                 A0 = (x + y + z) / 3,
@@ -115,7 +115,7 @@ public class EllipticFunction {
                 (240240 * sqrt(An));
     }
 
-    double RF(double x, double y) {
+    double RF(final double x, final double y) {
 
         double xn = sqrt(x), yn = sqrt(y);
         if (xn < yn) {
@@ -132,7 +132,7 @@ public class EllipticFunction {
         return PI / (xn + yn);
     }
 
-    double RC(double x, double y) {
+    double RC(final double x, final double y) {
         // Defined only for y != 0 and x >= 0.
         return (!(x >= y) ?        // x < y  and catch nans
                 // http://dlmf.nist.gov/19.2.E18
@@ -147,7 +147,7 @@ public class EllipticFunction {
                                 sqrt(-x / y)) / sqrt(x - y)));
     }
 
-    double RG(double x, double y, double z) {
+    double RG(final double x, double y, double z) {
         if (z == 0) {
             z = y;
             y = 0;
@@ -157,7 +157,7 @@ public class EllipticFunction {
                 + sqrt(x * y / z)) / 2;
     }
 
-    double RG(double x, double y) {
+    double RG(final double x, final double y) {
 
         double
                 x0 = sqrt(max(x, y)),
@@ -178,7 +178,7 @@ public class EllipticFunction {
         return (GeoMath.sq((x0 + y0) / 2) - s) * PI / (2 * (xn + yn));
     }
 
-    double RJ(double x, double y, double z, double p) {
+    double RJ(final double x, final double y, final double z, final double p) {
         // Carlson, eqs 2.17 - 2.25
         double
                 A0 = (x + y + z + 2 * p) / 5,
@@ -228,7 +228,7 @@ public class EllipticFunction {
                 (4084080 * mul * An * sqrt(An)) + 6 * s;
     }
 
-    double RD(double x, double y, double z) {
+    double RD(final double x, final double y, final double z) {
 
         double
                 A0 = (x + y + 3 * z) / 5,
@@ -269,13 +269,13 @@ public class EllipticFunction {
                 (4084080 * mul * An * sqrt(An)) + 3 * s;
     }
 
-    void Reset(double k2, double alpha2) {
+    void Reset(final double k2, double alpha2) {
         Reset(k2, alpha2, 1 - k2, 1 - alpha2);
     }
 
 
-    void Reset(double k2, double alpha2,
-               double kp2, double alphap2) {
+    void Reset(final double k2, final double alpha2,
+               final double kp2, final double alphap2) {
         // Accept nans here (needed for GeodesicExact)
         if (k2 > 1)
             throw new GeographicErr("Parameter k2 is not in (-inf, 1]");
@@ -368,7 +368,7 @@ public class EllipticFunction {
      * @param[in] sn sin&phi;.
      * @param[in] cn cos&phi;.
      **********************************************************************/
-    double Delta(double sn, double cn) {
+    double Delta(final double sn, final double cn) {
         return sqrt(_k2 < 0 ? 1 - _k2 * sn * sn : _kp2 + _k2 * cn * cn);
     }
 

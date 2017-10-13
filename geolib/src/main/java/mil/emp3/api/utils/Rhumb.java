@@ -84,7 +84,7 @@ public class Rhumb {
     // _R[0] unused
     private double[] _R = new double[maxpow_ + 1];
 
-    private static double gd(double x) {
+    private static double gd(final double x) {
         return atan(sinh(x));
     }
 
@@ -99,13 +99,13 @@ public class Rhumb {
     //   https://doi.org/10.1145/334714.334716
     //   http://www.cs.berkeley.edu/~fateman/papers/divdiff.pdf
 
-    private static double Dlog(double x, double y) {
+    private static double Dlog(final double x, final double y) {
         double t = x - y;
         return t != 0 ? 2 * GeoMath.atanh(t / (x + y)) / t : 1 / x;
     }
 
     // N.B., x and y are in degrees
-    private static double Dtan(double x, double y) {
+    private static double Dtan(final double x, final double y) {
         double d = x - y, tx = tand(x), ty = tand(y), txy = tx * ty;
         return d != 0 ?
                 (2 * txy > -1 ? (1 + txy) * tand(d) : tx - ty) /
@@ -113,29 +113,29 @@ public class Rhumb {
                 1 + txy;
     }
 
-    private static double Datan(double x, double y) {
+    private static double Datan(final double x, final double y) {
         double d = x - y, xy = x * y;
         return d != 0 ?
                 (2 * xy > -1 ? atan(d / (1 + xy)) : atan(x) - atan(y)) / d :
                 1 / (1 + xy);
     }
 
-    private static double Dsin(double x, double y) {
+    private static double Dsin(final double x, final double y) {
         double d = (x - y) / 2;
         return cos((x + y) / 2) * (d != 0 ? sin(d) / d : 1);
     }
 
-    private static double Dsinh(double x, double y) {
+    private static double Dsinh(final double x, final double y) {
         double d = (x - y) / 2;
         return cosh((x + y) / 2) * (d != 0 ? sinh(d) / d : 1);
     }
 
-    private static double Dcosh(double x, double y) {
+    private static double Dcosh(final double x, final double y) {
         double d = (x - y) / 2;
         return sinh((x + y) / 2) * (d != 0 ? sinh(d) / d : 1);
     }
 
-    private static double Dasinh(double x, double y) {
+    private static double Dasinh(final double x, final double y) {
         double d = x - y,
                 hx = GeoMath.hypot(1.0D, x), hy = GeoMath.hypot(1.0D, y);
         return d != 0 ? asinh(x * y > 0 ? d * (x + y) / (x * hy + y * hx) :
@@ -143,24 +143,24 @@ public class Rhumb {
                 1 / hx;
     }
 
-    private static double Dgd(double x, double y) {
+    private static double Dgd(final double x, final double y) {
         return Datan(sinh(x), sinh(y)) * Dsinh(x, y);
     }
 
     // N.B., x and y are the tangents of the angles
-    private static double Dgdinv(double x, double y) {
+    private static double Dgdinv(final double x, final double y) {
         return Dasinh(x, y) / Datan(x, y);
     }
 
     // Copied from LambertConformalConic...
     // Deatanhe(x,y) = eatanhe((x-y)/(1-e^2*x*y))/(x-y)
-    private double Deatanhe(double x, double y) {
+    private double Deatanhe(final double x, final double y) {
         double t = x - y, d = 1 - ellipsoid.EccentricitySquared() * x * y;
         return t != 0 ? eatanhe(t / d, ellipsoid.ES()) / t : ellipsoid.EccentricitySquared() / d;
     }
 
     // (E(x) - E(y)) / (x - y) -- E = incomplete elliptic integral of 2nd kind
-    private double DE(double x, double y) {
+    private double DE(final double x, final double y) {
         EllipticFunction ei = ellipsoid._ell;
         double d = x - y;
         if (x * y <= 0)
@@ -190,7 +190,7 @@ public class Rhumb {
     }
 
     // (mux - muy) / (phix - phiy) using elliptic integrals
-    private double DRectifying(double latx, double laty) {
+    private double DRectifying(final double latx, final double laty) {
         double
                 tbetx = ellipsoid.SecondFlattening() * tand(latx),
                 tbety = ellipsoid.SecondFlattening() * tand(laty);
@@ -199,7 +199,7 @@ public class Rhumb {
     }
 
     // (psix - psiy) / (phix - phiy)
-    private double DIsometric(double latx, double laty) {
+    private double DIsometric(final double latx, final double laty) {
         double
                 phix = latx * RADIANS_TO_DEGREES, tx = tand(latx),
                 phiy = laty * RADIANS_TO_DEGREES, ty = tand(laty);
@@ -208,8 +208,8 @@ public class Rhumb {
     }
 
     // (sum(c[j]*sin(2*j*x),j=1..n) - sum(c[j]*sin(2*j*x),j=1..n)) / (x - y)
-    private static double SinCosSeries(boolean sinp,
-                                       double x, double y, double c[], int n) {
+    private static double SinCosSeries(final boolean sinp,
+                                       final double x, final double y, final double c[], final int n) {
         // N.B. n >= 0 and c[] has n+1 elements 0..n, of which c[0] is ignored.
         //
         // Use Clenshaw summation to evaluate
@@ -282,13 +282,13 @@ public class Rhumb {
 
 
     // (mux - muy) / (chix - chiy) using Krueger's series
-    private double DConformalToRectifying(double chix, double chiy) {
+    private double DConformalToRectifying(final double chix, final double chiy) {
         return 1 + SinCosSeries(true, chix, chiy,
                 ellipsoid.ConformalToRectifyingCoeffs(), tm_maxord);
     }
 
     // (chix - chiy) / (mux - muy) using Krueger's series
-    private double DRectifyingToConformal(double mux, double muy) {
+    private double DRectifyingToConformal(final double mux, final double muy) {
         return 1 - SinCosSeries(true, mux, muy,
                 ellipsoid.RectifyingToConformalCoeffs(), tm_maxord);
     }
@@ -309,7 +309,7 @@ public class Rhumb {
     }
 
     // (psix - psiy) / (mux - muy)
-    public double DRectifyingToIsometric(double mux, double muy) {
+    public double DRectifyingToIsometric(final double mux, final double muy) {
         double
                 latx = ellipsoid.InverseRectifyingLatitude(mux / RADIANS_TO_DEGREES),
                 laty = ellipsoid.InverseRectifyingLatitude(muy / RADIANS_TO_DEGREES);
@@ -320,7 +320,7 @@ public class Rhumb {
                         DRectifyingToConformal(mux, muy);
     }
 
-    public double MeanSinXi(double psix, double psiy) {
+    public double MeanSinXi(final double psix, final double psiy) {
         return Dlog(cosh(psix), cosh(psiy)) * Dcosh(psix, psiy)
                 + SinCosSeries(false, gd(psix), gd(psiy), _R, maxpow_) * Dgd(psix, psiy);
     }
@@ -339,7 +339,7 @@ public class Rhumb {
      * elliptic integrals to compute divided differences; otherwise use
      * series expansion (accurate for |<i>f</i>| < 0.01).
      **********************************************************************/
-    public Rhumb(double a, double f, boolean exact) {
+    public Rhumb(final double a, final double f, boolean exact) {
         ellipsoid = new Ellipsoid(a, f);
         _c2 = ellipsoid.Area() / 720.0D;
         _exact = exact;
@@ -386,7 +386,7 @@ public class Rhumb {
      * \e lon1 indicates how many times and in what sense the rhumb line
      * encircles the ellipsoid.
      **********************************************************************/
-    public GeodesicData Direct(double lat1, double lon1, double azi12, double s12,
+    public GeodesicData Direct(final double lat1, final double lon1, final double azi12, final double s12,
                                int outmask) {
         return Line(lat1, lon1, azi12).Position(s12, outmask);
     }
@@ -411,7 +411,7 @@ public class Rhumb {
      * - \e outmask |= Rhumb::AREA for the area \e S12;
      * - \e outmask |= Rhumb::ALL for all of the above;
      **********************************************************************/
-    public GeodesicData Inverse(double lat1, double lon1, double lat2, double lon2,
+    public GeodesicData Inverse(final double lat1, final double lon1, final double lat2, final double lon2,
                     int outmask) {
 
         GeodesicData g = new GeodesicData();
@@ -452,7 +452,7 @@ public class Rhumb {
      * @param lon1 longitude of point 1 (degrees).
      * @param azi12 azimuth of the rhumb line (degrees).
      **********************************************************************/
-    RhumbLine Line(double lat1, double lon1, double azi12) {
+    RhumbLine Line(final double lat1, final double lon1, final double azi12) {
         return new RhumbLine(this,lat1, lon1, azi12, _exact);
     }
 
@@ -507,7 +507,7 @@ class RhumbLine {
     private final Rhumb rhumb;
     private double _lat1, _lon1, _azi12, _salp, _calp, _mu1, _psi1, _r1;
 
-    RhumbLine(Rhumb rh, double lat1, double lon1, double azi12,
+    RhumbLine(final Rhumb rh, final double lat1, final double lon1, final double azi12,
               boolean exact)
 
 
@@ -552,7 +552,7 @@ class RhumbLine {
      * longitude of point 2 is indeterminate (a NaN is returned for \e lon2 and
      * \e S12).
      **********************************************************************/
-    public GeodesicData Position(double s12, int outmask) {
+    public GeodesicData Position(final double s12, int outmask) {
         GeodesicData g = new GeodesicData();
         double
                 mu12 = s12 * _calp * 90 / rhumb.ellipsoid.QuarterMeridian(),

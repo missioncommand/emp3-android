@@ -20,7 +20,7 @@ public class GeodesicWrapper {
        One unresolved wrinkle is that GeographicLib returns an azimuth
        of 180, rather than 0, between two identical points.
      */
-    private static double azimuthToBearing(double azimuth) {
+    private static double azimuthToBearing(final double azimuth) {
         double bearing = azimuth % 360.0;
         if (bearing >= 270.0) {
             bearing = 360.0 - bearing;
@@ -32,7 +32,7 @@ public class GeodesicWrapper {
         return bearing;
     }
 
-    private static double bearingToAzimuth(double bearing, double lat, double lon) {
+    private static double bearingToAzimuth(final double bearing, final double lat, final double lon) {
         if (Math.abs(lat) > 90.0) {
             throw new IllegalArgumentException("Invalid latitude value " + lat);
         }
@@ -45,8 +45,8 @@ public class GeodesicWrapper {
         return azimuth;
     }
 
-    private static GeodesicData getInverseGeodesicData(double lat1, double lon1,
-                                                       double lat2, double lon2, int mask) {
+    private static GeodesicData getInverseGeodesicData(final double lat1, final double lon1,
+                                                       final double lat2, final double lon2, final int mask) {
         if (Math.abs(lat1) > 90.0) {
             throw new IllegalArgumentException("Invalid latitude value " + lat1);
         }
@@ -64,8 +64,8 @@ public class GeodesicWrapper {
         return earth.Inverse(lat1, lon1, lat2, lon2, mask);
     }
 
-    private static GeodesicData getDirectGeodesicData(double lat, double lon,
-                                                      double azimuth, double distance) {
+    private static GeodesicData getDirectGeodesicData(final double lat, final double lon,
+                                                      final double azimuth, final double distance) {
         if (Math.abs(lat) > 90.0) {
             throw new IllegalArgumentException("Invalid latitude value " + lat);
         }
@@ -77,8 +77,8 @@ public class GeodesicWrapper {
                 GeodesicMask.LATITUDE + GeodesicMask.LONGITUDE);
     }
 
-    private static GeodesicData getInverseRhumbData(double lat1, double lon1,
-                                                    double lat2, double lon2, int mask) {
+    private static GeodesicData getInverseRhumbData(final double lat1, final double lon1,
+                                                    final double lat2, final double lon2, final int mask) {
         if (Math.abs(lat1) > 90.0) {
             throw new IllegalArgumentException("Invalid latitude value " + lat1);
         }
@@ -96,8 +96,8 @@ public class GeodesicWrapper {
         return Rhumb.WGS84.Inverse(lat1, lon1, lat2, lon2, mask);
     }
 
-    private static GeodesicData getDirectRhumbData(double lat, double lon,
-                                                   double azimuth, double distance) {
+    private static GeodesicData getDirectRhumbData(final double lat, final double lon,
+                                                   final double azimuth, final double distance) {
 
         if (Math.abs(lat) > 90.0) {
             throw new IllegalArgumentException("Invalid latitude value " + lat);
@@ -119,8 +119,8 @@ public class GeodesicWrapper {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static double computeDistanceBetween(double lat1, double lon1,
-                                                double lat2, double lon2) {
+    public static double computeDistanceBetween(final double lat1, final double lon1,
+                                                final double lat2, final double lon2) {
         GeodesicData g = getInverseGeodesicData(lat1, lon1, lat2, lon2, GeodesicMask.DISTANCE);
         return g.s12;
     }
@@ -134,8 +134,8 @@ public class GeodesicWrapper {
      * @return the bearing is return in degrees.
      * @throws IllegalArgumentException
      */
-    public static double computeBearing(double lat1, double lon1,
-                                        double lat2, double lon2) {
+    public static double computeBearing(final double lat1, final double lon1,
+                                        final double lat2, final double lon2) {
         if (lat1 == lat2 && lon1 == lon2) {
             return 0.0;
         }
@@ -153,8 +153,8 @@ public class GeodesicWrapper {
      * @return position
      * @throws IllegalArgumentException
      */
-    public static Pair computePositionAt(double bearing, double distance,
-                                         double lat, double lon) {
+    public static Pair computePositionAt(final double bearing, final double distance,
+                                         final double lat, final double lon) {
         if (distance == 0.0) {
             return new Pair (lat, lon);
         } else {
@@ -172,8 +172,8 @@ public class GeodesicWrapper {
      * @return The distance in meters.
      * @throws IllegalArgumentException
      */
-    public static double computeRhumbDistance(double lat1, double lon1,
-                                              double lat2, double lon2) {
+    public static double computeRhumbDistance(final double lat1, final double lon1,
+                                              final double lat2, final double lon2) {
         GeodesicData g = getInverseRhumbData(lat1, lon1, lat2, lon2, GeodesicMask.DISTANCE);
         return g.s12;
     }
@@ -187,8 +187,8 @@ public class GeodesicWrapper {
      * @return The bearing is return in degrees.
      * @throws IllegalArgumentException
      */
-    public static double computeRhumbBearing(double lat1, double lon1,
-                                             double lat2, double lon2) {
+    public static double computeRhumbBearing(final double lat1, final double lon1,
+                                             final double lat2, final double lon2) {
         if (lat1 == lat2 && lon1 == lon2) {
             return 0.0;
         }
@@ -205,7 +205,7 @@ public class GeodesicWrapper {
      * @return Pair of latitude, longitude (first, second)
      * @throws IllegalArgumentException
      */
-    public static Pair calculateRhumbPositionAt(double bearing, double distance, double lat, double lon) {
+    public static Pair calculateRhumbPositionAt(final double bearing, final double distance, final double lat, final double lon) {
         GeodesicData g = getDirectRhumbData(lat, lon, bearing, distance);
         return new Pair(g.lat2, g.lon2);
     }
@@ -222,7 +222,7 @@ public class GeodesicWrapper {
      * @param positionList
      * @return Pair of latitude and longitude
      */
-    public static Pair getCenter(List<Pair> positionList) {
+    public static Pair getCenter(final List<Pair> positionList) {
 
         if((null != positionList) && (0 != positionList.size())) {
             if(1 == positionList.size()) {

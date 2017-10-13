@@ -53,7 +53,7 @@ public class Ellipsoid {
             20648693, 638668800,
     };  // count = 27
 
-    Ellipsoid(double a, double f) {
+    Ellipsoid(final double a, final double f) {
         majorRadius = a;
         flattening = f;
         secondFlattening = 1 - flattening;
@@ -126,86 +126,86 @@ public class Ellipsoid {
                                         sqrt(abs(eccentricitySquared)))) / 2);
     }
 
-    public double ParametricLatitude(double phi) {
+    public double ParametricLatitude(final double phi) {
         return MathGeo.atand(secondFlattening * MathGeo.tand(GeoMath.LatFix(phi)));
     }
 
-    public double InverseParametricLatitude(double beta) {
+    public double InverseParametricLatitude(final double beta) {
         return MathGeo.atand(MathGeo.tand(GeoMath.LatFix(beta)) / secondFlattening);
     }
 
-    public double GeocentricLatitude(double phi) {
+    public double GeocentricLatitude(final double phi) {
         return MathGeo.atand(_f12 * MathGeo.tand(GeoMath.LatFix(phi)));
     }
 
-    public double InverseGeocentricLatitude(double theta) {
+    public double InverseGeocentricLatitude(final double theta) {
         return MathGeo.atand(MathGeo.tand(GeoMath.LatFix(theta)) / _f12);
     }
 
-    double RectifyingLatitude(double phi) {
+    double RectifyingLatitude(final double phi) {
         return abs(phi) == 90 ? phi :
                 90 * MeridianDistance(phi) / QuarterMeridian();
     }
 
-    public double InverseRectifyingLatitude(double mu) {
+    public double InverseRectifyingLatitude(final double mu) {
         if (abs(mu) == 90)
             return mu;
         return InverseParametricLatitude(_ell.Einv(mu * _ell.E() / 90) /
                 MathGeo.RADIANS_TO_DEGREES);
     }
 
-/*    public double AuthalicLatitude(double phi)
+/*    public double AuthalicLatitude(final double phi)
     { return MathGeo.atand(_au.txif(MathGeo.tand(GeoMath.LatFix(phi)))); }
 
-    public double InverseAuthalicLatitude(double xi)
+    public double InverseAuthalicLatitude(final double xi)
     { return MathGeo.atand(_au.tphif(MathGeo.tand(GeoMath.LatFix(xi)))); }
     */
 
-    public double ConformalLatitude(double phi) {
+    public double ConformalLatitude(final double phi) {
         return MathGeo.atand(MathGeo.taupf(MathGeo.tand(GeoMath.LatFix(phi)), _es));
     }
 
-    public double InverseConformalLatitude(double chi) {
+    public double InverseConformalLatitude(final double chi) {
         return MathGeo.atand(MathGeo.tauf(MathGeo.tand(GeoMath.LatFix(chi)), _es));
     }
 
-    public double IsometricLatitude(double phi) {
+    public double IsometricLatitude(final double phi) {
         return MathGeo.asinh(MathGeo.taupf(MathGeo.tand(GeoMath.LatFix(phi)), _es)) /
                 MathGeo.RADIANS_TO_DEGREES;
     }
 
-    public double InverseIsometricLatitude(double psi) {
+    public double InverseIsometricLatitude(final double psi) {
         return MathGeo.atand(MathGeo.tauf(sinh(psi * MathGeo.RADIANS_TO_DEGREES), _es));
     }
 
-    double CircleRadius(double phi) {
+    double CircleRadius(final double phi) {
         return abs(phi) == 90 ? 0 :
                 // a * cos(beta)
                 majorRadius / GeoMath.hypot(1.0D, secondFlattening * MathGeo.tand(GeoMath.LatFix(phi)));
     }
 
-    public double CircleHeight(double phi) {
+    public double CircleHeight(final double phi) {
         double tbeta = secondFlattening * MathGeo.tand(phi);
         // b * sin(beta)
         return minorRadius * tbeta / GeoMath.hypot(1.0D,
                 secondFlattening * MathGeo.tand(GeoMath.LatFix(phi)));
     }
 
-    public double MeridianDistance(double phi) {
+    public double MeridianDistance(final double phi) {
         return minorRadius * _ell.Ed(ParametricLatitude(phi));
     }
 
-    double MeridionalCurvatureRadius(double phi) {
+    double MeridionalCurvatureRadius(final double phi) {
         double v = 1 - eccentricitySquared * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
         return majorRadius * (1 - eccentricitySquared) / (v * sqrt(v));
     }
 
-    public double TransverseCurvatureRadius(double phi) {
+    public double TransverseCurvatureRadius(final double phi) {
         double v = 1 - eccentricitySquared * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
         return majorRadius / sqrt(v);
     }
 
-    public double NormalCurvatureRadius(double phi, double azi) {
+    public double NormalCurvatureRadius(final double phi, final double azi) {
         double calp, salp,
                 v = 1 - eccentricitySquared * GeoMath.sq(MathGeo.sind(GeoMath.LatFix(phi)));
         Pair scalp = GeoMath.sincosd(azi);
