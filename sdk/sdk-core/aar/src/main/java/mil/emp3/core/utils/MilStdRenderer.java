@@ -385,7 +385,7 @@ public class MilStdRenderer implements IMilStdRenderer {
         for(ShapeInfo shapeInfo: modifierShapeInfoList) {
             switch (shapeInfo.getShapeType()) {
                 case ShapeInfo.SHAPE_TYPE_MODIFIER: {
-                    Log.i(TAG, "Shape Type M<odifier.");
+                    Log.i(TAG, "Shape Type Modifier.");
                     break;
                 }
                 case ShapeInfo.SHAPE_TYPE_MODIFIER_FILL: {
