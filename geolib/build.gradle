@@ -51,13 +51,13 @@ javadoc {
 
 publishing.publications {
     nebula(MavenPublication) {
-        artifactId = "geolib"
-        version = "${version_cmapi}"
-
-        artifacts = [
-                artifact("$buildDir/libs/geolib.jar") {
-                    extension "jar"
-                }
-        ]
+//        artifactId = "geolib"
+//        version = "${version}"
+//
+//        artifacts = [
+//                artifact("$buildDir/libs/geolib-{$version}.jar") {
+//                    extension "jar"
+//                }
+//        ]
     }
 }
