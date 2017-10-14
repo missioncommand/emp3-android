@@ -14,10 +14,11 @@ configurations {
     }
 }
 dependencies {
-    testImplementation 'junit:junit:4.12'
+
     implementation project (":cmapi")
     implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")
     compileOnly files      ("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
+    testImplementation 'junit:junit:4.12'
 }
 
 tasks.withType(Test) {
@@ -52,7 +53,7 @@ publishing.publications {
     nebula(MavenPublication) {
         pom.withXml {
             configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
-                if (dep.moduleName.equals("google-maps-android-cmgn")) {
+                if (dep.moduleName.equals("cmapi")) {
                     asNode().dependencies[0].dependency?.scope[0]?.value = 'compile'
                 }
             }
