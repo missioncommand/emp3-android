@@ -51,12 +51,13 @@ javadoc {
 
 publishing.publications {
     nebula(MavenPublication) {
-        pom.withXml {
-            configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
-                if (dep.moduleName.equals("cmapi")) {
-                    asNode().dependencies[0].dependency?.scope[0]?.value = 'compile'
+        artifactId = "geolib"
+        version = "${version_cmapi}"
+
+        artifacts = [
+                artifact("$buildDir/libs/geolib.jar") {
+                    extension "jar"
                 }
-            }
-        }
+        ]
     }
 }
