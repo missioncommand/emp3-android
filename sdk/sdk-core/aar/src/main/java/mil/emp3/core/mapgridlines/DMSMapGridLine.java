@@ -544,7 +544,7 @@ public class DMSMapGridLine extends AbstractMapGridLine {
             gridObject = createPathFeature(posList, DMS_GRID_LINE_MINOR);
             addFeature(gridObject);
 
-            pos = GeographicLib.calculateRhumbPositionAt(0.0, labelOffset, pos);
+            pos = GeographicLib.computeRhumbPositionAt(0.0, labelOffset, pos);
             label = southCoordinate.longitudeToString(getFormatString(longitudeGridSetting));
             gridObject = createLabelFeature(pos, label, DMS_GRID_LONG_MINOR_VALUE);
             addFeature(gridObject);
@@ -579,7 +579,7 @@ public class DMSMapGridLine extends AbstractMapGridLine {
             gridObject = createPathFeature(posList, DMS_GRID_LINE_MINOR);
             addFeature(gridObject);
 
-            pos = GeographicLib.calculateRhumbPositionAt(90.0, labelOffset, pos);
+            pos = GeographicLib.computeRhumbPositionAt(90.0, labelOffset, pos);
             label = westCoordinate.latitudeToString(getFormatString(latitudeGridSetting));
             gridObject = createLabelFeature(pos, label, DMS_GRID_LAT_MINOR_VALUE);
             addFeature(gridObject);
