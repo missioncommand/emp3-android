@@ -10,6 +10,7 @@ include 'cmapi' // common geospatial notation
 project(':cmapi').projectDir = new File(settingsDir, '3rdpartylibrary/cmapi')
 
 include ':nga-geotrans'
+include ':geolib'
 //
 // SDK
 //
