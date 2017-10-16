@@ -33,7 +33,23 @@ public class GeoLibraryUnitTest
     @Test
     public void testDistance() throws FileNotFoundException, URISyntaxException
     {
-        final File coordinatePointsFile = loadFileFromDisk("expectedDistanceValues.csv");
+        String fileName = "expectedDistanceValues.csv";
+        testCsvValues(fileName, (start, end) -> GeographicLib.computeDistanceBetween(start,end));
+    }
+
+
+    //Compute RhumbDistance Test
+    @Test
+    public void testRhumblineDistance() throws FileNotFoundException, URISyntaxException
+    {
+        String fileName = "expectedRhumbDistanceValues.csv";
+        testCsvValues(fileName, (start, end) -> GeographicLib.computeRhumbDistance(start,end));
+    }
+
+    private void testCsvValues(String fileName, IDistanceCalculator calculator) throws FileNotFoundException, URISyntaxException
+    {
+        //https://geographiclib.sourceforge.io/cgi-bin/GeodSolve?type=I
+        final File coordinatePointsFile = loadFileFromDisk(fileName);
         try(Scanner scanner = new Scanner(coordinatePointsFile))
         {
             scanner.useDelimiter("\n");
@@ -44,7 +60,7 @@ public class GeoLibraryUnitTest
 
             for (final TestDistanceData testData : coordinatesList)
             {
-                final double actualDistance = GeographicLib.computeDistanceBetween(testData.getStartPosition(), testData.getEndPosition());
+                final double actualDistance = calculator.calculateDistance(testData.getStartPosition(), testData.getEndPosition());
                 if(!isEqualEpsilon(actualDistance, testData.expectedDistance))
                 {
                     invalidValues.put(testData, actualDistance);
@@ -55,7 +71,7 @@ public class GeoLibraryUnitTest
             if(invalidValues.size() != 0)
             {
                 final String errorTitle = String.format("Number of incorrect coordinates: %d out of %d\n" +
-                                                         "Following coordinates did not convert correctly.\n.",
+                                                                "Following coordinates did not get the correct distance.\n.",
                                                         invalidValues.size(),
                                                         coordinatesList.size());
 
@@ -73,7 +89,6 @@ public class GeoLibraryUnitTest
             }
         }
     }
-
 
 
     @Test
@@ -267,9 +282,6 @@ public class GeoLibraryUnitTest
         Log.d(TAG, "End computeRhumbDistanceTest.");
     }
 
-    //Compute RumbDistance Test
-
-
     /**
      * Takes the {@link String) name of a file in the test resources and returns a valid {@link File} object.
      *
@@ -315,6 +327,11 @@ public class GeoLibraryUnitTest
         }
     }
 
+    private interface IDistanceCalculator
+    {
+        double calculateDistance(IGeoPosition start, IGeoPosition end);
+    }
+
     private String convertToString(final IGeoPosition geoPosition)
     {
         return String.format("(%f, %f, %f) (Longitude, Latitude, Altitude)",
@@ -335,6 +352,23 @@ public class GeoLibraryUnitTest
             final TestDistanceData coordinate = new TestDistanceData(createGeoPosition(Double.parseDouble(values[0]),Double.parseDouble(values[1]), 0.0),
                                                                      createGeoPosition(Double.parseDouble(values[2]),Double.parseDouble(values[3]), 0.0),
                                                                      Double.parseDouble(values[4]));
+            testDistanceData.add(coordinate);
+        }
+        return testDistanceData;
+    }
+
+    private ArrayList<TestDistanceData> readTestRumblineDataValuesFromFile(final Scanner scanner)
+    {
+        final ArrayList<TestDistanceData> testDistanceData = new ArrayList<>();
+        scanner.next();//skip header information
+        while(scanner.hasNext())
+        {
+            final String line = scanner.next();
+            final String[] values = line.split(",", 5);
+
+            final TestDistanceData coordinate = new TestDistanceData(createGeoPosition(Double.parseDouble(values[0]),Double.parseDouble(values[1]), 0.0),
+                    createGeoPosition(Double.parseDouble(values[2]),Double.parseDouble(values[3]), 0.0),
+                    Double.parseDouble(values[4]));
             testDistanceData.add(coordinate);
         }
         return testDistanceData;
