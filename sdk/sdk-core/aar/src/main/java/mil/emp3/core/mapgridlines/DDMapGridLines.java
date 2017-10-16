@@ -287,7 +287,7 @@ public class DDMapGridLines extends AbstractMapGridLine {
 
             gridObject = createPathFeature(posList, DD_GRID_LINE_MINOR);
             addFeature(gridObject);
-
+          
             pos = GeographicLib.computeRhumbPositionAt(0.0, labelOffset, pos);
             label = getLabelString(longitudeGridSetting, longitude);
             gridObject = createLabelFeature(pos, label, DD_GRID_LONG_MINOR_VALUE);

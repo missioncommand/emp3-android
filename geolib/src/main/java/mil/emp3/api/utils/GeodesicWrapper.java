@@ -205,6 +205,7 @@ public class GeodesicWrapper {
      * @return Pair of latitude, longitude (first, second)
      * @throws IllegalArgumentException
      */
+
     public static Pair computeRhumbPositionAt(final double bearing, final double distance, final double lat, final double lon) {
         GeodesicData g = getDirectRhumbData(lat, lon, bearing, distance);
         return new Pair(g.lat2, g.lon2);
