@@ -33,6 +33,7 @@ public class GeoLibraryUnitTest
     @Test
     public void testDistance() throws FileNotFoundException, URISyntaxException
     {
+        //test values were generated from the following website:
         //https://geographiclib.sourceforge.io/cgi-bin/GeodSolve?type=I
         String fileName = "expectedDistanceValues.csv";
         testCsvValues(fileName, (start, end) -> GeographicLib.computeDistanceBetween(start,end));
@@ -43,6 +44,7 @@ public class GeoLibraryUnitTest
     @Test
     public void testRhumblineDistance() throws FileNotFoundException, URISyntaxException
     {
+        //test values were generated from the following website:
         //https://geographiclib.sourceforge.io/cgi-bin/RhumbSolve?type=I
         String fileName = "expectedRhumbDistanceValues.csv";
         testCsvValues(fileName, (start, end) -> GeographicLib.computeRhumbDistance(start,end));
@@ -52,42 +54,50 @@ public class GeoLibraryUnitTest
                                final IDistanceCalculator calculator) throws FileNotFoundException, URISyntaxException
     {
         //https://geographiclib.sourceforge.io/cgi-bin/GeodSolve?type=I
+
+        //get the .csv file with test data values
         final File coordinatePointsFile = loadFileFromDisk(fileName);
         try(Scanner scanner = new Scanner(coordinatePointsFile))
         {
             scanner.useDelimiter("\n");
-
-            final ArrayList<TestDistanceData> coordinatesList = this.readTestDistanceDataValuesFromFile(scanner);
-
+            //read the test data
+            final ArrayList<TestDistanceData> testDistanceData = this.readTestDistanceDataValuesFromFile(scanner);
+            //create a map of the invalid distance calculations where the TestDistanceData is the data
+            //the distance calculation was on and the value is the actual value of the distance the calculator returned
             final HashMap<TestDistanceData, Double> invalidValues = new HashMap<>();
-
-            for (final TestDistanceData testData : coordinatesList)
+            //test each one of the test data
+            for (final TestDistanceData testData : testDistanceData)
             {
+                //use the calculator to get the actual distance
                 final double actualDistance = calculator.calculateDistance(testData.getStartPosition(), testData.getEndPosition());
+                //check if the actual distance is within a nanometer of precision of the expected distance
                 if(!isEqualEpsilon(actualDistance, testData.expectedDistance))
                 {
+                    //add this to the invalid values
                     invalidValues.put(testData, actualDistance);
                 }
             }
 
-
+            //create an error message if there were any invalid calculations
             if(invalidValues.size() != 0)
             {
+                //create an error title
                 final String errorTitle = String.format("Number of incorrect coordinates: %d out of %d\n" +
                                                                 "Following coordinates did not get the correct distance.\n.",
                                                         invalidValues.size(),
-                                                        coordinatesList.size());
+                                                        testDistanceData.size());
 
                 final StringBuilder errorMessage = new StringBuilder(errorTitle);
+                //create the list of coordinates and distances that were wrong
                 for (final TestDistanceData failedData : invalidValues.keySet())
                 {
-                    errorMessage.append(String.format("\t Start: %s End: %s Expected: %.9f  Actual: %.9f \n",
+                    errorMessage.append(String.format("\t Start: %s End: %s Expected: %.10f  Actual: %.10f \n",
                                                       convertToString(failedData.startPosition),
                                                       convertToString(failedData.endPosition),
                                                       failedData.getExpectedDistance(),
                                                       invalidValues.get(failedData)));
                 }
-
+                //fail with the error message
                 Assert.fail(errorMessage.toString());
             }
         }
@@ -299,12 +309,22 @@ public class GeoLibraryUnitTest
         return new File(this.getClass().getClassLoader().getResource(fileName).toURI());
     }
 
+    /**
+     * Container to hold test distance data
+     * (start, end, expected distance)
+     */
     private class TestDistanceData
     {
         private final IGeoPosition startPosition;
         private final IGeoPosition endPosition;
         private final double expectedDistance;
 
+        /**
+         * Constructor
+         * @param start start location
+         * @param end end location
+         * @param expectedDistance the expected distance between the two points
+         */
         private TestDistanceData(final IGeoPosition start,
                                  final IGeoPosition end,
                                  final double       expectedDistance)
@@ -330,19 +350,32 @@ public class GeoLibraryUnitTest
         }
     }
 
+    /**
+     * Interface to calculate distances
+     */
     private interface IDistanceCalculator
     {
         double calculateDistance(IGeoPosition start, IGeoPosition end);
     }
 
+    /**
+     * GeoPosition stringify
+     * @param geoPosition the position to convert to a readable string value
+     * @return the position in a human readable string
+     */
     private String convertToString(final IGeoPosition geoPosition)
     {
         return String.format("(%f, %f, %f) (Longitude, Latitude, Altitude)",
-                geoPosition.getLongitude(),
-                geoPosition.getLatitude(),
-                geoPosition.getAltitude());
+                             geoPosition.getLongitude(),
+                             geoPosition.getLatitude(),
+                             geoPosition.getAltitude());
     }
 
+    /***
+     * Converts the scanner values into TestDistanceData
+     * @param scanner the scanner of the csv file
+     * @return the list of TestDistanceData values from the csv file
+     */
     private ArrayList<TestDistanceData> readTestDistanceDataValuesFromFile(final Scanner scanner)
     {
         final ArrayList<TestDistanceData> testDistanceData = new ArrayList<>();
@@ -351,7 +384,7 @@ public class GeoLibraryUnitTest
         {
             final String line = scanner.next();
             final String[] values = line.split(",", 5);
-
+            //format should be lat1, long1, lat2, long2, expectedDistance
             final TestDistanceData coordinate = new TestDistanceData(createGeoPosition(Double.parseDouble(values[0]),Double.parseDouble(values[1]), 0.0),
                                                                      createGeoPosition(Double.parseDouble(values[2]),Double.parseDouble(values[3]), 0.0),
                                                                      Double.parseDouble(values[4]));
@@ -360,29 +393,25 @@ public class GeoLibraryUnitTest
         return testDistanceData;
     }
 
-    private ArrayList<TestDistanceData> readTestRumblineDataValuesFromFile(final Scanner scanner)
-    {
-        final ArrayList<TestDistanceData> testDistanceData = new ArrayList<>();
-        scanner.next();//skip header information
-        while(scanner.hasNext())
-        {
-            final String line = scanner.next();
-            final String[] values = line.split(",", 5);
-
-            final TestDistanceData coordinate = new TestDistanceData(createGeoPosition(Double.parseDouble(values[0]),Double.parseDouble(values[1]), 0.0),
-                    createGeoPosition(Double.parseDouble(values[2]),Double.parseDouble(values[3]), 0.0),
-                    Double.parseDouble(values[4]));
-            testDistanceData.add(coordinate);
-        }
-        return testDistanceData;
-    }
-
+    /**
+     * returns true if value1 equals value2 with a nanometer precision
+     * @param value1 first value
+     * @param value2 second value
+     * @return true if value1 equals value2 with a nanometer precision, false otherwise
+     */
     private boolean isEqualEpsilon(final double value1,
                                    final double value2)
     {
         return value1 == value2 ? true : Math.abs(value1 - value2) < Epsilon;
     }
 
+    /***
+     * Helper function to create GeoPositions
+     * @param latitude latitude value in degrees
+     * @param longitude longitude value in degrees
+     * @param altitude altitude value in meters
+     * @return Geoposition with the given coordinates
+     */
     private static IGeoPosition createGeoPosition(final double latitude,
                                                   final double longitude,
                                                   final double altitude)
