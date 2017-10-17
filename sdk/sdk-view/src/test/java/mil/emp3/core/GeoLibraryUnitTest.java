@@ -33,6 +33,7 @@ public class GeoLibraryUnitTest
     @Test
     public void testDistance() throws FileNotFoundException, URISyntaxException
     {
+        //https://geographiclib.sourceforge.io/cgi-bin/GeodSolve?type=I
         String fileName = "expectedDistanceValues.csv";
         testCsvValues(fileName, (start, end) -> GeographicLib.computeDistanceBetween(start,end));
     }
@@ -42,11 +43,13 @@ public class GeoLibraryUnitTest
     @Test
     public void testRhumblineDistance() throws FileNotFoundException, URISyntaxException
     {
+        //https://geographiclib.sourceforge.io/cgi-bin/RhumbSolve?type=I
         String fileName = "expectedRhumbDistanceValues.csv";
         testCsvValues(fileName, (start, end) -> GeographicLib.computeRhumbDistance(start,end));
     }
 
-    private void testCsvValues(String fileName, IDistanceCalculator calculator) throws FileNotFoundException, URISyntaxException
+    private void testCsvValues(final String              fileName,
+                               final IDistanceCalculator calculator) throws FileNotFoundException, URISyntaxException
     {
         //https://geographiclib.sourceforge.io/cgi-bin/GeodSolve?type=I
         final File coordinatePointsFile = loadFileFromDisk(fileName);
