@@ -161,13 +161,13 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
             IGeoPosition pos = null;
             switch(cpType) {
                 case WIDTH_CP:
-                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing + 90.0, currentWidth/2, center);
+                    pos = GeographicLib.computeRhumbPositionAt(currentBearing + 90.0, currentWidth/2, center);
                     break;
                 case HEIGHT_CP:
-                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing, currentHeight/2, center);
+                    pos = GeographicLib.computeRhumbPositionAt(currentBearing, currentHeight/2, center);
                     break;
                 case AZIMUTH_CP:
-                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing - 90.0, currentWidth/2, center);
+                    pos = GeographicLib.computeRhumbPositionAt(currentBearing - 90.0, currentWidth/2, center);
                     break;
                 default:
                     Log.e(TAG, "getCP illegal CPType " + cpType.toString());
