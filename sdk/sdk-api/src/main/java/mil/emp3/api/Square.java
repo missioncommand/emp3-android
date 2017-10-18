@@ -78,11 +78,8 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
         if(null == oRenderable) {
             throw new IllegalArgumentException("Encapsulated Square must be non-null");
         }
-        this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
-
-        if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width. " + this.getWidth() + " Minimum supported " + MINIMUM_WIDTH);
-        }
+        //super sets the width bypassing validation, so retrieve the new value using get and then validate with set
+        this.setWidth(this.getWidth());
         this.setAzimuth(this.getAzimuth());  // For validation.
     }
 
@@ -91,12 +88,19 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
      * @param fValue The width in meters.
      */
     @Override
-    public void setWidth(double fValue) {
-        fValue = makePositive(fValue, "Invalid width. NaN");
-        if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width. " + fValue + " Minimum supported " + MINIMUM_WIDTH);
+    public void setWidth(final double fValue) {
+        if(isValidWidth(fValue)) {
+            this.getRenderable().setWidth(fValue);
         }
-        this.getRenderable().setWidth(fValue);
+    }
+
+    private boolean isValidWidth(final double fValue) {
+        if(isNotNegative(fValue)) {
+            if(fValue < MINIMUM_WIDTH) {
+                throw new IllegalArgumentException("Invalid width. " + fValue + " Minimum supported " + MINIMUM_WIDTH);
+            }
+        }
+        return true;
     }
 
     /**
@@ -110,18 +114,18 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
 
     public IEmpBoundingBox getFeatureBoundingBox() {
         double halfWidthE2;
-        double distanceToCorner;
-        double bearingToTopRightCorner;
+        final double distanceToCorner;
+        final double bearingToTopRightCorner;
         double bearing;
-        double azimuth = this.getAzimuth();
-        List<IGeoPosition> posList = this.getPositions();
+        final double azimuth = this.getAzimuth();
+        final List<IGeoPosition> posList = this.getPositions();
 
         if ((null == posList) || posList.isEmpty()) {
             return null;
         }
 
-        IEmpBoundingBox bBox = new EmpBoundingBox();
-        IGeoPosition pos = new GeoPosition();
+        final IEmpBoundingBox bBox = new EmpBoundingBox();
+        final IGeoPosition pos = new GeoPosition();
         halfWidthE2 = this.getWidth() / 2.0;
 
         bearingToTopRightCorner = 45.0;
@@ -168,11 +172,11 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
 
         return bBox;
     }
+
     /**
      *
      * @return String gives square parameters
      */
-
     @Override
     public String toString() {
         if (getPosition() != null) {

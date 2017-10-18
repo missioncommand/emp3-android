@@ -37,18 +37,10 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * @param dMajorRadius see {@link #setSemiMajor(double)}.
      * @param dMinorRadius  see {@link #setSemiMinor(double)}.
      */
-    public Ellipse(double dMajorRadius, double dMinorRadius) {
+    public Ellipse(final double dMajorRadius, final double dMinorRadius) {
         super(new GeoEllipse(), FeatureTypeEnum.GEO_ELLIPSE);
-        dMajorRadius = makePositive(dMajorRadius, "Invalid major radius. NaN");
-        dMinorRadius = makePositive(dMinorRadius, "Invalid minor radius. NaN");
-
-        if((dMajorRadius < MINIMUM_SEMI_MAJOR) || (dMinorRadius < MINIMUM_SEMI_MINOR)) {
-            throw new IllegalArgumentException("Invalid Major or Minor. " + dMajorRadius + " " + dMinorRadius +
-                    " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
-        }
         this.setSemiMajor(dMajorRadius);
         this.setSemiMinor(dMinorRadius);
-
         this.setFillStyle(null);
     }
 
@@ -58,16 +50,8 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * @param dMinorRadius  see {@link #setSemiMinor(double)}.
      * @param dAzimuth see {@link Feature#setAzimuth(double)}.
      */
-    public Ellipse(double dMajorRadius, double dMinorRadius, double dAzimuth) {
+    public Ellipse(final double dMajorRadius, final double dMinorRadius, final double dAzimuth) {
         super(new GeoEllipse(), FeatureTypeEnum.GEO_ELLIPSE);
-        dMajorRadius = makePositive(dMajorRadius, "Invalid major radius. NaN");
-        dMinorRadius = makePositive(dMinorRadius, "Invalid minor radius. NaN");
-
-        if((dMajorRadius < MINIMUM_SEMI_MAJOR) || (dMinorRadius < MINIMUM_SEMI_MINOR)) {
-            throw new IllegalArgumentException("Invalid Major or Minor. " + dMajorRadius + " " + dMinorRadius +
-                    " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
-        }
-
         this.setAzimuth(dAzimuth);
         this.setSemiMajor(dMajorRadius);
         this.setSemiMinor(dMinorRadius);
@@ -84,14 +68,9 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         if(null == oRenderable) {
             throw new IllegalArgumentException("Encapsulated GeoEllipse must be non-null");
         }
-        this.setSemiMajor(makePositive(this.getSemiMajor(), "Invalid Semi Major NaN"));
-        this.setSemiMinor(makePositive(this.getSemiMinor(), "Invalid Semi Minor NaN"));
 
-        if((this.getSemiMajor() < MINIMUM_SEMI_MAJOR) || (this.getSemiMinor() < MINIMUM_SEMI_MINOR)) {
-            throw new IllegalArgumentException("Invalid Major or Minor. " + this.getSemiMajor() + " " + this.getSemiMinor() +
-                    " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
-        }
-
+        this.setSemiMajor(this.getSemiMajor());
+        this.setSemiMinor(this.getSemiMinor());
         this.setAzimuth(this.getAzimuth());  // For validation
     }
 
@@ -100,13 +79,12 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * @param value The major radius in meters. The absolute value must be >= 1.0. Otherwise an InvalidParameter is raised.
      */
     @Override
-    public void setSemiMajor(double value) {
-        value = makePositive(value, "Semi Major is NaN");
-
-        if (value < MINIMUM_SEMI_MAJOR) {
-            throw new IllegalArgumentException("Semi Major must be >= 1.0");
+    public void setSemiMajor(final double value) {
+        if(isValidSemiMajor(value)) {
+            this.getRenderable().setSemiMajor(value);
+        } else {
+            throw new IllegalArgumentException("Invalid semimajor, " + String.valueOf(value) + " Minimum supported " + MINIMUM_SEMI_MAJOR);
         }
-        this.getRenderable().setSemiMajor(value);
     }
 
     /**
@@ -123,13 +101,12 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * @param value The minor radius in meters. An InvalidPaameterException is raised if the absolute value is less than 1.0.
      */
     @Override
-    public void setSemiMinor(double value) {
-        value = makePositive(value, "Semi Minor is NaN");
-
-        if (value < MINIMUM_SEMI_MINOR) {
-            throw new IllegalArgumentException("The Semi Minor must be >= 1.0.");
+    public void setSemiMinor(final double value) {
+        if(isValidSemiMinor(value)) {
+            this.getRenderable().setSemiMinor(value);
+        } else {
+            throw new IllegalArgumentException("Invalid semiminor, " + String.valueOf(value) + " Minimum supported " + MINIMUM_SEMI_MINOR);
         }
-        this.getRenderable().setSemiMinor(value);
     }
 
     /**
@@ -139,6 +116,24 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
     @Override
     public double getSemiMinor() {
         return this.getRenderable().getSemiMinor();
+    }
+
+    private boolean isValidSemiMajor(final double dMajor) {
+        if(isPositive(dMajor)) {
+            if(dMajor < MINIMUM_SEMI_MAJOR) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isValidSemiMinor(final double dMinor) {
+        if(isPositive(dMinor)) {
+            if(dMinor < MINIMUM_SEMI_MINOR) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public IEmpBoundingBox getFeatureBoundingBox() {

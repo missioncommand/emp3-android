@@ -30,9 +30,13 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * provide the GeoIconStyle to correctly position the icon.
      * @param sURL A valid URL
      */
-    public Point(String sURL) {
+    public Point(final String sURL) {
         super(new GeoPoint(), FeatureTypeEnum.GEO_POINT);
-        this.setIconURI(sURL);
+        if(android.webkit.URLUtil.isValidUrl(sURL)) {
+            this.setIconURI(sURL);
+        } else {
+            throw new IllegalArgumentException("Invalid url input, " + sURL + " is not a valid url");
+        }
     }
 
     /**
@@ -40,12 +44,15 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * @param dLat
      * @param dLong
      */
-    public Point(double dLat, double dLong) {
+    public Point(final double dLat, final double dLong) {
         super(new GeoPoint(), FeatureTypeEnum.GEO_POINT);
-        
-        IGeoPosition oPos = new GeoPosition();
-        oPos.setLatitude(dLat);
-        oPos.setLongitude(dLong);
+        final IGeoPosition oPos = new GeoPosition();
+        if (isValidLat(dLat)) {
+            oPos.setLatitude(dLat);
+        }
+        if(isValidLong(dLong)) {
+            oPos.setLongitude(dLong);
+        }
         this.setPosition(oPos);
     }
 
@@ -53,8 +60,32 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * This constructor creates a point feature from a geo point object.
      * @param oRenderable
      */
-    public Point(IGeoPoint oRenderable) {
+    public Point(final IGeoPoint oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_POINT);
+    }
+
+    private boolean isValidLat(final Double dLat) {
+        if(!Double.isNaN(dLat)) {
+            if(dLat < -90 || dLat > 90) {
+                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLat) + " is not in the valid latitude range -90 to 90");
+            } else {
+                return true;
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid Input, NaN is not a valid latitude");
+        }
+    }
+
+    private boolean isValidLong(final Double dLong) {
+        if(!Double.isNaN(dLong)) {
+            if(dLong < -180 || dLong > 180) {
+                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLong) + " is not in the valid longitude range -180 to 180");
+            } else {
+                return true;
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid Input, NaN is not a valid longitude");
+        }
     }
 
     /**
@@ -62,7 +93,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * @param oStyle See {@link IGeoIconStyle}
      */
     @Override
-    public void setIconStyle(IGeoIconStyle oStyle) {
+    public void setIconStyle(final IGeoIconStyle oStyle) {
         ((IGeoPoint) this.getRenderable()).setIconStyle(oStyle);
     }
 
@@ -81,7 +112,11 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      */
     @Override
     public void setIconURI(String sURL) {
-        ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
+        if(android.webkit.URLUtil.isValidUrl(sURL)) {
+            ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
+        } else {
+            throw new IllegalArgumentException("Invalid Input, " + sURL + " is not a valid URL");
+        }
     }
 
     /**
@@ -97,8 +132,10 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * This method sets the icon scale. The size of the icon will be modified by this factor when rendered.
      * @param dScale A value smaller than 1.0 decreases the size. A value larger than 1.0 increases the size.
      */
-    public void setIconScale(double dScale) {
-        this.dIconScale = Math.abs(dScale);
+    public void setIconScale(final double dScale) {
+        if(isPositive(dScale)) {
+            this.dIconScale = Math.abs(dScale);
+        }
     }
 
     /**

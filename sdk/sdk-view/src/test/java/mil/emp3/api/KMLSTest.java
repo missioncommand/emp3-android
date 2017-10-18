@@ -120,6 +120,8 @@ public class KMLSTest extends TestBaseSingleMap {
         URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
         MockContext context = new MyMockContext();
+        PowerMockito.mockStatic(URLUtil.class);
+        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 

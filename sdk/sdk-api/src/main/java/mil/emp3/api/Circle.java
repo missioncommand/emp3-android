@@ -37,11 +37,7 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         super(new GeoCircle(), FeatureTypeEnum.GEO_CIRCLE);
         radius = makePositive(radius, "Invalid radius. NaN");
 
-        if (radius >= MINIMUM_RADIUS) {
-            this.getRenderable().setRadius(radius);
-        } else {
-            throw new IllegalArgumentException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
-        }
+        this.setRadius(radius);
         this.setFillStyle(null);
     }
 
@@ -55,11 +51,8 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         if(null == renderable) {
             throw new IllegalArgumentException("Encapsulated GeoCircle must be non-null");
         }
-        this.setRadius(makePositive(this.getRadius(), "Invalid radius. NaN"));
-
-        if (this.getRadius() < MINIMUM_RADIUS) {
-            throw new IllegalArgumentException("Invalid radius. " + this.getRadius() + " Minimum supported " + MINIMUM_RADIUS);
-        }
+        //seeting renderable bypasses radius validation
+        this.setRadius(this.getRadius());
     }
 
     /**
@@ -68,12 +61,20 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
      */
     @Override
     public void setRadius(double radius) {
-        radius = makePositive(radius, "Invalid radius. NaN");
-
-        if (radius < MINIMUM_RADIUS) {
-            throw new IllegalArgumentException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
+        if(isValidRadius(radius)) {
+            this.getRenderable().setRadius(radius);
+        } else {
+            throw new IllegalArgumentException("Invalid radius, " + String.valueOf(radius) + " Minimum supported " + MINIMUM_RADIUS);
         }
-        this.getRenderable().setRadius(radius);
+    }
+
+    private boolean isValidRadius(final double dRadius) {
+        if(isPositive(dRadius)) {
+            if(dRadius < MINIMUM_RADIUS) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

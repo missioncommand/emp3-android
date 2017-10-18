@@ -434,6 +434,27 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         }
     }
 
+    protected boolean isNotNegative(Double dValue) {
+        if(Double.isNaN(dValue)) {
+            throw new IllegalArgumentException("Invalid Input, NaN is not a positive number");
+        }
+        else if(dValue < 0) {
+            throw new IllegalArgumentException("Invalid Input, " + dValue + " is a negative number");
+        } else {
+            return true;
+        }
+    }
+    protected boolean isPositive(Double dValue) {
+        if(isNotNegative(dValue)) {
+            if(dValue != 0) {
+                return true;
+            } else {
+                throw new IllegalArgumentException("Invalid Input, " + 0 + " is not a positive number");
+            }
+        }
+        return false;
+    }
+
     /**
      * Convert selected members to String.
      * @return

@@ -28,12 +28,12 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
      * This constructor creates a default path feature with the position list provided.
      * @param oPositionList
      */
-    public Path(List<IGeoPosition> oPositionList) {
+    public Path(final List<IGeoPosition> oPositionList) {
         super(new GeoRenderable(), FeatureTypeEnum.GEO_PATH);
         if (null == oPositionList) {
             throw new IllegalArgumentException("The coordinate parameter can NOT be null");
         }
-        for (IGeoPosition geoPosition : oPositionList) {
+        for (final IGeoPosition geoPosition : oPositionList) {
             if (!EmpGeoPosition.validate(geoPosition)) {
                 throw new IllegalArgumentException("GeoPosition is invalid");
             }
@@ -45,7 +45,7 @@ public class Path extends Feature<IGeoRenderable> implements IFeature<IGeoRender
      * This constructor creates a path feature from the renderable provided.
      * @param oRenderable
      */
-    public Path(IGeoRenderable oRenderable) {
+    public Path(final IGeoRenderable oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_PATH);
     }
 

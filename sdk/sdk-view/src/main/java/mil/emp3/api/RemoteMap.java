@@ -90,7 +90,7 @@ public class RemoteMap implements IMap {
     final private /*MirroredMap*/MapViewFragmentBase oClientMap;
     final private IMapInstance mapInstance;
 
-    public RemoteMap(String remoteMapId, Context context, MirrorCacheModeEnum mode) {
+    public RemoteMap(final String remoteMapId, final Context context, final MirrorCacheModeEnum mode) {
         this(remoteMapId, context, mode, new NoMap());
     }
 
@@ -101,8 +101,8 @@ public class RemoteMap implements IMap {
      * @param mode
      * @param userMapInstance
      */
-    protected RemoteMap(String remoteMapId, Context context, MirrorCacheModeEnum mode, IMapInstance userMapInstance) {
-        IEmpPropertyList propList = new EmpPropertyList();
+    RemoteMap(final String remoteMapId, final Context context, final MirrorCacheModeEnum mode, final IMapInstance userMapInstance) {
+        final IEmpPropertyList propList = new EmpPropertyList();
 
         propList.put("TAG", TAG);
         propList.put(Property.MIRROR_CACHE_MODE.getValue(), mode);
@@ -117,12 +117,12 @@ public class RemoteMap implements IMap {
      * addMapInstance is no longer a public method. swapMapInstance will invoke addmapInstance when required.
      * @param context
      */
-    private void init(Context context) {
+    private void init(final Context context) {
         //this.oClientMap.onCreate(context);
 
         try {
             storageManager.swapMapInstance(oClientMap, mapInstance);
-        } catch (EMP_Exception e) {
+        } catch (final EMP_Exception e) {
             throw new IllegalStateException(e);
         }
 
@@ -153,7 +153,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setMirrorCacheMode(MirrorCacheModeEnum mode) {
+    public void setMirrorCacheMode(final MirrorCacheModeEnum mode) {
         oClientMap.setMirrorCacheMode(mode);
     }
 
@@ -173,7 +173,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void getScreenCapture(IScreenCaptureCallback callback) {
+    public void getScreenCapture(final IScreenCaptureCallback callback) {
         throw new UnsupportedOperationException("This map engine does not support this operation.");
     }
 
@@ -183,11 +183,11 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setCamera(ICamera camera, boolean animate, Object userContext) throws EMP_Exception {
+    public void setCamera(final ICamera camera, final boolean animate, final Object userContext) throws EMP_Exception {
         this.oClientMap.setCamera(camera, animate, userContext);
     }
 
-    public void setCamera(ICamera camera, boolean animate) throws EMP_Exception {
+    public void setCamera(final ICamera camera, final boolean animate) throws EMP_Exception {
         this.oClientMap.setCamera(camera, animate);
     }
 
@@ -197,12 +197,12 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setLookAt(ILookAt lookAt, boolean animate, Object userContext) throws EMP_Exception {
+    public void setLookAt(final ILookAt lookAt, final boolean animate, final Object userContext) throws EMP_Exception {
         this.oClientMap.setLookAt(lookAt, animate, userContext);
     }
 
     @Override
-    public void setLookAt(ILookAt lookAt, boolean animate) throws EMP_Exception {
+    public void setLookAt(final ILookAt lookAt, final boolean animate) throws EMP_Exception {
         this.oClientMap.setLookAt(lookAt, animate);
     }
 
@@ -217,184 +217,184 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void addOverlay(IOverlay overlay, boolean visible, Object userContext) throws EMP_Exception {
+    public void addOverlay(final IOverlay overlay, final boolean visible, final Object userContext) throws EMP_Exception {
         this.oClientMap.addOverlay(overlay, visible, userContext);
     }
 
     @Override
-    public void addOverlays(java.util.List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception {
+    public void addOverlays(final java.util.List<IOverlay> overlays, final boolean visible, final Object userContext) throws EMP_Exception {
         this.oClientMap.addOverlays(overlays, visible, userContext);
     }
 
     @Override
-    public void removeOverlay(IOverlay overlay, Object userContext) throws EMP_Exception {
+    public void removeOverlay(final IOverlay overlay, final Object userContext) throws EMP_Exception {
         this.oClientMap.removeOverlay(overlay, userContext);
     }
 
     @Override
-    public void removeOverlays(java.util.List<IOverlay> overlays, Object userContext) throws EMP_Exception {
+    public void removeOverlays(final java.util.List<IOverlay> overlays, final Object userContext) throws EMP_Exception {
         this.oClientMap.removeOverlays(overlays, userContext);
     }
 
     @Override
-    public void addOverlay(IOverlay overlay, boolean visible) throws EMP_Exception {
+    public void addOverlay(final IOverlay overlay, final boolean visible) throws EMP_Exception {
         this.oClientMap.addOverlay(overlay, visible);
     }
 
     @Override
-    public void addOverlays(java.util.List<IOverlay> overlays, boolean visible) throws EMP_Exception {
+    public void addOverlays(final java.util.List<IOverlay> overlays, final boolean visible) throws EMP_Exception {
         this.oClientMap.addOverlays(overlays, visible);
     }
 
     @Override
-    public void removeOverlay(IOverlay overlay) throws EMP_Exception {
+    public void removeOverlay(final IOverlay overlay) throws EMP_Exception {
         this.oClientMap.removeOverlay(overlay);
     }
 
     @Override
-    public void removeOverlays(java.util.List<IOverlay> overlays) throws EMP_Exception {
+    public void removeOverlays(final java.util.List<IOverlay> overlays) throws EMP_Exception {
         this.oClientMap.removeOverlays(overlays);
     }
 
     @Override
-    public void addMapService(IMapService mapService) throws EMP_Exception {
+    public void addMapService(final IMapService mapService) throws EMP_Exception {
         this.oClientMap.addMapService(mapService);
     }
 
     @Override
-    public void removeMapService(IMapService mapService) throws EMP_Exception {
+    public void removeMapService(final IMapService mapService) throws EMP_Exception {
         this.oClientMap.removeMapService(mapService);
     }
 
     @Override
-    public void addMapService(IMapService mapService, IMapServiceResult result) throws EMP_Exception {
+    public void addMapService(final IMapService mapService, final IMapServiceResult result) throws EMP_Exception {
         this.oClientMap.addMapService(mapService, result);
     }
 
     @Override
-    public void removeMapService(IMapService mapService, IMapServiceResult result) throws EMP_Exception {
+    public void removeMapService(final IMapService mapService, final IMapServiceResult result) throws EMP_Exception {
         this.oClientMap.removeMapService(mapService, result);
     }
 
     @Override
-    public void setVisibility(IContainer target, VisibilityActionEnum actionEnum)
+    public void setVisibility(final IContainer target, final VisibilityActionEnum actionEnum)
             throws EMP_Exception {
         this.oClientMap.setVisibility(target, actionEnum);
     }
 
     @Override
-    public void setVisibility(IContainerSet targetList, VisibilityActionEnum actionEnum)
+    public void setVisibility(final IContainerSet targetList, final VisibilityActionEnum actionEnum)
             throws EMP_Exception {
         this.oClientMap.setVisibility(targetList, actionEnum);
     }
 
     @Override
-    public void setVisibility(java.util.UUID targetId, VisibilityActionEnum actionEnum)
+    public void setVisibility(final java.util.UUID targetId, final VisibilityActionEnum actionEnum)
             throws EMP_Exception {
         this.oClientMap.setVisibility(targetId, actionEnum);
     }
 
     @Override
-    public void setVisibility(IUUIDSet targetIdList, VisibilityActionEnum actionEnum)
+    public void setVisibility(final IUUIDSet targetIdList, final VisibilityActionEnum actionEnum)
             throws EMP_Exception {
         this.oClientMap.setVisibility(targetIdList, actionEnum);
     }
 
     @Override
-    public void setVisibility(IContainer target, IContainer parent, VisibilityActionEnum actionEnum)
+    public void setVisibility(final IContainer target, final IContainer parent, final VisibilityActionEnum actionEnum)
             throws EMP_Exception {
         this.oClientMap.setVisibility(target, parent, actionEnum);
     }
 
     @Override
-    public void setVisibility(java.util.UUID targetId, java.util.UUID parentId, VisibilityActionEnum actionEnum)
+    public void setVisibility(final java.util.UUID targetId, final java.util.UUID parentId, final VisibilityActionEnum actionEnum)
             throws EMP_Exception {
         this.oClientMap.setVisibility(targetId, parentId, actionEnum);
     }
 
     @Override
-    public void setVisibility(IContainer target, VisibilityActionEnum actionEnum, Object userContext)
+    public void setVisibility(final IContainer target, final VisibilityActionEnum actionEnum, final Object userContext)
             throws EMP_Exception {
         this.oClientMap.setVisibility(target, actionEnum, userContext);
     }
 
     @Override
-    public void setVisibility(IContainerSet targetList, VisibilityActionEnum actionEnum, Object userContext)
+    public void setVisibility(final IContainerSet targetList, final VisibilityActionEnum actionEnum, final Object userContext)
             throws EMP_Exception {
         this.oClientMap.setVisibility(targetList, actionEnum, userContext);
     }
 
     @Override
-    public void setVisibility(java.util.UUID targetId, VisibilityActionEnum actionEnum, Object userContext)
+    public void setVisibility(final java.util.UUID targetId, final VisibilityActionEnum actionEnum, final Object userContext)
             throws EMP_Exception {
         this.oClientMap.setVisibility(targetId, actionEnum, userContext);
     }
 
     @Override
-    public void setVisibility(IUUIDSet targetIdList, VisibilityActionEnum actionEnum, Object userContext)
+    public void setVisibility(final IUUIDSet targetIdList, final VisibilityActionEnum actionEnum, final Object userContext)
             throws EMP_Exception {
         this.oClientMap.setVisibility(targetIdList, actionEnum, userContext);
     }
 
     @Override
-    public void setVisibility(IContainer target, IContainer parent, VisibilityActionEnum actionEnum, Object userContext)
+    public void setVisibility(final IContainer target, final IContainer parent, final VisibilityActionEnum actionEnum, final Object userContext)
             throws EMP_Exception {
         this.oClientMap.setVisibility(target, parent, actionEnum, userContext);
     }
 
     @Override
-    public void setVisibility(java.util.UUID targetId, java.util.UUID parentId, VisibilityActionEnum actionEnum, Object userContext)
+    public void setVisibility(final java.util.UUID targetId, final java.util.UUID parentId, final VisibilityActionEnum actionEnum, final Object userContext)
             throws EMP_Exception {
         this.oClientMap.setVisibility(targetId, parentId, actionEnum, userContext);
     }
 
     @Override
-    public VisibilityStateEnum getVisibility(IContainer target) {
+    public VisibilityStateEnum getVisibility(final IContainer target) {
         return this.oClientMap.getVisibility(target);
     }
 
     @Override
-    public VisibilityStateEnum getVisibility(IContainer target, IContainer parent) {
+    public VisibilityStateEnum getVisibility(final IContainer target, final IContainer parent) {
         return this.oClientMap.getVisibility(target, parent);
     }
 
     @Override
-    public EventListenerHandle addMapStateChangeEventListener(IMapStateChangeEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addMapStateChangeEventListener(final IMapStateChangeEventListener listener) throws EMP_Exception {
         return eventManager.addEventHandler(EventListenerTypeEnum.MAP_STATE_CHANGE_EVENT_LISTENER, this, listener);
     }
 
     @Override
-    public EventListenerHandle addMapViewChangeEventListener(IMapViewChangeEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addMapViewChangeEventListener(final IMapViewChangeEventListener listener) throws EMP_Exception {
         return eventManager.addEventHandler(EventListenerTypeEnum.MAP_VIEW_CHANGE_EVENT_LISTENER, this, listener);
     }
 
     @Override
-    public EventListenerHandle addMapInteractionEventListener(IMapInteractionEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addMapInteractionEventListener(final IMapInteractionEventListener listener) throws EMP_Exception {
         return eventManager.addEventHandler(EventListenerTypeEnum.MAP_INTERACTION_EVENT_LISTENER, this, listener);
     }
 
     @Override
-    public EventListenerHandle addMapFeatureAddedEventListener(IMapFeatureAddedEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addMapFeatureAddedEventListener(final IMapFeatureAddedEventListener listener) throws EMP_Exception {
         return eventManager.addEventHandler(EventListenerTypeEnum.MAP_FEATURE_ADDED_EVENT_LISTENER, this, listener);
     }
 
     @Override
-    public EventListenerHandle addMapFeatureRemovedEventListener(IMapFeatureRemovedEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addMapFeatureRemovedEventListener(final IMapFeatureRemovedEventListener listener) throws EMP_Exception {
         return eventManager.addEventHandler(EventListenerTypeEnum.MAP_FEATURE_REMOVED_EVENT_LISTENER, this, listener);
     }
 
     @Override
-    public EventListenerHandle addCameraEventListener(ICameraEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addCameraEventListener(final ICameraEventListener listener) throws EMP_Exception {
         return eventManager.addEventHandler(EventListenerTypeEnum.CAMERA_EVENT_LISTENER, this, listener);
     }
 
     @Override
-    public void setIconSize(IconSizeEnum eSize) throws EMP_Exception {
+    public void setIconSize(final IconSizeEnum eSize) throws EMP_Exception {
         this.oClientMap.setIconSize(eSize);
     }
 
     @Override
-    public void setIconSize(IconSizeEnum eSize, Object userContext) throws EMP_Exception {
+    public void setIconSize(final IconSizeEnum eSize, final Object userContext) throws EMP_Exception {
         this.oClientMap.setIconSize(eSize, userContext);
     }
 
@@ -404,12 +404,12 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setMilStdLabels(MilStdLabelSettingEnum labelSetting) throws EMP_Exception {
+    public void setMilStdLabels(final MilStdLabelSettingEnum labelSetting) throws EMP_Exception {
         this.oClientMap.setMilStdLabels(labelSetting);
     }
 
     @Override
-    public void setMilStdLabels(MilStdLabelSettingEnum labelSetting, Object userContext) throws EMP_Exception {
+    public void setMilStdLabels(final MilStdLabelSettingEnum labelSetting, final Object userContext) throws EMP_Exception {
         this.oClientMap.setMilStdLabels(labelSetting, userContext);
     }
 
@@ -419,12 +419,12 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public IMap swapMapEngine(IEmpPropertyList properties) throws EMP_Exception {
+    public IMap swapMapEngine(final IEmpPropertyList properties) throws EMP_Exception {
         throw new EMP_Exception(EMP_Exception.ErrorDetail.NOT_SUPPORTED, "Map swap is not supported on a remote map.");
     }
 
     @Override
-    public void editFeature(IFeature oFeature) throws EMP_Exception {
+    public void editFeature(final IFeature oFeature) throws EMP_Exception {
         this.oClientMap.editFeature(oFeature);
     }
 
@@ -444,7 +444,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void clearContainer(Object userContext) throws EMP_Exception {
+    public void clearContainer(final Object userContext) throws EMP_Exception {
         this.oClientMap.clearContainer(userContext);
     }
 
@@ -454,37 +454,37 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public EventListenerHandle addContainerEventListener(IContainerEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addContainerEventListener(final IContainerEventListener listener) throws EMP_Exception {
         return this.oClientMap.addContainerEventListener(listener);
     }
 
     @Override
-    public EventListenerHandle addVisibilityEventListener(IVisibilityEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addVisibilityEventListener(final IVisibilityEventListener listener) throws EMP_Exception {
         return this.oClientMap.addVisibilityEventListener(listener);
     }
 
     @Override
-    public EventListenerHandle addFeatureEventListener(IFeatureEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addFeatureEventListener(final IFeatureEventListener listener) throws EMP_Exception {
         return this.oClientMap.addFeatureEventListener(listener);
     }
 
     @Override
-    public EventListenerHandle addFeatureInteractionEventListener(IFeatureInteractionEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addFeatureInteractionEventListener(final IFeatureInteractionEventListener listener) throws EMP_Exception {
         return this.oClientMap.addFeatureInteractionEventListener(listener);
     }
 
     @Override
-    public EventListenerHandle addFeatureEditEventListener(IFeatureEditEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addFeatureEditEventListener(final IFeatureEditEventListener listener) throws EMP_Exception {
         return this.oClientMap.addFeatureEditEventListener(listener);
     }
 
     @Override
-    public void removeEventListener(EventListenerHandle hListener) {
+    public void removeEventListener(final EventListenerHandle hListener) {
         this.oClientMap.removeEventListener(hListener);
     }
 
     @Override
-    public void setName(String string) {
+    public void setName(final String string) {
         this.oClientMap.setName(string);
     }
 
@@ -494,7 +494,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setGeoId(java.util.UUID uuid) {
+    public void setGeoId(final java.util.UUID uuid) {
         this.oClientMap.setGeoId(uuid);
     }
 
@@ -504,7 +504,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setDataProviderId(String s) {
+    public void setDataProviderId(final String s) {
         this.oClientMap.setDataProviderId(s);
     }
 
@@ -514,7 +514,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setDescription(String string) {
+    public void setDescription(final String string) {
         this.oClientMap.setDescription(string);
     }
 
@@ -540,7 +540,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setReadOnly(boolean b) {
+    public void setReadOnly(final boolean b) {
         this.oClientMap.setReadOnly(b);
     }
 
@@ -555,17 +555,17 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public EventListenerHandle addMapFreehandEventListener(IMapFreehandEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addMapFreehandEventListener(final IMapFreehandEventListener listener) throws EMP_Exception {
         return this.oClientMap.addMapFreehandEventListener(listener);
     }
 
     @Override
-    public EventListenerHandle addFeatureDrawEventListener(IFeatureDrawEventListener listener) throws EMP_Exception {
+    public EventListenerHandle addFeatureDrawEventListener(final IFeatureDrawEventListener listener) throws EMP_Exception {
         return this.oClientMap.addFeatureDrawEventListener(listener);
     }
 
     @Override
-    public void drawFeature(IFeature oFeature) throws EMP_Exception {
+    public void drawFeature(final IFeature oFeature) throws EMP_Exception {
         this.oClientMap.drawFeature(oFeature);
     }
 
@@ -580,12 +580,12 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void drawFreehand(IGeoStrokeStyle initialStyle) throws EMP_Exception {
+    public void drawFreehand(final IGeoStrokeStyle initialStyle) throws EMP_Exception {
         this.oClientMap.drawFreehand(initialStyle);
     }
 
     @Override
-    public void setFreehandStyle(IGeoStrokeStyle style) throws EMP_Exception {
+    public void setFreehandStyle(final IGeoStrokeStyle style) throws EMP_Exception {
         this.oClientMap.setFreehandStyle(style);
     }
 
@@ -595,16 +595,16 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void zoomTo(IFeature feature, boolean animate) { this.oClientMap.zoomTo(feature, animate); }
+    public void zoomTo(final IFeature feature, final boolean animate) { this.oClientMap.zoomTo(feature, animate); }
 
     @Override
-    public void zoomTo(List<IFeature> featureList, boolean animate) { this.oClientMap.zoomTo(featureList, animate); }
+    public void zoomTo(final List<IFeature> featureList, final boolean animate) { this.oClientMap.zoomTo(featureList, animate); }
 
     @Override
-    public void zoomTo(IOverlay overlay, boolean animate) { this.oClientMap.zoomTo(overlay, animate); }
+    public void zoomTo(final IOverlay overlay, final boolean animate) { this.oClientMap.zoomTo(overlay, animate); }
 
     @Override
-    public void setBounds(IGeoBounds bounds, boolean animate) { this.oClientMap.setBounds(bounds, animate); }
+    public void setBounds(final IGeoBounds bounds, final boolean animate) { this.oClientMap.setBounds(bounds, animate); }
 
     @Override
     public IGeoBounds getBounds() {
@@ -612,7 +612,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setMotionLockMode(MapMotionLockEnum mode) throws EMP_Exception {
+    public void setMotionLockMode(final MapMotionLockEnum mode) throws EMP_Exception {
         this.oClientMap.setMotionLockMode(mode);
     }
 
@@ -627,7 +627,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setFarDistanceThreshold(double dValue) {
+    public void setFarDistanceThreshold(final double dValue) {
         this.oClientMap.setFarDistanceThreshold(dValue);
     }
 
@@ -637,7 +637,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setMidDistanceThreshold(double dValue) {
+    public void setMidDistanceThreshold(final double dValue) {
         this.oClientMap.setMidDistanceThreshold(dValue);
     }
 
@@ -647,42 +647,42 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public Point geoToScreen(IGeoPosition pos) throws EMP_Exception {
+    public Point geoToScreen(final IGeoPosition pos) throws EMP_Exception {
         return this.oClientMap.geoToScreen(pos);
     }
 
     @Override
-    public IGeoPosition screenToGeo(Point point) throws EMP_Exception {
+    public IGeoPosition screenToGeo(final Point point) throws EMP_Exception {
         return this.oClientMap.screenToGeo(point);
     }
 
     @Override
-    public Point geoToContainer(IGeoPosition pos) throws EMP_Exception {
+    public Point geoToContainer(final IGeoPosition pos) throws EMP_Exception {
         return this.oClientMap.geoToContainer(pos);
     }
 
     @Override
-    public IGeoPosition containerToGeo(Point point) throws EMP_Exception {
+    public IGeoPosition containerToGeo(final Point point) throws EMP_Exception {
         return this.oClientMap.containerToGeo(point);
     }
 
     @Override
-    public void selectFeature(IFeature feature) {
+    public void selectFeature(final IFeature feature) {
         this.oClientMap.selectFeature(feature);
     }
 
     @Override
-    public void selectFeatures(java.util.List<IFeature> features) {
+    public void selectFeatures(final java.util.List<IFeature> features) {
         this.oClientMap.selectFeatures(features);
     }
 
     @Override
-    public void deselectFeature(IFeature feature) {
+    public void deselectFeature(final IFeature feature) {
         this.oClientMap.deselectFeature(feature);
     }
 
     @Override
-    public void deselectFeatures(java.util.List<IFeature> features) {
+    public void deselectFeatures(final java.util.List<IFeature> features) {
         this.oClientMap.deselectFeatures(features);
     }
 
@@ -697,47 +697,47 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void selectFeature(IFeature feature, Object userContext) {
+    public void selectFeature(final IFeature feature, final Object userContext) {
         this.oClientMap.selectFeature(feature, userContext);
     }
 
     @Override
-    public void selectFeatures(java.util.List<IFeature> features, Object userContext) {
+    public void selectFeatures(final java.util.List<IFeature> features, final Object userContext) {
         this.oClientMap.selectFeatures(features, userContext);
     }
 
     @Override
-    public void deselectFeature(IFeature feature, Object userContext) {
+    public void deselectFeature(final IFeature feature, final Object userContext) {
         this.oClientMap.deselectFeature(feature, userContext);
     }
 
     @Override
-    public void deselectFeatures(java.util.List<IFeature> features, Object userContext) {
+    public void deselectFeatures(final java.util.List<IFeature> features, final Object userContext) {
         this.oClientMap.deselectFeatures(features, userContext);
     }
 
     @Override
-    public void clearSelected(Object userContext) {
+    public void clearSelected(final Object userContext) {
         this.oClientMap.clearSelected(userContext);
     }
 
     @Override
-    public boolean isSelected(IFeature feature) {
+    public boolean isSelected(final IFeature feature) {
         return this.oClientMap.isSelected(feature);
     }
 
     @Override
-    public void editFeature(IFeature oFeature, IEditEventListener listener) throws EMP_Exception {
+    public void editFeature(final IFeature oFeature, final IEditEventListener listener) throws EMP_Exception {
         this.oClientMap.editFeature(oFeature, listener);
     }
 
     @Override
-    public void drawFeature(IFeature oFeature, IDrawEventListener listener) throws EMP_Exception {
+    public void drawFeature(final IFeature oFeature, final IDrawEventListener listener) throws EMP_Exception {
         this.oClientMap.drawFeature(oFeature, listener);
     }
 
     @Override
-    public void drawFreehand(IGeoStrokeStyle initialStyle, IFreehandEventListener listener) throws EMP_Exception {
+    public void drawFreehand(final IGeoStrokeStyle initialStyle, final IFreehandEventListener listener) throws EMP_Exception {
         this.oClientMap.drawFreehand(initialStyle, listener);
     }
 
@@ -747,53 +747,53 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setFontSizeModifier(FontSizeModifierEnum value)
+    public void setFontSizeModifier(final FontSizeModifierEnum value)
             throws EMP_Exception {
         this.oClientMap.setFontSizeModifier(value);
     }
 
     @Override
-    public boolean containsProperty(String propertyName) {
+    public boolean containsProperty(final String propertyName) {
         return this.oClientMap.containsProperty(propertyName);
     }
 
     @Override
-    public String getProperty(String propertyName) {
+    public String getProperty(final String propertyName) {
         return this.oClientMap.getProperty(propertyName);
     }
 
     @Override
-    public void setProperty(String propertyName, String propertyValue) {
+    public void setProperty(final String propertyName, final String propertyValue) {
         this.oClientMap.setProperty(propertyName, propertyValue);
     }
 
     @Override
-    public void removeProperty(String propertyName) {
+    public void removeProperty(final String propertyName) {
         this.oClientMap.removeProperty(propertyName);
     }
 
     @Override
-    public boolean getBooleanProperty(String propertyName) {
+    public boolean getBooleanProperty(final String propertyName) {
         return this.oClientMap.getBooleanProperty(propertyName);
     }
 
     @Override
-    public int getIntegerProperty(String propertyName) {
+    public int getIntegerProperty(final String propertyName) {
         return this.oClientMap.getIntegerProperty(propertyName);
     }
 
     @Override
-    public float getFloatProperty(String propertyName) {
+    public float getFloatProperty(final String propertyName) {
         return this.oClientMap.getFloatProperty(propertyName);
     }
 
     @Override
-    public double getDoubleProperty(String propertyName) {
+    public double getDoubleProperty(final String propertyName) {
         return this.oClientMap.getDoubleProperty(propertyName);
     }
 
     @Override
-    public void setBackgroundBrightness(int setting) {
+    public void setBackgroundBrightness(final int setting) {
         this.oClientMap.setBackgroundBrightness(setting);
     }
 
@@ -812,7 +812,7 @@ public class RemoteMap implements IMap {
             super(TAG, null);
         }
         @Override
-        public void addFeatures(FeatureVisibilityList features, Object userContext) {
+        public void addFeatures(final FeatureVisibilityList features, final Object userContext) {
 
         }
 
@@ -858,27 +858,27 @@ public class RemoteMap implements IMap {
         }
 
         @Override
-        public void removeFeatures(IUUIDSet features, Object userContext) {
+        public void removeFeatures(final IUUIDSet features, final Object userContext) {
 
         }
 
         @Override
-        public void addMapService(IMapService mapService) {
+        public void addMapService(final IMapService mapService) {
 
         }
 
         @Override
-        public void removeMapService(IMapService mapService) {
+        public void removeMapService(final IMapService mapService) {
 
         }
 
         @Override
-        public void addMapService(IMapService mapService, IMapServiceResult result) {
+        public void addMapService(final IMapService mapService, final IMapServiceResult result) {
 
         }
 
         @Override
-        public void removeMapService(IMapService mapService, IMapServiceResult result) {
+        public void removeMapService(final IMapService mapService, final IMapServiceResult result) {
 
         }
 
@@ -888,15 +888,15 @@ public class RemoteMap implements IMap {
         }
 
         @Override
-        public void setCamera(ICamera oCamera, boolean animate, Object userContext) {
+        public void setCamera(final ICamera oCamera, final boolean animate, final Object userContext) {
             this.currentCamera = oCamera;
         }
 
         @Override
-        public void applyCameraChange(ICamera oCamera, boolean animate, Object userContext) { }
+        public void applyCameraChange(final ICamera oCamera, final boolean animate, final Object userContext) { }
 
         @Override
-        public void setLookAt(ILookAt lookAt, boolean animate, Object userContext) {
+        public void setLookAt(final ILookAt lookAt, final boolean animate, final Object userContext) {
             this.currentLookAt = lookAt;
         }
 
@@ -906,20 +906,20 @@ public class RemoteMap implements IMap {
         }
 
         @Override
-        public void applyLookAtChange(ILookAt oLookAt, boolean animate, Object userContext) { }
+        public void applyLookAtChange(final ILookAt oLookAt, final boolean animate, final Object userContext) { }
 
         @Override
-        public void setBounds(IGeoBounds bounds) {
+        public void setBounds(final IGeoBounds bounds) {
 
         }
 
         @Override
-        public void setMotionLockMode(MapMotionLockEnum mode) {
+        public void setMotionLockMode(final MapMotionLockEnum mode) {
 
         }
 
         @Override
-        public void registerMilStdRenderer(IMilStdRenderer oRenderer) {
+        public void registerMilStdRenderer(final IMilStdRenderer oRenderer) {
 
         }
 
@@ -939,15 +939,15 @@ public class RemoteMap implements IMap {
         }
 
         @Override
-        public void setFarDistanceThreshold(double dValue) {
+        public void setFarDistanceThreshold(final double dValue) {
         }
 
         @Override
-        public void setMidDistanceThreshold(double dValue) {
+        public void setMidDistanceThreshold(final double dValue) {
         }
 
         @Override
-        public void getVersionInformation(StringBuilder builder, List<String> buildConfigFields) {
+        public void getVersionInformation(final StringBuilder builder, final List<String> buildConfigFields) {
 
         }
 
@@ -957,42 +957,42 @@ public class RemoteMap implements IMap {
         }
 
         @Override
-        public Point geoToScreen(IGeoPosition pos) {
+        public Point geoToScreen(final IGeoPosition pos) {
             return null;
         }
 
         @Override
-        public IGeoPosition screenToGeo(Point point) {
+        public IGeoPosition screenToGeo(final Point point) {
             return null;
         }
 
         @Override
-        public Point geoToContainer(IGeoPosition pos) {
+        public Point geoToContainer(final IGeoPosition pos) {
             return null;
         }
 
         @Override
-        public IGeoPosition containerToGeo(Point point) {
+        public IGeoPosition containerToGeo(final Point point) {
             return null;
         }
 
         @Override
-        public void selectFeatures(List<IFeature> featureList) {
+        public void selectFeatures(final List<IFeature> featureList) {
 
         }
 
         @Override
-        public void deselectFeatures(List<IFeature> featureList) {
+        public void deselectFeatures(final List<IFeature> featureList) {
 
         }
 
         @Override
-        public void setFontSizeModifier(FontSizeModifierEnum value) {
+        public void setFontSizeModifier(final FontSizeModifierEnum value) {
 
         }
 
         @Override
-        public void setBackgroundBrightness(int setting) {
+        public void setBackgroundBrightness(final int setting) {
         }
 
         @Override
@@ -1001,7 +1001,7 @@ public class RemoteMap implements IMap {
         }
 
         @Override
-        public void setMapGridGenerator(IMapGridLines gridGenerator) {
+        public void setMapGridGenerator(final IMapGridLines gridGenerator) {
 
         }
 
@@ -1031,7 +1031,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
-    public void setGridType(MapGridTypeEnum grid) {
+    public void setGridType(final MapGridTypeEnum grid) {
         this.oClientMap.setGridType(grid);
     }
 
