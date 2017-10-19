@@ -6,6 +6,7 @@ import android.util.Log;
 
 import junit.framework.Assert;
 
+import org.cmapi.primitives.GeoDocument;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +30,10 @@ import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.interfaces.IKMLS;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.listeners.IKMLSEventListener;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 @PrepareForTest({Color.class})
 public class KMLSTest extends TestBaseSingleMap {
@@ -353,5 +359,45 @@ public class KMLSTest extends TestBaseSingleMap {
         if(checkStatus) {
             Assert.assertEquals("Status of retrieved service should be PARSING", KMLSStatusEnum.PARSING.toString(), foundService.getStatus(remoteMap).toString());
         }
+    }
+
+    @Test
+    public void constructorTest() throws Exception{
+        URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+        Log.d(TAG, "url " + url.toString());
+
+        MockContext context = new MyMockContext();
+        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+//        KMLS mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue), new UUID(10, 10));
+        KMLS mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+
+        try {
+            mapService.getStatus(null);
+        } catch (final Exception e) {
+            assertEquals(e.getMessage(), "mapClient must be non-null");
+        }
+
+        try {
+            mapService.getStatus(remoteMap);
+        } catch (final Exception e) {
+            assertEquals(e.getMessage(), "Service wasn't added to the map");
+        }
+
+        remoteMap.addMapService(mapService);
+        try {
+            mapService.getStatus(remoteMap);
+        } catch (final Exception e) {
+            fail();
+        }
+        mapService.setName("test_name");
+        Log.i(TAG, mapService.toString());
+        try {
+            mapService.setGeoId(new UUID(10,10));
+        } catch (final Exception e) {
+            assertEquals(e.getMessage(), "GeoId can't be changed after construction");
+        }
+        mapService.setFeature(null);
+        assertNull(mapService.getFeature());
+
     }
 }
