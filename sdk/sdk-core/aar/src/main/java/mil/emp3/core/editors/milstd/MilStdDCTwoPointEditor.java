@@ -102,6 +102,7 @@ public class MilStdDCTwoPointEditor extends AbstractMilStdMultiPointEditor {
         controlPoint.setPosition(pos);
         cpList.add(controlPoint);
         posList.add(0, pos);
+        this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{controlPoint.getCPIndex()});
 
         return cpList;
     }
