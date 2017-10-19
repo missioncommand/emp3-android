@@ -38,11 +38,6 @@ public class WCSTest extends TestBaseSingleMap{
         testWcsObject = new WCS(url, name);
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-    }
-
     @Test
     public void getServiceURLTest() throws Exception {
         assertEquals(testWcsObject.getServiceURL(),url);
@@ -65,17 +60,16 @@ public class WCSTest extends TestBaseSingleMap{
 
         final List<IMapService> services = remoteMap.getMapServices();
         Assert.assertNotNull("services should not be null", services);
-        IKMLS foundService = null;
+        WCS foundService = null;
         for(final IMapService s: services) {
-            if(s instanceof IKMLS && s.getName().equals("kmlSample_Test")) {
-                foundService = (IKMLS) s;
+            if(s instanceof WCS && s.getName().equals("test_name")) {
+                foundService = (WCS) s;
                 break;
             }
         }
-        Assert.assertNotNull("It should be KML Service kmlSample_Test", foundService);
+        Assert.assertNotNull("It should be WCS Service kmlSample_Test", foundService);
 
         remoteMap.removeMapService(mapService);
-        Assert.assertTrue("Removed features GeoId must match ", mapInstance.validateRemoveKmlService());
     }
 
 }
