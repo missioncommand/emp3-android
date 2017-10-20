@@ -1,0 +1,55 @@
+apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-lib.gradle"
+apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.maven-nebula-publish'
+
+android {
+    sourceSets {
+        main {
+            //jni.srcDirs = ['src/main/jni']
+            jni.srcDirs = ['src/main/java']
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+    externalNativeBuild {
+        ndkBuild {
+            // Application.mk in the same directory will be used automatically
+            path 'src/main/jni/Android.mk'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree (dir: 'libs', include: ['*.jar'])
+    testImplementation      ("junit:junit:4.12")
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    destinationDir = file("build/javadoc/")
+    failOnError false
+}
+
+
+task javadocZip(type: Zip) {
+    dependsOn javadoc
+    from 'build/javadoc/'
+    include '*'
+    include '*/*' //to include contents of a folder present inside Reports directory
+    archiveName 'geotrans-javadoc.zip'
+    destinationDir(file('build/outputs/libs'))
+}
+
+publishing.publications {
+    nebula(MavenPublication) {
+        artifactId = "nga-geotrans"
+
+        artifact("$buildDir/outputs/aar/nga-geotrans-release.aar") {
+            extension "aar"
+        }
+
+//        artifact("$buildDir/outputs/libs/geotrans-javadoc.zip") {
+//            extension "zip"
+//        }
+    }
+}
