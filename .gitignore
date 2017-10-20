@@ -1,7 +1,7 @@
 # GRADLE
 build/
 .gradle/
-.externalNativeBuild/
+
 
 #IDE
 .project

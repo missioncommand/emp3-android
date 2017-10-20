@@ -133,10 +133,10 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
             IGeoPosition pos = null;
             switch(cpType) {
                 case LENGTH_CP:
-                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing + 90.0, currentLength/2, center);
+                    pos = GeographicLib.computeRhumbPositionAt(currentBearing + 90.0, currentLength/2, center);
                     break;
                 case AZIMUTH_CP:
-                    pos = GeographicLib.calculateRhumbPositionAt(currentBearing - 90.0, currentLength/2, center);
+                    pos = GeographicLib.computeRhumbPositionAt(currentBearing - 90.0, currentLength/2, center);
                     break;
                 default:
                     Log.e(TAG, "getCP illegal CPType " + cpType.toString());

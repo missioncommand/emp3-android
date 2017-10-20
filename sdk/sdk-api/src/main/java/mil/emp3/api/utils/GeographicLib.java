@@ -226,7 +226,7 @@ public class GeographicLib {
      * @return Geo position
      * @throws IllegalArgumentException
      */
-    public static IGeoPosition calculateRhumbPositionAt(final double bearing, double distance, IGeoPosition from) {
+    public static IGeoPosition computeRhumbPositionAt(final double bearing, double distance, IGeoPosition from) {
         IGeoPosition position = new GeoPosition();
         GeodesicData g = getDirectRhumbData(from, bearing, distance);
         position.setLatitude(g.lat2);
