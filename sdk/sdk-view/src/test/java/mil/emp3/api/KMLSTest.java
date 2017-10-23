@@ -6,7 +6,6 @@ import android.util.Log;
 
 import junit.framework.Assert;
 
-import org.cmapi.primitives.GeoDocument;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,9 +37,9 @@ import static org.junit.Assert.fail;
 @PrepareForTest({Color.class})
 public class KMLSTest extends TestBaseSingleMap {
 
-    private static String TAG = KMLSTest.class.getSimpleName();
+    private final static String TAG = KMLSTest.class.getSimpleName();
 
-    private static boolean checkStatus = false; // This is turned off when submitting code as there is an issue on Travis.
+    private final static boolean checkStatus = false; // This is turned off when submitting code as there is an issue on Travis.
 
     @Before
     public void setUp() throws Exception {
@@ -56,7 +55,7 @@ public class KMLSTest extends TestBaseSingleMap {
 
     class MyMockContext extends MockContext {
         @Override
-        public File getDir(String name, int mode) {
+        public File getDir(final String name, final int mode) {
             Log.d(TAG, "Current Dir " + System.getProperty("user.dir"));
             return new File(System.getProperty("user.dir") + File.separator + name);
         }
@@ -64,15 +63,15 @@ public class KMLSTest extends TestBaseSingleMap {
     class KMLSServiceListener implements IKMLSEventListener {
 
         BlockingQueue<KMLSEventEnum> queue;
-        KMLSServiceListener(BlockingQueue<KMLSEventEnum> queue) {
+        KMLSServiceListener(final BlockingQueue<KMLSEventEnum> queue) {
             this.queue = queue;
         }
         @Override
-        public void onEvent(KMLSEvent event) {
+        public void onEvent(final KMLSEvent event) {
             try {
                 Log.d(TAG, "KMLSServiceListener-onEvent " + event.getEvent().toString() + " status ");
                 queue.put(event.getEvent());
-            } catch(Exception e) {
+            } catch(final Exception e) {
                 Log.e(TAG, e.getMessage(), e);
             }
         }
@@ -80,49 +79,49 @@ public class KMLSTest extends TestBaseSingleMap {
 
     @Test (expected=IllegalArgumentException.class)
     public void null_context_Test() throws Exception {
-        URL url = this.getClass().getClassLoader().getResource("example.kmz");
+        final URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
         new KMLS(null, url.toString(), new KMLSServiceListener(queue));
     }
 
     @Test (expected=IllegalArgumentException.class)
     public void null_listener_Test() throws Exception {
-        URL url = this.getClass().getClassLoader().getResource("example.kmz");
+        final URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
-        MockContext context = new MyMockContext();
+        final MockContext context = new MyMockContext();
         mapInstance.cleanKmls();
         new KMLS(context, url.toString(), null);
     }
 
     @Test (expected=IllegalArgumentException.class)
     public void null_geoid_Test() throws Exception {
-        URL url = this.getClass().getClassLoader().getResource("example.kmz");
+        final URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
-        MockContext context = new MyMockContext();
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final MockContext context = new MyMockContext();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
         new KMLS(context, url.toString(), new KMLSServiceListener(queue), null);
     }
 
     @Test (expected=MalformedURLException.class)
     public void bad_url_Test() throws Exception {
-        MockContext context = new MyMockContext();
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final MockContext context = new MyMockContext();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
         new KMLS(context, "example.kmz", new KMLSServiceListener(queue));
     }
 
     @Test
     public void kmzSample_Test() throws Exception {
-        URL url = this.getClass().getClassLoader().getResource("example.kmz");
+        final URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
-        MockContext context = new MyMockContext();
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final MockContext context = new MyMockContext();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
-        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        final IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("kmzSample_Test");
         remoteMap.addMapService(mapService);
 
@@ -151,7 +150,7 @@ public class KMLSTest extends TestBaseSingleMap {
         List<IMapService> services = remoteMap.getMapServices();
         Assert.assertNotNull("services should not be null", services);
         IKMLS foundService = null;
-        for(IMapService s: services) {
+        for(final IMapService s: services) {
             if(s instanceof IKMLS && s.getName().equals("kmzSample_Test")) {
                 foundService = (IKMLS) s;
                 break;
@@ -169,7 +168,7 @@ public class KMLSTest extends TestBaseSingleMap {
         services = remoteMap.getMapServices();
         if(null != services) {
             foundService = null;
-            for (IMapService s : services) {
+            for (final IMapService s : services) {
                 if (s instanceof IKMLS && s.getName().equals("kmzSample_Test")) {
                     foundService = (IKMLS) s;
                     break;
@@ -183,13 +182,13 @@ public class KMLSTest extends TestBaseSingleMap {
 
     @Test
     public void kmlSample_Test() throws Exception {
-        URL url = this.getClass().getClassLoader().getResource("kml_samples.kml");
+        final URL url = this.getClass().getClassLoader().getResource("kml_samples.kml");
         Log.d(TAG, "url " + url.toString());
-        MockContext context = new MyMockContext();
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final MockContext context = new MyMockContext();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
-        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        final IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("kmlSample_Test");
         remoteMap.addMapService(mapService);
 
@@ -216,10 +215,10 @@ public class KMLSTest extends TestBaseSingleMap {
 
         Assert.assertNull("KMLS feature should be null", ((IKMLS)mapService).getFeature());
 
-        List<IMapService> services = remoteMap.getMapServices();
+        final List<IMapService> services = remoteMap.getMapServices();
         Assert.assertNotNull("services should not be null", services);
         IKMLS foundService = null;
-        for(IMapService s: services) {
+        for(final IMapService s: services) {
             if(s instanceof IKMLS && s.getName().equals("kmlSample_Test")) {
                 foundService = (IKMLS) s;
                 break;
@@ -240,15 +239,15 @@ public class KMLSTest extends TestBaseSingleMap {
 
     @Test
     public void File_Not_Exist_Test() throws Exception {
-        URL url = this.getClass().getClassLoader().getResource("example.kmz");
+        final URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
 
-        MockContext context = new MyMockContext();
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final MockContext context = new MyMockContext();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString().replace("example.kmz", "not_exist.kmz"), new KMLSServiceListener(queue));
+        final IMapService mapService = new KMLS(context, url.toString().replace("example.kmz", "not_exist.kmz"), new KMLSServiceListener(queue));
         mapService.setName("File_Not_Exist_Test");
         remoteMap.addMapService(mapService);
 
@@ -260,10 +259,10 @@ public class KMLSTest extends TestBaseSingleMap {
         Assert.assertNotNull("Not Received KMLSEventEnum.KML_SERVICE_INSTALL_FAILED ", eventEnum);
         Assert.assertEquals("Expected KMLSEventEnum.KML_SERVICE_INSTALL_FAILED", KMLSEventEnum.KML_SERVICE_INSTALL_FAILED, eventEnum);
 
-        List<IMapService> services = remoteMap.getMapServices();
+        final List<IMapService> services = remoteMap.getMapServices();
         Assert.assertNotNull("services should not be null", services);
         IKMLS foundService = null;
-        for(IMapService s: services) {
+        for(final IMapService s: services) {
             if(s instanceof IKMLS && s.getName().equals("File_Not_Exist_Test")) {
                 foundService = (IKMLS) s;
                 break;
@@ -277,15 +276,15 @@ public class KMLSTest extends TestBaseSingleMap {
 
     @Test
     public void UnZip_Fail_Test() throws Exception {
-        URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+        final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
         Log.d(TAG, "url " + url.toString());
 
-        MockContext context = new MyMockContext();
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final MockContext context = new MyMockContext();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        final IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("UnZip_Fail_Test");
         remoteMap.addMapService(mapService);
 
@@ -301,10 +300,10 @@ public class KMLSTest extends TestBaseSingleMap {
         Assert.assertNotNull("Not Received KMLSEventEnum.KML_SERVICE_INSTALL_FAILED ", eventEnum);
         Assert.assertEquals("Expected KMLSEventEnum.KML_SERVICE_INSTALL_FAILED", KMLSEventEnum.KML_SERVICE_INSTALL_FAILED, eventEnum);
 
-        List<IMapService> services = remoteMap.getMapServices();
+        final List<IMapService> services = remoteMap.getMapServices();
         Assert.assertNotNull("services should not be null", services);
         IKMLS foundService = null;
-        for(IMapService s: services) {
+        for(final IMapService s: services) {
             if(s instanceof IKMLS && s.getName().equals("UnZip_Fail_Test")) {
                 foundService = (IKMLS) s;
                 break;
@@ -318,15 +317,15 @@ public class KMLSTest extends TestBaseSingleMap {
 
     @Test
     public void Invalid_KML_Test() throws Exception {
-        URL url = this.getClass().getClassLoader().getResource("kml_samples_invalid.kml");
+        final URL url = this.getClass().getClassLoader().getResource("kml_samples_invalid.kml");
         Log.d(TAG, "url " + url.toString());
 
-        MockContext context = new MyMockContext();
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final MockContext context = new MyMockContext();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        final IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("Invalid_KML_Test");
         remoteMap.addMapService(mapService);
 
@@ -346,10 +345,10 @@ public class KMLSTest extends TestBaseSingleMap {
         Assert.assertNotNull("Not Received KMLSEventEnum.KML_SERVICE_INSTALL_FAILED ", eventEnum);
         Assert.assertEquals("Expected KMLSEventEnum.KML_SERVICE_INSTALL_FAILED", KMLSEventEnum.KML_SERVICE_INSTALL_FAILED, eventEnum);
 
-        List<IMapService> services = remoteMap.getMapServices();
+        final List<IMapService> services = remoteMap.getMapServices();
         Assert.assertNotNull("services should not be null", services);
         IKMLS foundService = null;
-        for(IMapService s: services) {
+        for(final IMapService s: services) {
             if(s instanceof IKMLS && s.getName().equals("Invalid_KML_Test")) {
                 foundService = (IKMLS) s;
                 break;
@@ -363,13 +362,13 @@ public class KMLSTest extends TestBaseSingleMap {
 
     @Test
     public void constructorTest() throws Exception{
-        URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+        final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
         Log.d(TAG, "url " + url.toString());
 
-        MockContext context = new MyMockContext();
-        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final MockContext context = new MyMockContext();
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
 //        KMLS mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue), new UUID(10, 10));
-        KMLS mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        final KMLS mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
 
         try {
             mapService.getStatus(null);
