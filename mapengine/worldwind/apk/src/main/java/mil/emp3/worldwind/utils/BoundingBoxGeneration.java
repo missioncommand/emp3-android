@@ -12,7 +12,7 @@ import java.util.List;
 import mil.emp3.api.global;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.utils.EmpGeoPosition;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
@@ -235,13 +235,13 @@ public class BoundingBoxGeneration {
             for (ii = 0; ii < vertices.length; ii++) {
                 corners.add(vertices[ii]);
             }
-            center = GeoLibrary.getCenter(corners);
+            center = GeographicLib.getCenter(corners);
 
             if (cameraOnScreen) { // then take the center of the vertices and camera.
                 corners.clear();
                 corners.add(center);
                 corners.add(new EmpGeoPosition(camera.getLatitude(), camera.getLongitude()));
-                center = GeoLibrary.getCenter(corners);
+                center = GeographicLib.getCenter(corners);
             }
         }
 

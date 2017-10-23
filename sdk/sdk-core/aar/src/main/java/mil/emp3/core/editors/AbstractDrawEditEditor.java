@@ -31,7 +31,7 @@ import mil.emp3.api.utils.UUIDSet;
 import mil.emp3.core.events.EditUpdateData;
 import mil.emp3.core.events.FeatureDrawEvent;
 import mil.emp3.core.events.FeatureEditEvent;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.mapengine.api.FeatureVisibility;
 import mil.emp3.mapengine.api.FeatureVisibilityList;
 import mil.emp3.mapengine.events.MapInstanceFeatureUserInteractionEvent;
@@ -556,8 +556,8 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                     if (!bIsCP) {
                         if (this.oFeature.getGeoId().equals(oEventedFeature.getGeoId())) {
                             // It is not a control point and it is the feature we are editing.
-                            double dBearing = GeoLibrary.computeBearing(oEvent.getStartCoordinate(), oEvent.getCoordinate());
-                            double dDistance = GeoLibrary.computeDistanceBetween(oEvent.getStartCoordinate(), oEvent.getCoordinate());
+                            double dBearing = GeographicLib.computeBearing(oEvent.getStartCoordinate(), oEvent.getCoordinate());
+                            double dDistance = GeographicLib.computeDistanceBetween(oEvent.getStartCoordinate(), oEvent.getCoordinate());
 
                             //Log.d(TAG, "Dist: " + dDistance + "  Bearing: " + dBearing);
                             this.eEditorState = EditorStateEnum.DRAGGING_FEATURE;

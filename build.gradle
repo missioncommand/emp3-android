@@ -39,14 +39,15 @@ allprojects {
 
 def publishableModules() {
     [
-          project(":emp3-android-sdk")
-        , project(":emp3-android-sdk-apk")
-        , project(":emp3-android-sdk-view")
-        , project(":emp3-android-sdk-core")
-        , project(":emp3-gradle-plugin")
-        , project(":mapengine-worldwind")
-        , project(":google-maps-android-cmgn")
-          , project (":cmapi")
+            project(":emp3-android-sdk")
+            , project(":emp3-android-sdk-apk")
+            , project(":emp3-android-sdk-view")
+            , project(":emp3-android-sdk-core")
+            , project(":emp3-gradle-plugin")
+            , project(":mapengine-worldwind")
+            , project(":google-maps-android-cmgn")
+            , project(":cmapi")
+            , project(":geolib")
 
     ]
 }

@@ -401,7 +401,7 @@ public class KMLExportThread extends java.lang.Thread {
             saAttr.put(MilStdAttributes.UseDashArray, "false");
             saAttr.delete(MilStdAttributes.FontSize); //.put(MilStdAttributes.FontSize, "13"); // 10 pts * 1/72 inch / pts * 96 pixel / inch
 
-            iconURL = MilStdUtilities.getMilStdSinglePointIconURL(feature, eLabelSetting, oLabels, saAttr);
+            iconURL = getMilStdSinglePointIconURL(feature, eLabelSetting, oLabels, saAttr);
 
             oImageInfo = this.oIconRenderer.RenderIcon(feature.getSymbolCode(), ((saModifiers == null) ? this.emptyArray : saModifiers), ((saAttr == null) ? this.emptyArray : saAttr));
 
@@ -433,6 +433,14 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.endTag(null, "IconStyle");
             xmlSerializer.endTag(null, "Style");
         }
+    }
+
+    protected String getMilStdSinglePointIconURL(final MilStdSymbol                    feature,
+                                                 MilStdLabelSettingEnum                eLabelSetting,
+                                                 java.util.Set<IGeoMilSymbol.Modifier> labelSet,
+                                                 SparseArray<String>                   attributes) throws IOException
+    {
+        return  MilStdUtilities.getMilStdSinglePointIconURL(feature, eLabelSetting, labelSet, attributes);
     }
 
     private void exportEmpObjectToKML(final Point feature, XmlSerializer xmlSerializer) throws IOException {

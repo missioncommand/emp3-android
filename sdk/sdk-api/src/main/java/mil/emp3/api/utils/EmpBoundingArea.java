@@ -329,7 +329,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
         sw.setLongitude(getWest());
         cornersFound.add(sw);
 
-        return GeoLibrary.getCenter(cornersFound);
+        return GeographicLib.getCenter(cornersFound);
     }
 
     @Override
