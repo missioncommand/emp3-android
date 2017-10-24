@@ -237,7 +237,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
 
     @Override
     public boolean containsProperty(final String propertyName) {
-        return (this.getProperties().containsKey(propertyName.toUpperCase()));
+        return (this.getProperties().containsKey(propertyName));
     }
 
     public IGeoDocument getGeoDocument() {
