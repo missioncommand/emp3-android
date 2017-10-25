@@ -1,7 +1,5 @@
 package mil.emp3.api.abstracts;
 
-import android.util.Log;
-
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
@@ -421,11 +419,11 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     /**
      * Use by sub classes of this class to validate input parameters. If value is not NaN then we return absolute
      * value else thro an exception.
-     * @param dValue
-     * @param message
-     * @return
+     * @param dValue value to be made positive
+     * @param message Message that is returned if dValue is NaN
+     * @return positve value of the passed in value
      */
-    protected double makePositive(double dValue, String message) {
+    protected double makePositive(final double dValue, final String message) {
         if(Double.isNaN(dValue)) {
             throw new IllegalArgumentException(message);
         }
@@ -434,25 +432,28 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         }
     }
 
-    protected boolean isNotNegative(Double dValue) {
+    /**
+     * Use by sub classes to check if provided value is not a negative number
+     * @param dValue value to be checked
+     */
+    private void validateNotNegative(final Double dValue) {
         if(Double.isNaN(dValue)) {
             throw new IllegalArgumentException("Invalid Input, NaN is not a positive number");
         }
         else if(dValue < 0) {
             throw new IllegalArgumentException("Invalid Input, " + dValue + " is a negative number");
-        } else {
-            return true;
         }
     }
-    protected boolean isPositive(Double dValue) {
-        if(isNotNegative(dValue)) {
-            if(dValue != 0) {
-                return true;
-            } else {
-                throw new IllegalArgumentException("Invalid Input, " + 0 + " is not a positive number");
-            }
+
+    /**
+     * Use by subclasses to check if provided value is a positive number
+     * @param dValue value to be checked
+     */
+    protected void validatePositive(final Double dValue) {
+        validateNotNegative(dValue);
+        if(dValue == 0) {
+            throw new IllegalArgumentException("Invalid Input, " + 0 + " is not a positive number");
         }
-        return false;
     }
 
     /**

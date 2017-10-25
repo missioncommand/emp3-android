@@ -177,8 +177,6 @@ public class KMLSTest extends TestBaseSingleMap {
             Assert.assertTrue("kmzSample_Test should no longer exist", null == foundService);
         }
         mapInstance.cleanKmls();
-
-
     }
 
     @Test

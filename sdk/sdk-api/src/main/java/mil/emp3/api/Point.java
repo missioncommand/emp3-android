@@ -17,6 +17,10 @@ import org.cmapi.primitives.GeoPosition;
 public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private double dIconScale = 1.0;
     private int resourceId = 0;
+    private final double latLowerBound = -90;
+    private final double latUpperBound = 90;
+    private final double longLowerBound = -180;
+    private final double longUpperBound = 180;
 
     /**
      * this is the default constructor.
@@ -47,12 +51,11 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     public Point(final double dLat, final double dLong) {
         super(new GeoPoint(), FeatureTypeEnum.GEO_POINT);
         final IGeoPosition oPos = new GeoPosition();
-        if (isValidLat(dLat)) {
-            oPos.setLatitude(dLat);
-        }
-        if(isValidLong(dLong)) {
-            oPos.setLongitude(dLong);
-        }
+        validateLatitude(dLat);
+        oPos.setLatitude(dLat);
+
+        validateLong(dLong);
+        oPos.setLongitude(dLong);
         this.setPosition(oPos);
     }
 
@@ -64,24 +67,30 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
         super(oRenderable, FeatureTypeEnum.GEO_POINT);
     }
 
-    private boolean isValidLat(final Double dLat) {
+    /**
+     * Validates whether or not a given input is a valid Latitude.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dLat The latitude to be checked
+     */
+    private void validateLatitude(final Double dLat) {
         if(!Double.isNaN(dLat)) {
-            if(dLat < -90 || dLat > 90) {
+            if(dLat < latLowerBound || dLat > latUpperBound) {
                 throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLat) + " is not in the valid latitude range -90 to 90");
-            } else {
-                return true;
             }
         } else {
             throw new IllegalArgumentException("Invalid Input, NaN is not a valid latitude");
         }
     }
 
-    private boolean isValidLong(final Double dLong) {
+    /**
+     * Validates whether or not a given input is a valid Longitude.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dLong The longitude to be checked
+     */
+    private void validateLong(final Double dLong) {
         if(!Double.isNaN(dLong)) {
-            if(dLong < -180 || dLong > 180) {
+            if(dLong < longLowerBound || dLong > longUpperBound) {
                 throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLong) + " is not in the valid longitude range -180 to 180");
-            } else {
-                return true;
             }
         } else {
             throw new IllegalArgumentException("Invalid Input, NaN is not a valid longitude");
@@ -133,9 +142,8 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * @param dScale A value smaller than 1.0 decreases the size. A value larger than 1.0 increases the size.
      */
     public void setIconScale(final double dScale) {
-        if(isPositive(dScale)) {
-            this.dIconScale = Math.abs(dScale);
-        }
+        validatePositive(dScale);
+        this.dIconScale = Math.abs(dScale);
     }
 
     /**
