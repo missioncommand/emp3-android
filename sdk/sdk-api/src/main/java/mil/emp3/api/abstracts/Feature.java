@@ -433,25 +433,11 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     }
 
     /**
-     * Use by sub classes to check if provided value is not a negative number
-     * @param dValue value to be checked
-     */
-    private void validateNotNegative(final Double dValue) {
-        if(Double.isNaN(dValue)) {
-            throw new IllegalArgumentException("Invalid Input, NaN is not a positive number");
-        }
-        else if(dValue < 0) {
-            throw new IllegalArgumentException("Invalid Input, " + dValue + " is a negative number");
-        }
-    }
-
-    /**
      * Use by subclasses to check if provided value is a positive number
      * @param dValue value to be checked
      */
     protected void validatePositive(final Double dValue) {
-        validateNotNegative(dValue);
-        if(dValue == 0) {
+        if(dValue <= 0) {
             throw new IllegalArgumentException("Invalid Input, " + 0 + " is not a positive number");
         }
     }

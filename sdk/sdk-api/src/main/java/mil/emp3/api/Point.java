@@ -17,10 +17,10 @@ import org.cmapi.primitives.GeoPosition;
 public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private double dIconScale = 1.0;
     private int resourceId = 0;
-    private final double latLowerBound = -90;
-    private final double latUpperBound = 90;
-    private final double longLowerBound = -180;
-    private final double longUpperBound = 180;
+    private static final double latLowerBound = -90;
+    private static final double latUpperBound = 90;
+    private static final double longLowerBound = -180;
+    private static final double longUpperBound = 180;
 
     /**
      * this is the default constructor.
