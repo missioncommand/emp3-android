@@ -106,6 +106,7 @@ import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
+import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.enums.Property;
@@ -2170,9 +2171,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             case R.id.action_addWMTS:
-                ArrayList<String> layers = new ArrayList<>();
-                layers.add("matrikkel_bakgrunn");
                 try {
+                    this.map.getMapServices();
+                    ArrayList<String> layers = new ArrayList<>();
+                    layers.add("matrikkel_bakgrunn");
+
                     wmtsService = new WMTS(
                             "http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts",
                             null, null, layers);
@@ -2193,6 +2196,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_removeWMTS:
                 try {
+                    this.map.getMapServices();
                     map.removeMapService(this.wmtsService);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeWMTS);
                     oItem.setEnabled(false);
@@ -2203,6 +2207,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_addWCS:
                 try {
+                    this.map.getMapServices();
                     final Dialog dialog = new Dialog(MainActivity.this);
                     dialog.setContentView(R.layout.wcs_parameters_dialog);
                     dialog.setTitle("Title...");
@@ -2241,6 +2246,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_removeWCS:
                 try {
+                    this.map.getMapServices();
                     map.removeMapService(this.wcsService);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeWCS);
                     oItem.setEnabled(false);
@@ -2252,6 +2258,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_addWMS:
                 try {
+                    this.map.getMapServices();
                     if (wmsBinding == null) {
                         wmsBinding = DataBindingUtil.inflate(LayoutInflater.from(MainActivity.this),
                                 R.layout.wms_parameters_dialog, null, false);
@@ -2332,6 +2339,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_removeWMS:
                 try {
+                    this.map.getMapServices();
                     map.removeMapService(this.wmsService);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeWMS);
                     oItem.setEnabled(false);
@@ -2347,6 +2355,7 @@ public class MainActivity extends AppCompatActivity
 //                    }
 //                    wcsService = new WCS ("https://worldwind26.arc.nasa.gov/wcs", "USGS-NED");
                     // instead of hard coding, let user add WCS first
+                    this.map.getMapServices();
                     map.addMapService(wcsService);
                     Thread.sleep(1000);
                     EmpGeoPosition position = new EmpGeoPosition(46.230, -122.190, 2500.0);
@@ -2372,6 +2381,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_removeLoS:
                 try {
+                    this.map.getMapServices();
                     map.removeMapService(los);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeLoS);
                     oItem.setEnabled(false);
@@ -2862,6 +2872,40 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 return true;
+            }
+
+            case R.id.action_toggleLock: {
+                try {
+                    if (map.getMotionLockMode() == MapMotionLockEnum.SMART_LOCK) {
+                        Toast.makeText(MainActivity.this.getApplicationContext(),
+                                "Map motion mode is SMART_LOCK, toggle failed",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (map.getMotionLockMode() != MapMotionLockEnum.LOCKED) {
+                        map.setMotionLockMode(MapMotionLockEnum.LOCKED);
+                    } else {
+                        map.setMotionLockMode(MapMotionLockEnum.UNLOCKED);
+                    }
+                } catch (EMP_Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+
+            case R.id.action_toggleSmartLock: {
+                try {
+                    if (map.getMotionLockMode() == MapMotionLockEnum.LOCKED) {
+                        Toast.makeText(MainActivity.this.getApplicationContext(),
+                                "Map motion mode is LOCKED, toggle failed",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (map.getMotionLockMode() != MapMotionLockEnum.SMART_LOCK) {
+                        map.setMotionLockMode(MapMotionLockEnum.SMART_LOCK);
+                    } else {
+                        map.setMotionLockMode(MapMotionLockEnum.UNLOCKED);
+                    }
+                } catch (EMP_Exception e) {
+                    e.printStackTrace();
+                }
+                break;
             }
 
             case R.id.action_iconStyleFillColorDefault: {
