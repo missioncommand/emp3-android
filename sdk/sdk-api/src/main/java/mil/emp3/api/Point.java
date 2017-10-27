@@ -2,14 +2,13 @@ package mil.emp3.api;
 
 
 import org.cmapi.primitives.GeoPoint;
+import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPosition;
 
-import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.abstracts.Feature;
-
-import org.cmapi.primitives.GeoPosition;
+import mil.emp3.api.enums.FeatureTypeEnum;
 
 /**
  * This class implements the Point feature that encapsulates a GeoPoint object.
@@ -17,10 +16,10 @@ import org.cmapi.primitives.GeoPosition;
 public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private double dIconScale = 1.0;
     private int resourceId = 0;
-    private static final double latLowerBound = -90;
-    private static final double latUpperBound = 90;
-    private static final double longLowerBound = -180;
-    private static final double longUpperBound = 180;
+    private static final double latLowerBound = -90.0;
+    private static final double latUpperBound = 90.0;
+    private static final double longLowerBound = -180.0;
+    private static final double longUpperBound = 180.0;
 
     /**
      * this is the default constructor.
@@ -75,7 +74,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private void validateLatitude(final Double dLat) {
         if(!Double.isNaN(dLat)) {
             if(dLat < latLowerBound || dLat > latUpperBound) {
-                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLat) + " is not in the valid latitude range -90 to 90");
+                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLat) + " is not in the valid latitude range " + latLowerBound + " to " + latUpperBound);
             }
         } else {
             throw new IllegalArgumentException("Invalid Input, NaN is not a valid latitude");
@@ -90,7 +89,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private void validateLong(final Double dLong) {
         if(!Double.isNaN(dLong)) {
             if(dLong < longLowerBound || dLong > longUpperBound) {
-                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLong) + " is not in the valid longitude range -180 to 180");
+                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLong) + " is not in the valid longitude range " + longLowerBound + " to " + longUpperBound);
             }
         } else {
             throw new IllegalArgumentException("Invalid Input, NaN is not a valid longitude");

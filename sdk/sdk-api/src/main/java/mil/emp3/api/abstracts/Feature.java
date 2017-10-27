@@ -438,7 +438,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      */
     protected void validatePositive(final Double dValue) {
         if(dValue <= 0) {
-            throw new IllegalArgumentException("Invalid Input, " + 0 + " is not a positive number");
+            throw new IllegalArgumentException("Invalid Input, " + dValue + " is not a positive number");
         }
     }
 
