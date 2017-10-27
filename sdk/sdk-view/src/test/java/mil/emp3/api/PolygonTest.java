@@ -1,7 +1,5 @@
 package mil.emp3.api;
 
-import android.util.Log;
-
 import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPolygon;
@@ -16,10 +14,9 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
-import mil.emp3.api.utils.ComparisonUtil;
 
+import static mil.emp3.api.utils.ComparisonUtils.validatePolygon;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * Created by Matt.Miller on 10/16/2017.
@@ -33,66 +30,122 @@ public class PolygonTest extends TestBase {
     @Test
     public void defaultConstructor() throws Exception {
         poly = new Polygon();
-        ComparisonUtil.validatePolygon(poly,
-                null,
-                new GeoPolygon(),
-                FeatureTypeEnum.GEO_POLYGON,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                null,
-                Collections.EMPTY_LIST,
-                null,
-                new GeoStrokeStyle(),
-                new GeoFillStyle(),
-                new GeoLabelStyle(),
-                false,
-                true,
-                0.0,
-                0.0,
-                null,
-                false,
-                Collections.EMPTY_LIST,
-                false,
-                Collections.EMPTY_LIST,
-                "",
-                new UUID(0,0),
-                null,
-                "",
-                new HashMap());
+        validatePolygon(poly,
+                        null,
+                        new GeoPolygon(),
+                        FeatureTypeEnum.GEO_POLYGON,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        null,
+                        Collections.EMPTY_LIST,
+                        null,
+                        new GeoStrokeStyle(),
+                        new GeoFillStyle(),
+                        new GeoLabelStyle(),
+                        false,
+                        true,
+                        0.0,
+                        0.0,
+                        null,
+                        false,
+                        Collections.EMPTY_LIST,
+                        false,
+                        Collections.EMPTY_LIST,
+                        "",
+                        new UUID(0,0),
+                        null,
+                        "",
+                        new HashMap());
     }
 
     @Test
     public void geoPolygonConstructor() {
         gp = new GeoPolygon();
         poly = new Polygon(gp);
+        validatePolygon(poly,
+                        null,
+                        gp,
+                        FeatureTypeEnum.GEO_POLYGON,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        null,
+                        Collections.EMPTY_LIST,
+                        null,
+                        new GeoStrokeStyle(),
+                        new GeoFillStyle(),
+                        new GeoLabelStyle(),
+                        false,
+                        true,
+                        0.0,
+                        0.0,
+                        null,
+                        false,
+                        Collections.EMPTY_LIST,
+                        false,
+                        Collections.EMPTY_LIST,
+                        "",
+                        new UUID(0,0),
+                        null,
+                        "",
+                        new HashMap());
     }
 
     @Test
     public void positionsConstructor() {
+        final GeoPosition geoPosition = new GeoPosition();
+        geoPosition.setLatitude(50);
+        geoPosition.setLongitude(50);
+        gp = new GeoPolygon();
+        gp.setPositions(Collections.singletonList(geoPosition));
+
         positions = new ArrayList<IGeoPosition>();
-        positions.add(new GeoPosition());
+        positions.add(geoPosition);
+        poly = new Polygon(positions);
+        validatePolygon(poly,
+                        null,
+                        gp,
+                        FeatureTypeEnum.GEO_POLYGON,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        positions,
+                        null,
+                        Collections.EMPTY_LIST,
+                        null,
+                        new GeoStrokeStyle(),
+                        new GeoFillStyle(),
+                        new GeoLabelStyle(),
+                        false,
+                        true,
+                        0.0,
+                        0.0,
+                        geoPosition,
+                        false,
+                        Collections.EMPTY_LIST,
+                        false,
+                        Collections.EMPTY_LIST,
+                        "",
+                        new UUID(0,0),
+                        null,
+                        "",
+                        new HashMap());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullPositionsConstructor() {
+        positions = null;
         poly = new Polygon(positions);
     }
 
-    @org.junit.Test
-    public void invalidConstructors() throws Exception{
-        positions = null;
-        try {
-            poly = new Polygon(positions);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), "The position list parameter can NOT be null");
-        }
-        positions = new ArrayList<IGeoPosition>();
+    @Test(expected = IllegalArgumentException.class)
+    public void nullInPositionsArrayConstructor() {
+        positions = new ArrayList();
         positions.add(null);
-        try {
-            poly = new Polygon(positions);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), "GeoPosition is invalid");
-        }
+        poly = new Polygon(positions);
     }
 
     //this test doesn't really test anything since the image file is always null
@@ -107,10 +160,14 @@ public class PolygonTest extends TestBase {
 
     @org.junit.Test
     public void stringTest() throws Exception {
+        final String noPointsExpectedResult = "Polygon with zero points";
+        final String onePointExpectedResult = "Polygon with 1 points\n" +
+                                              "\tlatitude: 0.0, " +
+                                              "\tlongitude: 0.0, " +
+                                              "\taltitude: 0.0\n";
         poly = new Polygon();
-        Log.i(TAG, poly.toString());
+        assertEquals(poly.toString(), noPointsExpectedResult);
         poly.setPosition(new GeoPosition());
-        Log.i(TAG, poly.toString());
+        assertEquals(poly.toString(), onePointExpectedResult);
     }
-
 }

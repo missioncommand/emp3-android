@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
  * Created by matt.miller@rgi-corp.local on 10/27/17.
  */
 
-public class ComparisonUtil {
+public class ComparisonUtils {
     private static final double Epsilon = 1e-8;
 
     private static void compareGeoPosition(final IGeoPosition p1, final IGeoPosition p2) {
@@ -48,7 +48,7 @@ public class ComparisonUtil {
     private static void compareGeoPositionArray(final List<IGeoPosition> p1, final List<IGeoPosition> p2) {
         final double size = p1.size();
         if(size != p2.size()){
-            fail();
+            fail("Two Geoposition Lists are of unequal length");
         }
         for(int i = 0; i < size; i++) {
             compareGeoPosition(p1.get(i), p2.get(i));
