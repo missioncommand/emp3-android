@@ -305,7 +305,6 @@ public class RectangleTest extends TestBase{
     @Test
     public void defaultStringTest() {
         r1 = new Rectangle();
-        int z = 2;
         assertEquals(r1.toString(),
                      "Rectangle\n" +
                         "\theight: 75.0\n" +
@@ -317,7 +316,6 @@ public class RectangleTest extends TestBase{
     public void geoPositionStringTest() {
         gp = new GeoPosition();
         r1 = new Rectangle(gp);
-        int z = 2;
         assertEquals(r1.toString(),
                 "Rectangle at\n" +
                         "\tlatitude: 0.0\n" +
@@ -327,5 +325,4 @@ public class RectangleTest extends TestBase{
                         "\twidth: 150.0\n" +
                         "\tazimuth: 0.0\n");
     }
-
 }
