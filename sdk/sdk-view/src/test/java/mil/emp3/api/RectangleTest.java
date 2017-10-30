@@ -6,10 +6,12 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRectangle;
+import org.junit.Test;
 
 import static mil.emp3.api.Rectangle.MINIMUM_HEIGHT;
 import static mil.emp3.api.Rectangle.MINIMUM_WIDTH;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Matt.Miller on 10/16/2017.
@@ -31,6 +33,12 @@ public class RectangleTest extends TestBase{
         r1 = new Rectangle(igp, 5.4, 5.4);
         igr = new GeoRectangle();
         r1 = new Rectangle(igr);
+    }
+
+    @Test
+    public void defaultConstructor() {
+        r1 = new Rectangle();
+
     }
 
     @org.junit.Test
