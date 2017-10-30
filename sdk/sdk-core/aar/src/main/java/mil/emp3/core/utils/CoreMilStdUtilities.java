@@ -87,6 +87,7 @@ public class CoreMilStdUtilities {
     public static final String MS_OBSTACLES_BYPASS_ASSAULT_CROSSING_AREA = "G*M*BCA---****X";
     public static final String MS_OBSTACLES_BYPASS_BRIDGE_OR_GAP = "G*M*BCB---****X";
     public static final String MS_OBSTACLES_BYPASS_FORD_EASY = "G*M*BCE---****X";
+    public static final String MS_OBSTACLES_BYPASS_DIFFICULTY_EASY = "G*M*BDE---****X";
     public static final String MS_OBSTACLES_BYPASS_FORD_DIFFICULT = "G*M*BCD---****X";
 
     // Only in 2525B

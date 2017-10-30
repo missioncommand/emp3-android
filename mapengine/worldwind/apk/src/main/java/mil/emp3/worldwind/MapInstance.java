@@ -210,8 +210,8 @@ public class MapInstance extends CoreMapInstance {
 
         this.oMapViewController = new Emp3NavigationListener(this, ww);
         this.handler = new Handler(Looper.getMainLooper());
-        this.layerHash = new ConcurrentHashMap<>();
-        this.featureHash = new ConcurrentHashMap<>(); // zoom operation and re-rendering of Tactical Graphics will otherwise crash
+        this.layerHash = new HashMap<>();
+        this.featureHash = new HashMap<>(); // zoom operation and re-rendering of Tactical Graphics will otherwise crash
         this.dirtyOnMapMove = new HashSet<>();
         /*
          * Layers to be rendered, in order.
@@ -229,7 +229,7 @@ public class MapInstance extends CoreMapInstance {
         this.brightnessLayer = new RenderableLayer();
         ww.getLayers().addLayer(this.brightnessLayer);
 
-        this.surfaceLayerHash = new ConcurrentHashMap<>();
+        this.surfaceLayerHash = new HashMap<>();
 
         this.gridLayer = new MapGridLayer("Grid Line Layer", this);
         ww.getLayers().addLayer(this.gridLayer);

@@ -147,6 +147,9 @@
     <string name="rollCW">Roll CW</string>
 
     <string name="action_toggleCrossHairs">Toggle Cross Hair</string>
+    <string name="action_toggleLock">Toggle Lock</string>
+    <string name="action_toggleSmartLock">Toggle SmartLock</string>
+
 
     <string name="action_plotText">Plot Text</string>
     <string name="action_plotRectangle">Plot Rectangle</string>
@@ -182,6 +185,10 @@
     <string name="action_exportOverlayToKML">Export Overlay</string>
     <string name="action_exportFeatureToKML">Export Feature</string>
     <string name="action_exportToKML">Export To KML</string>
+    <string name="action_importExampleKMZ">Import Example KMZ</string>
+    <string name="action_importSymbolsKMZ">Import Symbols KMZ</string>
+    <string name="action_importOverlayKMZ">Import Overlay KMZ</string>
+    <string name="action_importManyKMZ">Import Many KMZ</string>
 
     <string name="action_mapgrid">Map Grid</string>
     <string name="action_mapgridnone">None</string>

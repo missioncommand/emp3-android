@@ -16,7 +16,7 @@ import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.core.events.EditUpdateData;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -79,9 +79,9 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
         IGeoPosition adjustedLatLon;
         try {
             Log.d(TAG, "currentBearing " + currentBearing);
-            adjustedLatLon = GeoLibrary.intersection(oLatLon, currentBearing + bearingOffsetFirst, getFeaturePosition(), currentBearing + bearingOffsetThree);
+            adjustedLatLon = GeographicLib.intersection(oLatLon, currentBearing + bearingOffsetFirst, getFeaturePosition(), currentBearing + bearingOffsetThree);
             if (null == adjustedLatLon) {
-                adjustedLatLon = GeoLibrary.intersection(oLatLon, currentBearing + bearingOffsetTwo, getFeaturePosition(), currentBearing + bearingOffsetThree);
+                adjustedLatLon = GeographicLib.intersection(oLatLon, currentBearing + bearingOffsetTwo, getFeaturePosition(), currentBearing + bearingOffsetThree);
             }
         } catch(Exception e) {
             Log.e(TAG, "restrictCPMoveAlongAxis ", e);
@@ -106,14 +106,14 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
         boolean distanceIsAllowed = true;
 
         try {
-            double bearingFromCenterToRight = GeoLibrary.computeBearing(getFeaturePosition(), oLatLon);
+            double bearingFromCenterToRight = GeographicLib.computeBearing(getFeaturePosition(), oLatLon);
             Log.d(TAG, "center to LatLon bearing " + bearingFromCenterToRight + " currentBearing " + currentBearing);
 
             double compareToThis = (currentBearing + bearingOffset) % 360;
             if (Math.abs(compareToThis - bearingFromCenterToRight) > bearingTolerance) {
                 distanceIsAllowed = false;
             } else {
-                double distancetoLatLon = GeoLibrary.computeDistanceBetween(getFeaturePosition(), oLatLon);
+                double distancetoLatLon = GeographicLib.computeDistanceBetween(getFeaturePosition(), oLatLon);
                 double minDistance = getMinDistance(distanceMultiplier);
                 if(minDistance < 0) {
                     minDistance = oClientMap.getCamera().getAltitude() * distanceMultiplier;
@@ -147,7 +147,7 @@ public abstract class AbstractBasicShapesDrawEditEditor<T extends IFeature> exte
 
     @Override
     protected boolean doFeatureMove(double dBearing, double dDistance) {
-        IGeoPosition newPosition = GeoLibrary.computePositionAt(dBearing, dDistance, getFeaturePosition());
+        IGeoPosition newPosition = GeographicLib.computePositionAt(dBearing, dDistance, getFeaturePosition());
         setFeaturePosition(newPosition);
 
         // batch mode is set to false, otherwise It would appear that Control Points are floating

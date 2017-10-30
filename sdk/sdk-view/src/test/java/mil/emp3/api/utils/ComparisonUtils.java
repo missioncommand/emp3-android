@@ -19,7 +19,6 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
@@ -27,7 +26,6 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-
 
 /**
  * Created by matt.miller@rgi-corp.local on 10/27/17.
@@ -133,38 +131,37 @@ public class ComparisonUtils {
         assertEquals(p1.getAzimuth(), p2.getAzimuth(), Epsilon);
         assertEquals(p1.getAltitudeMode(), p2.getAltitudeMode());
     }
-
+    
     public static void validatePoint(final Point point,
-                               final double iconScale,
-                               final int resourceId,
-                               final GeoIconStyle iconStyle,
-                               final String iconURI,
-                               final GeoPoint geoPoint,
-                               final FeatureTypeEnum fte,
-                               final List childFeatures,
-                               final List parentOverlays,
-                               final List parentFeatures,
-                               final List<IGeoPosition> positions,
-                               final Date date,
-                               final List timeSpans,
-                               final IGeoAltitudeMode.AltitudeMode altitudeMode,
-                               final IGeoStrokeStyle strokeStyle,
-                               final IGeoFillStyle fillStyle,
-                               final IGeoLabelStyle labelStyle,
-                               final Boolean extrude,
-                               final Boolean tessellate,
-                               final double buffer,
-                               final double azimuth,
-                               final GeoPosition geoPosition,
-                               final Boolean readOnly,
-                               final List parents,
-                               final Boolean hasChildren,
-                               final List children,
-                               final String name,
-                               final UUID geoId,
-                               final String dataProvider,
-                               final String description,
-                               final HashMap properties) {
+                                     final double iconScale,
+                                     final int resourceId,
+                                     final GeoIconStyle iconStyle,
+                                     final String iconURI,
+                                     final GeoPoint geoPoint,
+                                     final FeatureTypeEnum fte,
+                                     final List childFeatures,
+                                     final List parentOverlays,
+                                     final List parentFeatures,
+                                     final List<IGeoPosition> positions,
+                                     final Date date,
+                                     final List timeSpans,
+                                     final IGeoAltitudeMode.AltitudeMode altitudeMode,
+                                     final IGeoStrokeStyle strokeStyle,
+                                     final IGeoFillStyle fillStyle,
+                                     final IGeoLabelStyle labelStyle,
+                                     final Boolean extrude,
+                                     final Boolean tessellate,
+                                     final double buffer,
+                                     final double azimuth,
+                                     final GeoPosition geoPosition,
+                                     final Boolean readOnly,
+                                     final List parents,
+                                     final Boolean hasChildren,
+                                     final List children,
+                                     final String name,
+                                     final String dataProvider,
+                                     final String description,
+                                     final HashMap properties) {
         assertEquals(point.getIconScale(), iconScale, Epsilon);
         assertEquals(point.getResourceId(), resourceId, Epsilon);
         compareIconStyle(point.getIconStyle(), iconStyle);

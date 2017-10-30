@@ -3,6 +3,7 @@ package mil.emp3.api;
 import android.graphics.Color;
 import android.test.mock.MockContext;
 import android.util.Log;
+import android.webkit.URLUtil;
 
 import junit.framework.Assert;
 
@@ -26,10 +27,17 @@ import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.enums.KMLSStatusEnum;
 import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.interfaces.IKMLS;
+import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.listeners.IKMLSEventListener;
+import mil.emp3.api.utils.FileUtility;
+import mil.emp3.core.services.kml.KMLSProvider;
+import mil.emp3.core.services.kml.KMLSRequest;
 
-@PrepareForTest({Color.class})
+import static org.mockito.Matchers.any;
+import static org.powermock.api.mockito.PowerMockito.when;
+
+@PrepareForTest({Color.class, URLUtil.class})
 public class KMLSTest extends TestBaseSingleMap {
 
     private static String TAG = KMLSTest.class.getSimpleName();
@@ -40,12 +48,11 @@ public class KMLSTest extends TestBaseSingleMap {
     public void setUp() throws Exception {
         setupSingleMap(TAG);
         PowerMockito.mockStatic(Color.class);
-        PowerMockito.when(Color.class, "parseColor", Mockito.any(String.class)).thenReturn(0);
+        when(Color.class, "parseColor", any(String.class)).thenReturn(0);
     }
 
     @After
     public void tearDown() throws Exception {
-
     }
 
     class MyMockContext extends MockContext {
@@ -113,6 +120,8 @@ public class KMLSTest extends TestBaseSingleMap {
         URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
         MockContext context = new MyMockContext();
+        PowerMockito.mockStatic(URLUtil.class);
+        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
@@ -172,7 +181,6 @@ public class KMLSTest extends TestBaseSingleMap {
             Assert.assertTrue("kmzSample_Test should no longer exist", null == foundService);
         }
         mapInstance.cleanKmls();
-
     }
 
     @Test
@@ -180,6 +188,8 @@ public class KMLSTest extends TestBaseSingleMap {
         URL url = this.getClass().getClassLoader().getResource("kml_samples.kml");
         Log.d(TAG, "url " + url.toString());
         MockContext context = new MyMockContext();
+        PowerMockito.mockStatic(URLUtil.class);
+        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
