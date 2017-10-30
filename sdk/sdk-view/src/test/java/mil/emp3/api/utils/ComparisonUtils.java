@@ -165,26 +165,26 @@ public class ComparisonUtils {
         assertEquals(r1.getAltitudeMode(), r2.getAltitudeMode());
     }
 
-    private static void compareGeoSquare(final IGeoSquare s2, final IGeoSquare s2) {
-        assertEquals(s2.getWidth(), s2.getWidth(), Epsilon);
-        assertEquals(s2.getTimeStamp(), s2.getTimeStamp());
-        assertEquals(s2.getTimeSpans(), s2.getTimeSpans());
-        assertEquals(s2.getTessellate(), s2.getTessellate());
-        compareStrokeStyle(s2.getStrokeStyle(), s2.getStrokeStyle());
-        assertEquals(s2.getReadOnly(), s2.getReadOnly());
-        assertEquals(s2.getProperties(), s2.getProperties());
-        compareGeoPositionArray(s2.getPositions(), s2.getPositions());
-        assertEquals(s2.getPathType(), s2.getPathType());
-        assertEquals(s2.getName(), s2.getName());
-        compareLabelStyle(s2.getLabelStyle(), s2.getLabelStyle());
-        compareFillStyle(s2.getFillStyle(), s2.getFillStyle());
-        assertEquals(s2.getExtrude(), s2.getExtrude());
-        assertEquals(s2.getDescription(), s2.getDescription());
-        assertEquals(s2.getDataProviderId(), s2.getDataProviderId());
-        assertEquals(s2.getChildren(), s2.getChildren());
-        assertEquals(s2.getBuffer(), s2.getBuffer(), Epsilon);
-        assertEquals(s2.getAzimuth(), s2.getAzimuth(), Epsilon);
-        assertEquals(s2.getAltitudeMode(), s2.getAltitudeMode());
+    private static void compareGeoSquare(final IGeoSquare s1, final IGeoSquare s2) {
+        assertEquals(s1.getWidth(), s2.getWidth(), Epsilon);
+        assertEquals(s1.getTimeStamp(), s2.getTimeStamp());
+        assertEquals(s1.getTimeSpans(), s2.getTimeSpans());
+        assertEquals(s1.getTessellate(), s2.getTessellate());
+        compareStrokeStyle(s1.getStrokeStyle(), s2.getStrokeStyle());
+        assertEquals(s1.getReadOnly(), s2.getReadOnly());
+        assertEquals(s1.getProperties(), s2.getProperties());
+        compareGeoPositionArray(s1.getPositions(), s2.getPositions());
+        assertEquals(s1.getPathType(), s2.getPathType());
+        assertEquals(s1.getName(), s2.getName());
+        compareLabelStyle(s1.getLabelStyle(), s2.getLabelStyle());
+        compareFillStyle(s1.getFillStyle(), s2.getFillStyle());
+        assertEquals(s1.getExtrude(), s2.getExtrude());
+        assertEquals(s1.getDescription(), s2.getDescription());
+        assertEquals(s1.getDataProviderId(), s2.getDataProviderId());
+        assertEquals(s1.getChildren(), s2.getChildren());
+        assertEquals(s1.getBuffer(), s2.getBuffer(), Epsilon);
+        assertEquals(s1.getAzimuth(), s2.getAzimuth(), Epsilon);
+        assertEquals(s1.getAltitudeMode(), s2.getAltitudeMode());
     }
 
     public static void validatePoint(final Point point,
@@ -304,6 +304,8 @@ public class ComparisonUtils {
 
     public static void validateRectangle(final Rectangle rect,
                                        final GeoRectangle geoRectangle,
+                                       final Double width,
+                                       final Double height,
                                        final FeatureTypeEnum fte,
                                        final List childFeatures,
                                        final List parentOverlays,
@@ -329,6 +331,8 @@ public class ComparisonUtils {
                                        final String description,
                                        final HashMap properties) {
         compareGeoRectangle(rect.getRenderable(), geoRectangle);
+        assertEquals(rect.getWidth(), width, Epsilon);
+        assertEquals(rect.getHeight(), height, Epsilon);
         assertEquals(rect.getFeatureType(), fte);
         assertEquals(rect.getChildFeatures(), childFeatures);
         assertEquals(rect.getParentOverlays(), parentOverlays);

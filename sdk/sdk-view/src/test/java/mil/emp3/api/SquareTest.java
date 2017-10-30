@@ -1,7 +1,5 @@
 package mil.emp3.api;
 
-import android.util.Log;
-
 import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoSquare;
@@ -27,27 +25,15 @@ import static org.junit.Assert.assertNull;
 public class SquareTest extends TestBase{
     public static final String TAG = SquareTest.class.getSimpleName();
     private Square s1;
-    private Square s2;
-    private Square s3;
     private GeoPosition gp;
-    private IGeoSquare igs;
-
-
-    @org.junit.Before
-    public void setUp() throws Exception {
-        s1 = new Square();
-        gp = new GeoPosition();
-        s1 = new Square(gp);
-        s1 = new Square(gp, 5.4);
-        igs = new GeoSquare();
-        s1 = new Square(igs);
-    }
 
     @Test
     public void defaultConstructor() {
         s1 = new Square();
+        final GeoSquare gs = new GeoSquare();
+        gs.setFillStyle(null);
         validateSquare(s1,
-                       new GeoSquare(),
+                       gs,
                        FeatureTypeEnum.GEO_SQUARE,
                        Collections.EMPTY_LIST,
                        Collections.EMPTY_LIST,
@@ -79,6 +65,7 @@ public class SquareTest extends TestBase{
         final GeoPosition gp = new GeoPosition();
         final GeoSquare gs = new GeoSquare();
         gs.setPositions(Collections.singletonList(gp));
+        gs.setFillStyle(null);
         s1 = new Square(gp);
         validateSquare(s1,
                 gs,
@@ -115,8 +102,9 @@ public class SquareTest extends TestBase{
         final GeoSquare gs = new GeoSquare();
         gs.setPositions(Collections.singletonList(gp));
         gs.setWidth(5.4);
+        gs.setFillStyle(null);
         validateSquare(s1,
-                gp,
+                gs,
                 FeatureTypeEnum.GEO_SQUARE,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
