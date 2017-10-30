@@ -99,6 +99,11 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         this.getRenderable().setWidth(dWidth);
     }
 
+    /**
+     * Validates whether or not a given input is a valid Width.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dWidth The width to be checked
+     */
     private void isValidWidth(final double dWidth) {
         validatePositive(dWidth);
         if(dWidth < MINIMUM_WIDTH) {
@@ -125,6 +130,11 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         this.getRenderable().setHeight(dHeight);
     }
 
+    /**
+     * Validates whether or not a given input is a valid height.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dHeight The height to be checked
+     */
     private void validateHeight(final double dHeight) {
         validatePositive(dHeight);
         if(dHeight < MINIMUM_HEIGHT) {
@@ -141,6 +151,10 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         return this.getRenderable().getHeight();
     }
 
+    /**
+     * Calculate the bounding box of the rectangle
+     * @return EmpBoundingBox with coordinates of the bounding box
+     */
     public IEmpBoundingBox getFeatureBoundingBox() {
         double halfHeightE2;
         double halfWidthE2;

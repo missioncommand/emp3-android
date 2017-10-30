@@ -25,13 +25,12 @@ import static org.junit.Assert.assertNull;
 public class RectangleTest extends TestBase{
     public static final String TAG = RectangleTest.class.getSimpleName();
     private Rectangle r1;
-    private Rectangle r2;
     private GeoPosition gp;
 
     @Test
     public void defaultConstructor() {
         r1 = new Rectangle();
-        GeoRectangle gr = new GeoRectangle();
+        final GeoRectangle gr = new GeoRectangle();
         gr.setFillStyle(null);
         validateRectangle(r1,
                 gr,
@@ -65,7 +64,7 @@ public class RectangleTest extends TestBase{
     public void positionConstructor() {
         gp = new GeoPosition();
         r1 = new Rectangle(gp);
-        GeoRectangle gr = new GeoRectangle();
+        final GeoRectangle gr = new GeoRectangle();
         gr.setFillStyle(null);
         gr.setPositions(Collections.singletonList(gp));
         validateRectangle(r1,
@@ -101,7 +100,7 @@ public class RectangleTest extends TestBase{
         final Double dimensions = 5.4;
         gp = new GeoPosition();
         r1 = new Rectangle(gp, dimensions, dimensions);
-        GeoRectangle gr = new GeoRectangle();
+        final GeoRectangle gr = new GeoRectangle();
         gr.setFillStyle(null);
         gr.setPositions(Collections.singletonList(gp));
         gr.setHeight(dimensions);
@@ -137,7 +136,7 @@ public class RectangleTest extends TestBase{
     @Test
     public void copyConstructor() {
         r1 = new Rectangle();
-        r2 = new Rectangle(r1);
+        final Rectangle r2 = new Rectangle(r1);
         validateRectangle(r2,
                 (GeoRectangle) r1.getRenderable(),
                 r1.getFeatureType(),
