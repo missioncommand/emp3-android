@@ -512,6 +512,14 @@
                 android:title="@string/action_toggleCrossHairs"
                 android:orderInCategory="100"
                 app:showAsAction="never" />
+            <item android:id="@+id/action_toggleLock"
+                android:title="@string/action_toggleLock"
+                android:orderInCategory="100"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_toggleSmartLock"
+                android:title="@string/action_toggleSmartLock"
+                android:orderInCategory="100"
+                app:showAsAction="never" />
             <item android:id="@+id/action_tgTextSize"
                 android:title="@string/action_tgTextSize"
                 android:orderInCategory="100"
