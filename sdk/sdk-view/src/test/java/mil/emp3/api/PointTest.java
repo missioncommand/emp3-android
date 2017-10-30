@@ -72,7 +72,6 @@ public class PointTest extends TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      new UUID(0,0),
                       null,
                       "",
                       new HashMap());
@@ -111,7 +110,6 @@ public class PointTest extends TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      new UUID(0,0),
                       null,
                       "",
                       new HashMap());
@@ -148,7 +146,6 @@ public class PointTest extends TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      new UUID(0,0),
                       null,
                       "",
                       new HashMap());
