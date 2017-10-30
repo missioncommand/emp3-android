@@ -78,11 +78,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
         if(null == oRenderable) {
             throw new IllegalArgumentException("Encapsulated Square must be non-null");
         }
-        this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
-
-        if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width. " + this.getWidth() + " Minimum supported " + MINIMUM_WIDTH);
-        }
+        this.setWidth(this.getWidth());
         this.setAzimuth(this.getAzimuth());  // For validation.
     }
 
@@ -91,12 +87,21 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
      * @param fValue The width in meters.
      */
     @Override
-    public void setWidth(double fValue) {
-        fValue = makePositive(fValue, "Invalid width. NaN");
-        if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width. " + fValue + " Minimum supported " + MINIMUM_WIDTH);
-        }
+    public void setWidth(final double fValue) {
+        validateWidth(fValue);
         this.getRenderable().setWidth(fValue);
+    }
+
+    /**
+     * Validates whether or not a given input is a valid Width.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dValue The width to be checked
+     */
+    private void validateWidth(final double dValue) {
+        validatePositive(dValue);
+        if(dValue < MINIMUM_WIDTH) {
+            throw new IllegalArgumentException("Invalid width, " + String.valueOf(dValue) + " is not greater than " + MINIMUM_WIDTH);
+        }
     }
 
     /**
