@@ -11,7 +11,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.UUID;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 
@@ -54,7 +53,6 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        new UUID(0,0),
                         null,
                         "",
                         new HashMap());
@@ -88,7 +86,6 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        new UUID(0,0),
                         null,
                         "",
                         new HashMap());
@@ -129,7 +126,6 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        new UUID(0,0),
                         null,
                         "",
                         new HashMap());

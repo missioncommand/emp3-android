@@ -19,7 +19,6 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
@@ -161,7 +160,6 @@ public class ComparisonUtils {
                                final Boolean hasChildren,
                                final List children,
                                final String name,
-                               final UUID geoId,
                                final String dataProvider,
                                final String description,
                                final HashMap properties) {
@@ -220,7 +218,6 @@ public class ComparisonUtils {
                                 final Boolean hasChildren,
                                 final List children,
                                 final String name,
-                                final UUID geoId,
                                 final String dataProvider,
                                 final String description,
                                 final HashMap properties) {
