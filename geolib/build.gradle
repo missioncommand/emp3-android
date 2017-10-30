@@ -1,0 +1,55 @@
+apply plugin: 'java'
+
+apply plugin: 'nebula.maven-base-publish'
+apply plugin: 'nebula.maven-nebula-publish'
+apply plugin: 'nebula.source-jar'
+apply plugin: 'nebula.javadoc-jar'
+
+sourceCompatibility = rootProject.sourceCompatibility
+targetCompatibility = rootProject.targetCompatibility
+
+configurations {
+    doc {
+        transitive false
+    }
+}
+dependencies {
+
+    implementation project (":cmapi")
+    implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")
+    compileOnly files      ("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
+    testImplementation 'junit:junit:4.12'
+}
+
+tasks.withType(Test) {
+    scanForTestClasses = false
+    include "**/*Test.class"
+}
+
+javadoc {
+    options {
+        failOnError = true
+
+        encoding "UTF-8"
+        docEncoding "UTF-8"
+        charSet "UTF-8"
+        linkSource true
+
+        memberLevel = JavadocMemberLevel.PROTECTED
+
+        logging.captureStandardError LogLevel.INFO
+        logging.captureStandardOutput LogLevel.INFO
+
+        exclude '**/core/**/*.java'
+        exclude '**/*.MF'
+        exclude 'com/**/*.java'
+
+        title = "EMP V3 Android SDK $project.version"
+        source configurations.doc.collect { zipTree(it) }
+    }
+}
+
+publishing.publications {
+    nebula(MavenPublication) {
+    }
+}

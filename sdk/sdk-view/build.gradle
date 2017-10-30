@@ -9,6 +9,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7'
     api 'mil.army.missioncommand:mil-sym-android-renderer'
     implementation project(':cmapi')
+    implementation project(':geolib')
     testImplementation project(':emp3-android-sdk-core-aar')
     testImplementation 'junit:junit:4.12'
     //testImplementation         ("org.mockito:mockito-core")

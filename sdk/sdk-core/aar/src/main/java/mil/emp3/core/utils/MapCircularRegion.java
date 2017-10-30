@@ -72,15 +72,15 @@ public class MapCircularRegion {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "oPos can't be null.");
         }
         // Get the bearing between the points.
-        double dBearing = mil.emp3.api.utils.GeoLibrary.computeBearing(this.oCenterPosition, oPos);
+        double dBearing = mil.emp3.api.utils.GeographicLib.computeBearing(this.oCenterPosition, oPos);
         //Get the distance between the points.
-        double dDist = mil.emp3.api.utils.GeoLibrary.computeDistanceBetween(this.oCenterPosition, oPos);
+        double dDist = mil.emp3.api.utils.GeographicLib.computeDistanceBetween(this.oCenterPosition, oPos);
         // Calculate the point on the circle that is 180 deg from oPos.
-        IGeoPosition oOpositePointOnCircle = mil.emp3.api.utils.GeoLibrary.computePositionAt(((dBearing + 180.0) % 360), this.dRadius, this.oCenterPosition);
+        IGeoPosition oOpositePointOnCircle = mil.emp3.api.utils.GeographicLib.computePositionAt(((dBearing + 180.0) % 360), this.dRadius, this.oCenterPosition);
         // Compute the new center in between the center and the new position.
-        this.oCenterPosition = mil.emp3.api.utils.GeoLibrary.computePositionAt(dBearing, (dDist / 2.0), this.oCenterPosition);
+        this.oCenterPosition = mil.emp3.api.utils.GeographicLib.computePositionAt(dBearing, (dDist / 2.0), this.oCenterPosition);
         // Compute new radius.
-        double dNewRadius = mil.emp3.api.utils.GeoLibrary.computeDistanceBetween(this.oCenterPosition, oOpositePointOnCircle);
+        double dNewRadius = mil.emp3.api.utils.GeographicLib.computeDistanceBetween(this.oCenterPosition, oOpositePointOnCircle);
 
         if (dNewRadius < MapCircularRegion.dMaxRadius) {
             this.dRadius = dNewRadius;
@@ -120,22 +120,22 @@ public class MapCircularRegion {
 
     public IGeoPosition getNorthWest() {
         double dCenterToNorthWestDist = Math.sqrt(2.0 * Math.pow(this.dRadius, 2));
-        return mil.emp3.api.utils.GeoLibrary.computePositionAt(315.0, dCenterToNorthWestDist, this.oCenterPosition);
+        return mil.emp3.api.utils.GeographicLib.computePositionAt(315.0, dCenterToNorthWestDist, this.oCenterPosition);
     }
 
     public IGeoPosition getNorthEast() {
         double dCenterToNorthEastDist = Math.sqrt(2.0 * Math.pow(this.dRadius, 2));
-        return mil.emp3.api.utils.GeoLibrary.computePositionAt(45.0, dCenterToNorthEastDist, this.oCenterPosition);
+        return mil.emp3.api.utils.GeographicLib.computePositionAt(45.0, dCenterToNorthEastDist, this.oCenterPosition);
     }
 
     public IGeoPosition getSouthEast() {
         double dCenterToSouthEastDist = Math.sqrt(2.0 * Math.pow(this.dRadius, 2));
-        return mil.emp3.api.utils.GeoLibrary.computePositionAt(135.0, dCenterToSouthEastDist, this.oCenterPosition);
+        return mil.emp3.api.utils.GeographicLib.computePositionAt(135.0, dCenterToSouthEastDist, this.oCenterPosition);
     }
 
     public IGeoPosition getSouthWest() {
         double dCenterToSouthWestDist = Math.sqrt(2.0 * Math.pow(this.dRadius, 2));
-        return mil.emp3.api.utils.GeoLibrary.computePositionAt(225.0, dCenterToSouthWestDist, this.oCenterPosition);
+        return mil.emp3.api.utils.GeographicLib.computePositionAt(225.0, dCenterToSouthWestDist, this.oCenterPosition);
     }
 
     public double getAltitudeOfConeVertexWithFOV(double dFOV) {
@@ -148,7 +148,7 @@ public class MapCircularRegion {
     }
 
     public boolean isInRegion(IGeoPosition oPos) {
-        double dArcDist = mil.emp3.api.utils.GeoLibrary.computeDistanceBetween(this.oCenterPosition, oPos);
+        double dArcDist = mil.emp3.api.utils.GeographicLib.computeDistanceBetween(this.oCenterPosition, oPos);
 
         return (dArcDist <= this.dRadius);
     }

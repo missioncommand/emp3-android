@@ -11,7 +11,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
@@ -49,7 +49,7 @@ public abstract class AbstractSinglePointEditor<T extends IFeature> extends Abst
         IFeature oFeature = this.getFeature();
         IGeoPosition oPos = oFeature.getPositions().get(0);
 
-        GeoLibrary.computePositionAt(dBearing, dDistance, oPos, oPos);
+        GeographicLib.computePositionAt(dBearing, dDistance, oPos, oPos);
         // this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0}); TODO causes duplicate events.
 
         return true;

@@ -27,8 +27,12 @@ import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.enums.KMLSStatusEnum;
 import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.interfaces.IKMLS;
+import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.listeners.IKMLSEventListener;
+import mil.emp3.api.utils.FileUtility;
+import mil.emp3.core.services.kml.KMLSProvider;
+import mil.emp3.core.services.kml.KMLSRequest;
 
 import static org.mockito.Matchers.any;
 import static org.powermock.api.mockito.PowerMockito.when;

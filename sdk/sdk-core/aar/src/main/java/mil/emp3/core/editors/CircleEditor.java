@@ -9,7 +9,7 @@ import java.util.List;
 import mil.emp3.api.Circle;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.enums.FeaturePropertyChangedEnum;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
@@ -92,7 +92,7 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
         // Add radius control point.
         pos = new GeoPosition();
         // Place it to the right of the center at the radius distance.
-        GeoLibrary.computePositionAt(90.0, this.oFeature.getRadius(), posList.get(0), pos);
+        GeographicLib.computePositionAt(90.0, this.oFeature.getRadius(), posList.get(0), pos);
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.RADIUS_CP, 0, -1);
         controlPoint.setPosition(pos);
         this.addControlPoint(controlPoint);
@@ -107,7 +107,7 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
         // Move centerCP
         centerCP.setPosition(this.oFeature.getPosition());
         // Move the radius CP.
-        GeoLibrary.computePositionAt(90.0, this.oFeature.getRadius(), this.oFeature.getPosition(), radiusCP.getPosition());
+        GeographicLib.computePositionAt(90.0, this.oFeature.getRadius(), this.oFeature.getPosition(), radiusCP.getPosition());
 
         return true;
     }
@@ -120,12 +120,12 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
             case RADIUS_CP:
                 // The radius was moved.
                 ControlPoint centerCP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
-                double newRadius = Math.rint(GeoLibrary.computeDistanceBetween(centerCP.getPosition(), oLatLon));
+                double newRadius = Math.rint(GeographicLib.computeDistanceBetween(centerCP.getPosition(), oLatLon));
                 if(newRadius < Circle.MINIMUM_RADIUS) {
                     newRadius = Circle.MINIMUM_RADIUS;
                 }
                 // set the radius CP new position.
-                GeoLibrary.computePositionAt(90.0, newRadius, centerCP.getPosition(), oCP.getPosition());
+                GeographicLib.computePositionAt(90.0, newRadius, centerCP.getPosition(), oCP.getPosition());
 
                 // Set the new radius.
                 this.oFeature.setRadius(newRadius);
@@ -142,7 +142,7 @@ public class CircleEditor extends AbstractSinglePointEditor<Circle> {
                 centerPos.setLatitude(oLatLon.getLatitude());
                 centerPos.setLongitude(oLatLon.getLongitude());
                 // Move the radius CP.
-                GeoLibrary.computePositionAt(90.0, this.oFeature.getRadius(), centerPos, radiusCP.getPosition());
+                GeographicLib.computePositionAt(90.0, this.oFeature.getRadius(), centerPos, radiusCP.getPosition());
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{0});
                 moved = true;
                 break;

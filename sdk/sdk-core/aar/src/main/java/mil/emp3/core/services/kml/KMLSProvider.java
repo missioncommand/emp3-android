@@ -17,6 +17,7 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IKMLSRequest;
 import mil.emp3.api.listeners.IKMLSEventListener;
+import mil.emp3.api.utils.FileUtility;
 import mil.emp3.core.storage.ClientMapRestoreData;
 import mil.emp3.core.storage.ClientMapToMapInstance;
 
@@ -143,6 +144,8 @@ public class KMLSProvider {
                         tmpKMLS.setFeature(request.getFeature());
                         mapMapping.getMapInstance().removeMapService(tmpKMLS);
                     }
+                    //When removing a feature from the map, delete the copied folder in order to save space on the device
+                    FileUtility.deleteFolder(request.getKmzDirectory());
                 }
             } else {
                 Log.i(TAG, "Attempting remove KMLS Service that was never added " + mapService.getGeoId().toString());

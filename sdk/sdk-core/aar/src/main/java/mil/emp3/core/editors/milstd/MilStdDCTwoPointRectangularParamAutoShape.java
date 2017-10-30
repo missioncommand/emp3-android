@@ -12,7 +12,7 @@ import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -136,7 +136,7 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
 
         // Add P2 for side2
         pos = new GeoPosition();
-        GeoLibrary.computePositionAt(90, (cameraPos.getAltitude() / 6.0) / 2.0 , posList.get(0), pos);
+        GeographicLib.computePositionAt(90, (cameraPos.getAltitude() / 6.0) / 2.0 , posList.get(0), pos);
         pos.setAltitude(0);
         posList.add(pos);
 
@@ -158,13 +158,13 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
         this.addControlPoint(controlPoint2);
 
         // Add width control point.
-        final double bearing = GeoLibrary.computeBearing(controlPoint1.getPosition(), controlPoint2.getPosition());
-        final double distance = GeoLibrary.computeDistanceBetween(controlPoint1.getPosition(), controlPoint2.getPosition());
+        final double bearing = GeographicLib.computeBearing(controlPoint1.getPosition(), controlPoint2.getPosition());
+        final double distance = GeographicLib.computeDistanceBetween(controlPoint1.getPosition(), controlPoint2.getPosition());
 
-        final IGeoPosition midPoint = GeoLibrary.midPointBetween(controlPoint1.getPosition(), controlPoint2.getPosition());
+        final IGeoPosition midPoint = GeographicLib.midPointBetween(controlPoint1.getPosition(), controlPoint2.getPosition());
 
         final GeoPosition pos = new GeoPosition();
-        GeoLibrary.computePositionAt(bearing - 90, distance / 2, midPoint, pos);
+        GeographicLib.computePositionAt(bearing - 90, distance / 2, midPoint, pos);
 
         final ControlPoint controlPointWidth = new ControlPoint(ControlPoint.CPTypeEnum.WIDTH_CP, 1, -1);
         controlPointWidth.setPosition(pos);
@@ -187,10 +187,10 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
                 sidePos.setLongitude(dragPosition.getLongitude());
 
                 // Move the width CP.
-                final double bearing = GeoLibrary.computeBearing(side1CP.getPosition(), side2CP.getPosition());
+                final double bearing = GeographicLib.computeBearing(side1CP.getPosition(), side2CP.getPosition());
 
-                final IGeoPosition midPoint = GeoLibrary.midPointBetween(side1CP.getPosition(), side2CP.getPosition());
-                GeoLibrary.computePositionAt(bearing - 90, this.width / 2, midPoint, widthCP.getPosition());
+                final IGeoPosition midPoint = GeographicLib.midPointBetween(side1CP.getPosition(), side2CP.getPosition());
+                GeographicLib.computePositionAt(bearing - 90, this.width / 2, midPoint, widthCP.getPosition());
 
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{oCP.getCPIndex()});
                 break;
@@ -199,20 +199,20 @@ public class MilStdDCTwoPointRectangularParamAutoShape extends AbstractMilStdMul
                 final ControlPoint side1CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 0, -1);
                 final ControlPoint side2CP = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 1, -1);
 
-                if (GeoLibrary.isLeft(side1CP.getPosition(), side2CP.getPosition(), dragPosition)) {
+                if (GeographicLib.isLeft(side1CP.getPosition(), side2CP.getPosition(), dragPosition)) {
                     break; // we wish to keep the CP on one side
                 }
 
-                final double bearing = GeoLibrary.computeBearing(side1CP.getPosition(), side2CP.getPosition());
-                final IGeoPosition midPoint = GeoLibrary.midPointBetween(side1CP.getPosition(), side2CP.getPosition());
+                final double bearing = GeographicLib.computeBearing(side1CP.getPosition(), side2CP.getPosition());
+                final IGeoPosition midPoint = GeographicLib.midPointBetween(side1CP.getPosition(), side2CP.getPosition());
 
-                final float newWidth = Math.round(GeoLibrary.computeDistanceBetween(midPoint, dragPosition));
+                final float newWidth = Math.round(GeographicLib.computeDistanceBetween(midPoint, dragPosition));
                 if ((newWidth * 2) < minWidth) {
                     break;
                 }
 
                 // set the width CP new position.
-                GeoLibrary.computePositionAt(bearing - 90, newWidth, midPoint, oCP.getPosition());
+                GeographicLib.computePositionAt(bearing - 90, newWidth, midPoint, oCP.getPosition());
 
                 // Save the new value
                 this.setWidthModifier(newWidth * 2);

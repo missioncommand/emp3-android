@@ -22,18 +22,17 @@ publishing.publications {
         artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
             extension "aar.md5"
         }
-        artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk") {
-            classifier "debug"
+        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk") {
+            classifier "release"
             extension "apk"
         }
-        artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk.sha256") {
-            classifier "debug"
+        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.sha256") {
+            classifier "release"
             extension "apk.sha256"
         }
-        artifact("$buildDir/../apk/build/outputs/apk/debug/mapengine-worldwind-apk-debug.apk.md5") {
-            classifier "debug"
+        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.md5") {
+            classifier "release"
             extension "apk.md5"
         }
-
     }
 }
