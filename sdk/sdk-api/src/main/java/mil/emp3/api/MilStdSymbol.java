@@ -31,7 +31,7 @@ import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.utils.ColorUtils;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.FontUtilities;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.ManagerFactory;
 
 
@@ -1483,20 +1483,20 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
                  * TACGRP.TSK.SCE
                  */
                 case armyc2.c2sd.renderer.utilities.SymbolDef.DRAW_CATEGORY_AUTOSHAPE: {
-                    double dist = GeoLibrary.computeDistanceBetween(posList.get(0), posList.get(1));
+                    double dist = GeographicLib.computeDistanceBetween(posList.get(0), posList.get(1));
                     IGeoPosition pos = new GeoPosition();
 
                     // Compute north.
-                    GeoLibrary.computePositionAt(0.0, dist, posList.get(0), pos);
+                    GeographicLib.computePositionAt(0.0, dist, posList.get(0), pos);
                     bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                     // Compute east.
-                    GeoLibrary.computePositionAt(90.0, dist, posList.get(0), pos);
+                    GeographicLib.computePositionAt(90.0, dist, posList.get(0), pos);
                     bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                     // Compute south.
-                    GeoLibrary.computePositionAt(180.0, dist, posList.get(0), pos);
+                    GeographicLib.computePositionAt(180.0, dist, posList.get(0), pos);
                     bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                     // Compute west.
-                    GeoLibrary.computePositionAt(270.0, dist, posList.get(0), pos);
+                    GeographicLib.computePositionAt(270.0, dist, posList.get(0), pos);
                     bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                     break;
                 }
@@ -1569,16 +1569,16 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
                         IGeoPosition pos = new GeoPosition();
 
                         // Compute north.
-                        GeoLibrary.computePositionAt(0.0, dist, posList.get(0), pos);
+                        GeographicLib.computePositionAt(0.0, dist, posList.get(0), pos);
                         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                         // Compute east.
-                        GeoLibrary.computePositionAt(90.0, dist, posList.get(0), pos);
+                        GeographicLib.computePositionAt(90.0, dist, posList.get(0), pos);
                         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                         // Compute south.
-                        GeoLibrary.computePositionAt(180.0, dist, posList.get(0), pos);
+                        GeographicLib.computePositionAt(180.0, dist, posList.get(0), pos);
                         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                         // Compute west.
-                        GeoLibrary.computePositionAt(270.0, dist, posList.get(0), pos);
+                        GeographicLib.computePositionAt(270.0, dist, posList.get(0), pos);
                         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                     }
                     break;
@@ -1594,10 +1594,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
                         IGeoPosition pos = new GeoPosition();
 
                         // Compute north.
-                        GeoLibrary.computePositionAt(0.0, dist, posList.get(0), pos);
+                        GeographicLib.computePositionAt(0.0, dist, posList.get(0), pos);
                         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                         // Compute south.
-                        GeoLibrary.computePositionAt(180.0, dist, posList.get(0), pos);
+                        GeographicLib.computePositionAt(180.0, dist, posList.get(0), pos);
                         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                     }
                     break;

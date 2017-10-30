@@ -2,14 +2,13 @@ package mil.emp3.api;
 
 
 import org.cmapi.primitives.GeoPoint;
+import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPosition;
 
-import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.abstracts.Feature;
-
-import org.cmapi.primitives.GeoPosition;
+import mil.emp3.api.enums.FeatureTypeEnum;
 
 /**
  * This class implements the Point feature that encapsulates a GeoPoint object.
@@ -17,6 +16,10 @@ import org.cmapi.primitives.GeoPosition;
 public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private double dIconScale = 1.0;
     private int resourceId = 0;
+    private static final double latLowerBound = -90.0;
+    private static final double latUpperBound = 90.0;
+    private static final double longLowerBound = -180.0;
+    private static final double longUpperBound = 180.0;
 
     /**
      * this is the default constructor.
@@ -30,9 +33,13 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * provide the GeoIconStyle to correctly position the icon.
      * @param sURL A valid URL
      */
-    public Point(String sURL) {
+    public Point(final String sURL) {
         super(new GeoPoint(), FeatureTypeEnum.GEO_POINT);
-        this.setIconURI(sURL);
+        if(android.webkit.URLUtil.isValidUrl(sURL)) {
+            this.setIconURI(sURL);
+        } else {
+            throw new IllegalArgumentException("Invalid url input, " + sURL + " is not a valid url");
+        }
     }
 
     /**
@@ -40,11 +47,13 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * @param dLat
      * @param dLong
      */
-    public Point(double dLat, double dLong) {
+    public Point(final double dLat, final double dLong) {
         super(new GeoPoint(), FeatureTypeEnum.GEO_POINT);
-        
-        IGeoPosition oPos = new GeoPosition();
+        final IGeoPosition oPos = new GeoPosition();
+        validateLatitude(dLat);
         oPos.setLatitude(dLat);
+
+        validateLong(dLong);
         oPos.setLongitude(dLong);
         this.setPosition(oPos);
     }
@@ -53,8 +62,38 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * This constructor creates a point feature from a geo point object.
      * @param oRenderable
      */
-    public Point(IGeoPoint oRenderable) {
+    public Point(final IGeoPoint oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_POINT);
+    }
+
+    /**
+     * Validates whether or not a given input is a valid Latitude.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dLat The latitude to be checked
+     */
+    private void validateLatitude(final Double dLat) {
+        if(!Double.isNaN(dLat)) {
+            if(dLat < latLowerBound || dLat > latUpperBound) {
+                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLat) + " is not in the valid latitude range " + latLowerBound + " to " + latUpperBound);
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid Input, NaN is not a valid latitude");
+        }
+    }
+
+    /**
+     * Validates whether or not a given input is a valid Longitude.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dLong The longitude to be checked
+     */
+    private void validateLong(final Double dLong) {
+        if(!Double.isNaN(dLong)) {
+            if(dLong < longLowerBound || dLong > longUpperBound) {
+                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLong) + " is not in the valid longitude range " + longLowerBound + " to " + longUpperBound);
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid Input, NaN is not a valid longitude");
+        }
     }
 
     /**
@@ -62,7 +101,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * @param oStyle See {@link IGeoIconStyle}
      */
     @Override
-    public void setIconStyle(IGeoIconStyle oStyle) {
+    public void setIconStyle(final IGeoIconStyle oStyle) {
         ((IGeoPoint) this.getRenderable()).setIconStyle(oStyle);
     }
 
@@ -81,7 +120,11 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      */
     @Override
     public void setIconURI(String sURL) {
-        ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
+        if(android.webkit.URLUtil.isValidUrl(sURL)) {
+            ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
+        } else {
+            throw new IllegalArgumentException("Invalid Input, " + sURL + " is not a valid URL");
+        }
     }
 
     /**
@@ -97,7 +140,8 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * This method sets the icon scale. The size of the icon will be modified by this factor when rendered.
      * @param dScale A value smaller than 1.0 decreases the size. A value larger than 1.0 increases the size.
      */
-    public void setIconScale(double dScale) {
+    public void setIconScale(final double dScale) {
+        validatePositive(dScale);
         this.dIconScale = Math.abs(dScale);
     }
 

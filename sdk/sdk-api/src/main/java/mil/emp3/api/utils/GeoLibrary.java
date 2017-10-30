@@ -12,6 +12,8 @@ import static java.lang.Double.isNaN;
 /**
  * This class provide utility function for geospatial computations.
  */
+
+@Deprecated
 public class GeoLibrary {
     private static String TAG = GeoLibrary.class.getSimpleName();
     public static double DEFAULT_EARTH_RADIUS = 6371000.0; // meters
@@ -30,7 +32,7 @@ public class GeoLibrary {
     /**
      * This method gives the earth's radius at a given latitude
      * @param Latitude
-     * @return double
+     * @return doublemil.emp3.core.utils.MapCircularRegion#getAltitudeOfConeVertexWithFOV
      */
     public static double getEarthRadiusAt(double Latitude) {
         int newLat = (int) (Math.round(Math.abs(Latitude)) % 90);
@@ -42,7 +44,7 @@ public class GeoLibrary {
      * This method computes the ground (arc) distance between the two locations provided.
      * @param oLatLon1
      * @param oLatLon2
-     * @return The distance in meters.
+     * @return The distance in meters
      * @throws IllegalArgumentException
      */
     public static double computeDistanceBetween(IGeoPosition oLatLon1, IGeoPosition oLatLon2) {
