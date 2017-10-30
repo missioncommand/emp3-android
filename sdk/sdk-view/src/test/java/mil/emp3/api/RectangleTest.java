@@ -34,6 +34,8 @@ public class RectangleTest extends TestBase{
         gr.setFillStyle(null);
         validateRectangle(r1,
                 gr,
+                150.0,
+                75.0,
                 FeatureTypeEnum.GEO_RECTANGLE,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
@@ -69,6 +71,8 @@ public class RectangleTest extends TestBase{
         gr.setPositions(Collections.singletonList(gp));
         validateRectangle(r1,
                 gr,
+                150.0,
+                75.0,
                 FeatureTypeEnum.GEO_RECTANGLE,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
@@ -107,6 +111,8 @@ public class RectangleTest extends TestBase{
         gr.setWidth(dimensions);
         validateRectangle(r1,
                 gr,
+                5.4,
+                5.4,
                 FeatureTypeEnum.GEO_RECTANGLE,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
@@ -139,6 +145,8 @@ public class RectangleTest extends TestBase{
         final Rectangle r2 = new Rectangle(r1);
         validateRectangle(r2,
                 (GeoRectangle) r1.getRenderable(),
+                150.0,
+                75.0,
                 r1.getFeatureType(),
                 r1.getChildFeatures(),
                 r1.getParentOverlays(),

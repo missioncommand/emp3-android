@@ -279,6 +279,8 @@ public class ComparisonUtils {
 
     public static void validateRectangle(final Rectangle rect,
                                        final GeoRectangle geoRectangle,
+                                       final double width,
+                                       final double height,
                                        final FeatureTypeEnum fte,
                                        final List childFeatures,
                                        final List parentOverlays,
@@ -304,6 +306,8 @@ public class ComparisonUtils {
                                        final String description,
                                        final HashMap properties) {
         compareGeoRectangle(rect.getRenderable(), geoRectangle);
+        assertEquals(rect.getWidth(), width, Epsilon);
+        assertEquals(rect.getHeight(), height, Epsilon);
         assertEquals(rect.getFeatureType(), fte);
         assertEquals(rect.getChildFeatures(), childFeatures);
         assertEquals(rect.getParentOverlays(), parentOverlays);
