@@ -1,7 +1,5 @@
 package mil.emp3.api.abstracts;
 
-import android.util.Log;
-
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
@@ -421,16 +419,26 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     /**
      * Use by sub classes of this class to validate input parameters. If value is not NaN then we return absolute
      * value else thro an exception.
-     * @param dValue
-     * @param message
-     * @return
+     * @param dValue value to be made positive
+     * @param message Message that is returned if dValue is NaN
+     * @return positve value of the passed in value
      */
-    protected double makePositive(double dValue, String message) {
+    protected double makePositive(final double dValue, final String message) {
         if(Double.isNaN(dValue)) {
             throw new IllegalArgumentException(message);
         }
         else {
             return Math.abs(dValue);
+        }
+    }
+
+    /**
+     * Use by subclasses to check if provided value is a positive number
+     * @param dValue value to be checked
+     */
+    protected void validatePositive(final Double dValue) {
+        if(dValue <= 0) {
+            throw new IllegalArgumentException("Invalid Input, " + dValue + " is not a positive number");
         }
     }
 
