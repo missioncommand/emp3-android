@@ -34,6 +34,7 @@ public class SquareTest extends TestBase{
         gs.setFillStyle(null);
         validateSquare(s1,
                        gs,
+                       100.0,
                        FeatureTypeEnum.GEO_SQUARE,
                        Collections.EMPTY_LIST,
                        Collections.EMPTY_LIST,
@@ -69,6 +70,7 @@ public class SquareTest extends TestBase{
         s1 = new Square(gp);
         validateSquare(s1,
                 gs,
+                100.0,
                 FeatureTypeEnum.GEO_SQUARE,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
@@ -105,6 +107,7 @@ public class SquareTest extends TestBase{
         gs.setFillStyle(null);
         validateSquare(s1,
                 gs,
+                5.4,
                 FeatureTypeEnum.GEO_SQUARE,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
@@ -137,6 +140,7 @@ public class SquareTest extends TestBase{
         final Square s2 = new Square(s1);
         validateSquare(s2,
                 (GeoSquare) s1.getRenderable(),
+                100.0,
                 s1.getFeatureType(),
                 s1.getChildFeatures(),
                 s1.getParentOverlays(),
@@ -234,11 +238,11 @@ public class SquareTest extends TestBase{
         gp = new GeoPosition();
         s1 = new Square(gp);
         s1.setAzimuth(0.0);
-        final Double coord = 6.737364631135279*Math.pow(10,-4);
+        final Double coord = 4.4915764203778963*Math.pow(10,-4);
         validateBoundingBox((EmpBoundingBox) s1.getFeatureBoundingBox(),
-                .5*coord,
                 coord,
-                -.5*coord,
+                coord,
+                -1*coord,
                 -1*coord);
     }
     @Test
@@ -246,13 +250,12 @@ public class SquareTest extends TestBase{
         gp = new GeoPosition();
         s1 = new Square(gp);
         s1.setAzimuth(10.0);
-        final Double northWestCoord = 4.4874355523916165*Math.pow(10,-4);
-        final Double eastWestCoord =  7.219974468171131*Math.pow(10,-4);
+        final Double coord = 5.203293342219695*Math.pow(10,-4);
         validateBoundingBox((EmpBoundingBox) s1.getFeatureBoundingBox(),
-                northWestCoord,
-                eastWestCoord,
-                -1*northWestCoord,
-                -1*eastWestCoord);
+                coord,
+                coord,
+                -1*coord,
+                -1*coord);
     }
 
     @Test
@@ -260,7 +263,7 @@ public class SquareTest extends TestBase{
         s1 = new Square();
         assertEquals(s1.toString(),
                 "Square\n" +
-                        "\twidth: 50.0\n" +
+                        "\twidth: 100.0\n" +
                         "\tazimuth: 0.0\n");
     }
 
@@ -273,7 +276,7 @@ public class SquareTest extends TestBase{
                         "\tlatitude: 0.0\n" +
                         "\tlongitude: 0.0\n" +
                         "\taltitude: 0.0\n" +
-                        "\twidth: 50.0\n" +
+                        "\twidth: 100.0\n" +
                         "\tazimuth: 0.0\n");
     }
 }

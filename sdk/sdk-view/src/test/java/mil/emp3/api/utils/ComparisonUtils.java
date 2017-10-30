@@ -304,8 +304,8 @@ public class ComparisonUtils {
 
     public static void validateRectangle(final Rectangle rect,
                                        final GeoRectangle geoRectangle,
-                                       final Double width,
-                                       final Double height,
+                                       final double width,
+                                       final double height,
                                        final FeatureTypeEnum fte,
                                        final List childFeatures,
                                        final List parentOverlays,
@@ -361,6 +361,7 @@ public class ComparisonUtils {
 
     public static void validateSquare(final Square square,
                                        final GeoSquare geoSquare,
+                                       final double width,
                                        final FeatureTypeEnum fte,
                                        final List childFeatures,
                                        final List parentOverlays,
@@ -386,6 +387,7 @@ public class ComparisonUtils {
                                        final String description,
                                        final HashMap properties) {
         compareGeoSquare(square.getRenderable(), geoSquare);
+        assertEquals(square.getWidth(), width, Epsilon);
         assertEquals(square.getFeatureType(), fte);
         assertEquals(square.getChildFeatures(), childFeatures);
         assertEquals(square.getParentOverlays(), parentOverlays);
