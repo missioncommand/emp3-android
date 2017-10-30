@@ -147,6 +147,9 @@
     <string name="rollCW">Roll CW</string>
 
     <string name="action_toggleCrossHairs">Toggle Cross Hair</string>
+    <string name="action_toggleLock">Toggle Lock</string>
+    <string name="action_toggleSmartLock">Toggle SmartLock</string>
+
 
     <string name="action_plotText">Plot Text</string>
     <string name="action_plotRectangle">Plot Rectangle</string>

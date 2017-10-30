@@ -106,6 +106,7 @@ import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
+import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.enums.Property;
@@ -2871,6 +2872,40 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 return true;
+            }
+
+            case R.id.action_toggleLock: {
+                try {
+                    if (map.getMotionLockMode() == MapMotionLockEnum.SMART_LOCK) {
+                        Toast.makeText(MainActivity.this.getApplicationContext(),
+                                "Map motion mode is SMART_LOCK, toggle failed",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (map.getMotionLockMode() != MapMotionLockEnum.LOCKED) {
+                        map.setMotionLockMode(MapMotionLockEnum.LOCKED);
+                    } else {
+                        map.setMotionLockMode(MapMotionLockEnum.UNLOCKED);
+                    }
+                } catch (EMP_Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+
+            case R.id.action_toggleSmartLock: {
+                try {
+                    if (map.getMotionLockMode() == MapMotionLockEnum.LOCKED) {
+                        Toast.makeText(MainActivity.this.getApplicationContext(),
+                                "Map motion mode is LOCKED, toggle failed",
+                                Toast.LENGTH_SHORT).show();
+                    } else if (map.getMotionLockMode() != MapMotionLockEnum.SMART_LOCK) {
+                        map.setMotionLockMode(MapMotionLockEnum.SMART_LOCK);
+                    } else {
+                        map.setMotionLockMode(MapMotionLockEnum.UNLOCKED);
+                    }
+                } catch (EMP_Exception e) {
+                    e.printStackTrace();
+                }
+                break;
             }
 
             case R.id.action_iconStyleFillColorDefault: {

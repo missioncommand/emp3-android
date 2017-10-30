@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'jacoco-android'
 
 // versionCode is an integer and must increase with each release.
 def vc = "$project.version".tokenize('.');
