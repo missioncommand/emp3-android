@@ -119,13 +119,21 @@ public class MockMapInstance_ extends CoreMapInstance {
         Log.d(TAG, "In addFeatures");
         for (FeatureVisibility featureVisibility: features) {
             Log.d(TAG, "In addFeatures " + featureVisibility.feature.getClass().getName() + " " + featureVisibility.feature.getGeoId());
+            if (userContext != null) {
+                Log.d(TAG, "In addFeatures user context " + (String)userContext);
+            }
             addFeatureQueue.add(featureVisibility.feature);
         }
     }
 
     @Override
     public void removeFeatures(IUUIDSet features, Object userContext) {
-        Log.d(TAG, "In removeFeatures");
+        if (userContext != null) {
+            Log.d(TAG, "In removeFeatures user context " + (String)userContext);
+        } else {
+            Log.d(TAG, "In removeFeatures");
+        }
+
         for (java.util.UUID uniqueId: features) {
             removeFeatureQueue.add(uniqueId);
         }
@@ -229,7 +237,9 @@ public class MockMapInstance_ extends CoreMapInstance {
 
     @Override
     public void setCamera(ICamera oCamera, boolean animate, Object userContext) {
-
+        if (userContext != null) {
+            Log.d(TAG, "In setCamera user context " + (String)userContext);
+        }
         if(oCamera != this.currentCamera) {
 //            ICamera camera = new Camera();
 //            camera.copySettingsFrom(oCamera);
@@ -239,6 +249,9 @@ public class MockMapInstance_ extends CoreMapInstance {
                     @Override
                     public void onEvent(CameraEvent event) {
                         MockMapInstance_.this.setCameraQueue.add(event.getCamera());
+                        if (event.getUserContext() != null) {
+                            Log.d(TAG, "In addCameraEventListener user context " + (String) event.getUserContext());
+                        }
                     }
                 });
             } catch(EMP_Exception e) {

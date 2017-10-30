@@ -87,8 +87,8 @@ public class LoopTest extends TestBaseMultiMap {
         remoteMap[0].addOverlay(o1, true);
         o1.addFeature(p1, true);
         p1.addFeature(p1_1, true);
-        o1.addFeature(p2, true);
-        p2.addFeature(p1, true);
+        o1.addFeature(p2, true, "LoopTest");
+        p2.addFeature(p1, true, "LoopTest");
         exception.expect(EMP_Exception.class);
         p1_1.addFeature(p2, true);
     }
@@ -113,7 +113,7 @@ public class LoopTest extends TestBaseMultiMap {
         remoteMap[0].addOverlay(o1, true);
         remoteMap[1].addOverlay(o2, true);
         o2.addOverlay(o3, true);
-        o1.addOverlay(o2, true);
+        o1.addOverlay(o2, true, "LoopTest");
         exception.expect(EMP_Exception.class);
         o3.addOverlay(o1, true);
     }

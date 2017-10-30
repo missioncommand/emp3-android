@@ -61,6 +61,12 @@ public class CameraLookAtTest extends TestBase {
         validTiltCameraTest(global.CAMERA_TILT_TO_SKY);
         validHeadingCameraTest(global.HEADING_MINIMUM);
         validHeadingCameraTest(global.HEADING_MAXIMUM);
+        camera.apply(false);
+        camera.apply(true);
+        camera.apply(false, null);
+        camera.apply(true, null);
+        camera.apply(false, "JUnit test, no animate");
+        camera.apply(true, "JUnit test, animate");
     }
 
     @Test
