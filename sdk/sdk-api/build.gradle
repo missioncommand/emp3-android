@@ -15,7 +15,7 @@ configurations {
 }
 dependencies {
     implementation project (":google-maps-android-cmgn")
-    implementation project (":cmapi")
+//    implementation project (":cmapi")
     implementation project (":geolib")
     implementation         ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
     implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")

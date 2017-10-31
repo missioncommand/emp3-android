@@ -4,8 +4,12 @@ buildscript {
         jcenter()
         maven {
             url 'https://maven.google.com'
+
             // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
         }
+//        maven{
+//            url  "https://rgi.bintray.com/cmapi-kotlin"
+//        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.0-alpha01'
@@ -15,6 +19,7 @@ buildscript {
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.5.0'
         // Jacoco reports for Android
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.2'
+//        classpath 'cmapi-kotlin-release:cmapi-multi-jvm:1.0.0.0'
     }
 }
 
@@ -37,6 +42,11 @@ ext {
 
 allprojects {
     apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/common.gradle"
+    repositories{
+        maven {
+            url  "https://rgi.bintray.com/cmapi-kotlin"
+        }
+    }
 }
 
 def publishableModules() {
@@ -48,7 +58,7 @@ def publishableModules() {
             , project(":emp3-gradle-plugin")
             , project(":mapengine-worldwind")
             , project(":google-maps-android-cmgn")
-            , project(":cmapi")
+//            , project(":cmapi")
             , project(":geolib")
 
     ]
