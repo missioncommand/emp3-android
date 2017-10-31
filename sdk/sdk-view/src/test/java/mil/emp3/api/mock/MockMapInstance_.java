@@ -51,17 +51,20 @@ public class MockMapInstance_ extends CoreMapInstance {
     protected final BlockingQueue<IFeature> selectFeatureQueue;
     protected final BlockingQueue<IFeature> deselectFeatureQueue;
     protected final BlockingQueue<ICamera> setCameraQueue;
+    protected final BlockingQueue<String> userContextQueue;
+
     protected ICamera currentCamera;
 
     public MockMapInstance_(BlockingQueue<IFeature> addFeatureQueue, BlockingQueue<UUID> removeFeatureQueue,
                            BlockingQueue<ICamera> setCameraQueue, BlockingQueue<IFeature> selectFeatureQueue,
-                            BlockingQueue deselectFeatureQueue) {
+                            BlockingQueue deselectFeatureQueue, BlockingQueue userContextQueue) {
         super(TAG, null);
         this.addFeatureQueue = addFeatureQueue;
         this.removeFeatureQueue = removeFeatureQueue;
         this.setCameraQueue = setCameraQueue;
         this.selectFeatureQueue = selectFeatureQueue;
         this.deselectFeatureQueue = deselectFeatureQueue;
+        this.userContextQueue = userContextQueue;
     }
 
     @Override
@@ -120,6 +123,7 @@ public class MockMapInstance_ extends CoreMapInstance {
         for (FeatureVisibility featureVisibility: features) {
             Log.d(TAG, "In addFeatures " + featureVisibility.feature.getClass().getName() + " " + featureVisibility.feature.getGeoId());
             if (userContext != null) {
+                userContextQueue.add((String)userContext);
                 Log.d(TAG, "In addFeatures user context " + (String)userContext);
             }
             addFeatureQueue.add(featureVisibility.feature);
@@ -129,6 +133,7 @@ public class MockMapInstance_ extends CoreMapInstance {
     @Override
     public void removeFeatures(IUUIDSet features, Object userContext) {
         if (userContext != null) {
+            userContextQueue.add((String)userContext);
             Log.d(TAG, "In removeFeatures user context " + (String)userContext);
         } else {
             Log.d(TAG, "In removeFeatures");
@@ -250,6 +255,7 @@ public class MockMapInstance_ extends CoreMapInstance {
                     public void onEvent(CameraEvent event) {
                         MockMapInstance_.this.setCameraQueue.add(event.getCamera());
                         if (event.getUserContext() != null) {
+                            userContextQueue.add((String)event.getUserContext());
                             Log.d(TAG, "In addCameraEventListener user context " + (String) event.getUserContext());
                         }
                     }
@@ -271,7 +277,9 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
-    public void applyCameraChange(ICamera oCamera, boolean animate, Object userContext) { }
+    public void applyCameraChange(ICamera oCamera, boolean animate, Object userContext) {
+        currentCamera = oCamera;
+    }
 
     @Override
     public void setLookAt(ILookAt oLookAt, boolean animate, Object userContext) {

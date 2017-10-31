@@ -69,14 +69,6 @@ public class ApplyTest extends TestBaseMultiMap {
         Thread.sleep(1000, 0);
         Assert.assertTrue("Feature p1 should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
 
-        p1.apply(null);
-        Thread.sleep(1000, 0);
-        Assert.assertTrue("Feature p1 should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
-
-        p1.apply("ApplyTest");
-        Thread.sleep(1000, 0);
-        Assert.assertTrue("Feature p1 should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
-
         remoteMap[0].setIconSize(IconSizeEnum.TINY);
         Assert.assertTrue("Feature p1 should be added to remoteMap[0]", mapInstance[0].validateAddFeatures(p1));
 
