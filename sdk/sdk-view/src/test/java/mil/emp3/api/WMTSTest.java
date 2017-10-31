@@ -1,87 +1,143 @@
 package mil.emp3.api;
 
-import android.util.Log;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.junit.Assert;
-
-import java.util.Arrays;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import mil.emp3.api.enums.WMTSVersionEnum;
 
-import static org.junit.Assert.*;
+import static mil.emp3.api.utils.ComparisonUtils.validateWMTS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by Matt.Miller on 10/12/2017.
  */
 public class WMTSTest extends TestBase {
-    public static final String TAG = WMSTest.class.getSimpleName();
-    private WMTS testWmtsObject;
+    private WMTS wmts1;
+    private final String url = "http://127.0.0.1";
+    private final WMTSVersionEnum ver1 = WMTSVersionEnum.VERSION_1_0_0;
     private final String tileFormat = "image/png";
-    private final Boolean transparent = true;
+    private final List<String> testList = Collections.singletonList("test");
 
-    @org.junit.Before
+    @Before
     public void setUp() throws Exception {
-        super.init();
-        testWmtsObject = new WMTS("http://127.0.0.1", WMTSVersionEnum.VERSION_1_0_0, tileFormat, null);
-        Log.i(TAG, "WMS Object created, toString value: " + testWmtsObject.toString());
-    }
-
-    @org.junit.After
-    public void tearDown() throws Exception {
-        testWmtsObject = new WMTS("http://127.0.0.1", null, tileFormat, Arrays.asList("layer1", "layer2"));
-        Log.i(TAG, "WMS Object final state, toString value: " + testWmtsObject.toString());
+        wmts1 = new WMTS(url, null, null, null);
 
     }
-    @org.junit.Test
-    public void getWMTSVersion() throws Exception {
-        assertEquals(testWmtsObject.getWMTSVersion(), WMTSVersionEnum.VERSION_1_0_0);
+
+    @Test(expected = MalformedURLException.class)
+    public void nullURLConstructor() throws Exception{
+        wmts1 = new WMTS(null, null, null, null);
     }
 
-    @org.junit.Test
+    @Test
+    public void nonNullURLConstructor() throws Exception{
+        validateWMTS(wmts1,
+                     ver1,
+                     tileFormat,
+                     null,
+                     null,
+                     new ArrayList<String>(),
+                     url,
+                     "",
+                     null,
+                     "",
+                     new HashMap());
+    }
+
+    @Test
+    public void allParamConstructor() throws Exception{
+        final String altTileFormat = "image/jpg";
+        wmts1 = new WMTS(url, ver1, altTileFormat, testList);
+        validateWMTS(wmts1,
+                     ver1,
+                     altTileFormat,
+                     null,
+                     null,
+                testList,
+                     url,
+                     "",
+                     null,
+                     "",
+                     new HashMap());
+    }
+
+    @Test
+    public void getWMTSVersion() {
+        assertEquals(wmts1.getWMTSVersion(), ver1);
+    }
+
+    @Test
     public void getTileFormat() throws Exception {
-        assertEquals(testWmtsObject.getTileFormat(), tileFormat);
+        assertEquals(wmts1.getTileFormat(), tileFormat);
     }
 
-    @org.junit.Test
-    public void stylesTest() throws Exception {
-        //should not change anything...potentially should throw an error?
-        assertNull(testWmtsObject.getStyles());
-        testWmtsObject.setStyles(Arrays.asList());
-        assertEquals(testWmtsObject.getStyles(), Collections.emptyList());
-
-        testWmtsObject.setStyles(Arrays.asList("value1"));
-        assertEquals(testWmtsObject.getStyles(), Arrays.asList("value1"));
+    @Test
+    public void setNullStyles() {
+        wmts1.setStyles(null);
+        assertNull(wmts1.getStyles());
     }
 
-    @org.junit.Test
-    public void dimensionsTest() throws Exception {
-        //should not change anything...potentially should throw an error?
-        assertNull(testWmtsObject.getDimensions());
-        testWmtsObject.setDimensions(Arrays.asList());
-        assertEquals(testWmtsObject.getDimensions(), Collections.emptyList());
-
-        testWmtsObject.setDimensions(Arrays.asList("value1"));
-        assertEquals(testWmtsObject.getDimensions(), Arrays.asList("value1"));
+    @Test
+    public void setNonNullStyles() {
+        wmts1.setStyles(testList);
+        assertEquals(wmts1.getStyles(), testList);
     }
 
-    @org.junit.Test
-    public void layersTest() throws Exception {
-        assertEquals(testWmtsObject.getLayers(), Collections.emptyList());
-        testWmtsObject.setLayers(Collections.emptyList());
-        assertEquals(testWmtsObject.getLayers(), Collections.emptyList());
-        testWmtsObject.setLayers(Collections.singletonList("layer1"));
-        assertEquals(testWmtsObject.getLayers(),Collections.singletonList("layer1"));
-        try {
-            testWmtsObject.getLayers().add("layer2");
-            Assert.fail("Should not have been able to add layer to private list variable");
-        }catch (Exception e) {
-            Log.i(TAG, "Success: Could not add to private List variable");
-        }
+    @Test
+    public void setNullDimensions() {
+        wmts1.setDimensions(null);
+        assertNull(wmts1.getDimensions());
+    }
 
-        assertEquals(testWmtsObject.getLayers(),Collections.singletonList("layer1"));
-        testWmtsObject.setLayers(Arrays.asList("layer1", "layer2"));
-        assertEquals(testWmtsObject.getLayers(),Arrays.asList("layer1", "layer2"));
+    @Test
+    public void setNonNullDimensions() {
+        wmts1.setDimensions(testList);
+        assertEquals(wmts1.getDimensions(), testList);
+    }
+
+    @Test
+    public void setNullLayers() throws Exception {
+        wmts1.setLayers(null);
+        assertEquals(wmts1.getLayers(), new ArrayList());
+    }
+
+    @Test
+    public void setEmptyLayers() throws Exception {
+        wmts1.setLayers(Collections.emptyList());
+        assertEquals(wmts1.getLayers(), new ArrayList());
+    }
+
+    @Test
+    public void setLayers() throws Exception {
+        wmts1.setLayers(testList);
+        assertEquals(wmts1.getLayers(), testList);
+    }
+
+    @Test
+    public void noLayersToString() {
+        final String expectedString = "URL: " + url + "\n" +
+                                      "WMTS Version: " + ver1 + "\n" +
+                                      "Tile format: " + tileFormat + "\n";
+        assertEquals(wmts1.toString(), expectedString);
+    }
+
+    @Test
+    public void layersToString() throws Exception{
+        wmts1.setLayers(testList);
+        final String expectedString = "URL: " + url + "\n" +
+                                      "WMTS Version: " + ver1 + "\n" +
+                                      "Tile format: " + tileFormat + "\n" +
+                                      "Layers: \n" +
+                                      "\ttest\n";
+        assertEquals(wmts1.toString(), expectedString);
+
     }
 
 }
