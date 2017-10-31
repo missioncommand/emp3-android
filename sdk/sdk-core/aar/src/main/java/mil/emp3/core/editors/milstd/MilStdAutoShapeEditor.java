@@ -12,7 +12,7 @@ import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.mapengine.interfaces.IMapInstance;
@@ -105,7 +105,7 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
 
                 // The 2nd position is at the distance at 270 bearing.
                 pos = new GeoPosition();
-                GeoLibrary.computePositionAt(270.0, distance, centerPos, pos);
+                GeographicLib.computePositionAt(270.0, distance, centerPos, pos);
                 pos.setAltitude(0);
                 posList.add(pos);
 
@@ -125,7 +125,7 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
 
                 for (int index = 0; index < 3; index++) {
                     pos = new GeoPosition();
-                    GeoLibrary.computePositionAt(90.0, distance, centerPos, pos);
+                    GeographicLib.computePositionAt(90.0, distance, centerPos, pos);
                     pos.setAltitude(0);
                     posList.add(pos);
                     distance += delta;
@@ -219,8 +219,8 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
                 // The center was moved. We also have to move the 2nd position.
                 IGeoPosition pos = controlPoint.getPosition();
                 ControlPoint cp2 = this.findControlPoint(ControlPoint.CPTypeEnum.POSITION_CP, 1, -1);
-                double distance = GeoLibrary.computeDistanceBetween(pos, eventPos);
-                double bearing = GeoLibrary.computeBearing(pos, eventPos);
+                double distance = GeographicLib.computeDistanceBetween(pos, eventPos);
+                double bearing = GeographicLib.computeBearing(pos, eventPos);
 
                 // Move center position.
                 pos.setLatitude(eventPos.getLatitude());
@@ -269,8 +269,8 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
 
         switch (controlPoint.getCPIndex()) {
             case 0: {
-                double distanceOfMotion = GeoLibrary.computeDistanceBetween(controlPoint.getPosition(), eventPos);
-                double bearingOfMotion = GeoLibrary.computeBearing(controlPoint.getPosition(), eventPos);
+                double distanceOfMotion = GeographicLib.computeDistanceBetween(controlPoint.getPosition(), eventPos);
+                double bearingOfMotion = GeographicLib.computeBearing(controlPoint.getPosition(), eventPos);
 
                 controlPoint.getPosition().setLatitude(eventPos.getLatitude());
                 controlPoint.getPosition().setLongitude(eventPos.getLongitude());
@@ -299,26 +299,26 @@ public class MilStdAutoShapeEditor extends AbstractMilStdMultiPointEditor {
 /*
                 double previousRange = 0;
                 double nextRange = Double.POSITIVE_INFINITY;
-                double newRange = GeoLibrary.computeDistanceBetween(posList.get(0), eventPos);
+                double newRange = GeographicLib.computeDistanceBetween(posList.get(0), eventPos);
                 int index = controlPoint.getCPIndex();
                 int previousIndex = (index + posList.size() - 1) % posList.size();
                 int nextIndex = (index + 1) % posList.size();
 
                 if ((previousIndex > 0) && (previousIndex < index)) {
                     // There is a prior range.
-                    previousRange = GeoLibrary.computeDistanceBetween(posList.get(0), posList.get(previousIndex));
+                    previousRange = GeographicLib.computeDistanceBetween(posList.get(0), posList.get(previousIndex));
                 }
 
                 if (nextIndex > index) {
                     // There is a next range.
-                    nextRange = GeoLibrary.computeDistanceBetween(posList.get(0), posList.get(nextIndex));
+                    nextRange = GeographicLib.computeDistanceBetween(posList.get(0), posList.get(nextIndex));
                 }
 
                 if ((previousRange + 20) < newRange) {
                     // The new range must be greater then the previous range + X
                     if (newRange < (nextRange - 20)) {
                         // The new range must be smaller than the next range - X.
-                        GeoLibrary.computePositionAt(90.0, newRange, posList.get(0), controlPoint.getPosition());
+                        GeographicLib.computePositionAt(90.0, newRange, posList.get(0), controlPoint.getPosition());
                         this.cpList.add(controlPoint);
                         this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_MOVED, new int[]{index});
                     }

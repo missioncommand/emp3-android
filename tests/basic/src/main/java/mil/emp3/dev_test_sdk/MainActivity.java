@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -33,9 +32,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +60,7 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,8 +70,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 
 import armyc2.c2sd.renderer.utilities.SymbolDef;
 import armyc2.c2sd.renderer.utilities.SymbolDefTable;
@@ -87,6 +88,7 @@ import mil.emp3.api.GeoJSON;
 import mil.emp3.api.GeoPackage;
 import mil.emp3.api.ImageLayer;
 import mil.emp3.api.KML;
+import mil.emp3.api.KMLS;
 import mil.emp3.api.LineOfSight;
 import mil.emp3.api.LookAt;
 import mil.emp3.api.MilStdSymbol;
@@ -102,6 +104,7 @@ import mil.emp3.api.WMS;
 import mil.emp3.api.WMTS;
 import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.IconSizeEnum;
+import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
@@ -115,11 +118,12 @@ import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ICapture;
 import mil.emp3.api.interfaces.IEditUpdateData;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
+import mil.emp3.api.interfaces.IEmpExportToTypeCallBack;
 import mil.emp3.api.interfaces.IEmpPropertyList;
 import mil.emp3.api.interfaces.IFeature;
-import mil.emp3.api.interfaces.ILineOfSight;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IScreenCaptureCallback;
 import mil.emp3.api.listeners.EventListenerHandle;
 import mil.emp3.api.listeners.IDrawEventListener;
@@ -130,8 +134,9 @@ import mil.emp3.api.listeners.IMapInteractionEventListener;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.EmpPropertyList;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
+import mil.emp3.api.utils.kmz.EmpKMZExporter;
 import mil.emp3.core.utils.CoreMilStdUtilities;
 import mil.emp3.dev_test_sdk.databinding.ActivityMainBinding;
 import mil.emp3.dev_test_sdk.databinding.WmsParametersDialogBinding;
@@ -140,8 +145,8 @@ import mil.emp3.dev_test_sdk.dialogs.MiniMapDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdtacticalgraphics.TacticalGraphicPropertiesDialog;
 import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.dev_test_sdk.utils.CameraUtility;
+import mil.emp3.dev_test_sdk.utils.KMLSServiceListener;
 import mil.emp3.json.geoJson.GeoJsonCaller;
-import sec.geo.kml.KmlOptions;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -1562,8 +1567,217 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             }
+            case R.id.action_exportMapToKMZ:
+            {
+                try
+                {
+                    EmpKMZExporter.exportToKMZ(this.map,
+                                               true,
+                                               new IEmpExportToTypeCallBack<File>(){
+                                                                                       @Override
+                                                                                       public void exportSuccess(File exportObject)
+                                                                                       {
+                                                                                           MainActivity.this.makeToast("Export Successful");
+                                                                                       }
+                                                                                       @Override
+                                                                                       public void exportFailed(Exception Ex)
+                                                                                       {
+                                                                                           Log.e(TAG, "Map export to KMZ failed.", Ex);
+                                                                                           MainActivity.this.makeToast("Export failed");
+                                                                                       }
+                                                                                   },
+                                               getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
+                                               "KmzMap");
+                }
+                catch (Exception Ex)
+                {
+                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
+                }
+
+                return true;
+            }
+            case R.id.action_exportOverlayToKMZ:
+            {
+                try
+                {
+                    EmpKMZExporter.exportToKMZ(this.map,
+                                               this.oRootOverlay,
+                                               true,
+                                               new IEmpExportToTypeCallBack<File>(){
+                                                                                       @Override
+                                                                                       public void exportSuccess(File exportObject)
+                                                                                       {
+                                                                                           MainActivity.this.makeToast("Export Successful");
+                                                                                       }
+
+                                                                                       @Override
+                                                                                       public void exportFailed(Exception Ex)
+                                                                                       {
+                                                                                           Log.e(TAG, "Map export to KMZ failed.", Ex);
+                                                                                           MainActivity.this.makeToast("Export failed");
+                                                                                       }
+                                                                                   },
+                                               getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
+                                              "KmzOverlay");
+                }
+                catch (Exception Ex)
+                {
+                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
+                }
+
+                return true;
+            }
+            case R.id.action_exportFeatureToKMZ:
+            {
+                try
+                {
+                    if (this.oCurrentSelectedFeature == null)
+                    {
+                        MainActivity.this.makeToast("Cannot Export Feature unless a feature is selected.");
+                        return true;
+                    }
+
+                    EmpKMZExporter.exportToKMZ(this.map,
+                            this.oCurrentSelectedFeature,
+                            true,
+                            new IEmpExportToTypeCallBack<File>()
+                            {
+                                @Override
+                                public void exportSuccess(File exportObject)
+                                {
+                                    MainActivity.this.makeToast("Export Successful");
+                                }
+
+                                @Override
+                                public void exportFailed(Exception Ex)
+                                {
+                                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                                    MainActivity.this.makeToast("Export failed");
+                                }
+                            },
+                            getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
+                            "KmzFeature");
+                } catch (Exception Ex)
+                {
+                    Log.e(TAG, "Map export to KMZ failed.", Ex);
+                    MainActivity.this.makeToast("Export failed");
+                }
+            }
+
+//=======
+            //Test for many features on the map
+            case R.id.action_importManyKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.many))
+                {
+                    byte[] buffer = new byte[stream.available()];
+                    stream.read(buffer);
+
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "many.kmz");
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+                    try(OutputStream outStream = new FileOutputStream(targetFile))
+                    {
+                        outStream.write(buffer);
+
+                        Context context = getApplicationContext();
+                        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+
+                        IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
+                        mapService.setName("kmzSample_Test");
+                        this.map.addMapService(mapService);
+                    }
+
+                } catch (Exception e) {
+                }
+                return true;
+            }
+            //Test for handdrawn pictures and a few downloaded symbols
+            case R.id.action_importExampleKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.example))
+                {
+                    byte[] buffer = new byte[stream.available()];
+                    stream.read(buffer);
+
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "example.kmz");
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+                    try(OutputStream outStream = new FileOutputStream(targetFile))
+                    {
+                        outStream.write(buffer);
+
+                        Context context = getApplicationContext();
+                        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+
+                        IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
+                        mapService.setName("kmzSample_Test");
+                        this.map.addMapService(mapService);
+                    }
+
+                } catch (Exception e) {
+                }
+                return true;
+            }
+            //Test more handdrawn symbols
+            case R.id.action_importSymbolsKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.symbols))
+                {
+                    byte[] buffer = new byte[stream.available()];
+                    stream.read(buffer);
+
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "symbols.kmz");
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+                    try(OutputStream outStream = new FileOutputStream(targetFile))
+                    {
+                        outStream.write(buffer);
+
+                        Context context = getApplicationContext();
+                        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+
+                        IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
+                        mapService.setName("kmzSample_Test");
+                        this.map.addMapService(mapService);
+                    }
+
+                } catch (Exception e) {
+                }
+                return true;
+            }
+            //Test multiple overlayws
+            case R.id.action_importOverlayKMZ: {
+                try( InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.overlays))
+                {
+                    byte[] buffer = new byte[stream.available()];
+                    stream.read(buffer);
+
+                    File targetFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString() +File.separator + "overlay.kmz");
+                    if(targetFile.exists()){
+                        targetFile.delete();
+                    }
+                    try(OutputStream outStream = new FileOutputStream(targetFile))
+                    {
+                        outStream.write(buffer);
+
+                        Context context = getApplicationContext();
+                        BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+
+                        IMapService mapService = new KMLS(context, targetFile.toURI().toURL().toString(), new KMLSServiceListener(queue));
+                        mapService.setName("kmzOutput_test");
+                        this.map.addMapService(mapService);
+                    }
+
+                } catch (Exception e) {
+                }
+                return true;
+            }
             case R.id.action_exportMapToKML: {
                 try {
+
                     EmpKMLExporter.exportToString(this.map, true, new IEmpExportToStringCallback() {
 
                         @Override
@@ -1609,6 +1823,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_exportOverlayToKML: {
                 try {
+
                     EmpKMLExporter.exportToString(this.map, this.oRootOverlay, true, new IEmpExportToStringCallback() {
 
                         @Override
@@ -1653,6 +1868,8 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_exportFeatureToKML: {
                 try {
+
+
                     if (null != this.oCurrentSelectedFeature) {
                         EmpKMLExporter.exportToString(this.map, this.oCurrentSelectedFeature, true, new IEmpExportToStringCallback() {
 
@@ -1816,8 +2033,8 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_plotKML: {
-                InputStream stream = null;
-                try {
+                try (InputStream stream = getApplicationContext().getResources().openRawResource(R.raw.kml_samples))
+                {
 /*
                     KML kmlOverlay = new KML();
 
@@ -1858,8 +2075,6 @@ public class MainActivity extends AppCompatActivity
                             "                  </Document>\n" +
                             "                </kml>");
 */
-                    stream = getApplicationContext().getResources().openRawResource(R.raw.kml_samples);
-
                     KML kmlFeature = new KML(stream);
                     this.oRootOverlay.addFeature(kmlFeature, true);
                     this.oFeatureHash.put(kmlFeature.getGeoId(), kmlFeature);
@@ -1870,13 +2085,6 @@ public class MainActivity extends AppCompatActivity
                     camera.apply(true);
                 } catch (Exception Ex) {
                     Log.e(TAG, "KML failed.", Ex);
-                } finally {
-                    if (null != stream) {
-                        try {
-                            stream.close();
-                        }catch (IOException ex) {
-                        }
-                    }
                 }
                 return true;
             }
@@ -1962,9 +2170,11 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             case R.id.action_addWMTS:
-                ArrayList<String> layers = new ArrayList<>();
-                layers.add("matrikkel_bakgrunn");
                 try {
+                    this.map.getMapServices();
+                    ArrayList<String> layers = new ArrayList<>();
+                    layers.add("matrikkel_bakgrunn");
+
                     wmtsService = new WMTS(
                             "http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts",
                             null, null, layers);
@@ -1985,6 +2195,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_removeWMTS:
                 try {
+                    this.map.getMapServices();
                     map.removeMapService(this.wmtsService);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeWMTS);
                     oItem.setEnabled(false);
@@ -1995,6 +2206,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_addWCS:
                 try {
+                    this.map.getMapServices();
                     final Dialog dialog = new Dialog(MainActivity.this);
                     dialog.setContentView(R.layout.wcs_parameters_dialog);
                     dialog.setTitle("Title...");
@@ -2033,6 +2245,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_removeWCS:
                 try {
+                    this.map.getMapServices();
                     map.removeMapService(this.wcsService);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeWCS);
                     oItem.setEnabled(false);
@@ -2044,6 +2257,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_addWMS:
                 try {
+                    this.map.getMapServices();
                     if (wmsBinding == null) {
                         wmsBinding = DataBindingUtil.inflate(LayoutInflater.from(MainActivity.this),
                                 R.layout.wms_parameters_dialog, null, false);
@@ -2124,6 +2338,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_removeWMS:
                 try {
+                    this.map.getMapServices();
                     map.removeMapService(this.wmsService);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeWMS);
                     oItem.setEnabled(false);
@@ -2139,6 +2354,7 @@ public class MainActivity extends AppCompatActivity
 //                    }
 //                    wcsService = new WCS ("https://worldwind26.arc.nasa.gov/wcs", "USGS-NED");
                     // instead of hard coding, let user add WCS first
+                    this.map.getMapServices();
                     map.addMapService(wcsService);
                     Thread.sleep(1000);
                     EmpGeoPosition position = new EmpGeoPosition(46.230, -122.190, 2500.0);
@@ -2164,6 +2380,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
             case R.id.action_removeLoS:
                 try {
+                    this.map.getMapServices();
                     map.removeMapService(los);
                     MenuItem oItem = this.oMenu.findItem(R.id.action_removeLoS);
                     oItem.setEnabled(false);
@@ -3063,10 +3280,10 @@ public class MainActivity extends AppCompatActivity
             this.plotTacticalGraphic("TG-" + String.format("%04d", tgCount), oSymbolDef, position);
             if (countPerLine == 20) {
                 position.setLongitude(camera.getLongitude());
-                GeoLibrary.computePositionAt(180.0, 2500.0, position, position);
+                GeographicLib.computePositionAt(180.0, 2500.0, position, position);
                 countPerLine = 0;
             } else {
-                GeoLibrary.computePositionAt(90.0, 2500.0, position, position);
+                GeographicLib.computePositionAt(90.0, 2500.0, position, position);
             }
         }
     }
@@ -3103,10 +3320,10 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case 2:
                     if (oSymbolDef.getDrawCategory() == SymbolDef.DRAW_CATEGORY_LINE) {
-                        pos = GeoLibrary.computePositionAt(270, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(270, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(90, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(90, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
                     } else {
@@ -3115,7 +3332,7 @@ public class MainActivity extends AppCompatActivity
                         pos.setLongitude(position.getLongitude());
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(90, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(90, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
                     }
@@ -3123,13 +3340,13 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case 3:
                 default:
-                    pos = GeoLibrary.computePositionAt(240.0, 1000.0, position);
+                    pos = GeographicLib.computePositionAt(240.0, 1000.0, position);
                     pos.setAltitude(0.0);
                     posList.add(pos);
-                    pos = GeoLibrary.computePositionAt(0.0, 1000.0, position);
+                    pos = GeographicLib.computePositionAt(0.0, 1000.0, position);
                     pos.setAltitude(0.0);
                     posList.add(pos);
-                    pos = GeoLibrary.computePositionAt(120.0, 1000.0, position);
+                    pos = GeographicLib.computePositionAt(120.0, 1000.0, position);
                     pos.setAltitude(0.0);
                     posList.add(pos);
 
@@ -3143,30 +3360,30 @@ public class MainActivity extends AppCompatActivity
                         posList.add(pos);
 
                         pos = new GeoPosition();
-                        GeoLibrary.computePositionAt(90.0, 500.0, posList.get(0), pos);
+                        GeographicLib.computePositionAt(90.0, 500.0, posList.get(0), pos);
                         pos.setAltitude(0.0);
                         posList.add(pos);
 
                         pos = new GeoPosition();
-                        GeoLibrary.computePositionAt(90.0, 1000.0, posList.get(0), pos);
+                        GeographicLib.computePositionAt(90.0, 1000.0, posList.get(0), pos);
                         pos.setAltitude(0.0);
                         posList.add(pos);
 
                         pos = new GeoPosition();
-                        GeoLibrary.computePositionAt(90.0, 1500.0, posList.get(0), pos);
+                        GeographicLib.computePositionAt(90.0, 1500.0, posList.get(0), pos);
                         pos.setAltitude(0.0);
                         posList.add(pos);
                     } else {
-                        pos = GeoLibrary.computePositionAt(225.0, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(225.0, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(315.0, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(315.0, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(45.0, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(45.0, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
-                        pos = GeoLibrary.computePositionAt(135.0, 1000.0, position);
+                        pos = GeographicLib.computePositionAt(135.0, 1000.0, position);
                         pos.setAltitude(0.0);
                         posList.add(pos);
                     }

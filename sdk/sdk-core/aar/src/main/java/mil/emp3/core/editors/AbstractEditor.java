@@ -18,7 +18,7 @@ import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
 import mil.emp3.api.utils.EmpGeoPosition;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.mapengine.events.MapInstanceFeatureUserInteractionEvent;
 import mil.emp3.mapengine.events.MapInstanceUserInteractionEvent;
@@ -167,7 +167,7 @@ public abstract class AbstractEditor<T extends IFeature> {
         if (null != bounds) {
             EmpGeoPosition centerWest = new EmpGeoPosition((bounds.getNorth() + bounds.getSouth())/2, bounds.getWest());
             EmpGeoPosition centerEast = new EmpGeoPosition((bounds.getNorth() + bounds.getSouth())/2, bounds.getEast());
-            refDistance = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+            refDistance = GeographicLib.computeDistanceBetween(centerWest, centerEast);
         }
         return refDistance;
     }

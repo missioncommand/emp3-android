@@ -12,7 +12,7 @@ import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.core.editors.ControlPoint;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -108,7 +108,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
 
         // Get range CP.
         controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.RANGE_CP, index, -1);
-        GeoLibrary.computePositionAt(90.0, range, centerPos, controlPoint.getPosition());
+        GeographicLib.computePositionAt(90.0, range, centerPos, controlPoint.getPosition());
     }
 
     private void createRange(int index) {
@@ -121,7 +121,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         pos = new GeoPosition();
         controlPoint = new ControlPoint(ControlPoint.CPTypeEnum.RANGE_CP, index, -1);
         controlPoint.setPosition(pos);
-        GeoLibrary.computePositionAt(90.0, range, centerPos, pos);
+        GeographicLib.computePositionAt(90.0, range, centerPos, pos);
         this.addControlPoint(controlPoint);
     }
 
@@ -190,8 +190,8 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         switch (oCP.getCPType()) {
             case POSITION_CP: {
                 // The center was moved.
-                double distanceMoved = GeoLibrary.computeDistanceBetween(oCP.getPosition(), dragPosition);
-                double bearingMoved = GeoLibrary.computeBearing(oCP.getPosition(), dragPosition);
+                double distanceMoved = GeographicLib.computeDistanceBetween(oCP.getPosition(), dragPosition);
+                double bearingMoved = GeographicLib.computeBearing(oCP.getPosition(), dragPosition);
 
                 // Move all control points.
                 oCP.getPosition().setLatitude(dragPosition.getLatitude());
@@ -213,7 +213,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
                 IGeoPosition centerPos = this.getPositions().get(0);
 
                 // Calculate the new range.
-                newRange = (float) GeoLibrary.computeDistanceBetween(centerPos, dragPosition);
+                newRange = (float) GeographicLib.computeDistanceBetween(centerPos, dragPosition);
 
                 // Now we need to make sure that the new range is not < (prevRange + threshold)
                 if (newRange < (prevRange + 100)) {
@@ -226,7 +226,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
                 }
 
                 this.setRangeValue(cpIndex, newRange);
-                GeoLibrary.computePositionAt(90.0, newRange, centerPos, oCP.getPosition());
+                GeographicLib.computePositionAt(90.0, newRange, centerPos, oCP.getPosition());
                 this.addUpdateEventData(IGeoMilSymbol.Modifier.DISTANCE);
                 moved = true;
                 break;
@@ -255,7 +255,7 @@ public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEdit
         }
 
         IGeoPosition centerPos = this.getPositions().get(0);
-        float newRange = (float) GeoLibrary.computeDistanceBetween(centerPos, newPosition);
+        float newRange = (float) GeographicLib.computeDistanceBetween(centerPos, newPosition);
         int newRangeIndex = this.getIndexForNewRange(newRange);
 
         List<ControlPoint> cpList = new ArrayList<>();
