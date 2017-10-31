@@ -38,7 +38,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      * or has invalid members then an exception is thrown.
      * @param oCenter
      */
-    public Rectangle(IGeoPosition oCenter) {
+    public Rectangle(final IGeoPosition oCenter) {
         super(new GeoRectangle(), FeatureTypeEnum.GEO_RECTANGLE);
 
         if ((null == oCenter) || (!EmpGeoPosition.validate(oCenter))) {
@@ -56,23 +56,16 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      * @param dWidth The width in meters.
      * @param dHeight The height in meters.
      */
-    public Rectangle(IGeoPosition oCenter, double dWidth, double dHeight) {
+    public Rectangle(final IGeoPosition oCenter, final double dWidth, final double dHeight) {
         super(new GeoRectangle(), FeatureTypeEnum.GEO_RECTANGLE);
 
         if (null == oCenter || !EmpGeoPosition.validate(oCenter)) {
             throw new IllegalArgumentException("The coordinate can NOT be null and must have valid values");
         }
-        dWidth = makePositive(dWidth, "Width is invalid. NaN");
-        dHeight = makePositive(dHeight, "Height is invalid. NaN");
 
-        if(dWidth < MINIMUM_WIDTH || dHeight < MINIMUM_HEIGHT) {
-            throw new IllegalArgumentException("Invalid height or width. " + dHeight + " " +  dWidth + " Minimum supported " +
-                MINIMUM_HEIGHT + " " + MINIMUM_WIDTH);
-        }
-
-        this.getRenderable().getPositions().add(oCenter);
         this.setWidth(dWidth);
         this.setHeight(dHeight);
+        this.getRenderable().getPositions().add(oCenter);
         this.setFillStyle(null);
     }
 
@@ -81,19 +74,16 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      * invalid members then an exception is thrown.
      * @param oRenderable {@link IGeoRectangle}
      */
-    public Rectangle(IGeoRectangle oRenderable) {
+    public Rectangle(final IGeoRectangle oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_RECTANGLE);
 
         if(null == oRenderable) {
             throw new IllegalArgumentException("Encapsulated Rectangle must be non-null");
         }
-        this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
-        this.setHeight(makePositive(this.getHeight(), "Invalid Height. NaN"));
+        //super sets values bypassing validation, so retrieve the new values using get and then validate with set
+        this.setWidth(this.getWidth());
+        this.setHeight(this.getHeight());
 
-        if(this.getWidth() < MINIMUM_WIDTH || this.getHeight() < MINIMUM_HEIGHT) {
-            throw new IllegalArgumentException("Invalid height or width. " + this.getHeight() + " " +  this.getWidth() + " Minimum supported " +
-                    MINIMUM_HEIGHT + " " + MINIMUM_WIDTH);
-        }
 
         this.setAzimuth(this.getAzimuth());  // For validation.
     }
@@ -104,12 +94,21 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      * @param dWidth The width in meters.
      */
     @Override
-    public void setWidth(double dWidth) {
-        dWidth = makePositive(dWidth, "Invalid Width. NaN");
-        if (dWidth < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width.");
+    public void setWidth(final double dWidth) {
+        isValidWidth(dWidth);
+        this.getRenderable().setWidth(dWidth);
+    }
+
+    /**
+     * Validates whether or not a given input is a valid Width.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dWidth The width to be checked
+     */
+    private void isValidWidth(final double dWidth) {
+        validatePositive(dWidth);
+        if(dWidth < MINIMUM_WIDTH) {
+            throw new IllegalArgumentException("Invalid width, " + String.valueOf(dWidth) + " is not greater than " + MINIMUM_WIDTH);
         }
-        this.getRenderable().setWidth(Math.abs(dWidth));
     }
 
     /**
@@ -126,12 +125,21 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      * @param dHeight The height in meters must be greater than 1 meter.
      */
     @Override
-    public void setHeight(double dHeight) {
-        dHeight = makePositive(dHeight, "Invalid Height. NaN");
-        if (dHeight < MINIMUM_HEIGHT) {
-            throw new IllegalArgumentException("Invalid height.");
+    public void setHeight(final double dHeight) {
+        validateHeight(dHeight);
+        this.getRenderable().setHeight(dHeight);
+    }
+
+    /**
+     * Validates whether or not a given input is a valid height.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dHeight The height to be checked
+     */
+    private void validateHeight(final double dHeight) {
+        validatePositive(dHeight);
+        if(dHeight < MINIMUM_HEIGHT) {
+            throw new IllegalArgumentException("Invalid height, " + String.valueOf(dHeight) + " is not greater than " + MINIMUM_HEIGHT);
         }
-        this.getRenderable().setHeight(Math.abs(dHeight));
     }
 
     /**
@@ -143,21 +151,25 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         return this.getRenderable().getHeight();
     }
 
+    /**
+     * Calculate the bounding box of the rectangle
+     * @return EmpBoundingBox with coordinates of the bounding box
+     */
     public IEmpBoundingBox getFeatureBoundingBox() {
         double halfHeightE2;
         double halfWidthE2;
-        double distanceToCorner;
-        double bearingToTopRightCorner;
+        final double distanceToCorner;
+        final double bearingToTopRightCorner;
         double bearing;
-        double azimuth = this.getAzimuth();
-        List<IGeoPosition> posList = this.getPositions();
+        final double azimuth = this.getAzimuth();
+        final List<IGeoPosition> posList = this.getPositions();
 
         if ((null == posList) || posList.isEmpty()) {
             return null;
         }
 
-        IEmpBoundingBox bBox = new EmpBoundingBox();
-        IGeoPosition pos = new GeoPosition();
+        final IEmpBoundingBox bBox = new EmpBoundingBox();
+        final IGeoPosition pos = new GeoPosition();
 
         halfHeightE2 = this.getHeight() / 2.0;
         halfWidthE2 = this.getWidth() / 2.0;

@@ -1,16 +1,15 @@
 package mil.emp3.api;
 
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Matt.Miller on 10/16/2017.
