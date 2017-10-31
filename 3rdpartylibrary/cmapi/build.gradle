@@ -1,23 +1,2 @@
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
-
-configurations.maybeCreate("default")
-//artifacts.add("default", file('common-map-geospatial-notation-0.0.7.jar'))
-
-repositories {
-    maven {
-        url  "https://rgi.bintray.com/cmapi-kotlin"
-    }
-}
-//
-//
-//publishing.publications {
-//    nebula(MavenPublication) {
-//        artifactId = "common-map-geospatial-notation"
-//        version = "${version_cmapi}"
-//
-//        artifacts = [
-//            "./common-map-geospatial-notation-0.0.7.jar"
-//        ]
-//    }
-//}

@@ -29,8 +29,7 @@ dependencies {
     implementation         ("com.android.support:appcompat-v7")
     implementation         ("com.android.support:design")
     implementation         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
-//    compileOnly project    (":cmapi")
-    compile(group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: '1.0.0.0', ext: 'jar', classifier: '')
+    implementation         (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: '1.0.0.0', ext: 'jar', classifier: '')
     implementation project (":geolib")
     implementation         'com.android.databinding:library:1.3.1'
     implementation         'com.android.databinding:adapters:1.3.1'
