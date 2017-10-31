@@ -8,6 +8,7 @@ import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.GeoSquare;
+import org.cmapi.primitives.GeoText;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -19,6 +20,7 @@ import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRectangle;
 import org.cmapi.primitives.IGeoSquare;
 import org.cmapi.primitives.IGeoStrokeStyle;
+import org.cmapi.primitives.IGeoText;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -28,6 +30,7 @@ import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.Text;
 import mil.emp3.api.enums.FeatureTypeEnum;
 
 import static org.junit.Assert.assertEquals;
@@ -185,6 +188,27 @@ public class ComparisonUtils {
         assertEquals(s1.getBuffer(), s2.getBuffer(), Epsilon);
         assertEquals(s1.getAzimuth(), s2.getAzimuth(), Epsilon);
         assertEquals(s1.getAltitudeMode(), s2.getAltitudeMode());
+    }
+
+    private static void compareGeoText(final IGeoText t1, final IGeoText t2) {
+        assertEquals(t1.getTimeStamp(), t2.getTimeStamp());
+        assertEquals(t1.getTimeSpans(), t2.getTimeSpans());
+        assertEquals(t1.getTessellate(), t2.getTessellate());
+        compareStrokeStyle(t1.getStrokeStyle(), t2.getStrokeStyle());
+        assertEquals(t1.getReadOnly(), t2.getReadOnly());
+        assertEquals(t1.getProperties(), t2.getProperties());
+        compareGeoPositionArray(t1.getPositions(), t2.getPositions());
+        assertEquals(t1.getPathType(), t2.getPathType());
+        assertEquals(t1.getName(), t2.getName());
+        compareLabelStyle(t1.getLabelStyle(), t2.getLabelStyle());
+        compareFillStyle(t1.getFillStyle(), t2.getFillStyle());
+        assertEquals(t1.getExtrude(), t2.getExtrude());
+        assertEquals(t1.getDescription(), t2.getDescription());
+        assertEquals(t1.getDataProviderId(), t2.getDataProviderId());
+        assertEquals(t1.getChildren(), t2.getChildren());
+        assertEquals(t1.getBuffer(), t2.getBuffer(), Epsilon);
+        assertEquals(t1.getAzimuth(), t2.getAzimuth(), Epsilon);
+        assertEquals(t1.getAltitudeMode(), t2.getAltitudeMode());
     }
 
     public static void validatePoint(final Point point,
@@ -412,6 +436,63 @@ public class ComparisonUtils {
         assertEquals(square.getDataProviderId(), dataProvider);
         assertEquals(square.getDescription(), description);
         assertEquals(square.getProperties(), properties);
+    }
+
+    public static void validateText(final Text text,
+                                    final GeoText geoText,
+                                    final String textString,
+                                    final double rotationAngle,
+                                    final FeatureTypeEnum fte,
+                                    final List childFeatures,
+                                    final List parentOverlays,
+                                    final List parentFeatures,
+                                    final List<IGeoPosition> positions,
+                                    final Date date,
+                                    final List timeSpans,
+                                    final IGeoAltitudeMode.AltitudeMode altitudeMode,
+                                    final IGeoStrokeStyle strokeStyle,
+                                    final IGeoFillStyle fillStyle,
+                                    final IGeoLabelStyle labelStyle,
+                                    final Boolean extrude,
+                                    final Boolean tessellate,
+                                    final double buffer,
+                                    final double azimuth,
+                                    final GeoPosition geoPosition,
+                                    final Boolean readOnly,
+                                    final List parents,
+                                    final Boolean hasChildren,
+                                    final List children,
+                                    final String name,
+                                    final String dataProvider,
+                                    final String description,
+                                    final HashMap properties) {
+        compareGeoText(text.getRenderable(), geoText);
+        assertEquals(text.getText(), textString);
+        assertEquals(text.getRotationAngle(), rotationAngle, Epsilon);
+        assertEquals(text.getFeatureType(), fte);
+        assertEquals(text.getChildFeatures(), childFeatures);
+        assertEquals(text.getParentOverlays(), parentOverlays);
+        assertEquals(text.getParentFeatures(), parentFeatures);
+        compareGeoPositionArray(text.getPositions(), positions);
+        assertEquals(text.getTimeStamp(), date);
+        assertEquals(text.getTimeSpans(), timeSpans);
+        assertEquals(text.getAltitudeMode(), altitudeMode);
+        compareStrokeStyle(text.getStrokeStyle(), strokeStyle);
+        compareFillStyle(text.getFillStyle(), fillStyle);
+        compareLabelStyle(text.getLabelStyle(), labelStyle);
+        assertEquals(text.getExtrude(), extrude);
+        assertEquals(text.getTessellate(), tessellate);
+        assertEquals(text.getBuffer(), buffer, Epsilon);
+        assertEquals(text.getAzimuth(), azimuth, Epsilon);
+        compareGeoPosition(text.getPosition(), geoPosition);
+        assertEquals(text.getReadOnly(), readOnly);
+        assertEquals(text.getParents(), parents);
+        assertEquals(text.hasChildren(), hasChildren);
+        assertEquals(text.getChildren(), children);
+        assertEquals(text.getName(), name);
+        assertEquals(text.getDataProviderId(), dataProvider);
+        assertEquals(text.getDescription(), description);
+        assertEquals(text.getProperties(), properties);
     }
 
     public static void validateBoundingBox(final EmpBoundingBox ebb,
