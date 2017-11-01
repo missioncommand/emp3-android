@@ -32,47 +32,9 @@ public class EllipseTest extends TestBase {
         gc.setTimeStamp(el.getTimeStamp());
         gc.setFillStyle(null);
         validateEllipse(el,
-                        gc,
-                        150.0,
-                        75.0
-                        FeatureTypeEnum.GEO_ELLIPSE,
-                        Collections.EMPTY_LIST,
-                        Collections.EMPTY_LIST,
-                        Collections.EMPTY_LIST,
-                        Collections.EMPTY_LIST,
-                        null,
-                        Collections.EMPTY_LIST,
-                        null,
-                        new GeoStrokeStyle(),
-                        null,
-                        new GeoLabelStyle(),
-                        false,
-                        true,
-                        0.0,
-                        0.0,
-                        null,
-                        false,
-                        Collections.EMPTY_LIST,
-                        false,
-                        Collections.EMPTY_LIST,
-                        "",
-                        null,
-                        "",
-                        new HashMap());
-    }
-
-    @Test
-    public void radiusConstructorTest() throws Exception {
-        el = new Ellipse(50.0, 50.0);
-        final GeoEllipse gc = new GeoEllipse();
-        gc.setSemiMajor(50.0);
-        gc.setSemiMajor(50.0);
-        gc.setTimeStamp(el.getTimeStamp());
-        gc.setFillStyle(null);
-        validateEllipse(el,
                 gc,
-                50.0,
-                50.0
+                150.0,
+                75.0,
                 FeatureTypeEnum.GEO_ELLIPSE,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
@@ -88,6 +50,83 @@ public class EllipseTest extends TestBase {
                 true,
                 0.0,
                 0.0,
+                null,
+                false,
+                Collections.EMPTY_LIST,
+                false,
+                Collections.EMPTY_LIST,
+                "",
+                null,
+                "",
+                new HashMap());
+    }
+
+    @Test
+    public void radiusConstructorTest() throws Exception {
+        el = new Ellipse(50.0, 50.0);
+        final GeoEllipse gc = new GeoEllipse();
+        gc.setSemiMajor(50.0);
+        gc.setSemiMinor(50.0);
+        gc.setTimeStamp(el.getTimeStamp());
+        gc.setFillStyle(null);
+        validateEllipse(el,
+                gc,
+                50.0,
+                50.0,
+                FeatureTypeEnum.GEO_ELLIPSE,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
+                null,
+                Collections.EMPTY_LIST,
+                null,
+                new GeoStrokeStyle(),
+                null,
+                new GeoLabelStyle(),
+                false,
+                true,
+                0.0,
+                0.0,
+                null,
+                false,
+                Collections.EMPTY_LIST,
+                false,
+                Collections.EMPTY_LIST,
+                "",
+                null,
+                "",
+                new HashMap());
+    }
+
+    @Test
+    public void radiusAzimuthConstructorTest() throws Exception {
+        el = new Ellipse(50.0, 50.0, 100.0);
+        final GeoEllipse gc = new GeoEllipse();
+        gc.setSemiMajor(50.0);
+        gc.setSemiMinor(50.0);
+        gc.setAzimuth(100.0);
+        gc.setTimeStamp(el.getTimeStamp());
+        gc.setFillStyle(null);
+        validateEllipse(el,
+                gc,
+                50.0,
+                50.0,
+                FeatureTypeEnum.GEO_ELLIPSE,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST,
+                null,
+                Collections.EMPTY_LIST,
+                null,
+                new GeoStrokeStyle(),
+                null,
+                new GeoLabelStyle(),
+                false,
+                true,
+                0.0,
+                100.0,
                 null,
                 false,
                 Collections.EMPTY_LIST,
@@ -141,54 +180,237 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NegativeRadiusConstructor() {
-        el = new Ellipse(-45.5);
+    public void negativeSemiMajorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setSemiMajor(-10.0);
+        el = new Ellipse(ge);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void zeroRadiusConstructor() {
-        el = new Ellipse(0.0);
+    public void zeroSemiMajorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setSemiMajor(0.0);
+        el = new Ellipse(ge);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNRadiusConstructor() {
-        el = new Ellipse(Double.NaN);
+    public void NaNSemiMajorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setSemiMajor(Double.NaN);
+        el = new Ellipse(ge);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void tooSmallRadiusConstructor() {
-        el = new Ellipse(0.5);
+    public void tooSmallSemiMajorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setSemiMajor(0.5);
+        el = new Ellipse(ge);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void negativeSetRadius() {
+    public void negativeSemiMinorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setSemiMinor(-10.0);
+        el = new Ellipse(ge);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void zeroSemiMinorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setSemiMinor(0.0);
+        el = new Ellipse(ge);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void NaNSemiMinorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setSemiMinor(Double.NaN);
+        el = new Ellipse(ge);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooSmallSemiMinorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setSemiMinor(0.5);
+        el = new Ellipse(ge);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativeAzimuthMajorGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setAzimuth(-400.0);
+        el = new Ellipse(ge);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void NaNAzimuthGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setAzimuth(Double.NaN);
+        el = new Ellipse(ge);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooLargeAzimuthGeoEllipseConstructor() {
+        final GeoEllipse ge = new GeoEllipse();
+        ge.setAzimuth(400.0);
+        el = new Ellipse(ge);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooSmallAzimuthAzimuthConstructor() {
+        el = new Ellipse(100.0, 100.0, -400.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooLargeAzimuthAzimuthConstructor() {
+        el = new Ellipse(100.0, 100.0, 400.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void NaNAzimuthAzimuthConstructor() {
+        el = new Ellipse(100.0, 100.0, Double.NaN);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooSmallSemiMajorAzimuthConstructor() {
+        el = new Ellipse(0.5, 100.0, 100.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativeSemiMajorAzimuthConstructor() {
+        el = new Ellipse(-5.0, 100.0, -400.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void zeroSemiMajorParamterConstructor() {
+        el = new Ellipse(0.0, 100.0, -400.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void NaNSemiMajorAzimuthConstructor() {
+        el = new Ellipse(Double.NaN, 100.0, -400.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooSmallSemiMinorAzimuthConstructor() {
+        el = new Ellipse(100.0, 0.5, 100.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativeSemiMinorAzimuthConstructor() {
+        el = new Ellipse(100.0, -4.0, -400.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void zeroSemiMinorAzimuthConstructor() {
+        el = new Ellipse(100.0, 0.0, -400.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void NaNSemiMinorAzimuthConstructor() {
+        el = new Ellipse(100.0, Double.NaN, -400.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooSmallSemiMajorParameterConstructor() {
+        el = new Ellipse(0.5, 100.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativeSemiMajorParameterConstructor() {
+        el = new Ellipse(-5.0, 100.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void zeroSemiMajorParameterConstructor() {
+        el = new Ellipse(0.0, 100.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void NaNSemiMajorParameterConstructor() {
+        el = new Ellipse(Double.NaN, 100.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooSmallSemiMinorParameterConstructor() {
+        el = new Ellipse(100.0, 0.5);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativeSemiMinorParameterConstructor() {
+        el = new Ellipse(100.0, -4.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void zeroSemiMinorParameterConstructor() {
+        el = new Ellipse(100.0, 0.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void NaNSemiMinorParameterConstructor() {
+        el = new Ellipse(100.0, Double.NaN);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativeSetSemiMajor() {
         el = new Ellipse();
-        el.setRadius(-10.0);
+        el.setSemiMajor(-10.0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void zeroSetRadius() {
+    public void zeroSetSemiMajor() {
         el = new Ellipse();
-        el.setRadius(0.0);
+        el.setSemiMajor(0.0);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSetRadius() {
+    public void NaNSetSemiMajor() {
         el = new Ellipse();
-        el.setRadius(Double.NaN);
+        el.setSemiMajor(Double.NaN);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void tooSmallSetRadius() {
+    public void tooSmallSetSemiMajor() {
         el = new Ellipse();
-        el.setRadius(0.5);
+        el.setSemiMajor(0.5);
     }
 
     @Test
-    public void setRadius() {
+    public void setSemiMajor() {
         el = new Ellipse();
-        el.setRadius(10.0);
-        assertEquals(el.getRadius(), 10.0, Epsilon);
+        el.setSemiMajor(10.0);
+        assertEquals(el.getSemiMajor(), 10.0, Epsilon);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void negativeSetSemiMinor() {
+        el = new Ellipse();
+        el.setSemiMinor(-10.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void zeroSetSemiMinor() {
+        el = new Ellipse();
+        el.setSemiMinor(0.0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void NaNSetSemiMinor() {
+        el = new Ellipse();
+        el.setSemiMinor(Double.NaN);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void tooSmallSetSemiMinor() {
+        el = new Ellipse();
+        el.setSemiMinor(0.5);
+    }
+
+    @Test
+    public void setSemiMinor() {
+        el = new Ellipse();
+        el.setSemiMinor(10.0);
+        assertEquals(el.getSemiMinor(), 10.0, Epsilon);
     }
 
     @Test
@@ -202,7 +424,8 @@ public class EllipseTest extends TestBase {
         final GeoPosition gp = new GeoPosition();
         el = new Ellipse();
         el.setPosition(gp);
-        final Double coord = 9.881468125740867*Math.pow(10,-4);
+        final Double northSouthCoord = 7.411101094021433 * Math.pow(10, -4);
+        final Double eastWestCoord = 1.4822202186905997 * Math.pow(10, -3);
 //
 //        final EmpBoundingBox empBoundingBoxMock = PowerMockito.mock(EmpBoundingBox.class);
 //        when(empBoundingBoxMock.deltaLatitude()).thenReturn(0.0);
@@ -210,9 +433,35 @@ public class EllipseTest extends TestBase {
 //        PowerMockito.whenNew(EmpBoundingBox.class).withNoArguments().thenReturn(empBoundingBoxMock);
 
         validateBoundingBox((EmpBoundingBox) el.getFeatureBoundingBox(),
-                                             coord,
-                                             coord,
-                                             -1*coord,
-                                             -1*coord);
+                                             northSouthCoord,
+                                             eastWestCoord,
+                                             -1 * northSouthCoord,
+                                             -1 * eastWestCoord);
+    }
+
+
+    @Test
+    public void noPosToString() {
+        el = new Ellipse();
+        final String expectedString = "Ellipse \n" +
+                                      "\tsemi-major: 150.0\n" +
+                                      "\tsemi-minor: 75.0\n" +
+                                      "\tazimuth: 0.0\n";
+        assertEquals(el.toString(), expectedString);
+    }
+
+    @Test
+    public void posToString() {
+        final GeoPosition gp = new GeoPosition();
+        el = new Ellipse();
+        el.setPosition(gp);
+        final String expectedString = "Ellipse at\n" +
+                                      "\tlatitude: 0.0\n" +
+                                      "\tlongitude: 0.0\n" +
+                                      "\taltitude: 0.0\n" +
+                                      "\tsemi-major: 150.0\n" +
+                                      "\tsemi-minor: 75.0\n" +
+                                      "\tazimuth: 0.0\n";
+        assertEquals(el.toString(), expectedString);
     }
 }

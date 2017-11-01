@@ -1,8 +1,6 @@
 package mil.emp3.api;
 
 
-import mil.emp3.api.abstracts.Feature;
-
 import org.cmapi.primitives.GeoEllipse;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoEllipse;
@@ -10,10 +8,11 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
 
+import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
-import mil.emp3.api.utils.GeographicLib;
+import mil.emp3.api.utils.GeoLibrary;
 
 /**
  * This class implements an ellipse feature. It requires a single coordinate that indicates the
@@ -37,18 +36,10 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * @param dMajorRadius see {@link #setSemiMajor(double)}.
      * @param dMinorRadius  see {@link #setSemiMinor(double)}.
      */
-    public Ellipse(double dMajorRadius, double dMinorRadius) {
+    public Ellipse(final double dMajorRadius, final double dMinorRadius) {
         super(new GeoEllipse(), FeatureTypeEnum.GEO_ELLIPSE);
-        dMajorRadius = makePositive(dMajorRadius, "Invalid major radius. NaN");
-        dMinorRadius = makePositive(dMinorRadius, "Invalid minor radius. NaN");
-
-        if((dMajorRadius < MINIMUM_SEMI_MAJOR) || (dMinorRadius < MINIMUM_SEMI_MINOR)) {
-            throw new IllegalArgumentException("Invalid Major or Minor. " + dMajorRadius + " " + dMinorRadius +
-                    " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
-        }
         this.setSemiMajor(dMajorRadius);
         this.setSemiMinor(dMinorRadius);
-
         this.setFillStyle(null);
     }
 
@@ -58,16 +49,8 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * @param dMinorRadius  see {@link #setSemiMinor(double)}.
      * @param dAzimuth see {@link Feature#setAzimuth(double)}.
      */
-    public Ellipse(double dMajorRadius, double dMinorRadius, double dAzimuth) {
+    public Ellipse(final double dMajorRadius, final double dMinorRadius, final double dAzimuth) {
         super(new GeoEllipse(), FeatureTypeEnum.GEO_ELLIPSE);
-        dMajorRadius = makePositive(dMajorRadius, "Invalid major radius. NaN");
-        dMinorRadius = makePositive(dMinorRadius, "Invalid minor radius. NaN");
-
-        if((dMajorRadius < MINIMUM_SEMI_MAJOR) || (dMinorRadius < MINIMUM_SEMI_MINOR)) {
-            throw new IllegalArgumentException("Invalid Major or Minor. " + dMajorRadius + " " + dMinorRadius +
-                    " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
-        }
-
         this.setAzimuth(dAzimuth);
         this.setSemiMajor(dMajorRadius);
         this.setSemiMinor(dMinorRadius);
@@ -78,20 +61,15 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * This constructor creates an ellipse that encapsulates the given IGeoEllipse.
      * @param oRenderable See {@link IGeoEllipse}
      */
-    public Ellipse(IGeoEllipse oRenderable) {
+    public Ellipse(final IGeoEllipse oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_ELLIPSE);
 
         if(null == oRenderable) {
             throw new IllegalArgumentException("Encapsulated GeoEllipse must be non-null");
         }
-        this.setSemiMajor(makePositive(this.getSemiMajor(), "Invalid Semi Major NaN"));
-        this.setSemiMinor(makePositive(this.getSemiMinor(), "Invalid Semi Minor NaN"));
 
-        if((this.getSemiMajor() < MINIMUM_SEMI_MAJOR) || (this.getSemiMinor() < MINIMUM_SEMI_MINOR)) {
-            throw new IllegalArgumentException("Invalid Major or Minor. " + this.getSemiMajor() + " " + this.getSemiMinor() +
-                    " Minimum supported " + MINIMUM_SEMI_MAJOR + " " + MINIMUM_SEMI_MINOR);
-        }
-
+        this.setSemiMajor(this.getSemiMajor());
+        this.setSemiMinor(this.getSemiMinor());
         this.setAzimuth(this.getAzimuth());  // For validation
     }
 
@@ -100,12 +78,8 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * @param value The major radius in meters. The absolute value must be >= 1.0. Otherwise an InvalidParameter is raised.
      */
     @Override
-    public void setSemiMajor(double value) {
-        value = makePositive(value, "Semi Major is NaN");
-
-        if (value < MINIMUM_SEMI_MAJOR) {
-            throw new IllegalArgumentException("Semi Major must be >= 1.0");
-        }
+    public void setSemiMajor(final double value) {
+        isValidSemiMajor(value);
         this.getRenderable().setSemiMajor(value);
     }
 
@@ -123,12 +97,8 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      * @param value The minor radius in meters. An InvalidPaameterException is raised if the absolute value is less than 1.0.
      */
     @Override
-    public void setSemiMinor(double value) {
-        value = makePositive(value, "Semi Minor is NaN");
-
-        if (value < MINIMUM_SEMI_MINOR) {
-            throw new IllegalArgumentException("The Semi Minor must be >= 1.0.");
-        }
+    public void setSemiMinor(final double value) {
+        isValidSemiMinor(value);
         this.getRenderable().setSemiMinor(value);
     }
 
@@ -141,13 +111,27 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
         return this.getRenderable().getSemiMinor();
     }
 
+    private void isValidSemiMajor(final double dMajor) {
+        validatePositive(dMajor);
+        if(dMajor < MINIMUM_SEMI_MAJOR) {
+            throw new IllegalArgumentException("Invalid semimajor, " + String.valueOf(dMajor) + " Minimum supported " + MINIMUM_SEMI_MAJOR);
+        }
+    }
+
+    private void isValidSemiMinor(final double dMinor) {
+        validatePositive(dMinor);
+        if(dMinor < MINIMUM_SEMI_MINOR) {
+            throw new IllegalArgumentException("Invalid semiminor, " + String.valueOf(dMinor) + " Minimum supported " + MINIMUM_SEMI_MINOR);
+        }
+    }
+
     public IEmpBoundingBox getFeatureBoundingBox() {
         IEmpBoundingBox bBox = null;
-        List<IGeoPosition> posList = getPositions();
+        final List<IGeoPosition> posList = getPositions();
 
         if ((null != posList) && !posList.isEmpty()) {
-            double majorAxis = this.getSemiMajor();
-            double minorAxis = this.getSemiMinor();
+            final double majorAxis = this.getSemiMajor();
+            final double minorAxis = this.getSemiMinor();
 
             if (!Double.isNaN(majorAxis) && !Double.isNaN(minorAxis)) {
                 double angle = this.getAzimuth();
@@ -155,25 +139,25 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
                 IGeoPosition pos = new GeoPosition();
 
                 // Compute north.
-                GeographicLib.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute east.
                 angle = this.getAzimuth() + 90.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeographicLib.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute south.
                 angle = this.getAzimuth() + 180.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeographicLib.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute west.
                 angle = this.getAzimuth() + 270.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeographicLib.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Now we need to extend the box by ~ 10%.
