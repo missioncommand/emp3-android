@@ -25,15 +25,15 @@ import static org.junit.Assert.assertNull;
 @PrepareForTest({EmpBoundingBox.class})
 public class CircleTest extends TestBase {
 
-    private Circle c;
+    private Circle circ;
 
     @Test
     public void constructorTest() throws Exception {
-        c = new Circle();
+        circ = new Circle();
         final GeoCircle gc = new GeoCircle();
-        gc.setTimeStamp(c.getTimeStamp());
+        gc.setTimeStamp(circ.getTimeStamp());
         gc.setFillStyle(null);
-        validateCircle(c,
+        validateCircle(circ,
                         gc,
                         100.0,
                         FeatureTypeEnum.GEO_CIRCLE,
@@ -64,12 +64,12 @@ public class CircleTest extends TestBase {
 
     @Test
     public void radiusConstructorTest() throws Exception {
-        c = new Circle(50.0);
+        circ = new Circle(50.0);
         final GeoCircle gc = new GeoCircle();
         gc.setRadius(50.0);
-        gc.setTimeStamp(c.getTimeStamp());
+        gc.setTimeStamp(circ.getTimeStamp());
         gc.setFillStyle(null);
-        validateCircle(c,
+        validateCircle(circ,
                 gc,
                 50.0,
                 FeatureTypeEnum.GEO_CIRCLE,
@@ -101,10 +101,10 @@ public class CircleTest extends TestBase {
     @Test
     public void geoCircleConstructorTest() throws Exception {
         final GeoCircle gc = new GeoCircle();
-        c = new Circle(gc);
-        gc.setTimeStamp(c.getTimeStamp());
+        circ = new Circle(gc);
+        gc.setTimeStamp(circ.getTimeStamp());
         gc.setFillStyle(null);
-        validateCircle(c,
+        validateCircle(circ,
                 gc,
                 100.0,
                 FeatureTypeEnum.GEO_CIRCLE,
@@ -135,71 +135,71 @@ public class CircleTest extends TestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void nullGeoCircleConstructor() {
-        c = new Circle(null);
+        circ = new Circle(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void NegativeRadiusConstructor() {
-        c = new Circle(-45.5);
+        circ = new Circle(-45.5);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void zeroRadiusConstructor() {
-        c = new Circle(0.0);
+        circ = new Circle(0.0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void NaNRadiusConstructor() {
-        c = new Circle(Double.NaN);
+        circ = new Circle(Double.NaN);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void tooSmallRadiusConstructor() {
-        c = new Circle(0.5);
+        circ = new Circle(0.5);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void negativeSetRadius() {
-        c = new Circle();
-        c.setRadius(-10.0);
+        circ = new Circle();
+        circ.setRadius(-10.0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void zeroSetRadius() {
-        c = new Circle();
-        c.setRadius(0.0);
+        circ = new Circle();
+        circ.setRadius(0.0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void NaNSetRadius() {
-        c = new Circle();
-        c.setRadius(Double.NaN);
+        circ = new Circle();
+        circ.setRadius(Double.NaN);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void tooSmallSetRadius() {
-        c = new Circle();
-        c.setRadius(0.5);
+        circ = new Circle();
+        circ.setRadius(0.5);
     }
 
     @Test
     public void setRadius() {
-        c = new Circle();
-        c.setRadius(10.0);
-        assertEquals(c.getRadius(), 10.0, Epsilon);
+        circ = new Circle();
+        circ.setRadius(10.0);
+        assertEquals(circ.getRadius(), 10.0, Epsilon);
     }
 
     @Test
     public void nullPositionFeatureBoundingBox() {
-        c = new Circle();
-        assertNull(c.getFeatureBoundingBox());
+        circ = new Circle();
+        assertNull(circ.getFeatureBoundingBox());
     }
 
     @Test
     public void featureBoundingBox() throws Exception {
         final GeoPosition gp = new GeoPosition();
-        c = new Circle();
-        c.setPosition(gp);
+        circ = new Circle();
+        circ.setPosition(gp);
         final Double coord = 9.881468125740867*Math.pow(10,-4);
 //
 //        final EmpBoundingBox empBoundingBoxMock = PowerMockito.mock(EmpBoundingBox.class);
@@ -207,10 +207,33 @@ public class CircleTest extends TestBase {
 //        when(empBoundingBoxMock.deltaLongitude()).thenReturn(0.0);
 //        PowerMockito.whenNew(EmpBoundingBox.class).withNoArguments().thenReturn(empBoundingBoxMock);
 
-        validateBoundingBox((EmpBoundingBox) c.getFeatureBoundingBox(),
+        validateBoundingBox((EmpBoundingBox) circ.getFeatureBoundingBox(),
                                              coord,
                                              coord,
                                              -1*coord,
                                              -1*coord);
+    }
+
+    @Test
+    public void noPosToString() {
+        circ = new Circle();
+        final String expectedString = "Circle\n" +
+                                      "\tradius: 100.0\n" +
+                                      "\tazimuth: 0.0\n";
+        assertEquals(circ.toString(), expectedString);
+    }
+
+    @Test
+    public void posToString() {
+        final GeoPosition gp = new GeoPosition();
+        circ = new Circle();
+        circ.setPosition(gp);
+        final String expectedString = "Circle at\n" +
+                                      "\tlatitude: 0.0\n" +
+                                      "\tlongitude: 0.0\n" +
+                                      "\taltitude: 0.0\n" +
+                                      "\tradius: 100.0\n" +
+                                      "\tazimuth: 0.0\n";
+        assertEquals(circ.toString(), expectedString);
     }
 }
