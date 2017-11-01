@@ -63,6 +63,11 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         this.getRenderable().setRadius(radius);
     }
 
+    /**
+     * Validates whether or not a given input is a valid Radius.
+     * Throws an exception if invalid in order to inform user what the issue was.
+     * @param dRadius The radius to be checked
+     */
     private void isValidRadius(final double dRadius) {
         validatePositive(dRadius);
         if(dRadius < MINIMUM_RADIUS) {
