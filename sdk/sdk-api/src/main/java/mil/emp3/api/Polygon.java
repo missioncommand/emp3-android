@@ -28,14 +28,14 @@ public class Polygon extends Feature<IGeoPolygon> implements IGeoPolygon {
 
     /**
      * This constructor creates a default geo polygon with the coordinate list provided.
-     * @param oPositionList
+     * @param oPositionList List of positions to be added
      */
-    public Polygon(List<IGeoPosition> oPositionList) {
+    public Polygon(final List<IGeoPosition> oPositionList) {
         super(new GeoPolygon(), FeatureTypeEnum.GEO_POLYGON);
         if (null == oPositionList) {
             throw new IllegalArgumentException("The position list parameter can NOT be null");
         }
-        for (IGeoPosition geoPosition : oPositionList) {
+        for (final IGeoPosition geoPosition : oPositionList) {
             if (!EmpGeoPosition.validate(geoPosition)) {
                 throw new IllegalArgumentException("GeoPosition is invalid");
             }
@@ -45,13 +45,13 @@ public class Polygon extends Feature<IGeoPolygon> implements IGeoPolygon {
 
     /**
      * This constructor creates a polygon feature from the geo polygon provided.
-     * @param oRenderable
+     * @param oRenderable Renderable to be used to construct Polygon
      */
-    public Polygon(IGeoPolygon oRenderable) {
+    public Polygon(final IGeoPolygon oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_POLYGON);
     }
 
-    public void setPatternFillImage(Bitmap bmp){patternFill = bmp;}
+    public void setPatternFillImage(final Bitmap bmp){patternFill = bmp;}
     public Bitmap getPatternFillImage(){return patternFill;}
     /**
      *
@@ -63,7 +63,7 @@ public class Polygon extends Feature<IGeoPolygon> implements IGeoPolygon {
         String str =  "Polygon ";
         if (getPositions() != null && !getPositions().isEmpty()) {
             str += "with " + getPositions().size() + " points\n";
-            for (IGeoPosition position : getPositions()) {
+            for (final IGeoPosition position : getPositions()) {
                 str += "\tlatitude: " + position.getLatitude() + ", " +
                         "\tlongitude: " + position.getLongitude() + ", " +
                         "\taltitude: " + position.getAltitude() + "\n";
