@@ -1,7 +1,5 @@
 package mil.emp3.api;
 
-import mil.emp3.api.abstracts.Feature;
-
 import org.cmapi.primitives.GeoCircle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoCircle;
@@ -9,6 +7,7 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
 
+import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
@@ -33,9 +32,8 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
      * This constructor creates a circle with the indicated radius.
      * @param radius The required radius in meters. If the radius is < 0 the absolute value is used. If the value is < 1.0, the default radius is used.
      */
-    public Circle(double radius) {
+    public Circle(final double radius) {
         super(new GeoCircle(), FeatureTypeEnum.GEO_CIRCLE);
-        radius = makePositive(radius, "Invalid radius. NaN");
 
         this.setRadius(radius);
         this.setFillStyle(null);
@@ -66,7 +64,7 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
     }
 
     private void isValidRadius(final double dRadius) {
-        validatePositive(dRadius)
+        validatePositive(dRadius);
         if(dRadius < MINIMUM_RADIUS) {
             throw new IllegalArgumentException("Invalid radius, " + String.valueOf(dRadius) + " Minimum supported " + MINIMUM_RADIUS);
         }

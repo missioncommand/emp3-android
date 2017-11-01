@@ -2,11 +2,11 @@ package mil.emp3.api.utils;
 
 import android.graphics.Bitmap;
 
+import org.cmapi.primitives.GeoCircle;
 import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.GeoPoint;
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoCircle;
 import org.cmapi.primitives.IGeoColor;
@@ -16,7 +16,6 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPolygon;
 import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoRectangle;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.Date;
@@ -26,7 +25,6 @@ import java.util.List;
 import mil.emp3.api.Circle;
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
-import mil.emp3.api.Rectangle;
 import mil.emp3.api.enums.FeatureTypeEnum;
 
 import static org.junit.Assert.assertEquals;
@@ -141,7 +139,7 @@ public class ComparisonUtils {
         assertEquals(p1.getAltitudeMode(), p2.getAltitudeMode());
     }
 
-    private static void compareGeoRectangle(final IGeoCircle r1, final IGeoCircle r2) {
+    private static void compareGeoCircle(final IGeoCircle r1, final IGeoCircle r2) {
         assertEquals(r1.getRadius(), r2.getRadius(), Epsilon);
         assertEquals(r1.getTimeStamp(), r2.getTimeStamp());
         assertEquals(r1.getTimeSpans(), r2.getTimeSpans());
@@ -162,6 +160,8 @@ public class ComparisonUtils {
         assertEquals(r1.getAzimuth(), r2.getAzimuth(), Epsilon);
         assertEquals(r1.getAltitudeMode(), r2.getAltitudeMode());
     }
+
+
 
     public static void validatePoint(final Point point,
                                      final double iconScale,
@@ -278,65 +278,8 @@ public class ComparisonUtils {
         assertEquals(poly.getProperties(), properties);
     }
 
-    public static void validateRectangle(final Rectangle rect,
-                                         final GeoRectangle geoRectangle,
-                                         final double width,
-                                         final double height,
-                                         final FeatureTypeEnum fte,
-                                         final List childFeatures,
-                                         final List parentOverlays,
-                                         final List parentFeatures,
-                                         final List<IGeoPosition> positions,
-                                         final Date date,
-                                         final List timeSpans,
-                                         final IGeoAltitudeMode.AltitudeMode altitudeMode,
-                                         final IGeoStrokeStyle strokeStyle,
-                                         final IGeoFillStyle fillStyle,
-                                         final IGeoLabelStyle labelStyle,
-                                         final Boolean extrude,
-                                         final Boolean tessellate,
-                                         final double buffer,
-                                         final double azimuth,
-                                         final GeoPosition geoPosition,
-                                         final Boolean readOnly,
-                                         final List parents,
-                                         final Boolean hasChildren,
-                                         final List children,
-                                         final String name,
-                                         final String dataProvider,
-                                         final String description,
-                                         final HashMap properties) {
-        compareGeoRectangle(rect.getRenderable(), geoRectangle);
-        assertEquals(rect.getWidth(), width, Epsilon);
-        assertEquals(rect.getHeight(), height, Epsilon);
-        assertEquals(rect.getFeatureType(), fte);
-        assertEquals(rect.getChildFeatures(), childFeatures);
-        assertEquals(rect.getParentOverlays(), parentOverlays);
-        assertEquals(rect.getParentFeatures(), parentFeatures);
-        compareGeoPositionArray(rect.getPositions(), positions);
-        assertEquals(rect.getTimeStamp(), date);
-        assertEquals(rect.getTimeSpans(), timeSpans);
-        assertEquals(rect.getAltitudeMode(), altitudeMode);
-        compareStrokeStyle(rect.getStrokeStyle(), strokeStyle);
-        compareFillStyle(rect.getFillStyle(), fillStyle);
-        compareLabelStyle(rect.getLabelStyle(), labelStyle);
-        assertEquals(rect.getExtrude(), extrude);
-        assertEquals(rect.getTessellate(), tessellate);
-        assertEquals(rect.getBuffer(), buffer, Epsilon);
-        assertEquals(rect.getAzimuth(), azimuth, Epsilon);
-        compareGeoPosition(rect.getPosition(), geoPosition);
-        assertEquals(rect.getReadOnly(), readOnly);
-        assertEquals(rect.getParents(), parents);
-        assertEquals(rect.hasChildren(), hasChildren);
-        assertEquals(rect.getChildren(), children);
-        assertEquals(rect.getName(), name);
-        assertEquals(rect.getDataProviderId(), dataProvider);
-        assertEquals(rect.getDescription(), description);
-        assertEquals(rect.getProperties(), properties);
-    }
-
     public static void validateCircle(final Circle circ,
-                                      final GeoRectangle geoRectangle,
+                                      final GeoCircle geoCircle,
                                       final double radius,
                                       final FeatureTypeEnum fte,
                                       final List childFeatures,
@@ -362,7 +305,7 @@ public class ComparisonUtils {
                                       final String dataProvider,
                                       final String description,
                                       final HashMap properties) {
-        compareGeoRectangle(circ.getRenderable(), geoRectangle);
+        compareGeoCircle(circ.getRenderable(), geoCircle);
         assertEquals(circ.getRadius(), radius, Epsilon);
         assertEquals(circ.getFeatureType(), fte);
         assertEquals(circ.getChildFeatures(), childFeatures);
