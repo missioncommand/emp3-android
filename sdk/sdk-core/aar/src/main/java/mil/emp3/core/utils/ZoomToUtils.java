@@ -21,7 +21,7 @@ import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.core.IStorageManager;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
@@ -96,14 +96,14 @@ public class ZoomToUtils {
             return;
         }
 
-        IGeoPosition center = GeoLibrary.getCenter(positionList);
+        IGeoPosition center = GeographicLib.getCenter(positionList);
         BoundingBox boundingBox = getBoundingBox(positionList);
 
         if((null != boundingBox) && (boundingBox.isSinglePoint())) {
             double leftLongitude, rightLongitude, bottomLatitude, topLatitude;
 
-            leftLongitude = GeoLibrary.wrapLongitude(boundingBox.getLeftLongitude() - single_point_offset);
-            rightLongitude = GeoLibrary.wrapLongitude(boundingBox.getRightLongitude() + single_point_offset);
+            leftLongitude = GeographicLib.wrapLongitude(boundingBox.getLeftLongitude() - single_point_offset);
+            rightLongitude = GeographicLib.wrapLongitude(boundingBox.getRightLongitude() + single_point_offset);
 
             if((boundingBox.getBottomLatitude() + single_point_offset) >  90.0) {
                 // An attempt to handle the situation at pole, until we find a better solution
@@ -149,7 +149,7 @@ public class ZoomToUtils {
         positionList.add(getPosition(bounds.getNorth(), bounds.getWest()));
         positionList.add(getPosition(bounds.getSouth(), bounds.getEast()));
         positionList.add(getPosition(bounds.getSouth(), bounds.getWest()));
-        IGeoPosition center = GeoLibrary.getCenter(positionList);
+        IGeoPosition center = GeographicLib.getCenter(positionList);
 
         BoundingBox boundingBox = new BoundingBox(bounds.getWest(), bounds.getEast(), bounds.getSouth(), bounds.getNorth(), 0.0, false);
         if((null != center) && (null != boundingBox)) {
@@ -175,8 +175,8 @@ public class ZoomToUtils {
 
         adjustedBounds.setNorth(bounds.getNorth());
         adjustedBounds.setSouth(bounds.getSouth());
-        adjustedBounds.setEast(GeoLibrary.wrapLongitude(bounds.getEast() + single_point_offset));
-        adjustedBounds.setWest(GeoLibrary.wrapLongitude(bounds.getWest() - single_point_offset));
+        adjustedBounds.setEast(GeographicLib.wrapLongitude(bounds.getEast() + single_point_offset));
+        adjustedBounds.setWest(GeographicLib.wrapLongitude(bounds.getWest() - single_point_offset));
 
         return adjustedBounds;
     }
@@ -355,10 +355,10 @@ public class ZoomToUtils {
         rightBottom.setLongitude(boundingBox.getRightLongitude());
 
         // get distance from center to each of the vertices
-        double distanceToLeftTop = GeoLibrary.computeDistanceBetween(leftTop, center);
-        double distanceToLeftBottom = GeoLibrary.computeDistanceBetween(leftBottom, center);
-        double distanceToRightTop = GeoLibrary.computeDistanceBetween(rightTop, center);
-        double distanceToRightBottom = GeoLibrary.computeDistanceBetween(rightBottom, center);
+        double distanceToLeftTop = GeographicLib.computeDistanceBetween(leftTop, center);
+        double distanceToLeftBottom = GeographicLib.computeDistanceBetween(leftBottom, center);
+        double distanceToRightTop = GeographicLib.computeDistanceBetween(rightTop, center);
+        double distanceToRightBottom = GeographicLib.computeDistanceBetween(rightBottom, center);
 
         // Find the largest distance
         double distanceToUse = distanceToLeftTop;

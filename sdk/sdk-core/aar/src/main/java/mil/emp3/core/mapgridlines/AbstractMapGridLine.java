@@ -32,7 +32,7 @@ import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.api.utils.FontUtilities;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.mapengine.interfaces.ICoreMapGridLineGenerator;
 import mil.emp3.mapengine.interfaces.IMapGridLines;
 import mil.emp3.mapengine.interfaces.IMapInstance;
@@ -273,7 +273,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
                         AbstractMapGridLine.this.boundsPixelHeight = (int) Math.sqrt(deltaXe2 + deltaYe2);
 
                         if (pixelDistance > 0.0) {
-                            viewWidthInMeters = GeoLibrary.computeDistanceBetween(centerWest, centerEast);
+                            viewWidthInMeters = GeographicLib.computeDistanceBetween(centerWest, centerEast);
                             AbstractMapGridLine.this.metersPerPixel = viewWidthInMeters / pixelDistance;
 
                             AbstractMapGridLine.this.generationThread.scheduleProcessing();
@@ -373,7 +373,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         labelPos = new GeoPosition();
         labelPos.setLatitude(mapBounds.getNorth());
         labelPos.setLongitude(mapBounds.centerLongitude());
-        GeoLibrary.computePositionAt(180.0, charMetersWidth, labelPos, labelPos);
+        GeographicLib.computePositionAt(180.0, charMetersWidth, labelPos, labelPos);
 
         addFeature(createLabelFeature(labelPos, label, MAIN_GRID_TYPE_LABEL));
     }

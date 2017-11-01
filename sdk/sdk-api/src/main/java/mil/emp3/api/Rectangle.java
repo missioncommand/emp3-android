@@ -14,7 +14,7 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoPosition;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 
 /**
  * This class implements the EMP rectangle feature. It accepts one (1) geographic coordinate that places the
@@ -187,7 +187,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
         distanceToCorner = Math.sqrt(halfHeightE2 + halfWidthE2);
 
         // Calculate the top right position.
-        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        GeographicLib.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the bottom right position.
@@ -196,7 +196,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        GeographicLib.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the bottom left position.
@@ -205,7 +205,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        GeographicLib.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the top left position.
@@ -214,7 +214,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        GeographicLib.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         return bBox;

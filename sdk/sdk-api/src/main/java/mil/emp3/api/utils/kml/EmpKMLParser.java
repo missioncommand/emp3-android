@@ -118,7 +118,7 @@ public class EmpKMLParser {
     private void parseKML(XmlPullParser xmlPullParser) throws XmlPullParserException, IOException{
 
         KmlParser kmlParser = new KmlParser(xmlPullParser);
-        kmlParser.parseKml();
+        kmlParser.parseKml(this.documentBase);
 
         if (!kmlParser.getContainers().isEmpty()) {
             this.rootEmpEntry = this.processContainer(null, kmlParser.getContainers().get(0));

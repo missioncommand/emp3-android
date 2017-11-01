@@ -1,20 +1,16 @@
 package mil.emp3.core.editors;
 
-import android.util.Log;
-
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import mil.emp3.api.Path;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
-import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**
@@ -203,6 +199,13 @@ public class PolygonEditor extends AbstractDrawEditEditor<Polygon> {
                 // Get the distance and bearing between this one and the afterCP and create the new CP
                 this.createCPBetween(oLatLon, afterCP.getPosition(), ControlPoint.CPTypeEnum.NEW_POSITION_CP, cpIndex + 1, (cpIndex + 2) % posList.size());
 
+                // if we completed a polygon for the first time, the only green dot became blue and
+                // there are now three sides but only the two green dots created above.  We need to
+                // restore the original green dot control point
+                if (posList.size() == 3) {
+                    this.createCPBetween(beforeCP.getPosition(), afterCP.getPosition(), ControlPoint.CPTypeEnum.NEW_POSITION_CP,
+                            (cpIndex + 2) % posList.size(), (cpIndex + 3) % posList.size());
+                }
                 // Now we add event update data.
                 this.addUpdateEventData(FeatureEditUpdateTypeEnum.COORDINATE_ADDED, new int[]{oCP.getCPIndex()});
                 moved = true;
