@@ -11,7 +11,7 @@ repositories {
         // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
     }
     maven{
-        url  "https://rgi.bintray.com/cmapi-kotlin"
+        url  cmapiKotlinBintrayUrl
     }
 }
 dependencies {
@@ -22,7 +22,7 @@ dependencies {
     implementation project (":emp3-android-sdk-core-aar")
     implementation project (":emp3-android-sdk-view")
     implementation project (":mapengine-worldwind-aar")
-    implementation         (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: '1.0.0.0', ext: 'jar', classifier: '')
+    implementation         (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: "$cmapiKotlinVersion", ext: 'jar', classifier: '')
     implementation project (":geolib")
 
     implementation         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }

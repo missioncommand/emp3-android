@@ -10,7 +10,7 @@ targetCompatibility = rootProject.targetCompatibility
 
 repositories {
     maven{
-        url  "https://rgi.bintray.com/cmapi-kotlin"
+        url  cmapiKotlinBintrayUrl
     }
 }
 
@@ -20,7 +20,7 @@ configurations {
     }
 }
 dependencies {
-    implementation         (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: '1.0.0.0', ext: 'jar', classifier: '')
+    implementation         (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: "$cmapiKotlinVersion", ext: 'jar', classifier: '')
     implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")
     compileOnly files      ("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
     testImplementation 'junit:junit:4.12'

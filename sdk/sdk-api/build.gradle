@@ -13,9 +13,16 @@ configurations {
         transitive false
     }
 }
+
+repositories {
+    maven{
+        url  cmapiKotlinBintrayUrl
+    }
+}
+
 dependencies {
     implementation project (":google-maps-android-cmgn")
-    compile                (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: '1.0.0.0', ext: 'jar', classifier: '')
+    compile                (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: "$cmapiKotlinVersion", ext: 'jar', classifier: '')
     implementation project (":geolib")
     implementation         ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
     implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")

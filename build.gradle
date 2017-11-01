@@ -31,7 +31,6 @@ ext {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 
-
     git = org.ajoberstar.grgit.Grgit.open(file('.')) // Open the Git repository in the current directory.
     revision = git.head().id                         // Get commitId of HEAD.
 }
@@ -40,7 +39,7 @@ allprojects {
     apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/common.gradle"
     repositories{
         maven {
-            url  "https://rgi.bintray.com/cmapi-kotlin"
+            url  cmapiKotlinBintrayUrl
         }
     }
 }

@@ -2,14 +2,14 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 
 repositories {
     maven{
-        url  "https://rgi.bintray.com/cmapi-kotlin"
+        url  cmapiKotlinBintrayUrl
     }
 }
 
 dependencies {
     implementation   ("com.android.support:support-annotations")
     compileOnly project (":emp3-android-sdk")
-    implementation      (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: '1.0.0.0', ext: 'jar', classifier: '')
+    implementation      (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: "$cmapiKotlinVersion", ext: 'jar', classifier: '')
     compileOnly project (":geolib")
     compileOnly      (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
     implementation   ("gov.nasa.worldwind.android:worldwind:${version_nasa_worldwind_sdk}@aar")
