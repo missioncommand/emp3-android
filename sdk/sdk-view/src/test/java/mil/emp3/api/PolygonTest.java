@@ -1,12 +1,17 @@
 package mil.emp3.api;
 
+import android.graphics.Bitmap;
+
 import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoPosition;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +30,11 @@ public class PolygonTest extends TestBase {
     private Polygon poly;
     private GeoPolygon gp;
     private ArrayList<IGeoPosition> positions;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void defaultConstructor() throws Exception {
@@ -144,17 +154,16 @@ public class PolygonTest extends TestBase {
         poly = new Polygon(positions);
     }
 
-    //this test doesn't really test anything since the image file is always null
-    //TODO: Incorporate an actual image file
-    //TODO: Add validation of image files
-    @org.junit.Test
-    public void setPatternFillImage() throws Exception {
+    @Test
+    public void testPatternFillImage() throws Exception {
+        final Bitmap empIcon = Mockito.mock(Bitmap.class);
         poly = new Polygon();
-        poly.setPatternFillImage(poly.getPatternFillImage());
+        poly.setPatternFillImage(empIcon);
+        assertEquals(poly.getPatternFillImage(), empIcon);
     }
 
 
-    @org.junit.Test
+    @Test
     public void stringTest() throws Exception {
         final String noPointsExpectedResult = "Polygon with zero points";
         final String onePointExpectedResult = "Polygon with 1 points\n" +
