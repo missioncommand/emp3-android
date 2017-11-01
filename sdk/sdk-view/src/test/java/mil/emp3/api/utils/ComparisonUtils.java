@@ -2,14 +2,14 @@ package mil.emp3.api.utils;
 
 import android.graphics.Bitmap;
 
-import org.cmapi.primitives.GeoCircle;
+import org.cmapi.primitives.GeoEllipse;
 import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.GeoPoint;
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoCircle;
 import org.cmapi.primitives.IGeoColor;
+import org.cmapi.primitives.IGeoEllipse;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import mil.emp3.api.Circle;
+import mil.emp3.api.Ellipse;
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.enums.FeatureTypeEnum;
@@ -139,8 +139,9 @@ public class ComparisonUtils {
         assertEquals(p1.getAltitudeMode(), p2.getAltitudeMode());
     }
 
-    private static void compareGeoCircle(final IGeoCircle r1, final IGeoCircle r2) {
-        assertEquals(r1.getRadius(), r2.getRadius(), Epsilon);
+    private static void compareGeoEllipse(final IGeoEllipse r1, final IGeoEllipse r2) {
+        assertEquals(r1.getSemiMajor(), r2.getSemiMajor(), Epsilon);
+        assertEquals(r1.getSemiMinor(), r2.getSemiMinor(), Epsilon);
         assertEquals(r1.getTimeStamp(), r2.getTimeStamp());
         assertEquals(r1.getTimeSpans(), r2.getTimeSpans());
         assertEquals(r1.getTessellate(), r2.getTessellate());
@@ -278,9 +279,10 @@ public class ComparisonUtils {
         assertEquals(poly.getProperties(), properties);
     }
 
-    public static void validateCircle(final Circle circ,
-                                      final GeoCircle geoCircle,
-                                      final double radius,
+    public static void validateEllipse(final Ellipse ell,
+                                      final GeoEllipse geoEllipse,
+                                      final double majorRadius,
+                                      final double minorRadius,
                                       final FeatureTypeEnum fte,
                                       final List childFeatures,
                                       final List parentOverlays,
@@ -305,32 +307,33 @@ public class ComparisonUtils {
                                       final String dataProvider,
                                       final String description,
                                       final HashMap properties) {
-        compareGeoCircle(circ.getRenderable(), geoCircle);
-        assertEquals(circ.getRadius(), radius, Epsilon);
-        assertEquals(circ.getFeatureType(), fte);
-        assertEquals(circ.getChildFeatures(), childFeatures);
-        assertEquals(circ.getParentOverlays(), parentOverlays);
-        assertEquals(circ.getParentFeatures(), parentFeatures);
-        compareGeoPositionArray(circ.getPositions(), positions);
-        assertEquals(circ.getTimeStamp(), date);
-        assertEquals(circ.getTimeSpans(), timeSpans);
-        assertEquals(circ.getAltitudeMode(), altitudeMode);
-        compareStrokeStyle(circ.getStrokeStyle(), strokeStyle);
-        compareFillStyle(circ.getFillStyle(), fillStyle);
-        compareLabelStyle(circ.getLabelStyle(), labelStyle);
-        assertEquals(circ.getExtrude(), extrude);
-        assertEquals(circ.getTessellate(), tessellate);
-        assertEquals(circ.getBuffer(), buffer, Epsilon);
-        assertEquals(circ.getAzimuth(), azimuth, Epsilon);
-        compareGeoPosition(circ.getPosition(), geoPosition);
-        assertEquals(circ.getReadOnly(), readOnly);
-        assertEquals(circ.getParents(), parents);
-        assertEquals(circ.hasChildren(), hasChildren);
-        assertEquals(circ.getChildren(), children);
-        assertEquals(circ.getName(), name);
-        assertEquals(circ.getDataProviderId(), dataProvider);
-        assertEquals(circ.getDescription(), description);
-        assertEquals(circ.getProperties(), properties);
+        compareGeoEllipse(ell.getRenderable(), geoEllipse);
+        assertEquals(ell.getSemiMajor(), majorRadius, Epsilon);
+        assertEquals(ell.getSemiMinor(), minorRadius, Epsilon);
+        assertEquals(ell.getFeatureType(), fte);
+        assertEquals(ell.getChildFeatures(), childFeatures);
+        assertEquals(ell.getParentOverlays(), parentOverlays);
+        assertEquals(ell.getParentFeatures(), parentFeatures);
+        compareGeoPositionArray(ell.getPositions(), positions);
+        assertEquals(ell.getTimeStamp(), date);
+        assertEquals(ell.getTimeSpans(), timeSpans);
+        assertEquals(ell.getAltitudeMode(), altitudeMode);
+        compareStrokeStyle(ell.getStrokeStyle(), strokeStyle);
+        compareFillStyle(ell.getFillStyle(), fillStyle);
+        compareLabelStyle(ell.getLabelStyle(), labelStyle);
+        assertEquals(ell.getExtrude(), extrude);
+        assertEquals(ell.getTessellate(), tessellate);
+        assertEquals(ell.getBuffer(), buffer, Epsilon);
+        assertEquals(ell.getAzimuth(), azimuth, Epsilon);
+        compareGeoPosition(ell.getPosition(), geoPosition);
+        assertEquals(ell.getReadOnly(), readOnly);
+        assertEquals(ell.getParents(), parents);
+        assertEquals(ell.hasChildren(), hasChildren);
+        assertEquals(ell.getChildren(), children);
+        assertEquals(ell.getName(), name);
+        assertEquals(ell.getDataProviderId(), dataProvider);
+        assertEquals(ell.getDescription(), description);
+        assertEquals(ell.getProperties(), properties);
     }
 
     public static void validateBoundingBox(final EmpBoundingBox ebb,
