@@ -39,15 +39,18 @@ public class PolygonTest extends TestBase {
     @Test
     public void defaultConstructor() throws Exception {
         poly = new Polygon();
+
+        final GeoPolygon gp = new GeoPolygon();
+        gp.setTimeStamp(poly.getTimeStamp());
         validatePolygon(poly,
                         null,
-                        new GeoPolygon(),
+                        gp,
                         FeatureTypeEnum.GEO_POLYGON,
                         Collections.EMPTY_LIST,
                         Collections.EMPTY_LIST,
                         Collections.EMPTY_LIST,
                         Collections.EMPTY_LIST,
-                        null,
+                        poly.getTimeStamp(),
                         Collections.EMPTY_LIST,
                         null,
                         new GeoStrokeStyle(),
@@ -63,7 +66,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        null,
+                        "",
                         "",
                         new HashMap());
     }
@@ -80,7 +83,7 @@ public class PolygonTest extends TestBase {
                         Collections.EMPTY_LIST,
                         Collections.EMPTY_LIST,
                         Collections.EMPTY_LIST,
-                        null,
+                        poly.getTimeStamp(),
                         Collections.EMPTY_LIST,
                         null,
                         new GeoStrokeStyle(),
@@ -96,7 +99,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        null,
+                        "",
                         "",
                         new HashMap());
     }
@@ -106,12 +109,14 @@ public class PolygonTest extends TestBase {
         final GeoPosition geoPosition = new GeoPosition();
         geoPosition.setLatitude(50);
         geoPosition.setLongitude(50);
-        gp = new GeoPolygon();
-        gp.setPositions(Collections.singletonList(geoPosition));
 
         positions = new ArrayList<IGeoPosition>();
         positions.add(geoPosition);
         poly = new Polygon(positions);
+
+        gp = new GeoPolygon();
+        gp.setPositions(Collections.singletonList(geoPosition));
+        gp.setTimeStamp(poly.getTimeStamp());
         validatePolygon(poly,
                         null,
                         gp,
@@ -120,7 +125,7 @@ public class PolygonTest extends TestBase {
                         Collections.EMPTY_LIST,
                         Collections.EMPTY_LIST,
                         positions,
-                        null,
+                        poly.getTimeStamp(),
                         Collections.EMPTY_LIST,
                         null,
                         new GeoStrokeStyle(),
@@ -136,7 +141,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        null,
+                        "",
                         "",
                         new HashMap());
     }
