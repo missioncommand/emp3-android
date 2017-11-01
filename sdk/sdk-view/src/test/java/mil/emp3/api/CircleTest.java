@@ -1,12 +1,23 @@
 package mil.emp3.api;
 
 import android.util.Log;
+
 import org.cmapi.primitives.GeoCircle;
+import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.GeoStrokeStyle;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+
+import java.util.Collections;
+import java.util.HashMap;
+
+import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
+
 import static mil.emp3.api.Circle.MINIMUM_RADIUS;
-import static org.junit.Assert.*;
+import static mil.emp3.api.utils.ComparisonUtils.validateCircle;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Matt.Miller on 10/17/2017.
@@ -14,11 +25,43 @@ import static org.junit.Assert.*;
 @PrepareForTest({IEmpBoundingBox.class})
 public class CircleTest extends TestBase {
 
-    public static final String TAG = CircleTest.class.getSimpleName();
+    private Circle c;
 
     @org.junit.Test
     public void constructorTest() throws Exception {
-        Circle c = new Circle();
+        c = new Circle();
+        final GeoCircle gc = new GeoCircle();
+        gc.setTimeStamp(c.getTimeStamp());
+        validateCircle(c,
+                        gc,
+                        150.0,
+                        FeatureTypeEnum.GEO_RECTANGLE,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        null,
+                        Collections.EMPTY_LIST,
+                        null,
+                        new GeoStrokeStyle(),
+                        null,
+                        new GeoLabelStyle(),
+                        false,
+                        true,
+                        0.0,
+                        0.0,
+                        null,
+                        false,
+                        Collections.EMPTY_LIST,
+                        false,
+                        Collections.EMPTY_LIST,
+                        "",
+                        null,
+                        "",
+                        new HashMap());
+    }
+
+
         assertEquals(c.getRadius(), 100, 0);
 
         c = new Circle(50);
