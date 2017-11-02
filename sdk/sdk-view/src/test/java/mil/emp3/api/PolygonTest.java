@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Matt.Miller on 10/16/2017.
  */
-
 public class PolygonTest extends TestBase {
     public static final String TAG = PolygonTest.class.getSimpleName();
     private Polygon poly;
