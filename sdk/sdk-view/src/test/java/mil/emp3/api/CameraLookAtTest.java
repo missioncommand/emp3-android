@@ -37,7 +37,7 @@ public class CameraLookAtTest extends TestBaseSingleMap {
     }
 
     @Test
-    public void CameraInitialSettingsTest() {
+    public void cameraInitialSettingsTest() {
         camera = new Camera(45.0, -105.0, 10000.0,
                 IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
         camera.setTilt(5.0);
@@ -68,7 +68,7 @@ public class CameraLookAtTest extends TestBaseSingleMap {
     }
 
     @Test
-    public void CameraTests() {
+    public void cameraTests() {
 
         invalidLatitudeCameraTest(Double.NaN);
         invalidLatitudeCameraTest(global.LATITUDE_MINIMUM - 10);
@@ -99,7 +99,7 @@ public class CameraLookAtTest extends TestBaseSingleMap {
     }
 
     @Test
-    public void CameraSettingsApplyTest() {
+    public void cameraSettingsApplyTest() {
         String userContext = "Camera test AFTER";
         camera.setAltitude(10000.0);
         camera.setLatitude(global.LATITUDE_MAXIMUM);
