@@ -158,7 +158,7 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
         Rectangle rectangle = new Rectangle(geoRectangle);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected=IllegalArgumentException.class)
     public void negativeHeightWidthRectangle() {
         EmpGeoPosition center = new EmpGeoPosition(0, 0);
         Rectangle rectangle = new Rectangle(center, -400, -300);
