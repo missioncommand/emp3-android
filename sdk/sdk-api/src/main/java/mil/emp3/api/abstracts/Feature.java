@@ -9,8 +9,8 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoTimeSpan;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -437,14 +437,14 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      * @param dValue value to be checked
      */
     protected void validatePositive(final Double dValue) {
-        if(dValue <= 0) {
+        if (dValue <= 0 || Double.isNaN(dValue)) {
             throw new IllegalArgumentException("Invalid Input, " + dValue + " is not a positive number");
         }
     }
 
     /**
      * Convert selected members to String.
-     * @return
+     * @return String describing the feature including name, extrude, altitude mode and positions
      */
     @Override
     public String toString() {

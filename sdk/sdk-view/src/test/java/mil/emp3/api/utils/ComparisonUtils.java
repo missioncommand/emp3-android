@@ -6,6 +6,7 @@ import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.GeoPoint;
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -14,6 +15,7 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPolygon;
 import org.cmapi.primitives.IGeoPosition;
+import org.cmapi.primitives.IGeoRectangle;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.Date;
@@ -22,6 +24,7 @@ import java.util.List;
 
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
+import mil.emp3.api.Rectangle;
 import mil.emp3.api.enums.FeatureTypeEnum;
 
 import static org.junit.Assert.assertEquals;
@@ -32,7 +35,7 @@ import static org.junit.Assert.fail;
  */
 
 public class ComparisonUtils {
-    private static final double Epsilon = 1e-8;
+    public static final double Epsilon = 1e-8;
 
     private static void compareGeoPosition(final IGeoPosition p1, final IGeoPosition p2) {
         if(p1 == null && p2 == null) {
@@ -61,6 +64,9 @@ public class ComparisonUtils {
     }
 
     private static void compareFillStyle(final IGeoFillStyle f1, final IGeoFillStyle f2) {
+        if(f1 == null && f2 == null) {
+            return;
+        }
         assertEquals(f1.getDescription(), f2.getDescription());
         compareGeoColor(f1.getFillColor(), f2.getFillColor());
         assertEquals(f1.getFillPattern(), f2.getFillPattern());
@@ -131,7 +137,30 @@ public class ComparisonUtils {
         assertEquals(p1.getAzimuth(), p2.getAzimuth(), Epsilon);
         assertEquals(p1.getAltitudeMode(), p2.getAltitudeMode());
     }
-    
+
+    private static void compareGeoRectangle(final IGeoRectangle r1, final IGeoRectangle r2) {
+        assertEquals(r1.getHeight(), r2.getHeight(), Epsilon);
+        assertEquals(r1.getWidth(), r2.getWidth(), Epsilon);
+        assertEquals(r1.getTimeStamp(), r2.getTimeStamp());
+        assertEquals(r1.getTimeSpans(), r2.getTimeSpans());
+        assertEquals(r1.getTessellate(), r2.getTessellate());
+        compareStrokeStyle(r1.getStrokeStyle(), r2.getStrokeStyle());
+        assertEquals(r1.getReadOnly(), r2.getReadOnly());
+        assertEquals(r1.getProperties(), r2.getProperties());
+        compareGeoPositionArray(r1.getPositions(), r2.getPositions());
+        assertEquals(r1.getPathType(), r2.getPathType());
+        assertEquals(r1.getName(), r2.getName());
+        compareLabelStyle(r1.getLabelStyle(), r2.getLabelStyle());
+        compareFillStyle(r1.getFillStyle(), r2.getFillStyle());
+        assertEquals(r1.getExtrude(), r2.getExtrude());
+        assertEquals(r1.getDescription(), r2.getDescription());
+        assertEquals(r1.getDataProviderId(), r2.getDataProviderId());
+        assertEquals(r1.getChildren(), r2.getChildren());
+        assertEquals(r1.getBuffer(), r2.getBuffer(), Epsilon);
+        assertEquals(r1.getAzimuth(), r2.getAzimuth(), Epsilon);
+        assertEquals(r1.getAltitudeMode(), r2.getAltitudeMode());
+    }
+
     public static void validatePoint(final Point point,
                                      final double iconScale,
                                      final int resourceId,
@@ -245,5 +274,73 @@ public class ComparisonUtils {
         assertEquals(poly.getDataProviderId(), dataProvider);
         assertEquals(poly.getDescription(), description);
         assertEquals(poly.getProperties(), properties);
+    }
+
+    public static void validateRectangle(final Rectangle rect,
+                                       final GeoRectangle geoRectangle,
+                                       final double width,
+                                       final double height,
+                                       final FeatureTypeEnum fte,
+                                       final List childFeatures,
+                                       final List parentOverlays,
+                                       final List parentFeatures,
+                                       final List<IGeoPosition> positions,
+                                       final Date date,
+                                       final List timeSpans,
+                                       final IGeoAltitudeMode.AltitudeMode altitudeMode,
+                                       final IGeoStrokeStyle strokeStyle,
+                                       final IGeoFillStyle fillStyle,
+                                       final IGeoLabelStyle labelStyle,
+                                       final Boolean extrude,
+                                       final Boolean tessellate,
+                                       final double buffer,
+                                       final double azimuth,
+                                       final GeoPosition geoPosition,
+                                       final Boolean readOnly,
+                                       final List parents,
+                                       final Boolean hasChildren,
+                                       final List children,
+                                       final String name,
+                                       final String dataProvider,
+                                       final String description,
+                                       final HashMap properties) {
+        compareGeoRectangle(rect.getRenderable(), geoRectangle);
+        assertEquals(rect.getWidth(), width, Epsilon);
+        assertEquals(rect.getHeight(), height, Epsilon);
+        assertEquals(rect.getFeatureType(), fte);
+        assertEquals(rect.getChildFeatures(), childFeatures);
+        assertEquals(rect.getParentOverlays(), parentOverlays);
+        assertEquals(rect.getParentFeatures(), parentFeatures);
+        compareGeoPositionArray(rect.getPositions(), positions);
+        assertEquals(rect.getTimeStamp(), date);
+        assertEquals(rect.getTimeSpans(), timeSpans);
+        assertEquals(rect.getAltitudeMode(), altitudeMode);
+        compareStrokeStyle(rect.getStrokeStyle(), strokeStyle);
+        compareFillStyle(rect.getFillStyle(), fillStyle);
+        compareLabelStyle(rect.getLabelStyle(), labelStyle);
+        assertEquals(rect.getExtrude(), extrude);
+        assertEquals(rect.getTessellate(), tessellate);
+        assertEquals(rect.getBuffer(), buffer, Epsilon);
+        assertEquals(rect.getAzimuth(), azimuth, Epsilon);
+        compareGeoPosition(rect.getPosition(), geoPosition);
+        assertEquals(rect.getReadOnly(), readOnly);
+        assertEquals(rect.getParents(), parents);
+        assertEquals(rect.hasChildren(), hasChildren);
+        assertEquals(rect.getChildren(), children);
+        assertEquals(rect.getName(), name);
+        assertEquals(rect.getDataProviderId(), dataProvider);
+        assertEquals(rect.getDescription(), description);
+        assertEquals(rect.getProperties(), properties);
+    }
+
+    public static void validateBoundingBox(final EmpBoundingBox ebb,
+                                           final double north,
+                                           final double east,
+                                           final double south,
+                                           final double west) {
+        assertEquals(ebb.north(), north, Epsilon);
+        assertEquals(ebb.east(), east, Epsilon);
+        assertEquals(ebb.south(), south, Epsilon);
+        assertEquals(ebb.west(), west, Epsilon);
     }
 }
