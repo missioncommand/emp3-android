@@ -32,6 +32,7 @@ public class RectangleTest extends TestBase{
         r1 = new Rectangle();
         final GeoRectangle gr = new GeoRectangle();
         gr.setFillStyle(null);
+        gr.setTimeStamp(r1.getTimeStamp());
         validateRectangle(r1,
                 gr,
                 150.0,
@@ -41,7 +42,7 @@ public class RectangleTest extends TestBase{
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
-                null,
+                gr.getTimeStamp(),
                 Collections.EMPTY_LIST,
                 null,
                 new GeoStrokeStyle(),
@@ -57,7 +58,7 @@ public class RectangleTest extends TestBase{
                 false,
                 Collections.EMPTY_LIST,
                 "",
-                null,
+                "",
                 "",
                 new HashMap());
     }
@@ -69,6 +70,7 @@ public class RectangleTest extends TestBase{
         final GeoRectangle gr = new GeoRectangle();
         gr.setFillStyle(null);
         gr.setPositions(Collections.singletonList(gp));
+        gr.setTimeStamp(r1.getTimeStamp());
         validateRectangle(r1,
                 gr,
                 150.0,
@@ -78,7 +80,7 @@ public class RectangleTest extends TestBase{
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
                 Collections.singletonList(gp),
-                null,
+                gr.getTimeStamp(),
                 Collections.EMPTY_LIST,
                 null,
                 new GeoStrokeStyle(),
@@ -94,7 +96,7 @@ public class RectangleTest extends TestBase{
                 false,
                 Collections.EMPTY_LIST,
                 "",
-                null,
+                "",
                 "",
                 new HashMap());
     }
@@ -109,6 +111,7 @@ public class RectangleTest extends TestBase{
         gr.setPositions(Collections.singletonList(gp));
         gr.setHeight(dimensions);
         gr.setWidth(dimensions);
+        gr.setTimeStamp(r1.getTimeStamp());
         validateRectangle(r1,
                 gr,
                 5.4,
@@ -118,7 +121,7 @@ public class RectangleTest extends TestBase{
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
                 Collections.singletonList(gp),
-                null,
+                gr.getTimeStamp(),
                 Collections.EMPTY_LIST,
                 null,
                 new GeoStrokeStyle(),
@@ -134,7 +137,7 @@ public class RectangleTest extends TestBase{
                 false,
                 Collections.EMPTY_LIST,
                 "",
-                null,
+                "",
                 "",
                 new HashMap());
     }
@@ -175,12 +178,12 @@ public class RectangleTest extends TestBase{
 
     @Test(expected = IllegalArgumentException.class)
     public void invalidWidthConstructor() {
-        r1 = new Rectangle(new GeoPosition(), .5, .5);
+        r1 = new Rectangle(gp, .5, .5);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void invalidHeightConstructor() {
-        r1 = new Rectangle(new GeoPosition(), 2, .5);
+        r1 = new Rectangle(gp, 2, .5);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -244,7 +247,7 @@ public class RectangleTest extends TestBase{
         r1 = new Rectangle();
         r1.setWidth(-3.45);
     }
-    
+
     @Test
     public void widthTest() {
         r1 = new Rectangle();
@@ -289,32 +292,33 @@ public class RectangleTest extends TestBase{
         gp = new GeoPosition();
         r1 = new Rectangle(gp);
         r1.setAzimuth(0.0);
-        final Double coord = 6.737364631135279*Math.pow(10,-4);
+        final Double eastWestCoord = 6.737364631135279*Math.pow(10,-4);
+        final Double northSouthCoord = 3.3913855389755554*Math.pow(10,-4);
         validateBoundingBox((EmpBoundingBox) r1.getFeatureBoundingBox(),
-                                             .5*coord,
-                                             coord,
-                                             -.5*coord,
-                                             -1*coord);
+                northSouthCoord,
+                eastWestCoord,
+                -1*northSouthCoord,
+                -1*eastWestCoord);
     }
     @Test
     public void FeatureBoundingBox() {
         gp = new GeoPosition();
         r1 = new Rectangle(gp);
         r1.setAzimuth(10.0);
-        final Double northWestCoord = 4.4874355523916165*Math.pow(10,-4);
+        final Double northSouthCoord = 4.5176786090905807*Math.pow(10,-4);
         final Double eastWestCoord =  7.219974468171131*Math.pow(10,-4);
         validateBoundingBox((EmpBoundingBox) r1.getFeatureBoundingBox(),
-                                             northWestCoord,
-                                             eastWestCoord,
-                                             -1*northWestCoord,
-                                             -1*eastWestCoord);
+                northSouthCoord,
+                eastWestCoord,
+                -1*northSouthCoord,
+                -1*eastWestCoord);
     }
 
     @Test
     public void defaultStringTest() {
         r1 = new Rectangle();
         assertEquals(r1.toString(),
-                     "Rectangle\n" +
+                "Rectangle\n" +
                         "\theight: 75.0\n" +
                         "\twidth: 150.0\n" +
                         "\tazimuth: 0.0\n");

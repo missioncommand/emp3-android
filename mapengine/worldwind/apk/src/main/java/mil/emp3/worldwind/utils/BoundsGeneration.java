@@ -22,7 +22,7 @@ import gov.nasa.worldwind.geom.Position;
 import mil.emp3.api.interfaces.IEmpBoundingArea;
 import mil.emp3.api.utils.EmpBoundingArea;
 import mil.emp3.api.utils.EmpGeoPosition;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.controller.PickNavigateController;
 
@@ -712,7 +712,7 @@ public class BoundsGeneration {
 
         if(0 != cornersFound.size()) {
             // Find the center of the four geographical points
-            IGeoPosition center = GeoLibrary.getCenter(cornersFound);
+            IGeoPosition center = GeographicLib.getCenter(cornersFound);
 
             // Convert the center to geo point and traverse out diagonally to locate the desired polygon vertices.
             // We don't short circuit this by simply traversing from center of the sides initially as globe may not be
@@ -784,7 +784,7 @@ public class BoundsGeneration {
         }
 
         if(cornersFound.size() > 0) {
-            IGeoPosition center = GeoLibrary.getCenter(cornersFound);
+            IGeoPosition center = GeographicLib.getCenter(cornersFound);
 
             if (mapController.groundPositionToScreenPoint(center.getLatitude(), center.getLongitude(), result)) {
                 corners[NW] = findEarth2SkyTransition(mapController, result.x, result.y, -delta_x, -delta_y, width, height);

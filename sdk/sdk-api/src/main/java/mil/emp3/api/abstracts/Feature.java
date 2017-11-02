@@ -419,11 +419,11 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     /**
      * Use by sub classes of this class to validate input parameters. If value is not NaN then we return absolute
      * value else thro an exception.
-     * @param dValue
-     * @param message
-     * @return
+     * @param dValue value to be made positive
+     * @param message Message that is returned if dValue is NaN
+     * @return positve value of the passed in value
      */
-    protected double makePositive(double dValue, String message) {
+    protected double makePositive(final double dValue, final String message) {
         if(Double.isNaN(dValue)) {
             throw new IllegalArgumentException(message);
         }

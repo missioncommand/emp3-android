@@ -17,7 +17,7 @@ import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.IMap;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.test.emp3vv.common.ExecuteTest;
 import mil.emp3.test.emp3vv.common.NavItemBase;
 
@@ -480,7 +480,7 @@ public class SinglePointBasicShapeCapabilityTest<T extends Feature> extends NavI
                 viewCenter.setLongitude(camera.getLongitude());
                 viewCenter.setAltitude(0);
 
-                GeoLibrary.computePositionAt(0, this.baseValue, viewCenter, this.testFeature.getPosition());
+                GeographicLib.computePositionAt(0, this.baseValue, viewCenter, this.testFeature.getPosition());
                 tempAngle = 0;
 
                 updateStatus(TAG, "Position Test.");
@@ -494,7 +494,7 @@ public class SinglePointBasicShapeCapabilityTest<T extends Feature> extends NavI
                     this.currentTestStep = END_TEST_STEPS;
                 } else {
                     this.tempAngle += 10;
-                    GeoLibrary.computePositionAt(this.tempAngle, this.baseValue, viewCenter, this.testFeature.getPosition());
+                    GeographicLib.computePositionAt(this.tempAngle, this.baseValue, viewCenter, this.testFeature.getPosition());
                 }
                 break;
             }

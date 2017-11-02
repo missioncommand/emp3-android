@@ -32,6 +32,7 @@ public class SquareTest extends TestBase{
         s1 = new Square();
         final GeoSquare gs = new GeoSquare();
         gs.setFillStyle(null);
+        gs.setTimeStamp(s1.getTimeStamp());
         validateSquare(s1,
                        gs,
                        100.0,
@@ -40,7 +41,7 @@ public class SquareTest extends TestBase{
                        Collections.EMPTY_LIST,
                        Collections.EMPTY_LIST,
                        Collections.EMPTY_LIST,
-                       null,
+                       gs.getTimeStamp(),
                        Collections.EMPTY_LIST,
                        null,
                        new GeoStrokeStyle(),
@@ -56,7 +57,7 @@ public class SquareTest extends TestBase{
                        false,
                        Collections.EMPTY_LIST,
                        "",
-                       null,
+                       "",
                        "",
                        new HashMap());
     }
@@ -68,6 +69,7 @@ public class SquareTest extends TestBase{
         gs.setPositions(Collections.singletonList(gp));
         gs.setFillStyle(null);
         s1 = new Square(gp);
+        gs.setTimeStamp(s1.getTimeStamp());
         validateSquare(s1,
                 gs,
                 100.0,
@@ -76,7 +78,7 @@ public class SquareTest extends TestBase{
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
                 Collections.singletonList(gp),
-                null,
+                gs.getTimeStamp(),
                 Collections.EMPTY_LIST,
                 null,
                 new GeoStrokeStyle(),
@@ -92,19 +94,20 @@ public class SquareTest extends TestBase{
                 false,
                 Collections.EMPTY_LIST,
                 "",
-                null,
+                "",
                 "",
                 new HashMap());
     }
 
     @Test
     public void geoPosWidthConstructor() {
-        GeoPosition gp = new GeoPosition();
+        final GeoPosition gp = new GeoPosition();
         s1 = new Square(gp, 5.4);
         final GeoSquare gs = new GeoSquare();
         gs.setPositions(Collections.singletonList(gp));
         gs.setWidth(5.4);
         gs.setFillStyle(null);
+        gs.setTimeStamp(s1.getTimeStamp());
         validateSquare(s1,
                 gs,
                 5.4,
@@ -113,7 +116,7 @@ public class SquareTest extends TestBase{
                 Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST,
                 Collections.singletonList(gp),
-                null,
+                gs.getTimeStamp(),
                 Collections.EMPTY_LIST,
                 null,
                 new GeoStrokeStyle(),
@@ -129,7 +132,7 @@ public class SquareTest extends TestBase{
                 false,
                 Collections.EMPTY_LIST,
                 "",
-                null,
+                "",
                 "",
                 new HashMap());
     }
@@ -238,24 +241,26 @@ public class SquareTest extends TestBase{
         gp = new GeoPosition();
         s1 = new Square(gp);
         s1.setAzimuth(0.0);
-        final Double coord = 4.4915764203778963*Math.pow(10,-4);
+        final Double eastWestCoord = 4.4915764203778963*Math.pow(10,-4);
+        final Double northSouthCoord = 4.5218473849217844*Math.pow(10,-4);
         validateBoundingBox((EmpBoundingBox) s1.getFeatureBoundingBox(),
-                coord,
-                coord,
-                -1*coord,
-                -1*coord);
+                northSouthCoord,
+                eastWestCoord,
+                -1*northSouthCoord,
+                -1*eastWestCoord);
     }
     @Test
     public void FeatureBoundingBox() {
         gp = new GeoPosition();
         s1 = new Square(gp);
         s1.setAzimuth(10.0);
-        final Double coord = 5.203293342219695*Math.pow(10,-4);
+        final Double eastWestCoord = 5.203293342219695*Math.pow(10,-4);
+        final Double northSouthCoord = 5.238360920998275*Math.pow(10,-4);
         validateBoundingBox((EmpBoundingBox) s1.getFeatureBoundingBox(),
-                coord,
-                coord,
-                -1*coord,
-                -1*coord);
+                northSouthCoord,
+                eastWestCoord,
+                -1*northSouthCoord,
+                -1*eastWestCoord);
     }
 
     @Test

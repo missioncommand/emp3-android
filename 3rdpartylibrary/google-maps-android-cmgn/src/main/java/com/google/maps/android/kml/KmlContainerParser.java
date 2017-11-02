@@ -47,12 +47,14 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
     /**
      * Obtains a Container object (created if a Document or Folder start tag is read by the
      * XmlPullParser) and assigns specific elements read from the XmlPullParser to the container.
+     * @param documentBase Path leading to kml file directory to generate full path file url for map service.
+     *                     For example if the file was in C:/Documents/MyKMZ.kmz/test.kml this value would be C:/Documents/MyKMZ.kmz
      */
 
     /* package */
-    static KmlContainer createContainer(XmlPullParser parser)
+    static KmlContainer createContainer(XmlPullParser parser, final String documentBase)
             throws XmlPullParserException, IOException {
-        return assignPropertiesToContainer(parser);
+        return assignPropertiesToContainer(parser, documentBase);
     }
 
     /**
@@ -60,9 +62,11 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
      * to the new KmlContainer.
      *
      * @param parser XmlPullParser object reading from a KML file
+     * @param documentBase Path leading to kml file directory to generate full path file url for map service.
+     *                     For example if the file was in C:/Documents/MyKMZ.kmz/test.kml this value would be C:/Documents/MyKMZ.kmz
      * @return KmlContainer object with properties read from the XmlPullParser
      */
-    private static KmlContainer assignPropertiesToContainer(XmlPullParser parser)
+    private static KmlContainer assignPropertiesToContainer(XmlPullParser parser, final String documentBase)
             throws XmlPullParserException, IOException {
         String startTag = parser.getName();
         String containerId = null;
@@ -85,7 +89,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
                 if (parser.getName().matches(UNSUPPORTED_REGEX)) {
                     KmlParser.skip(parser);
                 } else if (parser.getName().matches(CONTAINER_REGEX)) {
-                    nestedContainers.add(assignPropertiesToContainer(parser));
+                    nestedContainers.add(assignPropertiesToContainer(parser, documentBase));
                 } else if (parser.getName().matches(PROPERTY_REGEX)) {
                     containerProperties.put(parser.getName(), parser.nextText());
                 } else if (parser.getName().equals(STYLE_MAP)) {
@@ -97,7 +101,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
                 } else if (parser.getName().equals(EXTENDED_DATA)) {
                     setExtendedDataProperties(parser, containerProperties);
                 } else if (parser.getName().equals(GROUND_OVERLAY)) {
-                    containerGroundOverlays.put(KmlFeatureParser.createGroundOverlay(parser), null);
+                    containerGroundOverlays.put(KmlFeatureParser.createGroundOverlay(parser, documentBase), null);
                 }
             }
             eventType = parser.next();

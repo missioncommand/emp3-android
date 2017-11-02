@@ -4,7 +4,6 @@ apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
 apply plugin: 'nebula.source-jar'
 apply plugin: 'nebula.javadoc-jar'
-apply plugin: 'nebula.compile-api'
 
 sourceCompatibility = rootProject.sourceCompatibility
 targetCompatibility = rootProject.targetCompatibility
@@ -16,9 +15,11 @@ configurations {
 }
 dependencies {
     implementation project (":google-maps-android-cmgn")
-    compileApi project     (":cmapi")
+    implementation project (":cmapi")
+    implementation project (":geolib")
     implementation         ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
-    compileApi             ("mil.army.missioncommand:mirrorcache-api")
+    implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")
+    implementation         ("mil.army.missioncommand:mirrorcache-api")
     compileOnly            (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
     compileOnly files      ("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
 }

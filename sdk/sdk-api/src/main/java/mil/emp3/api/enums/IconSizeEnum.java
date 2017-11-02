@@ -16,6 +16,7 @@ public enum IconSizeEnum {
     /**
      * Size equivalent to 1.4 times the size of a SMALL icon.
      */
+
     MEDIUM,
     /**
      * Size equivalent to 1.8 times the size of a SMALL icon.

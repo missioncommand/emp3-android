@@ -82,7 +82,7 @@ public abstract class MapStatus implements IMapStatus {
     //This value is the current MilStd label setting.
     private MilStdLabelSettingEnum eLabelSetting = MilStdLabelSettingEnum.COMMON_LABELS;
     // This hash map contains all the map services the map is currently handling.
-    private final ConcurrentHashMap<java.util.UUID, IMapService> mapServiceHash;
+    private final HashMap<java.util.UUID, IMapService> mapServiceHash;
     // Active KML Service requests
     private Map<UUID, IKMLSRequest> kmlsRequestMap = new HashMap<>();
     // This value is the map's current width in pixels.
@@ -116,7 +116,7 @@ public abstract class MapStatus implements IMapStatus {
     private FontSizeModifierEnum fontSizeModifier = FontSizeModifierEnum.NORMAL;
 
     protected MapStatus() {
-        this.mapServiceHash = new ConcurrentHashMap<>();
+        this.mapServiceHash = new HashMap<>();
         this.setIconSize(IconSizeEnum.SMALL);
         IGeoColor color = new EmpGeoColor(1.0, 255, 255, 0);
         this.selectedStrokeStyle.setStrokeColor(color);

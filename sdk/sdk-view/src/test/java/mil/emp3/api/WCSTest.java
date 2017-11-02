@@ -55,20 +55,20 @@ public class WCSTest extends TestBaseSingleMap{
     }
 
     public void addLayerTest() throws Exception {
-        final IMapService mapService = new WCS("https://", "test_name");
+        final String serviceName = "test_name";
+        final IMapService mapService = new WCS("https://", serviceName);
         remoteMap.addMapService(mapService);
 
         final List<IMapService> services = remoteMap.getMapServices();
         Assert.assertNotNull("services should not be null", services);
         WCS foundService = null;
         for(final IMapService s: services) {
-            if(s instanceof WCS && s.getName().equals("test_name")) {
+            if(s instanceof WCS && s.getName().equals(serviceName)) {
                 foundService = (WCS) s;
                 break;
             }
         }
-        Assert.assertNotNull("It should be WCS Service kmlSample_Test", foundService);
-
+        Assert.assertNotNull("It should be WCS Service" + serviceName, foundService);
         remoteMap.removeMapService(mapService);
     }
 

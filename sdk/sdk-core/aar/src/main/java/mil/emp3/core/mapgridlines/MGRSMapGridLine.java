@@ -23,7 +23,7 @@ import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoColor;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.core.mapgridlines.coordinates.UTMCoordinate;
 import mil.emp3.core.mapgridlines.utils.GridLineUtils;
 import mil.emp3.mapengine.interfaces.IMapInstance;
@@ -664,7 +664,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         tempPos.setLatitude(valuePos.getLatitude());
         tempPos.setLongitude(gridZoneBounds.getWest() + gridZoneUTMCoord.getGridZoneWidthInDegrees());
         tempPos.setAltitude(0.0);
-        widthOfGridZoneAtLabelLat = GeoLibrary.computeDistanceBetween(valuePos, tempPos) + eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
+        widthOfGridZoneAtLabelLat = GeographicLib.computeDistanceBetween(valuePos, tempPos) + eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
         runningMeterCount = eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
 
         while (mapBounds.contains(mapBounds.getSouth(), valuePos.getLongitude())) {
@@ -723,7 +723,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
                 tempPos.setLatitude(valuePos.getLatitude());
                 tempPos.setLongitude(gridZoneBounds.getWest() + gridZoneUTMCoord.getGridZoneWidthInDegrees());
                 tempPos.setAltitude(0.0);
-                widthOfGridZoneAtLabelLat = GeoLibrary.computeDistanceBetween(valuePos, tempPos) + eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
+                widthOfGridZoneAtLabelLat = GeographicLib.computeDistanceBetween(valuePos, tempPos) + eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
                 runningMeterCount = eastValueUTMCoord.getEasting() - mgrsGridBoxEastingStart;
             } else {
                 eastValueUTMCoord.toLatLong(valuePos);

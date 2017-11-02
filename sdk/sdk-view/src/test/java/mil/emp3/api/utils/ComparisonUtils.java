@@ -33,7 +33,6 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-
 /**
  * Created by matt.miller@rgi-corp.local on 10/27/17.
  */
