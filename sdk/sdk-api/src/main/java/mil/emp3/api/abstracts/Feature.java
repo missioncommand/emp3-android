@@ -444,7 +444,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
 
     /**
      * Convert selected members to String.
-     * @return
+     * @return String describing the feature including name, extrude, altitude mode and positions
      */
     @Override
     public String toString() {
