@@ -54,6 +54,7 @@ public class MockMapInstance_ extends CoreMapInstance {
     protected final BlockingQueue<String> userContextQueue;
 
     protected ICamera currentCamera;
+    private boolean cameraEvent = false;
 
     public MockMapInstance_(BlockingQueue<IFeature> addFeatureQueue, BlockingQueue<UUID> removeFeatureQueue,
                            BlockingQueue<ICamera> setCameraQueue, BlockingQueue<IFeature> selectFeatureQueue,
@@ -240,15 +241,17 @@ public class MockMapInstance_ extends CoreMapInstance {
         return currentCamera;
     }
 
+    public boolean gotCameraWithUserContextEvent() {
+        return cameraEvent;
+    }
+
     @Override
     public void setCamera(ICamera oCamera, boolean animate, Object userContext) {
         if (userContext != null) {
             Log.d(TAG, "In setCamera user context " + (String)userContext);
         }
         if(oCamera != this.currentCamera) {
-//            ICamera camera = new Camera();
-//            camera.copySettingsFrom(oCamera);
-
+            cameraEvent = false;
             try {
                 oCamera.addCameraEventListener(new ICameraEventListener() {
                     @Override
@@ -256,6 +259,7 @@ public class MockMapInstance_ extends CoreMapInstance {
                         MockMapInstance_.this.setCameraQueue.add(event.getCamera());
                         if (event.getUserContext() != null) {
                             userContextQueue.add((String)event.getUserContext());
+                            cameraEvent = true;
                             Log.d(TAG, "In addCameraEventListener user context " + (String) event.getUserContext());
                         }
                     }
@@ -274,11 +278,15 @@ public class MockMapInstance_ extends CoreMapInstance {
             Log.d(TAG, oCamera.getTilt() + " tilt");
         }
         setCameraQueue.add(oCamera);
+        if (userContext != null) {
+            userContextQueue.add((String)userContext);
+        }
     }
 
     @Override
     public void applyCameraChange(ICamera oCamera, boolean animate, Object userContext) {
-        currentCamera = oCamera;
+        cameraEvent = false;
+        this.currentCamera = oCamera;
     }
 
     @Override
