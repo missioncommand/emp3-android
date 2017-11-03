@@ -88,7 +88,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
      */
     @Override
     public void setWidth(final double fValue) {
-        validateWithinRange(fValue, MINIMUM_WIDTH, Double.NaN);
+        validateWithinRange(fValue, MINIMUM_WIDTH, Double.POSITIVE_INFINITY);
         this.getRenderable().setWidth(fValue);
     }
 

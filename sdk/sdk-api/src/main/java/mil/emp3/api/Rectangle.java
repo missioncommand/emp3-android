@@ -95,7 +95,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      */
     @Override
     public void setWidth(final double dWidth) {
-        validateWithinRange(dWidth, MINIMUM_WIDTH, Double.NaN);
+        validateWithinRange(dWidth, MINIMUM_WIDTH, Double.POSITIVE_INFINITY);
         this.getRenderable().setWidth(dWidth);
     }
 
@@ -114,7 +114,7 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      */
     @Override
     public void setHeight(final double dHeight) {
-        validateWithinRange(dHeight, MINIMUM_HEIGHT, Double.NaN);
+        validateWithinRange(dHeight, MINIMUM_HEIGHT, Double.POSITIVE_INFINITY);
         this.getRenderable().setHeight(dHeight);
     }
 
