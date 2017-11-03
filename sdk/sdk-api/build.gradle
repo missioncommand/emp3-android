@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     implementation project (":google-maps-android-cmgn")
-    compile                (group: 'cmapi-kotlin-release', name: 'cmapi-multi-jvm', version: "$cmapiKotlinVersion", ext: 'jar', classifier: '')
+    compile                (group: cmapiGroupName, name: cmapiJvmArtifactName, version: cmapiKotlinVersion, ext: 'jar', classifier: '')
     implementation project (":geolib")
     implementation         ("com.eclipsesource.minimal-json:minimal-json:0.9.4")
     implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")

@@ -45,12 +45,18 @@ repositories {
     maven {
         url "https://oss.jfrog.org/artifactory/libs-snapshot"
     }
+    maven{
+        url cmapiKotlinBintrayUrl
+    }
 }
 
 dependencyManagement {
     dependencies {
+
+        //CMAPI
+        dependency (group: cmapiGroupName, name: cmapiJvmArtifactName, version: cmapiKotlinVersion, ext: 'jar', classifier: '')
+
         // MISSION_COMMAND-related
-        dependency ("mil.army.missioncommand:cmapi:${version_cmapi}")
         dependency ("mil.army.missioncommand:mil-sym-android-renderer:${version_renderer}")
         dependency ("mil.army.missioncommand:mirrorcache-api:${version_mirrorcache}")
         dependency ("mil.army.missioncommand:mirrorcache-impl-core:${version_mirrorcache}")
