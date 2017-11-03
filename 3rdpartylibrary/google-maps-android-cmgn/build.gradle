@@ -6,14 +6,8 @@ apply plugin: 'nebula.maven-nebula-publish'
 sourceCompatibility = rootProject.sourceCompatibility
 targetCompatibility = rootProject.targetCompatibility
 
-repositories {
-    maven{
-        url  cmapiKotlinBintrayUrl
-    }
-}
-
 dependencies {
-    implementation   (group: cmapiGroupName, name: cmapiJvmArtifactName, version: cmapiKotlinVersion, ext: 'jar', classifier: '')
+    implementation   (group: cmapiGroupName, name: cmapiJvmArtifactName, version: cmapiKotlinVersion, ext: 'jar')
     compileOnly files("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
 }
 

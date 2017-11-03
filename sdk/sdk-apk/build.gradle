@@ -1,11 +1,6 @@
 apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-app.gradle"
 apply plugin: 'maven-publish'
 
-repositories{
-    maven {
-        url  cmapiKotlinBintrayUrl
-    }
-}
 
 dependencies {
     implementation project (":emp3-android-sdk")

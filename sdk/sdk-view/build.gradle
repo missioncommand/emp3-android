@@ -3,12 +3,6 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
 
-repositories{
-    maven {
-        url  cmapiKotlinBintrayUrl
-    }
-}
-
 dependencies {
     api project(':emp3-android-sdk')
     //compile project     (":service:mirrorcache:service-mirrorcache-api")
