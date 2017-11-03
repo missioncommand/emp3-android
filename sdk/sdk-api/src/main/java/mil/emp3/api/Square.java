@@ -88,20 +88,8 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
      */
     @Override
     public void setWidth(final double fValue) {
-        validateWidth(fValue);
+        validateWithinRange(fValue, MINIMUM_WIDTH, Double.NaN);
         this.getRenderable().setWidth(fValue);
-    }
-
-    /**
-     * Validates whether or not a given input is a valid Width.
-     * Throws an exception if invalid in order to inform user what the issue was.
-     * @param dValue The width to be checked
-     */
-    private void validateWidth(final double dValue) {
-        validatePositive(dValue);
-        if(dValue < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width, " + String.valueOf(dValue) + " is not greater than " + MINIMUM_WIDTH);
-        }
     }
 
     /**

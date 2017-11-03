@@ -354,12 +354,9 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      * @param dValue - The azimuth in degrees. Valid range is -360 to 360. Out of range values raises an IllegalArgumentException.
      */
     @Override
-    public void setAzimuth(double dValue) {
-        if (!Double.isNaN(dValue) && dValue >= global.HEADING_MINIMUM && dValue <= global.HEADING_MAXIMUM) {
-            this.getRenderable().setAzimuth(dValue);
-        } else {
-            throw new IllegalArgumentException("Value is out of range (" + dValue + ").");
-        }
+    public void setAzimuth(final double dValue) {
+        validateWithinRange(dValue, global.HEADING_MINIMUM, global.HEADING_MAXIMUM);
+        this.getRenderable().setAzimuth(dValue);
     }
 
     /**
@@ -443,12 +440,12 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     }
 
     /**
-     * Validates if a parameter is in a certain range
+     * Validates if a parameter is in a certain range, throws an exception describing the error if not
      * @param dValue value to be checked
      * @param minimum lower bound, NaN if no lower bound
      * @param maximum upper bound, NaN if no upper bound
      */
-    protected void validateParameter(final double dValue, final double minimum, final double maximum) {
+    protected void validateWithinRange(final double dValue, final double minimum, final double maximum) {
         if(Double.isNaN(dValue)) {
             throw new IllegalArgumentException("invalid parameter, value is not a nubmer");
         }

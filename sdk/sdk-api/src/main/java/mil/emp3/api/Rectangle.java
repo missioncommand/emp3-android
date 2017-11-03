@@ -95,20 +95,8 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      */
     @Override
     public void setWidth(final double dWidth) {
-        isValidWidth(dWidth);
+        validateWithinRange(dWidth, MINIMUM_WIDTH, Double.NaN);
         this.getRenderable().setWidth(dWidth);
-    }
-
-    /**
-     * Validates whether or not a given input is a valid Width.
-     * Throws an exception if invalid in order to inform user what the issue was.
-     * @param dWidth The width to be checked
-     */
-    private void isValidWidth(final double dWidth) {
-        validatePositive(dWidth);
-        if(dWidth < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width, " + String.valueOf(dWidth) + " is not greater than " + MINIMUM_WIDTH);
-        }
     }
 
     /**
@@ -126,20 +114,8 @@ public class Rectangle extends Feature<IGeoRectangle> implements IGeoRectangle {
      */
     @Override
     public void setHeight(final double dHeight) {
-        validateHeight(dHeight);
+        validateWithinRange(dHeight, MINIMUM_HEIGHT, Double.NaN);
         this.getRenderable().setHeight(dHeight);
-    }
-
-    /**
-     * Validates whether or not a given input is a valid height.
-     * Throws an exception if invalid in order to inform user what the issue was.
-     * @param dHeight The height to be checked
-     */
-    private void validateHeight(final double dHeight) {
-        validatePositive(dHeight);
-        if(dHeight < MINIMUM_HEIGHT) {
-            throw new IllegalArgumentException("Invalid height, " + String.valueOf(dHeight) + " is not greater than " + MINIMUM_HEIGHT);
-        }
     }
 
     /**
