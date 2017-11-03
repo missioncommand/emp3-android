@@ -41,7 +41,7 @@ public class ComparisonUtils {
     public static final double Epsilon = 1e-8;
 
     private static void compareGeoPosition(final IGeoPosition p1, final IGeoPosition p2) {
-        if(p1 == null && p2 == null) {
+        if (p1 == null && p2 == null) {
             return;
         }
         assertEquals(p1.getLatitude(), p2.getLatitude(), Epsilon);
@@ -51,10 +51,10 @@ public class ComparisonUtils {
 
     private static void compareGeoPositionArray(final List<IGeoPosition> p1, final List<IGeoPosition> p2) {
         final double size = p1.size();
-        if(size != p2.size()){
+        if (size != p2.size()) {
             fail("Two Geoposition Lists are of unequal length");
         }
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             compareGeoPosition(p1.get(i), p2.get(i));
         }
     }
@@ -67,7 +67,7 @@ public class ComparisonUtils {
     }
 
     private static void compareFillStyle(final IGeoFillStyle f1, final IGeoFillStyle f2) {
-        if(f1 == null && f2 == null) {
+        if (f1 == null && f2 == null) {
             return;
         }
         assertEquals(f1.getDescription(), f2.getDescription());
@@ -302,33 +302,33 @@ public class ComparisonUtils {
     }
 
     public static void validateRectangle(final Rectangle rect,
-                                       final GeoRectangle geoRectangle,
-                                       final double width,
-                                       final double height,
-                                       final FeatureTypeEnum fte,
-                                       final List childFeatures,
-                                       final List parentOverlays,
-                                       final List parentFeatures,
-                                       final List<IGeoPosition> positions,
-                                       final Date date,
-                                       final List timeSpans,
-                                       final IGeoAltitudeMode.AltitudeMode altitudeMode,
-                                       final IGeoStrokeStyle strokeStyle,
-                                       final IGeoFillStyle fillStyle,
-                                       final IGeoLabelStyle labelStyle,
-                                       final Boolean extrude,
-                                       final Boolean tessellate,
-                                       final double buffer,
-                                       final double azimuth,
-                                       final GeoPosition geoPosition,
-                                       final Boolean readOnly,
-                                       final List parents,
-                                       final Boolean hasChildren,
-                                       final List children,
-                                       final String name,
-                                       final String dataProvider,
-                                       final String description,
-                                       final HashMap properties) {
+                                         final GeoRectangle geoRectangle,
+                                         final double width,
+                                         final double height,
+                                         final FeatureTypeEnum fte,
+                                         final List childFeatures,
+                                         final List parentOverlays,
+                                         final List parentFeatures,
+                                         final List<IGeoPosition> positions,
+                                         final Date date,
+                                         final List timeSpans,
+                                         final IGeoAltitudeMode.AltitudeMode altitudeMode,
+                                         final IGeoStrokeStyle strokeStyle,
+                                         final IGeoFillStyle fillStyle,
+                                         final IGeoLabelStyle labelStyle,
+                                         final Boolean extrude,
+                                         final Boolean tessellate,
+                                         final double buffer,
+                                         final double azimuth,
+                                         final GeoPosition geoPosition,
+                                         final Boolean readOnly,
+                                         final List parents,
+                                         final Boolean hasChildren,
+                                         final List children,
+                                         final String name,
+                                         final String dataProvider,
+                                         final String description,
+                                         final HashMap properties) {
         compareGeoRectangle(rect.getRenderable(), geoRectangle);
         assertEquals(rect.getWidth(), width, Epsilon);
         assertEquals(rect.getHeight(), height, Epsilon);
@@ -359,32 +359,32 @@ public class ComparisonUtils {
     }
 
     public static void validateSquare(final Square square,
-                                       final GeoSquare geoSquare,
-                                       final double width,
-                                       final FeatureTypeEnum fte,
-                                       final List childFeatures,
-                                       final List parentOverlays,
-                                       final List parentFeatures,
-                                       final List<IGeoPosition> positions,
-                                       final Date date,
-                                       final List timeSpans,
-                                       final IGeoAltitudeMode.AltitudeMode altitudeMode,
-                                       final IGeoStrokeStyle strokeStyle,
-                                       final IGeoFillStyle fillStyle,
-                                       final IGeoLabelStyle labelStyle,
-                                       final Boolean extrude,
-                                       final Boolean tessellate,
-                                       final double buffer,
-                                       final double azimuth,
-                                       final GeoPosition geoPosition,
-                                       final Boolean readOnly,
-                                       final List parents,
-                                       final Boolean hasChildren,
-                                       final List children,
-                                       final String name,
-                                       final String dataProvider,
-                                       final String description,
-                                       final HashMap properties) {
+                                      final GeoSquare geoSquare,
+                                      final double width,
+                                      final FeatureTypeEnum fte,
+                                      final List childFeatures,
+                                      final List parentOverlays,
+                                      final List parentFeatures,
+                                      final List<IGeoPosition> positions,
+                                      final Date date,
+                                      final List timeSpans,
+                                      final IGeoAltitudeMode.AltitudeMode altitudeMode,
+                                      final IGeoStrokeStyle strokeStyle,
+                                      final IGeoFillStyle fillStyle,
+                                      final IGeoLabelStyle labelStyle,
+                                      final Boolean extrude,
+                                      final Boolean tessellate,
+                                      final double buffer,
+                                      final double azimuth,
+                                      final GeoPosition geoPosition,
+                                      final Boolean readOnly,
+                                      final List parents,
+                                      final Boolean hasChildren,
+                                      final List children,
+                                      final String name,
+                                      final String dataProvider,
+                                      final String description,
+                                      final HashMap properties) {
         compareGeoSquare(square.getRenderable(), geoSquare);
         assertEquals(square.getWidth(), width, Epsilon);
         assertEquals(square.getFeatureType(), fte);

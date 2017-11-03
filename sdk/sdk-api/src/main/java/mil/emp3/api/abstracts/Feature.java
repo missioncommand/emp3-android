@@ -443,6 +443,28 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     }
 
     /**
+     * Validates if a parameter is in a certain range
+     * @param dValue value to be checked
+     * @param minimum lower bound, NaN if no lower bound
+     * @param maximum upper bound, NaN if no upper bound
+     */
+    protected void validateParameter(final double dValue, final double minimum, final double maximum) {
+        if(Double.isNaN(dValue)) {
+            throw new IllegalArgumentException("invalid parameter, value is not a nubmer");
+        }
+        if(!Double.isNaN(minimum)) {
+           if(dValue < minimum) {
+               throw new IllegalArgumentException("Invalid parameter, " + String.valueOf(dValue) + " is not greater than " + String.valueOf(minimum));
+           }
+        }
+        if(!Double.isNaN(maximum)) {
+            if(dValue > maximum) {
+                throw new IllegalArgumentException("Invalid parameter, " + String.valueOf(dValue) + " is  greater than " + String.valueOf(maximum));
+            }
+        }
+    }
+
+    /**
      * Convert selected members to String.
      * @return String describing the feature including name, extrude, altitude mode and positions
      */
