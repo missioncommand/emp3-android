@@ -440,11 +440,12 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     }
 
     /**
-     * Validates if a parameter is in a certain range, throws an exception describing the error if not
+     * Validates if a parameter is in a certain range, throws an exception describing the error
+     * if the value being checked or the bounds or NaN
      * Not inclusive
      * @param dValue value to be checked
-     * @param minimum lower bound, NaN if no lower bound
-     * @param maximum upper bound, NaN if no upper bound
+     * @param minimum lower bound, pass in double.NEGATIVE_INFINITY if no lower bound
+     * @param maximum upper bound, pass in double.POSITIVE_INFINITY if no upper bound
      */
     protected void validateWithinRange(final double dValue, final double minimum, final double maximum) {
         if(Double.isNaN(dValue)) {
@@ -452,6 +453,9 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
         }
         if(Double.isNaN(minimum) || Double.isNaN(maximum)) {
                throw new IllegalArgumentException("Invalid parameter, one of the bounds is NaN");
+        }
+        if(minimum > maximum) {
+            throw new IllegalArgumentException("Invalid boundaries, minimum > maximum: " + String.valueOf(minimum) + ">" + String.valueOf(maximum));
         }
         if(dValue > maximum || dValue < minimum) {
             throw new IllegalArgumentException("Invalid parameter, " + String.valueOf(dValue) + " is not between" + String.valueOf(minimum) + " and " + String.valueOf(maximum));
