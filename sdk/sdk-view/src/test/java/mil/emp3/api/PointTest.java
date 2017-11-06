@@ -27,7 +27,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
  * Created by Matt.Miller on 10/16/2017.
  */
 @PrepareForTest({URLUtil.class})
-public class PointTest  TestBase {
+public class PointTest extends TestBase {
 
     public static final String TAG = PointTest.class.getSimpleName();
     private static final double Epsilon = 1e-8;
