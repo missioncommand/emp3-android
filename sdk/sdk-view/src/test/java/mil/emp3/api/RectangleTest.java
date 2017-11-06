@@ -247,7 +247,7 @@ public class RectangleTest extends TestBase{
         r1 = new Rectangle();
         r1.setWidth(-3.45);
     }
-    
+
     @Test
     public void widthTest() {
         r1 = new Rectangle();
@@ -318,7 +318,7 @@ public class RectangleTest extends TestBase{
     public void defaultStringTest() {
         r1 = new Rectangle();
         assertEquals(r1.toString(),
-                     "Rectangle\n" +
+                        "Rectangle\n" +
                         "\theight: 75.0\n" +
                         "\twidth: 150.0\n" +
                         "\tazimuth: 0.0\n");
@@ -329,7 +329,7 @@ public class RectangleTest extends TestBase{
         gp = new GeoPosition();
         r1 = new Rectangle(gp);
         assertEquals(r1.toString(),
-                "Rectangle at\n" +
+                        "Rectangle at\n" +
                         "\tlatitude: 0.0\n" +
                         "\tlongitude: 0.0\n" +
                         "\taltitude: 0.0\n" +
