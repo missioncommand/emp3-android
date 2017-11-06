@@ -14,7 +14,6 @@ configurations {
     }
 }
 dependencies {
-    implementation         (group: cmapiGroupName, name: cmapiJvmArtifactName, version: cmapiKotlinVersion, ext: 'jar')
     implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")
     compileOnly files      ("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
     testImplementation 'junit:junit:4.12'
