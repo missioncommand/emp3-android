@@ -64,23 +64,25 @@ deploy:
 after_success:
 #- cp $TRAVIS_BUILD_DIR/.keystore $HOME
 - mkdir $TRAVIS_BUILD_DIR/release_artifacts
+- echo "checking build tools"
+- ls $ANDROID_HOME/build-tools
 # Worldwind mapengine
 - cd $TRAVIS_BUILD_DIR/mapengine/worldwind/apk/build/outputs/apk/release
 - jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $TRAVIS_BUILD_DIR/emp3_keystore.jks -storepass $storepass -keypass $keypass mapengine-worldwind-apk-release-unsigned.apk emp_release_store
 - jarsigner -verify app-release-unsigned.apk
-- "${ANDROID_HOME}/build-tools/24.0.2/zipalign -v 4 mapengine-worldwind-apk-release-unsigned.apk mapengine-worldwind-apk-release.apk"
-- mv mapengine-worldwind-apk-release.apk $HOME/release_artifacts
+- "${ANDROID_HOME}build-tools/24.0.2/zipalign -v 4 mapengine-worldwind-apk-release-unsigned.apk mapengine-worldwind-apk-release.apk"
+- mv mapengine-worldwind-apk-release.apk $TRAVIS_BUILD_DIR/release_artifacts
 # sdk-apk
 - cd $TRAVIS_BUILD_DIR/sdk/sdk-apk/build/outputs/apk/release
 - jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $TRAVIS_BUILD_DIR/emp3_keystore.jks -storepass $storepass -keypass $keypass emp3-android-sdk-apk-release-unsigned.apk emp_release_store
 - jarsigner -verify emp3-android-sdk-apk-release-unsigned.apk
-- "${ANDROID_HOME}/build-tools/24.0.2/zipalign -v 4 emp3-android-sdk-apk-release-unsigned.apk emp3-android-sdk-apk-release.apk"
-- mv emp3-android-sdk-apk-release.apk $HOME/release_artifacts
+- "${ANDROID_HOME}build-tools/24.0.2/zipalign -v 4 emp3-android-sdk-apk-release-unsigned.apk emp3-android-sdk-apk-release.apk"
+- mv emp3-android-sdk-apk-release.apk $TRAVIS_BUILD_DIR/release_artifacts
 # sdk-core
 - cd $TRAVIS_BUILD_DIR/sdk/sdk-core/apk/build/outputs/apk/release
 - jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $TRAVIS_BUILD_DIR/emp3_keystore.jks -storepass $storepass -keypass $keypass emp3-android-sdk-core-apk-release-unsigned.apk emp_release_store
 - jarsigner -verify emp3-android-sdk-core-apk-release-unsigned.apk
-- "${ANDROID_HOME}/build-tools/24.0.2/zipalign -v 4 emp3-android-sdk-core-apk-release-unsigned.apk emp3-android-sdk-core-apk-release.apk"
+- "${ANDROID_HOME}build-tools/24.0.2/zipalign -v 4 emp3-android-sdk-core-apk-release-unsigned.apk emp3-android-sdk-core-apk-release.apk"
 - mv emp3-android-sdk-core-apk-release.apk $TRAVIS_BUILD_DIR/release_artifacts
 # other artifacts
 #- mv $TRAVIS_BUILD_DIR/sdk/sdk-api/build/libs/emp3
