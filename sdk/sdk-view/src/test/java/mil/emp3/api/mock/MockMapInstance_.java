@@ -51,17 +51,21 @@ public class MockMapInstance_ extends CoreMapInstance {
     protected final BlockingQueue<IFeature> selectFeatureQueue;
     protected final BlockingQueue<IFeature> deselectFeatureQueue;
     protected final BlockingQueue<ICamera> setCameraQueue;
+    protected final BlockingQueue<String> userContextQueue;
+
     protected ICamera currentCamera;
+    private boolean cameraEvent = false;
 
     public MockMapInstance_(BlockingQueue<IFeature> addFeatureQueue, BlockingQueue<UUID> removeFeatureQueue,
                            BlockingQueue<ICamera> setCameraQueue, BlockingQueue<IFeature> selectFeatureQueue,
-                            BlockingQueue deselectFeatureQueue) {
+                            BlockingQueue deselectFeatureQueue, BlockingQueue userContextQueue) {
         super(TAG, null);
         this.addFeatureQueue = addFeatureQueue;
         this.removeFeatureQueue = removeFeatureQueue;
         this.setCameraQueue = setCameraQueue;
         this.selectFeatureQueue = selectFeatureQueue;
         this.deselectFeatureQueue = deselectFeatureQueue;
+        this.userContextQueue = userContextQueue;
     }
 
     @Override
@@ -119,13 +123,23 @@ public class MockMapInstance_ extends CoreMapInstance {
         Log.d(TAG, "In addFeatures");
         for (FeatureVisibility featureVisibility: features) {
             Log.d(TAG, "In addFeatures " + featureVisibility.feature.getClass().getName() + " " + featureVisibility.feature.getGeoId());
+            if (userContext != null) {
+                userContextQueue.add((String)userContext);
+                Log.d(TAG, "In addFeatures user context " + (String)userContext);
+            }
             addFeatureQueue.add(featureVisibility.feature);
         }
     }
 
     @Override
     public void removeFeatures(IUUIDSet features, Object userContext) {
-        Log.d(TAG, "In removeFeatures");
+        if (userContext != null) {
+            userContextQueue.add((String)userContext);
+            Log.d(TAG, "In removeFeatures user context " + (String)userContext);
+        } else {
+            Log.d(TAG, "In removeFeatures");
+        }
+
         for (java.util.UUID uniqueId: features) {
             removeFeatureQueue.add(uniqueId);
         }
@@ -227,18 +241,27 @@ public class MockMapInstance_ extends CoreMapInstance {
         return currentCamera;
     }
 
+    public boolean gotCameraWithUserContextEvent() {
+        return cameraEvent;
+    }
+
     @Override
     public void setCamera(ICamera oCamera, boolean animate, Object userContext) {
-
+        if (userContext != null) {
+            Log.d(TAG, "In setCamera user context " + (String)userContext);
+        }
         if(oCamera != this.currentCamera) {
-//            ICamera camera = new Camera();
-//            camera.copySettingsFrom(oCamera);
-
+            cameraEvent = false;
             try {
                 oCamera.addCameraEventListener(new ICameraEventListener() {
                     @Override
                     public void onEvent(CameraEvent event) {
                         MockMapInstance_.this.setCameraQueue.add(event.getCamera());
+                        if (event.getUserContext() != null) {
+                            userContextQueue.add((String)event.getUserContext());
+                            cameraEvent = true;
+                            Log.d(TAG, "In addCameraEventListener user context " + (String) event.getUserContext());
+                        }
                     }
                 });
             } catch(EMP_Exception e) {
@@ -255,10 +278,16 @@ public class MockMapInstance_ extends CoreMapInstance {
             Log.d(TAG, oCamera.getTilt() + " tilt");
         }
         setCameraQueue.add(oCamera);
+        if (userContext != null) {
+            userContextQueue.add((String)userContext);
+        }
     }
 
     @Override
-    public void applyCameraChange(ICamera oCamera, boolean animate, Object userContext) { }
+    public void applyCameraChange(ICamera oCamera, boolean animate, Object userContext) {
+        cameraEvent = false;
+        this.currentCamera = oCamera;
+    }
 
     @Override
     public void setLookAt(ILookAt oLookAt, boolean animate, Object userContext) {

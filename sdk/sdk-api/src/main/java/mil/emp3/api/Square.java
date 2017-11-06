@@ -78,11 +78,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
         if(null == oRenderable) {
             throw new IllegalArgumentException("Encapsulated Square must be non-null");
         }
-        this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
-
-        if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width. " + this.getWidth() + " Minimum supported " + MINIMUM_WIDTH);
-        }
+        this.setWidth(this.getWidth());
         this.setAzimuth(this.getAzimuth());  // For validation.
     }
 
@@ -91,11 +87,8 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
      * @param fValue The width in meters.
      */
     @Override
-    public void setWidth(double fValue) {
-        fValue = makePositive(fValue, "Invalid width. NaN");
-        if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width. " + fValue + " Minimum supported " + MINIMUM_WIDTH);
-        }
+    public void setWidth(final double fValue) {
+        validateWithinRange(fValue, MINIMUM_WIDTH, Double.POSITIVE_INFINITY);
         this.getRenderable().setWidth(fValue);
     }
 
