@@ -2,6 +2,7 @@ package mil.emp3.api;
 
 import android.util.Log;
 
+import org.cmapi.primitives.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,8 +12,9 @@ import org.junit.rules.TestName;
 
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ILookAt;
+import mil.emp3.api.interfaces.IMap;
 
-public class CameraLookAtTest extends TestBase {
+public class CameraLookAtTest extends TestBaseSingleMap {
     public static final String TAG = CameraLookAtTest.class.getSimpleName();
 
     @Rule
@@ -20,21 +22,54 @@ public class CameraLookAtTest extends TestBase {
 
     private ICamera camera;
     private ILookAt lookAt;
+    private Boolean cameraEvent = false;// used for synchronization
 
     @Before
     public void setUp() throws Exception{
-        init();
+        setupSingleMap(TAG);
         camera = new Camera();
         lookAt = new LookAt();
     }
 
     @After
     public void cleanUp() throws Exception{
+        mapInstance.cleanQueues();
+    }
 
+    @Test
+    public void cameraInitialSettingsTest() {
+        camera = new Camera(45.0, -105.0, 10000.0,
+                IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+        camera.setTilt(5.0);
+        camera.setRoll(10.0);
+        camera.setHeading(15.0);
+        String userContext = "Camera test BEFORE";
+        mapInstance.setCamera(camera, true, userContext);
+        Thread detectEvent = new Thread() {
+            @Override
+            public void run() {
+                int count = 0;
+                while (!mapInstance.gotCameraWithUserContextEvent()) {
+                    if (count++ == 20) {
+                        Assert.fail("No camera event in 100 ms");
+                    }
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException e) {
+                        Assert.fail("Camera event thread interrupted");
+                    }
+                }
+                Assert.assertTrue(mapInstance.validateApplyCamera(10000.0, IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND,
+                        45.0, -105.0, 15.0, 10.0, 5.0, userContext));
+            }
+        };
+        detectEvent.start();
+        coreManager.processCameraSettingChange(camera, true, userContext);
     }
 
     @Test
     public void cameraTests() {
+
         invalidLatitudeCameraTest(Double.NaN);
         invalidLatitudeCameraTest(global.LATITUDE_MINIMUM - 10);
         invalidLatitudeCameraTest(global.LATITUDE_MAXIMUM + 10);
@@ -61,6 +96,41 @@ public class CameraLookAtTest extends TestBase {
         validTiltCameraTest(global.CAMERA_TILT_TO_SKY);
         validHeadingCameraTest(global.HEADING_MINIMUM);
         validHeadingCameraTest(global.HEADING_MAXIMUM);
+    }
+
+    @Test
+    public void cameraSettingsApplyTest() {
+        String userContext = "Camera test AFTER";
+        camera.setAltitude(10000.0);
+        camera.setLatitude(global.LATITUDE_MAXIMUM);
+        camera.setLongitude(global.LONGITUDE_MAXIMUM);
+        camera.setRoll(global.CAMERA_ROLL_LEVEL);
+        camera.setHeading(global.HEADING_MAXIMUM);
+        camera.setTilt(global.CAMERA_TILT_TO_SKY);
+        mapInstance.applyCameraChange(camera, false, userContext);
+//        mapInstance.setCamera(camera, false,userContext);
+        Thread detectEvent = new Thread() {
+            @Override
+            public void run() {
+                int count = 0;
+                while (!mapInstance.gotCameraWithUserContextEvent()) {
+                    if (count++ == 20) {
+                        Assert.fail("No camera event in 100 ms");
+                    }
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException e) {
+                        Assert.fail("Camera event thread interrupted");
+                    }
+                }
+                Assert.assertTrue(mapInstance.validateApplyCamera(10000.0,
+                        IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND,
+                        global.LATITUDE_MAXIMUM, global.LONGITUDE_MAXIMUM,
+                        global.HEADING_MAXIMUM, global.CAMERA_ROLL_LEVEL,
+                        global.CAMERA_TILT_TO_SKY, userContext));            }
+        };
+        detectEvent.start();
+        coreManager.processCameraSettingChange(camera, true, userContext);
     }
 
     @Test

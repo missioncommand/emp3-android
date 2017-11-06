@@ -26,8 +26,9 @@ public class MockMapInstance extends MockMapInstance_ {
 
     public MockMapInstance(BlockingQueue<IFeature> addFeatureQueue, BlockingQueue<UUID> removeFeatureQueue,
                            BlockingQueue<ICamera> setCameraQueue, BlockingQueue<IFeature> selectFeatureQueue,
-                           BlockingQueue deselectFeatureQueue) {
-        super(addFeatureQueue, removeFeatureQueue, setCameraQueue, selectFeatureQueue, deselectFeatureQueue);
+                           BlockingQueue deselectFeatureQueue, BlockingQueue userContextQueue) {
+        super(addFeatureQueue, removeFeatureQueue, setCameraQueue, selectFeatureQueue,
+                deselectFeatureQueue, userContextQueue);
     }
 
     public boolean validateAddFeatures(IFeature ... feature) throws InterruptedException {
@@ -204,6 +205,26 @@ public class MockMapInstance extends MockMapInstance_ {
 
         return result;
     }
+
+    public boolean validateApplyCamera(double altitude, IGeoAltitudeMode.AltitudeMode altitudeMode, double latitude,
+                                  double longitude, double heading, double roll, double tilt,
+                                       String userContext) {
+        ICamera camera = setCameraQueue.remove();
+        String userContextFromQueue = userContextQueue.remove();
+        //boolean result = areEqual("altitude", setCamera.getAltitude(), altitude);
+        boolean result = areEqual("latitude", camera.getLatitude(), latitude);
+        result &= areEqual("longitude", camera.getLongitude(), longitude);
+        result &= areEqual("heading", camera.getHeading(), heading);
+        result &= areEqual("roll", camera.getRoll(), roll);
+        result &= areEqual("tilt", camera.getTilt(), tilt);
+        result &= (camera.getAltitudeMode().equals(altitudeMode));
+        // check userContext
+        if (userContext != null)
+            result &= userContext.equals(userContextFromQueue);
+
+        return result;
+    }
+
     public boolean validateSetCamera(ICamera expectedCamera) throws InterruptedException {
 
         if(null == expectedCamera) {
@@ -253,6 +274,7 @@ public class MockMapInstance extends MockMapInstance_ {
         setCameraQueue.clear();
         selectFeatureQueue.clear();
         deselectFeatureQueue.clear();
+        userContextQueue.clear();
     }
 
     public void simulateUserInteractionEvent(UserInteractionEventEnum eventEnum, List<IFeature> pickList, double latitude, double longitude, double altitude) {

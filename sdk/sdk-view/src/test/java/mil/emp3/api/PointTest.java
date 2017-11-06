@@ -44,18 +44,20 @@ public class PointTest  TestBase {
     @Test
     public void defaultConstructor() {
         p1 = new Point();
+        GeoPoint p2 = new GeoPoint();
+        p2.setTimeStamp(p1.getTimeStamp());
         validatePoint(p1,
                       1.0,
                       0,
                       new GeoIconStyle(),
-                      null,
-                      new GeoPoint(),
+                      "",
+                      p2,
                       FeatureTypeEnum.GEO_POINT,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
-                      null,
+                      p2.getTimeStamp(),
                       Collections.EMPTY_LIST,
                       null,
                       new GeoStrokeStyle(),
@@ -71,7 +73,7 @@ public class PointTest  TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      null,
+                      "",
                       "",
                       new HashMap());
     }
@@ -81,6 +83,7 @@ public class PointTest  TestBase {
         final String sampleURL = "127.0.0.1";
         p1 = new Point(sampleURL);
         final GeoPoint gp = new GeoPoint();
+        gp.setTimeStamp(p1.getTimeStamp());
         gp.setIconURI(sampleURL);
         validatePoint(p1,
                       1.0,
@@ -93,7 +96,7 @@ public class PointTest  TestBase {
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
-                      null,
+                      gp.getTimeStamp(),
                       Collections.EMPTY_LIST,
                       null,
                       new GeoStrokeStyle(),
@@ -109,7 +112,7 @@ public class PointTest  TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      null,
+                      "",
                       "",
                       new HashMap());
     }
@@ -122,14 +125,14 @@ public class PointTest  TestBase {
                       1.0,
                       0,
                       new GeoIconStyle(),
-                      null,
+                      "",
                       gp,
                       FeatureTypeEnum.GEO_POINT,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
-                      null,
+                      gp.getTimeStamp(),
                       Collections.EMPTY_LIST,
                       null,
                       new GeoStrokeStyle(),
@@ -145,7 +148,7 @@ public class PointTest  TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      null,
+                      "",
                       "",
                       new HashMap());
     }
@@ -157,19 +160,20 @@ public class PointTest  TestBase {
         geoPos.setLatitude(50);
         geoPos.setLongitude(50);
         final GeoPoint geoPoint = new GeoPoint();
+        geoPoint.setTimeStamp(p1.getTimeStamp());
         geoPoint.setPositions(Collections.singletonList(geoPos));
         validatePoint(p1,
                       1.0,
                       0,
                       new GeoIconStyle(),
-                      null,
+                      "",
                       geoPoint,
                       FeatureTypeEnum.GEO_POINT,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
                       Collections.EMPTY_LIST,
                       Collections.singletonList(geoPos),
-                      null,
+                      geoPoint.getTimeStamp(),
                       Collections.EMPTY_LIST,
                       null,
                       new GeoStrokeStyle(),
@@ -185,7 +189,7 @@ public class PointTest  TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      null,
+                      "",
                       "",
                       new HashMap());
     }
