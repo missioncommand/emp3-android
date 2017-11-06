@@ -63,7 +63,7 @@ deploy:
 
 after_success:
 #- cp $TRAVIS_BUILD_DIR/.keystore $HOME
-- mkdir $HOME/release_artifacts
+- mkdir $TRAVIS_BUILD_DIR/release_artifacts
 # Worldwind mapengine
 - cd $TRAVIS_BUILD_DIR/mapengine/worldwind/apk/build/outputs/apk/release
 - jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $TRAVIS_BUILD_DIR/emp3_keystore.jks -storepass $storepass -keypass $keypass mapengine-worldwind-apk-release-unsigned.apk emp_release_store
@@ -84,7 +84,7 @@ after_success:
 - mv emp3-android-sdk-core-apk-release.apk $TRAVIS_BUILD_DIR/release_artifacts
 # other artifacts
 #- mv $TRAVIS_BUILD_DIR/sdk/sdk-api/build/libs/emp3
-- ls $HOME/release_artifacts
+- ls $TRAVIS_BUILD_DIR/release_artifacts
 #deploy:
 #- provider: script
 #  skip_cleanup: true
