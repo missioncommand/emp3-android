@@ -58,18 +58,10 @@ before_deploy:
 # other artifacts
 - mv $HOME/sdk/sdk-api/build/libs/emp3
 deploy:
-  provider:releases
-  file:
-    - $HOME/release_artifacts/mapengine-worldwind-apk-release.apk
-    - $HOME/release_artifacts/emp3-android-sdk-apk-release.apk
-    - $HOME/release_artifacts/emp3-android-sdk-core-apk-release.apk
+  provider: releases
+  file: release_artifacts/*
   skip_cleanup: true
-  on:
-    branch:
-      - development
-  on:
-    tags: true
-    condition: "$TRAVIS_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$"
+
 #deploy:
 #- provider: script
 #  skip_cleanup: true
