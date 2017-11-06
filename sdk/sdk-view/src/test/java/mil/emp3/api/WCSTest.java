@@ -69,7 +69,6 @@ public class WCSTest extends TestBaseSingleMap{
             }
         }
         Assert.assertNotNull("It should be WCS Service" + serviceName, foundService);
-
         remoteMap.removeMapService(mapService);
     }
 

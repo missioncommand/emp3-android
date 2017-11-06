@@ -1,8 +1,6 @@
 package mil.emp3.api;
 
 
-import mil.emp3.api.abstracts.Feature;
-
 import org.cmapi.primitives.GeoEllipse;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoEllipse;
@@ -10,6 +8,7 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
 
+import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
