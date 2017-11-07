@@ -30,7 +30,7 @@ before_install:
 - export DEFAULT_JVM_OPTS=
 install: true
 script:
-- "./gradlew build publishToMavenLocal --refresh-dependencies --stacktrace"
+- "./gradlew clean build publishToMavenLocal --refresh-dependencies --stacktrace"
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
