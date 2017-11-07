@@ -238,7 +238,7 @@ public class PointTest extends TestBase {
     }
 
     @Test
-    public void testIconURISuccess() throws Exception {
+    public void testIconURIWebSuccess() throws Exception {
         final String sampleURL = "127.0.0.1";
         p1.setIconURI(sampleURL);
         assertEquals(p1.getIconURI(), sampleURL);
