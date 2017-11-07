@@ -50,13 +50,14 @@ before_deploy:
 - jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $TRAVIS_BUILD_DIR/emp3_keystore.jks -storepass $storepass -keypass $keypass emp3-android-sdk-core-apk-release-unsigned.apk emp_release_store
 - jarsigner -verify emp3-android-sdk-core-apk-release-unsigned.apk
 - $ANDROID_HOME/build-tools/26.0.2/zipalign -v 4 emp3-android-sdk-core-apk-release-unsigned.apk emp3-android-sdk-core-apk-release.apk
+- cd $TRAVIS_BUILD_DIR
 deploy:
 - provider: script
   skip_cleanup: true
   script: gradle/snapshot.sh
   on:
     branch:
-    - development
+    - signing-releases
 - provider: script
   skip_cleanup: true
   script: gradle/release.sh && gradle/ghpages.sh
