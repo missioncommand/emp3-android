@@ -22,6 +22,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private static final double latUpperBound = 90.0;
     private static final double longLowerBound = -180.0;
     private static final double longUpperBound = 180.0;
+    private static final String FileUrlPrefix = "file:";
 
     /**
      * this is the default constructor.
@@ -98,7 +99,6 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
             return;
         }
         //check if valid file path and that the file exists
-        final String FileUrlPrefix = "file:"
         if(sURL.toLowerCase().startsWith(FileUrlPrefix)) {
             //remove file prefix from string path to check if file exists on disk
             final File testLocation = new File(sURL.substring(FileUrlPrefix.length()));
