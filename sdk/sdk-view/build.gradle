@@ -2,13 +2,13 @@ apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/androi
 
 apply plugin: 'nebula.maven-base-publish'
 apply plugin: 'nebula.maven-nebula-publish'
+
 dependencies {
     api project(':emp3-android-sdk')
     //compile project     (":service:mirrorcache:service-mirrorcache-api")
     //compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
     implementation 'com.android.support:appcompat-v7'
     api 'mil.army.missioncommand:mil-sym-android-renderer'
-    implementation project(':cmapi')
     implementation project(':geolib')
     testImplementation project(':emp3-android-sdk-core-aar')
     testImplementation 'junit:junit:4.12'
@@ -63,7 +63,7 @@ android {
     // Add sec renderer id and version information to BuildConfig to be retrieved by About class.
     buildTypes.each {
         it.buildConfigField "String", "Implementation_Sec_Renderer_Id", "\"sec.web.renderer:mil-sym-android-renderer ${version_renderer}\""
-        it.buildConfigField "String", "Implementation_Sec_Cmapi_Id", "\"org.cmapi.primitives:common-map-geospatial-notation ${version_cmapi}\""
+        it.buildConfigField "String", "Implementation_Sec_Cmapi_Id", "\"org.cmapi.primitives:common-map-geospatial-notation-kotlin ${cmapiKotlinVersion}\""
     }
 
     build.doLast { task ->
