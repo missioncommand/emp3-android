@@ -55,6 +55,11 @@ before_deploy:
 - jarsigner -verify emp3-android-sdk-core-apk-release-unsigned.apk
 - "${ANDROID_HOME}/build-tools/24.0.2/zipalign -v 4 emp3-android-sdk-core-apk-release-unsigned.apk emp3-android-sdk-core-apk-release.apk"
 - mv emp3-android-sdk-core-apk-release.apk $HOME/release_artifacts
+# Copy other artifacts
+- mv $HOME/geolib/build/libs/*.jar $HOME/release_artifacts
+- mv $HOME/sdk/sdk-view.build/outputs/aar/*.aar $HOME/release_artifacts
+- mv $HOME/sdk/sdk-api/build/libs/*.jar $HOME/release_artifacts
+- mv $HOME/mapengine/worldwind/aar/build/outputs/*.aar $HOME/release_artifacts
 deploy:
   provider: releases
   file: release_artifacts/*
@@ -85,6 +90,11 @@ after_success:
 - $ANDROID_HOME/build-tools/26.0.2/zipalign -v 4 emp3-android-sdk-core-apk-release-unsigned.apk emp3-android-sdk-core-apk-release.apk
 - mv emp3-android-sdk-core-apk-release.apk $TRAVIS_BUILD_DIR/release_artifacts
 # other artifacts
+# Copy other artifacts
+- mv $HOME/geolib/build/libs/*.jar $HOME/release_artifacts
+- mv $HOME/sdk/sdk-view.build/outputs/aar/*.aar $HOME/release_artifacts
+- mv $HOME/sdk/sdk-api/build/libs/*.jar $HOME/release_artifacts
+- mv $HOME/mapengine/worldwind/aar/build/outputs/*.aar $HOME/release_artifacts
 #- mv $TRAVIS_BUILD_DIR/sdk/sdk-api/build/libs/emp3
 - ls $TRAVIS_BUILD_DIR/release_artifacts
 #deploy:
