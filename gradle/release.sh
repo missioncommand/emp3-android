@@ -1,5 +1,17 @@
 #!/bin/bash
 
+function travis_output() {
+    # Outputs console lines to keep travis build from dying.
+    max=10
+    for i in `seq 2 $max`
+    do
+        echo "Output for travis $i"
+        sleep 60
+    done
+}
+
+travis_output &
+
 set +x
 set -e
 
