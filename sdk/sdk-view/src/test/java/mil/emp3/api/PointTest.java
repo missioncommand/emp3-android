@@ -244,6 +244,13 @@ public class PointTest extends TestBase {
         assertEquals(p1.getIconURI(), sampleURL);
     }
 
+    @Test
+    public void testIconURIFileSuccess() throws Exception {
+        final String filePath = "FILE:/data/user/0/mil.emp3.dev_test_sdk/app_KMLS/.storage.emulated.0.Pictures.example.kmz/thumbs/IMG_3430.JPG";
+        p1.setIconURI(filePath);
+        assertEquals(p1.getIconURI(), filePath);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testIconURIInvalidURL() {
         when(URLUtil.isValidUrl(any(String.class))).thenReturn(false);
