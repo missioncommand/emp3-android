@@ -98,7 +98,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
             return;
         }
         //check if valid file path and that the file exists
-        if(sURL.startsWith("file:")) {
+        if(sURL.toLowerCase().startsWith("file:")) {
             final File testLocation = new File(sURL.substring(5));
             if (testLocation.exists()) {
                 ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
