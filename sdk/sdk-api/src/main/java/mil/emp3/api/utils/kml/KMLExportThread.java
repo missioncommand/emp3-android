@@ -405,17 +405,6 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.endTag(null, "Icon");
 
             if (null != oImageInfo) {
-//                if (this.addExtendedData) {
-//                    //Bitmap iconBitmap = oImageInfo.getImage();
-//                    //ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//                    //iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-//                    //byte[] byteArray = byteArrayOutputStream.toByteArray();
-//
-//                    //String encoded = "data:image/png;base64," + Base64.encodeToString(byteArray, Base64.DEFAULT);
-//
-//                    //feature.setProperty(TEMP_DATAURL_STRING, encoded);
-//                }
-
                 xmlSerializer.startTag(null, "hotSpot");
                 xmlSerializer.attribute(null, "x", "" + (float) oImageInfo.getCenterPoint().x / (float) oImageInfo.getImageBounds().width());
                 xmlSerializer.attribute(null, "y", "" + (1.0 - ((float) oImageInfo.getCenterPoint().y / (float) oImageInfo.getImageBounds().height())));
@@ -1427,8 +1416,8 @@ public class KMLExportThread extends java.lang.Thread {
 
     /**
      * Run for a KML Export Thread
-     * There are helper methods in this class to help parse any type of object being exported,w ehther map, overlay, or feature.
-     * Furthermore there are more serialization methods for different features or icons that could be exported as well.
+     * There are helper methods in this class to help parse any type of object being exported, whether map, overlay, or feature.
+     * Furthermore, there are more serialization methods for different features or icons that could be exported as well.
      * This run method handles the overhead logic that kicks off the parsing to generate a string for the KML file.
      */
     @Override
@@ -1438,14 +1427,14 @@ public class KMLExportThread extends java.lang.Thread {
 
             final XmlSerializer xmlSerializer = Xml.newSerializer();
 
-            if (null != this.overlay) {
-                kmlString = export(this.overlay, xmlSerializer);
-            } else if (null != this.feature) {
-                kmlString = export(this.feature, xmlSerializer);
-            } else if (null != this.map) {
-                kmlString = export(this.map, xmlSerializer);
-            }
             try {
+                if (null != this.overlay) {
+                    kmlString = export(this.overlay, xmlSerializer);
+                } else if (null != this.feature) {
+                    kmlString = export(this.feature, xmlSerializer);
+                } else if (null != this.map) {
+                    kmlString = export(this.map, xmlSerializer);
+                }
                 this.callback.exportSuccess(kmlString);
             } catch (final Exception Ex) {
                 Log.e(TAG, "Exception raised in export callback.", Ex);
