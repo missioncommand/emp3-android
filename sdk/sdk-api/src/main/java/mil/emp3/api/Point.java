@@ -93,9 +93,11 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     @Override
     public void setIconURI(final String sURL) {
         if(!android.webkit.URLUtil.isValidUrl(sURL)) {
-            final File testLocation = new File(sURL.substring(5));
-            if(!testLocation.exists()) {
-                throw new IllegalArgumentException("Invalid Input, " + sURL + " is not a valid URL");
+            if(sURL.matches("^file:.*$")) {
+                final File testLocation = new File(sURL.substring(5));
+                if (!testLocation.exists()) {
+                    throw new IllegalArgumentException("Invalid Input, " + sURL + " is not a valid URL");
+                }
             }
         }
         ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
