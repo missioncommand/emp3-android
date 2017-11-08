@@ -21,7 +21,7 @@ publishing.publications {
         artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
             extension "aar.md5"
         }
-        if(file(new File("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-released.apk").exists())) {
+        if(new File("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-released.apk").exists()) {
             artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release.apk") {
                 classifier "release"
                 extension "apk"
