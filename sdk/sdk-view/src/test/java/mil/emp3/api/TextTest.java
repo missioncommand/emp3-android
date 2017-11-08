@@ -54,7 +54,7 @@ public class TextTest extends TestBase{
                      false,
                      Collections.EMPTY_LIST,
                      "",
-                     "",
+                     null,
                      "",
                      new HashMap());
     }
@@ -90,7 +90,7 @@ public class TextTest extends TestBase{
                      false,
                      Collections.EMPTY_LIST,
                      testString,
-                     "",
+                     null,
                      "",
                      new HashMap());
     }
@@ -125,7 +125,7 @@ public class TextTest extends TestBase{
                      false,
                      Collections.EMPTY_LIST,
                      "",
-                     "",
+                     null,
                      "",
                      new HashMap());
     }
