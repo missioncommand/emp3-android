@@ -11,16 +11,6 @@ dependencies {
 
 publishing.publications {
     nebula(MavenPublication) {
-        artifactId = "emp3-android-worldwind"
-        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar") {
-            extension "aar"
-        }
-        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.sha256") {
-            extension "aar.sha256"
-        }
-        artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
-            extension "aar.md5"
-        }
         if(new File("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-released.apk").exists()) {
             artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release.apk") {
                 classifier "release"
@@ -34,6 +24,18 @@ publishing.publications {
                 classifier "release"
                 extension "apk.md5"
             }
+
+            artifactId = "emp3-android-worldwind"
+            artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar") {
+                extension "aar"
+            }
+            artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.sha256") {
+                extension "aar.sha256"
+            }
+            artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
+                extension "aar.md5"
+            }
+
         }
         else {
             artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk") {
@@ -48,6 +50,18 @@ publishing.publications {
                 classifier "release"
                 extension "apk.md5"
             }
+
+            artifactId = "emp3-android-worldwind"
+            artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar") {
+                extension "aar"
+            }
+            artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.sha256") {
+                extension "aar.sha256"
+            }
+            artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
+                extension "aar.md5"
+            }
+
         }
     }
 }
