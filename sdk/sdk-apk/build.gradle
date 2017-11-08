@@ -40,34 +40,67 @@ task releaseChecksum {
 publishing {
     publications {
         nebula(MavenPublication) {
-            artifact "$buildDir/outputs/apk/release/${project.name}-release-unsigned.apk"
+            if(file(new File("$buildDir/outputs/apk/release/${project.name}-release.apk")).exists()) {
+                artifact "$buildDir/outputs/apk/release/${project.name}-release.apk"
 
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
 
-                // inject the compile-time dependencies
-                // TODO: this handles basic case;
-                //       need to find existing plugin and/or add more robustness
-                configurations.compile.allDependencies.each {
-                    if (it.name != 'unspecified') {
+                    // inject the compile-time dependencies
+                    // TODO: this handles basic case;
+                    //       need to find existing plugin and/or add more robustness
+                    configurations.compile.allDependencies.each {
+                        if (it.name != 'unspecified') {
 
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group == 'emp3-android' ? project.ext.group : it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        if (it.version != null) {
-                            //def depVer = project.dependencyManagement.dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"]
-                            dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group == 'emp3-android' ? project.ext.group : it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            if (it.version != null) {
+                                //def depVer = project.dependencyManagement.dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"]
+                                dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
+                            }
                         }
                     }
                 }
-            }
 
-            artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.sha256") {
-                extension "apk.sha256"
-            }
+                artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release.apk.sha256") {
+                    extension "apk.sha256"
+                }
 
-            artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.md5") {
-                extension "apk.md5"
+                artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release.apk.md5") {
+                    extension "apk.md5"
+                }
+            }
+            else {
+                artifact "$buildDir/outputs/apk/release/${project.name}-release-unsigned.apk"
+
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+
+                    // inject the compile-time dependencies
+                    // TODO: this handles basic case;
+                    //       need to find existing plugin and/or add more robustness
+                    configurations.compile.allDependencies.each {
+                        if (it.name != 'unspecified') {
+
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group == 'emp3-android' ? project.ext.group : it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            if (it.version != null) {
+                                //def depVer = project.dependencyManagement.dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"]
+                                dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
+                            }
+                        }
+                    }
+                }
+
+                artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.sha256") {
+                    extension "apk.sha256"
+                }
+
+                artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.md5") {
+                    extension "apk.md5"
+                }
             }
 
         }

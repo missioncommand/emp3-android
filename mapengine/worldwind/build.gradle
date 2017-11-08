@@ -12,7 +12,6 @@ dependencies {
 publishing.publications {
     nebula(MavenPublication) {
         artifactId = "emp3-android-worldwind"
-
         artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar") {
             extension "aar"
         }
@@ -22,17 +21,33 @@ publishing.publications {
         artifact("$buildDir/../aar/build/outputs/aar/mapengine-worldwind-aar-release.aar.md5") {
             extension "aar.md5"
         }
-        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk") {
-            classifier "release"
-            extension "apk"
+        if(file(new File("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-released.apk").exists())) {
+            artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release.apk") {
+                classifier "release"
+                extension "apk"
+            }
+            artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release.apk.sha256") {
+                classifier "release"
+                extension "apk.sha256"
+            }
+            artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release.apk.md5") {
+                classifier "release"
+                extension "apk.md5"
+            }
         }
-        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.sha256") {
-            classifier "release"
-            extension "apk.sha256"
-        }
-        artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.md5") {
-            classifier "release"
-            extension "apk.md5"
+        else {
+            artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk") {
+                classifier "release"
+                extension "apk"
+            }
+            artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.sha256") {
+                classifier "release"
+                extension "apk.sha256"
+            }
+            artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk.md5") {
+                classifier "release"
+                extension "apk.md5"
+            }
         }
     }
 }
