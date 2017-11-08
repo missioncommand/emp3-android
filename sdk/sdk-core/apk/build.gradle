@@ -11,6 +11,18 @@ build.doLast { task ->
     ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
     ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
 }
+
+task releaseChecksum {
+    doLast {
+        def sourceDir = "$projectDir/../sdk-core/build/outputs/apk/release/"
+        def fileName = "emp3-android-sdk-core-release.apk"
+
+        def checksumTarget = sourceDir + fileName
+        ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+        ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
+    }
+}
+
 android {
     defaultConfig {
         applicationId "mil.emp3.emp3_android_sdk_core_apk"

@@ -15,15 +15,15 @@ publishing.publications {
         artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.md5") {
             extension "aar.md5"
         }
-        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk") {
+        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk") {
             classifier "release"
             extension "apk"
         }
-        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk.md5") {
+        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk.md5") {
             classifier "release"
             extension "apk.md5"
         }
-        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk.sha256") {
+        artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk.sha256") {
             classifier "release"
             extension "apk.sha256"
         }

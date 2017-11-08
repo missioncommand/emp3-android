@@ -30,3 +30,14 @@ android {
         it.buildConfigField "String", "Implementation_Map_Engine_Id", "\"worldwind_android_sdk ${engine_version}\""
     }
 }
+
+task releaseChecksum {
+    doLast {
+        def sourceDir = "$projectDir/../sdk-apk/build/outputs/apk/release/"
+        def fileName = "mapengine-worldwind-apk-release.apk"
+
+        def checksumTarget = sourceDir + fileName
+        ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+        ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
+    }
+}
