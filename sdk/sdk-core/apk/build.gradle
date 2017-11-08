@@ -14,7 +14,7 @@ build.doLast { task ->
 
 task releaseChecksum {
     doLast {
-        def sourceDir = "$projectDir/../sdk-core/build/outputs/apk/release/"
+        def sourceDir = "$projectDir/../sdk-core/apk/build/outputs/apk/release/"
         def fileName = "emp3-android-sdk-core-release.apk"
 
         def checksumTarget = sourceDir + fileName
