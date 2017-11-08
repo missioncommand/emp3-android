@@ -19,14 +19,11 @@ dependencies {
     implementation project (":emp3-android-sdk-core-aar")
     implementation project (":emp3-android-sdk-view")
     implementation project (":mapengine-worldwind-aar")
-
-//    implementation         ("mil.army.missioncommand:mirrorcache-api")
-//    implementation         ("mil.army.missioncommand:mirrorcache-impl-core")
-//    implementation         ("mil.army.missioncommand:mirrorcache-impl-transport-ws-nv")
     implementation         ("com.android.support:appcompat-v7")
     implementation         ("com.android.support:design")
     implementation         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
-    compileOnly project    (":cmapi")
+    implementation         (group: cmapiGroupName, name: cmapiJvmArtifactName, version: cmapiKotlinVersion, ext: 'jar')
+    implementation project (":geolib")
     implementation         'com.android.databinding:library:1.3.1'
     implementation         'com.android.databinding:adapters:1.3.1'
 }

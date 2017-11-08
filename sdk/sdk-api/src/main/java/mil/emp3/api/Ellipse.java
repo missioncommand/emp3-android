@@ -1,8 +1,6 @@
 package mil.emp3.api;
 
 
-import mil.emp3.api.abstracts.Feature;
-
 import org.cmapi.primitives.GeoEllipse;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoEllipse;
@@ -10,10 +8,11 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
 
+import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 
 /**
  * This class implements an ellipse feature. It requires a single coordinate that indicates the
@@ -155,25 +154,25 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
                 IGeoPosition pos = new GeoPosition();
 
                 // Compute north.
-                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                GeographicLib.computePositionAt(angle, minorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute east.
                 angle = this.getAzimuth() + 90.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                GeographicLib.computePositionAt(angle, majorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute south.
                 angle = this.getAzimuth() + 180.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                GeographicLib.computePositionAt(angle, minorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute west.
                 angle = this.getAzimuth() + 270.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                GeographicLib.computePositionAt(angle, majorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Now we need to extend the box by ~ 10%.

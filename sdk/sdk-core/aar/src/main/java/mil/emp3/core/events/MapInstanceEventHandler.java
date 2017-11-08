@@ -22,7 +22,7 @@ import mil.emp3.api.interfaces.core.IMapInstanceEventHandler;
 import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.interfaces.core.storage.IClientMapRestoreData;
 import mil.emp3.api.interfaces.core.storage.IClientMapToMapInstance;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.core.mapgridlines.DDMapGridLines;
 import mil.emp3.core.mapgridlines.DMSMapGridLine;
@@ -74,9 +74,9 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
             // The Drag is at an edge. We need to pan the map in that direction.
             IGeoPosition oCenter = this.getCamera();
 
-            double dAzimuth = GeoLibrary.computeBearing(oCenter, oEventPosition);
-            double dDistance = GeoLibrary.computeDistanceBetween(oCenter, oEventPosition) / 20.0; // We move 1/20 the distance.
-            GeoLibrary.computePositionAt(dAzimuth, dDistance, oCenter, oCenter);
+            double dAzimuth = GeographicLib.computeBearing(oCenter, oEventPosition);
+            double dDistance = GeographicLib.computeDistanceBetween(oCenter, oEventPosition) / 20.0; // We move 1/20 the distance.
+            GeographicLib.computePositionAt(dAzimuth, dDistance, oCenter, oCenter);
             this.getCamera().apply(false);    // This needs to be addressed TODO
         }
     }

@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +48,7 @@ import mil.emp3.api.utils.EmpObjectHierarchyEntry;
  */
 
 public class EmpKMLParser {
-    static private String TAG = EmpKMLParser.class.getSimpleName();
+    final static private String TAG = EmpKMLParser.class.getSimpleName();
 
     private EmpObjectHierarchyEntry rootEmpEntry;
 
@@ -72,11 +71,11 @@ public class EmpKMLParser {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse.
      * @throws IOException This exception is raised if it fails to read the string.
      */
-    public EmpKMLParser(String kmlString) throws XmlPullParserException, IOException {
-        XmlPullParser xmlPullParser;
+    public EmpKMLParser(final String kmlString) throws XmlPullParserException, IOException {
+        final XmlPullParser xmlPullParser;
 
-        java.io.StringReader reader = new java.io.StringReader(kmlString);
-        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        final java.io.StringReader reader = new java.io.StringReader(kmlString);
+        final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 
         factory.setNamespaceAware(true);
         xmlPullParser = factory.newPullParser();
@@ -91,7 +90,7 @@ public class EmpKMLParser {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse.
      * @throws IOException This exception is raised if it fails to read the input stream.
      */
-    public EmpKMLParser(InputStream stream) throws XmlPullParserException, IOException {
+    public EmpKMLParser(final InputStream stream) throws XmlPullParserException, IOException {
         this(stream, null);
     }
 
@@ -102,10 +101,10 @@ public class EmpKMLParser {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse.
      * @throws IOException This exception is raised if it fails to read the input stream.
      */
-    public EmpKMLParser(InputStream stream, String documentBase) throws XmlPullParserException, IOException {
-        XmlPullParser xmlPullParser;
+    public EmpKMLParser(final InputStream stream, final String documentBase) throws XmlPullParserException, IOException {
+        final XmlPullParser xmlPullParser;
 
-        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 
         factory.setNamespaceAware(true);
         xmlPullParser = factory.newPullParser();
@@ -115,10 +114,16 @@ public class EmpKMLParser {
         this.parseKML(xmlPullParser);
     }
 
-    private void parseKML(XmlPullParser xmlPullParser) throws XmlPullParserException, IOException{
+    /**
+     * Parses a KML file based on the inputstream in the xmlPullParser
+     * @param xmlPullParser parser that is setup with the input stream to read from
+     * @throws XmlPullParserException This exception is raised if the KML fails to parse.
+     * @throws IOException This exception is raised if it fails to read the input stream.
+     */
+    private void parseKML(final XmlPullParser xmlPullParser) throws XmlPullParserException, IOException{
 
-        KmlParser kmlParser = new KmlParser(xmlPullParser);
-        kmlParser.parseKml();
+        final KmlParser kmlParser = new KmlParser(xmlPullParser);
+        kmlParser.parseKml(this.documentBase);
 
         if (!kmlParser.getContainers().isEmpty()) {
             this.rootEmpEntry = this.processContainer(null, kmlParser.getContainers().get(0));
@@ -127,7 +132,7 @@ public class EmpKMLParser {
         //this.processGroundOverlays(kmlParser.getGroundOverlays(), kmlParser.getStyleMaps(), kmlParser.getStyles());
 
         if (null != this.rootEmpEntry) {
-            IContainer rootContainer = this.rootEmpEntry.getEmpObject();
+            final IContainer rootContainer = this.rootEmpEntry.getEmpObject();
             this.docId = rootContainer.getDataProviderId();
             this.documentName = rootContainer.getName();
             this.documentDescription = rootContainer.getDescription();
@@ -158,10 +163,14 @@ public class EmpKMLParser {
         return this.imageLayerList;
     }
 
-    private void processGroundOverlays(Map<KmlGroundOverlay, Object> groundOverlayMap) {
-        for (KmlGroundOverlay groundOverlay: groundOverlayMap.keySet()) {
+    /**
+     * Convert ground overlays into image overlays so they can be more easily exported later
+     * @param groundOverlayMap A Map containing all the key to overlay values that are to be exported
+     */
+    private void processGroundOverlays(final Map<KmlGroundOverlay, Object> groundOverlayMap) {
+        for (final KmlGroundOverlay groundOverlay: groundOverlayMap.keySet()) {
             try {
-                IImageLayer imageLayer = new ImageLayer(groundOverlay.getImageUrl(), groundOverlay.getLatLngBox());
+                final IImageLayer imageLayer = new ImageLayer(groundOverlay.getImageUrl(), groundOverlay.getLatLngBox());
                 this.imageLayerList.add(imageLayer);
             } catch (MalformedURLException e) {
                 Log.e(TAG, "Failed to create ImageLayer.", e);
@@ -169,9 +178,16 @@ public class EmpKMLParser {
         }
     }
 
-    private EmpObjectHierarchyEntry createEMPOverlay(EmpObjectHierarchyEntry parentEntry, KmlContainer kmlContainer) {
-        IOverlay overlay = new Overlay();
-        EmpObjectHierarchyEntry objectEntry = new EmpObjectHierarchyEntry(parentEntry, overlay,
+    /**
+     * Takes an overlay from the KML container and creates an EmpObjectHierarchyEntry so that
+     * it can be imported into a map through EMP
+     * @param parentEntry the parent entry of the this overlay
+     * @param kmlContainer the KML that contains the overlay to be parsed
+     * @return EmpObjectHierarchyEntry representing the overlay
+     */
+    private EmpObjectHierarchyEntry createEMPOverlay(final EmpObjectHierarchyEntry parentEntry, final KmlContainer kmlContainer) {
+        final IOverlay overlay = new Overlay();
+        final EmpObjectHierarchyEntry objectEntry = new EmpObjectHierarchyEntry(parentEntry, overlay,
                 kmlContainer.getStyleMap(), kmlContainer.getStyles());
 
         if ((null != kmlContainer.getContainerId()) && !kmlContainer.getContainerId().isEmpty()) {
@@ -191,9 +207,16 @@ public class EmpKMLParser {
         return objectEntry;
     }
 
-    private EmpObjectHierarchyEntry processContainer(EmpObjectHierarchyEntry parentEntry,
-            KmlContainer kmlContainer) {
-        EmpObjectHierarchyEntry containerEntry;
+    /**
+     * Takes a container from the KML container and creates an EmpObjectHierarchyEntry so that
+     * it can be imported into a map through EMP.  This will cycle through the contents of the container
+     * @param parentEntry the parent entry of the this container
+     * @param kmlContainer the KML that contains the container to be parsed
+     * @return EmpObjectHierarchyEntry representing the container
+     */
+    private EmpObjectHierarchyEntry processContainer(final EmpObjectHierarchyEntry parentEntry,
+            final KmlContainer kmlContainer) {
+        final EmpObjectHierarchyEntry containerEntry;
 
         if ((null == parentEntry) || parentEntry.isOverlayEntry()) {
             containerEntry = createEMPOverlay(parentEntry, kmlContainer);
@@ -201,11 +224,11 @@ public class EmpKMLParser {
             containerEntry = parentEntry;
         }
 
-        for (KmlContainer childKMLContainer: kmlContainer.getContainerList()) {
+        for (final KmlContainer childKMLContainer: kmlContainer.getContainerList()) {
             processContainer(containerEntry, childKMLContainer);
         }
 
-        for (KmlPlacemark kmlPlacemark: kmlContainer.getPlacemarkList().keySet()) {
+        for (final KmlPlacemark kmlPlacemark: kmlContainer.getPlacemarkList().keySet()) {
             this.createEMPFeatures(containerEntry, kmlPlacemark);
         }
 
@@ -214,11 +237,19 @@ public class EmpKMLParser {
         return containerEntry;
     }
 
-    private void createEMPFeature(EmpObjectHierarchyEntry parentEntry,
-            String placemarkId,
-            KmlGeometry geometry,
-            KmlStyle kmlStyle,
-            Map<String, String> properties) {
+    /**
+     * Creates a feature given the different parameters and adds it to the feature list to be rendered
+     * @param parentEntry parent in the Emp Object Hierarchy
+     * @param placemarkId ID of the object
+     * @param geometry Type of feature
+     * @param kmlStyle attributes of the features style from the KML
+     * @param properties Map containing the properties that were parsed from the KML
+     */
+    private void createEMPFeature(final EmpObjectHierarchyEntry parentEntry,
+            final String placemarkId,
+            final KmlGeometry geometry,
+            final KmlStyle kmlStyle,
+            final Map<String, String> properties) {
         IFeature newFeature = null;
         String name = (properties.containsKey("name")? properties.get("name"): null);
 
@@ -227,8 +258,8 @@ public class EmpKMLParser {
         }
         switch (geometry.getGeometryType()) {
             case "Point": {
-                Point newPoint = new Point();
-                KmlPoint kmlPoint = (KmlPoint) geometry;
+                final Point newPoint = new Point();
+                final KmlPoint kmlPoint = (KmlPoint) geometry;
 
                 if (null == name) {
                     name = "KML Point";
@@ -246,8 +277,8 @@ public class EmpKMLParser {
                             newPoint.setIconURI(kmlStyle.getIconUrl());
                         } catch (MalformedURLException e) {
                             try {
-                                String fullPath = documentBase + File.separator + kmlStyle.getIconUrl().toString();
-                                File file = new File(fullPath);
+                                final String fullPath = documentBase + File.separator + kmlStyle.getIconUrl();
+                                final File file = new File(fullPath);
                                 newPoint.setIconURI(file.toURI().toURL().toString());
                             } catch (MalformedURLException em) {
                                 Log.e(TAG, "createEMPFeature ", e);
@@ -262,18 +293,18 @@ public class EmpKMLParser {
                 break;
             }
             case "LineString": {
-                IGeoColor color;
-                Path line = new Path();
-                KmlLineString kmlLine = (KmlLineString) geometry;
+                final IGeoColor color;
+                final Path line = new Path();
+                final KmlLineString kmlLine = (KmlLineString) geometry;
 
                 if (null == name) {
                     name = "KML LineString";
                 }
 
                 if (null != kmlStyle) {
-                    IGeoStrokeStyle strokeStyle = line.getStrokeStyle();
+                    final IGeoStrokeStyle strokeStyle = line.getStrokeStyle();
                     color = strokeStyle.getStrokeColor();
-                    IGeoColor kmlColor = kmlStyle.getStrokeColor();
+                    final IGeoColor kmlColor = kmlStyle.getStrokeColor();
                     if (kmlColor != null) {
                         color.setAlpha(kmlColor.getAlpha());
                         color.setRed(kmlColor.getRed());
@@ -289,15 +320,15 @@ public class EmpKMLParser {
             }
             case "Polygon": {
                 IGeoColor color;
-                Polygon newPolygon = new Polygon();
-                KmlPolygon kmlPolygon = (KmlPolygon) geometry;
+                final Polygon newPolygon = new Polygon();
+                final KmlPolygon kmlPolygon = (KmlPolygon) geometry;
 
                 if (null == name) {
                     name = "KML Polygon";
                 }
 
                 if ((null != kmlStyle) && kmlStyle.hasFill() && (null != kmlStyle.getFillColor())) {
-                    IGeoFillStyle fillStyle = ((null == newPolygon.getFillStyle())? new GeoFillStyle(): newPolygon.getFillStyle());
+                    final IGeoFillStyle fillStyle = ((null == newPolygon.getFillStyle())? new GeoFillStyle(): newPolygon.getFillStyle());
                     color = fillStyle.getFillColor();
                     color.setAlpha(kmlStyle.getFillColor().getAlpha());
                     color.setRed(kmlStyle.getFillColor().getRed());
@@ -309,9 +340,9 @@ public class EmpKMLParser {
                 }
 
                 if (null != kmlStyle) {
-                    IGeoStrokeStyle strokeStyle = newPolygon.getStrokeStyle();
+                    final IGeoStrokeStyle strokeStyle = newPolygon.getStrokeStyle();
                     color = strokeStyle.getStrokeColor();
-                    IGeoColor kmlColor = kmlStyle.getStrokeColor();
+                    final IGeoColor kmlColor = kmlStyle.getStrokeColor();
                     if (kmlColor != null) {
                         color.setAlpha(kmlColor.getAlpha());
                         color.setRed(kmlColor.getRed());
@@ -326,9 +357,9 @@ public class EmpKMLParser {
                 break;
             }
             case "MultiGeometry": {
-                KmlMultiGeometry multiGeometry = (KmlMultiGeometry) geometry;
+                final KmlMultiGeometry multiGeometry = (KmlMultiGeometry) geometry;
 
-                for (KmlGeometry childGeometry: multiGeometry.getGeometryObject()) {
+                for (final KmlGeometry childGeometry: multiGeometry.getGeometryObject()) {
                     this.createEMPFeature(parentEntry, placemarkId, childGeometry, kmlStyle, properties);
                 }
                 break;
@@ -375,20 +406,25 @@ public class EmpKMLParser {
         }
     }
 
-    private void createEMPFeatures(EmpObjectHierarchyEntry parentEntry,
-            KmlPlacemark kmlPlacemark) {
+    /**
+     * Parses through a KML placemark and generates all the features from it
+     * @param parentEntry The parent which is a container that we are going to cycle through
+     * @param kmlPlacemark The parent feature from the KML that contains any style information
+     */
+    private void createEMPFeatures(final EmpObjectHierarchyEntry parentEntry,
+                                   final KmlPlacemark kmlPlacemark) {
 
-        KmlGeometry geometry = kmlPlacemark.getGeometry();
+        final KmlGeometry geometry = kmlPlacemark.getGeometry();
         KmlStyle kmlStyle = kmlPlacemark.getInlineStyle();
 
         EmpObjectHierarchyEntry containerEntry = parentEntry;
         while (null == kmlStyle && containerEntry != null) {
-            Map<String, String> styleMap = containerEntry.getStyleMap();
-            Map<String, KmlStyle> styles = containerEntry.getStyles();
-            String styleRef = kmlPlacemark.getStyleId();
+            final Map<String, String> styleMap = containerEntry.getStyleMap();
+            final Map<String, KmlStyle> styles = containerEntry.getStyles();
+            final String styleRef = kmlPlacemark.getStyleId();
             kmlStyle = styles.get(styleRef);
             if (null == kmlStyle && styleMap.containsKey(styleRef)) {
-                String styleId = styleMap.get(styleRef);
+                final String styleId = styleMap.get(styleRef);
                 if (styles.containsKey(styleId)) {
                     kmlStyle = styles.get(styleId);
                 }

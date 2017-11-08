@@ -1,8 +1,5 @@
 package mil.emp3.core.editors;
 
-import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
@@ -11,11 +8,9 @@ import java.util.List;
 import mil.emp3.api.Path;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
-import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
 import mil.emp3.api.utils.EmpGeoPosition;
-import mil.emp3.api.utils.GeoLibrary;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 
 /**

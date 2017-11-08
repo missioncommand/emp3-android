@@ -167,6 +167,10 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         }
     }
 
+    /**
+     * Adds the document fields from the parser
+     * @param empKmlParser the parser with the KML information
+     */
     private void setDocumentFields(final EmpKMLParser empKmlParser) {
         if (null != empKmlParser.getDocumentId()) {
             this.setDataProviderId(empKmlParser.getDocumentId());
@@ -181,6 +185,10 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         }
     }
 
+    /**
+     * add all the features and images from the parser after it finished parsing
+     * @param empKmlParser parser with all the KML information parsed
+     */
     private void processParseOutput(final EmpKMLParser empKmlParser) {
         this.featureList.addAll(empKmlParser.getVisibleFeatures());
         this.featureList.addAll(empKmlParser.getInvisibleFeatures());
@@ -197,6 +205,12 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         return this.imageLayerList;
     }
 
+
+    /**
+     * Finds the feature elements that have the provided ID as the dataProvider
+     * @param kmlId The ID of the dataProvider we are searching for
+     * @return a list of features that were provided by the specific KML ID
+     */
     @Override
     public List<IFeature> findKMLId(final String kmlId) {
         final List<IFeature> resultList = new ArrayList<>();

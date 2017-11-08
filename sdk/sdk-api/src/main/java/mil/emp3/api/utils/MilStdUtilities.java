@@ -6,6 +6,8 @@ import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoMilSymbol;
 
+import armyc2.c2sd.renderer.MilStdIconRenderer;
+import armyc2.c2sd.renderer.utilities.ImageInfo;
 import armyc2.c2sd.renderer.utilities.MilStdAttributes;
 import armyc2.c2sd.renderer.utilities.RendererSettings;
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
@@ -55,7 +57,7 @@ public class MilStdUtilities {
         return "";
     }
 
-    public static String getMilStdSinglePointIconURL(final MilStdSymbol feature,
+    public static String getMilStdSinglePointParams(final MilStdSymbol feature,
             MilStdLabelSettingEnum eLabelSetting, java.util.Set<IGeoMilSymbol.Modifier> labelSet,
             SparseArray<String> attributes) {
         int iKey;
@@ -209,7 +211,13 @@ public class MilStdUtilities {
                 }
             }
         }
+        return params;
+    }
 
-        return "http://localhost:8080/mil-sym-service/renderer/image/" + feature.getSymbolCode() + "?" + params;
+    public static String getMilStdSinglePointIconURL(final MilStdSymbol feature,
+            MilStdLabelSettingEnum eLabelSetting, java.util.Set<IGeoMilSymbol.Modifier> labelSet,
+            SparseArray<String> attributes)
+    {
+        return "http://localhost:8080/mil-sym-service/renderer/image/" + feature.getSymbolCode() + "?" + getMilStdSinglePointParams(feature, eLabelSetting, labelSet, attributes);
     }
 }

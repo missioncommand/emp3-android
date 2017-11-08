@@ -15,37 +15,67 @@ public class EmpKMLExporter {
     private static String TAG = EmpKMLExporter.class.getSimpleName();
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
 
+    /**
+     * Private to prevent from calling this class
+     * in a non-static fashion
+     */
     private EmpKMLExporter() {
 
     }
 
-    public static void exportToString(IMap map, boolean extendedData, IEmpExportToStringCallback callback) {
+    /**
+     * This exports the map's overlays, and features displayed on the map to a String,
+     * the contents of which is a proper KML file.  The callback function needs to choose
+     * where to write the string to.
+     * @param map the map that contains the overlays and feature data to be exported.
+     * @param extendedData whether or not extended data should be exported.
+     * @param callback the callback which will provide the KML file created when the thread is finished or report a failure
+     */
+    public static void exportToString(final IMap map, final boolean extendedData, final IEmpExportToStringCallback callback) {
 
         if ((null == map) || (null == callback)) {
             throw new IllegalArgumentException("Parameters can't be null.");
         }
 
-        KMLExportThread exporter = new KMLExportThread(map, extendedData, callback);
+        final KMLExportThread exporter = new KMLExportThread(map, extendedData, callback);
         exporter.start();
     }
 
-    public static void exportToString(IMap map, IOverlay overlay, boolean extendedData, IEmpExportToStringCallback callback) {
+    /**
+     * This exports a specific overlay  displayed on the map to a String,
+     * the contents of which is a proper KML file.  The callback function needs to choose
+     * where to write the string to.
+     * @param map the map that contains the overlays and feature data to be exported.
+     * @param overlay the specific overlay to be stored into the KML file
+     * @param extendedData whether or not extended data should be exported.
+     * @param callback the callback which will provide the KML file created when the thread is finished or report a failure
+     */
+    public static void exportToString(final IMap map, final IOverlay overlay, final boolean extendedData, final IEmpExportToStringCallback callback) {
 
         if ((null == overlay) || (null == callback)) {
             throw new IllegalArgumentException("Parameters can't be null.");
         }
 
-        KMLExportThread exporter = new KMLExportThread(map, overlay, extendedData, callback);
+        final KMLExportThread exporter = new KMLExportThread(map, overlay, extendedData, callback);
         exporter.start();
     }
 
-    public static void exportToString(IMap map, IFeature feature, boolean extendedData, IEmpExportToStringCallback callback) {
+    /**
+     * This exports a specific feature displayed on the map to a String,
+     * the contents of which is a proper KML file.  The callback function needs to choose
+     * where to write the string to.
+     * @param map the map that contains the overlays and feature data to be exported.
+     * @param feature the specific feature to be stored into the KML file
+     * @param extendedData whether or not extended data should be exported.
+     * @param callback the callback which will provide the KML file created when the thread is finished or report a failure
+     */
+    public static void exportToString(final IMap map, final IFeature feature, final boolean extendedData, final IEmpExportToStringCallback callback) {
 
         if ((null == feature) || (null == callback)) {
             throw new IllegalArgumentException("Parameters can't be null.");
         }
 
-        KMLExportThread exporter = new KMLExportThread(map, feature, extendedData, callback);
+        final KMLExportThread exporter = new KMLExportThread(map, feature, extendedData, callback);
         exporter.start();
     }
 }

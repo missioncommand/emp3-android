@@ -1,12 +1,10 @@
 package mil.emp3.api.utils.kml;
 
-import android.content.res.Resources;
 import android.os.Environment;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.Xml;
 
-import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -44,7 +42,6 @@ import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
 import mil.emp3.api.Text;
 import mil.emp3.api.abstracts.Feature;
-import mil.emp3.api.enums.FontSizeModifierEnum;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.global;
 import mil.emp3.api.interfaces.IContainer;
@@ -54,9 +51,7 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.core.ICoreManager;
-import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.utils.ColorUtils;
-import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.api.utils.MilStdUtilities;
 import sec.web.render.SECWebRenderer;
@@ -90,7 +85,7 @@ public class KMLExportThread extends java.lang.Thread {
                 throws IOException;
     }
 
-    private void serializeName(IContainer container, XmlSerializer xmlSerializer)
+    private void serializeName(final IContainer container, final XmlSerializer xmlSerializer)
             throws IOException {
         if ((null != container.getName()) && !container.getName().isEmpty()) {
             xmlSerializer.startTag(null, "name");
@@ -99,7 +94,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void serializeDescription(IContainer container, XmlSerializer xmlSerializer)
+    private void serializeDescription(final IContainer container, final XmlSerializer xmlSerializer)
             throws IOException {
         if ((null != container.getDescription()) && !container.getDescription().isEmpty()) {
             xmlSerializer.startTag(null, "description");
@@ -108,14 +103,14 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void serializeVisibility(IContainer container, XmlSerializer xmlSerializer)
+    private void serializeVisibility(final IContainer container, final XmlSerializer xmlSerializer)
             throws IOException {
         xmlSerializer.startTag(null, "visibility");
         xmlSerializer.text("1");
         xmlSerializer.endTag(null, "visibility");
     }
 
-    private void serializeExtrude(IFeature feature, XmlSerializer xmlSerializer)
+    private void serializeExtrude(final IFeature feature, final XmlSerializer xmlSerializer)
             throws IOException {
         if (feature.getExtrude()) {
             xmlSerializer.startTag(null, "extrude");
@@ -124,14 +119,14 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private String convertPositionsToString(List<IGeoPosition> posList) {
+    private String convertPositionsToString(final List<IGeoPosition> posList) {
         String temp = "";
 
         if (posList.isEmpty()) {
             return temp;
         }
 
-        for (IGeoPosition pos : posList) {
+        for (final IGeoPosition pos : posList) {
             if (!temp.isEmpty()) {
                 temp += " ";
             }
@@ -141,9 +136,9 @@ public class KMLExportThread extends java.lang.Thread {
         return temp;
     }
 
-    private void serializeCoordinates(List<IGeoPosition> posList, XmlSerializer xmlSerializer)
+    private void serializeCoordinates(final List<IGeoPosition> posList, final XmlSerializer xmlSerializer)
             throws IOException {
-        String temp = "";
+        final String temp = "";
 
         if (posList.isEmpty()) {
             return;
@@ -154,7 +149,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "coordinates");
     }
 
-    private void serializeAltitudeMode(IFeature feature, XmlSerializer xmlSerializer)
+    private void serializeAltitudeMode(final IFeature feature, final XmlSerializer xmlSerializer)
             throws IOException {
         xmlSerializer.startTag(null, "altitudeMode");
         switch (feature.getAltitudeMode()) {
@@ -172,7 +167,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "altitudeMode");
     }
 
-    private void serializeIconHotSpot(IGeoIconStyle iconStyle, XmlSerializer xmlSerializer)
+    private void serializeIconHotSpot(final IGeoIconStyle iconStyle, final XmlSerializer xmlSerializer)
             throws IOException {
         if (null != iconStyle) {
             xmlSerializer.startTag(null, "hotSpot");
@@ -184,7 +179,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void serializeHRef(String URI, XmlSerializer xmlSerializer)
+    private void serializeHRef(final String URI, final XmlSerializer xmlSerializer)
             throws IOException {
         if ((null != URI) && !URI.isEmpty()) {
             xmlSerializer.startTag(null, "href");
@@ -193,7 +188,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void serializePlacemark(IFeature feature, XmlSerializer xmlSerializer, KMLExportThread.ISerializePlacemarkGeometry callback)
+    private void serializePlacemark(final IFeature feature, final XmlSerializer xmlSerializer, final KMLExportThread.ISerializePlacemarkGeometry callback)
             throws IOException {
         xmlSerializer.startTag(null, "Placemark");
         if ((null != feature.getDataProviderId()) && !feature.getDataProviderId().isEmpty()) {
@@ -214,17 +209,17 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "Placemark");
     }
 
-    private String getStyleId(IFeature feature) {
+    private String getStyleId(final IFeature feature) {
         String id = ((null != feature.getName()) ? feature.getName() : "feature") + "-style-" + feature.getGeoId();
 
         id = id.replaceAll("[^a-zA-Z0-9_]", "_");
         return id;
     }
 
-    private void serializeColor(IGeoColor color, XmlSerializer xmlSerializer)
+    private void serializeColor(final IGeoColor color, final XmlSerializer xmlSerializer)
             throws IOException {
         xmlSerializer.startTag(null, "color");
-        if (null != null) {
+        if (color != null) {
             xmlSerializer.text(String.format("%02H%02H%02H%02H", (int) (color.getAlpha() * 255), color.getBlue(), color.getGreen(), color.getRed()));
         } else {
             xmlSerializer.text("FF000000");
@@ -232,13 +227,13 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "color");
     }
 
-    private void serializeStrokeStyle(IGeoStrokeStyle strokeStyle, XmlSerializer xmlSerializer)
+    private void serializeStrokeStyle(final IGeoStrokeStyle strokeStyle, final XmlSerializer xmlSerializer)
             throws IOException {
         if (null == strokeStyle) {
             return;
         }
 
-        IGeoColor color = strokeStyle.getStrokeColor();
+        final IGeoColor color = strokeStyle.getStrokeColor();
 
         xmlSerializer.startTag(null, "LineStyle");
         serializeColor(color, xmlSerializer);
@@ -248,13 +243,13 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "LineStyle");
     }
 
-    private void serializeFillStyle(IGeoFillStyle fillStyle, boolean outline, XmlSerializer xmlSerializer)
+    private void serializeFillStyle(final IGeoFillStyle fillStyle, final boolean outline, final XmlSerializer xmlSerializer)
             throws IOException {
         if (null == fillStyle) {
             return;
         }
 
-        IGeoColor color = fillStyle.getFillColor();
+        final IGeoColor color = fillStyle.getFillColor();
 
         xmlSerializer.startTag(null, "PolyStyle");
         serializeColor(color, xmlSerializer);
@@ -281,7 +276,7 @@ public class KMLExportThread extends java.lang.Thread {
         return (null != feature.getStrokeStyle()) || (null != feature.getFillStyle());
     }
 
-    private void exportStylesToKML(final Point feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportStylesToKML(final Point feature, final XmlSerializer xmlSerializer) throws IOException {
         if  (needStyle(feature)) {
             xmlSerializer.startTag(null, "Style");
             xmlSerializer.attribute(null, "id", getStyleId(feature));
@@ -305,7 +300,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportStylesToKML(final Path feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportStylesToKML(final Path feature, final XmlSerializer xmlSerializer) throws IOException {
         if (needStyle(feature)) {
             xmlSerializer.startTag(null, "Style");
             xmlSerializer.attribute(null, "id", getStyleId(feature));
@@ -315,14 +310,14 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportStylesToKML(final Text feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportStylesToKML(final Text feature, final XmlSerializer xmlSerializer) throws IOException {
         if  (needStyle(feature)) {
             xmlSerializer.startTag(null, "Style");
             xmlSerializer.attribute(null, "id", getStyleId(feature));
             xmlSerializer.startTag(null, "IconStyle");
 
             if (feature.getAzimuth() != 0.0) {
-                double heading = global.modulus(feature.getAzimuth() + 360.0, 360.0);
+                final double heading = global.modulus(feature.getAzimuth() + 360.0, 360.0);
                 xmlSerializer.startTag(null, "heading");
                 xmlSerializer.text("" + heading);
                 xmlSerializer.endTag(null, "heading");
@@ -337,7 +332,7 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.startTag(null, "LabelStyle");
 
             if (null != feature.getLabelStyle()) {
-                IGeoColor color = feature.getLabelStyle().getColor();
+                final IGeoColor color = feature.getLabelStyle().getColor();
                 serializeColor(color, xmlSerializer);
             } else {
                 serializeColor(null, xmlSerializer);
@@ -352,7 +347,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportPolygonStylesToKML(final IFeature feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportPolygonStylesToKML(final IFeature feature, final XmlSerializer xmlSerializer) throws IOException {
         if  (polygonNeedStyle(feature)) {
             xmlSerializer.startTag(null, "Style");
             xmlSerializer.attribute(null, "id", getStyleId(feature));
@@ -368,7 +363,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportStylesToKML(final MilStdSymbol feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportStylesToKML(final MilStdSymbol feature, final XmlSerializer xmlSerializer) throws IOException {
         if (feature.isSinglePoint()) {
             xmlSerializer.startTag(null, "Style");
             xmlSerializer.attribute(null, "id", getStyleId(feature));
@@ -381,19 +376,19 @@ public class KMLExportThread extends java.lang.Thread {
             }
 
             if (feature.getAzimuth() != 0.0) {
-                double heading = global.modulus(feature.getAzimuth() + 360.0, 360.0);
+                final double heading = global.modulus(feature.getAzimuth() + 360.0, 360.0);
                 xmlSerializer.startTag(null, "heading");
                 xmlSerializer.text("" + heading);
                 xmlSerializer.endTag(null, "heading");
             }
 
             //String iconURL = "[MIL_SYM_SERVICE_URL]/mil-sym-service/renderer/image/" + feature.getSymbolCode();
-            String iconURL;
+            final String iconURL;
 
             ImageInfo oImageInfo = null;
-            int iconSize = 35;
-            SparseArray<String> saModifiers = feature.getUnitModifiers(this.map.getMilStdLabels());
-            SparseArray<String> saAttr = feature.getAttributes(iconSize,
+            final int iconSize = 35;
+            final SparseArray<String> saModifiers = feature.getUnitModifiers(this.map.getMilStdLabels());
+            final SparseArray<String> saAttr = feature.getAttributes(iconSize,
                     this.map.isSelected(feature),
                     this.map.getSelectedStrokeStyle().getStrokeColor(),
                     this.map.getSelectedLabelStyle().getColor());
@@ -401,7 +396,7 @@ public class KMLExportThread extends java.lang.Thread {
             saAttr.put(MilStdAttributes.UseDashArray, "false");
             saAttr.delete(MilStdAttributes.FontSize); //.put(MilStdAttributes.FontSize, "13"); // 10 pts * 1/72 inch / pts * 96 pixel / inch
 
-            iconURL = MilStdUtilities.getMilStdSinglePointIconURL(feature, eLabelSetting, oLabels, saAttr);
+            iconURL = getMilStdSinglePointIconURL(feature, eLabelSetting, oLabels, saAttr);
 
             oImageInfo = this.oIconRenderer.RenderIcon(feature.getSymbolCode(), ((saModifiers == null) ? this.emptyArray : saModifiers), ((saAttr == null) ? this.emptyArray : saAttr));
 
@@ -410,17 +405,6 @@ public class KMLExportThread extends java.lang.Thread {
             xmlSerializer.endTag(null, "Icon");
 
             if (null != oImageInfo) {
-                if (this.addExtendedData) {
-                    //Bitmap iconBitmap = oImageInfo.getImage();
-                    //ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    //iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                    //byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-                    //String encoded = "data:image/png;base64," + Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-                    //feature.setProperty(TEMP_DATAURL_STRING, encoded);
-                }
-
                 xmlSerializer.startTag(null, "hotSpot");
                 xmlSerializer.attribute(null, "x", "" + (float) oImageInfo.getCenterPoint().x / (float) oImageInfo.getImageBounds().width());
                 xmlSerializer.attribute(null, "y", "" + (1.0 - ((float) oImageInfo.getCenterPoint().y / (float) oImageInfo.getImageBounds().height())));
@@ -435,10 +419,18 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportEmpObjectToKML(final Point feature, XmlSerializer xmlSerializer) throws IOException {
+    protected String getMilStdSinglePointIconURL(final MilStdSymbol                    feature,
+                                                 final MilStdLabelSettingEnum                eLabelSetting,
+                                                 final java.util.Set<IGeoMilSymbol.Modifier> labelSet,
+                                                 final SparseArray<String>                   attributes) throws IOException
+    {
+        return  MilStdUtilities.getMilStdSinglePointIconURL(feature, eLabelSetting, labelSet, attributes);
+    }
+
+    private void exportEmpObjectToKML(final Point feature, final XmlSerializer xmlSerializer) throws IOException {
         serializePlacemark(feature, xmlSerializer, new KMLExportThread.ISerializePlacemarkGeometry() {
             @Override
-            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
+            public void serializeGeometry(final XmlSerializer xmlSerializer) throws IOException {
                 if  (needStyle(feature)){
                     exportStylesToKML(feature, xmlSerializer);
                 }
@@ -452,10 +444,10 @@ public class KMLExportThread extends java.lang.Thread {
         });
     }
 
-    private void exportEmpObjectToKML(final Path feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportEmpObjectToKML(final Path feature, final XmlSerializer xmlSerializer) throws IOException {
         serializePlacemark(feature, xmlSerializer, new KMLExportThread.ISerializePlacemarkGeometry() {
             @Override
-            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
+            public void serializeGeometry(final XmlSerializer xmlSerializer) throws IOException {
                 if  (needStyle(feature)){
                     exportStylesToKML(feature, xmlSerializer);
                 }
@@ -468,10 +460,10 @@ public class KMLExportThread extends java.lang.Thread {
         });
     }
 
-    private void exportEmpObjectToKML(final Text feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportEmpObjectToKML(final Text feature, final XmlSerializer xmlSerializer) throws IOException {
         serializePlacemark(feature, xmlSerializer, new KMLExportThread.ISerializePlacemarkGeometry() {
             @Override
-            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
+            public void serializeGeometry(final XmlSerializer xmlSerializer) throws IOException {
                 if  (needStyle(feature)){
                     exportStylesToKML(feature, xmlSerializer);
                 }
@@ -485,13 +477,21 @@ public class KMLExportThread extends java.lang.Thread {
         });
     }
 
-    public SparseArray<String> getAttributes(final IFeature feature, boolean selected, IGeoColor selectedStrokeColor, IGeoColor selectedTextColor) {
+    /**
+     * Collect the attributes of a feature that is being displayed on the map.
+     * @param feature the feature that we are getting the attributes of
+     * @param selected Whether or not the stroke and text color are being modified by passed in parameter
+     * @param selectedStrokeColor stroke color if choosing to use a specific stroke color instead of actual
+     * @param selectedTextColor text color if choosing to use a specific text color instead of actual
+     * @return String array containing all the attributes and their values
+     */
+    public SparseArray<String> getAttributes(final IFeature feature, final boolean selected, final IGeoColor selectedStrokeColor, final IGeoColor selectedTextColor) {
         IGeoColor strokeColor = null;
         IGeoColor textColor = null;
-        SparseArray<String> oArray = new SparseArray<>();
-        IGeoFillStyle oFillStyle = feature.getFillStyle();
-        IGeoStrokeStyle oStrokeStyle = feature.getStrokeStyle();
-        IGeoLabelStyle labelStyle = feature.getLabelStyle();
+        final SparseArray<String> oArray = new SparseArray<>();
+        final IGeoFillStyle oFillStyle = feature.getFillStyle();
+        final IGeoStrokeStyle oStrokeStyle = feature.getStrokeStyle();
+        final IGeoLabelStyle labelStyle = feature.getLabelStyle();
 
         oArray.put(MilStdAttributes.KeepUnitRatio, "true");
         oArray.put(MilStdAttributes.UseDashArray, "false");
@@ -529,28 +529,28 @@ public class KMLExportThread extends java.lang.Thread {
         return oArray;
     }
 
-    private void exportEmpObjectToKML(final Circle feature, XmlSerializer xmlSerializer) throws IOException {
-        IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
-        String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
-        String coordinateStr = convertPositionsToString(feature.getPositions());
+    private void exportEmpObjectToKML(final Circle feature, final XmlSerializer xmlSerializer) throws IOException {
+        final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
+        final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
+        final String coordinateStr = convertPositionsToString(feature.getPositions());
 
-        double scale = 636000.0;
+        final double scale = 636000.0;
 
-        SparseArray<String> modifiers = new SparseArray<>();
-        SparseArray<String> attributes = getAttributes(feature,
+        final SparseArray<String> modifiers = new SparseArray<>();
+        final SparseArray<String> attributes = getAttributes(feature,
                 KMLExportThread.this.map.isSelected(feature), KMLExportThread.this.map.getSelectedStrokeStyle().getStrokeColor(),
                 KMLExportThread.this.map.getSelectedLabelStyle().getColor());
-        String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+        final String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
 
         modifiers.put(ModifiersTG.AM_DISTANCE, feature.getRadius() + "");
 
-        String kml = SECWebRenderer.RenderSymbol(
+        final String kml = SECWebRenderer.RenderSymbol(
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_CIRCLE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
 
         //Log.i(TAG, kmlTG);
-        int iIndex = kml.indexOf("<Folder");
+        final int iIndex = kml.indexOf("<Folder");
 
         if (iIndex == -1) {
             //xmlSerializer.comment("ERROR: " + kmlTG);
@@ -564,29 +564,29 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportEmpObjectToKML(final Ellipse feature, XmlSerializer xmlSerializer) throws IOException {
-        IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
-        String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
-        String coordinateStr = convertPositionsToString(feature.getPositions());
+    private void exportEmpObjectToKML(final Ellipse feature, final XmlSerializer xmlSerializer) throws IOException {
+        final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
+        final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
+        final String coordinateStr = convertPositionsToString(feature.getPositions());
 
-        double scale = 636000.0;
+        final double scale = 636000.0;
 
-        SparseArray<String> modifiers = new SparseArray<>();
-        SparseArray<String> attributes = getAttributes(feature,
+        final SparseArray<String> modifiers = new SparseArray<>();
+        final SparseArray<String> attributes = getAttributes(feature,
                 KMLExportThread.this.map.isSelected(feature), KMLExportThread.this.map.getSelectedStrokeStyle().getStrokeColor(),
                 KMLExportThread.this.map.getSelectedLabelStyle().getColor());
-        String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+        final String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
 
         modifiers.put(ModifiersTG.AM_DISTANCE, feature.getSemiMinor() + "," + feature.getSemiMajor());
         modifiers.put(ModifiersTG.AN_AZIMUTH, feature.getAzimuth() + "");
 
-        String kml = SECWebRenderer.RenderSymbol(
+        final String kml = SECWebRenderer.RenderSymbol(
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_ELLIPSE----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
 
         //Log.i(TAG, kmlTG);
-        int iIndex = kml.indexOf("<Folder");
+        final int iIndex = kml.indexOf("<Folder");
 
         if (iIndex == -1) {
             //xmlSerializer.comment("ERROR: " + kmlTG);
@@ -600,14 +600,14 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportEmpObjectToKML(final Polygon feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportEmpObjectToKML(final Polygon feature, final XmlSerializer xmlSerializer) throws IOException {
         serializePlacemark(feature, xmlSerializer, new KMLExportThread.ISerializePlacemarkGeometry() {
             @Override
-            public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
+            public void serializeGeometry(final XmlSerializer xmlSerializer) throws IOException {
                 if  (polygonNeedStyle(feature)){
                     exportPolygonStylesToKML(feature, xmlSerializer);
                 }
-                List<IGeoPosition> posList = new ArrayList<>();
+                final List<IGeoPosition> posList = new ArrayList<>();
 
                 // KML needs the first and last position to be equal.
                 posList.addAll(feature.getPositions());
@@ -626,41 +626,41 @@ public class KMLExportThread extends java.lang.Thread {
         });
     }
 
-    private void exportEmpObjectToKML(final GeoJSON geoJSONFeature, XmlSerializer xmlSerializer) throws IOException {
-        for (IFeature feature: geoJSONFeature.getFeatureList()) {
+    private void exportEmpObjectToKML(final GeoJSON geoJSONFeature, final XmlSerializer xmlSerializer) throws IOException {
+        for (final IFeature feature: geoJSONFeature.getFeatureList()) {
             exportEmpObjectToKML(feature, xmlSerializer);
         }
     }
 
-    private void exportEmpObjectToKML(final KML kmlFeature, XmlSerializer xmlSerializer) throws IOException {
-        for (IFeature feature: kmlFeature.getFeatureList()) {
+    private void exportEmpObjectToKML(final KML kmlFeature, final XmlSerializer xmlSerializer) throws IOException {
+        for (final IFeature feature: kmlFeature.getFeatureList()) {
             exportEmpObjectToKML(feature, xmlSerializer);
         }
     }
 
-    private void exportEmpObjectToKML(final Rectangle feature, XmlSerializer xmlSerializer) throws IOException {
-        IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
-        String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
-        String coordinateStr = convertPositionsToString(feature.getPositions());
+    private void exportEmpObjectToKML(final Rectangle feature, final XmlSerializer xmlSerializer) throws IOException {
+        final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
+        final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
+        final String coordinateStr = convertPositionsToString(feature.getPositions());
 
-        double scale = 636000.0;
+        final double scale = 636000.0;
 
-        SparseArray<String> modifiers = new SparseArray<>();
-        SparseArray<String> attributes = getAttributes(feature,
+        final SparseArray<String> modifiers = new SparseArray<>();
+        final SparseArray<String> attributes = getAttributes(feature,
                 KMLExportThread.this.map.isSelected(feature), KMLExportThread.this.map.getSelectedStrokeStyle().getStrokeColor(),
                 KMLExportThread.this.map.getSelectedLabelStyle().getColor());
-        String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+        final String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
 
         modifiers.put(ModifiersTG.AM_DISTANCE, feature.getWidth() + "," + feature.getHeight());
         modifiers.put(ModifiersTG.AN_AZIMUTH, feature.getAzimuth() + "");
 
-        String kml = SECWebRenderer.RenderSymbol(
+        final String kml = SECWebRenderer.RenderSymbol(
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_RECTANGLE--", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
 
         //Log.i(TAG, kmlTG);
-        int iIndex = kml.indexOf("<Folder");
+        final int iIndex = kml.indexOf("<Folder");
 
         if (iIndex == -1) {
             //xmlSerializer.comment("ERROR: " + kmlTG);
@@ -674,29 +674,29 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportEmpObjectToKML(final Square feature, XmlSerializer xmlSerializer) throws IOException {
-        IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
-        String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
-        String coordinateStr = convertPositionsToString(feature.getPositions());
+    private void exportEmpObjectToKML(final Square feature, final XmlSerializer xmlSerializer) throws IOException {
+        final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
+        final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
+        final String coordinateStr = convertPositionsToString(feature.getPositions());
 
-        double scale = 636000.0;
+        final double scale = 636000.0;
 
-        SparseArray<String> modifiers = new SparseArray<>();
-        SparseArray<String> attributes = getAttributes(feature,
+        final SparseArray<String> modifiers = new SparseArray<>();
+        final SparseArray<String> attributes = getAttributes(feature,
                 KMLExportThread.this.map.isSelected(feature), KMLExportThread.this.map.getSelectedStrokeStyle().getStrokeColor(),
                 KMLExportThread.this.map.getSelectedLabelStyle().getColor());
-        String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+        final String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
 
         modifiers.put(ModifiersTG.AM_DISTANCE, feature.getWidth() + "");
         modifiers.put(ModifiersTG.AN_AZIMUTH, feature.getAzimuth() + "");
 
-        String kml = SECWebRenderer.RenderSymbol(
+        final String kml = SECWebRenderer.RenderSymbol(
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_SQUARE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
 
         //Log.i(TAG, kmlTG);
-        int iIndex = kml.indexOf("<Folder");
+        final int iIndex = kml.indexOf("<Folder");
 
         if (iIndex == -1) {
             //xmlSerializer.comment("ERROR: " + kmlTG);
@@ -710,11 +710,11 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void addMilStdModifierExtendedData(final MilStdSymbol feature, XmlSerializer xmlSerializer) throws IOException {
-        java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = feature.getModifiers();
-        java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
+    private void addMilStdModifierExtendedData(final MilStdSymbol feature, final XmlSerializer xmlSerializer) throws IOException {
+        final java.util.HashMap<IGeoMilSymbol.Modifier, String> geoModifiers = feature.getModifiers();
+        final java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
 
-        for (IGeoMilSymbol.Modifier eModifier: oModifierList) {
+        for (final IGeoMilSymbol.Modifier eModifier: oModifierList) {
             xmlSerializer.startTag(null, "Data");
             xmlSerializer.attribute(null, "name", "modifier:" + eModifier.valueOf());
             xmlSerializer.startTag(null, "value");
@@ -724,7 +724,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void addPositionsExtendedData(final List<IGeoPosition> coordList, XmlSerializer xmlSerializer) throws IOException {
+    private void addPositionsExtendedData(final List<IGeoPosition> coordList, final XmlSerializer xmlSerializer) throws IOException {
         String temp = "";
 
         if (coordList.isEmpty()) {
@@ -733,7 +733,7 @@ public class KMLExportThread extends java.lang.Thread {
 
         xmlSerializer.startTag(null, "Data");
         xmlSerializer.attribute(null, "name", "positionList");
-        for (IGeoPosition pos : coordList) {
+        for (final IGeoPosition pos : coordList) {
             if (!temp.isEmpty()) {
                 temp += " ";
             }
@@ -745,7 +745,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "Data");
     }
 
-    private void addColorExtendedData(String prefix, final IGeoColor color, XmlSerializer xmlSerializer) throws IOException {
+    private void addColorExtendedData(final String prefix, final IGeoColor color, final XmlSerializer xmlSerializer) throws IOException {
         if (null == color) {
             return;
         }
@@ -779,7 +779,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "Data");
     }
 
-    private void addStrokeStyleExtendedData(final IGeoStrokeStyle strokeStyle, XmlSerializer xmlSerializer) throws IOException {
+    private void addStrokeStyleExtendedData(final IGeoStrokeStyle strokeStyle, final XmlSerializer xmlSerializer) throws IOException {
         if (null == strokeStyle) {
             return;
         }
@@ -808,7 +808,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "Data");
     }
 
-    private void addFillStyleExtendedData(final IGeoFillStyle fillStyle, XmlSerializer xmlSerializer) throws IOException {
+    private void addFillStyleExtendedData(final IGeoFillStyle fillStyle, final XmlSerializer xmlSerializer) throws IOException {
         if (null == fillStyle) {
             return;
         }
@@ -823,7 +823,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "Data");
     }
 
-    private void addLabelStyleExtendedData(final IGeoLabelStyle labelStyle, XmlSerializer xmlSerializer) throws IOException {
+    private void addLabelStyleExtendedData(final IGeoLabelStyle labelStyle, final XmlSerializer xmlSerializer) throws IOException {
         if (null == labelStyle) {
             return;
         }
@@ -860,7 +860,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "Data");
     }
 
-    private void addIconStyleExtendedData(final IGeoIconStyle iconStyle, XmlSerializer xmlSerializer) throws IOException {
+    private void addIconStyleExtendedData(final IGeoIconStyle iconStyle, final XmlSerializer xmlSerializer) throws IOException {
         if (null == iconStyle) {
             return;
         }
@@ -887,7 +887,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "Data");
     }
 
-    private void addExtendedData(final MilStdSymbol feature, XmlSerializer xmlSerializer) throws IOException {
+    private void addExtendedData(final MilStdSymbol feature, final XmlSerializer xmlSerializer) throws IOException {
         if (!KMLExportThread.this.addExtendedData) {
             return;
         }
@@ -918,7 +918,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "ExtendedData");
     }
 
-    private void addExtendedData(final Circle feature, XmlSerializer xmlSerializer) throws IOException {
+    private void addExtendedData(final Circle feature, final XmlSerializer xmlSerializer) throws IOException {
         if (!KMLExportThread.this.addExtendedData) {
             return;
         }
@@ -947,7 +947,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "ExtendedData");
     }
 
-    private void addExtendedData(final Ellipse feature, XmlSerializer xmlSerializer) throws IOException {
+    private void addExtendedData(final Ellipse feature, final XmlSerializer xmlSerializer) throws IOException {
         if (!KMLExportThread.this.addExtendedData) {
             return;
         }
@@ -990,7 +990,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "ExtendedData");
     }
 
-    private void addExtendedData(final Rectangle feature, XmlSerializer xmlSerializer) throws IOException {
+    private void addExtendedData(final Rectangle feature, final XmlSerializer xmlSerializer) throws IOException {
         if (!KMLExportThread.this.addExtendedData) {
             return;
         }
@@ -1033,7 +1033,7 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "ExtendedData");
     }
 
-    private void addExtendedData(final Square feature, XmlSerializer xmlSerializer) throws IOException {
+    private void addExtendedData(final Square feature, final XmlSerializer xmlSerializer) throws IOException {
         if (!KMLExportThread.this.addExtendedData) {
             return;
         }
@@ -1069,10 +1069,10 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, "ExtendedData");
     }
 
-    private void parseTag(final IFeature feature, XmlPullParser parser, XmlSerializer xmlSerializer)
+    private void parseTag(final IFeature feature, final XmlPullParser parser, final XmlSerializer xmlSerializer)
             throws IOException, XmlPullParserException {
         int eventType = parser.getEventType();
-        String tagName = parser.getName();
+        final String tagName = parser.getName();
 
         xmlSerializer.startTag(null, tagName);
         if (parser.getAttributeCount() > 0) {
@@ -1113,12 +1113,12 @@ public class KMLExportThread extends java.lang.Thread {
         xmlSerializer.endTag(null, tagName);
     }
 
-    private void insertXMLString(final IFeature feature, String xmlString, XmlSerializer xmlSerializer)
+    private void insertXMLString(final IFeature feature, final String xmlString, final XmlSerializer xmlSerializer)
             throws XmlPullParserException, IOException {
-        XmlPullParser parser;
+        final XmlPullParser parser;
 
-        java.io.StringReader reader = new java.io.StringReader(xmlString);
-        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        final java.io.StringReader reader = new java.io.StringReader(xmlString);
+        final XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 
         factory.setNamespaceAware(true);
         parser = factory.newPullParser();
@@ -1133,12 +1133,12 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportEmpObjectToKML(final MilStdSymbol feature, XmlSerializer xmlSerializer) throws IOException {
+    private void exportEmpObjectToKML(final MilStdSymbol feature, final XmlSerializer xmlSerializer) throws IOException {
 
         if (feature.isSinglePoint()) {
             serializePlacemark(feature, xmlSerializer, new KMLExportThread.ISerializePlacemarkGeometry() {
                 @Override
-                public void serializeGeometry(XmlSerializer xmlSerializer) throws IOException {
+                public void serializeGeometry(final XmlSerializer xmlSerializer) throws IOException {
                     exportStylesToKML(feature, xmlSerializer);
 
                     addExtendedData(feature, xmlSerializer);
@@ -1151,22 +1151,22 @@ public class KMLExportThread extends java.lang.Thread {
                 }
             });
         } else {
-            IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
-            String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
-            String coordinateStr = convertPositionsToString(feature.getPositions());
+            final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
+            final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
+            final String coordinateStr = convertPositionsToString(feature.getPositions());
 
-            double scale = 636000.0;
+            final double scale = 636000.0;
 
-            SparseArray<String> modifiers = feature.getTGModifiers(KMLExportThread.this.eLabelSetting);
-            SparseArray<String> attributes = feature.getAttributes(KMLExportThread.this.map.getIconPixelSize(),
+            final SparseArray<String> modifiers = feature.getTGModifiers(KMLExportThread.this.eLabelSetting);
+            final SparseArray<String> attributes = feature.getAttributes(KMLExportThread.this.map.getIconPixelSize(),
                     KMLExportThread.this.map.isSelected(feature), KMLExportThread.this.map.getSelectedStrokeStyle().getStrokeColor(),
                     KMLExportThread.this.map.getSelectedLabelStyle().getColor());
-            String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+            final String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
 
             attributes.put(MilStdAttributes.UseDashArray, "false");
 
 
-            String kmlTG = SECWebRenderer.RenderSymbol(
+            final String kmlTG = SECWebRenderer.RenderSymbol(
                     feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                     feature.getSymbolCode(), coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                     modifiers, attributes, 0, feature.geoMilStdVersionToRendererVersion());
@@ -1176,7 +1176,7 @@ public class KMLExportThread extends java.lang.Thread {
                 dump.write(("\nKML output (" + kmlTG.length() + "):\n" + kmlTG).getBytes());
             }
 
-            int iIndex = kmlTG.indexOf("<Folder");
+            final int iIndex = kmlTG.indexOf("<Folder");
 
             if (iIndex == -1) {
                 //xmlSerializer.comment("ERROR: " + kmlTG);
@@ -1191,7 +1191,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private void exportEmpObjectToKML(final IContainer container, XmlSerializer xmlSerializer) throws IOException {
+    private void exportEmpObjectToKML(final IContainer container, final XmlSerializer xmlSerializer) throws IOException {
         if (container instanceof Point) {
             exportEmpObjectToKML((Point) container, xmlSerializer);
         } else if (container instanceof Path) {
@@ -1257,7 +1257,7 @@ public class KMLExportThread extends java.lang.Thread {
                 }
             }
 
-            for (IGeoBase geoObject : container.getChildren()) {
+            for (final IGeoBase geoObject : container.getChildren()) {
                 if (geoObject instanceof IContainer) {
                     exportEmpObjectToKML((IContainer) geoObject, xmlSerializer);
                 }
@@ -1267,9 +1267,9 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    private String export(IMap map, XmlSerializer xmlSerializer)
+    private String export(final IMap map, final XmlSerializer xmlSerializer)
             throws IOException {
-        StringWriter writer = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
         xmlSerializer.setOutput(writer);
         // start DOCUMENT
@@ -1303,7 +1303,7 @@ public class KMLExportThread extends java.lang.Thread {
 
         //exportStylesToKML(map, xmlSerializer);
 
-        for (IGeoBase geoObject : map.getChildren()) {
+        for (final IGeoBase geoObject : map.getChildren()) {
             if (geoObject instanceof IContainer) {
                 exportEmpObjectToKML((IContainer) geoObject, xmlSerializer);
             }
@@ -1317,10 +1317,10 @@ public class KMLExportThread extends java.lang.Thread {
         return writer.toString();
     }
 
-    private String export(IOverlay overlay, XmlSerializer xmlSerializer)
+    private String export(final IOverlay overlay, final XmlSerializer xmlSerializer)
             throws IOException {
 
-        StringWriter writer = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
         xmlSerializer.setOutput(writer);
         // start DOCUMENT
@@ -1354,7 +1354,7 @@ public class KMLExportThread extends java.lang.Thread {
 
         //exportStylesToKML(overlay, xmlSerializer);
 
-        for (IGeoBase geoObject : overlay.getChildren()) {
+        for (final IGeoBase geoObject : overlay.getChildren()) {
             if (geoObject instanceof IContainer) {
                 exportEmpObjectToKML((IContainer) geoObject, xmlSerializer);
             }
@@ -1368,10 +1368,10 @@ public class KMLExportThread extends java.lang.Thread {
         return writer.toString();
     }
 
-    private String export(IFeature feature, XmlSerializer xmlSerializer)
+    private String export(final IFeature feature, final XmlSerializer xmlSerializer)
             throws IOException {
 
-        StringWriter writer = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
         xmlSerializer.setOutput(writer);
         // start DOCUMENT
@@ -1414,40 +1414,46 @@ public class KMLExportThread extends java.lang.Thread {
         return writer.toString();
     }
 
+    /**
+     * Run for a KML Export Thread
+     * There are helper methods in this class to help parse any type of object being exported, whether map, overlay, or feature.
+     * Furthermore, there are more serialization methods for different features or icons that could be exported as well.
+     * This run method handles the overhead logic that kicks off the parsing to generate a string for the KML file.
+     */
     @Override
     public void run() {
         try {
             String kmlString = "";
 
-            XmlSerializer xmlSerializer = Xml.newSerializer();
+            final XmlSerializer xmlSerializer = Xml.newSerializer();
 
-            if (null != this.overlay) {
-                kmlString = export(this.overlay, xmlSerializer);
-            } else if (null != this.feature) {
-                kmlString = export(this.feature, xmlSerializer);
-            } else if (null != this.map) {
-                kmlString = export(this.map, xmlSerializer);
-            }
             try {
+                if (null != this.overlay) {
+                    kmlString = export(this.overlay, xmlSerializer);
+                } else if (null != this.feature) {
+                    kmlString = export(this.feature, xmlSerializer);
+                } else if (null != this.map) {
+                    kmlString = export(this.map, xmlSerializer);
+                }
                 this.callback.exportSuccess(kmlString);
-            } catch (Exception Ex) {
+            } catch (final Exception Ex) {
                 Log.e(TAG, "Exception raised in export callback.", Ex);
             }
-        } catch (Exception Ex) {
+        } catch (final Exception Ex) {
             this.callback.exportFailed(Ex);
         }
 
         if (this.dumpToFile && (null != dump)) {
             try {
                 dump.flush();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
             } finally {
                 try {
                     if (dump != null) {
                         dump.close();
                     }
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -1455,7 +1461,7 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
-    protected KMLExportThread(IMap map, boolean extendedData, IEmpExportToStringCallback callback) {
+    protected KMLExportThread(final IMap map, final boolean extendedData, final IEmpExportToStringCallback callback) {
         this.map = map;
         this.overlay = null;
         this.feature = null;
@@ -1466,7 +1472,7 @@ public class KMLExportThread extends java.lang.Thread {
         this.setUp();
     }
 
-    protected KMLExportThread(IMap map, IOverlay overlay, boolean extendedData, IEmpExportToStringCallback callback) {
+    protected KMLExportThread(final IMap map, final IOverlay overlay, final boolean extendedData, final IEmpExportToStringCallback callback) {
         this.map = map;
         this.overlay = overlay;
         this.feature = null;
@@ -1477,7 +1483,7 @@ public class KMLExportThread extends java.lang.Thread {
         this.setUp();
     }
 
-    protected KMLExportThread(IMap map, IFeature feature, boolean extendedData, IEmpExportToStringCallback callback) {
+    protected KMLExportThread(final IMap map, final IFeature feature, final boolean extendedData, final IEmpExportToStringCallback callback) {
         this.map = map;
         this.overlay = null;
         this.feature = feature;
@@ -1492,14 +1498,14 @@ public class KMLExportThread extends java.lang.Thread {
         this.setName("KML Export Thread");
 
         if (dumpToFile) {
-            File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File dest = new File(sd, "tg-kml-gen.txt");
+            final File sd = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            final File dest = new File(sd, "tg-kml-gen.txt");
             if (dest.exists()) {
                 dest.delete();
             }
             try {
                 dump = new FileOutputStream(dest);
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 e.printStackTrace();
                 dump = null;
             }

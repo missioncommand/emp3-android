@@ -15,7 +15,7 @@ import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
 import mil.emp3.api.interfaces.IFeature;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.worldwind.MapInstance;
 
 /**
@@ -205,14 +205,14 @@ public class BufferGenerator {
      */
     public static Polygon generateBufferPolygon(Polygon targetFeature, MapInstance mapInstance, double buffer) {
         try {
-            IGeoPosition center = GeoLibrary.getCenter(targetFeature.getPositions());
+            IGeoPosition center = GeographicLib.getCenter(targetFeature.getPositions());
             Polygon bufferPolygon = new Polygon();
             bufferPolygon.setFillStyle( mapInstance.getEmpResources().getBufferFillStyle(mapInstance));
             for(IGeoPosition vertex: targetFeature.getPositions()) {
-                double bearing = GeoLibrary.computeBearing(center, vertex);
-                double distance = GeoLibrary.computeDistanceBetween(center, vertex);
+                double bearing = GeographicLib.computeBearing(center, vertex);
+                double distance = GeographicLib.computeDistanceBetween(center, vertex);
                 distance += buffer;
-                IGeoPosition bufferVetrex = GeoLibrary.computePositionAt(bearing, distance, center);
+                IGeoPosition bufferVetrex = GeographicLib.computePositionAt(bearing, distance, center);
                 bufferPolygon.getPositions().add(bufferVetrex);
             }
             return(bufferPolygon);
@@ -273,16 +273,16 @@ public class BufferGenerator {
 
     public static Polygon generateBufferPolygon(Path targetFeature, MapInstance mapInstance, double buffer) {
         try {
-            IGeoPosition center = GeoLibrary.getCenter(targetFeature.getPositions());
+            IGeoPosition center = GeographicLib.getCenter(targetFeature.getPositions());
             Polygon bufferPolygon = new Polygon();
             bufferPolygon.setFillStyle( mapInstance.getEmpResources().getBufferFillStyle(mapInstance));
             List<IGeoPosition> backward = new ArrayList<>();
             for(IGeoPosition vertex: targetFeature.getPositions()) {
-                double bearing = GeoLibrary.computeBearing(center, vertex);
-                double distance = GeoLibrary.computeDistanceBetween(center, vertex);
+                double bearing = GeographicLib.computeBearing(center, vertex);
+                double distance = GeographicLib.computeDistanceBetween(center, vertex);
 
-                bufferPolygon.getPositions().add(GeoLibrary.computePositionAt(bearing, distance+buffer, center));
-                backward.add(GeoLibrary.computePositionAt(bearing, distance-buffer, center));
+                bufferPolygon.getPositions().add(GeographicLib.computePositionAt(bearing, distance+buffer, center));
+                backward.add(GeographicLib.computePositionAt(bearing, distance-buffer, center));
             }
 
             for(int jj = backward.size(); jj > 0; jj--) {

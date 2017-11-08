@@ -1,7 +1,5 @@
 package mil.emp3.api.abstracts;
 
-import android.util.Log;
-
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
@@ -11,8 +9,8 @@ import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoTimeSpan;
 
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -356,12 +354,9 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      * @param dValue - The azimuth in degrees. Valid range is -360 to 360. Out of range values raises an IllegalArgumentException.
      */
     @Override
-    public void setAzimuth(double dValue) {
-        if (!Double.isNaN(dValue) && dValue >= global.HEADING_MINIMUM && dValue <= global.HEADING_MAXIMUM) {
-            this.getRenderable().setAzimuth(dValue);
-        } else {
-            throw new IllegalArgumentException("Value is out of range (" + dValue + ").");
-        }
+    public void setAzimuth(final double dValue) {
+        validateWithinRange(dValue, global.HEADING_MINIMUM, global.HEADING_MAXIMUM);
+        this.getRenderable().setAzimuth(dValue);
     }
 
     /**
@@ -421,11 +416,11 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     /**
      * Use by sub classes of this class to validate input parameters. If value is not NaN then we return absolute
      * value else thro an exception.
-     * @param dValue
-     * @param message
-     * @return
+     * @param dValue value to be made positive
+     * @param message Message that is returned if dValue is NaN
+     * @return positve value of the passed in value
      */
-    protected double makePositive(double dValue, String message) {
+    protected double makePositive(final double dValue, final String message) {
         if(Double.isNaN(dValue)) {
             throw new IllegalArgumentException(message);
         }
@@ -435,8 +430,41 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     }
 
     /**
+     * Use by subclasses to check if provided value is a positive number
+     * @param dValue value to be checked
+     */
+    protected void validatePositive(final Double dValue) {
+        if (dValue <= 0 || Double.isNaN(dValue)) {
+            throw new IllegalArgumentException("Invalid Input, " + dValue + " is not a positive number");
+        }
+    }
+
+    /**
+     * Validates if a parameter is in a certain range, throws an exception describing the error
+     * if the value being checked or the bounds or NaN
+     * Not inclusive
+     * @param dValue value to be checked
+     * @param minimum lower bound, pass in double.NEGATIVE_INFINITY if no lower bound
+     * @param maximum upper bound, pass in double.POSITIVE_INFINITY if no upper bound
+     */
+    protected void validateWithinRange(final double dValue, final double minimum, final double maximum) {
+        if(Double.isNaN(dValue)) {
+            throw new IllegalArgumentException("invalid parameter, value is not a nubmer");
+        }
+        if(Double.isNaN(minimum) || Double.isNaN(maximum)) {
+               throw new IllegalArgumentException("Invalid parameter, one of the bounds is NaN");
+        }
+        if(minimum > maximum) {
+            throw new IllegalArgumentException("Invalid boundaries, minimum > maximum: " + String.valueOf(minimum) + ">" + String.valueOf(maximum));
+        }
+        if(dValue > maximum || dValue < minimum) {
+            throw new IllegalArgumentException("Invalid parameter, " + String.valueOf(dValue) + " is not between" + String.valueOf(minimum) + " and " + String.valueOf(maximum));
+        }
+    }
+
+    /**
      * Convert selected members to String.
-     * @return
+     * @return String describing the feature including name, extrude, altitude mode and positions
      */
     @Override
     public String toString() {

@@ -14,7 +14,7 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
 import mil.emp3.api.utils.EmpGeoPosition;
-import mil.emp3.api.utils.GeoLibrary;
+import mil.emp3.api.utils.GeographicLib;
 
 /**
  * This class implements the EMP square feature. It accepts one (1) geographic coordinate that places the
@@ -78,11 +78,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
         if(null == oRenderable) {
             throw new IllegalArgumentException("Encapsulated Square must be non-null");
         }
-        this.setWidth(makePositive(this.getWidth(), "Invalid Width. NaN"));
-
-        if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width. " + this.getWidth() + " Minimum supported " + MINIMUM_WIDTH);
-        }
+        this.setWidth(this.getWidth());
         this.setAzimuth(this.getAzimuth());  // For validation.
     }
 
@@ -91,11 +87,8 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
      * @param fValue The width in meters.
      */
     @Override
-    public void setWidth(double fValue) {
-        fValue = makePositive(fValue, "Invalid width. NaN");
-        if(this.getWidth() < MINIMUM_WIDTH) {
-            throw new IllegalArgumentException("Invalid width. " + fValue + " Minimum supported " + MINIMUM_WIDTH);
-        }
+    public void setWidth(final double fValue) {
+        validateWithinRange(fValue, MINIMUM_WIDTH, Double.POSITIVE_INFINITY);
         this.getRenderable().setWidth(fValue);
     }
 
@@ -136,7 +129,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
         distanceToCorner = Math.sqrt(2.0 * halfWidthE2);
 
         // Calculate the top right position.
-        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        GeographicLib.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the bottom right position.
@@ -145,7 +138,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        GeographicLib.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the bottom left position.
@@ -154,7 +147,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        GeographicLib.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         // Calculate the top left position.
@@ -163,7 +156,7 @@ public class Square extends Feature<IGeoSquare> implements IGeoSquare {
             bearing = ((((bearing + azimuth + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
         }
 
-        GeoLibrary.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
+        GeographicLib.computePositionAt(bearing, distanceToCorner, this.getPosition(), pos);
         bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
         return bBox;
