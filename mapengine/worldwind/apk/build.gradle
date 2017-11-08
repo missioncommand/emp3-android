@@ -33,7 +33,7 @@ android {
 
 task releaseChecksum {
     doLast {
-        def sourceDir = "$projectDir/apk/build/outputs/apk/release/"
+        def sourceDir = "$projectDir/build/outputs/apk/release/"
         def fileName = "mapengine-worldwind-apk-release.apk"
 
         def checksumTarget = sourceDir + fileName
