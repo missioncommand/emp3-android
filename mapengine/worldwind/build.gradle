@@ -11,8 +11,9 @@ dependencies {
 
 publishing.publications {
     nebula(MavenPublication) {
-//        artifactId = "emp3-android-worldwind"
+        artifactId = "emp3-android-worldwind"
         if(new File("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-released.apk").exists()) {
+            println("apk exists.")
             artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release.apk") {
                 classifier "release"
                 extension "apk"
@@ -36,6 +37,7 @@ publishing.publications {
             }
         }
         else {
+            println("unsigned")
             artifact("$buildDir/../apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk") {
                 classifier "release"
                 extension "apk"
