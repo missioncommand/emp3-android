@@ -910,6 +910,135 @@ public class KMZExporterTest extends TestBaseSingleMap
         }
     }
 
+    @Test
+    public void exportKmzFeatureWithOutputLocation() throws EMP_Exception
+    {
+
+        final String    kmzFileName  = "TestKmzFileName3.kmz";
+        final boolean[] processEnded = {false};
+        final File[]    kmzFile      = new File[1];
+
+        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
+        // point to the outputdirectory for this test
+        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
+                        .thenReturn(temporaryOutputDirectory);
+
+        EmpKMZExporter.exportToKMZ(this.remoteMap,
+                                   addRandomFeature(this.remoteMap),
+                                   false,
+                                   new IEmpExportToTypeCallBack<File>(){
+                                                                           @Override
+                                                                           public void exportSuccess(File exportObject)
+                                                                           {
+                                                                               kmzFile[0] = exportObject;
+
+                                                                               processEnded[0] = true;
+                                                                           }
+
+                                                                           @Override
+                                                                           public void exportFailed(Exception Ex)
+                                                                           {
+                                                                               processEnded[0] = true;
+                                                                               Assert.fail(Ex.getMessage());
+                                                                           }
+                                                                       },
+                                   new File(outputDirectory, kmzFileName),
+                                   temporaryOutputDirectory);
+
+        while(processEnded[0] == false)
+        {
+            //wait until the thread has ended to verify success
+        }
+
+        Assert.assertTrue(new File(outputDirectory, kmzFileName).exists());
+    }
+
+    @Test
+    public void exportKmzOverlayWithOutputLocation() throws EMP_Exception
+    {
+
+        final String    kmzFileName  = "TestKmzFileName4.kmz";
+        final boolean[] processEnded = {false};
+        final File[]    kmzFile      = new File[1];
+
+        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
+        // point to the outputdirectory for this test
+        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
+                .thenReturn(temporaryOutputDirectory);
+
+        EmpKMZExporter.exportToKMZ(this.remoteMap,
+                                   addOverlayToMap(this.remoteMap),
+                                   false,
+                                   new IEmpExportToTypeCallBack<File>()
+                                                                       {
+                                                                           @Override
+                                                                           public void exportSuccess(File exportObject)
+                                                                           {
+                                                                               kmzFile[0] = exportObject;
+
+                                                                               processEnded[0] = true;
+                                                                           }
+
+                                                                           @Override
+                                                                           public void exportFailed(Exception Ex)
+                                                                           {
+                                                                               processEnded[0] = true;
+                                                                               Assert.fail(Ex.getMessage());
+                                                                           }
+                                                                       },
+                                   new File(outputDirectory, kmzFileName),
+                                   temporaryOutputDirectory);
+
+        while(processEnded[0] == false)
+        {
+            //wait until the thread has ended to verify success
+        }
+
+        Assert.assertTrue(new File(outputDirectory, kmzFileName).exists());
+    }
+
+    @Test
+    public void exportKmzMapWithOutputLocation() throws EMP_Exception
+    {
+        final String    kmzFileName  = "TestKmzFileName5.kmz";
+        final boolean[] processEnded = {false};
+        final File[]    kmzFile      = new File[1];
+
+        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
+        // point to the outputdirectory for this test
+        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
+                       .thenReturn(temporaryOutputDirectory);
+
+        EmpKMZExporter.exportToKMZ(this.remoteMap,
+                                   false,
+                                   new IEmpExportToTypeCallBack<File>()
+                                                                       {
+                                                                           @Override
+                                                                           public void exportSuccess(File exportObject)
+                                                                           {
+                                                                               kmzFile[0] = exportObject;
+
+                                                                               processEnded[0] = true;
+                                                                           }
+
+                                                                           @Override
+                                                                           public void exportFailed(Exception Ex)
+                                                                           {
+                                                                               processEnded[0] = true;
+                                                                               Assert.fail(Ex.getMessage());
+                                                                           }
+                                                                       },
+                                   new File(outputDirectory, kmzFileName),
+                                   temporaryOutputDirectory);
+
+        while(processEnded[0] == false)
+        {
+            //wait until the thread has ended to verify success
+        }
+
+        Assert.assertTrue(new File(outputDirectory, kmzFileName).exists());
+    }
+
     private static IOverlay addOverlayToMap(IMap map) throws EMP_Exception
     {
         final Overlay   overlay      = new Overlay();
