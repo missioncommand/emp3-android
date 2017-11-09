@@ -158,14 +158,10 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
         Rectangle rectangle = new Rectangle(geoRectangle);
     }
 
-    @Test
+    @Test (expected=IllegalArgumentException.class)
     public void negativeHeightWidthRectangle() {
         EmpGeoPosition center = new EmpGeoPosition(0, 0);
         Rectangle rectangle = new Rectangle(center, -400, -300);
-
-        Assert.assertEquals("Width should be positive", 400.0, rectangle.getWidth(), .001);
-        Assert.assertEquals("Height should be positive", 300.0, rectangle.getHeight(), .001);
-
     }
 
     // Square

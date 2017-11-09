@@ -25,7 +25,7 @@ public class SetExtentTest extends TestBaseSingleMap {
 
     @After
     public void tearDown() throws Exception {
-
+        mapInstance.cleanQueues();
     }
 
     private IGeoBounds buildGeoBounds(double south, double north, double west, double east) {

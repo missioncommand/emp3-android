@@ -7,6 +7,8 @@ import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.io.File;
+
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 
@@ -20,6 +22,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private static final double latUpperBound = 90.0;
     private static final double longLowerBound = -180.0;
     private static final double longUpperBound = 180.0;
+    private static final String FileUrlPrefix = "file:";
 
     /**
      * this is the default constructor.
@@ -44,56 +47,26 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
 
     /**
      * This constructor creates a point feature positioned at the coordinates provided.
-     * @param dLat
-     * @param dLong
+     * @param dLat latitude value for constructor
+     * @param dLong longitude value for constructor
      */
     public Point(final double dLat, final double dLong) {
         super(new GeoPoint(), FeatureTypeEnum.GEO_POINT);
         final IGeoPosition oPos = new GeoPosition();
-        validateLatitude(dLat);
+        validateWithinRange(dLat, latLowerBound, latUpperBound);
         oPos.setLatitude(dLat);
 
-        validateLong(dLong);
+        validateWithinRange(dLong, longLowerBound, longUpperBound);
         oPos.setLongitude(dLong);
         this.setPosition(oPos);
     }
 
     /**
      * This constructor creates a point feature from a geo point object.
-     * @param oRenderable
+     * @param oRenderable geopoint to make new point off of
      */
     public Point(final IGeoPoint oRenderable) {
         super(oRenderable, FeatureTypeEnum.GEO_POINT);
-    }
-
-    /**
-     * Validates whether or not a given input is a valid Latitude.
-     * Throws an exception if invalid in order to inform user what the issue was.
-     * @param dLat The latitude to be checked
-     */
-    private void validateLatitude(final Double dLat) {
-        if(!Double.isNaN(dLat)) {
-            if(dLat < latLowerBound || dLat > latUpperBound) {
-                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLat) + " is not in the valid latitude range " + latLowerBound + " to " + latUpperBound);
-            }
-        } else {
-            throw new IllegalArgumentException("Invalid Input, NaN is not a valid latitude");
-        }
-    }
-
-    /**
-     * Validates whether or not a given input is a valid Longitude.
-     * Throws an exception if invalid in order to inform user what the issue was.
-     * @param dLong The longitude to be checked
-     */
-    private void validateLong(final Double dLong) {
-        if(!Double.isNaN(dLong)) {
-            if(dLong < longLowerBound || dLong > longUpperBound) {
-                throw new IllegalArgumentException("Invalid Input, " + String.valueOf(dLong) + " is not in the valid longitude range " + longLowerBound + " to " + longUpperBound);
-            }
-        } else {
-            throw new IllegalArgumentException("Invalid Input, NaN is not a valid longitude");
-        }
     }
 
     /**
@@ -119,12 +92,22 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * @param sURL The URL of the image.
      */
     @Override
-    public void setIconURI(String sURL) {
+    public void setIconURI(final String sURL) {
+        //check if valid web URL
         if(android.webkit.URLUtil.isValidUrl(sURL)) {
             ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
-        } else {
-            throw new IllegalArgumentException("Invalid Input, " + sURL + " is not a valid URL");
+            return;
         }
+        //check if valid file path and that the file exists
+        if(sURL.toLowerCase().startsWith(FileUrlPrefix)) {
+            //remove file prefix from string path to check if file exists on disk
+            final File testLocation = new File(sURL.substring(FileUrlPrefix.length()));
+            if (testLocation.exists()) {
+                ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Invalid Input, " + sURL + " is not a valid URL");
     }
 
     /**
@@ -159,7 +142,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      * resource Id is set the icon style offset is interpreted as a fraction.
      * @param resId The resource ID of the resource.
      */
-    public void setResourceId(int resId) {
+    public void setResourceId(final int resId) {
         this.resourceId = resId;
     }
 
