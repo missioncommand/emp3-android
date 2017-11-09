@@ -752,7 +752,7 @@ public class KMZExporterTest extends TestBaseSingleMap
     @Test
     public void exportKmzTest()
     {
-        final String    kmzFileNameWithoutExtension = "TestKmzFileName";
+        final String    kmzFileNameWithoutExtension = "TestKmzFileName1";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
 
@@ -805,7 +805,7 @@ public class KMZExporterTest extends TestBaseSingleMap
     @Test
     public void exportKmzOverlayTest() throws EMP_Exception
     {
-        final String    kmzFileNameWithoutExtension = "TestKmzFileName";
+        final String    kmzFileNameWithoutExtension = "TestKmzFileName2";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
 
@@ -859,7 +859,7 @@ public class KMZExporterTest extends TestBaseSingleMap
     @Test
     public void exportKmzFeatureTest() throws EMP_Exception
     {
-        final String    kmzFileNameWithoutExtension = "TestKmzFileName";
+        final String    kmzFileNameWithoutExtension = "TestKmzFileName3";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
 
