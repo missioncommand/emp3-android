@@ -31,7 +31,6 @@ build.doLast { task ->
     ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
 }
 
-
 task releaseChecksum {
     doLast {
         def sourceDir = "$projectDir/build/outputs/apk/release/"
