@@ -7,6 +7,8 @@ import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.io.File;
+
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 
@@ -20,6 +22,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     private static final double latUpperBound = 90.0;
     private static final double longLowerBound = -180.0;
     private static final double longUpperBound = 180.0;
+    private static final String FileUrlPrefix = "file:";
 
     /**
      * this is the default constructor.
@@ -90,11 +93,21 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
      */
     @Override
     public void setIconURI(final String sURL) {
+        //check if valid web URL
         if(android.webkit.URLUtil.isValidUrl(sURL)) {
             ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
-        } else {
-            throw new IllegalArgumentException("Invalid Input, " + sURL + " is not a valid URL");
+            return;
         }
+        //check if valid file path and that the file exists
+        if(sURL.toLowerCase().startsWith(FileUrlPrefix)) {
+            //remove file prefix from string path to check if file exists on disk
+            final File testLocation = new File(sURL.substring(FileUrlPrefix.length()));
+            if (testLocation.exists()) {
+                ((IGeoPoint) this.getRenderable()).setIconURI(sURL);
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Invalid Input, " + sURL + " is not a valid URL");
     }
 
     /**
