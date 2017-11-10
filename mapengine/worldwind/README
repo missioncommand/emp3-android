@@ -2,4 +2,5 @@ This repository build and publishes two artifacts:
 
 1. emp3-android-worldwind.aar - Applications can compile with this aar to use the NASA WorldWind Map engine.
 
-2. emp3-android-worldwind.apk - EMP3 SDK class loads the NASE WorldWind map engine from this Map. This is the preferred usage.
+2. emp3-android-worldwind.apk - EMP3 SDK class loads the NASA WorldWind map engine from this Map. This is the preferred usage.
+https://github.com/NASAWorldWind/WorldWindAndroid
