@@ -9,7 +9,6 @@ dependencies {
     //compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
     implementation 'com.android.support:appcompat-v7'
     api 'mil.army.missioncommand:mil-sym-android-renderer'
-kml.java    implementation project(':cmapi')
     implementation project(':geolib')
     testImplementation project(':emp3-android-sdk-core-aar')
     testImplementation 'junit:junit:4.12'

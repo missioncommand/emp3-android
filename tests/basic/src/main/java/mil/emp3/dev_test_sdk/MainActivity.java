@@ -212,6 +212,29 @@ public class MainActivity extends AppCompatActivity
 
     private MainActivity.PlotModeEnum ePlotMode = MainActivity.PlotModeEnum.IDLE;
 
+    public static MilStdSymbol generateMilStdSymbol(String description, UUID uuid, double latitude, double longitude) {
+        java.util.List<IGeoPosition> oPositionList = new java.util.ArrayList<>();
+        IGeoPosition oPosition = new GeoPosition();
+        oPosition.setLatitude(latitude);
+        oPosition.setLongitude(longitude);
+        oPositionList.add(oPosition);
+        MilStdSymbol oSPSymbol = null;
+        try {
+            oSPSymbol = new MilStdSymbol(
+                    IGeoMilSymbol.SymbolStandard.MIL_STD_2525C,
+                    "SFAPMFF--------");
+        } catch (EMP_Exception e) {
+            e.printStackTrace();
+        }
+
+        oSPSymbol.getPositions().clear();
+        oSPSymbol.getPositions().addAll(oPositionList);
+        oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, "My First Icon");
+        oSPSymbol.setName(description);
+        oSPSymbol.setDescription(description);
+        return oSPSymbol;
+    }
+
     class MyComponentCallbacks implements ComponentCallbacks2 {
         @Override
         public void onTrimMemory(int level) {
@@ -1634,14 +1657,20 @@ public class MainActivity extends AppCompatActivity
             {
                 try
                 {
-                    if (this.oCurrentSelectedFeature == null)
-                    {
-                        MainActivity.this.makeToast("Cannot Export Feature unless a feature is selected.");
-                        return true;
-                    }
+//                    if (this.oCurrentSelectedFeature == null)
+//                    {
+//                        MainActivity.this.makeToast("Cannot Export Feature unless a feature is selected.");
+//                        return true;
+//                    }
+
+                    final MilStdSymbol milSymbol = generateMilStdSymbol("TRUCK", UUID.randomUUID(),40, -75);
+                    final Overlay overlay = new Overlay();
+                    overlay.setName("MilStdSymbolTest");
+                    this.map.addOverlay(overlay, true);
+                    overlay.addFeature(milSymbol, true);
 
                     EmpKMZExporter.exportToKMZ(this.map,
-                            this.oCurrentSelectedFeature,
+                                               milSymbol,
                             true,
                             new IEmpExportToTypeCallBack<File>()
                             {
@@ -1665,6 +1694,7 @@ public class MainActivity extends AppCompatActivity
                     Log.e(TAG, "Map export to KMZ failed.", Ex);
                     MainActivity.this.makeToast("Export failed");
                 }
+                return true;
             }
 
 //=======

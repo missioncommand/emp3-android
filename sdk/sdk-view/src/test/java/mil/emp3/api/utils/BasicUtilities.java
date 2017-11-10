@@ -1,7 +1,6 @@
 package mil.emp3.api.utils;
 
 import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 

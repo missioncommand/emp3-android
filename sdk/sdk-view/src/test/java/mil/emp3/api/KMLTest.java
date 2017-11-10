@@ -2,6 +2,7 @@ package mil.emp3.api;
 
 import android.graphics.Color;
 import android.util.Log;
+import android.webkit.URLUtil;
 
 import org.cmapi.primitives.GeoDocument;
 import org.cmapi.primitives.IGeoDocument;
@@ -11,7 +12,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
@@ -22,12 +22,15 @@ import java.util.List;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IImageLayer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * Created by matt.miller@rgi-corp.local on 10/23/17.
  */
-@PrepareForTest({Color.class})
+@PrepareForTest({Color.class, URLUtil.class})
 public class KMLTest extends TestBaseSingleMap {
     private final static String TAG = KMLTest.class.getSimpleName();
     private final URL url = this.getClass().getClassLoader().getResource("kml_samples.kml");
@@ -36,6 +39,8 @@ public class KMLTest extends TestBaseSingleMap {
         setupSingleMap(TAG);
         PowerMockito.mockStatic(Color.class);
         PowerMockito.when(Color.class, "parseColor", Mockito.any(String.class)).thenReturn(0);
+        PowerMockito.mockStatic(URLUtil.class);
+        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
     }
 
     @org.junit.Test
