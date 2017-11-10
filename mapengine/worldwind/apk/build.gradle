@@ -16,17 +16,29 @@ android {
         applicationId "mil.emp3.worldwind"
     }
 
-    build.doLast { task ->
+    // Add map engine id and version information to BuildConfig to be retrieved by About class.
+    buildTypes.each {
+        it.buildConfigField "String", "Implementation_Map_Engine_Id", "\"worldwind_android_sdk ${engine_version}\""
+    }
+}
+
+build.doLast { task ->
+    def sourceDir = "$projectDir/build/outputs/apk/release/"
+    def fileName = "mapengine-worldwind-apk-release-unsigned.apk"
+
+    def checksumTarget = sourceDir + fileName
+    ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+    ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
+}
+
+
+task releaseChecksum {
+    doLast {
         def sourceDir = "$projectDir/build/outputs/apk/release/"
-        def fileName = "mapengine-worldwind-apk-release-unsigned.apk"
+        def fileName = "mapengine-worldwind-apk-release.apk"
 
         def checksumTarget = sourceDir + fileName
         ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
         ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
-    }
-
-    // Add map engine id and version information to BuildConfig to be retrieved by About class.
-    buildTypes.each {
-        it.buildConfigField "String", "Implementation_Map_Engine_Id", "\"worldwind_android_sdk ${engine_version}\""
     }
 }
