@@ -1,7 +1,5 @@
 package mil.emp3.api.utils.kmz;
 
-import android.os.Environment;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,15 +33,15 @@ public final class KMZExportThread extends Thread
      * to a KMZ file given the directory where the KMZ file should be stored as
      * well as the desired name of the KMZ file.
      *
-     * @param map the map that contains the overlays and feature data to be exported.
+     * @param map The map that contains the overlays and feature data to be exported.
      *
-     * @param extendedData whether or not extended data should be exported.
+     * @param extendedData Whether or not extended data should be exported.
      *
-     * @param callback the callback which will provide the KMZ file created when the thread is finished or report a failure
+     * @param callback The callback which will provide the KMZ file created when the thread is finished or report a failure
      *
-     * @param kmzOutputDirectory  the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
+     * @param kmzOutputDirectory  The name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
      *
-     * @param temporaryDirectory the temporary directory location( it is highly recommended to use
+     * @param temporaryDirectory The temporary directory location( it is highly recommended to use
      *                           Context.getExternalFilesDir() as the temporary location).
      *                           The contents of this directory will be removed after export.
      *
@@ -91,17 +89,17 @@ public final class KMZExportThread extends Thread
      * to a KMZ file given the directory where the KMZ file should be stored as
      * well as the desired name of the KMZ file.
      *
-     * @param map the map that contains the overlay to be exported.
+     * @param map The map that contains the overlay to be exported.
      *
-     * @param overlay the overlay to be exported.
+     * @param overlay The overlay to be exported.
      *
-     * @param extendedData whether or not extended data should be exported
+     * @param extendedData Whether or not extended data should be exported
      *
-     * @param callback the callback which will provide the KMZ file created when the thread is finished or report a failure
+     * @param callback The callback which will provide the KMZ file created when the thread is finished or report a failure
      *
-     * @param kmzOutputLocation the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
+     * @param kmzOutputLocation The name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
      *
-     * @param temporaryDirectory the temporary directory location( it is highly recommended to use
+     * @param temporaryDirectory The temporary directory location( it is highly recommended to use
      *                           Context.getExternalFilesDir() as the temporary location).
      *                           The contents of this directory will be removed after export.
      *
@@ -153,19 +151,19 @@ public final class KMZExportThread extends Thread
      * to a KMZ file given the directory where the KMZ file should be stored as
      * well as the desired name of the KMZ file.
      *
-     * @param map the map that contains the overlay to be exported.
+     * @param map The map that contains the overlay to be exported.
      *
-     * @param feature the feature to be exported.
+     * @param feature The feature to be exported.
      *
-     * @param extendedData whether or not extended data should be exported
+     * @param extendedData Whether or not extended data should be exported
      *
-     * @param callback the callback which will provide the KMZ file created when the thread is finished or report a failure
+     * @param callback The callback which will provide the KMZ file created when the thread is finished or report a failure
      *
-     * @param temporaryDirectory the temporary directory location( it is highly recommended to use
+     * @param temporaryDirectory The temporary directory location( it is highly recommended to use
      *                           Context.getExternalFilesDir() as the temporary location).
      *                           The contents of this directory will be removed after export.
      *
-     * @param kmzOutputLocation the name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
+     * @param kmzOutputLocation The name of the exported KMZ File Name (i.e. kmz_file_export.kmz or kmz_file_export).
      */
     protected KMZExportThread(final IMap                           map,
                               final IFeature                       feature,
@@ -220,11 +218,16 @@ public final class KMZExportThread extends Thread
     }
 
     /***
-     * Creates the kmz file
-     * @param kmlStringData
-     * @param temporaryDirectory
-     * @param kmzFile
-     * @param callback
+     * Creates the kmz file and reports the kmz File to the callback.
+     *
+     * @param kmlStringData The kml data in the form of a string
+     *
+     * @param temporaryDirectory The temporary directory location
+     *
+     * @param kmzFile The kmz file location output
+     *
+     * @param callback The callback to report the kmz file to
+     *
      */
     private static void createKMZFile(final String                         kmlStringData,
                                       final File                           temporaryDirectory,
