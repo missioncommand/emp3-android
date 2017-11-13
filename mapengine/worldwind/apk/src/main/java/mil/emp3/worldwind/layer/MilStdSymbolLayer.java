@@ -56,7 +56,9 @@ public class MilStdSymbolLayer extends EmpLayer<MilStdSymbol> {
         }
         for (int iIndex = 0; iIndex < this.singlePointList.size(); iIndex++) {
             renderable = this.singlePointList.get(iIndex);
-            renderable.render(rc);
+            if (renderable.isEnabled()) {
+                renderable.render(rc);
+            }
         }
     }
 
