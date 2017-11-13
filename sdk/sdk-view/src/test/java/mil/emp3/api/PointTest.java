@@ -50,7 +50,7 @@ public class PointTest extends TestBase {
                       1.0,
                       0,
                       new GeoIconStyle(),
-                      "",
+                      null,
                       p2,
                       FeatureTypeEnum.GEO_POINT,
                       Collections.EMPTY_LIST,
@@ -73,7 +73,7 @@ public class PointTest extends TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      "",
+                      null,
                       "",
                       new HashMap());
     }
@@ -112,7 +112,7 @@ public class PointTest extends TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      "",
+                      null,
                       "",
                       new HashMap());
     }
@@ -125,7 +125,7 @@ public class PointTest extends TestBase {
                       1.0,
                       0,
                       new GeoIconStyle(),
-                      "",
+                      null,
                       gp,
                       FeatureTypeEnum.GEO_POINT,
                       Collections.EMPTY_LIST,
@@ -148,7 +148,7 @@ public class PointTest extends TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      "",
+                      null,
                       "",
                       new HashMap());
     }
@@ -166,7 +166,7 @@ public class PointTest extends TestBase {
                       1.0,
                       0,
                       new GeoIconStyle(),
-                      "",
+                      null,
                       geoPoint,
                       FeatureTypeEnum.GEO_POINT,
                       Collections.EMPTY_LIST,
@@ -189,7 +189,7 @@ public class PointTest extends TestBase {
                       false,
                       Collections.EMPTY_LIST,
                       "",
-                      "",
+                      null,
                       "",
                       new HashMap());
     }

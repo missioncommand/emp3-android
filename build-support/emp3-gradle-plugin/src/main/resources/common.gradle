@@ -14,7 +14,11 @@ ext {
     versionFile = new File(project.rootDir, 'gradle.properties')
 
     version_nasa_worldwind_sdk = "0.8.0-SNAPSHOT"
-    version_cmapi              = "${version}"
+    //CMAPI values
+    version_cmapi              = "1.1.0.0"
+    cmapi_group_name           = "cmapi-kotlin"
+    cmapi_jvm_artifact_name    = "cmapi-kotlin-jvm"
+
     version_renderer           = "0.1.34"
     version_mirrorcache        = "0.1.0"
 
@@ -51,7 +55,7 @@ dependencyManagement {
     dependencies {
 
         //CMAPI
-        dependency (group: cmapiGroupName, name: cmapiJvmArtifactName, version: cmapiKotlinVersion, ext: 'jar')
+        dependency ("${cmapi_group_name}:${cmapi_jvm_artifact_name}:${version_cmapi}")
 
         // MISSION_COMMAND-related
         dependency ("mil.army.missioncommand:mil-sym-android-renderer:${version_renderer}")

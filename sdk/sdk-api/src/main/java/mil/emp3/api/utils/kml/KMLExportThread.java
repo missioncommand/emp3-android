@@ -220,7 +220,7 @@ public class KMLExportThread extends java.lang.Thread {
             throws IOException {
         xmlSerializer.startTag(null, "color");
         if (color != null) {
-            xmlSerializer.text(String.format("%02H%02H%02H%02H", (int) (color.getAlpha() * 255), color.getBlue(), color.getGreen(), color.getRed()));
+            xmlSerializer.text(String.format("%02x%02x%02x%02x", (int) (color.getAlpha() * 255), color.getRed(), color.getGreen(), color.getBlue()));
         } else {
             xmlSerializer.text("FF000000");
         }

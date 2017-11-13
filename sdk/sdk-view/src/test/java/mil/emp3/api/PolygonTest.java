@@ -66,7 +66,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        "",
+                        null,
                         "",
                         new HashMap());
     }
@@ -99,7 +99,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        "",
+                        null,
                         "",
                         new HashMap());
     }
@@ -141,7 +141,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        "",
+                        null,
                         "",
                         new HashMap());
     }

@@ -1572,6 +1572,13 @@ public class MainActivity extends AppCompatActivity
             {
                 try
                 {
+                    final String kmzFileName = "KmzMap.kmz";
+                    final File defaultDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                    final File kmzExport = new File(defaultDirectory, String.format("KMZExport%s%s", File.separator, kmzFileName));
+                    if(kmzExport.exists())
+                    {
+                        kmzExport.delete();
+                    }
                     EmpKMZExporter.exportToKMZ(this.map,
                                                true,
                                                new IEmpExportToTypeCallBack<File>(){
@@ -1584,16 +1591,16 @@ public class MainActivity extends AppCompatActivity
                                                                                        public void exportFailed(Exception Ex)
                                                                                        {
                                                                                            Log.e(TAG, "Map export to KMZ failed.", Ex);
-                                                                                           MainActivity.this.makeToast("Export failed");
+                                                                                           MainActivity.this.makeToast(String.format("Export failed %s", Ex.getMessage()));
                                                                                        }
                                                                                    },
                                                getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
-                                               "KmzMap");
+                                    kmzFileName);
                 }
                 catch (Exception Ex)
                 {
                     Log.e(TAG, "Map export to KMZ failed.", Ex);
-                    MainActivity.this.makeToast("Export failed");
+                    MainActivity.this.makeToast(String.format("Export failed %s", Ex.getMessage()));
                 }
 
                 return true;
@@ -1602,6 +1609,13 @@ public class MainActivity extends AppCompatActivity
             {
                 try
                 {
+                    final String kmzFileName = "KmzOverlay.kmz";
+                    final File defaultDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                    final File kmzExport = new File(defaultDirectory, String.format("KMZExport%s%s", File.separator, kmzFileName));
+                    if(kmzExport.exists())
+                    {
+                        kmzExport.delete();
+                    }
                     EmpKMZExporter.exportToKMZ(this.map,
                                                this.oRootOverlay,
                                                true,
@@ -1620,7 +1634,7 @@ public class MainActivity extends AppCompatActivity
                                                                                        }
                                                                                    },
                                                getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
-                                              "KmzOverlay");
+                                               kmzFileName);
                 }
                 catch (Exception Ex)
                 {
@@ -1640,31 +1654,40 @@ public class MainActivity extends AppCompatActivity
                         return true;
                     }
 
-                    EmpKMZExporter.exportToKMZ(this.map,
-                            this.oCurrentSelectedFeature,
-                            true,
-                            new IEmpExportToTypeCallBack<File>()
-                            {
-                                @Override
-                                public void exportSuccess(File exportObject)
-                                {
-                                    MainActivity.this.makeToast("Export Successful");
-                                }
+                    final String kmzFileName = "KmzFeature.kmz";
+                    final File defaultDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                    final File kmzExport = new File(defaultDirectory, String.format("KMZExport%s%s", File.separator, kmzFileName));
+                    if(kmzExport.exists())
+                    {
+                        kmzExport.delete();
+                    }
 
-                                @Override
-                                public void exportFailed(Exception Ex)
-                                {
-                                    Log.e(TAG, "Map export to KMZ failed.", Ex);
-                                    MainActivity.this.makeToast("Export failed");
-                                }
-                            },
-                            getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
-                            "KmzFeature");
+                    EmpKMZExporter.exportToKMZ(this.map,
+                                               this.oCurrentSelectedFeature,
+                                               true,
+                                               new IEmpExportToTypeCallBack<File>()
+                                                                                   {
+                                                                                       @Override
+                                                                                       public void exportSuccess(File exportObject)
+                                                                                       {
+                                                                                           MainActivity.this.makeToast("Export Successful");
+                                                                                       }
+                                                                                       @Override
+                                                                                       public void exportFailed(Exception Ex)
+                                                                                       {
+                                                                                           Log.e(TAG, "Map export to KMZ failed.", Ex);
+                                                                                           MainActivity.this.makeToast("Export failed");
+                                                                                       }
+                                                                                   },
+                                               getApplicationContext().getExternalFilesDir(null).getAbsolutePath(),
+                                               kmzFileName);
                 } catch (Exception Ex)
                 {
                     Log.e(TAG, "Map export to KMZ failed.", Ex);
                     MainActivity.this.makeToast("Export failed");
                 }
+
+                return true;
             }
 
 //=======

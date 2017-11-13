@@ -57,7 +57,7 @@ public class SquareTest extends TestBase {
                        false,
                        Collections.EMPTY_LIST,
                        "",
-                       "",
+                       null,
                        "",
                        new HashMap());
     }
@@ -94,7 +94,7 @@ public class SquareTest extends TestBase {
                        false,
                        Collections.EMPTY_LIST,
                        "",
-                       "",
+                       null,
                        "",
                        new HashMap());
     }
@@ -132,7 +132,7 @@ public class SquareTest extends TestBase {
                        false,
                        Collections.EMPTY_LIST,
                        "",
-                       "",
+                       null,
                        "",
                        new HashMap());
     }

@@ -19,7 +19,7 @@ dependencies {
     implementation project (":emp3-android-sdk-core-aar")
     implementation project (":emp3-android-sdk-view")
     implementation project (":mapengine-worldwind-aar")
-    implementation         (group: cmapiGroupName, name: cmapiJvmArtifactName, version: cmapiKotlinVersion, ext: 'jar')
+    implementation         ("${cmapi_group_name}:${cmapi_jvm_artifact_name}:${version_cmapi}")
     implementation project (":geolib")
 
     implementation         (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
