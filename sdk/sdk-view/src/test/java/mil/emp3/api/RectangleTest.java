@@ -58,7 +58,7 @@ public class RectangleTest extends TestBase{
                           false,
                           Collections.EMPTY_LIST,
                           "",
-                          "",
+                          null,
                           "",
                           new HashMap());
     }
@@ -96,7 +96,7 @@ public class RectangleTest extends TestBase{
                           false,
                           Collections.EMPTY_LIST,
                           "",
-                          "",
+                          null,
                           "",
                           new HashMap());
     }
@@ -137,7 +137,7 @@ public class RectangleTest extends TestBase{
                           false,
                           Collections.EMPTY_LIST,
                           "",
-                          "",
+                          null,
                           "",
                           new HashMap());
     }
