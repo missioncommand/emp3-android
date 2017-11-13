@@ -29,7 +29,7 @@ android {
         it.buildConfigField "String", "Implementation_Title", "\"EMP3 Android ${project.version}\""
         it.buildConfigField "String", "Implementation_Version", "\"${project.revision}\""
         it.buildConfigField "String", "CMAPI_Version", "\"${version_cmapi}\""
-        it.buildConfigField "String", "SEC_Renderer Version", "\"${version_renderer}\""
+        it.buildConfigField "String", "SEC_Renderer_Version", "\"${version_renderer}\""
     }
     compileOptions {
         sourceCompatibility rootProject.sourceCompatibility
