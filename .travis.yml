@@ -36,6 +36,9 @@ before_cache:
 before_deploy:
 # Sign, verify and generate checksums
 #Worldwind mapengine.
+  on:
+    branch:
+      - development
   - gradle/signAndVerify.sh $TRAVIS_BUILD_DIR
                             $TRAVIS_BUILD_DIR/mapengine/worldwind/apk/build/outputs/apk/release/mapengine-worldwind-apk-release-unsigned.apk
                             $TRAVIS_BUILD_DIR/mapengine/worldwind/apk
