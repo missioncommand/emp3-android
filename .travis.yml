@@ -65,7 +65,7 @@ deploy:
   script: gradle/snapshot.sh
   on:
     branch:
-    - build-cleanup
+    - development
 - provider: script
   skip_cleanup: true
   script: gradle/release.sh && gradle/ghpages.sh
