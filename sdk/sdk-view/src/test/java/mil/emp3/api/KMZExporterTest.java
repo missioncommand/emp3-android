@@ -16,29 +16,35 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.robolectric.Shadows;
 import org.xmlpull.v1.XmlSerializer;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.net.MalformedURLException;
+import java.util.Enumeration;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
 import armyc2.c2sd.renderer.utilities.ImageInfo;
 import armyc2.c2sd.renderer.utilities.MilStdAttributes;
 import mil.emp3.api.enums.KMLSEventEnum;
+import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IEmpExportToTypeCallBack;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
-import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.listeners.IKMLSEventListener;
 import mil.emp3.api.utils.BasicUtilities;
 import mil.emp3.api.utils.FileUtility;
 import mil.emp3.api.utils.kmz.EmpKMZExporter;
@@ -56,13 +62,41 @@ import static org.powermock.reflect.Whitebox.setInternalState;
  * @author Jenifer Cochran
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Environment.class, Xml.class, MilStdSymbol.class, MilStdIconRenderer.class, FileUtility.class})
+@PrepareForTest({Environment.class, Xml.class, MilStdSymbol.class, MilStdIconRenderer.class, FileUtility.class, URLUtil.class})
 public class KMZExporterTest extends TestBaseSingleMap
 {
     private final static String TAG = KMZExporterTest.class.getName();
 
     private static File outputDirectory;
     private static File temporaryOutputDirectory;
+
+    class MyMockContext extends MockContext {
+        @Override
+        public File getDir(final String name, final int mode) {
+            Log.d(TAG, "Current Dir " + System.getProperty("user.dir"));
+            return new File(System.getProperty("user.dir") + File.separator + name);
+        }
+    }
+
+    class KMLSServiceListener implements IKMLSEventListener {
+
+        BlockingQueue<KMLSEventEnum> queue;
+
+        KMLSServiceListener(final BlockingQueue<KMLSEventEnum> queue) {
+            this.queue = queue;
+        }
+
+        @Override
+        public void onEvent(final KMLSEvent event) {
+            try {
+                Log.d(TAG, "KMLSServiceListener-onEvent " + event.getEvent().toString() + " status ");
+                queue.put(event.getEvent());
+            } catch (final Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+        }
+    }
+
 
     @Before
     public void setUp() throws Exception
@@ -71,29 +105,28 @@ public class KMZExporterTest extends TestBaseSingleMap
         super.setupSingleMap(TAG);
 
         //Mock the xml serializer
-        XmlSerializer mockSerializer = mock(XmlSerializer.class);
+        final XmlSerializer mockSerializer = Shadows.shadowOf(Xml.newSerializer());
         mockStatic(Xml.class);
         when(Xml.newSerializer()).thenReturn(mockSerializer);
 
-        SparseArray sparseArray = mock(SparseArray.class);
+        final SparseArray sparseArray = mock(SparseArray.class);
         whenNew(SparseArray.class).withNoArguments().thenReturn(sparseArray);
         doNothing().when(sparseArray).put(Mockito.anyInt(), Mockito.anyString());
         when(sparseArray.get(MilStdAttributes.SymbologyStandard)).thenReturn("1");
 
-        Bitmap bitmap = mock(Bitmap.class);
-        android.graphics.Point point = Mockito.mock(android.graphics.Point.class);
+        final Bitmap bitmap = mock(Bitmap.class);
+        final android.graphics.Point point = Mockito.mock(android.graphics.Point.class);
         setInternalState(point, "x", 5);
         setInternalState(point, "y", 5);
-//        whenNew(android.graphics.Point.class).withArguments(point).thenReturn(point);
 
-        Rect rect = Mockito.mock(Rect.class);
+        final Rect rect = Mockito.mock(Rect.class);
         when(rect.width()).thenReturn(5);
         when(rect.height()).thenReturn(5);
-        ImageInfo realImageInfo = new ImageInfo(bitmap, point, rect);
-        ImageInfo imageInfo = Mockito.spy(realImageInfo);
+        final ImageInfo realImageInfo = new ImageInfo(bitmap, point, rect);
+        final ImageInfo imageInfo = Mockito.spy(realImageInfo);
         whenNew(Rect.class).withArguments(rect).thenReturn(rect);
 
-        MilStdIconRenderer milStdIconRenderer = Mockito.mock(MilStdIconRenderer.class);
+        final MilStdIconRenderer milStdIconRenderer = Mockito.mock(MilStdIconRenderer.class);
         mockStatic(MilStdIconRenderer.class);
         when(MilStdIconRenderer.getInstance()).thenReturn(milStdIconRenderer);
         when(milStdIconRenderer.RenderIcon(any(), any(), any())).thenReturn(imageInfo);
@@ -118,27 +151,25 @@ public class KMZExporterTest extends TestBaseSingleMap
         // Make the Environment class return a mocked external storage directory
         when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
                         .thenReturn(outputDirectory);
-
-
     }
 
     @After
     public void tearDown()
     {
-        if(outputDirectory != null && outputDirectory.exists())
-        {
-            FileUtility.deleteFolder(outputDirectory);
-        }
-
-        if(temporaryOutputDirectory != null && temporaryOutputDirectory.exists())
-        {
-            FileUtility.deleteFolder(temporaryOutputDirectory);
-        }
+//        if(outputDirectory != null && outputDirectory.exists())
+//        {
+//            FileUtility.deleteFolder(outputDirectory);
+//        }
+//
+//        if(temporaryOutputDirectory != null && temporaryOutputDirectory.exists())
+//        {
+//            FileUtility.deleteFolder(temporaryOutputDirectory);
+//        }
     }
 
     private static File createTemporaryDirectory() throws IOException
     {
-        File tempDirectory = new File(org.assertj.core.util.Files.temporaryFolderPath() + File.separator + UUID.randomUUID().toString());
+        final File tempDirectory = new File(org.assertj.core.util.Files.temporaryFolderPath() + File.separator + UUID.randomUUID().toString());
         tempDirectory.mkdirs();
         return tempDirectory;
     }
@@ -155,12 +186,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -199,12 +230,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -231,12 +262,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -262,12 +293,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -293,12 +324,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -328,12 +359,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -360,12 +391,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -392,12 +423,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -435,12 +466,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -467,12 +498,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -499,12 +530,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -531,12 +562,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -566,12 +597,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -599,12 +630,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -631,12 +662,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -674,12 +705,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                        @Override
-                                       public void exportSuccess(File exportObject)
+                                       public void exportSuccess(final File exportObject)
                                        {
                                            processEnded[0] = true;
                                        }
                                        @Override
-                                       public void exportFailed(Exception Ex)
+                                       public void exportFailed(final Exception Ex)
                                        {
                                            processEnded[0] = true;
                                            Assert.fail(Ex.getMessage());
@@ -706,12 +737,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -738,12 +769,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -771,12 +802,12 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                processEnded[0] = true;
                                                                            }
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -798,7 +829,7 @@ public class KMZExporterTest extends TestBaseSingleMap
     @Test
     public void exportKmzTest()
     {
-        final String    kmzFileNameWithoutExtension = "TestKmzFileName";
+        final String    kmzFileNameWithoutExtension = "TestKmzFileName1";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
 
@@ -806,14 +837,14 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                kmzFile[0] = exportObject;
                                                                                processEnded[0] = true;
                                                                            }
 
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                 processEnded[0] = true;
                                                                                 Assert.fail(Ex.getMessage());
@@ -851,7 +882,7 @@ public class KMZExporterTest extends TestBaseSingleMap
     @Test
     public void exportKmzOverlayTest() throws EMP_Exception
     {
-        final String    kmzFileNameWithoutExtension = "TestKmzFileName";
+        final String    kmzFileNameWithoutExtension = "TestKmzFileName2";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
 
@@ -860,14 +891,14 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                kmzFile[0] = exportObject;
                                                                                processEnded[0] = true;
                                                                            }
 
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -905,7 +936,7 @@ public class KMZExporterTest extends TestBaseSingleMap
     @Test
     public void exportKmzFeatureTest() throws EMP_Exception
     {
-        final String    kmzFileNameWithoutExtension = "TestKmzFileName";
+        final String    kmzFileNameWithoutExtension = "TestKmzFileName3";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
 
@@ -914,14 +945,14 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                kmzFile[0] = exportObject;
                                                                                processEnded[0] = true;
                                                                            }
 
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -957,8 +988,7 @@ public class KMZExporterTest extends TestBaseSingleMap
     }
 
     @Test
-    public void exportKmzMilSymbolTest() throws EMP_Exception
-    {
+    public void exportKmzMilSymbolTest() throws EMP_Exception, MalformedURLException, InterruptedException {
         final String    kmzFileNameWithoutExtension = "TestKmzFileName";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
@@ -973,14 +1003,14 @@ public class KMZExporterTest extends TestBaseSingleMap
                                    false,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
-                                                                           public void exportSuccess(File exportObject)
+                                                                           public void exportSuccess(final File exportObject)
                                                                            {
                                                                                kmzFile[0] = exportObject;
                                                                                processEnded[0] = true;
                                                                            }
 
                                                                            @Override
-                                                                           public void exportFailed(Exception Ex)
+                                                                           public void exportFailed(final Exception Ex)
                                                                            {
                                                                                processEnded[0] = true;
                                                                                Assert.fail(Ex.getMessage());
@@ -1013,70 +1043,184 @@ public class KMZExporterTest extends TestBaseSingleMap
         {
             Assert.fail("The KMZ export did not return a valid file.  Returned null.");
         }
+
         final int READ_BUFFER_SIZE = 4096;
         final String sourceFilePath = kmzFile[0].getAbsolutePath();
         final String destinationFilePath = kmzFile[0].getParent();
-//        try {
-//            final ZipFile zipFile = new ZipFile(sourceFilePath);
-//            final Enumeration<? extends ZipEntry> entries = zipFile.entries();
-//
-//            while (entries.hasMoreElements()) {
-//                final ZipEntry zipEntry = entries.nextElement();
-//                Log.v(TAG, "zipEntry " + zipEntry.getName());
-//
-//                // If it is a directory then make a new directory and continue.
-//                if(zipEntry.isDirectory()) {
-//                    final File directory = new File(destinationFilePath + File.separator + zipEntry.getName());
-//                    directory.mkdirs();
-//                    continue;
-//                    //It is possible for the zip to not contain the directory but files under the
-//                    //directory.  This case generates the directory in that case
-//                } else if(zipEntry.getName().contains(File.separator)) {
-//                    final File fileInZip = new File(zipEntry.getName());
-//                    final File parent = fileInZip.getParentFile();
-//                    final File zipParent = new File(destinationFilePath + File.separator + parent.getPath());
-//                    if (!zipParent.exists()) {
-//                        zipParent.mkdirs();
-//                    }
-//                }
-//
-//                // Copy the file to destination directory
-//                try (BufferedInputStream bis = new  BufferedInputStream(zipFile.getInputStream(zipEntry));
-//                     BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(destinationFilePath, zipEntry.getName())))) {
-//                    byte[] buf = new byte[READ_BUFFER_SIZE];
-//                    int ii;
-//                    while ((ii = bis.read(buf, 0, READ_BUFFER_SIZE)) != -1) {
-//                        bos.write(buf, 0, ii);
-//                    }
-//                    bos.flush();
-//                }
-//            }
-//
-//        } catch (IOException | SecurityException e) {
-//            Log.e(TAG, "KMLProcessor-unzipKMZFile " + sourceFilePath, e);
-//        }
-//
-//        final File imageFile = new File(destinationFilePath+"/Image/0.PNG");
-//        assertTrue(imageFile.exists());
+        try {
+            final ZipFile zipFile = new ZipFile(sourceFilePath);
+            final Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-        final URL url = this.getClass().getClassLoader().getResource("example.kmz");
-        Log.d(TAG, "url " + url.toString());
-        final MockContext context = new MyMockContext();
-        PowerMockito.mockStatic(URLUtil.class);
-        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
-        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
-        mapInstance.cleanKmls();
+            while (entries.hasMoreElements()) {
+                final ZipEntry zipEntry = entries.nextElement();
+                Log.v(TAG, "zipEntry " + zipEntry.getName());
 
-        final IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
-        mapService.setName("kmzSample_Test");
-        remoteMap.addMapService(mapService);
+                // If it is a directory then make a new directory and continue.
+                if(zipEntry.isDirectory()) {
+                    final File directory = new File(destinationFilePath + File.separator + zipEntry.getName());
+                    directory.mkdirs();
+                    continue;
+                    //It is possible for the zip to not contain the directory but files under the
+                    //directory.  This case generates the directory in that case
+                } else if(zipEntry.getName().contains(File.separator)) {
+                    final File fileInZip = new File(zipEntry.getName());
+                    final File parent = fileInZip.getParentFile();
+                    final File zipParent = new File(destinationFilePath + File.separator + parent.getPath());
+                    if (!zipParent.exists()) {
+                        zipParent.mkdirs();
+                    }
+                }
 
-        int x = 3;
+                // Copy the file to destination directory
+                try (BufferedInputStream bis = new  BufferedInputStream(zipFile.getInputStream(zipEntry));
+                     BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(new File(destinationFilePath, zipEntry.getName())))) {
+                    byte[] buf = new byte[READ_BUFFER_SIZE];
+                    int ii;
+                    while ((ii = bis.read(buf, 0, READ_BUFFER_SIZE)) != -1) {
+                        bos.write(buf, 0, ii);
+                    }
+                    bos.flush();
+                }
+            }
+
+        } catch (IOException | SecurityException e) {
+            Log.e(TAG, "KMLProcessor-unzipKMZFile " + sourceFilePath, e);
+        }
+
+        final File imageFile = new File(destinationFilePath+"/Image/0.PNG");
+        assertTrue(imageFile.exists());
     }
 
+    @Test
+    public void exportKmzFeatureWithOutputLocation() throws EMP_Exception
+    {
 
+        final String    kmzFileName  = "TestKmzFileName3.kmz";
+        final boolean[] processEnded = {false};
+        final File[]    kmzFile      = new File[1];
 
-    private static IOverlay addOverlayToMap(IMap map) throws EMP_Exception
+        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
+        // point to the outputdirectory for this test
+        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
+                        .thenReturn(temporaryOutputDirectory);
+
+        EmpKMZExporter.exportToKMZ(this.remoteMap,
+                                   addRandomFeature(this.remoteMap),
+                                   false,
+                                   new IEmpExportToTypeCallBack<File>(){
+                                                                           @Override
+                                                                           public void exportSuccess(final File exportObject)
+                                                                           {
+                                                                               kmzFile[0] = exportObject;
+
+                                                                               processEnded[0] = true;
+                                                                           }
+
+                                                                           @Override
+                                                                           public void exportFailed(final Exception Ex)
+                                                                           {
+                                                                               processEnded[0] = true;
+                                                                               Assert.fail(Ex.getMessage());
+                                                                           }
+                                                                       },
+                                   new File(outputDirectory, kmzFileName),
+                                   temporaryOutputDirectory);
+
+        while(processEnded[0] == false)
+        {
+            //wait until the thread has ended to verify success
+        }
+
+        Assert.assertTrue(new File(outputDirectory, kmzFileName).exists());
+    }
+
+    @Test
+    public void exportKmzOverlayWithOutputLocation() throws EMP_Exception
+    {
+
+        final String    kmzFileName  = "TestKmzFileName4.kmz";
+        final boolean[] processEnded = {false};
+        final File[]    kmzFile      = new File[1];
+
+        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
+        // point to the outputdirectory for this test
+        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
+                .thenReturn(temporaryOutputDirectory);
+
+        EmpKMZExporter.exportToKMZ(this.remoteMap,
+                                   addOverlayToMap(this.remoteMap),
+                                   false,
+                                   new IEmpExportToTypeCallBack<File>()
+                                                                       {
+                                                                           @Override
+                                                                           public void exportSuccess(File exportObject)
+                                                                           {
+                                                                               kmzFile[0] = exportObject;
+
+                                                                               processEnded[0] = true;
+                                                                           }
+
+                                                                           @Override
+                                                                           public void exportFailed(Exception Ex)
+                                                                           {
+                                                                               processEnded[0] = true;
+                                                                               Assert.fail(Ex.getMessage());
+                                                                           }
+                                                                       },
+                                   new File(outputDirectory, kmzFileName),
+                                   temporaryOutputDirectory);
+
+        while(processEnded[0] == false)
+        {
+            //wait until the thread has ended to verify success
+        }
+
+        Assert.assertTrue(new File(outputDirectory, kmzFileName).exists());
+    }
+
+    @Test
+    public void exportKmzMapWithOutputLocation() throws EMP_Exception
+    {
+        final String    kmzFileName  = "TestKmzFileName5.kmz";
+        final boolean[] processEnded = {false};
+        final File[]    kmzFile      = new File[1];
+
+        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
+        // point to the outputdirectory for this test
+        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
+                       .thenReturn(temporaryOutputDirectory);
+
+        EmpKMZExporter.exportToKMZ(this.remoteMap,
+                                   false,
+                                   new IEmpExportToTypeCallBack<File>()
+                                                                       {
+                                                                           @Override
+                                                                           public void exportSuccess(final File exportObject)
+                                                                           {
+                                                                               kmzFile[0] = exportObject;
+
+                                                                               processEnded[0] = true;
+                                                                           }
+
+                                                                           @Override
+                                                                           public void exportFailed(final Exception Ex)
+                                                                           {
+                                                                               processEnded[0] = true;
+                                                                               Assert.fail(Ex.getMessage());
+                                                                           }
+                                                                       },
+                                   new File(outputDirectory, kmzFileName),
+                                   temporaryOutputDirectory);
+
+        while(processEnded[0] == false)
+        {
+            //wait until the thread has ended to verify success
+        }
+
+        Assert.assertTrue(new File(outputDirectory, kmzFileName).exists());
+    }
+
+    private static IOverlay addOverlayToMap(final IMap map) throws EMP_Exception
     {
         final Overlay   overlay      = new Overlay();
         //add overlay to map
@@ -1085,14 +1229,14 @@ public class KMZExporterTest extends TestBaseSingleMap
         return overlay;
     }
 
-    private static Point addRandomFeature(IOverlay overlay) throws EMP_Exception
+    private static Point addRandomFeature(final IOverlay overlay) throws EMP_Exception
     {
-        Point oPoint = getRandomPoint();
+        final Point oPoint = getRandomPoint();
         overlay.addFeature(oPoint, true);
         return oPoint;
     }
 
-    private static Point addRandomFeature(IMap map) throws EMP_Exception
+    private static Point addRandomFeature(final IMap map) throws EMP_Exception
     {
         final IOverlay overlay = addOverlayToMap(map);
         return addRandomFeature(overlay);
@@ -1109,7 +1253,7 @@ public class KMZExporterTest extends TestBaseSingleMap
         return oPoint;
     }
 
-    private static double getRandomValueBetween(double low, double high)
+    private static double getRandomValueBetween(final double low, final double high)
     {
         return low + (high - low) * new Random().nextDouble();
     }
