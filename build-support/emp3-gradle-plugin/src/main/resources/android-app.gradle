@@ -39,9 +39,3 @@ android {
     }
 }
 
-task testMe {
-    doLast {
-        println "${version_cmapi}"
-    }
-}
-

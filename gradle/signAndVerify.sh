@@ -10,6 +10,4 @@
 jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $1/emp3_keystore.jks -storepass $4 -keypass $5 $2 emp_release_store
 jarsigner -verify $2
 $7/build-tools/26.0.2/zipalign -v 4 $2 $6
-cd $3
 $1/gradlew releaseChecksum
-cd $1
