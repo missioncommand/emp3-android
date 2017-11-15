@@ -4,12 +4,8 @@ android:
   components:
     - tools
     - build-tools-26.0.2
-    - platform-tools
-    # Tools appears twice as per official travis docs.
-    - tools
     - android-23
     - extra-android-m2repository
-    - sys-img-armeabi-v7a-android-23
 jdk:
   - oraclejdk8
 env:
@@ -31,12 +27,6 @@ before_install:
   - openssl aes-256-cbc -K $encrypted_12c8071d2874_key -iv $encrypted_12c8071d2874_iv -in emp3_keystore.jks.enc -out emp3_keystore.jks -d
   - export GRADLE_OPTS="-Dorg.gradle.daemon=false -Xmx3072m $GRADLE_OPTS"
   - export DEFAULT_JVM_OPTS=
-# Emulator Management: Create, Start and Wait
-before_script:
-  - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
 install: true
 script:
   - "./gradlew clean build publishToMavenLocal --refresh-dependencies --stacktrace"
