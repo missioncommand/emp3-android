@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ import mil.emp3.api.utils.FeatureUtils;
 /**
  * TODO add tests similar to DrawFeatureTest
  */
-
+@RunWith(RobolectricTestRunner.class)
 public class EditFeatureTest extends TestBaseMultiMap {
     private static String TAG = EditFeatureTest.class.getSimpleName();
     double latitude = 40.2171;

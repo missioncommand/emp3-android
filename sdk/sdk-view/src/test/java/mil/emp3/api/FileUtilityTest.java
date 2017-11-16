@@ -4,6 +4,8 @@ package mil.emp3.api;
 import org.assertj.core.util.Files;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import mil.emp3.api.utils.FileUtility;
 /**
  * @author Jenifer Cochran
  */
+@RunWith(RobolectricTestRunner.class)
 public class FileUtilityTest
 {
     @Test
