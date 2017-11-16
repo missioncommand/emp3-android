@@ -15,10 +15,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.kxml2.io.KXmlSerializer;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.robolectric.Shadows;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.BufferedInputStream;
@@ -105,7 +105,7 @@ public class KMZExporterTest extends TestBaseSingleMap
         super.setupSingleMap(TAG);
 
         //Mock the xml serializer
-        final XmlSerializer mockSerializer = Shadows.shadowOf(Xml.newSerializer());
+        final XmlSerializer mockSerializer = new KXmlSerializer();
         mockStatic(Xml.class);
         when(Xml.newSerializer()).thenReturn(mockSerializer);
 

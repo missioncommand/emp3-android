@@ -1899,8 +1899,6 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_exportFeatureToKML: {
                 try {
-
-
                     if (null != this.oCurrentSelectedFeature) {
                         EmpKMLExporter.exportToString(this.map, this.oCurrentSelectedFeature, true, new IEmpExportToStringCallback() {
 

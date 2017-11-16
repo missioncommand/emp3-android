@@ -23,6 +23,7 @@ dependencies {
         exclude module: 'objenesis'
     }
     testImplementation 'org.robolectric:robolectric:3.3.2'
+    testCompile "net.sf.kxml:kxml2:2.3.0"
 }
 
 
