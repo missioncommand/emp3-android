@@ -951,11 +951,7 @@ public class KMZExporterTest extends TestBaseSingleMap
         final String    kmzFileName  = "TestKmzFileName4.kmz";
         final boolean[] processEnded = {false};
         final File[]    kmzFile      = new File[1];
-
-        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
-        // point to the outputdirectory for this test
-        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
-                .thenReturn(temporaryOutputDirectory);
+        
 
         EmpKMZExporter.exportToKMZ(this.remoteMap,
                                    addOverlayToMap(this.remoteMap),
@@ -994,11 +990,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         final String    kmzFileName  = "TestKmzFileName5.kmz";
         final boolean[] processEnded = {false};
         final File[]    kmzFile      = new File[1];
-
-        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
-        // point to the outputdirectory for this test
-        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
-                       .thenReturn(temporaryOutputDirectory);
 
         EmpKMZExporter.exportToKMZ(this.remoteMap,
                                    false,
