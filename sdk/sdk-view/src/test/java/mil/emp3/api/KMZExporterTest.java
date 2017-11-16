@@ -951,7 +951,7 @@ public class KMZExporterTest extends TestBaseSingleMap
         final String    kmzFileName  = "TestKmzFileName4.kmz";
         final boolean[] processEnded = {false};
         final File[]    kmzFile      = new File[1];
-        
+
 
         EmpKMZExporter.exportToKMZ(this.remoteMap,
                                    addOverlayToMap(this.remoteMap),
