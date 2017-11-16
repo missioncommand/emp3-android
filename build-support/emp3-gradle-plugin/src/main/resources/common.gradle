@@ -15,8 +15,8 @@ ext {
 
     version_nasa_worldwind_sdk = "0.8.0-SNAPSHOT"
     //CMAPI values
-    version_cmapi              = "1.1.0.0"
-    cmapi_group_name           = "cmapi-kotlin"
+    version_cmapi              = "1.2.0.0"
+    cmapi_group_name           = "cmapi"
     cmapi_jvm_artifact_name    = "cmapi-kotlin-jvm"
 
     version_renderer           = "0.1.34"
