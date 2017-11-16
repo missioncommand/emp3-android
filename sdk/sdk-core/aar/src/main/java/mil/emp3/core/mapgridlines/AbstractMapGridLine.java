@@ -156,7 +156,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.BOLD);
         addLabelStyle(MAIN_GRID_TYPE_LABEL, labelStyle);
     }

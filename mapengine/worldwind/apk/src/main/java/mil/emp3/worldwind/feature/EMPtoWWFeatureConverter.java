@@ -255,7 +255,7 @@ public class EMPtoWWFeatureConverter {
             String fontFamily = labelStyle.getFontFamily();
 
             if ((null == fontFamily) || fontFamily.isEmpty()) {
-                fontFamily = "Ariel";
+                fontFamily = "Arial";
             }
 
             switch (labelStyle.getTypeface()) {
@@ -284,7 +284,7 @@ public class EMPtoWWFeatureConverter {
             }
         } else {
             textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_PIXELS, 0, WorldWind.OFFSET_FRACTION, 0.5);
-            textAttribute.setTypeface(Typeface.create("Ariel", Typeface.NORMAL));
+            textAttribute.setTypeface(Typeface.create("Arial", Typeface.NORMAL));
         }
 
         textAttribute.setTextOffset(textOffset);
