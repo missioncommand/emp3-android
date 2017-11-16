@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,7 +21,7 @@ import mil.emp3.api.utils.ZipUtility;
 /**
  * @author Jenifer Cochran
  */
-
+@RunWith(RobolectricTestRunner.class)
 public class ZipUtilityTest
 {
     private static File tempFile;

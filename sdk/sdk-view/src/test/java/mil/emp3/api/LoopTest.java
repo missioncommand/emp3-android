@@ -5,13 +5,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.UUID;
 
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.utils.BasicUtilities;
-
+@RunWith(RobolectricTestRunner.class)
 public class LoopTest extends TestBaseMultiMap {
     private static String TAG = GetOverlayFeatureTest.class.getSimpleName();
     double latitude = 40.2171;
