@@ -177,7 +177,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     @Override
     public List<IFeature> getGridFeatures() {
         // We need to return the feature in the return list so the map can loop thru it with out us
-        // runing into a multi threading issue.
+        // running into a multi threading issue.
         synchronized (this.featureList) {
             this.returnList.clear();
             if (!this.featureList.isEmpty()) {
@@ -294,7 +294,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
     protected abstract void processViewChange(IEmpBoundingBox mapBounds, ICamera camera, double metersPerPixel);
 
     /**
-     * The sub class must override this method to set the properties of the path. If the grid objject type
+     * The sub class must override this method to set the properties of the path. If the grid object type
      * was not created by the sub class it must call the parent method.
      * @param path              The path feature created by the sub class.
      * @param gridObjectType    The object type provided by the sub class.
@@ -353,7 +353,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
     /**
      * This method returns the character width in pixels for a specified feature type.
-     * @param featureType a sub class defined value used to access the label syle list.
+     * @param featureType a sub class defined value used to access the label style list.
      * @return The width in pixels of a character in the point size defined in the label style.
      */
     protected int getCharacterPixelWidth(String featureType) {
