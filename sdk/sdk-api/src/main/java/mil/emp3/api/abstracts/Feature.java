@@ -371,7 +371,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     @Override
     public void setPathType(PathType pathType) {
         if (null == pathType) {
-            throw new IllegalArgumentException("Parameter ca not be null.");
+            throw new IllegalArgumentException("Parameter cannot be null.");
         }
 
         this.getRenderable().setPathType(pathType);
