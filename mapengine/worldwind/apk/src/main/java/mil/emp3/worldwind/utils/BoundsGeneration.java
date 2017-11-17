@@ -59,14 +59,14 @@ public class BoundsGeneration {
     private static ReentrantLock lock = new ReentrantLock();
 
     /**
-     * If the view holding the Map is being resized then we may end up with GridPoints for many different width and height, so
+     * If the view holding the Map is being resized then we may end up with GridPoints for many different widths and heights, so
      * we must clean up if we have more than max allowed.
      */
     private static int MAX_GRID_POINTS = 10;
 
     /**
      * In the case where two corners of the view show sky, we may have to make an adjustment to the calculated polygon
-     * based on the ration of the side that is on the edge to the two adjacent perpendicular sides.
+     * based on the ratio of the side that is on the edge to the two adjacent perpendicular sides.
      */
     private static int W2H_RATIO_TOLERANCE = 2;
 
