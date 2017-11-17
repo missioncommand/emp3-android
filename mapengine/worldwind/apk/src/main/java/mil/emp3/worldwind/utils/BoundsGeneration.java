@@ -66,7 +66,7 @@ public class BoundsGeneration {
 
     /**
      * In the case where two corners of the view show sky, we may have to make an adjustment to the calculated polygon
-     * based on the ration of the side that is on the edge to the two adjacent perpandicular sides.
+     * based on the ration of the side that is on the edge to the two adjacent perpendicular sides.
      */
     private static int W2H_RATIO_TOLERANCE = 2;
 
