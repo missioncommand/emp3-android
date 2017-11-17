@@ -150,14 +150,14 @@ public class Conversion {
         }
     }
 
-    public static gov.nasa.worldwind.render.Color covertColor(IGeoColor geoColor) {
+    public static gov.nasa.worldwind.render.Color convertColor(IGeoColor geoColor) {
         gov.nasa.worldwind.render.Color wwColor = new gov.nasa.worldwind.render.Color();
 
-        Conversion.covertColor(geoColor, wwColor);
+        Conversion.convertColor(geoColor, wwColor);
         return wwColor;
     }
 
-    public static void covertColor(IGeoColor fromColor, gov.nasa.worldwind.render.Color toColor) {
+    public static void convertColor(IGeoColor fromColor, gov.nasa.worldwind.render.Color toColor) {
         if ((fromColor == null) || (toColor == null)) {
             return;
         }
