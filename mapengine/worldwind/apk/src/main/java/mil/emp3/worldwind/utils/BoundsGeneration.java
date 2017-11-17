@@ -59,7 +59,7 @@ public class BoundsGeneration {
     private static ReentrantLock lock = new ReentrantLock();
 
     /**
-     * If the view hodling the Map is being resized then we may end up with GridPoints for many different width and height, so
+     * If the view holding the Map is being resized then we may end up with GridPoints for many different width and height, so
      * we must clean up if we have more than max allowed.
      */
     private static int MAX_GRID_POINTS = 10;
