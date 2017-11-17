@@ -127,7 +127,7 @@ public class Emp3NavigationListener implements NavigatorListener {
                 switch (oQueueItem.getEvent()) {
                     case VIEW_IN_MOTION:
                         if (this.ePreviousEventSent == MapViewEventEnum.VIEW_MOTION_STOPPED) {
-                            // Its the first in motion event. Dont wait just send it.
+                            // Its the first in motion event. Don't wait just send it.
                             this.oCameraHandler.generateViewChangeEvent(oQueueItem.getEvent(), oQueueItem.getCamera(), oQueueItem.getEmpBoundingArea());
                             this.ePreviousEventSent = oQueueItem.getEvent();
                             nextEventTime = System.currentTimeMillis() + this.iEventWaitDelay;
@@ -142,7 +142,7 @@ public class Emp3NavigationListener implements NavigatorListener {
                     case VIEW_MOTION_STOPPED:
                         // I removed the if to force it to send all the stop events we get.
                         //if (this.ePreviousEventSent == MapViewEventEnum.VIEW_IN_MOTION) {
-                            // Its the first in motion stopped event. Dont wait just send it.
+                            // Its the first in motion stopped event. Don't wait just send it.
                             this.oCameraHandler.generateViewChangeEvent(oQueueItem.getEvent(), oQueueItem.getCamera(), oQueueItem.getEmpBoundingArea());
                             this.ePreviousEventSent = oQueueItem.getEvent();
                             nextEventTime = System.currentTimeMillis() + this.iEventWaitDelay;

@@ -170,7 +170,7 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
             Button symbolButton = (Button) view.findViewById(R.id.update_symbol);
             if(!showOnly) {
                 symbolButton.setOnClickListener(v -> {
-                    // Launch the symbol_properties_dialogi, might want to make it modal
+                    // Launch the symbol_properties_dialog, might want to make it modal
                 });
             } else {
                 symbolButton.setVisibility(View.GONE);
@@ -187,7 +187,7 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
             Button bufferButton = (Button) view.findViewById(R.id.update_buffer);
             if(!showOnly) {
                 bufferButton.setOnClickListener(v -> {
-                    // Launch the symbol_properties_dialogi, might want to make it modal
+                    // Launch the symbol_properties_dialog, might want to make it modal
                     feature.setBuffer(Double.parseDouble(bufferValue.getText().toString()));
                     feature.apply();
                 });

@@ -110,7 +110,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
             if ((event.getEvent() == UserInteractionEventEnum.DRAG) &&
                     (this.getLockMode() == MapMotionLockEnum.SMART_LOCK) &&
                     (event.getCoordinate() != null)) {
-                // If we are in smart lock mode we need to check if the event is at the eadge.
+                // If we are in smart lock mode we need to check if the event is at the edge.
                 this.processDragEvent(event.getLocation(), event.getCoordinate(), event.getStartCoordinate());
             }
         }
@@ -199,7 +199,7 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
             if ((event.getEvent() == UserInteractionEventEnum.DRAG) &&
                     (this.getLockMode() == MapMotionLockEnum.SMART_LOCK) &&
                     (event.getCoordinate() != null)) {
-                // If we are in smart lock mode we need to check if the event is at the eadge.
+                // If we are in smart lock mode we need to check if the event is at the edge.
                 this.processDragEvent(event.getLocation(), event.getCoordinate(), event.getStartCoordinate());
             }
         }

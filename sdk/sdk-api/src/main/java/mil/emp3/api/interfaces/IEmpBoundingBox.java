@@ -30,7 +30,7 @@ public interface IEmpBoundingBox extends IGeoBounds {
 
     /**
      * This method returns the western longitude.
-     * @return The western logintude in degrees.
+     * @return The western longitude in degrees.
      */
     double west();
 

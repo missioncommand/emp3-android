@@ -20,7 +20,7 @@ public class PointFeature extends FeatureRenderableMapping<Point> {
     }
 
     /**
-     * Create a Circle using bufer value as Radius
+     * Create a Circle using buffer value as Radius
      * @param buffer The buffer distance in meters.
      * @return
      */

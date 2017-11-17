@@ -32,7 +32,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
     }
 
     /**
-     * This constructor creates a Point feature wherer the icon is accessed via the URL provided. The caller must
+     * This constructor creates a Point feature where the icon is accessed via the URL provided. The caller must
      * provide the GeoIconStyle to correctly position the icon.
      * @param sURL A valid URL
      */
@@ -148,7 +148,7 @@ public class Point extends Feature<IGeoPoint> implements IGeoPoint {
 
     /**
      * This method is an ANDROID ONLY method. It returns the resource Id.
-     * @return The resojurce Id or 0 if one has not been set.
+     * @return The resource Id or 0 if one has not been set.
      */
     public int getResourceId() {
         return this.resourceId;
