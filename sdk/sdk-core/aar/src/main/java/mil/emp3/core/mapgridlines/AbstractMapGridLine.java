@@ -176,7 +176,7 @@ public abstract class AbstractMapGridLine implements IMapGridLines, ICoreMapGrid
 
     @Override
     public List<IFeature> getGridFeatures() {
-        // We need to return the feature in the return list so the map can loop thru it with out us
+        // We need to return the feature in the return list so the map can loop thru it without us
         // running into a multi threading issue.
         synchronized (this.featureList) {
             this.returnList.clear();
