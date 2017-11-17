@@ -69,7 +69,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(12.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(UTM_GRID_ZONE_LABEL_CENTER, labelStyle);
 
@@ -77,7 +77,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(12.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(UTM_GRID_ZONE_LABEL_LEFT, labelStyle);
 
@@ -85,7 +85,7 @@ public abstract class UTMBaseMapGridLine extends AbstractMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(12.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.RIGHT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(UTM_GRID_ZONE_LABEL_RIGHT, labelStyle);
     }

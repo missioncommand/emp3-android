@@ -8,10 +8,17 @@ import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPoint;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
+import org.cmapi.primitives.IGeoPosition;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +33,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 /**
  * Created by Matt.Miller on 10/16/2017.
  */
+@RunWith(RobolectricTestRunner.class)
 @PrepareForTest({URLUtil.class})
 public class PointTest extends TestBase {
 
@@ -36,9 +44,7 @@ public class PointTest extends TestBase {
 
     @Before
     public void setUp() throws Exception {
-        PowerMockito.mockStatic(URLUtil.class);
-        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
-        p1 = new Point();
+        p1 = new Point(0, 0);
     }
 
     @Test
@@ -80,7 +86,7 @@ public class PointTest extends TestBase {
 
     @Test
     public void stringConstructor() {
-        final String sampleURL = "127.0.0.1";
+        final String sampleURL = "http://127.0.0.1";
         p1 = new Point(sampleURL);
         final GeoPoint gp = new GeoPoint();
         gp.setTimeStamp(p1.getTimeStamp());
@@ -206,7 +212,6 @@ public class PointTest extends TestBase {
 
     @Test(expected = IllegalArgumentException.class)
     public void invalidURLConstructor() {
-        when(URLUtil.isValidUrl(any(String.class))).thenReturn(false);
         p1 = new Point("xyz");
     }
 
@@ -239,21 +244,20 @@ public class PointTest extends TestBase {
 
     @Test
     public void testIconURIWebSuccess() throws Exception {
-        final String sampleURL = "127.0.0.1";
+        final String sampleURL = "http://127.0.0.1";
         p1.setIconURI(sampleURL);
         assertEquals(p1.getIconURI(), sampleURL);
     }
 
     @Test
     public void testIconURIFileSuccess() throws Exception {
-        final String filePath = "FILE:/data/user/0/mil.emp3.dev_test_sdk/app_KMLS/.storage.emulated.0.Pictures.example.kmz/thumbs/IMG_3430.JPG";
+        final String filePath = "FILE:" + this.getClass().getClassLoader().getResource("testIcon.JPG").getPath();
         p1.setIconURI(filePath);
         assertEquals(p1.getIconURI(), filePath);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIconURIInvalidURL() {
-        when(URLUtil.isValidUrl(any(String.class))).thenReturn(false);
         p1.setIconURI("xyz");
     }
 

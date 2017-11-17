@@ -7,7 +7,7 @@ import mil.emp3.mapengine.interfaces.ISetVisibilityList;
 
 /**
  *
- * This class defines a java.util.MapHask of java.util.UUID, boolean
+ * This class defines a java.util.HashMap of java.util.UUID, boolean
  */
 public class IdentifierVisibilityHash extends java.util.HashMap<java.util.UUID, Boolean> implements ISetVisibilityList {
     public void putFeature(IContainer container, boolean bVisible) {

@@ -36,12 +36,12 @@ public class TacticalGraphicDefTreeItem {
 
     public void addChild(TacticalGraphicDefTreeItem oChild) {
         boolean bAdded = false;
-        String sHierachy = oChild.getSymbolDef().getHierarchy();
-        String sParentHierarchy = StringUtils.getParentVersion(sHierachy);
+        String sHierarchy = oChild.getSymbolDef().getHierarchy();
+        String sParentHierarchy = StringUtils.getParentVersion(sHierarchy);
 
         if (this.oSymbolDef.getHierarchy().equals(sParentHierarchy)) {
             oChild.setParent(this);
-            this.oChildren.put(sHierachy, oChild);
+            this.oChildren.put(sHierarchy, oChild);
         } else {
             while (sParentHierarchy.length() > 0) {
                 if (this.oChildren.containsKey(sParentHierarchy)) {
@@ -55,7 +55,7 @@ public class TacticalGraphicDefTreeItem {
 
             if (!bAdded) {
                 oChild.setParent(this);
-                this.oChildren.put(sHierachy, oChild);
+                this.oChildren.put(sHierarchy, oChild);
             }
         }
     }

@@ -96,7 +96,7 @@ public abstract class FeatureUserInteractionEvent extends Event<UserInteractionE
 
     /**
      * This method returns the start coordinate. It is only valid for DRAG event. It matches the coordinate
-     * returned by the getCoordindate() of the previous drag event or the coordinate where the down event occured at.
+     * returned by the getCoordinate() of the previous drag event or the coordinate where the down event occurred at.
      * The value of the coordinate is only valid for the duration of the event callback. The event handler
      * <b>MUST NOT</b> keep a reference to the coordinate object.
      * @return An object that implements the IGeoPosition interface, or null if the event occurred off the map.

@@ -67,7 +67,7 @@ public class BitmapCacheFactory {
     }
 
     /**
-     * This is used by the MilStdRenderwer to initialize the cache.
+     * This is used by the MilStdRenderer to initialize the cache.
      * @param sCacheDir
      * @return
      */

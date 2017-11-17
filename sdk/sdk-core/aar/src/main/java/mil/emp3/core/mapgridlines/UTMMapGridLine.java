@@ -75,7 +75,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(UTM_GRID_LABEL, labelStyle);
 
@@ -101,7 +101,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(UTM_GRID_NORTHING_VALUE, labelStyle);
 
@@ -110,7 +110,7 @@ public class UTMMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(UTM_GRID_EASTING_VALUE, labelStyle);
     }

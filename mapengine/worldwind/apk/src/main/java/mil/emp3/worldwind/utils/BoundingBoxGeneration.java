@@ -28,7 +28,7 @@ import mil.emp3.worldwind.controller.PickNavigateController;
  *    - In reality once the bounds are calculated one or more corner may be of the screen, this is desired to cover as much area as
  *        possible in the center.
  *    - This was tuned for MGRS lines.
- *    - If there is a Mathematical way of figuring this out with help of some utilities from the underlying engine thaen that should be
+ *    - If there is a Mathematical way of figuring this out with help of some utilities from the underlying engine then that should be
  *        investigated.
  *    - We must also consider the performance implication as every time map movement stops this algorithm is executed.
  *
@@ -51,7 +51,7 @@ public class BoundingBoxGeneration {
     private final static double MAX_LATITUDE_SPAN = 120.0;
     private final static double MAX_LONGITUDE_SPAN = 120.0;
     private final static double USE_GEOMETRIC_CENTER_FOR_TILT_GT = 45.0;
-    private final static double POLE_OFFEST = 1.0; // setting north/south as 90/-90 causes calculation breakdown in places like MGRS.
+    private final static double POLE_OFFSET = 1.0; // setting north/south as 90/-90 causes calculation breakdown in places like MGRS.
 
     private BoundingBoxGeneration(MapInstance mapInstance, boolean cameraOnScreen, int cornersTouched) {
         this.mapInstance = mapInstance;
@@ -148,7 +148,7 @@ public class BoundingBoxGeneration {
         if(0 == cornersTouched && cameraOnScreen && -BoundsGeneration.TILT_TOLERANCE < camera.getTilt() && camera.getTilt() < BoundsGeneration.TILT_TOLERANCE) {
             geoBounds.setNorth(geometricCenter.getLatitude() + MAX_LATITUDE_SPAN/2);
             if(geoBounds.getNorth() > global.LATITUDE_MAXIMUM) {
-                geoBounds.setNorth(global.LATITUDE_MAXIMUM - POLE_OFFEST);
+                geoBounds.setNorth(global.LATITUDE_MAXIMUM - POLE_OFFSET);
             }
             geoBounds.setEast(geometricCenter.getLongitude() + MAX_LONGITUDE_SPAN/2);
             if(geoBounds.getEast() > global.LONGITUDE_MAXIMUM) {
@@ -160,7 +160,7 @@ public class BoundingBoxGeneration {
             }
             geoBounds.setSouth(geometricCenter.getLatitude() - MAX_LATITUDE_SPAN/2);
             if(geoBounds.getSouth() < global.LATITUDE_MINIMUM) {
-                geoBounds.setSouth(global.LATITUDE_MINIMUM + POLE_OFFEST);
+                geoBounds.setSouth(global.LATITUDE_MINIMUM + POLE_OFFSET);
             }
             return true;
         }
