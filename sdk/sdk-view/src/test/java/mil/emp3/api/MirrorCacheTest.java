@@ -2,6 +2,11 @@ package mil.emp3.api;
 
 import junit.framework.TestCase;
 import junit.framework.Assert;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+
 /*
 import org.mockito.internal.matchers.Contains;
 
@@ -17,11 +22,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 */
-
+@RunWith(RobolectricTestRunner.class)
 public class MirrorCacheTest extends TestCase {
 
     // Keep JUnit happy, throw it a bone
-
+    @Test
     public void testMirrorZero() {
         assert(0 == 0);
     }

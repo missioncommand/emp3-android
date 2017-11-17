@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
@@ -13,7 +15,7 @@ import mil.emp3.api.interfaces.IFeature;
 /**
  * This class performs the container property API tests.
  */
-
+@RunWith(RobolectricTestRunner.class)
 public class ContainerPropertyTest extends TestBaseSingleMap {
     private static final String TAG = ContainerPropertyTest.class.getSimpleName();
 

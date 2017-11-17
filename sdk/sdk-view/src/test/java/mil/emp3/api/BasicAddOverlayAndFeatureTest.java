@@ -5,6 +5,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.VisibilityActionEnum;
@@ -15,7 +17,7 @@ import mil.emp3.api.interfaces.IOverlay;
 //
 // NOTE : SymbolUtilities methods are logging NullPointer Exception
 //
-
+@RunWith(RobolectricTestRunner.class)
 public class BasicAddOverlayAndFeatureTest extends TestBaseSingleMap {
 
     private static String TAG = BasicAddOverlayAndFeatureTest.class.getSimpleName();

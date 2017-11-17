@@ -10,7 +10,9 @@ import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.robolectric.RobolectricTestRunner;
 
 import java.net.URL;
 import java.util.List;
@@ -28,6 +30,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 /**
  * Created by Matt.Miller on 10/12/2017.
  */
+@RunWith(RobolectricTestRunner.class)
 public class WCSTest extends TestBaseSingleMap{
     private WCS testWcsObject;
     final private String url = "https://127.0.0.1";

@@ -1,5 +1,6 @@
 package mil.emp3.api;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.test.mock.MockContext;
 import android.util.Log;
@@ -10,9 +11,12 @@ import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -36,7 +40,7 @@ import mil.emp3.core.services.kml.KMLSRequest;
 
 import static org.mockito.Matchers.any;
 import static org.powermock.api.mockito.PowerMockito.when;
-
+@RunWith(RobolectricTestRunner.class)
 @PrepareForTest({Color.class, URLUtil.class})
 public class KMLSTest extends TestBaseSingleMap {
 
@@ -47,21 +51,12 @@ public class KMLSTest extends TestBaseSingleMap {
     @Before
     public void setUp() throws Exception {
         setupSingleMap(TAG);
-        PowerMockito.mockStatic(Color.class);
-        when(Color.class, "parseColor", any(String.class)).thenReturn(0);
     }
 
     @After
     public void tearDown() throws Exception {
     }
-
-    class MyMockContext extends MockContext {
-        @Override
-        public File getDir(String name, int mode) {
-            Log.d(TAG, "Current Dir " + System.getProperty("user.dir"));
-            return new File(System.getProperty("user.dir") + File.separator + name);
-        }
-    }
+    
     class KMLSServiceListener implements IKMLSEventListener {
 
         BlockingQueue<KMLSEventEnum> queue;
@@ -92,40 +87,35 @@ public class KMLSTest extends TestBaseSingleMap {
     public void null_listener_Test() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
-        MockContext context = new MyMockContext();
         mapInstance.cleanKmls();
-        new KMLS(context, url.toString(), null);
+        new KMLS(RuntimeEnvironment.application, url.toString(), null);
     }
 
     @Test (expected=IllegalArgumentException.class)
     public void null_geoid_Test() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
-        MockContext context = new MyMockContext();
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
-        new KMLS(context, url.toString(), new KMLSServiceListener(queue), null);
+        new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue), null);
     }
 
     @Test (expected=MalformedURLException.class)
     public void bad_url_Test() throws Exception {
-        MockContext context = new MyMockContext();
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
-        new KMLS(context, "example.kmz", new KMLSServiceListener(queue));
+        new KMLS(RuntimeEnvironment.application, "example.kmz", new KMLSServiceListener(queue));
     }
 
     @Test
     public void kmzSample_Test() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
-        MockContext context = new MyMockContext();
         PowerMockito.mockStatic(URLUtil.class);
-        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
-        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("kmzSample_Test");
         remoteMap.addMapService(mapService);
 
@@ -187,13 +177,11 @@ public class KMLSTest extends TestBaseSingleMap {
     public void kmlSample_Test() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("kml_samples.kml");
         Log.d(TAG, "url " + url.toString());
-        MockContext context = new MyMockContext();
         PowerMockito.mockStatic(URLUtil.class);
-        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
-        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("kmlSample_Test");
         remoteMap.addMapService(mapService);
 
@@ -247,12 +235,11 @@ public class KMLSTest extends TestBaseSingleMap {
         URL url = this.getClass().getClassLoader().getResource("example.kmz");
         Log.d(TAG, "url " + url.toString());
 
-        MockContext context = new MyMockContext();
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString().replace("example.kmz", "not_exist.kmz"), new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(RuntimeEnvironment.application, url.toString().replace("example.kmz", "not_exist.kmz"), new KMLSServiceListener(queue));
         mapService.setName("File_Not_Exist_Test");
         remoteMap.addMapService(mapService);
 
@@ -284,12 +271,11 @@ public class KMLSTest extends TestBaseSingleMap {
         URL url = this.getClass().getClassLoader().getResource("cmapi.json");
         Log.d(TAG, "url " + url.toString());
 
-        MockContext context = new MyMockContext();
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("UnZip_Fail_Test");
         remoteMap.addMapService(mapService);
 
@@ -325,12 +311,11 @@ public class KMLSTest extends TestBaseSingleMap {
         URL url = this.getClass().getClassLoader().getResource("kml_samples_invalid.kml");
         Log.d(TAG, "url " + url.toString());
 
-        MockContext context = new MyMockContext();
         BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         mapInstance.cleanKmls();
 
 
-        IMapService mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue));
+        IMapService mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("Invalid_KML_Test");
         remoteMap.addMapService(mapService);
 

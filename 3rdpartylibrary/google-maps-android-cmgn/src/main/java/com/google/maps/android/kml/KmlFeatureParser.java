@@ -1,6 +1,6 @@
 package com.google.maps.android.kml;
 
-import android.webkit.URLUtil;
+import android.webkit.*;
 
 import org.cmapi.primitives.GeoBounds;
 import org.cmapi.primitives.GeoPosition;

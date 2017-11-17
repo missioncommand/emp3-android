@@ -9,11 +9,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.interfaces.IMap;
-
+@RunWith(RobolectricTestRunner.class)
 public class CameraLookAtTest extends TestBaseSingleMap {
     public static final String TAG = CameraLookAtTest.class.getSimpleName();
 
