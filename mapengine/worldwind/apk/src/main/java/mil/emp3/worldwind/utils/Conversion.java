@@ -99,7 +99,7 @@ public class Conversion {
     }
 
     @WorldWind.AltitudeMode
-    public static int convertIGeoAaltitudeMode(IGeoAltitudeMode.AltitudeMode altitudeMode) {
+    public static int convertIGeoAltitudeMode(IGeoAltitudeMode.AltitudeMode altitudeMode) {
         int iRet = WorldWind.CLAMP_TO_GROUND;
 
         if (null != altitudeMode) {
