@@ -230,18 +230,18 @@ public class DDMapGridLines extends AbstractMapGridLine {
         position.setLongitude(initDegrees(gridSetting, position.getLongitude()));
     }
 
-    private double increamentDegrees(int gridSetting, double degrees) {
+    private double incrementDegrees(int gridSetting, double degrees) {
         //return initDegrees(gridSetting, degrees + this.intervalIncrement[gridSetting]);
         return degrees + this.intervalIncrement[gridSetting];
     }
 
     private void incrementLatitude(int gridSetting, EmpGeoPosition position) {
-        double latitude = increamentDegrees(gridSetting, position.getLatitude());
+        double latitude = incrementDegrees(gridSetting, position.getLatitude());
         position.setLatitude(EmpGeoPosition.normalizeLatitude(latitude));
     }
 
     private void incrementLongitude(int gridSetting, EmpGeoPosition position) {
-        double longitude = increamentDegrees(gridSetting, position.getLongitude());
+        double longitude = incrementDegrees(gridSetting, position.getLongitude());
         position.setLongitude(EmpGeoPosition.normalizeLongitude(longitude));
     }
 
