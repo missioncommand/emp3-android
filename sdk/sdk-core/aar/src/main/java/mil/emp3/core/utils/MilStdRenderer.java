@@ -432,19 +432,7 @@ public class MilStdRenderer implements IMilStdRenderer {
                         }
                     }
                     currentTextStyle.setFontFamily(RendererSettings.getInstance().getMPModifierFontName());
-
-                    switch (shapeInfo.getTextJustify()) {
-                        case ShapeInfo.justify_left:
-                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-                            break;
-                        case ShapeInfo.justify_right:
-                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.RIGHT);
-                            break;
-                        case ShapeInfo.justify_center:
-                        default:
-                            currentTextStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
-                            break;
-                    }
+                    currentTextStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
 
                     textFeature.setLabelStyle(currentTextStyle);
                     double angle = (((shapeInfo.getModifierStringAngle() + 360.0) % 360.0) + 360.0) % 360.0;
