@@ -6,6 +6,8 @@ import org.cmapi.primitives.GeoSquare;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoSquare;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Created by Matt.Miller on 10/16/2017.
  */
+@RunWith(RobolectricTestRunner.class)
 public class SquareTest extends TestBase {
     public static final String TAG = SquareTest.class.getSimpleName();
     private Square square1;
@@ -57,7 +60,7 @@ public class SquareTest extends TestBase {
                        false,
                        Collections.EMPTY_LIST,
                        "",
-                       "",
+                       null,
                        "",
                        new HashMap());
     }
@@ -94,7 +97,7 @@ public class SquareTest extends TestBase {
                        false,
                        Collections.EMPTY_LIST,
                        "",
-                       "",
+                       null,
                        "",
                        new HashMap());
     }
@@ -132,7 +135,7 @@ public class SquareTest extends TestBase {
                        false,
                        Collections.EMPTY_LIST,
                        "",
-                       "",
+                       null,
                        "",
                        new HashMap());
     }

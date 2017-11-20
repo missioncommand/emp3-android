@@ -6,6 +6,8 @@ import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoRectangle;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Created by Matt.Miller on 10/16/2017.
  */
+@RunWith(RobolectricTestRunner.class)
 public class RectangleTest extends TestBase{
     public static final String TAG = RectangleTest.class.getSimpleName();
     private Rectangle r1;
@@ -58,7 +61,7 @@ public class RectangleTest extends TestBase{
                           false,
                           Collections.EMPTY_LIST,
                           "",
-                          "",
+                          null,
                           "",
                           new HashMap());
     }
@@ -96,7 +99,7 @@ public class RectangleTest extends TestBase{
                           false,
                           Collections.EMPTY_LIST,
                           "",
-                          "",
+                          null,
                           "",
                           new HashMap());
     }
@@ -137,7 +140,7 @@ public class RectangleTest extends TestBase{
                           false,
                           Collections.EMPTY_LIST,
                           "",
-                          "",
+                          null,
                           "",
                           new HashMap());
     }

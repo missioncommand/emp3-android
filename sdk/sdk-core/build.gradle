@@ -4,6 +4,9 @@ apply plugin: 'nebula.maven-nebula-publish'
 
 publishing.publications {
     nebula(MavenPublication) {
+        artifactId = "emp3-android-sdk-core"
+        // Checks to see if the release is signed or unsigned. This distinction is necessary for local builds to still occur
+        // as signing is currently only happening via travis ci.
         if(new File("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk").exists()) {
             artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk") {
                 classifier "release"
@@ -17,18 +20,6 @@ publishing.publications {
                 classifier "release"
                 extension "apk.sha256"
             }
-
-            artifactId = "emp3-android-sdk-core"
-            artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar") {
-                extension "aar"
-            }
-            artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.sha256") {
-                extension "aar.sha256"
-            }
-            artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.md5") {
-                extension "aar.md5"
-            }
-
         }
         else {
             artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk") {
@@ -43,18 +34,16 @@ publishing.publications {
                 classifier "release"
                 extension "apk.sha256"
             }
-
-            artifactId = "emp3-android-sdk-core"
-            artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar") {
-                extension "aar"
-            }
-            artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.sha256") {
-                extension "aar.sha256"
-            }
-            artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.md5") {
-                extension "aar.md5"
-            }
-
+        }
+        // aar
+        artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar") {
+            extension "aar"
+        }
+        artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.sha256") {
+            extension "aar.sha256"
+        }
+        artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.md5") {
+            extension "aar.md5"
         }
     }
 }

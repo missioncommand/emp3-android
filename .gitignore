@@ -17,5 +17,9 @@ local.properties
 
 /.nb-gradle-properties
 
+# Keystore files
+keystore.properties
+emp3_keystore.jks
+
 #sdk-view
 KMLS/

@@ -330,7 +330,7 @@ public class EmpKMLParser {
                 if ((null != kmlStyle) && kmlStyle.hasFill() && (null != kmlStyle.getFillColor())) {
                     final IGeoFillStyle fillStyle = ((null == newPolygon.getFillStyle())? new GeoFillStyle(): newPolygon.getFillStyle());
                     color = fillStyle.getFillColor();
-                    color.setAlpha(kmlStyle.getFillColor().getAlpha());
+                    color.setAlpha(kmlStyle.getFillColor().getAlpha()/255.0);
                     color.setRed(kmlStyle.getFillColor().getRed());
                     color.setGreen(kmlStyle.getFillColor().getGreen());
                     color.setBlue(kmlStyle.getFillColor().getBlue());
@@ -344,7 +344,7 @@ public class EmpKMLParser {
                     color = strokeStyle.getStrokeColor();
                     final IGeoColor kmlColor = kmlStyle.getStrokeColor();
                     if (kmlColor != null) {
-                        color.setAlpha(kmlColor.getAlpha());
+                        color.setAlpha(kmlColor.getAlpha()/255.0);
                         color.setRed(kmlColor.getRed());
                         color.setGreen(kmlColor.getGreen());
                         color.setBlue(kmlColor.getBlue());

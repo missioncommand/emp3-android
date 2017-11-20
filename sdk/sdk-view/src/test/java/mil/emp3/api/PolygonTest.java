@@ -10,8 +10,10 @@ import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Matt.Miller on 10/16/2017.
  */
+@RunWith(RobolectricTestRunner.class)
 public class PolygonTest extends TestBase {
     public static final String TAG = PolygonTest.class.getSimpleName();
     private Polygon poly;
@@ -66,7 +69,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        "",
+                        null,
                         "",
                         new HashMap());
     }
@@ -99,7 +102,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        "",
+                        null,
                         "",
                         new HashMap());
     }
@@ -141,7 +144,7 @@ public class PolygonTest extends TestBase {
                         false,
                         Collections.EMPTY_LIST,
                         "",
-                        "",
+                        null,
                         "",
                         new HashMap());
     }

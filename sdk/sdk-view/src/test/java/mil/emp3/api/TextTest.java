@@ -6,6 +6,8 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.GeoText;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by Matt.Miller on 10/13/2017.
  */
+@RunWith(RobolectricTestRunner.class)
 public class TextTest extends TestBase{
     public static final String TAG = Text.class.getSimpleName();
     private Text text1;
@@ -54,7 +57,7 @@ public class TextTest extends TestBase{
                      false,
                      Collections.EMPTY_LIST,
                      "",
-                     "",
+                     null,
                      "",
                      new HashMap());
     }
@@ -90,7 +93,7 @@ public class TextTest extends TestBase{
                      false,
                      Collections.EMPTY_LIST,
                      testString,
-                     "",
+                     null,
                      "",
                      new HashMap());
     }
@@ -125,7 +128,7 @@ public class TextTest extends TestBase{
                      false,
                      Collections.EMPTY_LIST,
                      "",
-                     "",
+                     null,
                      "",
                      new HashMap());
     }

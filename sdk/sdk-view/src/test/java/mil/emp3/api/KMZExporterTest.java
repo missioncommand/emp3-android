@@ -15,10 +15,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.kxml2.io.KXmlSerializer;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.BufferedInputStream;
@@ -61,7 +61,8 @@ import static org.powermock.reflect.Whitebox.setInternalState;
 /**
  * @author Jenifer Cochran
  */
-@RunWith(PowerMockRunner.class)
+
+@RunWith(RobolectricTestRunner.class)
 @PrepareForTest({Environment.class, Xml.class, MilStdSymbol.class, MilStdIconRenderer.class, FileUtility.class, URLUtil.class})
 public class KMZExporterTest extends TestBaseSingleMap
 {
@@ -104,11 +105,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         super.init();
         super.setupSingleMap(TAG);
 
-        //Mock the xml serializer
-        final XmlSerializer mockSerializer = new KXmlSerializer();
-        mockStatic(Xml.class);
-        when(Xml.newSerializer()).thenReturn(mockSerializer);
-
         final SparseArray sparseArray = mock(SparseArray.class);
         whenNew(SparseArray.class).withNoArguments().thenReturn(sparseArray);
         doNothing().when(sparseArray).put(Mockito.anyInt(), Mockito.anyString());
@@ -147,10 +143,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         setInternalState(Environment.class, "DIRECTORY_PICTURES", "Pictures");
         setInternalState(Environment.class, "MEDIA_MOUNTED", "mounted");
 
-        when(Environment.getExternalStorageState()).thenReturn("mounted");
-        // Make the Environment class return a mocked external storage directory
-        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
-                        .thenReturn(outputDirectory);
     }
 
     @After
@@ -1099,10 +1091,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         final boolean[] processEnded = {false};
         final File[]    kmzFile      = new File[1];
 
-        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
-        // point to the outputdirectory for this test
-        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
-                        .thenReturn(temporaryOutputDirectory);
 
         EmpKMZExporter.exportToKMZ(this.remoteMap,
                                    addRandomFeature(this.remoteMap),
@@ -1142,10 +1130,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         final boolean[] processEnded = {false};
         final File[]    kmzFile      = new File[1];
 
-        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
-        // point to the outputdirectory for this test
-        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
-                .thenReturn(temporaryOutputDirectory);
 
         EmpKMZExporter.exportToKMZ(this.remoteMap,
                                    addOverlayToMap(this.remoteMap),
@@ -1184,11 +1168,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         final String    kmzFileName  = "TestKmzFileName5.kmz";
         final boolean[] processEnded = {false};
         final File[]    kmzFile      = new File[1];
-
-        // Make the Environment class return a mocked external storage directory. Make sure it doesn't
-        // point to the outputdirectory for this test
-        when(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES))
-                       .thenReturn(temporaryOutputDirectory);
 
         EmpKMZExporter.exportToKMZ(this.remoteMap,
                                    false,

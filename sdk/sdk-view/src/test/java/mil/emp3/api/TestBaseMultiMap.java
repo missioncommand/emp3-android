@@ -3,7 +3,9 @@ package mil.emp3.api;
 import android.content.Context;
 
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -21,7 +23,6 @@ import mil.emp3.api.mock.MockMapInstance;
 public class TestBaseMultiMap extends TestBase {
     private static String TAG;
 
-    @Mock
     private Context context;
 
     protected RemoteMap[] remoteMap;

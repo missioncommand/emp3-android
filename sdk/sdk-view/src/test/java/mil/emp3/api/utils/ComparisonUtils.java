@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import mil.emp3.api.Circle;
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
@@ -502,5 +503,41 @@ public class ComparisonUtils {
         assertEquals(ebb.east(), east, Epsilon);
         assertEquals(ebb.south(), south, Epsilon);
         assertEquals(ebb.west(), west, Epsilon);
+    }
+
+    public static void comparePoint(final Point point1, final Point point2) {
+        assertEquals(point1.getIconURI(), point2.getIconURI());
+        assertEquals(point1.getIconScale(), point2.getIconScale(), Epsilon);
+        compareIconStyle(point1.getIconStyle(), point2.getIconStyle());
+        assertEquals(point1.getResourceId(), point2.getResourceId());
+        compareGeoPosition(point1.getPosition(), point2.getPosition());
+        assertEquals(point1.getAzimuth(), point2.getAzimuth(), Epsilon);
+        assertEquals(point1.getDescription(), point2.getDescription());
+        compareFillStyle(point1.getFillStyle(), point2.getFillStyle());
+        assertEquals(point1.getName(), point2.getName());
+        compareStrokeStyle(point1.getStrokeStyle(), point2.getStrokeStyle());
+        assertEquals(point1.getPathType(), point2.getPathType());
+    }
+
+    public static void comparePolygon(final Polygon polygon1, final Polygon polygon2) {
+        assertEquals(polygon1.getPatternFillImage(), polygon2.getPatternFillImage());
+        compareGeoPosition(polygon1.getPosition(), polygon2.getPosition());
+        assertEquals(polygon1.getAzimuth(), polygon2.getAzimuth(), Epsilon);
+        assertEquals(polygon1.getDescription(), polygon2.getDescription());
+        compareFillStyle(polygon1.getFillStyle(), polygon2.getFillStyle());
+        assertEquals(polygon1.getName(), polygon2.getName());
+        compareStrokeStyle(polygon1.getStrokeStyle(), polygon2.getStrokeStyle());
+        assertEquals(polygon1.getPathType(), polygon2.getPathType());
+    }
+
+    public static void compareCircle(final Circle circle1, final Circle circle2) {
+        assertEquals(circle1.getRadius(), circle2.getRadius(), Epsilon);
+        compareGeoPosition(circle1.getPosition(), circle2.getPosition());
+        assertEquals(circle1.getAzimuth(), circle2.getAzimuth(), Epsilon);
+        assertEquals(circle1.getDescription(), circle2.getDescription());
+        compareFillStyle(circle1.getFillStyle(), circle2.getFillStyle());
+        assertEquals(circle1.getName(), circle2.getName());
+        compareStrokeStyle(circle1.getStrokeStyle(), circle2.getStrokeStyle());
+        assertEquals(circle1.getPathType(), circle2.getPathType());
     }
 }

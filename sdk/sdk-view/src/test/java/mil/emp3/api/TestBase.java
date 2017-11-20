@@ -2,12 +2,16 @@ package mil.emp3.api;
 
 import android.os.Looper;
 
+import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +42,13 @@ import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
-@RunWith(PowerMockRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @PrepareForTest({ManagerFactory.class, Looper.class})
 @SuppressStaticInitializationFor("mil.emp3.api.utils.ManagerFactory")
 abstract public class TestBase {
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     static final protected IStorageManager storageManager = new StorageManager();
     static final protected IEventManager eventManager     = new EventManager();
@@ -61,24 +68,24 @@ abstract public class TestBase {
         //
         // ManagerFactory
         //
-        PowerMockito.mockStatic(ManagerFactory.class);
-        final ManagerFactory managerFactory = PowerMockito.mock(ManagerFactory.class);
-
-        PowerMockito.when(ManagerFactory.getInstance()).thenReturn(managerFactory);
-
-        PowerMockito.when(managerFactory.getStorageManager()).thenReturn(storageManager);
-        PowerMockito.when(managerFactory.getEventManager()).thenReturn(eventManager);
-        PowerMockito.when(managerFactory.getCoreManager()).thenReturn(coreManager);
-        PowerMockito.when(managerFactory.getMilStdRenderer()).thenReturn(milStdRenderer);
+//        PowerMockito.mockStatic(ManagerFactory.class);
+//        final ManagerFactory managerFactory = PowerMockito.mock(ManagerFactory.class);
+//
+//        PowerMockito.when(ManagerFactory.getInstance()).thenReturn(managerFactory);
+//
+//        PowerMockito.when(managerFactory.getStorageManager()).thenReturn(storageManager);
+//        PowerMockito.when(managerFactory.getEventManager()).thenReturn(eventManager);
+//        PowerMockito.when(managerFactory.getCoreManager()).thenReturn(coreManager);
+//        PowerMockito.when(managerFactory.getMilStdRenderer()).thenReturn(milStdRenderer);
 
         //
         // Looper
         //
-        PowerMockito.mockStatic(Looper.class);
-        final Looper looper = PowerMockito.mock(Looper.class);
-
-        PowerMockito.when(Looper.getMainLooper()).thenReturn(looper);
-        PowerMockito.when(Looper.myLooper()).thenReturn(looper);
+//        PowerMockito.mockStatic(Looper.class);
+//        final Looper looper = PowerMockito.mock(Looper.class);
+//
+//        PowerMockito.when(Looper.getMainLooper()).thenReturn(looper);
+//        PowerMockito.when(Looper.myLooper()).thenReturn(looper);
     }
 
     static public List<IFeature> createMockedMilStdSymbolWithStubbedGuid(int count) {

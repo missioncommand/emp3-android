@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import mil.emp3.api.interfaces.IContainer;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.utils.BasicUtilities;
-
+@RunWith(RobolectricTestRunner.class)
 public class BasicMultiMapTest extends TestBaseMultiMap {
 
     private static String TAG = BasicAddOverlayAndFeatureTest.class.getSimpleName();
