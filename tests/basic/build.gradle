@@ -7,6 +7,7 @@ android {
     defaultConfig {
         applicationId "mil.emp3.dev_test_sdk"
     }
+    buildToolsVersion '27.0.1'
 }
 repositories {
     maven {

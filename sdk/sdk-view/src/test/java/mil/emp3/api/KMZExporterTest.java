@@ -1,11 +1,8 @@
 package mil.emp3.api;
 
-import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.os.Environment;
 import android.test.mock.MockContext;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.Xml;
 import android.webkit.URLUtil;
 
@@ -15,11 +12,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.robolectric.RobolectricTestRunner;
-import org.xmlpull.v1.XmlSerializer;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -35,8 +29,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
-import armyc2.c2sd.renderer.utilities.ImageInfo;
-import armyc2.c2sd.renderer.utilities.MilStdAttributes;
 import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -50,13 +42,6 @@ import mil.emp3.api.utils.FileUtility;
 import mil.emp3.api.utils.kmz.EmpKMZExporter;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.powermock.api.mockito.PowerMockito.doNothing;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
-import static org.powermock.reflect.Whitebox.setInternalState;
 
 /**
  * @author Jenifer Cochran
@@ -105,29 +90,29 @@ public class KMZExporterTest extends TestBaseSingleMap
         super.init();
         super.setupSingleMap(TAG);
 
-        final SparseArray sparseArray = mock(SparseArray.class);
-        whenNew(SparseArray.class).withNoArguments().thenReturn(sparseArray);
-        doNothing().when(sparseArray).put(Mockito.anyInt(), Mockito.anyString());
-        when(sparseArray.get(MilStdAttributes.SymbologyStandard)).thenReturn("1");
-
-        final Bitmap bitmap = mock(Bitmap.class);
-        final android.graphics.Point point = Mockito.mock(android.graphics.Point.class);
-        setInternalState(point, "x", 5);
-        setInternalState(point, "y", 5);
-
-        final Rect rect = Mockito.mock(Rect.class);
-        when(rect.width()).thenReturn(5);
-        when(rect.height()).thenReturn(5);
-        final ImageInfo realImageInfo = new ImageInfo(bitmap, point, rect);
-        final ImageInfo imageInfo = Mockito.spy(realImageInfo);
-        whenNew(Rect.class).withArguments(rect).thenReturn(rect);
-
-        final MilStdIconRenderer milStdIconRenderer = Mockito.mock(MilStdIconRenderer.class);
-        mockStatic(MilStdIconRenderer.class);
-        when(MilStdIconRenderer.getInstance()).thenReturn(milStdIconRenderer);
-        when(milStdIconRenderer.RenderIcon(any(), any(), any())).thenReturn(imageInfo);
-        when(imageInfo.getImageBounds()).thenReturn(rect);
-        when(imageInfo.getCenterPoint()).thenReturn(point);
+//        final SparseArray sparseArray = mock(SparseArray.class);
+//        whenNew(SparseArray.class).withNoArguments().thenReturn(sparseArray);
+//        doNothing().when(sparseArray).put(Mockito.anyInt(), Mockito.anyString());
+//        when(sparseArray.get(MilStdAttributes.SymbologyStandard)).thenReturn("1");
+//
+//        final Bitmap bitmap = mock(Bitmap.class);
+//        final android.graphics.Point point = Mockito.mock(android.graphics.Point.class);
+//        setInternalState(point, "x", 5);
+//        setInternalState(point, "y", 5);
+//
+//        final Rect rect = Mockito.mock(Rect.class);
+//        when(rect.width()).thenReturn(5);
+//        when(rect.height()).thenReturn(5);
+//        final ImageInfo realImageInfo = new ImageInfo(bitmap, point, rect);
+//        final ImageInfo imageInfo = Mockito.spy(realImageInfo);
+//        whenNew(Rect.class).withArguments(rect).thenReturn(rect);
+//
+//        final MilStdIconRenderer milStdIconRenderer = Mockito.mock(MilStdIconRenderer.class);
+//        mockStatic(MilStdIconRenderer.class);
+//        when(MilStdIconRenderer.getInstance()).thenReturn(milStdIconRenderer);
+//        when(milStdIconRenderer.RenderIcon(any(), any(), any())).thenReturn(imageInfo);
+//        when(imageInfo.getImageBounds()).thenReturn(rect);
+//        when(imageInfo.getCenterPoint()).thenReturn(point);
 
         if(outputDirectory == null || !outputDirectory.exists())
         {
@@ -138,10 +123,7 @@ public class KMZExporterTest extends TestBaseSingleMap
         {
             temporaryOutputDirectory = createTemporaryDirectory();
         }
-
-        mockStatic(Environment.class);
-        setInternalState(Environment.class, "DIRECTORY_PICTURES", "Pictures");
-        setInternalState(Environment.class, "MEDIA_MOUNTED", "mounted");
+//./
 
     }
 

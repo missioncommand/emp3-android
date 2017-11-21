@@ -7,8 +7,6 @@ import android.webkit.URLUtil;
 import org.cmapi.primitives.GeoDocument;
 import org.cmapi.primitives.IGeoDocument;
 import org.junit.Before;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.io.BufferedReader;
@@ -24,8 +22,6 @@ import mil.emp3.api.interfaces.IImageLayer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  * Created by matt.miller@rgi-corp.local on 10/23/17.
@@ -37,10 +33,10 @@ public class KMLTest extends TestBaseSingleMap {
     @Before
     public void setUp() throws Exception {
         setupSingleMap(TAG);
-        PowerMockito.mockStatic(Color.class);
-        PowerMockito.when(Color.class, "parseColor", Mockito.any(String.class)).thenReturn(0);
-        PowerMockito.mockStatic(URLUtil.class);
-        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
+//        PowerMockito.mockStatic(Color.class);
+//        PowerMockito.when(Color.class, "parseColor", Mockito.any(String.class)).thenReturn(0);
+//        PowerMockito.mockStatic(URLUtil.class);
+//        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
     }
 
     @org.junit.Test
