@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
@@ -105,6 +107,7 @@ public class StorageManager implements IStorageManager {
     private static final int MAX_BULK_FEATURE_APPLY_COUNT = 500;
 
     private Thread bulkFeatureApplyThread = null;
+    private ExecutorService executor = Executors.newFixedThreadPool(1);
 
 
     @Override
@@ -1003,8 +1006,7 @@ public class StorageManager implements IStorageManager {
                     //Log.d(TAG, "Thread exiting.");
                 }
             }, "Bulk Feature Apply Thread");
-            this.bulkFeatureApplyThread.start();
-            //Log.d(TAG, "Starting Thread.");
+            executor.execute(bulkFeatureApplyThread);
         }
     }
 
