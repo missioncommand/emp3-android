@@ -48,7 +48,7 @@ public interface ILookAt extends IGeoLookAt{
     void apply(boolean animate);
 
     /**
-     * Set the lookkAt position. If position parameters are invalid an exception is thrown.
+     * Set the lookAt position. If position parameters are invalid an exception is thrown.
      * If altitudeMode is null then it will then original altitude mode is maintained.
      * @param latitude
      * @param longitude

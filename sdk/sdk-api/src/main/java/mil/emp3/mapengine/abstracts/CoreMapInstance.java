@@ -304,6 +304,6 @@ public abstract class CoreMapInstance implements IMapInstance {
 
     @Override
     public void getCapture(IScreenCaptureCallback callback) {
-        throw new UnsupportedOperationException("This map engine does not support this opertaion.");
+        throw new UnsupportedOperationException("This map engine does not support this operation.");
     }
 }

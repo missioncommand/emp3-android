@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import mil.emp3.api.Circle;
+import mil.emp3.api.Ellipse;
 import mil.emp3.api.Point;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
@@ -539,5 +540,49 @@ public class ComparisonUtils {
         assertEquals(circle1.getName(), circle2.getName());
         compareStrokeStyle(circle1.getStrokeStyle(), circle2.getStrokeStyle());
         assertEquals(circle1.getPathType(), circle2.getPathType());
+    }
+
+    public static void compareEllipse(final Ellipse ellipse1, final Ellipse ellipse2) {
+        assertEquals(ellipse1.getSemiMinor(), ellipse2.getSemiMinor(), Epsilon);
+        assertEquals(ellipse1.getSemiMajor(), ellipse2.getSemiMajor(), Epsilon);
+        compareGeoPosition(ellipse1.getPosition(), ellipse2.getPosition());
+        assertEquals(ellipse1.getAzimuth(), ellipse2.getAzimuth(), Epsilon);
+        assertEquals(ellipse1.getDescription(), ellipse2.getDescription());
+        compareFillStyle(ellipse1.getFillStyle(), ellipse2.getFillStyle());
+        assertEquals(ellipse1.getName(), ellipse2.getName());
+        compareStrokeStyle(ellipse1.getStrokeStyle(), ellipse2.getStrokeStyle());
+        assertEquals(ellipse1.getPathType(), ellipse2.getPathType());
+    }
+
+    public static void compareRectangle(final Rectangle rectangle1, final Rectangle rectangle2) {
+        assertEquals(rectangle1.getWidth(), rectangle2.getWidth(), Epsilon);
+        assertEquals(rectangle1.getHeight(), rectangle2.getHeight(), Epsilon);
+        compareGeoPosition(rectangle1.getPosition(), rectangle2.getPosition());
+        assertEquals(rectangle1.getAzimuth(), rectangle2.getAzimuth(), Epsilon);
+        assertEquals(rectangle1.getDescription(), rectangle2.getDescription());
+        compareFillStyle(rectangle1.getFillStyle(), rectangle2.getFillStyle());
+        assertEquals(rectangle1.getName(), rectangle2.getName());
+        compareStrokeStyle(rectangle1.getStrokeStyle(), rectangle2.getStrokeStyle());
+    }
+
+    public static void compareSquare(final Square square1, final Square square2) {
+        assertEquals(square1.getWidth(), square2.getWidth(), Epsilon);
+        compareGeoPosition(square1.getPosition(), square2.getPosition());
+        assertEquals(square1.getAzimuth(), square2.getAzimuth(), Epsilon);
+        assertEquals(square1.getDescription(), square2.getDescription());
+        compareFillStyle(square1.getFillStyle(), square2.getFillStyle());
+        assertEquals(square1.getName(), square2.getName());
+        compareStrokeStyle(square1.getStrokeStyle(), square2.getStrokeStyle());
+    }
+
+    public static void compareText(final Text text1, final Text text2) {
+        assertEquals(text1.getRotationAngle(), text2.getRotationAngle(), Epsilon);
+        assertEquals(text1.getText(), text2.getText());
+        compareGeoPosition(text1.getPosition(), text2.getPosition());
+        assertEquals(text1.getAzimuth(), text2.getAzimuth(), Epsilon);
+        assertEquals(text1.getDescription(), text2.getDescription());
+        compareFillStyle(text1.getFillStyle(), text2.getFillStyle());
+        assertEquals(text1.getName(), text2.getName());
+        compareStrokeStyle(text1.getStrokeStyle(), text2.getStrokeStyle());
     }
 }

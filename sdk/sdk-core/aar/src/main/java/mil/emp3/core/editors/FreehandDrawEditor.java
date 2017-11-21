@@ -36,7 +36,7 @@ import mil.emp3.mapengine.events.MapInstanceUserInteractionEvent;
  * 2) We listen for map and feature user interaction DRAG and DRAG_COMPLETE events.
  * 3) When the 2nd drag event occurs the draw start event is generated. And the line is drawn on the map
  * in the style indicated.
- * 4) When additional drag event are received we generate drag update eevents and the line feature is
+ * 4) When additional drag event are received we generate drag update events and the line feature is
  * updated on the map while the positions are accumulated.
  * 5) When the DRAG_COMPLETE is received we issue the line draw end.
  * 6) Once the line draw end is sent the position list is emptied and the process is allowed to start over.

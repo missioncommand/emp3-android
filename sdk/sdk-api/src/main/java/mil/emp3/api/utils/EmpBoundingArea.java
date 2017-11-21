@@ -22,7 +22,7 @@ import mil.emp3.api.interfaces.IEmpBoundingArea;
  * capability.
  *
  * The vertices represent a polygon/quadrilateral and they are stored in clockwise order. You cannot associate any specific vertex to any specific
- * corner of the view. The class guarentees that all four vertices are non-null and have valid latitude/longitude values. Altitude is always set to zero.
+ * corner of the view. The class guarantees that all four vertices are non-null and have valid latitude/longitude values. Altitude is always set to zero.
  *
  * Class also provides a capability to to convert (approximately) these four vertices to GeoBounds object i.e. North, East, West and South
  * boundaries.
@@ -220,7 +220,7 @@ public class EmpBoundingArea extends GeoBounds implements IEmpBoundingArea {
             builder.append(adjustedVertices[adjustedVertices.length - 1].getLongitude() + "," + adjustedVertices[adjustedVertices.length - 1].getLatitude());
             boundingAreaString = builder.toString();
         } else {
-            // Span of the area is larger than 180 deg, so simply sue the bounding box which is guarenteed to have a span less than 120.
+            // Span of the area is larger than 180 deg, so simply sue the bounding box which is guaranteed to have a span less than 120.
             // This usually happens when complete globe is visible of we are at or near the pole.
             boundingAreaString = getWest() + "," + getSouth() + "," + getEast() + "," + getNorth();
         }
