@@ -120,7 +120,12 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public IContainer findContainer(UUID targetId) {
-        return this.oObjectHash.get(targetId).getObject();
+        StorageObjectWrapper sow = oObjectHash.get(targetId);
+        if (sow != null) {
+            return sow.getObject();
+        }
+
+        return null;
     }
 
     /**
@@ -316,7 +321,11 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public IMapInstance getMapInstance(IMap clientMap) {
-        return oClientMapToMapInstanceMapping.get(clientMap).getMapInstance();
+        IClientMapToMapInstance mapping = oClientMapToMapInstanceMapping.get(clientMap);
+        if (mapping != null) {
+            return mapping.getMapInstance();
+        }
+        return null;
     }
 
     @Override
