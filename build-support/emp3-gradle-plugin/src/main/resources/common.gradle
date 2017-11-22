@@ -40,12 +40,9 @@ repositories {
         url 'https://maven.google.com'
         // Alternative URL is 'https://dl.google.com/dl/android/maven2/'
     }
-    maven {
-        url 'https://bintray.com/nasaworldwind/maven/WorldWindAndroid/'
-    }
-    maven {
-        url "https://dl.bintray.com/missioncommand/maven/"
-    }
+//    maven {
+//        url "https://dl.bintray.com/missioncommand/maven/"
+//    }
     maven {
         url "https://oss.jfrog.org/artifactory/libs-snapshot"
     }
