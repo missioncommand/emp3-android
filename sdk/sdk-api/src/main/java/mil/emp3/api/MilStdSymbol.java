@@ -772,9 +772,9 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     }
 
     private ArrayList<String> convertToArrayList(String sCommaDelimitedString) {
-        ArrayList<String> aValueList = new ArrayList<>(java.util.Arrays.asList(sCommaDelimitedString.split("\\s*,\\s*")));
+        ArrayList<String> aValueList;
 
-        if (sCommaDelimitedString.isEmpty()) {
+        if (sCommaDelimitedString == null || sCommaDelimitedString.isEmpty()) {
             aValueList = new ArrayList<>();
         } else {
             aValueList = new ArrayList<>(java.util.Arrays.asList(sCommaDelimitedString.split("\\s*,\\s*")));
@@ -790,16 +790,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @param fValue The numeric value to set. or Float.NaN to remove the value.
      */
     public void setModifier(IGeoMilSymbol.Modifier eModifier, int iIndex , float fValue) {
-        java.util.HashMap<IGeoMilSymbol.Modifier, String> oModifierList =
-                this.getRenderable().getModifiers();
-        String sValue = "";
-        ArrayList<String> aValueList;
 
-        if (oModifierList.containsKey(eModifier)) {
-            sValue = oModifierList.get(eModifier);
-        }
+        String sValue = getModifiers().get(eModifier);
 
-        aValueList = this.convertToArrayList(sValue);
+        ArrayList<String> aValueList = this.convertToArrayList(sValue);
 
         if ((iIndex >= 0) && (iIndex < aValueList.size())) {
             if (Float.isNaN(fValue)) {
@@ -825,14 +819,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return A String value or null if it does not exists.
      */
     public String getStringModifier(IGeoMilSymbol.Modifier eModifier) {
-        String sValue = null;
-        java.util.HashMap<IGeoMilSymbol.Modifier, String> oModifierList =
-                this.getModifiers();
-
-        if (oModifierList.containsKey(eModifier)) {
-            sValue = oModifierList.get(eModifier);
-        }
-        return sValue;
+        return getModifiers().get(eModifier);
     }
 
     /**
@@ -860,16 +847,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return The numeric value or NaN if it does not exists or it is not a number.
      */
     public float getNumericModifier(IGeoMilSymbol.Modifier eModifier, int iIndex) {
-        java.util.HashMap<IGeoMilSymbol.Modifier, String> oModifierList =
-                this.getModifiers();
-        String sValue = "";
-        ArrayList<String> aValueList;
 
-        if (oModifierList.containsKey(eModifier)) {
-            sValue = oModifierList.get(eModifier);
-        }
+        String sValue = getModifiers().get(eModifier);
 
-        aValueList = this.convertToArrayList(sValue);
+        ArrayList<String> aValueList = this.convertToArrayList(sValue);
 
         if ((iIndex >= 0) && (iIndex < aValueList.size())) {
             try {
