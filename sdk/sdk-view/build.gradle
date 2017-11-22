@@ -85,5 +85,4 @@ android {
             includeAndroidResources = true
         }
     }
-    buildToolsVersion '27.0.1'
 }

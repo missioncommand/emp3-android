@@ -2,15 +2,12 @@ package mil.emp3.api.utils;
 
 import android.graphics.Bitmap;
 
-import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoIconStyle;
-import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPoint;
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.GeoSquare;
-import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.GeoText;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoColor;
@@ -21,7 +18,6 @@ import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPolygon;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRectangle;
-import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoSquare;
 import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoText;
@@ -592,7 +588,7 @@ public class ComparisonUtils {
         assertEquals(feature1.getAzimuth(), feature2.getAzimuth(), Epsilon);
         assertEquals(feature1.getExtrude(), feature2.getExtrude());
         compareLabelStyle(feature1.getLabelStyle(), feature2.getLabelStyle());
-        assertEquals(feature1.getAltitudeMode(), feature2.getAltitudeMode();
+        assertEquals(feature1.getAltitudeMode(), feature2.getAltitudeMode());
         assertEquals(feature1.getBuffer(), feature2.getBuffer(), Epsilon);
         assertEquals(feature1.getTessellate(), feature2.getTessellate());
         assertEquals(feature1.getFeatureType(), feature2.getFeatureType());
