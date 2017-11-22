@@ -5,11 +5,14 @@ import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
+import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoRenderable;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
 
+import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
@@ -533,6 +536,21 @@ public class KMLExportTest extends TestBaseSingleMap{
     private static double getRandomValueBetween(final double low, final double high)
     {
         return low + (high - low) * new Random().nextDouble();
+    }
+
+    private static void addFeatureStyles(final Feature feature) throws Exception{
+        feature.setPosition(getRandomLocation());
+        feature.setName("Test Feature");
+        //feature.setAzimuth(50);
+        feature.setExtrude(true);
+        feature.setDescription("This is a test feature");
+        feature.setFillStyle(new GeoFillStyle());
+        feature.setLabelStyle(new GeoLabelStyle());
+        feature.setStrokeStyle(new GeoStrokeStyle());
+        feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.RELATIVE_TO_GROUND);
+        feature.setBuffer(25.0);
+        feature.setPathType(IGeoRenderable.PathType.LINEAR);
+        feature.setTessellate(false);
     }
 
 }

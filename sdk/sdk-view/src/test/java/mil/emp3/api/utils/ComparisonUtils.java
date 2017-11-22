@@ -2,12 +2,15 @@ package mil.emp3.api.utils;
 
 import android.graphics.Bitmap;
 
+import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoIconStyle;
+import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPoint;
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.GeoSquare;
+import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.GeoText;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoColor;
@@ -18,6 +21,7 @@ import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPolygon;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRectangle;
+import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoSquare;
 import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoText;
@@ -33,6 +37,7 @@ import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
 import mil.emp3.api.Text;
+import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 
 import static org.junit.Assert.assertEquals;
@@ -495,6 +500,34 @@ public class ComparisonUtils {
         assertEquals(text.getProperties(), properties);
     }
 
+    public static void validateFeature(final Feature feature,
+                                       final FeatureTypeEnum fte,
+                                       final List childFeatures,
+                                       final List parentOverlays,
+                                       final List parentFeatures,
+                                       final List<IGeoPosition> positions,
+                                       final Date date,
+                                       final List timeSpans,
+                                       final IGeoAltitudeMode.AltitudeMode altitudeMode,
+                                       final IGeoStrokeStyle strokeStyle,
+                                       final IGeoFillStyle fillStyle,
+                                       final IGeoLabelStyle labelStyle,
+                                       final Boolean extrude,
+                                       final Boolean tessellate,
+                                       final double buffer,
+                                       final double azimuth,
+                                       final GeoPosition geoPosition,
+                                       final Boolean readOnly,
+                                       final List parents,
+                                       final Boolean hasChildren,
+                                       final List children,
+                                       final String name,
+                                       final String dataProvider,
+                                       final String description,
+                                       final HashMap properties) {
+
+    }
+
     public static void validateBoundingBox(final EmpBoundingBox ebb,
                                            final double north,
                                            final double east,
@@ -511,78 +544,57 @@ public class ComparisonUtils {
         assertEquals(point1.getIconScale(), point2.getIconScale(), Epsilon);
         compareIconStyle(point1.getIconStyle(), point2.getIconStyle());
         assertEquals(point1.getResourceId(), point2.getResourceId());
-        compareGeoPosition(point1.getPosition(), point2.getPosition());
-        assertEquals(point1.getAzimuth(), point2.getAzimuth(), Epsilon);
-        assertEquals(point1.getDescription(), point2.getDescription());
-        compareFillStyle(point1.getFillStyle(), point2.getFillStyle());
-        assertEquals(point1.getName(), point2.getName());
-        compareStrokeStyle(point1.getStrokeStyle(), point2.getStrokeStyle());
-        assertEquals(point1.getPathType(), point2.getPathType());
+        compareFeature(point1, point2);
     }
 
     public static void comparePolygon(final Polygon polygon1, final Polygon polygon2) {
         assertEquals(polygon1.getPatternFillImage(), polygon2.getPatternFillImage());
-        compareGeoPosition(polygon1.getPosition(), polygon2.getPosition());
-        assertEquals(polygon1.getAzimuth(), polygon2.getAzimuth(), Epsilon);
-        assertEquals(polygon1.getDescription(), polygon2.getDescription());
-        compareFillStyle(polygon1.getFillStyle(), polygon2.getFillStyle());
-        assertEquals(polygon1.getName(), polygon2.getName());
-        compareStrokeStyle(polygon1.getStrokeStyle(), polygon2.getStrokeStyle());
-        assertEquals(polygon1.getPathType(), polygon2.getPathType());
+        compareFeature(polygon1, polygon2);
+
     }
 
     public static void compareCircle(final Circle circle1, final Circle circle2) {
         assertEquals(circle1.getRadius(), circle2.getRadius(), Epsilon);
-        compareGeoPosition(circle1.getPosition(), circle2.getPosition());
-        assertEquals(circle1.getAzimuth(), circle2.getAzimuth(), Epsilon);
-        assertEquals(circle1.getDescription(), circle2.getDescription());
-        compareFillStyle(circle1.getFillStyle(), circle2.getFillStyle());
-        assertEquals(circle1.getName(), circle2.getName());
-        compareStrokeStyle(circle1.getStrokeStyle(), circle2.getStrokeStyle());
-        assertEquals(circle1.getPathType(), circle2.getPathType());
+        compareFeature(circle1, circle2);
     }
 
     public static void compareEllipse(final Ellipse ellipse1, final Ellipse ellipse2) {
         assertEquals(ellipse1.getSemiMinor(), ellipse2.getSemiMinor(), Epsilon);
         assertEquals(ellipse1.getSemiMajor(), ellipse2.getSemiMajor(), Epsilon);
-        compareGeoPosition(ellipse1.getPosition(), ellipse2.getPosition());
-        assertEquals(ellipse1.getAzimuth(), ellipse2.getAzimuth(), Epsilon);
-        assertEquals(ellipse1.getDescription(), ellipse2.getDescription());
-        compareFillStyle(ellipse1.getFillStyle(), ellipse2.getFillStyle());
-        assertEquals(ellipse1.getName(), ellipse2.getName());
-        compareStrokeStyle(ellipse1.getStrokeStyle(), ellipse2.getStrokeStyle());
-        assertEquals(ellipse1.getPathType(), ellipse2.getPathType());
+        compareFeature(ellipse1, ellipse2);
     }
 
     public static void compareRectangle(final Rectangle rectangle1, final Rectangle rectangle2) {
         assertEquals(rectangle1.getWidth(), rectangle2.getWidth(), Epsilon);
         assertEquals(rectangle1.getHeight(), rectangle2.getHeight(), Epsilon);
-        compareGeoPosition(rectangle1.getPosition(), rectangle2.getPosition());
-        assertEquals(rectangle1.getAzimuth(), rectangle2.getAzimuth(), Epsilon);
-        assertEquals(rectangle1.getDescription(), rectangle2.getDescription());
-        compareFillStyle(rectangle1.getFillStyle(), rectangle2.getFillStyle());
-        assertEquals(rectangle1.getName(), rectangle2.getName());
-        compareStrokeStyle(rectangle1.getStrokeStyle(), rectangle2.getStrokeStyle());
+        compareFeature(rectangle1, rectangle2);
     }
 
     public static void compareSquare(final Square square1, final Square square2) {
         assertEquals(square1.getWidth(), square2.getWidth(), Epsilon);
-        compareGeoPosition(square1.getPosition(), square2.getPosition());
-        assertEquals(square1.getAzimuth(), square2.getAzimuth(), Epsilon);
-        assertEquals(square1.getDescription(), square2.getDescription());
-        compareFillStyle(square1.getFillStyle(), square2.getFillStyle());
-        assertEquals(square1.getName(), square2.getName());
-        compareStrokeStyle(square1.getStrokeStyle(), square2.getStrokeStyle());
+        compareFeature(square1, square2);
     }
 
     public static void compareText(final Text text1, final Text text2) {
         assertEquals(text1.getRotationAngle(), text2.getRotationAngle(), Epsilon);
         assertEquals(text1.getText(), text2.getText());
-        compareGeoPosition(text1.getPosition(), text2.getPosition());
-        assertEquals(text1.getAzimuth(), text2.getAzimuth(), Epsilon);
-        assertEquals(text1.getDescription(), text2.getDescription());
-        compareFillStyle(text1.getFillStyle(), text2.getFillStyle());
-        assertEquals(text1.getName(), text2.getName());
-        compareStrokeStyle(text1.getStrokeStyle(), text2.getStrokeStyle());
+        compareFeature(text1, text2);
+    }
+
+    public static void compareFeature(final Feature feature1, final Feature feature2) {
+        compareGeoPosition(feature1.getPosition(), feature2.getPosition());
+        assertEquals(feature1.getAzimuth(), feature2.getAzimuth(), Epsilon);
+        assertEquals(feature1.getDescription(), feature2.getDescription());
+        compareFillStyle(feature1.getFillStyle(), feature2.getFillStyle());
+        assertEquals(feature1.getName(), feature2.getName());
+        compareStrokeStyle(feature1.getStrokeStyle(), feature2.getStrokeStyle());
+        assertEquals(feature1.getPathType(), feature2.getPathType());
+        assertEquals(feature1.getAzimuth(), feature2.getAzimuth(), Epsilon);
+        assertEquals(feature1.getExtrude(), feature2.getExtrude());
+        compareLabelStyle(feature1.getLabelStyle(), feature2.getLabelStyle());
+        assertEquals(feature1.getAltitudeMode(), feature2.getAltitudeMode();
+        assertEquals(feature1.getBuffer(), feature2.getBuffer(), Epsilon);
+        assertEquals(feature1.getTessellate(), feature2.getTessellate());
+        assertEquals(feature1.getFeatureType(), feature2.getFeatureType());
     }
 }
