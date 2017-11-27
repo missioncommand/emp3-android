@@ -90,29 +90,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         super.init();
         super.setupSingleMap(TAG);
 
-//        final SparseArray sparseArray = mock(SparseArray.class);
-//        whenNew(SparseArray.class).withNoArguments().thenReturn(sparseArray);
-//        doNothing().when(sparseArray).put(Mockito.anyInt(), Mockito.anyString());
-//        when(sparseArray.get(MilStdAttributes.SymbologyStandard)).thenReturn("1");
-//
-//        final Bitmap bitmap = mock(Bitmap.class);
-//        final android.graphics.Point point = Mockito.mock(android.graphics.Point.class);
-//        setInternalState(point, "x", 5);
-//        setInternalState(point, "y", 5);
-//
-//        final Rect rect = Mockito.mock(Rect.class);
-//        when(rect.width()).thenReturn(5);
-//        when(rect.height()).thenReturn(5);
-//        final ImageInfo realImageInfo = new ImageInfo(bitmap, point, rect);
-//        final ImageInfo imageInfo = Mockito.spy(realImageInfo);
-//        whenNew(Rect.class).withArguments(rect).thenReturn(rect);
-//
-//        final MilStdIconRenderer milStdIconRenderer = Mockito.mock(MilStdIconRenderer.class);
-//        mockStatic(MilStdIconRenderer.class);
-//        when(MilStdIconRenderer.getInstance()).thenReturn(milStdIconRenderer);
-//        when(milStdIconRenderer.RenderIcon(any(), any(), any())).thenReturn(imageInfo);
-//        when(imageInfo.getImageBounds()).thenReturn(rect);
-//        when(imageInfo.getCenterPoint()).thenReturn(point);
 
         if(outputDirectory == null || !outputDirectory.exists())
         {
@@ -123,7 +100,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         {
             temporaryOutputDirectory = createTemporaryDirectory();
         }
-//./
 
     }
 
@@ -962,11 +938,19 @@ public class KMZExporterTest extends TestBaseSingleMap
     }
 
     @Test
-    public void exportKmzMilSymbolTest() throws EMP_Exception, MalformedURLException, InterruptedException {
+    public void exportKmzMilSymbolTest() throws EMP_Exception, MalformedURLException, InterruptedException, IOException {
         final String    kmzFileNameWithoutExtension = "TestKmzFileName";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
 
+//        ((MilStdRenderer)milStdRenderer).init();
+
+        //final File cacheDirectory = createTemporaryDirectory();
+        final File testCacheDirectory = new File("/home/matt.miller@rgi-corp.local/.gradle/caches/transforms-1/files-1.1/mil-sym-android-renderer-0.1.35.aar/4eb6d471437faaba82cc106ec5b35362/");
+        final File resRaw = new File("res/raw/");
+        resRaw.mkdirs();
+        //384 is value used for test-basic on startup to setup the renderer
+        milStdRenderer.setRendererCacheDir("res/raw/", 384);
 
         final MilStdSymbol milSymbol = BasicUtilities.generateMilStdSymbol("TRUCK", UUID.randomUUID(),
                                                                            40, -75);

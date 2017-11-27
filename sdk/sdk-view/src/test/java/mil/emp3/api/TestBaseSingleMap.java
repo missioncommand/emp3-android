@@ -20,7 +20,7 @@ import mil.emp3.api.mock.MockMapInstance;
 public class TestBaseSingleMap extends TestBase {
     private static String TAG;
 
-    private Context context;
+    Context context;
     private Resources res;
 
     protected RemoteMap remoteMap;
