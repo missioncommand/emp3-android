@@ -427,9 +427,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
             modifierMap.put(IGeoMilSymbol.Modifier.valueOf(((String)modifierSpinner.getSelectedItem())), modifierValue.getText().toString());
             Toast.makeText(this.getContext(), "Added modifier", Toast.LENGTH_SHORT).show();
         });
-
-
-
+        
         final TextView oSymbolCode = (TextView) oDialogView.findViewById(R.id.symbolcodetextField);
         oSymbolCode.setText(this.sSymbolCode);
 
