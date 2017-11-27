@@ -82,7 +82,7 @@ public final class EmpKMZExporter
 
         if(!outputKmzLocation.getName().toLowerCase().endsWith(KMZFileExtension))
         {
-            throw new IllegalArgumentException(String.format("The ouputKmzLocation File name must have a file extension of %s", KMZFileExtension));
+            throw new IllegalArgumentException(String.format("The outputKmzLocation File name must have a file extension of %s", KMZFileExtension));
         }
 
         final KMZExportThread kmzExportThread = new KMZExportThread(map,
@@ -195,7 +195,7 @@ public final class EmpKMZExporter
 
         if(!outputKmzLocation.getName().toLowerCase().endsWith(KMZFileExtension))
         {
-            throw new IllegalArgumentException(String.format("The ouputKmzLocation File name must have a file extension of %s", KMZFileExtension));
+            throw new IllegalArgumentException(String.format("The outputKmzLocation File name must have a file extension of %s", KMZFileExtension));
         }
 
         final KMZExportThread kmzExportThread = new KMZExportThread(map,
@@ -312,7 +312,7 @@ public final class EmpKMZExporter
 
         if(!outputKmzLocation.getName().toLowerCase().endsWith(KMZFileExtension))
         {
-            throw new IllegalArgumentException(String.format("The ouputKmzLocation File name must have a file extension of %s", KMZFileExtension));
+            throw new IllegalArgumentException(String.format("The outputKmzLocation File name must have a file extension of %s", KMZFileExtension));
         }
 
         final KMZExportThread kmzExportThread = new KMZExportThread(map,

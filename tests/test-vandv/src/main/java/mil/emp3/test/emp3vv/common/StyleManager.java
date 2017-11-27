@@ -23,7 +23,7 @@ import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
  * EMP SDK allows for three distinct Style objects, namely StrokeStyle, LabelStyle and FillStyle. Default styles are
  * built into the CMAPI GeoRenderable object. The StyleManager allows the users to change these styles.
  *
- * TODO Alow for setting of defaults withing the style object in future.
+ * TODO Allow for setting of defaults withing the style object in future.
  */
 public class StyleManager implements LabelStyleDialog.ILabelStyleDialogListener,
         StrokeStyleDialog.IStrokeStyleDialogListener, FillStyleDialog.IFillStyleDialogListener {

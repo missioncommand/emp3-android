@@ -99,7 +99,7 @@ public class PositionUtility implements IMapInteractionEventListener {
 
     /**
      * This is invoked when User Selects the Position List button on FeaturePropertiesDialog, SymbolProperties Dialog and
-     * TacticalGraphicProperties Dialog. We trun of the PositionUtility camera listener and use the positionList supplied
+     * TacticalGraphicProperties Dialog. We turn off the PositionUtility camera listener and use the positionList supplied
      * to us by the caller to return in getPosition List.
      * @param positionList
      */

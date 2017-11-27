@@ -371,7 +371,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
     @Override
     public void setPathType(PathType pathType) {
         if (null == pathType) {
-            throw new IllegalArgumentException("Paramater ca not be null.");
+            throw new IllegalArgumentException("Parameter cannot be null.");
         }
 
         this.getRenderable().setPathType(pathType);
@@ -415,10 +415,10 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
 
     /**
      * Use by sub classes of this class to validate input parameters. If value is not NaN then we return absolute
-     * value else thro an exception.
+     * value else throw an exception.
      * @param dValue value to be made positive
      * @param message Message that is returned if dValue is NaN
-     * @return positve value of the passed in value
+     * @return positive value of the passed in value
      */
     protected double makePositive(final double dValue, final String message) {
         if(Double.isNaN(dValue)) {
@@ -449,7 +449,7 @@ public class Feature<T extends IGeoRenderable> extends Container implements IFea
      */
     protected void validateWithinRange(final double dValue, final double minimum, final double maximum) {
         if(Double.isNaN(dValue)) {
-            throw new IllegalArgumentException("invalid parameter, value is not a nubmer");
+            throw new IllegalArgumentException("invalid parameter, value is not a number");
         }
         if(Double.isNaN(minimum) || Double.isNaN(maximum)) {
                throw new IllegalArgumentException("Invalid parameter, one of the bounds is NaN");

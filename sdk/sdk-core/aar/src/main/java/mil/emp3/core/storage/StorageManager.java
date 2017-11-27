@@ -210,7 +210,7 @@ public class StorageManager implements IStorageManager {
     }
     /**
      * When activity is destroyed application can either choose to delete all EMP3 storage data and take on the responsibility
-     * to setup maps/overalys/features. OR they can let the EMP3 middleware do the restoration.
+     * to setup maps/overlays/features. OR they can let the EMP3 middleware do the restoration.
      *
      * clearMapMapping is invoked from Emp3Manager.onDestroy when application expects EMP3 middleware to restore map engine/overlays/features.
      * NOTE that clientMap will still be created by Android based on view hierarchy and RestoreDataMappings helps us reconcile that clientMap.
@@ -509,24 +509,24 @@ public class StorageManager implements IStorageManager {
         java.util.Map<java.util.UUID, IStorageObjectWrapper> childrenList =
                 wrapper.getChildrenList();
 
-        for (IStorageObjectWrapper childWraper: childrenList.values()) {
+        for (IStorageObjectWrapper childWrapper: childrenList.values()) {
             switch (actionEnum) {
                 case SHOW_ALL:
-                    visibilityStateOnMap = childWraper.getVisibilityOnMap(mapId);
-                    childWraper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE);
+                    visibilityStateOnMap = childWrapper.getVisibilityOnMap(mapId);
+                    childWrapper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE);
                     if (visibilityStateOnMap == VisibilityStateEnum.HIDDEN) {
                         // The child is off on the map. We need to turn it on.
-                        idVisibilityList.putFeature(childWraper.getObject(), true);
+                        idVisibilityList.putFeature(childWrapper.getObject(), true);
                     }
                     break;
                 case TOGGLE_ON:
-                    visibilityStateOnMap = childWraper.getVisibilityWithParentOnMap(mapId, wrapperId);
+                    visibilityStateOnMap = childWrapper.getVisibilityWithParentOnMap(mapId, wrapperId);
                     switch (visibilityStateOnMap) {
                         case VISIBLE_ANCESTOR_HIDDEN:
                             // This child was visible but hidden do to the parent.
                             // Now that the parent is visible it must be made visible.
-                            childWraper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE);
-                            idVisibilityList.putFeature(childWraper.getObject(), true);
+                            childWrapper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE);
+                            idVisibilityList.putFeature(childWrapper.getObject(), true);
                             break;
                         case VISIBLE:
                             // The child was already visible. no change needed.
@@ -538,26 +538,26 @@ public class StorageManager implements IStorageManager {
                     }
                     break;
                 case HIDE_ALL:
-                    visibilityStateOnMap = childWraper.getVisibilityOnMap(mapId);
-                    childWraper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.HIDDEN);
+                    visibilityStateOnMap = childWrapper.getVisibilityOnMap(mapId);
+                    childWrapper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.HIDDEN);
                     if (visibilityStateOnMap == VisibilityStateEnum.VISIBLE) {
                         // The child was previously visible on the map.
                         // we need to see if it is now set hidden.
-                        if (childWraper.getVisibilityOnMap(mapId) == VisibilityStateEnum.HIDDEN) {
+                        if (childWrapper.getVisibilityOnMap(mapId) == VisibilityStateEnum.HIDDEN) {
                             // We need to turn it off on the map.
-                            idVisibilityList.putFeature(childWraper.getObject(), false);
+                            idVisibilityList.putFeature(childWrapper.getObject(), false);
                         }
                     }
                     break;
                 case TOGGLE_OFF:
                 default:
-                    visibilityStateOnMap = childWraper.getVisibilityWithParentOnMap(mapId, wrapperId);
+                    visibilityStateOnMap = childWrapper.getVisibilityWithParentOnMap(mapId, wrapperId);
                     switch (visibilityStateOnMap) {
                         case VISIBLE:
                             // This child was visible, but now the parent is not.
                             // So we set it to VISIBLE_ANCESTOR_HIDDEN.
-                            childWraper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE_ANCESTOR_HIDDEN);
-                            idVisibilityList.putFeature(childWraper.getObject(), false);
+                            childWrapper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE_ANCESTOR_HIDDEN);
+                            idVisibilityList.putFeature(childWrapper.getObject(), false);
                             break;
                         case VISIBLE_ANCESTOR_HIDDEN:
                         case HIDDEN:
@@ -568,7 +568,7 @@ public class StorageManager implements IStorageManager {
                     }
                     break;
             }
-            this.setVisibilityOnChildren(idVisibilityList, mapId, childWraper, actionEnum);
+            this.setVisibilityOnChildren(idVisibilityList, mapId, childWrapper, actionEnum);
         }
     }
 
@@ -641,7 +641,7 @@ public class StorageManager implements IStorageManager {
             lock.lock();
             StorageObjectWrapper targetWrapper = this.oObjectHash.get(targetId);
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentId);
-            VisibilityStateEnum prevVisibileState = targetWrapper.getVisibilityOnMap(mapId);
+            VisibilityStateEnum prevVisibleState = targetWrapper.getVisibilityOnMap(mapId);
             IdentifierVisibilityHash idVisibilityList = new IdentifierVisibilityHash();
 
             if (!targetWrapper.isOnMap(mapId)) {
@@ -655,7 +655,7 @@ public class StorageManager implements IStorageManager {
                 case TOGGLE_ON:
                     targetWrapper.setVisibilityWithParentOnMap(mapId, parentId, VisibilityStateEnum.VISIBLE);
                     this.setVisibilityOnChildren(idVisibilityList, mapId, targetWrapper, actionEnum);
-                    if (prevVisibileState == VisibilityStateEnum.HIDDEN) {
+                    if (prevVisibleState == VisibilityStateEnum.HIDDEN) {
                         // The target was off now its on.
                         idVisibilityList.putFeature(target, true);
                     }
@@ -667,7 +667,7 @@ public class StorageManager implements IStorageManager {
                 default:
                     targetWrapper.setVisibilityWithParentOnMap(mapId, parentId, VisibilityStateEnum.HIDDEN);
                     this.setVisibilityOnChildren(idVisibilityList, mapId, targetWrapper, actionEnum);
-                    if ((prevVisibileState == VisibilityStateEnum.VISIBLE) &&
+                    if ((prevVisibleState == VisibilityStateEnum.VISIBLE) &&
                             (targetWrapper.getVisibilityOnMap(mapId) == VisibilityStateEnum.HIDDEN)) {
                         // The target was visible but now its hidden.
                         idVisibilityList.putFeature(target, false);
@@ -1463,7 +1463,7 @@ public class StorageManager implements IStorageManager {
 
     /**
      * This is invoked from IOverlay API. Take care to remove direct children of the overlays (included children of
-     * features) othereise low level methods will fail. Each overlay on the list must be a direct child of the parentOverlay.
+     * features) otherwise low level methods will fail. Each overlay on the list must be a direct child of the parentOverlay.
      * All descendants of overlay on the list will be removed from the map to which parentOverlay belongs.
      * @param parentOverlay
      * @param overlays
@@ -1574,7 +1574,7 @@ public class StorageManager implements IStorageManager {
                     mapInstance.addFeatures(fvList, userContext);
                     mapInstance.selectFeatures(this.getSelected(clientMap));
                 } else {
-                    //Log.i(TAG, "redrawAllFeatures: There are no visible faetures");
+                    //Log.i(TAG, "redrawAllFeatures: There are no visible features");
                 }
             }
             // add All Services
@@ -1996,8 +1996,8 @@ public class StorageManager implements IStorageManager {
     }
 
     /**
-     * This method is invoked by AdaptiveBitmapCache to update Mid Distance threshold. Note that we don't updae the value set by
-     * application in the MapStatus object. If we want to let application retrieve the actual value thebn we will need to provide
+     * This method is invoked by AdaptiveBitmapCache to update Mid Distance threshold. Note that we don't update the value set by
+     * application in the MapStatus object. If we want to let application retrieve the actual value then we will need to provide
      * a method in IMap.
      *
      * @param oMap
@@ -2066,16 +2066,16 @@ public class StorageManager implements IStorageManager {
      * @return
      */
     public Map<IMap, Double> getMidDistanceThreshold() {
-        Map<IMap, Double> midDistanceThreshols = new HashMap<>();
+        Map<IMap, Double> midDistanceThresholds = new HashMap<>();
         try {
             lock.lock();
             for(Map.Entry<IMap, ClientMapToMapInstance> entry : oClientMapToMapInstanceMapping.entrySet()) {
-                midDistanceThreshols.put(entry.getKey(), entry.getValue().getMidDistanceThreshold());
+                midDistanceThresholds.put(entry.getKey(), entry.getValue().getMidDistanceThreshold());
             }
         } finally {
             lock.unlock();
         }
-        return midDistanceThreshols;
+        return midDistanceThresholds;
     }
 
     @Override

@@ -512,7 +512,7 @@ public interface IMap extends IContainer {
     IconSizeEnum getIconSize();
 
     /**
-     * This method indicates to the map engine which MilStd labels to display when renderering MilStd symbols.
+     * This method indicates to the map engine which MilStd labels to display when rendering MilStd symbols.
      * @param labelSetting {@link MilStdLabelSettingEnum}
      * @param userContext user defined object
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
@@ -521,7 +521,7 @@ public interface IMap extends IContainer {
             throws EMP_Exception;
 
     /**
-     * This method indicates to the map engine which MilStd labels to display when renderering MilStd symbols.
+     * This method indicates to the map engine which MilStd labels to display when rendering MilStd symbols.
      * @param labelSetting {@link MilStdLabelSettingEnum}
      * @throws EMP_Exception The exception is raised if a processing error is encountered.
      */
@@ -558,7 +558,7 @@ public interface IMap extends IContainer {
      * This method places the specified feature into edit mode and EditorMode changes to EDIT_MODE.
      *
      * Clicking (tapping) on the map to add coordinates to the feature's position list is not support
-     * while in edit mode. To allow map clicking to add corrdiantes use the drawFeature method.
+     * while in edit mode. To allow map clicking to add coordinates use the drawFeature method.
      * @param oFeature The specified feature. The feature must have been place on the map previously.
      * @param listener A listener to handler the edit session events. This listener is
      * unregistered when the edit session is completed or canceled.

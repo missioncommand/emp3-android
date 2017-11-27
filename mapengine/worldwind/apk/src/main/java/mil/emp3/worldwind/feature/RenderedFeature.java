@@ -25,7 +25,7 @@ import mil.emp3.worldwind.feature.support.BufferGenerator;
 public class RenderedFeature extends FeatureRenderableMapping<IFeature> {
     final static private String TAG = RenderedFeature.class.getSimpleName();
 
-    // The renderable list in the base class contians the polygons.
+    // The renderable list in the base class contains the polygons.
     // This list contains the paths.
     private final List<Renderable> pathRenderableList;
     // This list contains the labels.
