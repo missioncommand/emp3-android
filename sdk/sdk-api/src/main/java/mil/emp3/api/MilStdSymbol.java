@@ -151,6 +151,9 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
                 case "K":
                     eValue = FAKER;
                     break;
+                default:
+                    eValue = FRIEND;
+                    break;
             }
 
             return eValue;
@@ -206,6 +209,9 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
                     break;
                 case 'K':
                     eValue = FAKER;
+                    break;
+                default:
+                    eValue = FRIEND;
                     break;
             }
 
