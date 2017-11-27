@@ -158,7 +158,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
         /**
          * This static method returns the affiliation enumerated value for the given string representation.
-         * @param chr
+         * @param chr affiliation character
          * @return affiliation enumerated value or null if the string does not represent a valid MilStd affiliation code.
          */
         public static Affiliation fromChar(char chr) {
