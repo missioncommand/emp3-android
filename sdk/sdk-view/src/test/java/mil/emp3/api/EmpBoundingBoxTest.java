@@ -6,6 +6,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
@@ -14,6 +16,7 @@ import mil.emp3.api.utils.EmpBoundingBox;
  * Emp Bounding box class has changed as a result of recent modification getBounds capability. For now I am
  * disabling all the tests in this file.
  */
+@RunWith(RobolectricTestRunner.class)
 public class EmpBoundingBoxTest {
     private static String TAG = EmpBoundingBoxTest.class.getSimpleName();
 

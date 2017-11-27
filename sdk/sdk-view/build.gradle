@@ -5,13 +5,13 @@ apply plugin: 'nebula.maven-nebula-publish'
 
 dependencies {
     api project(':emp3-android-sdk')
+    testImplementation 'junit:junit:4.12'
     //compile project     (":service:mirrorcache:service-mirrorcache-api")
     //compile project     (":service:mirrorcache:service-mirrorcache-mirrorables")
     implementation 'com.android.support:appcompat-v7'
     api 'mil.army.missioncommand:mil-sym-android-renderer'
     implementation project(':geolib')
     testImplementation project(':emp3-android-sdk-core-aar')
-    testImplementation 'junit:junit:4.12'
     //testImplementation         ("org.mockito:mockito-core")
     testImplementation('org.powermock:powermock-api-mockito:1.6.2') {
         // PowerMockito is required to mock static methods like Logger.log
@@ -22,7 +22,8 @@ dependencies {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testImplementation 'org.robolectric:robolectric:3.3.2'
+    testImplementation 'org.robolectric:robolectric:3.5.1'
+    testImplementation 'org.assertj:assertj-core:3.8.0'
 }
 
 
@@ -77,5 +78,11 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
     }
 }

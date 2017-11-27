@@ -159,7 +159,7 @@ public class ControlPoint extends mil.emp3.api.Point {
     }
 
     /**
-     * This method moves the control point to location that is at the indicated beraing at the specified distance.
+     * This method moves the control point to location that is at the indicated bearing at the specified distance.
      * @param bearing
      * @param distance
      */

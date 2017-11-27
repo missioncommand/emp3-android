@@ -119,7 +119,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
 
     /**
      * This method sets minor radius of an elliptical feature.
-     * @param value The minor radius in meters. An InvalidPaameterException is raised if the absolute value is less than 1.0.
+     * @param value The minor radius in meters. An IllegalArgumentException is raised if the absolute value is less than 1.0.
      */
     @Override
     public void setSemiMinor(double value) {

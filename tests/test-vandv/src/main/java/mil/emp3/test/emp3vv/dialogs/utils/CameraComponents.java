@@ -38,7 +38,7 @@ public class CameraComponents {
 
     private Spinner altitudeModeSpinner;
     private ArrayAdapter<String> altitudeModeSpinnerAdapter;
-    private List<String> altitideModeSpinnerData;
+    private List<String> altitudeModeSpinnerData;
 
     private boolean isLookAt = false;
 
@@ -54,11 +54,11 @@ public class CameraComponents {
         et_roll_range = (EditText) view.findViewById(R.id.roll_range);
 
         altitudeModeSpinner = (Spinner) view.findViewById(R.id.altitude_mode);
-        altitideModeSpinnerData = new ArrayList<>();
+        altitudeModeSpinnerData = new ArrayList<>();
         for(IGeoAltitudeMode.AltitudeMode mode: IGeoAltitudeMode.AltitudeMode.values()) {
-            altitideModeSpinnerData.add(mode.toString());
+            altitudeModeSpinnerData.add(mode.toString());
         }
-        altitudeModeSpinnerAdapter = new ArrayAdapter(view.getContext(), android.R.layout.simple_spinner_item, altitideModeSpinnerData);
+        altitudeModeSpinnerAdapter = new ArrayAdapter(view.getContext(), android.R.layout.simple_spinner_item, altitudeModeSpinnerData);
         altitudeModeSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         altitudeModeSpinner.setAdapter(altitudeModeSpinnerAdapter);
 
@@ -88,7 +88,7 @@ public class CameraComponents {
         et_heading.setText(String.format("%1$6.3f", heading));
         et_tilt.setText(String.format("%1$6.3f", tilt));
         et_roll_range.setText(String.format("%1$d", (long) roll_range));
-        altitudeModeSpinner.setSelection(altitideModeSpinnerData.indexOf(altitudeMode));
+        altitudeModeSpinner.setSelection(altitudeModeSpinnerData.indexOf(altitudeMode));
     }
 
     public ICamera getCamera() {
@@ -100,7 +100,7 @@ public class CameraComponents {
             camera.setHeading(valueOf(et_heading.getText().toString()));
             camera.setTilt(valueOf(et_tilt.getText().toString()));
             camera.setRoll(valueOf(et_roll_range.getText().toString()));
-            camera.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.valueOf(altitideModeSpinnerData.get(altitudeModeSpinner.getSelectedItemPosition())));
+            camera.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.valueOf(altitudeModeSpinnerData.get(altitudeModeSpinner.getSelectedItemPosition())));
             return camera;
         } else {
             return null;
@@ -122,7 +122,7 @@ public class CameraComponents {
             lookAt.setHeading(valueOf(et_heading.getText().toString()));
             lookAt.setTilt(valueOf(et_tilt.getText().toString()));
             lookAt.setRange(valueOf(et_roll_range.getText().toString()));
-            lookAt.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.valueOf(altitideModeSpinnerData.get(altitudeModeSpinner.getSelectedItemPosition())));
+            lookAt.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.valueOf(altitudeModeSpinnerData.get(altitudeModeSpinner.getSelectedItemPosition())));
             return lookAt;
         } else {
             return null;

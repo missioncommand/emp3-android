@@ -14,12 +14,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import mil.emp3.api.utils.EmpGeoPosition;
 
 /**
  * Test basic shapes Circle, Ellipse, Rectangle and Square for parameter validation.
  */
+@RunWith(RobolectricTestRunner.class)
 public class BasicShapesValidationTest extends TestBaseSingleMap {
 
     private static String TAG = BasicAddOverlayAndFeatureTest.class.getSimpleName();

@@ -24,7 +24,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  * its subindex is -1.
  * The index of the RANGE control point id the index of the range in the DISTANCE modifier and the subindex is -1.
  *
- * This graphic requies at least 1 AM range value and allows upto 3 range AM values.
+ * This graphic requires at least 1 AM range value and allows up to 3 range AM values.
  *
  */
 public class MilStdDCCircularRangeFanEditor extends AbstractMilStdMultiPointEditor {

@@ -99,7 +99,7 @@ public class Conversion {
     }
 
     @WorldWind.AltitudeMode
-    public static int convertIGeoAaltitudeMode(IGeoAltitudeMode.AltitudeMode altitudeMode) {
+    public static int convertIGeoAltitudeMode(IGeoAltitudeMode.AltitudeMode altitudeMode) {
         int iRet = WorldWind.CLAMP_TO_GROUND;
 
         if (null != altitudeMode) {
@@ -150,14 +150,14 @@ public class Conversion {
         }
     }
 
-    public static gov.nasa.worldwind.render.Color covertColor(IGeoColor geoColor) {
+    public static gov.nasa.worldwind.render.Color convertColor(IGeoColor geoColor) {
         gov.nasa.worldwind.render.Color wwColor = new gov.nasa.worldwind.render.Color();
 
-        Conversion.covertColor(geoColor, wwColor);
+        Conversion.convertColor(geoColor, wwColor);
         return wwColor;
     }
 
-    public static void covertColor(IGeoColor fromColor, gov.nasa.worldwind.render.Color toColor) {
+    public static void convertColor(IGeoColor fromColor, gov.nasa.worldwind.render.Color toColor) {
         if ((fromColor == null) || (toColor == null)) {
             return;
         }

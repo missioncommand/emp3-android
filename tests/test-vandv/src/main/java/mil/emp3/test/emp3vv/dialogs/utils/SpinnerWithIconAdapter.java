@@ -40,7 +40,7 @@ public class SpinnerWithIconAdapter extends ArrayAdapter<SpinnerWithIconItem> {
         return getCustomView(position, convertView, parent);
     }
 
-    // This funtion called for each row ( Called data.size() times )
+    // This function called for each row ( Called data.size() times )
     public View getCustomView(int position, View convertView, ViewGroup parent) {
 
         /********** Inflate spinner_rows.xml file for each row ( Defined below ) ************/

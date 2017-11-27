@@ -6,6 +6,8 @@ import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoPosition;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,6 +22,7 @@ import mil.emp3.api.utils.GeographicLib;
 /**
  * This class tests the Geo Library method.
  */
+@RunWith(RobolectricTestRunner.class)
 public class GeoLibraryUnitTest
 {
     private static final String TAG                       = GeoLibraryUnitTest.class.getSimpleName();

@@ -81,7 +81,7 @@ public class MapGridLayer extends RenderableLayer {
                 }
             }
             this.lastUpdateTime = this.gridGenerator.getLastUpdated().getTime();
-            Log.i(TAG, "feature convertion in " + (System.currentTimeMillis() - startTS) + " ms.");
+            Log.i(TAG, "feature conversion in " + (System.currentTimeMillis() - startTS) + " ms.");
         }
     }
 

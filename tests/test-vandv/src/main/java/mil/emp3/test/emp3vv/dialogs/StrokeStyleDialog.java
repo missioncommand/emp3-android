@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoColor;
@@ -85,7 +83,7 @@ public class StrokeStyleDialog extends Emp3TesterDialogBase {
         } else {
             strokeStyle.setStipplingFactor(stipplingFactor);
         }
-        uppdateStipplePattern(getView());
+        updateStipplePattern(getView());
         strokeStyle.setStipplingPattern(stipplingPattern);
         return strokeStyle;
     }
@@ -147,7 +145,7 @@ public class StrokeStyleDialog extends Emp3TesterDialogBase {
         }
     }
 
-    private void uppdateStipplePattern(View view) {
+    private void updateStipplePattern(View view) {
         stipplingPattern = 0;
         for(int bitNumber = 0; bitNumber <=15; bitNumber++) {
             String tag = "sp" + String.valueOf(bitNumber);

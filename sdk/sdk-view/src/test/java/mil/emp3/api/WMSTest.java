@@ -6,12 +6,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.net.MalformedURLException;
 
 import mil.emp3.api.enums.WMSVersionEnum;
 import mil.emp3.json.geoJson.GeoJsonParser;
-
+@RunWith(RobolectricTestRunner.class)
 public class WMSTest extends TestBase {
     public static final String TAG = WMSTest.class.getSimpleName();
 

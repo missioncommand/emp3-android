@@ -58,7 +58,7 @@ public class global {
     /**
      * This method finds an overlay with the specified ID.
      * @param uuid The unique identifier of the overlay.
-     * @return IOveraly or null if its not found.
+     * @return IOverlay or null if its not found.
      */
     public static IOverlay findOverlay(java.util.UUID uuid) {
         IContainer oContainer = global.findContainer(uuid);

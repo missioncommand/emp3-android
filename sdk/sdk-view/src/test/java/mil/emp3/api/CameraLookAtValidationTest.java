@@ -12,11 +12,13 @@ import org.cmapi.primitives.IGeoPosition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import mil.emp3.api.interfaces.ICamera;
 import mil.emp3.api.interfaces.ILookAt;
 import mil.emp3.api.utils.EmpGeoPosition;
-
+@RunWith(RobolectricTestRunner.class)
 public class CameraLookAtValidationTest extends TestBaseSingleMap {
 
     private static String TAG = CameraLookAtValidationTest.class.getSimpleName();

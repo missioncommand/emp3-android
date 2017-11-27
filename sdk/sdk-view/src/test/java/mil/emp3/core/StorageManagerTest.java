@@ -4,8 +4,10 @@ import android.content.Context;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,10 +45,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
-
+@RunWith(RobolectricTestRunner.class)
 public class StorageManagerTest extends TestBase {
 
-    @Mock
+
     private Context context;
 
     private IMap mockMap;

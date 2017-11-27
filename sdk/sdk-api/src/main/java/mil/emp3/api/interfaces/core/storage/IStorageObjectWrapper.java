@@ -15,7 +15,7 @@ public interface IStorageObjectWrapper<T extends IContainer> {
 
     UUID getGeoId();
 
-    boolean childCreatesParodox(IStorageObjectWrapper newChild);
+    boolean childCreatesParadox(IStorageObjectWrapper newChild);
 
     boolean hasParents();
     boolean hasParent(java.util.UUID id);
