@@ -590,8 +590,8 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     private double dIconScale = 1.0;
     private String basicSymbolCode = null;
-    private Boolean tacticalGraphic = null;
-    private Boolean singlePoint = null;
+    private Boolean isTacticalGraphic = null;
+    private Boolean isSinglePoint = null;
 
     /**
      * This is the default constructor for the class. It creates a GeoMilSymbol that is rendered using
@@ -694,8 +694,8 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             throw new IllegalArgumentException("Invalid symbol code.");
         }
         basicSymbolCode = SymbolUtilities.getBasicSymbolID(symbolCode);
-        tacticalGraphic = SymbolUtilities.isTacticalGraphic(basicSymbolCode);
-        singlePoint = isSinglePoint();
+        isTacticalGraphic = SymbolUtilities.isTacticalGraphic(basicSymbolCode);
+        isSinglePoint = isSinglePoint();
         char affiliation = SymbolUtilities.getAffiliation(symbolCode);
 
         this.getRenderable().setSymbolCode(symbolCode);
@@ -877,8 +877,8 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return true if symbol is a tactical graphic
      */
     public boolean isTacticalGraphic() {
-        if (tacticalGraphic != null) {
-            return tacticalGraphic.booleanValue();
+        if (isTacticalGraphic != null) {
+            return isTacticalGraphic.booleanValue();
         }
         validate();
         return SymbolUtilities.isTacticalGraphic(this.getBasicSymbol());
@@ -890,29 +890,29 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return true if symbol code is for a single point
      */
     public boolean isSinglePoint() {
-        if (singlePoint != null) {
-            return singlePoint.booleanValue();
+        if (isSinglePoint != null) {
+            return isSinglePoint.booleanValue();
         }
         validate();
-        singlePoint = false;
+        isSinglePoint = false;
         if (basicSymbolCode == null) {
             basicSymbolCode = SymbolUtilities.getBasicSymbolID(this.getSymbolCode());
-            tacticalGraphic = SymbolUtilities.isTacticalGraphic(basicSymbolCode);
+            isTacticalGraphic = SymbolUtilities.isTacticalGraphic(basicSymbolCode);
         }
 
-        if (tacticalGraphic) {
+        if (isTacticalGraphic) {
             int milstdVersion = (this.getSymbolStandard() == IGeoMilSymbol.SymbolStandard.MIL_STD_2525B)? 0: 1;
             SymbolDef symbolDefinition = SymbolDefTable.getInstance().getSymbolDef(basicSymbolCode, milstdVersion);
 
             if (symbolDefinition.getDrawCategory() == SymbolDef.DRAW_CATEGORY_POINT) {
                 // This to account for TG that are icons.
-                singlePoint = true;
+                isSinglePoint = true;
             }
         } else {
-            singlePoint = true;
+            isSinglePoint = true;
         }
 
-        return singlePoint.booleanValue();
+        return isSinglePoint.booleanValue();
     }
 
     /**
