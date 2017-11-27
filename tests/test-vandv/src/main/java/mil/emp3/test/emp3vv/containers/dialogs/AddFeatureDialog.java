@@ -13,8 +13,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import org.cmapi.primitives.IGeoMilSymbol;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -117,9 +121,11 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
         for(FeatureTypeEnum typeEnum: FeatureTypeEnum.values()) {
             typeList.add(typeEnum.toString());
         }
+
         featureTypeAdapter = ArrayAdapter.createFromResource(this.getContext(), R.array.feature_types,
                 android.R.layout.simple_spinner_item);
         featureType.setAdapter(featureTypeAdapter);
+
 
         Button doneButton = (Button) view.findViewById(R.id.done);
         doneButton.setOnClickListener(v -> AddFeatureDialog.this.dismiss());
@@ -157,6 +163,7 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
                     parentList.add(featureName.getText().toString());
                     featureParentListAdapter.notifyDataSetChanged();
                 }
+
             }
         });
     }
