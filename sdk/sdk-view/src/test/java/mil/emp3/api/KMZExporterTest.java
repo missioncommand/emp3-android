@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -37,6 +37,8 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.listeners.IKMLSEventListener;
+import mil.emp3.api.shadows.ShadowKMLExportThread;
+import mil.emp3.api.shadows.ShadowTestRunner;
 import mil.emp3.api.utils.BasicUtilities;
 import mil.emp3.api.utils.FileUtility;
 import mil.emp3.api.utils.kmz.EmpKMZExporter;
@@ -47,7 +49,8 @@ import static org.junit.Assert.assertTrue;
  * @author Jenifer Cochran
  */
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(ShadowTestRunner.class)
+@Config(shadows = {ShadowKMLExportThread.class})
 @PrepareForTest({Environment.class, Xml.class, MilStdSymbol.class, MilStdIconRenderer.class, FileUtility.class, URLUtil.class})
 public class KMZExporterTest extends TestBaseSingleMap
 {
@@ -942,15 +945,6 @@ public class KMZExporterTest extends TestBaseSingleMap
         final String    kmzFileNameWithoutExtension = "TestKmzFileName";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
-
-//        ((MilStdRenderer)milStdRenderer).init();
-
-        //final File cacheDirectory = createTemporaryDirectory();
-        final File testCacheDirectory = new File("/home/matt.miller@rgi-corp.local/.gradle/caches/transforms-1/files-1.1/mil-sym-android-renderer-0.1.35.aar/4eb6d471437faaba82cc106ec5b35362/");
-        final File resRaw = new File("res/raw/");
-        resRaw.mkdirs();
-        //384 is value used for test-basic on startup to setup the renderer
-        milStdRenderer.setRendererCacheDir("res/raw/", 384);
 
         final MilStdSymbol milSymbol = BasicUtilities.generateMilStdSymbol("TRUCK", UUID.randomUUID(),
                                                                            40, -75);
