@@ -52,7 +52,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
     private EditText modifierValue;
     private List<CharSequence> modifierList;
     private ArrayAdapter<CharSequence> modifierTypeAdapter;
-    private HashMap<IGeoMilSymbol.Modifier, String> modifierToValue = new HashMap<>();
+    private HashMap<IGeoMilSymbol.Modifier, String> modifierMap = new HashMap<>();
 
     private final static String TAG = SymbolPropertiesDialog.class.getSimpleName();
 
@@ -167,7 +167,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
     }
 
     public HashMap<IGeoMilSymbol.Modifier, String> getModifiers() {
-        return this.modifierToValue;
+        return this.modifierMap;
     }
 
     public void setFeatureVisible(boolean visible) {
@@ -411,7 +411,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
         super.onViewCreated(view, savedInstanceState);
 
         // Modifier stuff
-        modifierToValue.clear();
+        modifierMap.clear();
         modifierSpinner = (Spinner) view.findViewById(R.id.modifier_type);
         modifierValue = (EditText) view.findViewById(R.id.modifier_value);
 
@@ -424,7 +424,7 @@ public class SymbolPropertiesDialog extends Emp3TesterDialogBase implements Posi
         // Modifier Button
         Button addModifierButton = (Button) view.findViewById(R.id.add_modifier_button);
         addModifierButton.setOnClickListener(v -> {
-            modifierToValue.put(IGeoMilSymbol.Modifier.valueOf(((String)modifierSpinner.getSelectedItem())), modifierValue.getText().toString());
+            modifierMap.put(IGeoMilSymbol.Modifier.valueOf(((String)modifierSpinner.getSelectedItem())), modifierValue.getText().toString());
             Toast.makeText(this.getContext(), "Added modifier", Toast.LENGTH_SHORT).show();
         });
 

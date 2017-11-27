@@ -23,7 +23,6 @@ import org.cmapi.primitives.IGeoPosition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import armyc2.c2sd.renderer.utilities.SymbolDef;
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
@@ -46,7 +45,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
     private EditText modifierValue;
     private List<CharSequence> modifierList;
     private ArrayAdapter<CharSequence> modifierTypeAdapter;
-    private HashMap<IGeoMilSymbol.Modifier, String> modifierToValue = new HashMap<>();
+    private HashMap<IGeoMilSymbol.Modifier, String> modifierMap = new HashMap<>();
 
 
     public static final String sDropDownFirstOption = " ";
@@ -172,7 +171,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
     }
 
     public HashMap<IGeoMilSymbol.Modifier, String> getModifiers() {
-        return this.modifierToValue;
+        return this.modifierMap;
     }
 
     public String getFeatureName() {
@@ -278,7 +277,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
         super.onViewCreated(view, savedInstanceState);
 
         // Modifier stuff
-        modifierToValue.clear();
+        modifierMap.clear();
         modifierSpinner = (Spinner) view.findViewById(R.id.modifier_type);
         modifierValue = (EditText) view.findViewById(R.id.modifier_value);
 
@@ -291,7 +290,7 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
         // Modifier Button
         Button addModifierButton = (Button) view.findViewById(R.id.add_modifier_button);
         addModifierButton.setOnClickListener(v -> {
-            modifierToValue.put(IGeoMilSymbol.Modifier.valueOf(((String)modifierSpinner.getSelectedItem())), modifierValue.getText().toString());
+            modifierMap.put(IGeoMilSymbol.Modifier.valueOf(((String)modifierSpinner.getSelectedItem())), modifierValue.getText().toString());
             Toast.makeText(this.getContext(), "Added modifier", Toast.LENGTH_SHORT).show();
         });
 
