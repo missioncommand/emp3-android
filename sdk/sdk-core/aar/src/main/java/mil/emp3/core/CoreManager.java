@@ -8,9 +8,7 @@ import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import mil.emp3.api.enums.CameraEventEnum;
 import mil.emp3.api.enums.EditorMode;
@@ -45,8 +43,8 @@ public class CoreManager implements ICoreManager {
     private IStorageManager storageManager;
     private IEventManager eventManager;
 
-    private static Set<IGeoMilSymbol.Modifier> oRequiredLabels = new HashSet<>();
-    private static Set<IGeoMilSymbol.Modifier> oCommonLabels = new HashSet<>();
+    private static java.util.Set<IGeoMilSymbol.Modifier> oRequiredLabels = new java.util.HashSet<>();
+    private static java.util.Set<IGeoMilSymbol.Modifier> oCommonLabels = new java.util.HashSet<>();
 
     @Override
     public void setStorageManager(IStorageManager storageManager) {
@@ -368,45 +366,49 @@ public class CoreManager implements ICoreManager {
 
     @Override
     public Point geoToScreen(IMap clientMap, IGeoPosition pos) throws EMP_Exception {
-        IMapInstance oMapInstance = storageManager.getMapInstance(clientMap);
+        IClientMapToMapInstance mapMapping = storageManager.getMapMapping(clientMap);
 
         // Make sure the map exists.
-        if (oMapInstance == null) {
+        if (mapMapping == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Map not found.");
         }
+        IMapInstance oMapInstance = mapMapping.getMapInstance();
         return oMapInstance.geoToScreen(pos);
     }
 
     @Override
     public IGeoPosition screenToGeo(IMap clientMap, Point point) throws EMP_Exception {
-        IMapInstance oMapInstance = storageManager.getMapInstance(clientMap);
+        IClientMapToMapInstance mapMapping = storageManager.getMapMapping(clientMap);
 
         // Make sure the map exists.
-        if (oMapInstance == null) {
+        if (mapMapping == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Map not found.");
         }
+        IMapInstance oMapInstance = mapMapping.getMapInstance();
         return oMapInstance.screenToGeo(point);
     }
 
     @Override
     public Point geoToContainer(IMap clientMap, IGeoPosition pos) throws EMP_Exception {
-        IMapInstance oMapInstance = storageManager.getMapInstance(clientMap);
+        IClientMapToMapInstance mapMapping = storageManager.getMapMapping(clientMap);
 
         // Make sure the map exists.
-        if (oMapInstance == null) {
+        if (mapMapping == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Map not found.");
         }
+        IMapInstance oMapInstance = mapMapping.getMapInstance();
         return oMapInstance.geoToContainer(pos);
     }
 
     @Override
     public IGeoPosition containerToGeo(IMap clientMap, Point point) throws EMP_Exception {
-        IMapInstance oMapInstance = storageManager.getMapInstance(clientMap);
+        IClientMapToMapInstance mapMapping = storageManager.getMapMapping(clientMap);
 
         // Make sure the map exists.
-        if (oMapInstance == null) {
+        if (mapMapping == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Map not found.");
         }
+        IMapInstance oMapInstance = mapMapping.getMapInstance();
         return oMapInstance.containerToGeo(point);
     }
 
@@ -448,8 +450,8 @@ public class CoreManager implements ICoreManager {
     }
 
     @Override
-    public Set<IGeoMilSymbol.Modifier> getMilStdModifierLabelList(MilStdLabelSettingEnum eLabelSetting) {
-        Set<IGeoMilSymbol.Modifier> set = null;
+    public java.util.Set<IGeoMilSymbol.Modifier> getMilStdModifierLabelList(MilStdLabelSettingEnum eLabelSetting) {
+        java.util.Set<IGeoMilSymbol.Modifier> set = null;
 
         if (null == eLabelSetting) {
             return null;

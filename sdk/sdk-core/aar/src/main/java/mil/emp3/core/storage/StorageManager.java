@@ -269,12 +269,12 @@ public class StorageManager implements IStorageManager {
     public void onSaveInstanceState(boolean keepState) {
         if(!keepState) {
             Log.i(TAG, "EMP3 shall not restore the map");
-            oObjectHash.clear();
-            oClientMapToMapInstanceMapping.clear();
-            oMapInstanceToClientMapMapping.clear();
-            oMapNameToRestoreDataMapping.clear();
-            defaultIconFillStyleCache.clear();
-            defaultIconStrokeStyleCache.clear();
+            this.oObjectHash.clear();
+            this.oClientMapToMapInstanceMapping.clear();
+            this.oMapInstanceToClientMapMapping.clear();
+            this.oMapNameToRestoreDataMapping.clear();
+            this.defaultIconFillStyleCache.clear();
+            this.defaultIconStrokeStyleCache.clear();
             eventManager.clear();
         } else {
             Log.i(TAG, "EMP3 shall restore the map");
@@ -292,8 +292,8 @@ public class StorageManager implements IStorageManager {
         ClientMapToMapInstance oMapping = new ClientMapToMapInstance(clientMap, mapInstance);
         StorageObjectWrapper oWrapper = new StorageObjectWrapper<>(clientMap);
 
-        oClientMapToMapInstanceMapping.put(clientMap, oMapping);
-        oMapInstanceToClientMapMapping.put(mapInstance, oMapping);
+        this.oClientMapToMapInstanceMapping.put(clientMap, oMapping);
+        this.oMapInstanceToClientMapMapping.put(mapInstance, oMapping);
 
         // Check and restore data like childList if this is an activity restart and application has chosen this option
         // in Emp3DataManager.
@@ -311,11 +311,11 @@ public class StorageManager implements IStorageManager {
 
     private void removeMapMapping(IMap clientMap, IMapInstance mapInstance) {
         if(null != clientMap) {
-            oClientMapToMapInstanceMapping.remove(clientMap);
+            this.oClientMapToMapInstanceMapping.remove(clientMap);
             this.oObjectHash.remove(clientMap.getGeoId());
         }
         if(null != mapInstance) {
-            oMapInstanceToClientMapMapping.remove(mapInstance);
+            this.oMapInstanceToClientMapMapping.remove(mapInstance);
         }
     }
 
@@ -355,7 +355,7 @@ public class StorageManager implements IStorageManager {
     }
 
     private void registerMapInstanceEvents(IMapInstance mapInstance){
-        IClientMapToMapInstance mapping = oMapInstanceToClientMapMapping.get(mapInstance);
+        IClientMapToMapInstance mapping = getMapMapping(mapInstance);
 
         mapInstance.addMapInstanceFeatureUserInteractionEventListener(mapping);
         mapInstance.addMapInstanceUserInteractionEventListener(mapping);
@@ -380,14 +380,14 @@ public class StorageManager implements IStorageManager {
     public void swapMapInstance(IMap clientMap, IMapInstance newMapInstance)
             throws EMP_Exception {
 
-        IClientMapToMapInstance mapping = oClientMapToMapInstanceMapping.get(clientMap);
+        IClientMapToMapInstance mapping = getMapMapping(clientMap);
         if (null == mapping) {
             Log.d(TAG, "No mapping exists, add a new one");
             addMapInstance(clientMap, newMapInstance);
         } else {
             removeMapMapping(clientMap, getMapInstance(clientMap));
             addMapInstance(clientMap, newMapInstance);
-            IClientMapToMapInstance newMapping = oClientMapToMapInstanceMapping.get(clientMap);
+            IClientMapToMapInstance newMapping = getMapMapping(clientMap);
             newMapping.copy(mapping);
         }
     }
@@ -450,9 +450,8 @@ public class StorageManager implements IStorageManager {
         IStorageObjectWrapper targetWrapper;
         IStorageObjectWrapper parentWrapper;
         VisibilityStateEnum prevVisibileState;
-        UUID mapId = map.getGeoId();
-        HashSet<UUID> trueList = new HashSet<>();
-        HashSet<UUID> falseList = new HashSet<>();
+        java.util.UUID mapId = map.getGeoId();
+        IdentifierVisibilityHash idVisibilityList = new IdentifierVisibilityHash();
         Map<UUID, IParentRelationship> parentRelationshipHash;
 
         try {
@@ -465,17 +464,17 @@ public class StorageManager implements IStorageManager {
                 switch (actionEnum) {
                     case SHOW_ALL:
                     case TOGGLE_ON:
-                        this.setVisibilityOnChildren(trueList, falseList, mapId, targetWrapper, actionEnum);
-                        for (UUID parentId : parentRelationshipHash.keySet()) {
+                        this.setVisibilityOnChildren(idVisibilityList, mapId, targetWrapper, actionEnum);
+                        for (java.util.UUID parentId : parentRelationshipHash.keySet()) {
                             parentWrapper = this.oObjectHash.get(parentId);
                             targetWrapper.setVisibilityWithParentOnMap(mapId, parentId, VisibilityStateEnum.VISIBLE);
 
                             // If something is being turn on we must go up the tree.
-                            this.setVisibilityOnParents(trueList, falseList, mapId, parentWrapper, actionEnum);
+                            this.setVisibilityOnParents(idVisibilityList, mapId, parentWrapper, actionEnum);
                         }
                         if (prevVisibileState == VisibilityStateEnum.HIDDEN) {
                             // The target was off now its on.
-                            trueList.add(targetWrapper.getObject().getGeoId());
+                            idVisibilityList.putFeature(targetWrapper.getObject(), true);
                         }
                         break;
                     case HIDE_ALL:
@@ -484,11 +483,11 @@ public class StorageManager implements IStorageManager {
                         for (UUID parentId : parentRelationshipHash.keySet()) {
                             targetWrapper.setVisibilityWithParentOnMap(mapId, parentId, VisibilityStateEnum.HIDDEN);
                         }
-                        this.setVisibilityOnChildren(trueList, falseList, mapId, targetWrapper, actionEnum);
+                        this.setVisibilityOnChildren(idVisibilityList, mapId, targetWrapper, actionEnum);
                         if ((prevVisibileState == VisibilityStateEnum.VISIBLE) &&
                                 (targetWrapper.getVisibilityOnMap(mapId) == VisibilityStateEnum.HIDDEN)) {
                             // The target was visible but now its hidden.
-                            falseList.add(targetWrapper.getObject().getGeoId());
+                            idVisibilityList.putFeature(targetWrapper.getObject(), false);
                         }
                         break;
                 }
@@ -496,16 +495,15 @@ public class StorageManager implements IStorageManager {
                 eventManager.generateVisibilityEvent(actionEnum, targetWrapper.getObject(), null, map, userContext);
             }
 
-            processVisibilityList(map, trueList, falseList, userContext);
+            processVisibilityList(map, idVisibilityList, userContext);
         } finally {
             lock.unlock();
         }
     }
 
     private void setVisibilityOnChildren(
-            HashSet<UUID> trueList,
-            HashSet<UUID> falseList,
-            UUID mapId,
+            IdentifierVisibilityHash idVisibilityList,
+            java.util.UUID mapId,
             IStorageObjectWrapper wrapper,
             VisibilityActionEnum actionEnum) {
         VisibilityStateEnum visibilityStateOnMap;
@@ -520,7 +518,7 @@ public class StorageManager implements IStorageManager {
                     childWrapper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE);
                     if (visibilityStateOnMap == VisibilityStateEnum.HIDDEN) {
                         // The child is off on the map. We need to turn it on.
-                        trueList.add(childWrapper.getObject().getGeoId());
+                        idVisibilityList.putFeature(childWrapper.getObject(), true);
                     }
                     break;
                 case TOGGLE_ON:
@@ -530,7 +528,7 @@ public class StorageManager implements IStorageManager {
                             // This child was visible but hidden do to the parent.
                             // Now that the parent is visible it must be made visible.
                             childWrapper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE);
-                            trueList.add(childWrapper.getObject().getGeoId());
+                            idVisibilityList.putFeature(childWrapper.getObject(), true);
                             break;
                         case VISIBLE:
                             // The child was already visible. no change needed.
@@ -549,7 +547,7 @@ public class StorageManager implements IStorageManager {
                         // we need to see if it is now set hidden.
                         if (childWrapper.getVisibilityOnMap(mapId) == VisibilityStateEnum.HIDDEN) {
                             // We need to turn it off on the map.
-                            falseList.add(childWrapper.getObject().getGeoId());
+                            idVisibilityList.putFeature(childWrapper.getObject(), false);
                         }
                     }
                     break;
@@ -561,7 +559,7 @@ public class StorageManager implements IStorageManager {
                             // This child was visible, but now the parent is not.
                             // So we set it to VISIBLE_ANCESTOR_HIDDEN.
                             childWrapper.setVisibilityWithParentOnMap(mapId, wrapperId, VisibilityStateEnum.VISIBLE_ANCESTOR_HIDDEN);
-                            falseList.add(childWrapper.getObject().getGeoId());
+                            idVisibilityList.putFeature(childWrapper.getObject(), false);
                             break;
                         case VISIBLE_ANCESTOR_HIDDEN:
                         case HIDDEN:
@@ -572,14 +570,13 @@ public class StorageManager implements IStorageManager {
                     }
                     break;
             }
-            this.setVisibilityOnChildren(trueList, falseList, mapId, childWrapper, actionEnum);
+            this.setVisibilityOnChildren(idVisibilityList, mapId, childWrapper, actionEnum);
         }
     }
 
     private void setVisibilityOnParents(
-            HashSet<UUID> trueList,
-            HashSet<UUID> falseList,
-            UUID mapId,
+            IdentifierVisibilityHash idVisibilityList,
+            java.util.UUID mapId,
             IStorageObjectWrapper wrapper,
             VisibilityActionEnum actionEnum) {
         UUID parentId;
@@ -598,7 +595,7 @@ public class StorageManager implements IStorageManager {
             case TOGGLE_ON:
                 if (currentVisibility == VisibilityStateEnum.HIDDEN) {
                     // This container was off and now it needs to be on.
-                    trueList.add(wrapper.getObject().getGeoId());
+                    idVisibilityList.putFeature(wrapper.getObject(), true);
                 }
                 for (ParentRelationship relationship: parentList.values()) {
                     parentWrapper = relationship.getParentWrapper();
@@ -611,7 +608,7 @@ public class StorageManager implements IStorageManager {
                         wrapper.setVisibilityWithParentOnMap(mapId, parentId, VisibilityStateEnum.VISIBLE);
                         if (parentVisibility == VisibilityStateEnum.HIDDEN) {
                             // This parent was off and now its on.
-                            trueList.add(parentWrapper.getObject().getGeoId());
+                            idVisibilityList.putFeature(parentWrapper.getObject(), true);
                         }
                     }
                 }
@@ -647,8 +644,7 @@ public class StorageManager implements IStorageManager {
             StorageObjectWrapper targetWrapper = this.oObjectHash.get(targetId);
             StorageObjectWrapper parentWrapper = this.oObjectHash.get(parentId);
             VisibilityStateEnum prevVisibleState = targetWrapper.getVisibilityOnMap(mapId);
-            HashSet<UUID> trueList = new HashSet<>();
-            HashSet<UUID> falseList = new HashSet<>();
+            IdentifierVisibilityHash idVisibilityList = new IdentifierVisibilityHash();
 
             if (!targetWrapper.isOnMap(mapId)) {
                 throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Target is not on the map.");
@@ -660,28 +656,28 @@ public class StorageManager implements IStorageManager {
                 case SHOW_ALL:
                 case TOGGLE_ON:
                     targetWrapper.setVisibilityWithParentOnMap(mapId, parentId, VisibilityStateEnum.VISIBLE);
-                    this.setVisibilityOnChildren(trueList, falseList, mapId, targetWrapper, actionEnum);
+                    this.setVisibilityOnChildren(idVisibilityList, mapId, targetWrapper, actionEnum);
                     if (prevVisibleState == VisibilityStateEnum.HIDDEN) {
                         // The target was off now its on.
-                        trueList.add(target.getGeoId());
+                        idVisibilityList.putFeature(target, true);
                     }
                     // If something is being turn on we must go up the tree.
-                    this.setVisibilityOnParents(trueList, falseList, mapId, parentWrapper, actionEnum);
+                    this.setVisibilityOnParents(idVisibilityList, mapId, parentWrapper, actionEnum);
                     break;
                 case HIDE_ALL:
                 case TOGGLE_OFF:
                 default:
                     targetWrapper.setVisibilityWithParentOnMap(mapId, parentId, VisibilityStateEnum.HIDDEN);
-                    this.setVisibilityOnChildren(trueList, falseList, mapId, targetWrapper, actionEnum);
+                    this.setVisibilityOnChildren(idVisibilityList, mapId, targetWrapper, actionEnum);
                     if ((prevVisibleState == VisibilityStateEnum.VISIBLE) &&
                             (targetWrapper.getVisibilityOnMap(mapId) == VisibilityStateEnum.HIDDEN)) {
                         // The target was visible but now its hidden.
-                        falseList.add(target.getGeoId());
+                        idVisibilityList.putFeature(target, false);
                     }
                     break;
             }
 
-            processVisibilityList(map, trueList, falseList, userContext);
+            processVisibilityList(map, idVisibilityList, userContext);
         } finally {
             lock.unlock();
         }
@@ -692,20 +688,25 @@ public class StorageManager implements IStorageManager {
     /**
      * Translate visibility actions into add/remove calls on MapInstance.
      * @param map
-     * @param trueList
+     * @param idVisibilityList
      */
-    private void processVisibilityList(IMap map, HashSet<UUID> trueList, HashSet<UUID> falseList, Object userContext) {
+    private void processVisibilityList(IMap map, IdentifierVisibilityHash idVisibilityList, Object userContext) {
+        if (!idVisibilityList.isEmpty()) {
             // Now send it to the map.
             IMapInstance mapInstance = this.getMapInstance(map);
             // mapInstance.setVisibility(idVisibilityList);
 
-            IUUIDSet removeSet = (IUUIDSet)falseList;
+            IUUIDSet removeSet = new UUIDSet();
             FeatureVisibilityList fvList = new FeatureVisibilityList();
-            for (UUID uuid : trueList) {
+            for (UUID uuid : idVisibilityList.keySet()) {
+                if (idVisibilityList.get(uuid)) {
                     StorageObjectWrapper sow = this.oObjectHash.get(uuid);
                     if ((null != sow) && (sow.getObject() instanceof IFeature)) {
                         fvList.add(new FeatureVisibility((IFeature) sow.getObject(), true));
                     }
+                } else {
+                    removeSet.add(uuid);
+                }
             }
             if (!fvList.isEmpty()) {
                 mapInstance.addFeatures(fvList, userContext);
@@ -713,24 +714,8 @@ public class StorageManager implements IStorageManager {
             if (!removeSet.isEmpty()) {
                 mapInstance.removeFeatures(removeSet, userContext);
             }
-    }
-
-    private boolean isVisibleOnMap(UUID mapId, IContainer target) {
-        boolean isVisible = false;
-        try {
-            //lock.lock();
-            StorageObjectWrapper targetWrapper = this.oObjectHash.get(target.getGeoId());
-
-            if (null != targetWrapper) {
-                isVisible = targetWrapper.getVisibilityOnMap(mapId) == VisibilityStateEnum.VISIBLE;
-            }
-        } finally {
-        //    lock.unlock();
         }
-
-        return isVisible;
     }
-
     @Override
     public VisibilityStateEnum getVisibilityOnMap(IMap map, IContainer target) {
         VisibilityStateEnum eRet = VisibilityStateEnum.HIDDEN;
@@ -900,17 +885,21 @@ public class StorageManager implements IStorageManager {
             if (null != sowMap) {
                 // Get the IMap.
                 IMap clientMap = (IMap) sowMap.getObject();
-                IClientMapToMapInstance mapMapping = oClientMapToMapInstanceMapping.get(clientMap);
-                UUID clientMapId = clientMap.getGeoId();
+                IClientMapToMapInstance mapMapping = this.getMapMapping(clientMap);
+
                 if (null != mapMapping) {
                     FeatureVisibilityList fvList = this.bulkFeatureApplyList.get(uuid);
+                    VisibilityStateEnum visibility;
                     FeatureVisibility featureVisibility;
                     Iterator<FeatureVisibility> iterator = fvList.iterator();
 
                     // Go thru all the feature and get their latest visibility.
                     while (iterator.hasNext()) {
                         featureVisibility = iterator.next();
-                        if (!isVisibleOnMap(clientMapId, featureVisibility.feature)) {
+                        if (this.oObjectHash.containsKey(featureVisibility.feature.getGeoId())) {
+                            visibility = getVisibilityOnMap(clientMap, featureVisibility.feature);
+                            featureVisibility.visible = (visibility == VisibilityStateEnum.VISIBLE);
+                        } else {
                             // The feature was removed from the system.
                             iterator.remove();
                         }
@@ -1032,7 +1021,7 @@ public class StorageManager implements IStorageManager {
         for (UUID mapId: mapRemoveFeatures.keySet()) {
             wrapper = this.oObjectHash.get(mapId);
             map = (IMap) wrapper.getObject();
-            cm2mInstance = oClientMapToMapInstanceMapping.get(map);
+            cm2mInstance = this.oClientMapToMapInstanceMapping.get(map);
             mapInstance = cm2mInstance.getMapInstance();
             removeFeatureList = mapRemoveFeatures.get(mapId);
 
@@ -1571,12 +1560,13 @@ public class StorageManager implements IStorageManager {
         try {
             lock.lock();
             List<IFeature> features = getChildFeatures(clientMap);
-            UUID clientMapId = clientMap.getGeoId();
             if ((null != features) || (0 < features.size())) {
                 FeatureVisibilityList fvList = new FeatureVisibilityList();
                 for (IFeature feature : features) {
-                    if (isVisibleOnMap(clientMapId, feature)) {
+                    if (VisibilityStateEnum.VISIBLE == getVisibilityOnMap(clientMap, feature)) {
                         fvList.add(new FeatureVisibility(feature, true));
+                    } else {
+                        //Log.d(TAG, "feature is not visible " + feature.getClass().getSimpleName() + " " + feature.getGeoId());
                     }
                 }
                 if (fvList.size() > 0) {
@@ -1628,8 +1618,8 @@ public class StorageManager implements IStorageManager {
             ClientMapRestoreData cmrd = oMapNameToRestoreDataMapping.get(map.getName());
             if(mapService instanceof IKMLS) {
                 KMLSProvider.create(this).addMapService(map, (IKMLS) mapService, cmrd);
-            } else if (oClientMapToMapInstanceMapping.containsKey(map)) {
-                mapMapping = oClientMapToMapInstanceMapping.get(map);
+            } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
+                mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 mapMapping.getMapInstance().addMapService(mapService, result);
                 mapMapping.addMapService(mapService);
 
@@ -1652,8 +1642,8 @@ public class StorageManager implements IStorageManager {
             lock.lock();
             if(mapService instanceof IKMLS) {
                 KMLSProvider.create(this).removeMapService(map, (IKMLS) mapService, cmrd);
-            } else if (oClientMapToMapInstanceMapping.containsKey(map)) {
-                mapMapping = oClientMapToMapInstanceMapping.get(map);
+            } else if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
+                mapMapping = this.oClientMapToMapInstanceMapping.get(map);
                 if (mapMapping.removeMapService(mapService)) {
                     mapMapping.getMapInstance().removeMapService(mapService, result);
                 }
@@ -1674,8 +1664,8 @@ public class StorageManager implements IStorageManager {
 
         ClientMapToMapInstance mapMapping;
 
-        if (oClientMapToMapInstanceMapping.containsKey(map)) {
-            mapMapping = oClientMapToMapInstanceMapping.get(map);
+        if (this.oClientMapToMapInstanceMapping.containsKey(map)) {
+            mapMapping = this.oClientMapToMapInstanceMapping.get(map);
             oList = mapMapping.getMapServices();
         } else {
             oList = new ArrayList<>();
@@ -1693,7 +1683,7 @@ public class StorageManager implements IStorageManager {
 
         try {
             lock.lock();
-            for (ClientMapToMapInstance mapMapping : oClientMapToMapInstanceMapping.values()) {
+            for (ClientMapToMapInstance mapMapping : this.oClientMapToMapInstanceMapping.values()) {
                 if (mapMapping.hasWMS(wmsId)) {
                     mapMapping.addMapService(mapService);
                     mapMapping.getMapInstance().addMapService(mapService);
@@ -1712,27 +1702,33 @@ public class StorageManager implements IStorageManager {
     }
 
     private void dirtySinglePointOnMap(IMap map, Object userContext) {
+        StorageObjectWrapper oWrapper;
+
         IMapInstance mapInstance = getMapInstance(map);
         if (null == mapInstance) {
             return;
         }
         FeatureVisibilityList fvList = new FeatureVisibilityList();
-        UUID mapId = map.getGeoId();
+
         // We need to force an update on all single point icon features
         // on the specified map.
-        for (StorageObjectWrapper oWrapper : oObjectHash.values()) {
-            if (oWrapper.isOnMap(mapId)) {
-                if (oWrapper.getObject() instanceof MilStdSymbol) {
+        for (java.util.UUID uuId: this.oObjectHash.keySet()) {
+            oWrapper = this.oObjectHash.get(uuId);
+            if (oWrapper.getObject() instanceof MilStdSymbol) {
+                if (oWrapper.isOnMap(map.getGeoId())) {
                     MilStdSymbol oSymbol = (MilStdSymbol) oWrapper.getObject();
                     if (!oSymbol.isTacticalGraphic()) {
-                        if (isVisibleOnMap(mapId, oSymbol)) {
+                        if (VisibilityStateEnum.VISIBLE == getVisibilityOnMap(map, oSymbol)) {
                             fvList.add(new FeatureVisibility(oSymbol, true));
+                        } else {
+                            //Log.d(TAG, "feature is not visible " + oSymbol.getClass().getSimpleName() + " " + oSymbol.getGeoId());
                         }
                     }
-
-                } else if (oWrapper.getObject() instanceof Point) {
+                }
+            } else if (oWrapper.getObject() instanceof Point) {
+                if (oWrapper.isOnMap(map.getGeoId())) {
                     Point oPoint = (Point) oWrapper.getObject();
-                    if (isVisibleOnMap(mapId, oPoint)) {
+                    if (VisibilityStateEnum.VISIBLE == getVisibilityOnMap(map, oPoint)) {
                         fvList.add(new FeatureVisibility(oPoint, true));
                     }
                 }
@@ -1744,19 +1740,22 @@ public class StorageManager implements IStorageManager {
     }
 
     private void dirtyMilStdOnMap(IMap map, Object userContext) {
+        StorageObjectWrapper oWrapper;
+
         IMapInstance mapInstance = getMapInstance(map);
         if (null == mapInstance) {
             return;
         }
         FeatureVisibilityList fvList = new FeatureVisibilityList();
-        UUID mapId = map.getGeoId();
+
         // We need to force an update on all MilStd features
         // on the specified map.
-        for (StorageObjectWrapper oWrapper: oObjectHash.values()) {
-            if (oWrapper.isOnMap(mapId)) {
-                if (oWrapper.getObject() instanceof MilStdSymbol) {
+        for (java.util.UUID uuId: this.oObjectHash.keySet()) {
+            oWrapper = this.oObjectHash.get(uuId);
+            if (oWrapper.getObject() instanceof MilStdSymbol) {
+                if (oWrapper.isOnMap(map.getGeoId())) {
                     MilStdSymbol oSymbol = (MilStdSymbol) oWrapper.getObject();
-                    if (isVisibleOnMap(mapId, oSymbol)) {
+                    if (VisibilityStateEnum.VISIBLE == getVisibilityOnMap(map, oSymbol)) {
                         fvList.add(new FeatureVisibility(oSymbol, true));
                     }
                 }
@@ -1825,7 +1824,7 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public IconSizeEnum getIconSize(IMapInstance mapInstance) {
-        IClientMapToMapInstance oMapping = oMapInstanceToClientMapMapping.get(mapInstance);
+        IClientMapToMapInstance oMapping = this.getMapMapping(mapInstance);
 
         if (oMapping == null) {
             return IconSizeEnum.SMALL;
@@ -1835,7 +1834,7 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public int getIconPixelSize(IMapInstance mapInstance) {
-        IClientMapToMapInstance oMapping = oMapInstanceToClientMapMapping.get(mapInstance);
+        IClientMapToMapInstance oMapping = this.getMapMapping(mapInstance);
 
         if (oMapping == null) {
             return 0;
@@ -1855,7 +1854,7 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public MilStdLabelSettingEnum getMilStdLabels(IMapInstance mapInstance) {
-        IClientMapToMapInstance oMapping = oMapInstanceToClientMapMapping.get(mapInstance);
+        IClientMapToMapInstance oMapping = this.getMapMapping(mapInstance);
 
         if (oMapping == null) {
             return null;
@@ -1964,7 +1963,7 @@ public class StorageManager implements IStorageManager {
     public double getFarDistanceThreshold(IMapInstance mapInstance) {
         try {
             lock.lock();
-            IClientMapToMapInstance oMapping = oMapInstanceToClientMapMapping.get(mapInstance);
+            IClientMapToMapInstance oMapping = this.getMapMapping(mapInstance);
 
             if (oMapping == null) {
                 return Double.NaN;
@@ -2047,7 +2046,7 @@ public class StorageManager implements IStorageManager {
         try {
             lock.lock();
             if(null != mapInstance) {
-                IClientMapToMapInstance oMapping = oMapInstanceToClientMapMapping.get(mapInstance);
+                IClientMapToMapInstance oMapping = this.getMapMapping(mapInstance);
 
                 if (oMapping == null) {
                     return Double.NaN;
@@ -2096,11 +2095,14 @@ public class StorageManager implements IStorageManager {
      * @return
      */
     public IGeoFillStyle getDefaultFillStyle(MilStdSymbol symbol) {
+        IGeoFillStyle fillStyle;
         boolean isTG = symbol.isTacticalGraphic();
         MilStdSymbol.Affiliation affiliation = symbol.getAffiliation();
-        IGeoFillStyle fillStyle = defaultIconFillStyleCache.get(affiliation);
+
         // We only cache style for MilStd Icons.
-        if (isTG || fillStyle == null) {
+        if (!isTG && this.defaultIconFillStyleCache.containsKey(affiliation)) {
+            fillStyle = this.defaultIconFillStyleCache.get(affiliation);
+        } else {
             IGeoColor oFillColor;
             armyc2.c2sd.renderer.utilities.Color oColor = SymbolUtilities.getFillColorOfAffiliation(symbol.getSymbolCode());
 
@@ -2124,11 +2126,14 @@ public class StorageManager implements IStorageManager {
      * @return
      */
     public IGeoStrokeStyle getDefaultStrokeStyle(MilStdSymbol symbol) {
+        IGeoStrokeStyle strokeStyle;
         boolean isTG = symbol.isTacticalGraphic();
         MilStdSymbol.Affiliation affiliation = symbol.getAffiliation();
-        IGeoStrokeStyle strokeStyle = this.defaultIconStrokeStyleCache.get(affiliation);
+
         // We only cache style for MilStd Icons.
-        if (isTG || strokeStyle == null) {
+        if (!isTG && this.defaultIconStrokeStyleCache.containsKey(affiliation)) {
+            strokeStyle = this.defaultIconStrokeStyleCache.get(affiliation);
+        } else {
             IGeoColor oLineColor;
             armyc2.c2sd.renderer.utilities.Color oColor = SymbolUtilities.getLineColorOfAffiliation(symbol.getSymbolCode());
 
@@ -2156,7 +2161,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public void selectFeatures(IMap clientMap, List<IFeature> features, Object userContext) {
         IClientMapToMapInstance mapping;
-        if ((features != null) && (null != clientMap) && (null != (mapping = oClientMapToMapInstanceMapping.get(clientMap)))){
+        if ((features != null) && (null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))){
             List<IFeature> featureList = new ArrayList<>();
             try {
                 lock.lock();
@@ -2199,7 +2204,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public void deselectFeatures(IMap clientMap, List<IFeature> features, Object userContext) {
         IClientMapToMapInstance mapping;
-        if ((features != null) && (null != clientMap) && (null != (mapping = oClientMapToMapInstanceMapping.get(clientMap)))) {
+        if ((features != null) && (null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
             List<IFeature> featureList = new ArrayList<>();
 
             try {
@@ -2244,7 +2249,7 @@ public class StorageManager implements IStorageManager {
         IClientMapToMapInstance mapping;
         List<IFeature> list = new ArrayList<>();
 
-        if ((null != clientMap) && (null != (mapping = oClientMapToMapInstanceMapping.get(clientMap)))) {
+        if ((null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
             try {
                 lock.lock();
                 list.addAll(mapping.getSelected());
@@ -2264,7 +2269,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public void clearSelected(IMap clientMap, Object userContext) {
         IClientMapToMapInstance mapping;
-        if ((null != clientMap) && (null != (mapping = oClientMapToMapInstanceMapping.get(clientMap)))) {
+        if ((null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
             List<IFeature> deselectList = new ArrayList<>();
 
             try {
@@ -2304,7 +2309,7 @@ public class StorageManager implements IStorageManager {
     @Override
     public boolean isSelected(IMap clientMap, IFeature feature) {
         IClientMapToMapInstance mapping;
-        if ((null != feature) && (null != clientMap) && (null != (mapping = oClientMapToMapInstanceMapping.get(clientMap)))) {
+        if ((null != feature) && (null != clientMap) && (null != (mapping = this.getMapMapping(clientMap)))) {
             try {
                 lock.lock();
                 StorageObjectWrapper wrapper;
@@ -2322,22 +2327,26 @@ public class StorageManager implements IStorageManager {
 
     @Override
     public IGeoStrokeStyle getSelectedStrokeStyle(IMapInstance mapInstance) {
-        return oMapInstanceToClientMapMapping.get(mapInstance).getSelectStrokeStyle();
+        IClientMapToMapInstance mapping = this.getMapMapping(mapInstance);
+        return mapping.getSelectStrokeStyle();
     }
 
     @Override
     public IGeoStrokeStyle getSelectedStrokeStyle(IMap map) {
-        return oClientMapToMapInstanceMapping.get(map).getSelectStrokeStyle();
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
+        return mapping.getSelectStrokeStyle();
     }
 
     @Override
     public IGeoFillStyle getBufferFillStyle(IMapInstance mapInstance) {
-        return oMapInstanceToClientMapMapping.get(mapInstance).getBufferFillStyle();
+        IClientMapToMapInstance mapping = this.getMapMapping(mapInstance);
+        return mapping.getBufferFillStyle();
     }
 
     @Override
     public IGeoFillStyle getBufferFillStyle(IMap map) {
-        return oClientMapToMapInstanceMapping.get(map).getBufferFillStyle();
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
+        return mapping.getBufferFillStyle();
     }
 
     /**
@@ -2347,11 +2356,13 @@ public class StorageManager implements IStorageManager {
      */
     @Override
     public IGeoLabelStyle getSelectedLabelStyle(IMapInstance mapInstance) {
-        return oMapInstanceToClientMapMapping.get(mapInstance).getSelectLabelStyle();
+        IClientMapToMapInstance mapping = this.getMapMapping(mapInstance);
+        return mapping.getSelectLabelStyle();
     }
 
     public IGeoLabelStyle getSelectedLabelStyle(IMap map) {
-        return oClientMapToMapInstanceMapping.get(map).getSelectLabelStyle();
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
+        return mapping.getSelectLabelStyle();
     }
 
     /**
@@ -2361,11 +2372,13 @@ public class StorageManager implements IStorageManager {
      */
     @Override
     public double getSelectedIconScale(IMapInstance mapInstance) {
-        return oMapInstanceToClientMapMapping.get(mapInstance).getSelectIconScale();
+        IClientMapToMapInstance mapping = this.getMapMapping(mapInstance);
+        return mapping.getSelectIconScale();
     }
 
     public double getSelectedIconScale(IMap map) {
-        return oClientMapToMapInstanceMapping.get(map).getSelectIconScale();
+        IClientMapToMapInstance mapping = this.getMapMapping(map);
+        return mapping.getSelectIconScale();
     }
 
     /**
