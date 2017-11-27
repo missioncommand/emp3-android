@@ -474,8 +474,8 @@ public class MapInstance extends CoreMapInstance {
     }
 
     private void removeFeature(UUID uniqueId, Object userContext) {
-        if (this.featureHash.containsKey(uniqueId)) {
-            FeatureRenderableMapping oWrapper = this.featureHash.get(uniqueId);
+        FeatureRenderableMapping oWrapper = this.featureHash.get(uniqueId);
+        if (oWrapper != null) {
             dirtyOnMapMove.remove(uniqueId);
 
             if (oWrapper != null) {
@@ -1171,8 +1171,8 @@ public class MapInstance extends CoreMapInstance {
 
     private void processSelection(List<IFeature> featureList, boolean selected) {
         for (IFeature feature: featureList) {
-            if (this.featureHash.containsKey(feature.getGeoId())) {
-                FeatureRenderableMapping oMapping = this.featureHash.get(feature.getGeoId());
+            FeatureRenderableMapping oMapping = this.featureHash.get(feature.getGeoId());
+            if (oMapping != null) {
                 oMapping.setSelected(selected);
                 oMapping.setDirty(true);
             }
