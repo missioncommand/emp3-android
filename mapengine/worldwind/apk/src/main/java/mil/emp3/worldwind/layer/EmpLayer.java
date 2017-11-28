@@ -44,10 +44,8 @@ abstract public class EmpLayer<T extends IFeature> extends RenderableLayer {
      * @param geoId This geo Id of the feature to remove.
      */
     public void removeFeatureRenderables(UUID geoId) {
-        if (getMapInstance().getFeatureHash().containsKey(geoId)) {
-            FeatureRenderableMapping oMapping;
-            oMapping = getMapInstance().getFeatureHash().get(geoId);
-
+        FeatureRenderableMapping oMapping = mapInstance.getFeatureHash().get(geoId);
+        if (oMapping != null) {
             oMapping.removeRenderables();
             this.removeRenderable(oMapping);
         }
@@ -67,15 +65,14 @@ abstract public class EmpLayer<T extends IFeature> extends RenderableLayer {
      * @return The feature mapping object.
      */
     protected FeatureRenderableMapping getFeatureMapping(T feature) {
-        FeatureRenderableMapping oMapping;
+        FeatureRenderableMapping oMapping = mapInstance.getFeatureHash().get(feature.getGeoId());
 
-        if (getMapInstance().getFeatureHash().containsKey(feature.getGeoId())) {
-            oMapping = getMapInstance().getFeatureHash().get(feature.getGeoId());
+        if (oMapping != null) {
             oMapping.setFeature(feature);
         } else {
             oMapping = this.createFeatureMapping(feature);
             this.addRenderable(oMapping);
-            getMapInstance().getFeatureHash().put(feature.getGeoId(), oMapping);
+            mapInstance.getFeatureHash().put(feature.getGeoId(), oMapping);
         }
 
         return oMapping;
