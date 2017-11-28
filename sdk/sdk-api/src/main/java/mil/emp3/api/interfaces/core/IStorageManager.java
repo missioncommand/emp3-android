@@ -63,6 +63,8 @@ public interface IStorageManager {
 
     void addOverlays(IMap map, List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception;
 
+    void apply(IMapInstance mapInstance, IFeature feature, Object userContext) throws EMP_Exception;
+
     void apply(IFeature feature, boolean batch, Object userContext) throws EMP_Exception;
 
     List<IFeature> getChildFeatures(IContainer parent);
