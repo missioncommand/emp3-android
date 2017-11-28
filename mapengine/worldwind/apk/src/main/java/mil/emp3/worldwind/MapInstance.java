@@ -955,7 +955,7 @@ public class MapInstance extends CoreMapInstance {
     @Override
     public void registerMilStdRenderer(IMilStdRenderer oRenderer) {
         super.registerMilStdRenderer(oRenderer);
-        MilStd2525LevelOfDetailSelector.initInstance(oRenderer, this);
+        MilStd2525LevelOfDetailSelector.initInstance(oRenderer);
     }
 
     /**
