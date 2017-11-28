@@ -200,18 +200,14 @@ public class CircleTest extends TestBase {
         final GeoPosition gp = new GeoPosition();
         circ = new Circle();
         circ.setPosition(gp);
-        final Double coord = 9.881468125740867*Math.pow(10,-4);
-//
-//        final EmpBoundingBox empBoundingBoxMock = PowerMockito.mock(EmpBoundingBox.class);
-//        when(empBoundingBoxMock.deltaLatitude()).thenReturn(0.0);
-//        when(empBoundingBoxMock.deltaLongitude()).thenReturn(0.0);
-//        PowerMockito.whenNew(EmpBoundingBox.class).withNoArguments().thenReturn(empBoundingBoxMock);
+        final Double northSouthCoord = 9.948064247282673*Math.pow(10,-4);
+        final Double eastWestCoord = 9.881468124603998*Math.pow(10,-4);
 
         validateBoundingBox((EmpBoundingBox) circ.getFeatureBoundingBox(),
-                                             coord,
-                                             coord,
-                                             -1*coord,
-                                             -1*coord);
+                                             northSouthCoord,
+                                             eastWestCoord,
+                                             -1*northSouthCoord,
+                                             -1*eastWestCoord);
     }
 
     @Test
