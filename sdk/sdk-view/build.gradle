@@ -13,15 +13,17 @@ dependencies {
     implementation project(':geolib')
     testImplementation project(':emp3-android-sdk-core-aar')
     //testImplementation         ("org.mockito:mockito-core")
-    testImplementation('org.powermock:powermock-api-mockito:1.6.2') {
+    testImplementation('org.powermock:powermock-api-mockito:1.6.4') {
         // PowerMockito is required to mock static methods like Logger.log
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testImplementation('org.powermock:powermock-module-junit4:1.6.2') {
+    testImplementation('org.powermock:powermock-module-junit4:1.6.4') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
+    testCompile "org.powermock:powermock-module-junit4-rule:1.6.4"
+    testCompile "org.powermock:powermock-classloading-xstream:1.6.4"
     testImplementation 'org.robolectric:robolectric:3.5.1'
     testImplementation 'org.assertj:assertj-core:3.8.0'
     testImplementation (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', version: '0.1.35', ext: 'aar') {

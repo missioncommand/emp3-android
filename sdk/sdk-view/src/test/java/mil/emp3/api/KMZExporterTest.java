@@ -1,8 +1,11 @@
 package mil.emp3.api;
 
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.os.Environment;
 import android.test.mock.MockContext;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.Xml;
 import android.webkit.URLUtil;
 
@@ -10,9 +13,14 @@ import org.cmapi.primitives.GeoPosition;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.rule.PowerMockRule;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.io.BufferedInputStream;
@@ -20,7 +28,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Enumeration;
 import java.util.Random;
 import java.util.UUID;
@@ -29,6 +36,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
+import armyc2.c2sd.renderer.utilities.ImageInfo;
+import armyc2.c2sd.renderer.utilities.MilStdAttributes;
 import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.events.KMLSEvent;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -37,27 +46,39 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.listeners.IKMLSEventListener;
-import mil.emp3.api.shadows.ShadowKMLExportThread;
-import mil.emp3.api.shadows.ShadowTestRunner;
 import mil.emp3.api.utils.BasicUtilities;
 import mil.emp3.api.utils.FileUtility;
+import mil.emp3.api.utils.MilStdUtilities;
 import mil.emp3.api.utils.kmz.EmpKMZExporter;
+import mil.emp3.view.BuildConfig;
 
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
+import static org.powermock.reflect.Whitebox.setInternalState;
 
 /**
  * @author Jenifer Cochran
  */
 
-@RunWith(ShadowTestRunner.class)
-@Config(shadows = {ShadowKMLExportThread.class})
-@PrepareForTest({Environment.class, Xml.class, MilStdSymbol.class, MilStdIconRenderer.class, FileUtility.class, URLUtil.class})
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class)
+@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*"})
+//@Config(shadows = {ShadowKMLExportThread.class})
+@PrepareForTest({MilStdUtilities.class, Environment.class, Xml.class, MilStdSymbol.class, MilStdIconRenderer.class, FileUtility.class, URLUtil.class})
 public class KMZExporterTest extends TestBaseSingleMap
 {
     private final static String TAG = KMZExporterTest.class.getName();
 
     private static File outputDirectory;
     private static File temporaryOutputDirectory;
+
+    @Rule
+    public PowerMockRule rule = new PowerMockRule();
 
     class MyMockContext extends MockContext {
         @Override
@@ -941,7 +962,7 @@ public class KMZExporterTest extends TestBaseSingleMap
     }
 
     @Test
-    public void exportKmzMilSymbolTest() throws EMP_Exception, MalformedURLException, InterruptedException, IOException {
+    public void exportKmzMilSymbolTest() throws Exception {
         final String    kmzFileNameWithoutExtension = "TestKmzFileName";
         final boolean[] processEnded                = {false};
         final File[]    kmzFile                     = new File[1];
@@ -950,6 +971,30 @@ public class KMZExporterTest extends TestBaseSingleMap
                                                                            40, -75);
         final IOverlay overlay = addOverlayToMap(this.remoteMap);
         overlay.addFeature(milSymbol, true);
+
+        final SparseArray sparseArray = mock(SparseArray.class);
+        whenNew(SparseArray.class).withNoArguments().thenReturn(sparseArray);
+        doNothing().when(sparseArray).put(Mockito.anyInt(), Mockito.anyString());
+        when(sparseArray.get(MilStdAttributes.SymbologyStandard)).thenReturn("1");
+
+        final Bitmap bitmap = mock(Bitmap.class);
+        final android.graphics.Point point = Mockito.mock(android.graphics.Point.class);
+        setInternalState(point, "x", 5);
+        setInternalState(point, "y", 5);
+
+        final Rect rect = Mockito.mock(Rect.class);
+        when(rect.width()).thenReturn(5);
+        when(rect.height()).thenReturn(5);
+        final ImageInfo realImageInfo = new ImageInfo(bitmap, point, rect);
+        final ImageInfo imageInfo = Mockito.spy(realImageInfo);
+        whenNew(Rect.class).withArguments(rect).thenReturn(rect);
+
+        final MilStdIconRenderer milStdIconRenderer = Mockito.mock(MilStdIconRenderer.class);
+        mockStatic(MilStdIconRenderer.class);
+        when(MilStdIconRenderer.getInstance()).thenReturn(milStdIconRenderer);
+        when(milStdIconRenderer.RenderIcon(any(), any(), any())).thenReturn(imageInfo);
+        when(imageInfo.getImageBounds()).thenReturn(rect);
+        when(imageInfo.getCenterPoint()).thenReturn(point);
         EmpKMZExporter.exportToKMZ(this.remoteMap,
                                    milSymbol,
                                    false,
