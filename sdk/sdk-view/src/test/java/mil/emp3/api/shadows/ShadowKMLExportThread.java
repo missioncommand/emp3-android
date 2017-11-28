@@ -1,34 +1,52 @@
 package mil.emp3.api.shadows;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.util.SparseArray;
 
-import org.cmapi.primitives.IGeoMilSymbol;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 
-import mil.emp3.api.MilStdSymbol;
-import mil.emp3.api.enums.MilStdLabelSettingEnum;
-import mil.emp3.api.utils.MilStdUtilities;
+import armyc2.c2sd.renderer.MilStdIconRenderer;
+import armyc2.c2sd.renderer.utilities.ImageInfo;
 
 /**
- * Created by matt.miller@rgi-corp.local on 11/27/17.
+ * @author Matt Miller & Jenifer Cochran
  */
-
-@Implements(MilStdUtilities.class)
-public class ShadowKMLExportThread {
-
-    //@Implementation
-//    protected String getMilStdSinglePointIconURL(final MilStdSymbol feature,
-//                                                 final MilStdLabelSettingEnum eLabelSetting,
-//                                                 final java.util.Set<IGeoMilSymbol.Modifier> labelSet,
-//                                                 final SparseArray<String> attributes) throws IOException {
-//        return "https://127.0.0.1";
-//    }
+@Implements(MilStdIconRenderer.class)
+public class ShadowKMLExportThread
+{
 
     @Implementation
-    public static String getMilStdSinglePointIconURL(final MilStdSymbol feature,
-                                                     MilStdLabelSettingEnum eLabelSetting, java.util.Set<IGeoMilSymbol.Modifier> labelSet,
-                                                     SparseArray<String> attributes) {
-        return "https://127.0.0.1";
+    public static MilStdIconRenderer getInstance()
+    {
+        return new MilStdIconRenderer();
+    }
+
+    @Implementation
+    public static ImageInfo RenderIcon(String              symbolID,
+                                       SparseArray<String> modifiers,
+                                       SparseArray<String> attributes)
+    {
+        int[] colors = new int[]{
+                                    Color.parseColor("#ff0000"),
+                                    Color.parseColor("#00ff00"),
+                                    Color.parseColor("#0000ff"),
+                                    Color.parseColor("#990000"),
+                                    Color.parseColor("#009900"),
+                                    Color.parseColor("#000099")
+                                };
+        //create bitmap
+        Bitmap image = Bitmap.createBitmap(colors, 3, 2, Bitmap.Config.ARGB_8888);
+        //create location
+        Point centerPoint = new Point();
+        centerPoint.set(0,0);
+        //create bounds
+        Rect bounds = new Rect();
+        bounds.set(-1, 1, 1, -1);
+
+        return new ImageInfo(image, centerPoint, bounds);
     }
 }
