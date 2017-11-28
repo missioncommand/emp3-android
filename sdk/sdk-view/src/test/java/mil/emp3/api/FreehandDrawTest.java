@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +39,7 @@ import mil.emp3.api.utils.FeatureUtils;
 /**
  * Some basic FreehandDraw scenarios are tested.
  */
+@RunWith(RobolectricTestRunner.class)
 public class FreehandDrawTest extends TestBaseMultiMap {
     private static String TAG = FreehandDrawTest.class.getSimpleName();
     double latitude = 40.2171;

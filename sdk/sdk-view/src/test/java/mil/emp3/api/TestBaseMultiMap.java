@@ -3,7 +3,9 @@ package mil.emp3.api;
 import android.content.Context;
 
 import org.junit.Ignore;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -21,7 +23,6 @@ import mil.emp3.api.mock.MockMapInstance;
 public class TestBaseMultiMap extends TestBase {
     private static String TAG;
 
-    @Mock
     private Context context;
 
     protected RemoteMap[] remoteMap;
@@ -32,6 +33,7 @@ public class TestBaseMultiMap extends TestBase {
     private BlockingQueue<IFeature>[] selectFeatureQueue;
     private BlockingQueue<UUID>[] deselectFeatureQueue;
     private BlockingQueue<ICamera>[] setCameraQueue;
+    private BlockingQueue<String>[] userContextQueue;
 
     BlockingQueue<IEvent>[] receivedEventQueue;
     protected MockEventListener[] eventListener;
@@ -48,6 +50,7 @@ public class TestBaseMultiMap extends TestBase {
         setCameraQueue = new BlockingQueue[mapCount];
         selectFeatureQueue = new BlockingQueue[mapCount];
         deselectFeatureQueue = new BlockingQueue[mapCount];
+        userContextQueue = new BlockingQueue[mapCount];
 
         receivedEventQueue = new BlockingQueue[mapCount];
         eventListener = new MockEventListener[mapCount];
@@ -57,10 +60,10 @@ public class TestBaseMultiMap extends TestBase {
             removeFeatureQueue[ii] = new LinkedBlockingDeque<>();
             selectFeatureQueue[ii] = new LinkedBlockingDeque<>();
             deselectFeatureQueue[ii] = new LinkedBlockingDeque<>();
-
+            userContextQueue[ii] = new LinkedBlockingDeque<>();
             setCameraQueue[ii] = new LinkedBlockingQueue<>();
             mapInstance[ii] = new MockMapInstance(addFeatureQueue[ii], removeFeatureQueue[ii], setCameraQueue[ii], selectFeatureQueue[ii],
-                    deselectFeatureQueue[ii]);
+                    deselectFeatureQueue[ii], userContextQueue[ii]);
             receivedEventQueue[ii] = new LinkedBlockingDeque<>();
             eventListener[ii] = new MockEventListener(receivedEventQueue[ii]);
 

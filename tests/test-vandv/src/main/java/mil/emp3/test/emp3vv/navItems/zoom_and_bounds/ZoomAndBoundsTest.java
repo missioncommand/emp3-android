@@ -350,7 +350,7 @@ public class ZoomAndBoundsTest extends NavItemBase implements ZoomToDialog.IZoom
             bounds.setWest(-1.0);
             bounds.setEast(1.0);
             maps[whichMap].setBounds(bounds, false);
-            ErrorDialog.showMessageWaitForConfirm(activity, "setBounds -1.0, 1.0, -1.0, 1.0 TRCUK0-3 at four corners");
+            ErrorDialog.showMessageWaitForConfirm(activity, "setBounds -1.0, 1.0, -1.0, 1.0 TRUCK0-3 at four corners");
 
 
             updateMilStdSymbolPosition(p1, 40.1, -72.9 );
@@ -362,13 +362,13 @@ public class ZoomAndBoundsTest extends NavItemBase implements ZoomToDialog.IZoom
             p2.apply();
             p3.apply(); Thread.sleep(bulkUpdateInterval);
 
-            displayStatus("setBounds 40.0, 42.0, -73.0, -71.0 TRCUK0-3 at four corners");
+            displayStatus("setBounds 40.0, 42.0, -73.0, -71.0 TRUCK0-3 at four corners");
             bounds.setSouth(40.0);
             bounds.setNorth(42.0);
             bounds.setWest(-73.0);
             bounds.setEast(-71.0);
             maps[whichMap].setBounds(bounds, false);
-            ErrorDialog.showMessageWaitForConfirm(activity, "setBounds 40.0, 42.0, -73.0, -71.0 TRCUK0-3 at four corners");
+            ErrorDialog.showMessageWaitForConfirm(activity, "setBounds 40.0, 42.0, -73.0, -71.0 TRUCK0-3 at four corners");
 
             updateMilStdSymbolPosition(p1, 40.01, -72.99 );
             updateMilStdSymbolPosition(p1_1, 40.01, -72.91);
@@ -384,7 +384,7 @@ public class ZoomAndBoundsTest extends NavItemBase implements ZoomToDialog.IZoom
             bounds.setWest(-73.0);
             bounds.setEast(-72.9);
             maps[whichMap].setBounds(bounds, false);
-            ErrorDialog.showMessageWaitForConfirm(activity, "setBounds 40.0, 40.1, -73.0, -72.9 TRCUK0-3 at four corners");
+            ErrorDialog.showMessageWaitForConfirm(activity, "setBounds 40.0, 40.1, -73.0, -72.9 TRUCK0-3 at four corners");
 
             updateMilStdSymbolPosition(p3, 40.0, -73.0);
             p3.apply(); Thread.sleep(bulkUpdateInterval);

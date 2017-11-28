@@ -1,8 +1,6 @@
 package mil.emp3.api;
 
 
-import mil.emp3.api.abstracts.Feature;
-
 import org.cmapi.primitives.GeoEllipse;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoEllipse;
@@ -10,6 +8,7 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
 
+import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
@@ -120,7 +119,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
 
     /**
      * This method sets minor radius of an elliptical feature.
-     * @param value The minor radius in meters. An InvalidPaameterException is raised if the absolute value is less than 1.0.
+     * @param value The minor radius in meters. An IllegalArgumentException is raised if the absolute value is less than 1.0.
      */
     @Override
     public void setSemiMinor(double value) {

@@ -21,9 +21,7 @@ import mil.emp3.api.mock.MockMapInstance;
 public class TestBaseSingleMap extends TestBase {
     private static String TAG;
 
-    @Mock
     private Context context;
-    @Mock
     private Resources res;
 
     protected RemoteMap remoteMap;
@@ -34,6 +32,7 @@ public class TestBaseSingleMap extends TestBase {
     private BlockingQueue<ICamera> setCameraQueue;
     private BlockingQueue<IFeature> selectFeatureQueue;
     private BlockingQueue<UUID> deselectFeatureQueue;
+    private BlockingQueue<String> userContextQueue;
 
     BlockingQueue<IEvent> receivedEventQueue;
     protected MockEventListener eventListener;
@@ -47,9 +46,11 @@ public class TestBaseSingleMap extends TestBase {
         removeFeatureQueue = new LinkedBlockingDeque<>();
         selectFeatureQueue = new LinkedBlockingDeque<>();
         deselectFeatureQueue = new LinkedBlockingDeque<>();
+        userContextQueue = new LinkedBlockingDeque<>();
 
         setCameraQueue = new LinkedBlockingDeque<>();
-        mapInstance = new MockMapInstance(addFeatureQueue, removeFeatureQueue, setCameraQueue, selectFeatureQueue, deselectFeatureQueue );
+        mapInstance = new MockMapInstance(addFeatureQueue, removeFeatureQueue, setCameraQueue,
+                selectFeatureQueue, deselectFeatureQueue, userContextQueue );
         receivedEventQueue = new LinkedBlockingDeque<>();
         eventListener = new MockEventListener(receivedEventQueue);
 

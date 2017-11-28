@@ -104,7 +104,7 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
 
     /**
      * This method returns the western longitude.
-     * @return The western logintude in degrees.
+     * @return The western longitude in degrees.
      */
     @Override
     public double west() {
@@ -447,10 +447,10 @@ public class EmpBoundingBox extends GeoBounds implements IEmpBoundingBox {
     @Override
     public void includePosition(double latitude, double longitude) {
         if (Double.isNaN(latitude)) {
-            throw new IllegalArgumentException("Ivalid latitude.");
+            throw new IllegalArgumentException("Invalid latitude.");
         }
         if (Double.isNaN(longitude)) {
-            throw new IllegalArgumentException("Ivalid longitude.");
+            throw new IllegalArgumentException("Invalid longitude.");
         }
 
         if (Double.isNaN(getEast()) || Double.isNaN(getNorth()) || Double.isNaN(getSouth()) || Double.isNaN(getWest())) {

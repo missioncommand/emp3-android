@@ -79,7 +79,7 @@ public class CoreManager implements ICoreManager {
         oMapInstance.setCamera(camera, animate, userContext);
         mapMapping.setCamera(camera);
 
-        // We will need this when client executes swapMapEngine and it will be resused for activity restart also.
+        // We will need this when client executes swapMapEngine and it will be reused for activity restart also.
         // This is stored again when activity is destroyed but that doesn't help pure swapMapEngine scenario.
         IClientMapRestoreData cmrd = storageManager.getRestoreData(clientMap);
         if(null != cmrd) {
@@ -110,7 +110,7 @@ public class CoreManager implements ICoreManager {
         oMapInstance.setLookAt(lookAt, animate, userContext);
         mapMapping.setLookAt(lookAt);
 
-        // We will need this when client executes swapMapEngine and it will be resused for activity restart also.
+        // We will need this when client executes swapMapEngine and it will be reused for activity restart also.
         // This is stored again when activity is destroyed but that doesn't help pure swapMapEngine scenario.
         IClientMapRestoreData cmrd = storageManager.getRestoreData(clientMap);
         if(null != cmrd) {

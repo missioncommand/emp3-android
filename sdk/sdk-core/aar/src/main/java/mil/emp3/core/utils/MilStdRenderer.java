@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.util.Log;
 import android.util.SparseArray;
 
+import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
@@ -71,6 +72,19 @@ public class MilStdRenderer implements IMilStdRenderer {
     private static IBitmapCache oBitmapCache = null;
 
     private boolean initialized;
+
+    private static IGeoColor black = new GeoColor();
+    private static IGeoColor white = new GeoColor();
+    static {
+        black.setAlpha(1.0);
+        black.setBlue(0);
+        black.setGreen(0);
+        black.setRed(0);
+        white.setAlpha(1.0);
+        white.setBlue(255);
+        white.setGreen(255);
+        white.setRed(255);
+    }
 
     private void initCheck() {
         if (!initialized) {
@@ -495,10 +509,9 @@ public class MilStdRenderer implements IMilStdRenderer {
         initCheck();
 
         List<IFeature> oList = new ArrayList<>();
-        String basicSC = SymbolUtilities.getBasicSymbolID(symbol.getSymbolCode());
-        
-        if (SymbolUtilities.isTacticalGraphic(basicSC)) {
-            this.renderTacticalGraphic(oList, mapInstance, symbol, selected);
+
+        if (symbol.isTacticalGraphic()) {
+            renderTacticalGraphic(oList, mapInstance, symbol, selected);
         }
         
         return oList;

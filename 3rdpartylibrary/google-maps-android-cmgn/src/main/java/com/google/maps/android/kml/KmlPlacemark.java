@@ -41,7 +41,7 @@ public class KmlPlacemark {
     }
 
     /**
-     * Get the placemenrk's id attribute.
+     * Get the placemark's id attribute.
      * @return String if the id was present, null otherwise.
      */
     public String getPlacemarkId() {

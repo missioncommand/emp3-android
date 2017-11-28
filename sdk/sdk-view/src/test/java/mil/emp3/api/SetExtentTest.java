@@ -8,6 +8,8 @@ import org.cmapi.primitives.IGeoBounds;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 /**
  * NOTE/CAUTION: These tests were written by simply taking the results and putting them back in the test. This was done after
@@ -15,6 +17,7 @@ import org.junit.Test;
  * what worked prior to the change continues to work.
  *
  */
+@RunWith(RobolectricTestRunner.class)
 public class SetExtentTest extends TestBaseSingleMap {
     private static String TAG = SetExtentTest.class.getSimpleName();
 
@@ -25,7 +28,7 @@ public class SetExtentTest extends TestBaseSingleMap {
 
     @After
     public void tearDown() throws Exception {
-
+        mapInstance.cleanQueues();
     }
 
     private IGeoBounds buildGeoBounds(double south, double north, double west, double east) {

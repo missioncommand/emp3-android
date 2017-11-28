@@ -45,7 +45,7 @@ import mil.emp3.test.emp3vv.utils.MapNamesUtility;
  * LookAt widget.
  *
  * Get/Set for camera are straight forward, read the values from the widget and apply/set.
- * Get/Set for LookAt is a bit more than that. It presumes that camera is seto the values displayed
+ * Get/Set for LookAt is a bit more than that. It presumes that camera is set to the values displayed
  * on the panel, it uses the lat/long/alt from lookAt panel as target and then calculates other parameters of LookAt.
  */
 public class CameraAndLookAtDialog extends Emp3TesterDialogBase {
@@ -119,7 +119,7 @@ public class CameraAndLookAtDialog extends Emp3TesterDialogBase {
         cameraFeaturesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             /**
-             * Update the latitude and longitude value in camera panel of campera components
+             * Update the latitude and longitude value in camera panel of camera components
              * @param parent
              * @param view
              * @param position
@@ -173,7 +173,7 @@ public class CameraAndLookAtDialog extends Emp3TesterDialogBase {
             lookAtFeaturesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                 /**
-                 * Update the latitude and longitude value in camera panel of campera components
+                 * Update the latitude and longitude value in camera panel of camera components
                  * @param parent
                  * @param view
                  * @param position

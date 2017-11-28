@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ import mil.emp3.api.utils.BasicUtilities;
 /**
  * Test for selectFeature, selectFeatures, deselectFeature, deselectFeatures, clearSelected and IFeatureEventListener
  */
+@RunWith(RobolectricTestRunner.class)
 public class SelectFeatureTest extends TestBaseMultiMap {
     private static String TAG = SelectFeatureTest.class.getSimpleName();
 

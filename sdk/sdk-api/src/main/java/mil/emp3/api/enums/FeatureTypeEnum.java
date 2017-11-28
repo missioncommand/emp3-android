@@ -37,7 +37,7 @@ public enum FeatureTypeEnum {
      */
     GEO_MIL_SYMBOL,
     /**
-     * Air control measure (aka 3D airspace) feature. {@link mil.emp3.api.mil.emp3.api.AirControlMeasure}
+     * Air control measure (aka 3D airspace) feature. {@link mil.emp3.api.AirControlMeasure}
      */
     GEO_ACM,
     /**
