@@ -6,7 +6,7 @@ import mil.emp3.api.enums.MapStateEnum;
 
 /**
  * This event is generated when a specific map changes state.
- * To register for this event you must instantiate an object that implements the {@link IMapStateChangeEventListener}
+ * To register for this event you must instantiate an object that implements the {@link mil.emp3.api.listeners.IMapStateChangeEventListener}
  * interface and register for the event on an IMap.
  */
 public abstract class MapStateChangeEvent extends Event<MapEventEnum, IMap> {

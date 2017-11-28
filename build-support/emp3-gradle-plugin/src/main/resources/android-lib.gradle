@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'jacoco-android'
 
 // versionCode is an integer and must increase with each release.
 def vc = "$project.version".tokenize('.');
@@ -27,6 +28,8 @@ android {
         it.buildConfigField "String", "Implementation_Vendor", "\"mil.army.missioncommand\""
         it.buildConfigField "String", "Implementation_Title", "\"EMP3 Android ${project.version}\""
         it.buildConfigField "String", "Implementation_Version", "\"${project.revision}\""
+        it.buildConfigField "String", "CMAPI_Version", "\"${version_cmapi}\""
+        it.buildConfigField "String", "SEC_Renderer_Version", "\"${version_renderer}\""
     }
     compileOptions {
         sourceCompatibility rootProject.sourceCompatibility
@@ -36,3 +39,4 @@ android {
         abortOnError false
     }
 }
+

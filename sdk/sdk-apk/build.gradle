@@ -1,6 +1,7 @@
 apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-app.gradle"
 apply plugin: 'maven-publish'
 
+
 dependencies {
     implementation project (":emp3-android-sdk")
     //compile project (":service:mirrorcache:service-mirrorcache-api")
@@ -17,45 +18,89 @@ android {
     }
 }
 build.doLast { task ->
-    def sourceDir = "$projectDir/../sdk-apk/build/outputs/apk/debug/"
-    def fileName = "emp3-android-sdk-apk-debug.apk"
+    def sourceDir = "$projectDir/../sdk-apk/build/outputs/apk/release/"
+    def fileName = "emp3-android-sdk-apk-release-unsigned.apk"
 
     def checksumTarget = sourceDir + fileName
     ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
     ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
 }
 
+task releaseChecksum {
+    doLast {
+        def sourceDir = "$projectDir/build/outputs/apk/release/"
+        def fileName = "emp3-android-sdk-apk-release.apk"
+
+        def checksumTarget = sourceDir + fileName
+        ant.checksum file: checksumTarget, algorithm: "MD5", fileExt: ".md5"
+        ant.checksum file: checksumTarget, algorithm: "SHA-256", fileExt: ".sha256"
+    }
+}
+
 publishing {
     publications {
         nebula(MavenPublication) {
-            artifact "$buildDir/outputs/apk/debug/${project.name}-debug.apk"
+            if(new File("$buildDir/outputs/apk/release/${project.name}-release.apk").exists()) {
+                artifact "$buildDir/outputs/apk/release/${project.name}-release.apk"
 
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
 
-                // inject the compile-time dependencies
-                // TODO: this handles basic case;
-                //       need to find existing plugin and/or add more robustness
-                configurations.compile.allDependencies.each {
-                    if (it.name != 'unspecified') {
+                    // inject the compile-time dependencies
+                    // TODO: this handles basic case;
+                    //       need to find existing plugin and/or add more robustness
+                    configurations.compile.allDependencies.each {
+                        if (it.name != 'unspecified') {
 
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group == 'emp3-android' ? project.ext.group : it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        if (it.version != null) {
-                            //def depVer = project.dependencyManagement.dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"]
-                            dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group == 'emp3-android' ? project.ext.group : it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            if (it.version != null) {
+                                //def depVer = project.dependencyManagement.dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"]
+                                dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
+                            }
                         }
                     }
                 }
-            }
 
-            artifact("$buildDir/outputs/apk/debug/emp3-android-sdk-apk-debug.apk.sha256") {
-                extension "apk.sha256"
-            }
+                artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release.apk.sha256") {
+                    extension "apk.sha256"
+                }
 
-            artifact("$buildDir/outputs/apk/debug/emp3-android-sdk-apk-debug.apk.md5") {
-                extension "apk.md5"
+                artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release.apk.md5") {
+                    extension "apk.md5"
+                }
+            }
+            else {
+                artifact "$buildDir/outputs/apk/release/${project.name}-release-unsigned.apk"
+
+                pom.withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+
+                    // inject the compile-time dependencies
+                    // TODO: this handles basic case;
+                    //       need to find existing plugin and/or add more robustness
+                    configurations.compile.allDependencies.each {
+                        if (it.name != 'unspecified') {
+
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group == 'emp3-android' ? project.ext.group : it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            if (it.version != null) {
+                                //def depVer = project.dependencyManagement.dependencyManagementContainer.globalDependencyManagement.versions["$it.group:$it.name"]
+                                dependencyNode.appendNode('version', it.version == 'unspecified' ? rootProject.ext.version : it.version)
+                            }
+                        }
+                    }
+                }
+
+                artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.sha256") {
+                    extension "apk.sha256"
+                }
+
+                artifact("$buildDir/outputs/apk/release/emp3-android-sdk-apk-release-unsigned.apk.md5") {
+                    extension "apk.md5"
+                }
             }
 
         }

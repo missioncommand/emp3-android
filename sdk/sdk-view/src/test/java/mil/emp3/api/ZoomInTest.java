@@ -6,6 +6,8 @@ import org.cmapi.primitives.IGeoAltitudeMode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ import mil.emp3.api.utils.BasicUtilities;
  * results were verified visually on a display. Value of these tests is when some calculation is changed we can make sure that
  * what worked prior to the change continues to work.
  */
-
+@RunWith(RobolectricTestRunner.class)
 public class ZoomInTest  extends TestBaseSingleMap {
     private static String TAG = ZoomInTest.class.getSimpleName();
 

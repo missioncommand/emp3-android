@@ -42,7 +42,7 @@ public class SymbolCodeUtils {
             case REGIMENT_GROUP:
                 return "Regiment//Group";
             case BRIGADE:
-                return "Brigate";
+                return "Brigade";
             case DIVISION:
                 return "Division";
             case CORPS_MEF:
@@ -65,9 +65,9 @@ public class SymbolCodeUtils {
         }
         switch (eValue) {
             case INSTALLATION:
-                return "Instalation";
+                return "Installation";
             case FEINT_DUMMY_INSTALLATION:
-                return "Feint Dummy Instalation";
+                return "Feint Dummy Installation";
         }
         return null;
     }

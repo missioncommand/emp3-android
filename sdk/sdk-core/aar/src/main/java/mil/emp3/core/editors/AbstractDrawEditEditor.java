@@ -76,7 +76,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
      * in the event the edit is canceled.
      *
      * 2) - This base class calls the prepareForEdit to allow the derived class to perform additional
-     * initialization. The derived class can override the preparForEdit method.
+     * initialization. The derived class can override the prepareForEdit method.
      *
      * 3) - If the derived class indicated that it uses control points (bUsesCP == true) this base class
      * calls the assembleControlPoints method which the derived class must override to create the control
@@ -193,7 +193,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
      *
      * 10) - If the draw operation is canceled, all control points are removed from the map. The feature
      * is removed if it is a new feature.  The base class generates a FeatureDrawEventEnum.DRAW_CANCELED
-     * event and the editor is deleted. If the feature already existsed in the core the stored properties
+     * event and the editor is deleted. If the feature already existed in the core the stored properties
      * are reapplied to the feature to return it to its original state.
      *
      * 11) - If the operation is completed the base class removes all control points from the map, the feature

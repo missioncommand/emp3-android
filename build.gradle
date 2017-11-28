@@ -8,11 +8,13 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0-alpha01'
+        classpath 'com.android.tools.build:gradle:3.1.0-alpha02'
         classpath 'com.netflix.nebula:nebula-publishing-plugin:5.1.1'
         classpath 'org.ajoberstar:grgit:1.7.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.5.0'
+        // Jacoco reports for Android
+        classpath 'com.dicedmelon.gradle:jacoco-android:0.1.2'
     }
 }
 
@@ -28,10 +30,11 @@ ext {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 
-
     git = org.ajoberstar.grgit.Grgit.open(file('.')) // Open the Git repository in the current directory.
     revision = git.head().id                         // Get commitId of HEAD.
 }
+
+
 
 allprojects {
     apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/common.gradle"
@@ -46,7 +49,6 @@ def publishableModules() {
             , project(":emp3-gradle-plugin")
             , project(":mapengine-worldwind")
             , project(":google-maps-android-cmgn")
-            , project(":cmapi")
             , project(":geolib")
 
     ]

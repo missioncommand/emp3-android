@@ -94,7 +94,7 @@ public class DMSMapGridLine extends AbstractMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(DMS_GRID_LAT_MAJOR_VALUE, labelStyle);
         addLabelStyle(DMS_GRID_LONG_MAJOR_VALUE, labelStyle);
@@ -104,7 +104,7 @@ public class DMSMapGridLine extends AbstractMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(6.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(DMS_GRID_LAT_MINOR_VALUE, labelStyle);
         addLabelStyle(DMS_GRID_LONG_MINOR_VALUE, labelStyle);

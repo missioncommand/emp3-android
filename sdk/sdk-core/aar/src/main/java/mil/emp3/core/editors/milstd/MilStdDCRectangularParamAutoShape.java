@@ -19,7 +19,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
 /**
  * This class implements the editor for the rectangular parameterized auto shape tactical graphics.
  * It uses only 1 position, 2 AM (Width 0, Length 1) values and 1 AN value for attitude.
- * <b>NOTE: What here is called Width in 2525 is called Length. What is here called Legth in 2525 is called Width.</b>
+ * <b>NOTE: What here is called Width in 2525 is called Length. What is here called Length in 2525 is called Width.</b>
  * As per the 2525B&C the attitude values for 2525C is in degrees and 2525B is in mils.
  * <b>NOTE: The Attitude is always in degrees.</b>
  *

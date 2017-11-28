@@ -424,13 +424,8 @@ public class EllipseTest extends TestBase {
         final GeoPosition gp = new GeoPosition();
         el = new Ellipse();
         el.setPosition(gp);
-        final Double northSouthCoord = 7.411101094021433 * Math.pow(10, -4);
+        final Double northSouthCoord = 7.461048185746222 * Math.pow(10, -4);
         final Double eastWestCoord = 1.4822202186905997 * Math.pow(10, -3);
-//
-//        final EmpBoundingBox empBoundingBoxMock = PowerMockito.mock(EmpBoundingBox.class);
-//        when(empBoundingBoxMock.deltaLatitude()).thenReturn(0.0);
-//        when(empBoundingBoxMock.deltaLongitude()).thenReturn(0.0);
-//        PowerMockito.whenNew(EmpBoundingBox.class).withNoArguments().thenReturn(empBoundingBoxMock);
 
         validateBoundingBox((EmpBoundingBox) el.getFeatureBoundingBox(),
                                              northSouthCoord,

@@ -11,7 +11,8 @@ import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
-import mil.emp3.api.utils.GeoLibrary;
+
+import static mil.emp3.api.utils.GeographicLib.computePositionAt;
 
 /**
  * This class implements a Circle feature. It requires a radius and a single coordinate that indicates the
@@ -96,16 +97,16 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
                 IGeoPosition pos = new GeoPosition();
 
                 // Compute north.
-                GeoLibrary.computePositionAt(0.0, dist, posList.get(0), pos);
+                computePositionAt(0.0, dist, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                 // Compute east.
-                GeoLibrary.computePositionAt(90.0, dist, posList.get(0), pos);
+                computePositionAt(90.0, dist, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                 // Compute south.
-                GeoLibrary.computePositionAt(180.0, dist, posList.get(0), pos);
+                computePositionAt(180.0, dist, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                 // Compute west.
-                GeoLibrary.computePositionAt(270.0, dist, posList.get(0), pos);
+                computePositionAt(270.0, dist, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Now we need to extend the box by ~ 10%.

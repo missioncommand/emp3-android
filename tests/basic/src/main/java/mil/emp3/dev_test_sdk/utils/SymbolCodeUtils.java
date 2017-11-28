@@ -42,7 +42,7 @@ public class SymbolCodeUtils {
             case REGIMENT_GROUP:
                 return "Regiment//Group";
             case BRIGADE:
-                return "Brigate";
+                return "Brigade";
             case DIVISION:
                 return "Division";
             case CORPS_MEF:

@@ -101,7 +101,7 @@ public class MilStdPolygonEditor extends AbstractDrawEditEditor {
             // We just added the 3rd point. We need to add the new CP between the last and the first.
             this.createCPBetween(oLatLng, posList.get(0), ControlPoint.CPTypeEnum.NEW_POSITION_CP, 2, 0);
         } else {
-            // We added a new point. We need to move the new CP that is beetween the previous last and the first CPs.
+            // We added a new point. We need to move the new CP that is between the previous last and the first CPs.
             // Find the CP.
             controlPoint = this.findControlPoint(ControlPoint.CPTypeEnum.NEW_POSITION_CP, lastIndex, 0);
             if (null != controlPoint) {

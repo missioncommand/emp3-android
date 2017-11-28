@@ -42,7 +42,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(IGeoDocument document) throws XmlPullParserException, IOException {
+    public KML(final IGeoDocument document) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (!document.getProperties().containsKey(KML_STRING_PROPERTY) && !((null != document.getDocumentURI()) && !document.getDocumentURI().isEmpty())) {
@@ -50,18 +50,18 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         }
 
         this.geoDocument = document;
-        EmpKMLParser empKMLParser;
+        final EmpKMLParser empKMLParser;
 
         // If there is a kml string in the properties, use it.
         if (this.getProperties().containsKey(KML_STRING_PROPERTY)) {
-            String kmlString = this.getProperties().get(KML_STRING_PROPERTY);
+            final String kmlString = this.getProperties().get(KML_STRING_PROPERTY);
             empKMLParser = new EmpKMLParser(kmlString);
         } else {
             // Else it MUST have a URI.
-            String kmlURL =  this.geoDocument.getDocumentURI();
+            final String kmlURL =  this.geoDocument.getDocumentURI();
             java.net.URL url = new java.net.URL(kmlURL);
 
-            InputStream inputStream = url.openStream();
+            final InputStream inputStream = url.openStream();
             empKMLParser = new EmpKMLParser(inputStream);
             inputStream.close();
         }
@@ -76,13 +76,13 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(String kmlString) throws XmlPullParserException, IOException {
+    public KML(final String kmlString) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if ((null == kmlString) || (kmlString.isEmpty())) {
             throw new IllegalArgumentException("KML string can not be null nor empty.");
         }
-        EmpKMLParser empKMLParser;
+        final EmpKMLParser empKMLParser;
         empKMLParser = new EmpKMLParser(kmlString);
 
         this.geoDocument = new GeoDocument();
@@ -100,20 +100,20 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the stream.
      */
-    public KML(InputStream inputStream) throws XmlPullParserException, IOException {
+    public KML(final InputStream inputStream) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (null == inputStream) {
             throw new IllegalArgumentException("Input stream can not be null.");
         }
         this.geoDocument = new GeoDocument();
-        EmpKMLParser empKMLParser;
+        final EmpKMLParser empKMLParser;
         empKMLParser = new EmpKMLParser(inputStream);
 
         setDocumentFields(empKMLParser);
         processParseOutput(empKMLParser);
 
-        String kmlString = this.exportToKML();
+        final String kmlString = this.exportToKML();
         this.getProperties().put(KML_STRING_PROPERTY, kmlString);
         this.geoDocument.setDocumentMIMEType("application/vnd.google-earth.kml+xml");
     }
@@ -125,7 +125,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(java.net.URL url) throws XmlPullParserException, IOException {
+    public KML(final java.net.URL url) throws XmlPullParserException, IOException {
         this(url, null);
     }
 
@@ -137,7 +137,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
      * @throws XmlPullParserException This exception is raised if the KML fails to parse correctly.
      * @throws IOException This exception is raised in the event of an IO error accessing the URL.
      */
-    public KML(java.net.URL url, String documentBase) throws XmlPullParserException, IOException {
+    public KML(final java.net.URL url, final String documentBase) throws XmlPullParserException, IOException {
         super(new GeoRenderable(), FeatureTypeEnum.KML);
 
         if (null == url) {
@@ -145,7 +145,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         }
         this.geoDocument = new GeoDocument();
         InputStream inputStream = null;
-        EmpKMLParser empKMLParser;
+        final EmpKMLParser empKMLParser;
 
         try {
             inputStream = url.openStream();
@@ -167,7 +167,11 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         }
     }
 
-    private void setDocumentFields(EmpKMLParser empKmlParser) {
+    /**
+     * Adds the document fields from the parser
+     * @param empKmlParser the parser with the KML information
+     */
+    private void setDocumentFields(final EmpKMLParser empKmlParser) {
         if (null != empKmlParser.getDocumentId()) {
             this.setDataProviderId(empKmlParser.getDocumentId());
         }
@@ -181,7 +185,11 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         }
     }
 
-    private void processParseOutput(EmpKMLParser empKmlParser) {
+    /**
+     * add all the features and images from the parser after it finished parsing
+     * @param empKmlParser parser with all the KML information parsed
+     */
+    private void processParseOutput(final EmpKMLParser empKmlParser) {
         this.featureList.addAll(empKmlParser.getVisibleFeatures());
         this.featureList.addAll(empKmlParser.getInvisibleFeatures());
         this.imageLayerList.addAll(empKmlParser.getImageLayers());
@@ -197,11 +205,17 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         return this.imageLayerList;
     }
 
-    @Override
-    public List<IFeature> findKMLId(String kmlId) {
-        List<IFeature> resultList = new ArrayList<>();
 
-        for (IFeature feature: this.featureList) {
+    /**
+     * Finds the feature elements that have the provided ID as the dataProvider
+     * @param kmlId The ID of the dataProvider we are searching for
+     * @return a list of features that were provided by the specific KML ID
+     */
+    @Override
+    public List<IFeature> findKMLId(final String kmlId) {
+        final List<IFeature> resultList = new ArrayList<>();
+
+        for (final IFeature feature: this.featureList) {
             if ((null != feature.getDataProviderId()) && feature.getDataProviderId().equals(kmlId)) {
                 resultList.add(feature);
             }
@@ -211,7 +225,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     }
 
     @Override
-    public void setDocumentURI(String documentURI) {
+    public void setDocumentURI(final String documentURI) {
         this.geoDocument.setDocumentURI(documentURI);
     }
 
@@ -221,13 +235,13 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     }
 
     @Override
-    public void setDocumentMIMEType(String documentMIMEType) {
+    public void setDocumentMIMEType(final String documentMIMEType) {
         this.geoDocument.setDocumentMIMEType(documentMIMEType);
     }
 
     @Override
     public String getDocumentMIMEType() {
-        return this.getDocumentMIMEType();
+        return this.geoDocument.getDocumentMIMEType();
     }
 
     @Override
@@ -236,7 +250,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
     }
 
     @Override
-    public boolean containsProperty(String propertyName) {
+    public boolean containsProperty(final String propertyName) {
         return (this.getProperties().containsKey(propertyName.toUpperCase()));
     }
 

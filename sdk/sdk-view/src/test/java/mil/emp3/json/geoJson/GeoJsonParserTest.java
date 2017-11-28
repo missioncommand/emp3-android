@@ -19,6 +19,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.robolectric.RobolectricTestRunner;
 
 import java.io.InputStream;
 import java.util.List;
@@ -37,7 +38,7 @@ import mil.emp3.core.utils.MilStdRenderer;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.view.R;
 
-@RunWith(PowerMockRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @PrepareForTest({ManagerFactory.class, Looper.class})
 @SuppressStaticInitializationFor("mil.emp3.api.utils.ManagerFactory")
 public class GeoJsonParserTest {
@@ -63,27 +64,6 @@ public class GeoJsonParserTest {
     @Before
     public void setUp() throws Exception {
         classLoader = GeoJsonParser.class.getClassLoader();
-        //
-        // ManagerFactory
-        //
-        PowerMockito.mockStatic(ManagerFactory.class);
-        final ManagerFactory managerFactory = PowerMockito.mock(ManagerFactory.class);
-
-        PowerMockito.when(ManagerFactory.getInstance()).thenReturn(managerFactory);
-
-        PowerMockito.when(managerFactory.getStorageManager()).thenReturn(storageManager);
-        PowerMockito.when(managerFactory.getEventManager()).thenReturn(eventManager);
-        PowerMockito.when(managerFactory.getCoreManager()).thenReturn(coreManager);
-        PowerMockito.when(managerFactory.getMilStdRenderer()).thenReturn(milStdRenderer);
-
-        //
-        // Looper
-        //
-        PowerMockito.mockStatic(Looper.class);
-        final Looper looper = PowerMockito.mock(Looper.class);
-
-        PowerMockito.when(Looper.getMainLooper()).thenReturn(looper);
-        PowerMockito.when(Looper.myLooper()).thenReturn(looper);
     }
 
     @After

@@ -7,7 +7,7 @@ sourceCompatibility = rootProject.sourceCompatibility
 targetCompatibility = rootProject.targetCompatibility
 
 dependencies {
-    compileOnly project(":cmapi")
+    implementation   ("${cmapi_group_name}:${cmapi_jvm_artifact_name}:${version_cmapi}")
     compileOnly files("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
 }
 

@@ -12,7 +12,8 @@ import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
-import mil.emp3.api.utils.GeoLibrary;
+
+import static mil.emp3.api.utils.GeographicLib.computePositionAt;
 
 /**
  * This class implements an ellipse feature. It requires a single coordinate that indicates the
@@ -79,7 +80,7 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
      */
     @Override
     public void setSemiMajor(final double value) {
-        isValidSemiMajor(value);
+        validateWithinRange(value, MINIMUM_SEMI_MAJOR, Double.POSITIVE_INFINITY);
         this.getRenderable().setSemiMajor(value);
     }
 
@@ -94,11 +95,11 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
 
     /**
      * This method sets minor radius of an elliptical feature.
-     * @param value The minor radius in meters. An InvalidPaameterException is raised if the absolute value is less than 1.0.
+     * @param value The minor radius in meters. An IllegalArgumentException is raised if the absolute value is less than 1.0.
      */
     @Override
     public void setSemiMinor(final double value) {
-        isValidSemiMinor(value);
+        validateWithinRange(value, MINIMUM_SEMI_MINOR, Double.POSITIVE_INFINITY);
         this.getRenderable().setSemiMinor(value);
     }
 
@@ -109,20 +110,6 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
     @Override
     public double getSemiMinor() {
         return this.getRenderable().getSemiMinor();
-    }
-
-    private void isValidSemiMajor(final double dMajor) {
-        validatePositive(dMajor);
-        if(dMajor < MINIMUM_SEMI_MAJOR) {
-            throw new IllegalArgumentException("Invalid semimajor, " + String.valueOf(dMajor) + " Minimum supported " + MINIMUM_SEMI_MAJOR);
-        }
-    }
-
-    private void isValidSemiMinor(final double dMinor) {
-        validatePositive(dMinor);
-        if(dMinor < MINIMUM_SEMI_MINOR) {
-            throw new IllegalArgumentException("Invalid semiminor, " + String.valueOf(dMinor) + " Minimum supported " + MINIMUM_SEMI_MINOR);
-        }
     }
 
     public IEmpBoundingBox getFeatureBoundingBox() {
@@ -139,25 +126,25 @@ public class Ellipse extends Feature<IGeoEllipse> implements IGeoEllipse {
                 IGeoPosition pos = new GeoPosition();
 
                 // Compute north.
-                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                computePositionAt(angle, minorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute east.
                 angle = this.getAzimuth() + 90.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                computePositionAt(angle, majorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute south.
                 angle = this.getAzimuth() + 180.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeoLibrary.computePositionAt(angle, minorAxis, posList.get(0), pos);
+                computePositionAt(angle, minorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Compute west.
                 angle = this.getAzimuth() + 270.0;
                 angle = (((angle + 360.0) % 360.0) + 360.0) % 360.0;
-                GeoLibrary.computePositionAt(angle, majorAxis, posList.get(0), pos);
+                computePositionAt(angle, majorAxis, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Now we need to extend the box by ~ 10%.

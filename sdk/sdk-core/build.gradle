@@ -5,7 +5,37 @@ apply plugin: 'nebula.maven-nebula-publish'
 publishing.publications {
     nebula(MavenPublication) {
         artifactId = "emp3-android-sdk-core"
-
+        // Checks to see if the release is signed or unsigned. This distinction is necessary for local builds to still occur
+        // as signing is currently only happening via travis ci.
+        if(new File("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk").exists()) {
+            artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk") {
+                classifier "release"
+                extension "apk"
+            }
+            artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk.md5") {
+                classifier "release"
+                extension "apk.md5"
+            }
+            artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release.apk.sha256") {
+                classifier "release"
+                extension "apk.sha256"
+            }
+        }
+        else {
+            artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk") {
+                classifier "release"
+                extension "apk"
+            }
+            artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk.md5") {
+                classifier "release"
+                extension "apk.md5"
+            }
+            artifact("$buildDir/../apk/build/outputs/apk/release/emp3-android-sdk-core-apk-release-unsigned.apk.sha256") {
+                classifier "release"
+                extension "apk.sha256"
+            }
+        }
+        // aar
         artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar") {
             extension "aar"
         }
@@ -14,18 +44,6 @@ publishing.publications {
         }
         artifact("$buildDir/../aar/build/outputs/aar/emp3-android-sdk-core-aar-release.aar.md5") {
             extension "aar.md5"
-        }
-        artifact("$buildDir/../apk/build/outputs/apk/debug/emp3-android-sdk-core-apk-debug.apk") {
-            classifier "debug"
-            extension "apk"
-        }
-        artifact("$buildDir/../apk/build/outputs/apk/debug/emp3-android-sdk-core-apk-debug.apk.md5") {
-            classifier "debug"
-            extension "apk.md5"
-        }
-        artifact("$buildDir/../apk/build/outputs/apk/debug/emp3-android-sdk-core-apk-debug.apk.sha256") {
-            classifier "debug"
-            extension "apk.sha256"
         }
     }
 }

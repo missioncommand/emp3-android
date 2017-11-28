@@ -111,7 +111,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(MGRS_GRID_LABEL, labelStyle);
 
@@ -146,7 +146,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(12.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.BOLD);
         addLabelStyle(MGRS_GRID_BOX_LABEL_CENTERED, labelStyle);
 
@@ -156,7 +156,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(MGRS_GRID_BOX_NORTH_VALUE, labelStyle);
 
@@ -165,7 +165,7 @@ public class MGRSMapGridLine extends UTMBaseMapGridLine {
         labelStyle.setColor(color);
         labelStyle.setSize(8.0);
         labelStyle.setJustification(IGeoLabelStyle.Justification.LEFT);
-        labelStyle.setFontFamily("Ariel");
+        labelStyle.setFontFamily("Arial");
         labelStyle.setTypeface(IGeoLabelStyle.Typeface.REGULAR);
         addLabelStyle(MGRS_GRID_BOX_EAST_VALUE, labelStyle);
     }

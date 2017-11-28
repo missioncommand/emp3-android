@@ -35,7 +35,7 @@ public class StorageObjectWrapper<T extends IContainer> implements IStorageObjec
     }
 
     /**
-     * This is used when we are restoring the ClientMap object safter activity restart.
+     * This is used when we are restoring the ClientMap object after activity restart.
      * We definitely shouldn't touch the container. We definitely need to copy the childrenList.
      * Doesn't hurt to copy the parentList.
      * Newly create clientMap needs to be retrofitted with children of the old clientmap after activity
@@ -152,7 +152,7 @@ public class StorageObjectWrapper<T extends IContainer> implements IStorageObjec
     protected void addChild(StorageObjectWrapper newChild, VisibilityStateEnum visibilityEnum)
             throws EMP_Exception {
         if (!this.hasChild(newChild.getObject().getGeoId())) {
-            if (this.childCreatesParodox(newChild)) {
+            if (this.childCreatesParadox(newChild)) {
                 throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_CHILD, "The object can not be its own ancestor.");
             } else {
                 this.childrenList.put(newChild.getObject().getGeoId(), newChild);
@@ -162,12 +162,12 @@ public class StorageObjectWrapper<T extends IContainer> implements IStorageObjec
     }
     
     @Override
-    public boolean childCreatesParodox(IStorageObjectWrapper newChild) {
+    public boolean childCreatesParadox(IStorageObjectWrapper newChild) {
         // Make sure its not trying to add an object as its own parent nor ancestor.
         if (this.container.getGeoId().compareTo(newChild.getObject().getGeoId()) != 0) {
             for (IParentRelationship oParentRelationship: this.parentList.values()) {
                 if (!(oParentRelationship.getParentWrapper().getObject() instanceof IMap)) {
-                    if (oParentRelationship.getParentWrapper().childCreatesParodox(newChild)) {
+                    if (oParentRelationship.getParentWrapper().childCreatesParadox(newChild)) {
                         return true;
                     }
                 }

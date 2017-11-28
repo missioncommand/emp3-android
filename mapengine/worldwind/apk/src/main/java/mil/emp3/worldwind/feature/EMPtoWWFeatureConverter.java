@@ -228,7 +228,7 @@ public class EMPtoWWFeatureConverter {
         if (isSelected) {
             selectedLabelStyle = getMapInstance().getEmpResources().getSelectedLabelStyle(getMapInstance());
             if (null != selectedLabelStyle) {
-                textAttribute.setTextColor(Conversion.covertColor(selectedLabelStyle.getColor()));
+                textAttribute.setTextColor(Conversion.convertColor(selectedLabelStyle.getColor()));
             }
             textAttribute.setEnableOutline(true);
             textAttribute.setOutlineWidth(TEXT_OUTLINE_WIDTH);
@@ -236,7 +236,7 @@ public class EMPtoWWFeatureConverter {
 
         if (null != labelStyle) {
             if (!isSelected && (null != labelStyle.getColor())) {
-                textAttribute.setTextColor(Conversion.covertColor(labelStyle.getColor()));
+                textAttribute.setTextColor(Conversion.convertColor(labelStyle.getColor()));
             }
 
             switch (labelStyle.getJustification()) {
@@ -255,7 +255,7 @@ public class EMPtoWWFeatureConverter {
             String fontFamily = labelStyle.getFontFamily();
 
             if ((null == fontFamily) || fontFamily.isEmpty()) {
-                fontFamily = "Ariel";
+                fontFamily = "Arial";
             }
 
             switch (labelStyle.getTypeface()) {
@@ -284,7 +284,7 @@ public class EMPtoWWFeatureConverter {
             }
         } else {
             textOffset = new gov.nasa.worldwind.geom.Offset(WorldWind.OFFSET_PIXELS, 0, WorldWind.OFFSET_FRACTION, 0.5);
-            textAttribute.setTypeface(Typeface.create("Ariel", Typeface.NORMAL));
+            textAttribute.setTypeface(Typeface.create("Arial", Typeface.NORMAL));
         }
 
         textAttribute.setTextOffset(textOffset);
@@ -334,7 +334,7 @@ public class EMPtoWWFeatureConverter {
 
         shapeAttribute.setDrawInterior(false);
         shapeAttribute.setDrawOutline(true);
-        Conversion.covertColor(selectedStrokeStyle.getStrokeColor(), shapeAttribute.getOutlineColor());
+        shapeAttribute.setOutlineColor(Conversion.convertColor(selectedStrokeStyle.getStrokeColor()));
         shapeAttribute.setOutlineWidth((float) selectedStrokeStyle.getStrokeWidth());
 
         wwPolygon.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
@@ -369,7 +369,7 @@ public class EMPtoWWFeatureConverter {
         try {
             Conversion.convertToWWPositionList(feature.getPositions(), wwPositionList);
         } catch (EMP_Exception ex) {
-            Log.e(TAG, "CoordinateConvertion.convertToWWPositionList fail.", ex);
+            Log.e(TAG, "Conversion.convertToWWPositionList failed ", ex);
             return;
         }
 
@@ -386,7 +386,7 @@ public class EMPtoWWFeatureConverter {
 
         if (strokeStyle != null) {
             shapeAttribute.setDrawOutline(true);
-            Conversion.covertColor(strokeStyle.getStrokeColor(), shapeAttribute.getOutlineColor());
+            shapeAttribute.setOutlineColor(Conversion.convertColor(strokeStyle.getStrokeColor()));
             shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
 
             if (strokeStyle.getStipplingPattern() != 0) {
@@ -441,7 +441,7 @@ public class EMPtoWWFeatureConverter {
         try {
             Conversion.convertToWWPositionList(feature.getPositions(), wwPositionList);
         } catch (EMP_Exception ex) {
-            Log.e(TAG, "CoordinateConvertion.convertToWWPositionList fail.", ex);
+            Log.e(TAG, "Conversion.convertToWWPositionList failed ", ex);
             return;
         }
 
@@ -457,7 +457,7 @@ public class EMPtoWWFeatureConverter {
 
         if (strokeStyle != null) {
             shapeAttribute.setDrawOutline(true);
-            Conversion.covertColor(strokeStyle.getStrokeColor(), shapeAttribute.getOutlineColor());
+            shapeAttribute.setOutlineColor(Conversion.convertColor(strokeStyle.getStrokeColor()));
             shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
 
             if (strokeStyle.getStipplingPattern() != 0) {
@@ -488,7 +488,7 @@ public class EMPtoWWFeatureConverter {
                     break;
                 default:
             }
-            Conversion.covertColor(fillStyle.getFillColor(), shapeAttribute.getInteriorColor());
+            shapeAttribute.setInteriorColor(Conversion.convertColor(fillStyle.getFillColor()));
         } else {
             shapeAttribute.setDrawInterior(false);
         }
