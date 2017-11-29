@@ -42,41 +42,34 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Point feature         = addPoint(overlay);
         final boolean[] resultFound = {false};
-        final String[]  kmlFile     = new String[1];
+        final String[]  kmlReturn   = new String[1];
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
-                                     true,
-                                      new IEmpExportToStringCallback(){
+                                      false,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
 
-                                                                          @Override
-                                                                          public void exportSuccess(final String kmlString)
-                                                                          {
-                                                                             System.out.println("Success");
-                                                                             kmlFile[0] = kmlString;
-                                                                             resultFound[0] = true;
-                                                                          }
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
 
-                                                                          @Override
-                                                                          public void exportFailed(Exception Ex)
-                                                                          {
-                                                                              System.out.println("Failed");
-                                                                              resultFound[0] = true;
-                                                                              Assert.fail(Ex.getMessage());
-                                                                          }
-                                                                      });
+        while(!resultFound[0]) {}
 
-        while(!resultFound[0])
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
         {
-
-        }
-
-        System.out.println("Ended");
-        Assert.assertTrue(kmlFile[0] != null || kmlFile[0] != "");
-
-        try (final InputStream stream = new ByteArrayInputStream(kmlFile[0].getBytes()))
-        {
-            System.out.println("I made it!!!");
             overlay.clearContainer();
             final KML kmlFeature = new KML(stream);
             overlay.addFeature(kmlFeature, true);
@@ -84,325 +77,389 @@ public class KMLExportTest extends TestBaseSingleMap{
             final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
             ComparisonUtils.comparePoint(importedPoint, feature);
         }
-
     }
-//
-//    @Test
-//    public void exportOverlay() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Point feature = addPoint(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, overlay, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.comparePoint(importedPoint, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                    Assert.fail(Ex.getMessage());
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);    }
-//
-//    @Test
-//    public void exportMap() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Point feature = addPoint(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.comparePoint(importedPoint, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                    Assert.fail(Ex.getMessage());
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);    }
-//
-//    @Test
-//    public void exportPolygon() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Polygon feature = addPolygon(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, feature, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Polygon importedPoint = (Polygon) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.comparePolygon(importedPoint, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                    Assert.fail(Ex.getMessage());
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);    }
-//
-//    @Test
-//    public void exportCircle() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Circle feature = addCircle(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, feature, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Circle importedCircle = (Circle) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.compareCircle(importedCircle, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                    Assert.fail(Ex.getMessage());
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);    }
-//
-//    @Test
-//    public void exportEllipse() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Ellipse feature = addEllipse(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, feature, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Ellipse importedEllipse = (Ellipse) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.compareEllipse(importedEllipse, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                    Assert.fail(Ex.getMessage());
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);    }
-//
-//    @Test
-//    public void exportSquare() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Square feature = addSquare(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, feature, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Square importedSquare = (Square) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.compareSquare(importedSquare, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);    }
-//
-//    @Test
-//    public void exportRectangle() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Rectangle feature = addRectangle(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, feature, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Rectangle importedRectangle = (Rectangle) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.compareRectangle(importedRectangle, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                    Assert.fail(Ex.getMessage());
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);    }
-//
-//    @Test
-//    public void exportText() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Text feature = addText(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, feature, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Text importedText = (Text) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.compareText(importedText, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                    Assert.fail(Ex.getMessage());
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);    }
-//
-//    @Test
-//    public void exportPath() throws Exception{
-//        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-//        final Path feature = addPath(overlay);
-//        final String[] resultFound = new String[1];
-//        resultFound[0] = "";
-//
-//        EmpKMLExporter.exportToString(this.remoteMap, feature, true, new IEmpExportToStringCallback() {
-//
-//            @Override
-//            public void exportSuccess(final String kmlString) {
-//                try {
-//                    overlay.clearContainer();
-//                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-//                    final KML kmlFeature = new KML(stream);
-//                    overlay.addFeature(kmlFeature, true);
-//                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-//                    final Path importedPath = (Path) kmlOnMap.getFeatureList().get(0);
-//                    ComparisonUtils.comparePath(importedPath, feature);
-//                    resultFound[0] = SUCCESS;
-//                } catch (final Exception Ex) {
-//                    resultFound[0] = FAILED;
-//                    Assert.fail(Ex.getMessage());
-//                }
-//            }
-//
-//            @Override
-//            public void exportFailed(Exception Ex) {
-//                resultFound[0] = FAILED;
-//                Assert.fail(Ex.getMessage());
-//            }
-//        });
-//        while(resultFound[0].equals("")){}
-//        assertEquals(resultFound[0], SUCCESS);
-// }
-//
+
+    @Test
+    public void exportOverlay() throws Exception {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Point feature         = addPoint(overlay);
+        final boolean[] resultFound = {false};
+        final String[]  kmlReturn   = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      overlay,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                            @Override
+                                            public void exportSuccess(final String kmlString)
+                                            {
+                                                kmlReturn[0] = kmlString;
+                                                resultFound[0] = true;
+                                            }
+
+                                            @Override
+                                            public void exportFailed(Exception Ex)
+                                            {
+                                                resultFound[0] = true;
+                                                Assert.fail(Ex.getMessage());
+                                            }
+                                      });
+        while (!resultFound[0]) {
+        }
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes())) {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.comparePoint(importedPoint, feature);
+        }
+    }
+
+    @Test
+    public void exportMap() throws Exception {
+        final Overlay overlay         = (Overlay) addOverlayToMap(this.remoteMap);
+        final Point feature           = addPoint(overlay);
+        final boolean[] resultFound   = {false};
+        final String[]  kmlReturn     = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
+
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
+        while (!resultFound[0]) {
+        }
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes())) {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.comparePoint(importedPoint, feature);
+        }
+    }
+
+    @Test
+    public void exportPolygon() throws Exception
+    {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Polygon feature       = addPolygon(overlay);
+        final boolean[] resultFound = {false};
+        final String[]  kmlReturn   = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      feature,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
+
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
+
+        while(!resultFound[0]) {}
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
+        {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Polygon importedPolygon = (Polygon) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.comparePolygon(importedPolygon, feature);
+        }
+    }
+
+    @Test
+    public void exportCircle() throws Exception
+    {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Circle feature        = addCircle(overlay);
+        final boolean[] resultFound = {false};
+        final String[]  kmlReturn   = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      feature,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
+
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
+
+        while(!resultFound[0]) {}
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
+        {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Circle importedCircle = (Circle) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareCircle(importedCircle, feature);
+        }
+    }
+
+    @Test
+    public void exportEllipse() throws Exception
+    {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Ellipse feature       = addEllipse(overlay);
+        final boolean[] resultFound = {false};
+        final String[]  kmlReturn   = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      feature,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
+
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
+
+        while(!resultFound[0]) {}
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
+        {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Ellipse importedEllipse = (Ellipse) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareEllipse(importedEllipse, feature);
+        }
+    }
+
+    @Test
+    public void exportSquare() throws Exception
+    {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Square feature        = addSquare(overlay);
+        final boolean[] resultFound = {false};
+        final String[]  kmlReturn   = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      feature,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
+
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
+
+        while(!resultFound[0]) {}
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
+        {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Square importedSquare = (Square) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareSquare(importedSquare, feature);
+        }
+    }
+
+    @Test
+    public void exportRectangle() throws Exception
+    {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Rectangle feature     = addRectangle(overlay);
+        final boolean[] resultFound = {false};
+        final String[]  kmlReturn   = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      feature,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
+
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
+
+        while(!resultFound[0]) {}
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
+        {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Rectangle importedRectangle = (Rectangle) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareRectangle(importedRectangle, feature);
+        }
+    }
+
+    @Test
+    public void exportText() throws Exception
+    {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Text feature          = addText(overlay);
+        final boolean[] resultFound = {false};
+        final String[]  kmlReturn   = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      feature,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
+
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
+
+        while(!resultFound[0]) {}
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
+        {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Text importedText = (Text) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareText(importedText, feature);
+        }
+    }
+
+    @Test
+    public void exportPath() throws Exception
+    {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Path feature          = addPath(overlay);
+        final boolean[] resultFound = {false};
+        final String[]  kmlReturn   = new String[1];
+
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      feature,
+                                      true,
+                                      new IEmpExportToStringCallback()
+                                      {
+                                        @Override
+                                        public void exportSuccess(final String kmlString)
+                                        {
+                                            kmlReturn[0] = kmlString;
+                                            resultFound[0] = true;
+                                        }
+
+                                        @Override
+                                        public void exportFailed(Exception Ex)
+                                        {
+                                            resultFound[0] = true;
+                                            Assert.fail(Ex.getMessage());
+                                        }
+                                      });
+
+        while(!resultFound[0]) {}
+
+        Assert.assertTrue(kmlReturn[0] != null);
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
+        {
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Path importedPath = (Path) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.comparePath(importedPath, feature);
+        }
+    }
 
     private static IOverlay addOverlayToMap(final IMap map) throws EMP_Exception
     {
