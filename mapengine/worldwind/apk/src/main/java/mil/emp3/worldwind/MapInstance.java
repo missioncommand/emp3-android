@@ -49,7 +49,7 @@ import mil.emp3.worldwind.utils.*;
 public class MapInstance extends CoreMapInstance {
     private static final String TAG = MapInstance.class.getSimpleName();
     private static final int BRIGHTNESS_BITMAP_WIDTH_HEIGHT = 4;
-    private static final int HATCH_SIZE = (new Double(0.178571 * Resources.getSystem().getDisplayMetrics().densityDpi)).intValue();
+    private static final int HATCH_SIZE = (Double.valueOf(0.178571 * Resources.getSystem().getDisplayMetrics().densityDpi)).intValue();
 
     private Context context;
     private gov.nasa.worldwind.WorldWindow ww;
@@ -955,7 +955,7 @@ public class MapInstance extends CoreMapInstance {
     @Override
     public void registerMilStdRenderer(IMilStdRenderer oRenderer) {
         super.registerMilStdRenderer(oRenderer);
-        MilStd2525LevelOfDetailSelector.initInstance(oRenderer, this);
+        MilStd2525LevelOfDetailSelector.initInstance(oRenderer);
     }
 
     /**
