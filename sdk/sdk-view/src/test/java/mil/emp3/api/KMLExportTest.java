@@ -37,39 +37,54 @@ public class KMLExportTest extends TestBaseSingleMap{
     }
 
     @Test
-    public void exportPoint() throws Exception{
-        final Overlay overlay = (Overlay) addOverlayToMap(this.remoteMap);
-        final Point feature = addPoint(overlay);
+    public void exportPoint() throws Exception
+    {
+        final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
+        final Point feature         = addPoint(overlay);
         final boolean[] resultFound = {false};
-        final String SUCCESS = "Success!";
-        final String FAILED = "Failed";
+        final String[]  kmlFile     = new String[1];
 
-        EmpKMLExporter.exportToString(this.remoteMap, feature, true, new IEmpExportToStringCallback() {
+        EmpKMLExporter.exportToString(this.remoteMap,
+                                      feature,
+                                     true,
+                                      new IEmpExportToStringCallback(){
 
-            @Override
-            public void exportSuccess(final String kmlString) {
-                try {
-                    overlay.clearContainer();
-                    final InputStream stream = new ByteArrayInputStream(kmlString.getBytes() );
-                    final KML kmlFeature = new KML(stream);
-                    overlay.addFeature(kmlFeature, true);
-                    final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-                    final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
-                    ComparisonUtils.comparePoint(importedPoint, feature);
-                    resultFound[0] = true;
-                } catch (final Exception Ex) {
-                    resultFound[0] = true;
-                    Assert.fail(Ex.getMessage());
-                }
-            }
+                                                                          @Override
+                                                                          public void exportSuccess(final String kmlString)
+                                                                          {
+                                                                             System.out.println("Success");
+                                                                             kmlFile[0] = kmlString;
+                                                                             resultFound[0] = true;
+                                                                          }
 
-            @Override
-            public void exportFailed(Exception Ex) {
-                resultFound[0] = true;
-                Assert.fail(Ex.getMessage());
-            }
-        });
-        while(!resultFound[0]){}
+                                                                          @Override
+                                                                          public void exportFailed(Exception Ex)
+                                                                          {
+                                                                              System.out.println("Failed");
+                                                                              resultFound[0] = true;
+                                                                              Assert.fail(Ex.getMessage());
+                                                                          }
+                                                                      });
+
+        while(!resultFound[0])
+        {
+
+        }
+
+        System.out.println("Ended");
+        Assert.assertTrue(kmlFile[0] != null || kmlFile[0] != "");
+
+        try (final InputStream stream = new ByteArrayInputStream(kmlFile[0].getBytes()))
+        {
+            System.out.println("I made it!!!");
+            overlay.clearContainer();
+            final KML kmlFeature = new KML(stream);
+            overlay.addFeature(kmlFeature, true);
+            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+            final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.comparePoint(importedPoint, feature);
+        }
+
     }
 //
 //    @Test
