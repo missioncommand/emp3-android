@@ -8,10 +8,8 @@ import org.cmapi.primitives.GeoPosition;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowEnvironment;
 
@@ -957,12 +955,14 @@ public class KMZExporterTest extends TestBaseSingleMap
 
         final MilStdSymbol milSymbol = BasicUtilities.generateMilStdSymbol("TRUCK", UUID.randomUUID(),
                                                                            40, -75);
+        milSymbol.setIconScale(5.0);
+        milSymbol.setAzimuth(4.5);
         final IOverlay overlay = addOverlayToMap(this.remoteMap);
         overlay.addFeature(milSymbol, true);
 
         EmpKMZExporter.exportToKMZ(this.remoteMap,
                                    milSymbol,
-                                   false,
+                                   true,
                                    new IEmpExportToTypeCallBack<File>(){
                                                                            @Override
                                                                            public void exportSuccess(final File exportObject)

@@ -33,10 +33,6 @@ public class KMLTest extends TestBaseSingleMap {
     @Before
     public void setUp() throws Exception {
         setupSingleMap(TAG);
-//        PowerMockito.mockStatic(Color.class);
-//        PowerMockito.when(Color.class, "parseColor", Mockito.any(String.class)).thenReturn(0);
-//        PowerMockito.mockStatic(URLUtil.class);
-//        when(URLUtil.isValidUrl(any(String.class))).thenReturn(true);
     }
 
     @org.junit.Test
