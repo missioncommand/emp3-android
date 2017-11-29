@@ -63,6 +63,13 @@ public interface IStorageManager {
 
     void addOverlays(IMap map, List<IOverlay> overlays, boolean visible, Object userContext) throws EMP_Exception;
 
+    /**
+     * This apply method for feature draw editors to apply changes immediately
+     * @param mapInstance current instance where editor is drawing
+     * @param feature     feature to apply
+     * @param userContext any object from user
+     */
+
     void apply(IMapInstance mapInstance, IFeature feature, Object userContext) throws EMP_Exception;
 
     void apply(IFeature feature, boolean batch, Object userContext) throws EMP_Exception;
