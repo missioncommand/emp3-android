@@ -15,7 +15,7 @@ import java.util.HashMap;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.utils.EmpBoundingBox;
 
-import static mil.emp3.api.utils.ComparisonUtils.Epsilon;
+import static mil.emp3.api.utils.ComparisonUtils.EPSILON8;
 import static mil.emp3.api.utils.ComparisonUtils.validateBoundingBox;
 import static mil.emp3.api.utils.ComparisonUtils.validateRectangle;
 import static org.junit.Assert.assertEquals;
@@ -255,7 +255,7 @@ public class RectangleTest extends TestBase{
     public void widthTest() {
         r1 = new Rectangle();
         r1.setWidth(10);
-        assertEquals(r1.getWidth(), 10, Epsilon);
+        assertEquals(r1.getWidth(), 10, EPSILON8);
     }
 
 
@@ -281,7 +281,7 @@ public class RectangleTest extends TestBase{
     public void heightTest() {
         r1 = new Rectangle();
         r1.setHeight(10);
-        assertEquals(r1.getHeight(), 10, Epsilon);
+        assertEquals(r1.getHeight(), 10, EPSILON8);
     }
 
     @Test

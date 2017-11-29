@@ -265,7 +265,7 @@ public class EmpKMLParser {
                     name = "KML Point";
                 }
 
-                if ((null != kmlStyle) && (null != kmlStyle.getIconUrl())) {
+                if ((null != kmlStyle) && (null != kmlStyle.getIconUrl()) && "" != kmlStyle.getIconUrl()) {
                     if(null == documentBase) {
                         newPoint.setIconURI(kmlStyle.getIconUrl());
                     } else {
