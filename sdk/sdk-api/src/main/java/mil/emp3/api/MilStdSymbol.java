@@ -102,61 +102,9 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
          * @return affiliation enumerated value or null if the string does not represent a valid MilStd affiliation code.
          */
         public static Affiliation fromString(String str) {
-            Affiliation eValue = null;
-
-            if ((str == null) || (str.length() < 1)) {
-                return eValue;
-            }
-
-            switch (str.substring(0, 1)) {
-                case "P":
-                    eValue = PENDING;
-                    break;
-                case "U":
-                    eValue = UNKNOWN;
-                    break;
-                case "F":
-                    eValue = FRIEND;
-                    break;
-                case "N":
-                    eValue = NEUTRAL;
-                    break;
-                case "H":
-                    eValue = HOSTILE;
-                    break;
-                case "A":
-                    eValue = ASSUMED_FRIEND;
-                    break;
-                case "S":
-                    eValue = SUSPECT;
-                    break;
-                case "G":
-                    eValue = EXERCISE_PENDING;
-                    break;
-                case "W":
-                    eValue = EXERCISE_UNKNOWN;
-                    break;
-                case "D":
-                    eValue = EXERCISE_FRIEND;
-                    break;
-                case "L":
-                    eValue = EXERCISE_NEUTRAL;
-                    break;
-                case "M":
-                    eValue = EXERCISE_ASSUMED_FRIEND;
-                    break;
-                case "J":
-                    eValue = JOKER;
-                    break;
-                case "K":
-                    eValue = FAKER;
-                    break;
-                default:
-                    eValue = FRIEND;
-                    break;
-            }
-
-            return eValue;
+            if (str == null || str.isEmpty())
+                return null;
+            return fromChar(str.charAt(0));
         }
 
         /**
@@ -211,7 +159,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
                     eValue = FAKER;
                     break;
                 default:
-                    eValue = FRIEND;
+                    eValue = UNKNOWN;
                     break;
             }
 
@@ -691,7 +639,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     }
 
     /**
-     * This method sets the MilStd symbol code. If the afiliation is not set, it is set to friend.
+     * This method sets the MilStd symbol code. If the affiliation is not set, it is set to friend.
      * @param symbolCode A valid MilStd symbol code.
      */
     @Override
