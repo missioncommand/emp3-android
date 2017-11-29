@@ -2,6 +2,7 @@ package mil.emp3.api;
 
 import android.util.SparseArray;
 
+import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoColor;
@@ -40,6 +41,8 @@ import mil.emp3.api.utils.ManagerFactory;
  */
 public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbol {
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
+
+    private final SparseArray<String> attributes = new SparseArray<>();
 
     /**
      * This enumeration class defines the MilStd unit affiliation values.
@@ -566,12 +569,12 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if (eStandard == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Invalid symbol standard.");
         }
-
         this.setSymbolStandard(eStandard);
         this.setSymbolCode(sSymbolCode);
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
+        this.initializeDefaultAttributes();
     }
 
     /**
@@ -1225,7 +1228,6 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
 
             for (IGeoMilSymbol.Modifier eModifier: oModifierList) {
-
                 switch (eModifier) {
                     case SYMBOL_ICON:
                         oArray.put(ModifiersTG.A_SYMBOL_ICON, geoModifiers.get(eModifier));
@@ -1629,5 +1631,22 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         }
 
         return bBox;
+    }
+
+    private void setIconColor(IGeoColor color) {
+        this.attributes.append(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
+    }
+
+    public SparseArray<String> getAttributes() {
+        return this.attributes;
+    }
+
+    private void initializeDefaultAttributes() {
+        // TODO - The addition of attributes in the symbol causes an empty sparse array.
+        // TODO - Previously we had passed null as the attribute array which caused the renderer to use preset defaults
+        // TODO - when rendering. We can no longer do that as we need to use the array. Find these defaults and set them,
+        // TODO - The below are only guesses. I have had difficulty finding the actual defaults.
+        this.attributes.put(MilStdAttributes.Scale, "1");
+        this.attributes.put(MilStdAttributes.PixelSize, "150");
     }
 }

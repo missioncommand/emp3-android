@@ -4,6 +4,7 @@ import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;

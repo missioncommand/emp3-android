@@ -42,7 +42,7 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.placemark = new EMPPlacemark(this, position);
         this.sSymbolCode = symbol.getSymbolCode();
         this.oRenderer = iconRenderer;
-        this.setSymbolAttributes();
+        this.oAttributes = symbol.getAttributes();
         this.setSymbolModifiers();
         placemark.setPickDelegate(symbol);
         switch (symbol.getAltitudeMode()) {
