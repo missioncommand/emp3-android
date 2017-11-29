@@ -449,7 +449,7 @@ public class StorageManager implements IStorageManager {
             Object userContext) throws EMP_Exception {
         IStorageObjectWrapper targetWrapper;
         IStorageObjectWrapper parentWrapper;
-        VisibilityStateEnum prevVisibileState;
+        VisibilityStateEnum prevVisibleState;
         java.util.UUID mapId = map.getGeoId();
         IdentifierVisibilityHash idVisibilityList = new IdentifierVisibilityHash();
         Map<UUID, IParentRelationship> parentRelationshipHash;
@@ -459,7 +459,7 @@ public class StorageManager implements IStorageManager {
             for (UUID targetId : targetIdList) {
                 targetWrapper = this.oObjectHash.get(targetId);
                 parentRelationshipHash = targetWrapper.getParentList();
-                prevVisibileState = targetWrapper.getVisibilityOnMap(mapId);
+                prevVisibleState = targetWrapper.getVisibilityOnMap(mapId);
 
                 switch (actionEnum) {
                     case SHOW_ALL:
@@ -472,7 +472,7 @@ public class StorageManager implements IStorageManager {
                             // If something is being turn on we must go up the tree.
                             this.setVisibilityOnParents(idVisibilityList, mapId, parentWrapper, actionEnum);
                         }
-                        if (prevVisibileState == VisibilityStateEnum.HIDDEN) {
+                        if (prevVisibleState == VisibilityStateEnum.HIDDEN) {
                             // The target was off now its on.
                             idVisibilityList.putFeature(targetWrapper.getObject(), true);
                         }
@@ -484,7 +484,7 @@ public class StorageManager implements IStorageManager {
                             targetWrapper.setVisibilityWithParentOnMap(mapId, parentId, VisibilityStateEnum.HIDDEN);
                         }
                         this.setVisibilityOnChildren(idVisibilityList, mapId, targetWrapper, actionEnum);
-                        if ((prevVisibileState == VisibilityStateEnum.VISIBLE) &&
+                        if ((prevVisibleState == VisibilityStateEnum.VISIBLE) &&
                                 (targetWrapper.getVisibilityOnMap(mapId) == VisibilityStateEnum.HIDDEN)) {
                             // The target was visible but now its hidden.
                             idVisibilityList.putFeature(targetWrapper.getObject(), false);
@@ -915,6 +915,23 @@ public class StorageManager implements IStorageManager {
         this.bulkFeatureApplyListCount = 0;
         this.bulkFeatureApplyList.clear();
         //Log.d(TAG, "Processed List.");
+    }
+
+    /**
+     * This apply method is called by all the feature editors.  The editors already
+     * have a map instance and, because they are drawing or editing, the feature
+     * is visible. Also the editor are changes applied immediately.
+     * @param mapInstance current instance where editor is drawing
+     * @param feature     feature to apply
+     * @param userContext any object from user
+     */
+
+    @Override
+    public void apply(IMapInstance mapInstance, IFeature feature, Object userContext) {
+        FeatureVisibility fv = new FeatureVisibility(feature, true);
+        FeatureVisibilityList fvList = new FeatureVisibilityList();
+        fvList.add(fv);
+        mapInstance.addFeatures(fvList, userContext);
     }
 
     /**
