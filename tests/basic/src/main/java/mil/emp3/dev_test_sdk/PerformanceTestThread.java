@@ -246,7 +246,7 @@ class PerformanceTestThread extends Thread {
                 this.dTimeSum += (double) lDeltaTime;
                 this.iTimelistIndex++;
                 this.iTimelistIndex %= this.TIME_LIST_SIZE;
-                sMessage = String.format("Updated %1$,4d features in %2$,4d msec. Average of %3$,4d tests = %4$8.3f msec", this.iCount, lDeltaTime, iTimeSamples,
+                sMessage = String.format("Updated %1$,4d features in %2$,4d msec. Average of %3$,4d test iterations = %4$8.3f msec", this.COUNT_PER_INTERVAL, lDeltaTime, iTimeSamples,
                         this.dTimeSum / (double) iTimeSamples);
 
                 oMainActivity.runOnUiThread(new Runnable() {
