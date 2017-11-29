@@ -146,21 +146,20 @@ class PerformanceTestThread extends Thread {
         int iNextFeature = 0;
         long lStartTimestamp;
         long lDeltaTime = 0;
-        IGeoPosition oPos, oNewPos;
-        int iDOM;
-        double dSpeed;
-        double dDistance;
+        IGeoPosition oPos;
         double dRandom;
         long lLastMoved = System.currentTimeMillis();
         long dWaitTime  = this.UPDATE_INTERVAL; // msec
         java.util.List<IFeature> oBatchList = new java.util.ArrayList<>();
         boolean updateCamera = false;
+        double latitude;
+        double longitude;
+        double latitudeDelta = 0.01;
 
         this.createTracks();
 
         while (bContinue) {
             try {
-                updateCamera = false;
                 oBatchList.clear();
                 sleep(dWaitTime);
                 lStartTimestamp = System.currentTimeMillis();
@@ -168,30 +167,26 @@ class PerformanceTestThread extends Thread {
                     oSPSymbol = (mil.emp3.api.MilStdSymbol) this.oFeatureList.get(iNextFeature);
                     oPos = oSPSymbol.getPosition();
 
-                    iDOM = Integer.parseInt(oSPSymbol.getStringModifier(IGeoMilSymbol.Modifier.DIRECTION_OF_MOVEMENT));
-                    dRandom = Math.random();
-                    if (dRandom <= 0.2) {
-                        // Make the heading 10Deg CCW
-                        iDOM += 350;
-                        iDOM %= 360;
-                        oSPSymbol.setModifier(IGeoMilSymbol.Modifier.DIRECTION_OF_MOVEMENT, iDOM + "");
-                    } else if (dRandom >= 0.8) {
-                        // Make the heading 10Deg CW
-                        iDOM += 10;
-                        iDOM %= 360;
-                        oSPSymbol.setModifier(IGeoMilSymbol.Modifier.DIRECTION_OF_MOVEMENT, iDOM + "");
+                    latitude = oPos.getLatitude();
+                    // turn back if at the edge
+                    if (latitude > 85.0) {
+                        latitudeDelta = -0.01;
+                    } else if (latitude < -85.0) {
+                        latitudeDelta = 0.01;
                     }
-                    dSpeed = (double) Integer.parseInt(oSPSymbol.getStringModifier(IGeoMilSymbol.Modifier.SPEED));
-                    dDistance = dSpeed * 1609.0 * (double)(lStartTimestamp - lLastMoved) / 3.6e6;
-
-                    oNewPos = GeographicLib.computePositionAt((double) iDOM, dDistance, oPos);
-                    oPos.setLatitude(oNewPos.getLatitude());
-                    oPos.setLongitude(oNewPos.getLongitude());
+                    latitude += latitudeDelta;
+                    longitude = oPos.getLongitude() + 0.01;
+                    // wrap around 180
+                    if (longitude > 180.0) {
+                        longitude = - 180.0;
+                    }
+                    oPos.setLatitude(latitude);
+                    oPos.setLongitude(longitude);
 
                     if (this.bAiffChange) {
                         dRandom = Math.random();
                         if (dRandom <= 0.25) {
-                            // Change the Affilication.
+                            // Change the Affiliation.
                             int iAffIndex = (int) Math.floor(Math.random() * this.iAffCount) % this.iAffCount;
                             oSPSymbol.setAffiliation(this.aAffiliations[iAffIndex]);
                         }
@@ -251,7 +246,7 @@ class PerformanceTestThread extends Thread {
                 this.dTimeSum += (double) lDeltaTime;
                 this.iTimelistIndex++;
                 this.iTimelistIndex %= this.TIME_LIST_SIZE;
-                sMessage = String.format("Update %1$,4d features in %2$,4d msec. Avg of %3$,4d = %4$8.3f msec", this.COUNT_PER_INTERVAL, lDeltaTime, iTimeSamples,
+                sMessage = String.format("Updated %1$,4d features in %2$,4d msec. Average of %3$,4d tests = %4$8.3f msec", this.iCount, lDeltaTime, iTimeSamples,
                         this.dTimeSum / (double) iTimeSamples);
 
                 oMainActivity.runOnUiThread(new Runnable() {
