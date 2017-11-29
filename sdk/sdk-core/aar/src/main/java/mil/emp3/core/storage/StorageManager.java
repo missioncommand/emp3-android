@@ -920,7 +920,7 @@ public class StorageManager implements IStorageManager {
     /**
      * This apply method is called by all the feature editors.  The editors already
      * have a map instance and, because they are drawing or editing, the feature
-     * is visible. Also the editor changes applied immediately.
+     * is visible. Also the editor are changes applied immediately.
      * @param mapInstance current instance where editor is drawing
      * @param feature     feature to apply
      * @param userContext any object from user
