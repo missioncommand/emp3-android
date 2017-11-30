@@ -306,7 +306,7 @@ public class EmpKMLParser {
                     color = strokeStyle.getStrokeColor();
                     final IGeoColor kmlColor = kmlStyle.getStrokeColor();
                     if (kmlColor != null) {
-                        color.setAlpha(kmlColor.getAlpha());
+                        color.setAlpha(kmlColor.getAlpha()/255.0);
                         color.setRed(kmlColor.getRed());
                         color.setGreen(kmlColor.getGreen());
                         color.setBlue(kmlColor.getBlue());
