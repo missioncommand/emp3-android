@@ -629,4 +629,24 @@ public class ComparisonUtils {
         assertEquals(polygon.getReadOnly(), rectangle.getReadOnly());
     }
 
+    public static void compareFeatureToPolygon(final Feature feature, final Polygon polygon) {
+        compareGeoPosition(polygon.getPosition(), feature.getPosition(), EPSILON2);
+        assertEquals(polygon.getAzimuth(), feature.getAzimuth(), EPSILON8);
+        assertEquals(polygon.getDescription(), "<b>" + feature.getName() + "</b><br/>\n" + feature.getDescription());
+        compareFillStyle(polygon.getFillStyle(), feature.getFillStyle());
+        compareStrokeStyle(polygon.getStrokeStyle(), feature.getStrokeStyle());
+        compareLabelStyle(polygon.getLabelStyle(), feature.getLabelStyle());
+        assertEquals(polygon.getReadOnly(), feature.getReadOnly());
+    }
+
+    public static void compareFeatureToPath(final Feature feature, final Path path) {
+        compareGeoPosition(path.getPosition(), feature.getPosition(), EPSILON2);
+        assertEquals(path.getAzimuth(), feature.getAzimuth(), EPSILON8);
+        assertEquals(path.getDescription(), "<b>" + feature.getName() + "</b><br/>\n" + feature.getDescription());
+        compareFillStyle(path.getFillStyle(), feature.getFillStyle());
+        compareStrokeStyle(path.getStrokeStyle(), feature.getStrokeStyle());
+        compareLabelStyle(path.getLabelStyle(), feature.getLabelStyle());
+        assertEquals(path.getReadOnly(), feature.getReadOnly());
+    }
+
 }

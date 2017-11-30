@@ -41,6 +41,7 @@ public class KMLExportTest extends TestBaseSingleMap{
     @Test
     public void exportPoint() throws Exception
     {
+        this.remoteMap.clearContainer();
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Point feature         = addPoint(overlay);
         final boolean[] resultFound = {false};
@@ -89,6 +90,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
     @Test
     public void exportOverlay() throws Exception {
+        this.remoteMap.clearContainer();
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Point feature         = addPoint(overlay);
         final boolean[] resultFound = {false};
@@ -135,6 +137,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
     @Test
     public void exportMap() throws Exception {
+        this.remoteMap.clearContainer();
         final Overlay overlay         = (Overlay) addOverlayToMap(this.remoteMap);
         final Point feature           = addPoint(overlay);
         final boolean[] resultFound   = {false};
@@ -181,6 +184,7 @@ public class KMLExportTest extends TestBaseSingleMap{
     @Test
     public void exportPolygon() throws Exception
     {
+        this.remoteMap.clearContainer();
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Polygon feature       = addPolygon(overlay);
         final boolean[] resultFound = {false};
@@ -274,14 +278,15 @@ public class KMLExportTest extends TestBaseSingleMap{
             overlay.addFeature(kmlFeature, true);
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //Circles do not exist in KML so they are represented by paths
-            final Path importedCircle = (Path) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareCircleToPath(feature, importedCircle);
+            final Polygon importedCircle = (Polygon) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareFeatureToPolygon(feature, importedCircle);
         }
     }
 
     @Test
     public void exportEllipse() throws Exception
     {
+        this.remoteMap.clearContainer();
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Ellipse feature       = addEllipse(overlay);
         final boolean[] resultFound = {false};
@@ -325,13 +330,14 @@ public class KMLExportTest extends TestBaseSingleMap{
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //KML does not support Ellipses so they get represented by a polygon
             final Path importedEllipse = (Path) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareEllipseToPath(feature, importedEllipse);
+            ComparisonUtils.compareFeatureToPath(feature, importedEllipse);
         }
     }
 
     @Test
     public void exportSquare() throws Exception
     {
+        this.remoteMap.clearContainer();
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Square feature        = addSquare(overlay);
         final boolean[] resultFound = {false};
@@ -375,7 +381,7 @@ public class KMLExportTest extends TestBaseSingleMap{
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //KML doesn't support squares so it gets represented by a polygon
             final Polygon importedSquare = (Polygon) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareSquareToPolygon(feature, importedSquare);
+            ComparisonUtils.compareFeatureToPolygon(feature, importedSquare);
 
         }
     }
@@ -383,6 +389,7 @@ public class KMLExportTest extends TestBaseSingleMap{
     @Test
     public void exportRectangle() throws Exception
     {
+        this.remoteMap.clearContainer();
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Rectangle feature     = addRectangle(overlay);
         final boolean[] resultFound = {false};
@@ -425,14 +432,15 @@ public class KMLExportTest extends TestBaseSingleMap{
             overlay.addFeature(kmlFeature, true);
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //KML does not support rectangles so they get represented by a polygon
-            final Polygon importedRectangle = (Polygon) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareRectangleToPolygon(feature, importedRectangle);
+            final Path importedRectangle = (Path) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareFeatureToPath(feature, importedRectangle);
         }
     }
 
     @Test
     public void exportText() throws Exception
     {
+        this.remoteMap.clearContainer();
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Text feature          = addText(overlay);
         final boolean[] resultFound = {false};
@@ -483,6 +491,7 @@ public class KMLExportTest extends TestBaseSingleMap{
     @Test
     public void exportPath() throws Exception
     {
+        this.remoteMap.clearContainer();
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Path feature          = addPath(overlay);
         final boolean[] resultFound = {false};
