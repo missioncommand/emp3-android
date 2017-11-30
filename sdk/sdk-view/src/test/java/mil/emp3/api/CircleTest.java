@@ -34,32 +34,32 @@ public class CircleTest extends TestBase {
         gc.setTimeStamp(circ.getTimeStamp());
         gc.setFillStyle(null);
         validateCircle(circ,
-                        gc,
-                        100.0,
-                        FeatureTypeEnum.GEO_CIRCLE,
-                        Collections.EMPTY_LIST,
-                        Collections.EMPTY_LIST,
-                        Collections.EMPTY_LIST,
-                        Collections.EMPTY_LIST,
-                        null,
-                        Collections.EMPTY_LIST,
-                        null,
-                        new GeoStrokeStyle(),
-                        null,
-                        new GeoLabelStyle(),
-                        false,
-                        true,
-                        0.0,
-                        0.0,
-                        null,
-                        false,
-                        Collections.EMPTY_LIST,
-                        false,
-                        Collections.EMPTY_LIST,
-                        "",
-                        null,
-                        "",
-                        new HashMap());
+                       gc,
+                       100.0,
+                       FeatureTypeEnum.GEO_CIRCLE,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       null,
+                       Collections.EMPTY_LIST,
+                       null,
+                       new GeoStrokeStyle(),
+                       null,
+                       new GeoLabelStyle(),
+                       false,
+                       true,
+                       0.0,
+                       0.0,
+                       null,
+                       false,
+                       Collections.EMPTY_LIST,
+                       false,
+                       Collections.EMPTY_LIST,
+                       "",
+                       null,
+                       "",
+                       new HashMap());
     }
 
     @Test
@@ -70,32 +70,32 @@ public class CircleTest extends TestBase {
         gc.setTimeStamp(circ.getTimeStamp());
         gc.setFillStyle(null);
         validateCircle(circ,
-                gc,
-                50.0,
-                FeatureTypeEnum.GEO_CIRCLE,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                null,
-                Collections.EMPTY_LIST,
-                null,
-                new GeoStrokeStyle(),
-                null,
-                new GeoLabelStyle(),
-                false,
-                true,
-                0.0,
-                0.0,
-                null,
-                false,
-                Collections.EMPTY_LIST,
-                false,
-                Collections.EMPTY_LIST,
-                "",
-                null,
-                "",
-                new HashMap());
+                       gc,
+                       50.0,
+                       FeatureTypeEnum.GEO_CIRCLE,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       null,
+                       Collections.EMPTY_LIST,
+                       null,
+                       new GeoStrokeStyle(),
+                       null,
+                       new GeoLabelStyle(),
+                       false,
+                       true,
+                       0.0,
+                       0.0,
+                       null,
+                       false,
+                       Collections.EMPTY_LIST,
+                       false,
+                       Collections.EMPTY_LIST,
+                       "",
+                       null,
+                       "",
+                       new HashMap());
     }
 
     @Test
@@ -105,32 +105,32 @@ public class CircleTest extends TestBase {
         gc.setTimeStamp(circ.getTimeStamp());
         gc.setFillStyle(null);
         validateCircle(circ,
-                gc,
-                100.0,
-                FeatureTypeEnum.GEO_CIRCLE,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                null,
-                Collections.EMPTY_LIST,
-                null,
-                new GeoStrokeStyle(),
-                null,
-                new GeoLabelStyle(),
-                false,
-                true,
-                0.0,
-                0.0,
-                null,
-                false,
-                Collections.EMPTY_LIST,
-                false,
-                Collections.EMPTY_LIST,
-                "",
-                null,
-                "",
-                new HashMap());
+                       gc,
+                       100.0,
+                       FeatureTypeEnum.GEO_CIRCLE,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       Collections.EMPTY_LIST,
+                       null,
+                       Collections.EMPTY_LIST,
+                       null,
+                       new GeoStrokeStyle(),
+                       null,
+                       new GeoLabelStyle(),
+                       false,
+                       true,
+                       0.0,
+                       0.0,
+                       null,
+                       false,
+                       Collections.EMPTY_LIST,
+                       false,
+                       Collections.EMPTY_LIST,
+                       "",
+                       null,
+                       "",
+                       new HashMap());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -139,7 +139,7 @@ public class CircleTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NegativeRadiusConstructor() {
+    public void negativeRadiusConstructor() {
         circ = new Circle(-45.5);
     }
 
@@ -149,7 +149,7 @@ public class CircleTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNRadiusConstructor() {
+    public void naNRadiusConstructor() {
         circ = new Circle(Double.NaN);
     }
 
@@ -171,7 +171,7 @@ public class CircleTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSetRadius() {
+    public void naNSetRadius() {
         circ = new Circle();
         circ.setRadius(Double.NaN);
     }
@@ -200,15 +200,15 @@ public class CircleTest extends TestBase {
         final GeoPosition gp = new GeoPosition();
         circ = new Circle();
         circ.setPosition(gp);
-        final Double northSouthCoord = 9.948064247282673*Math.pow(10,-4);
-        final Double eastWestCoord = 9.881468124603998*Math.pow(10,-4);
+        final Double northSouthCoord = 9.948064247282673 * Math.pow(10, -4);
+        final Double eastWestCoord = 9.881468124603998 * Math.pow(10, -4);
 
         validateBoundingBox((EmpBoundingBox) circ.getFeatureBoundingBox(),
-                                             northSouthCoord,
-                                             eastWestCoord,
-                                             -1*northSouthCoord,
-                                             -1*eastWestCoord);
-    }
+                            northSouthCoord,
+                            eastWestCoord,
+                            -1 * northSouthCoord,
+                            -1 * eastWestCoord);
+                }
 
     @Test
     public void noPosToString() {
