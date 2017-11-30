@@ -245,9 +245,9 @@ public class KMLExportTest extends TestBaseSingleMap{
             final KML kmlFeature = new KML(stream);
             overlay.addFeature(kmlFeature, true);
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-            //Circles do not exist in KML so they are represented by polygons
-            final Polygon importedCircle = (Polygon) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareCircleToPolygon(feature, importedCircle);
+            //Circles do not exist in KML so they are represented by paths
+            final Path importedCircle = (Path) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareCircleToPath(feature, importedCircle);
         }
     }
 
@@ -290,8 +290,8 @@ public class KMLExportTest extends TestBaseSingleMap{
             overlay.addFeature(kmlFeature, true);
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //KML does not support Ellipses so they get represented by a polygon
-            final Polygon importedEllipse = (Polygon) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareEllipseToPolygon(feature, importedEllipse);
+            final Path importedEllipse = (Path) kmlOnMap.getFeatureList().get(0);
+            ComparisonUtils.compareEllipseToPath(feature, importedEllipse);
         }
     }
 

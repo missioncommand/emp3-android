@@ -1,8 +1,6 @@
 package mil.emp3.api;
 
-import android.content.Context;
 import android.graphics.Color;
-import android.test.mock.MockContext;
 import android.util.Log;
 import android.webkit.URLUtil;
 
@@ -12,13 +10,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -31,19 +27,14 @@ import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.KMLSEventEnum;
 import mil.emp3.api.enums.KMLSStatusEnum;
 import mil.emp3.api.events.KMLSEvent;
+import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IKMLS;
-import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IMapService;
 import mil.emp3.api.listeners.IKMLSEventListener;
-import mil.emp3.api.utils.FileUtility;
-import mil.emp3.core.services.kml.KMLSProvider;
-import mil.emp3.core.services.kml.KMLSRequest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(RobolectricTestRunner.class)
 @PrepareForTest({Color.class, URLUtil.class})
 public class KMLSTest extends TestBaseSingleMap {
@@ -355,27 +346,35 @@ public class KMLSTest extends TestBaseSingleMap {
         }
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
+    public void constructor2Test()  throws Exception{
+        final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+        Log.d(TAG, "url " + url.toString());
+
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
+        mapService.getStatus(null);
+
+    }
+
+    @Test(expected=EMP_Exception.class)
     public void constructorTest() throws Exception {
         final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
         Log.d(TAG, "url " + url.toString());
 
         final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
-//        KMLS mapService = new KMLS(context, url.toString(), new KMLSServiceListener(queue), new UUID(10, 10));
         final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
+        mapService.getStatus(remoteMap);
+    }
 
-        try {
-            mapService.getStatus(null);
-        } catch (final Exception e) {
-            assertEquals(e.getMessage(), "mapClient must be non-null");
-        }
+    @Test
+    public void test() throws Exception {
 
-        try {
-            mapService.getStatus(remoteMap);
-        } catch (final Exception e) {
-            assertEquals(e.getMessage(), "Service wasn't added to the map");
-        }
+        final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+        Log.d(TAG, "url " + url.toString());
 
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         remoteMap.addMapService(mapService);
         try {
             mapService.getStatus(remoteMap);
