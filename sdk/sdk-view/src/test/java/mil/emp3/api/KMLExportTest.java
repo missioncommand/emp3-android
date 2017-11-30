@@ -66,7 +66,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {}
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
+        }
 
         Assert.assertTrue(kmlReturn[0] != null);
 
@@ -107,7 +113,12 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 Assert.fail(Ex.getMessage());
                                             }
                                       });
-        while (!resultFound[0]) {
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
         }
 
         Assert.assertTrue(kmlReturn[0] != null);
@@ -147,7 +158,12 @@ public class KMLExportTest extends TestBaseSingleMap{
                                             Assert.fail(Ex.getMessage());
                                         }
                                       });
-        while (!resultFound[0]) {
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
         }
 
         Assert.assertTrue(kmlReturn[0] != null);
@@ -190,7 +206,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {}
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
+        }
 
         Assert.assertTrue(kmlReturn[0] != null);
 
@@ -236,7 +258,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {}
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         Assert.assertTrue(kmlReturn[0] != null);
 
         try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
@@ -279,7 +307,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {}
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
+        }
 
         Assert.assertTrue(kmlReturn[0] != null);
 
@@ -323,7 +357,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {}
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
+        }
 
         Assert.assertTrue(kmlReturn[0] != null);
 
@@ -368,7 +408,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {}
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
+        }
 
         Assert.assertTrue(kmlReturn[0] != null);
 
@@ -412,7 +458,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {}
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
+        }
 
         Assert.assertTrue(kmlReturn[0] != null);
 
@@ -456,7 +508,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {}
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+
+            }
+        }
 
         Assert.assertTrue(kmlReturn[0] != null);
 
