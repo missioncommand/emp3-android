@@ -1,12 +1,12 @@
 package mil.emp3.api;
 
 import android.graphics.Color;
-import android.util.Log;
 import android.webkit.URLUtil;
 
 import org.cmapi.primitives.GeoDocument;
 import org.cmapi.primitives.IGeoDocument;
 import org.junit.Before;
+import org.junit.Test;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.io.BufferedReader;
@@ -21,7 +21,6 @@ import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IImageLayer;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * Created by matt.miller@rgi-corp.local on 10/23/17.
@@ -35,62 +34,77 @@ public class KMLTest extends TestBaseSingleMap {
         setupSingleMap(TAG);
     }
 
-    @org.junit.Test
-    public void testConstructors() throws Exception
-    {
+    @Test
+    public void kmlStringConstructor() throws Exception {
         KML testKML;
         final FileReader fileReader = new FileReader(url.getPath());
         final BufferedReader bufferedReader = new BufferedReader(fileReader);
         String fileLine = bufferedReader.readLine();
         String KMLString = "";
-        while(fileLine != null){
+        while (fileLine != null) {
             KMLString += fileLine;
             fileLine = bufferedReader.readLine();
         }
-
-        //KML URL Constructor
-        testKML = new KML(url);
-
-
-        //KML URL and DocumentBase Constructor
-        try {
-            testKML = new KML(null, null);
-        } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), "Invalid parameters. URL can not be null.");
-        }
-        testKML = new KML(url, null);
-        testKML = new KML(url, "HI");
-
-        //InputStream Constructor
-        InputStream inputStream = null;
-        try {
-            testKML = new KML(inputStream);
-        } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), "Input stream can not be null.");
-        }
-        inputStream = url.openStream();
-        testKML = new KML(inputStream);
-
-        //KML String Constructor
-        try {
-            testKML = new KML("");
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), "KML string can not be null nor empty.");
-        }
         testKML = new KML(KMLString);
+    }
 
-        //GeoDocument Constructor
-        GeoDocument gd = new GeoDocument();
+    @Test
+    public void urlConstructor() throws Exception {
+        //KML URL Constructor
+        KML testKML = new KML(url);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void urlDocumentBaseBothNullConstructor() throws Exception {
+        //KML URL and DocumentBase Constructor
+        KML testKML = new KML(null, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void urlDocumentBaseNullDocumentBaseConstructor() throws Exception {
+        KML testKML = new KML(url, null);
+    }
+
+    @Test
+    public void urlDocumentBaseConstructor() throws Exception {
+        KML testKML = new KML(url, "HI");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullInputStreamConstructor() throws Exception {
+        InputStream inputStream = null;
+        KML testKML = new KML(inputStream);
+    }
+
+    @Test
+    public void validInputStreamConstructor() throws Exception {
+        InputStream inputStream = url.openStream();
+        KML testKML = new KML(inputStream);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nullStringConstructor() throws Exception {
+        KML testKML = new KML("");
+    }
+
+    @Test
+    public void cloneConstructor() throws Exception {
+        KML testKML = new KML(url);
         testKML = new KML(testKML);
-        try {
-           testKML = new KML(gd);
-        } catch (final IllegalArgumentException e) {
-            assertEquals(e.getMessage(), "GeoRenderable does not contain a KML string or URL property.");
-        }
+    }
 
-        gd.setDocumentURI(url.toString());
+    @Test(expected=IllegalArgumentException.class)
+    public void invalidGeoDocumentConstructor() throws Exception {
+        GeoDocument gd = new GeoDocument();
+        KML testKML = new KML(gd);
         testKML = new KML(gd);
+    }
+
+    @Test
+    public void validGeoDocumentConstructor() throws Exception {
+        GeoDocument gd = new GeoDocument();
+        gd.setDocumentURI(url.toString());
+        KML testKML = new KML(gd);
     }
 
     @org.junit.Test
@@ -148,27 +162,43 @@ public class KMLTest extends TestBaseSingleMap {
     @org.junit.Test
     public void getGeoDocument() throws Exception
     {
-        final KML testKML = new KML(url);
+        final GeoDocument gd = new GeoDocument();
+        gd.setDocumentURI(url.toString());
+        final KML testKML = new KML(gd);
         IGeoDocument result = testKML.getGeoDocument();
-        assertEquals(result, new KML(result).getGeoDocument());
+        assertEquals(result, gd);
     }
 
     @org.junit.Test
     public void exportToKML() throws Exception
     {
-        //probably shouldn't do this
         final KML testKML = new KML(url);
         assertEquals(testKML.exportToKML(),"");
     }
 
-    @org.junit.Test
-    public void testToString() throws Exception
-    {
+    @Test
+    public void geoDocumentConstructorToString() throws Exception {
         final GeoDocument gd = new GeoDocument();
         gd.setDocumentURI(url.toString());
         KML kmlTest = new KML(gd);
-        Log.i(TAG, kmlTest.toString());
-        kmlTest = new KML(url);
-        Log.i(TAG, kmlTest.toString());
+        final String expectedString = "KML \n" +
+                                      "Image Layer Count 1\n" +
+                                      "Feature Count 19 Point at\n" +
+                                      "\tlatitude: 37.42228990140251\n" +
+                                      "\tlongitude: -122.0822035425683\n" +
+                                      "\taltitude: 0.0";
+        assertEquals(kmlTest.toString(), expectedString);
+    }
+
+    @Test
+    public void urlConstructorToString() throws Exception {
+        KML kmlTest = new KML(url);
+        final String expectedString = "KML KML Samples\n" +
+                                      "Image Layer Count 1\n" +
+                                      "Feature Count 19 Point at\n" +
+                                      "\tlatitude: 37.42228990140251\n" +
+                                      "\tlongitude: -122.0822035425683\n" +
+                                      "\taltitude: 0.0";
+        assertEquals(kmlTest.toString(), expectedString);
     }
 }

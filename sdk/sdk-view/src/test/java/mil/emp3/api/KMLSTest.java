@@ -34,7 +34,6 @@ import mil.emp3.api.listeners.IKMLSEventListener;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 @RunWith(RobolectricTestRunner.class)
 @PrepareForTest({Color.class, URLUtil.class})
 public class KMLSTest extends TestBaseSingleMap {
@@ -349,47 +348,66 @@ public class KMLSTest extends TestBaseSingleMap {
     @Test(expected=IllegalArgumentException.class)
     public void constructor2Test()  throws Exception{
         final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
-        Log.d(TAG, "url " + url.toString());
-
         final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         mapService.getStatus(null);
-
     }
 
     @Test(expected=EMP_Exception.class)
-    public void constructorTest() throws Exception {
+    public void getStatusWhenNotAdded() throws Exception {
         final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
-        Log.d(TAG, "url " + url.toString());
 
         final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         mapService.getStatus(remoteMap);
     }
 
-    @Test
-    public void test() throws Exception {
-
+    @Test(expected = IllegalArgumentException.class)
+    public void getStatusWithNullMapClient() throws Exception {
         final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
-        Log.d(TAG, "url " + url.toString());
 
         final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
         final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
-        remoteMap.addMapService(mapService);
-        try {
-            mapService.getStatus(remoteMap);
-        } catch (final Exception e) {
-            fail();
-        }
+        mapService.getStatus(null);
+    }
+
+    @Test
+    public void getStatusSuccess() throws Exception {
+        final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
+        this.remoteMap.addMapService(mapService);
+        mapService.getStatus(this.remoteMap);
+    }
+
+    @Test
+    public void testSetName() throws Exception {
+        final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         mapService.setName("test_name");
-        Log.i(TAG, mapService.toString());
-        try {
-            mapService.setGeoId(new UUID(10, 10));
-        } catch (final Exception e) {
-            assertEquals(e.getMessage(), "GeoId can't be changed after construction");
-        }
+        assertEquals(mapService.getName(), "test_name");
+    }
+
+    @Test(expected = Exception.class)
+    public void testSetGeoId() throws Exception {
+        final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
+
+        mapService.setGeoId(new UUID(10, 10));
+    }
+
+    @Test
+    public void testSetFeature() throws Exception {
+        final URL url = this.getClass().getClassLoader().getResource("cmapi.json");
+
+        final BlockingQueue<KMLSEventEnum> queue = new LinkedBlockingQueue<>();
+        final KMLS mapService = new KMLS(RuntimeEnvironment.application, url.toString(), new KMLSServiceListener(queue));
         mapService.setFeature(null);
         assertNull(mapService.getFeature());
-
     }
 }
