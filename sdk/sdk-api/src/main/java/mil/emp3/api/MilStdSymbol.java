@@ -1662,7 +1662,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @param iconColor - Icon color to set.
      * @param labelStyle - Label style to set.git
      */
-    public void setSymbolStyles(final IGeoFillStyle fillStyle, final IGeoStrokeStyle strokeStyle, final IGeoColor iconColor, final IGeoLabelStyle labelStyle) {
+    public void setSymbolStyles(final IGeoFillStyle   fillStyle,
+                                final IGeoStrokeStyle strokeStyle,
+                                final IGeoColor       iconColor,
+                                final IGeoLabelStyle  labelStyle) {
         this.setSymbolStyles(fillStyle, strokeStyle, iconColor);
         this.setLabelStyle(labelStyle);
     }
