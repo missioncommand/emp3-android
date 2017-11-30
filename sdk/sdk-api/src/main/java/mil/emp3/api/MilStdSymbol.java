@@ -3,8 +3,10 @@ package mil.emp3.api;
 import android.util.SparseArray;
 
 import org.cmapi.primitives.GeoColor;
+import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
@@ -31,6 +33,7 @@ import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.utils.ColorUtils;
 import mil.emp3.api.utils.EmpBoundingBox;
+import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.ManagerFactory;
@@ -1639,35 +1642,28 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return bBox;
     }
 
-    public void setIconColor(IGeoColor color) {
+    public void setIconColor(final IGeoColor color) {
         this.attributes.put(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
     }
 
-    /**
-     * Convenience method to set the various fills and colors in one call.
-     * @param fillStyle - Fill style to set
-     * @param strokeStyle - Stroke style to set.
-     * @param iconColor - Color of icon.
-     */
-    public void setSymbolStyles(final IGeoFillStyle fillStyle, final IGeoStrokeStyle strokeStyle, final IGeoColor iconColor) {
-        this.setIconColor(iconColor);
-        this.setFillStyle(fillStyle);
-        this.setStrokeStyle(strokeStyle);
+    public void setFillColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.FillColor, ColorUtils.colorToString(color));
+    }
+
+    public void setLineColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
     }
 
     /**
-     * Convenience method to set the various fills and colors in one call.
-     * @param fillStyle - Fill style to set.
-     * @param strokeStyle - Stroke style to set.
-     * @param iconColor - Icon color to set.
-     * @param labelStyle - Label style to set.git
+     * Convenience method to color fill, line and icon in one call.
+     * @param fillColor - Color of the fill.
+     * @param lineColor - Color of the line.
+     * @param iconColor - Color of the icon.
      */
-    public void setSymbolStyles(final IGeoFillStyle   fillStyle,
-                                final IGeoStrokeStyle strokeStyle,
-                                final IGeoColor       iconColor,
-                                final IGeoLabelStyle  labelStyle) {
-        this.setSymbolStyles(fillStyle, strokeStyle, iconColor);
-        this.setLabelStyle(labelStyle);
+    public void styleSymbol(final IGeoColor fillColor, final IGeoColor lineColor, final IGeoColor iconColor) {
+        this.setFillColor(fillColor);
+        this.setLineColor(lineColor);
+        this.setIconColor(iconColor);
     }
 
     public SparseArray<String> getAttributes() {
