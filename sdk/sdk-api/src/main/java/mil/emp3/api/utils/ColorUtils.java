@@ -3,8 +3,6 @@ package mil.emp3.api.utils;
 import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.IGeoColor;
 
-import java.util.InputMismatchException;
-
 /**
  *
  */
@@ -52,13 +50,18 @@ public class ColorUtils {
      */
     public static IGeoColor stringToColor(final String hexColorValue) {
         final int radix = 16;
-        int red = Integer.valueOf(hexColorValue.substring(1, 3), radix);
-        int green = Integer.valueOf(hexColorValue.substring(3, 5), radix);
-        int blue = Integer.valueOf(hexColorValue.substring(5, 7), radix);
-        final IGeoColor geoColor = new GeoColor();
-        geoColor.setRed(red);
-        geoColor.setGreen(green);
-        geoColor.setBlue(blue);
-        return geoColor;
+        try {
+            int red = Integer.valueOf(hexColorValue.substring(1, 3), radix);
+            int green = Integer.valueOf(hexColorValue.substring(3, 5), radix);
+            int blue = Integer.valueOf(hexColorValue.substring(5, 7), radix);
+            final IGeoColor geoColor = new GeoColor();
+            geoColor.setRed(red);
+            geoColor.setGreen(green);
+            geoColor.setBlue(blue);
+            return geoColor;
+        }
+        catch (Exception exception) {
+            throw new RuntimeException("Color string was not formatted properly. Proper format is #RRGGBB.");
+        }
     }
 }

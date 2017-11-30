@@ -41,7 +41,6 @@ import mil.emp3.api.utils.ManagerFactory;
  */
 public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbol {
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
-
     private final SparseArray<String> attributes = new SparseArray<>();
 
     /**
@@ -1635,6 +1634,30 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     public void setIconColor(IGeoColor color) {
         this.attributes.put(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Convenience method to set the various fills and colors in one call.
+     * @param fillStyle - Fill style to set
+     * @param strokeStyle - Stroke style to set.
+     * @param iconColor - Color of icon.
+     */
+    public void setSymbolStyles(final IGeoFillStyle fillStyle, final IGeoStrokeStyle strokeStyle, final IGeoColor iconColor) {
+        this.setIconColor(iconColor);
+        this.setFillStyle(fillStyle);
+        this.setStrokeStyle(strokeStyle);
+    }
+
+    /**
+     * Convenience method to set the various fills and colors in one call.
+     * @param fillStyle - Fill style to set.
+     * @param strokeStyle - Stroke style to set.
+     * @param iconColor - Icon color to set.
+     * @param labelStyle - Label style to set.git
+     */
+    public void setSymbolStyles(final IGeoFillStyle fillStyle, final IGeoStrokeStyle strokeStyle, final IGeoColor iconColor, final IGeoLabelStyle labelStyle) {
+        this.setSymbolStyles(fillStyle, strokeStyle, iconColor);
+        this.setLabelStyle(labelStyle);
     }
 
     public SparseArray<String> getAttributes() {
