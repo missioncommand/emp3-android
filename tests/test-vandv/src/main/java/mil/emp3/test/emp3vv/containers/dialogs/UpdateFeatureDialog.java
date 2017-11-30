@@ -108,7 +108,10 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
 
     @Override
     protected void setupOptional(View view) {
-        view.findViewById(R.id.update_color_section).setVisibility(View.VISIBLE);
+        // Color field only needs to appear for MilStdSymbols.
+        if(this.me instanceof MilStdSymbol) {
+            view.findViewById(R.id.update_color_section).setVisibility(View.VISIBLE);
+        }
         view.findViewById(R.id.position_layout).setVisibility(View.VISIBLE);
         Button positionButton = (Button) view.findViewById(R.id.update_position);
 
