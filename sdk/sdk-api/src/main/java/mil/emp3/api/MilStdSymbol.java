@@ -104,59 +104,70 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
          * @return affiliation enumerated value or null if the string does not represent a valid MilStd affiliation code.
          */
         public static Affiliation fromString(String str) {
+            if (str == null || str.isEmpty())
+                return null;
+            return fromChar(str.charAt(0));
+        }
+
+        /**
+         * This static method returns the affiliation enumerated value for the given string representation.
+         * @param chr affiliation character
+         * @return affiliation enumerated value or null if the string does not represent a valid MilStd affiliation code.
+         */
+        public static Affiliation fromChar(char chr) {
             Affiliation eValue = null;
 
-            if ((str == null) || (str.length() < 1)) {
-                return eValue;
-            }
-
-            switch (str.substring(0, 1)) {
-                case "P":
+            switch (chr) {
+                case 'P':
                     eValue = PENDING;
                     break;
-                case "U":
+                case 'U':
                     eValue = UNKNOWN;
                     break;
-                case "F":
+                case 'F':
                     eValue = FRIEND;
                     break;
-                case "N":
+                case 'N':
                     eValue = NEUTRAL;
                     break;
-                case "H":
+                case 'H':
                     eValue = HOSTILE;
                     break;
-                case "A":
+                case 'A':
                     eValue = ASSUMED_FRIEND;
                     break;
-                case "S":
+                case 'S':
                     eValue = SUSPECT;
                     break;
-                case "G":
+                case 'G':
                     eValue = EXERCISE_PENDING;
                     break;
-                case "W":
+                case 'W':
                     eValue = EXERCISE_UNKNOWN;
                     break;
-                case "D":
+                case 'D':
                     eValue = EXERCISE_FRIEND;
                     break;
-                case "L":
+                case 'L':
                     eValue = EXERCISE_NEUTRAL;
                     break;
-                case "M":
+                case 'M':
                     eValue = EXERCISE_ASSUMED_FRIEND;
                     break;
-                case "J":
+                case 'J':
                     eValue = JOKER;
                     break;
-                case "K":
+                case 'K':
                     eValue = FAKER;
+                    break;
+                default:
+                    eValue = UNKNOWN;
                     break;
             }
 
             return eValue;
         }
+
     }
 
     /**
@@ -534,6 +545,9 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     }
 
     private double dIconScale = 1.0;
+    private String basicSymbolCode = null;
+    private Boolean isTacticalGraphic = null;
+    private Boolean isSinglePoint = null;
 
     /**
      * This is the default constructor for the class. It creates a GeoMilSymbol that is rendered using
@@ -627,7 +641,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     }
 
     /**
-     * This method sets the MilStd symbol code. If the afiliation is not set, it is set to friend.
+     * This method sets the MilStd symbol code. If the affiliation is not set, it is set to friend.
      * @param symbolCode A valid MilStd symbol code.
      */
     @Override
@@ -635,10 +649,13 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if ((symbolCode == null) || (symbolCode.length() != 15)) {
             throw new IllegalArgumentException("Invalid symbol code.");
         }
+        basicSymbolCode = SymbolUtilities.getBasicSymbolID(symbolCode);
+        isTacticalGraphic = SymbolUtilities.isTacticalGraphic(basicSymbolCode);
+        isSinglePoint = isSinglePoint();
         char affiliation = SymbolUtilities.getAffiliation(symbolCode);
 
         this.getRenderable().setSymbolCode(symbolCode);
-        if (null == MilStdSymbol.Affiliation.fromString(Character.toString(affiliation))) {
+        if (null == MilStdSymbol.Affiliation.fromChar(affiliation)) {
             this.setAffiliation(Affiliation.FRIEND);
         }
     }
@@ -711,9 +728,9 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     }
 
     private ArrayList<String> convertToArrayList(String sCommaDelimitedString) {
-        ArrayList<String> aValueList = new ArrayList<>(java.util.Arrays.asList(sCommaDelimitedString.split("\\s*,\\s*")));
+        ArrayList<String> aValueList;
 
-        if (sCommaDelimitedString.isEmpty()) {
+        if (sCommaDelimitedString == null || sCommaDelimitedString.isEmpty()) {
             aValueList = new ArrayList<>();
         } else {
             aValueList = new ArrayList<>(java.util.Arrays.asList(sCommaDelimitedString.split("\\s*,\\s*")));
@@ -729,16 +746,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @param fValue The numeric value to set. or Float.NaN to remove the value.
      */
     public void setModifier(IGeoMilSymbol.Modifier eModifier, int iIndex , float fValue) {
-        java.util.HashMap<IGeoMilSymbol.Modifier, String> oModifierList =
-                this.getRenderable().getModifiers();
-        String sValue = "";
-        ArrayList<String> aValueList;
 
-        if (oModifierList.containsKey(eModifier)) {
-            sValue = oModifierList.get(eModifier);
-        }
+        String sValue = getModifiers().get(eModifier);
 
-        aValueList = this.convertToArrayList(sValue);
+        ArrayList<String> aValueList = this.convertToArrayList(sValue);
 
         if ((iIndex >= 0) && (iIndex < aValueList.size())) {
             if (Float.isNaN(fValue)) {
@@ -764,14 +775,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return A String value or null if it does not exists.
      */
     public String getStringModifier(IGeoMilSymbol.Modifier eModifier) {
-        String sValue = null;
-        java.util.HashMap<IGeoMilSymbol.Modifier, String> oModifierList =
-                this.getModifiers();
-
-        if (oModifierList.containsKey(eModifier)) {
-            sValue = oModifierList.get(eModifier);
-        }
-        return sValue;
+        return getModifiers().get(eModifier);
     }
 
     /**
@@ -799,16 +803,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return The numeric value or NaN if it does not exists or it is not a number.
      */
     public float getNumericModifier(IGeoMilSymbol.Modifier eModifier, int iIndex) {
-        java.util.HashMap<IGeoMilSymbol.Modifier, String> oModifierList =
-                this.getModifiers();
-        String sValue = "";
-        ArrayList<String> aValueList;
 
-        if (oModifierList.containsKey(eModifier)) {
-            sValue = oModifierList.get(eModifier);
-        }
+        String sValue = getModifiers().get(eModifier);
 
-        aValueList = this.convertToArrayList(sValue);
+        ArrayList<String> aValueList = this.convertToArrayList(sValue);
 
         if ((iIndex >= 0) && (iIndex < aValueList.size())) {
             try {
@@ -835,6 +833,9 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return true if symbol is a tactical graphic
      */
     public boolean isTacticalGraphic() {
+        if (isTacticalGraphic != null) {
+            return isTacticalGraphic.booleanValue();
+        }
         validate();
         return SymbolUtilities.isTacticalGraphic(this.getBasicSymbol());
     }
@@ -845,23 +846,29 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @return true if symbol code is for a single point
      */
     public boolean isSinglePoint() {
-       validate();
-        boolean ret = false;
-        String basicSymbolCode = this.getBasicSymbol();
+        if (isSinglePoint != null) {
+            return isSinglePoint.booleanValue();
+        }
+        validate();
+        isSinglePoint = false;
+        if (basicSymbolCode == null) {
+            basicSymbolCode = SymbolUtilities.getBasicSymbolID(this.getSymbolCode());
+            isTacticalGraphic = SymbolUtilities.isTacticalGraphic(basicSymbolCode);
+        }
 
-        if (SymbolUtilities.isTacticalGraphic(basicSymbolCode)) {
+        if (isTacticalGraphic) {
             int milstdVersion = (this.getSymbolStandard() == IGeoMilSymbol.SymbolStandard.MIL_STD_2525B)? 0: 1;
             SymbolDef symbolDefinition = SymbolDefTable.getInstance().getSymbolDef(basicSymbolCode, milstdVersion);
 
             if (symbolDefinition.getDrawCategory() == SymbolDef.DRAW_CATEGORY_POINT) {
                 // This to account for TG that are icons.
-                ret = true;
+                isSinglePoint = true;
             }
         } else {
-            ret = true;
+            isSinglePoint = true;
         }
 
-        return ret;
+        return isSinglePoint.booleanValue();
     }
 
     /**
@@ -874,7 +881,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         String sSymbolCode = this.getSymbolCode();
 
         char affiliation = SymbolUtilities.getAffiliation(sSymbolCode);
-        return MilStdSymbol.Affiliation.fromString(Character.toString(affiliation));
+        return MilStdSymbol.Affiliation.fromChar(affiliation);
     }
 
     /**

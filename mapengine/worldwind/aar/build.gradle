@@ -1,5 +1,11 @@
 apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-lib.gradle"
 
+repositories {
+    maven {
+        url 'https://bintray.com/nasaworldwind/maven/WorldWindAndroid/'
+    }
+ }
+
 dependencies {
     implementation   ("com.android.support:support-annotations")
     compileOnly project (":emp3-android-sdk")

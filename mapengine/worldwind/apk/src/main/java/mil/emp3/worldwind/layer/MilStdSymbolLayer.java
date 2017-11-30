@@ -94,10 +94,10 @@ public class MilStdSymbolLayer extends EmpLayer<MilStdSymbol> {
 
     @Override
     protected FeatureRenderableMapping getFeatureMapping(MilStdSymbol feature) {
-        FeatureRenderableMapping oMapping;
+        FeatureRenderableMapping oMapping =
+                getMapInstance().getFeatureHash().get(feature.getGeoId());
 
-        if (getMapInstance().getFeatureHash().containsKey(feature.getGeoId())) {
-            oMapping = getMapInstance().getFeatureHash().get(feature.getGeoId());
+        if (oMapping != null) {
             if (feature.isSinglePoint()) {
                 ((MilStd2525SinglePoint) oMapping).updateSymbol(feature);
             } else {
