@@ -1,6 +1,9 @@
 package mil.emp3.api.utils;
 
+import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.IGeoColor;
+
+import java.util.InputMismatchException;
 
 /**
  *
@@ -40,5 +43,22 @@ public class ColorUtils {
         sStr += sTemp1;
         
         return sStr;
+    }
+
+    /**
+     * Returns the IGeoColor of the given hex string
+     * @param hexColorValue - Hex color in String form. Assuming the form of #RRGGBB
+     * @return - IGeoColor object representing the given string.
+     */
+    public static IGeoColor stringToColor(final String hexColorValue) {
+        final int radix = 16;
+        int red = Integer.valueOf(hexColorValue.substring(1, 3), radix);
+        int green = Integer.valueOf(hexColorValue.substring(3, 5), radix);
+        int blue = Integer.valueOf(hexColorValue.substring(5, 7), radix);
+        final IGeoColor geoColor = new GeoColor();
+        geoColor.setRed(red);
+        geoColor.setGreen(green);
+        geoColor.setBlue(blue);
+        return geoColor;
     }
 }

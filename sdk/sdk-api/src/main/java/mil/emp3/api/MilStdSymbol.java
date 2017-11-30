@@ -1633,8 +1633,8 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return bBox;
     }
 
-    private void setIconColor(IGeoColor color) {
-        this.attributes.append(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
+    public void setIconColor(IGeoColor color) {
+        this.attributes.put(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
     }
 
     public SparseArray<String> getAttributes() {
