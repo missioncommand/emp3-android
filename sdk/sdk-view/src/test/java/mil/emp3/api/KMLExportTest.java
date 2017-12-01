@@ -6,6 +6,7 @@ import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRenderable;
 import org.junit.Assert;
 import org.junit.Before;
@@ -13,7 +14,10 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.exceptions.EMP_Exception;
@@ -69,7 +73,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -117,7 +121,7 @@ public class KMLExportTest extends TestBaseSingleMap{
                                       });
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -163,7 +167,7 @@ public class KMLExportTest extends TestBaseSingleMap{
                                       });
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -212,7 +216,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -264,7 +268,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -314,7 +318,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -365,7 +369,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -417,7 +421,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -468,7 +472,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -519,7 +523,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
         while(!resultFound[0]) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
@@ -610,7 +614,7 @@ public class KMLExportTest extends TestBaseSingleMap{
     private static Polygon addPolygon(final IOverlay overlay) throws Exception
     {
         final Polygon oPolygon = new Polygon();
-        addFeatureStyles(oPolygon);
+        addMPFeatureStyles(oPolygon);
         overlay.addFeature(oPolygon, true);
         return oPolygon;
     }
@@ -650,5 +654,25 @@ public class KMLExportTest extends TestBaseSingleMap{
         feature.setTessellate(false);
         feature.setReadOnly(false);
     }
+
+    private static void addMPFeatureStyles(final Feature feature) throws Exception{
+        feature.getPositions().clear();
+        for (int i = 0; i < 6; i++) {
+            feature.getPositions().add(getRandomLocation());
+        }
+        feature.setName("Test Feature");
+        //feature.setAzimuth(50);
+        feature.setExtrude(true);
+        feature.setDescription("This is a test feature");
+        feature.setFillStyle(new GeoFillStyle());
+        feature.setLabelStyle(new GeoLabelStyle());
+        feature.setStrokeStyle(new GeoStrokeStyle());
+        feature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+        feature.setBuffer(25.0);
+        feature.setPathType(IGeoRenderable.PathType.LINEAR);
+        feature.setTessellate(false);
+        feature.setReadOnly(false);
+    }
+
 
 }
