@@ -34,8 +34,6 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
 
     private static IMilStdRenderer oMilStdIconRenderer;
 
-    private static MapInstance oMapInstance;
-
     protected final static int HIGHEST_LEVEL_OF_DETAIL = 0;
 
     protected final static int MEDIUM_LEVEL_OF_DETAIL = 1;
@@ -51,14 +49,12 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
     /**
      * This static method initializes the oInstance.
      * @param iconRenderer
-     * @param mapInstance
      * @return
      */
-    public synchronized static MilStd2525LevelOfDetailSelector initInstance(IMilStdRenderer iconRenderer, MapInstance mapInstance) {
+    public synchronized static MilStd2525LevelOfDetailSelector initInstance(IMilStdRenderer iconRenderer) {
         if (MilStd2525LevelOfDetailSelector.oInstance == null) {
             MilStd2525LevelOfDetailSelector.oInstance = new MilStd2525LevelOfDetailSelector();
             MilStd2525LevelOfDetailSelector.oMilStdIconRenderer = iconRenderer;
-            MilStd2525LevelOfDetailSelector.oMapInstance = mapInstance;
         }
 
         if(!iconRenderer.getBitmapCacheName().equals("NoBitmapCache")) {
@@ -144,7 +140,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         // Update the placemark's attributes bundle
         if (placemarkAttributes != null) {
             // Apply the symbols and Icon size setting scales.
-            double dScale = oMapInstance.getIconSizeSetting().getScaleFactor() * milStdPlacemark.getIconScale();
+            double dScale = milStdPlacemark.getMapInstance().getIconSizeSetting().getScaleFactor() * milStdPlacemark.getIconScale();
             placemarkAttributes.setImageScale(dScale);
             placemark.setAttributes(placemarkAttributes);
 

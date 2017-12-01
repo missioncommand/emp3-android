@@ -50,7 +50,7 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         if(null == renderable) {
             throw new IllegalArgumentException("Encapsulated GeoCircle must be non-null");
         }
-        //seeting renderable bypasses radius validation
+        //setting renderable bypasses radius validation
         this.setRadius(this.getRadius());
     }
 
@@ -60,20 +60,8 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
      */
     @Override
     public void setRadius(double radius) {
-        isValidRadius(radius);
+        validateWithinRange(radius, MINIMUM_RADIUS, Double.POSITIVE_INFINITY);
         this.getRenderable().setRadius(radius);
-    }
-
-    /**
-     * Validates whether or not a given input is a valid Radius.
-     * Throws an exception if invalid in order to inform user what the issue was.
-     * @param dRadius The radius to be checked
-     */
-    private void isValidRadius(final double dRadius) {
-        validatePositive(dRadius);
-        if(dRadius < MINIMUM_RADIUS) {
-            throw new IllegalArgumentException("Invalid radius, " + String.valueOf(dRadius) + " Minimum supported " + MINIMUM_RADIUS);
-        }
     }
 
     /**

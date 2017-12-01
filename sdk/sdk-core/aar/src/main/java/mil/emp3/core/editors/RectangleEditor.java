@@ -213,8 +213,11 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
         Log.d(TAG, oCP.getCPType().toString() + currentWidth + " " + currentBearing);
         recompute(this.oFeature.getPosition());
         this.oFeature.setWidth(currentWidth);
-        this.oFeature.apply();
-
+        try {
+            storageManager.apply(mapInstance, oFeature, null);
+        } catch (EMP_Exception ex) {
+            Log.e(TAG, "Apply failed.", ex);
+        }
         addUpdateEventData(FeaturePropertyChangedEnum.WIDTH_PROPERTY_CHANGED);
         issueUpdateEvent();
 
@@ -229,7 +232,11 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
         Log.d(TAG, oCP.getCPType().toString() + currentHeight + " " + currentBearing);
         recompute(this.oFeature.getPosition());
         this.oFeature.setHeight(currentHeight);
-        this.oFeature.apply();
+        try {
+            storageManager.apply(mapInstance, oFeature, null);
+        } catch (EMP_Exception ex) {
+            Log.e(TAG, "Apply failed.", ex);
+        }
 
         addUpdateEventData(FeaturePropertyChangedEnum.HEIGHT_PROPERTY_CHANGED);
         issueUpdateEvent();
@@ -270,7 +277,11 @@ public class RectangleEditor extends AbstractBasicShapesDrawEditEditor<Rectangle
                 currentBearing = (currentBearing + 360) % 360;
                 recompute(this.oFeature.getPosition());
                 this.oFeature.setAzimuth(currentBearing);
-                this.oFeature.apply();
+                try {
+                    storageManager.apply(mapInstance, oFeature, null);
+                } catch (EMP_Exception ex) {
+                    Log.e(TAG, "Apply failed.", ex);
+                }
                 addUpdateEventData(FeaturePropertyChangedEnum.AZIMUTH_PROPERTY_CHANGED);
                 issueUpdateEvent();
                 break;

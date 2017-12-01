@@ -32,33 +32,33 @@ public class EllipseTest extends TestBase {
         gc.setTimeStamp(el.getTimeStamp());
         gc.setFillStyle(null);
         validateEllipse(el,
-                gc,
-                150.0,
-                75.0,
-                FeatureTypeEnum.GEO_ELLIPSE,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                null,
-                Collections.EMPTY_LIST,
-                null,
-                new GeoStrokeStyle(),
-                null,
-                new GeoLabelStyle(),
-                false,
-                true,
-                0.0,
-                0.0,
-                null,
-                false,
-                Collections.EMPTY_LIST,
-                false,
-                Collections.EMPTY_LIST,
-                "",
-                null,
-                "",
-                new HashMap());
+                        gc,
+                        150.0,
+                        75.0,
+                        FeatureTypeEnum.GEO_ELLIPSE,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        null,
+                        Collections.EMPTY_LIST,
+                        null,
+                        new GeoStrokeStyle(),
+                        null,
+                        new GeoLabelStyle(),
+                        false,
+                        true,
+                        0.0,
+                        0.0,
+                        null,
+                        false,
+                        Collections.EMPTY_LIST,
+                        false,
+                        Collections.EMPTY_LIST,
+                        "",
+                        null,
+                        "",
+                        new HashMap());
     }
 
     @Test
@@ -70,33 +70,33 @@ public class EllipseTest extends TestBase {
         gc.setTimeStamp(el.getTimeStamp());
         gc.setFillStyle(null);
         validateEllipse(el,
-                gc,
-                50.0,
-                50.0,
-                FeatureTypeEnum.GEO_ELLIPSE,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                null,
-                Collections.EMPTY_LIST,
-                null,
-                new GeoStrokeStyle(),
-                null,
-                new GeoLabelStyle(),
-                false,
-                true,
-                0.0,
-                0.0,
-                null,
-                false,
-                Collections.EMPTY_LIST,
-                false,
-                Collections.EMPTY_LIST,
-                "",
-                null,
-                "",
-                new HashMap());
+                        gc,
+                        50.0,
+                        50.0,
+                        FeatureTypeEnum.GEO_ELLIPSE,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        null,
+                        Collections.EMPTY_LIST,
+                        null,
+                        new GeoStrokeStyle(),
+                        null,
+                        new GeoLabelStyle(),
+                        false,
+                        true,
+                        0.0,
+                        0.0,
+                        null,
+                        false,
+                        Collections.EMPTY_LIST,
+                        false,
+                        Collections.EMPTY_LIST,
+                        "",
+                        null,
+                        "",
+                        new HashMap());
     }
 
     @Test
@@ -109,33 +109,33 @@ public class EllipseTest extends TestBase {
         gc.setTimeStamp(el.getTimeStamp());
         gc.setFillStyle(null);
         validateEllipse(el,
-                gc,
-                50.0,
-                50.0,
-                FeatureTypeEnum.GEO_ELLIPSE,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                null,
-                Collections.EMPTY_LIST,
-                null,
-                new GeoStrokeStyle(),
-                null,
-                new GeoLabelStyle(),
-                false,
-                true,
-                0.0,
-                100.0,
-                null,
-                false,
-                Collections.EMPTY_LIST,
-                false,
-                Collections.EMPTY_LIST,
-                "",
-                null,
-                "",
-                new HashMap());
+                        gc,
+                        50.0,
+                        50.0,
+                        FeatureTypeEnum.GEO_ELLIPSE,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        null,
+                        Collections.EMPTY_LIST,
+                        null,
+                        new GeoStrokeStyle(),
+                        null,
+                        new GeoLabelStyle(),
+                        false,
+                        true,
+                        0.0,
+                        100.0,
+                        null,
+                        false,
+                        Collections.EMPTY_LIST,
+                        false,
+                        Collections.EMPTY_LIST,
+                        "",
+                        null,
+                        "",
+                        new HashMap());
     }
 
     @Test
@@ -145,33 +145,33 @@ public class EllipseTest extends TestBase {
         gc.setTimeStamp(el.getTimeStamp());
         gc.setFillStyle(null);
         validateEllipse(el,
-                gc,
-                150.0,
-                75.0,
-                FeatureTypeEnum.GEO_ELLIPSE,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                null,
-                Collections.EMPTY_LIST,
-                null,
-                new GeoStrokeStyle(),
-                null,
-                new GeoLabelStyle(),
-                false,
-                true,
-                0.0,
-                0.0,
-                null,
-                false,
-                Collections.EMPTY_LIST,
-                false,
-                Collections.EMPTY_LIST,
-                "",
-                null,
-                "",
-                new HashMap());
+                        gc,
+                        150.0,
+                        75.0,
+                        FeatureTypeEnum.GEO_ELLIPSE,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST,
+                        null,
+                        Collections.EMPTY_LIST,
+                        null,
+                        new GeoStrokeStyle(),
+                        null,
+                        new GeoLabelStyle(),
+                        false,
+                        true,
+                        0.0,
+                        0.0,
+                        null,
+                        false,
+                        Collections.EMPTY_LIST,
+                        false,
+                        Collections.EMPTY_LIST,
+                        "",
+                        null,
+                        "",
+                        new HashMap());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -428,10 +428,10 @@ public class EllipseTest extends TestBase {
         final Double eastWestCoord = 1.4822202186905997 * Math.pow(10, -3);
 
         validateBoundingBox((EmpBoundingBox) el.getFeatureBoundingBox(),
-                                             northSouthCoord,
-                                             eastWestCoord,
-                                             -1 * northSouthCoord,
-                                             -1 * eastWestCoord);
+                            northSouthCoord,
+                            eastWestCoord,
+                            -1 * northSouthCoord,
+                            -1 * eastWestCoord);
     }
 
 
@@ -439,9 +439,9 @@ public class EllipseTest extends TestBase {
     public void noPosToString() {
         el = new Ellipse();
         final String expectedString = "Ellipse \n" +
-                                      "\tsemi-major: 150.0\n" +
-                                      "\tsemi-minor: 75.0\n" +
-                                      "\tazimuth: 0.0\n";
+                "\tsemi-major: 150.0\n" +
+                "\tsemi-minor: 75.0\n" +
+                "\tazimuth: 0.0\n";
         assertEquals(el.toString(), expectedString);
     }
 
@@ -451,12 +451,12 @@ public class EllipseTest extends TestBase {
         el = new Ellipse();
         el.setPosition(gp);
         final String expectedString = "Ellipse at\n" +
-                                      "\tlatitude: 0.0\n" +
-                                      "\tlongitude: 0.0\n" +
-                                      "\taltitude: 0.0\n" +
-                                      "\tsemi-major: 150.0\n" +
-                                      "\tsemi-minor: 75.0\n" +
-                                      "\tazimuth: 0.0\n";
+                "\tlatitude: 0.0\n" +
+                "\tlongitude: 0.0\n" +
+                "\taltitude: 0.0\n" +
+                "\tsemi-major: 150.0\n" +
+                "\tsemi-minor: 75.0\n" +
+                "\tazimuth: 0.0\n";
         assertEquals(el.toString(), expectedString);
     }
 }
