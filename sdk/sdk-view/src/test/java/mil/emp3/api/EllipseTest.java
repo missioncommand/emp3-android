@@ -194,7 +194,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSemiMajorGeoEllipseConstructor() {
+    public void naNSemiMajorGeoEllipseConstructor() {
         final GeoEllipse ge = new GeoEllipse();
         ge.setSemiMajor(Double.NaN);
         el = new Ellipse(ge);
@@ -222,7 +222,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSemiMinorGeoEllipseConstructor() {
+    public void naNSemiMinorGeoEllipseConstructor() {
         final GeoEllipse ge = new GeoEllipse();
         ge.setSemiMinor(Double.NaN);
         el = new Ellipse(ge);
@@ -243,7 +243,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNAzimuthGeoEllipseConstructor() {
+    public void naNAzimuthGeoEllipseConstructor() {
         final GeoEllipse ge = new GeoEllipse();
         ge.setAzimuth(Double.NaN);
         el = new Ellipse(ge);
@@ -267,7 +267,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNAzimuthAzimuthConstructor() {
+    public void naNAzimuthAzimuthConstructor() {
         el = new Ellipse(100.0, 100.0, Double.NaN);
     }
 
@@ -287,7 +287,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSemiMajorAzimuthConstructor() {
+    public void naNSemiMajorAzimuthConstructor() {
         el = new Ellipse(Double.NaN, 100.0, -400.0);
     }
 
@@ -307,7 +307,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSemiMinorAzimuthConstructor() {
+    public void naNSemiMinorAzimuthConstructor() {
         el = new Ellipse(100.0, Double.NaN, -400.0);
     }
 
@@ -327,7 +327,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSemiMajorParameterConstructor() {
+    public void naNSemiMajorParameterConstructor() {
         el = new Ellipse(Double.NaN, 100.0);
     }
 
@@ -347,7 +347,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSemiMinorParameterConstructor() {
+    public void naNSemiMinorParameterConstructor() {
         el = new Ellipse(100.0, Double.NaN);
     }
 
@@ -364,7 +364,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSetSemiMajor() {
+    public void naNSetSemiMajor() {
         el = new Ellipse();
         el.setSemiMajor(Double.NaN);
     }
@@ -395,7 +395,7 @@ public class EllipseTest extends TestBase {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void NaNSetSemiMinor() {
+    public void naNSetSemiMinor() {
         el = new Ellipse();
         el.setSemiMinor(Double.NaN);
     }
@@ -439,9 +439,9 @@ public class EllipseTest extends TestBase {
     public void noPosToString() {
         el = new Ellipse();
         final String expectedString = "Ellipse \n" +
-                "\tsemi-major: 150.0\n" +
-                "\tsemi-minor: 75.0\n" +
-                "\tazimuth: 0.0\n";
+                                      "\tsemi-major: 150.0\n" +
+                                      "\tsemi-minor: 75.0\n" +
+                                      "\tazimuth: 0.0\n";
         assertEquals(el.toString(), expectedString);
     }
 
@@ -451,12 +451,12 @@ public class EllipseTest extends TestBase {
         el = new Ellipse();
         el.setPosition(gp);
         final String expectedString = "Ellipse at\n" +
-                "\tlatitude: 0.0\n" +
-                "\tlongitude: 0.0\n" +
-                "\taltitude: 0.0\n" +
-                "\tsemi-major: 150.0\n" +
-                "\tsemi-minor: 75.0\n" +
-                "\tazimuth: 0.0\n";
+                                      "\tlatitude: 0.0\n" +
+                                      "\tlongitude: 0.0\n" +
+                                      "\taltitude: 0.0\n" +
+                                      "\tsemi-major: 150.0\n" +
+                                      "\tsemi-minor: 75.0\n" +
+                                      "\tazimuth: 0.0\n";
         assertEquals(el.toString(), expectedString);
     }
 }
