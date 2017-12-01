@@ -44,17 +44,17 @@ project(':mapengine-worldwind-apk').projectDir = new File(settingsDir, 'mapengin
 //
 // SERVICES
 //
-//include ':service:mirrorcache:api'
-//project(':service:mirrorcache:api').name = 'service-mirrorcache-api'
+include ':service:mirrorcache:api'
+project(':service:mirrorcache:api').name = 'service-mirrorcache-api'
 
-//include ':service:mirrorcache:mirrorables'
-//project(':service:mirrorcache:mirrorables').name = 'service-mirrorcache-mirrorables'
+include ':service:mirrorcache:mirrorables'
+project(':service:mirrorcache:mirrorables').name = 'service-mirrorcache-mirrorables'
 
-//include ':service:mirrorcache:service'
-//project(':service:mirrorcache:service').name = 'service-mirrorcache-service'
+include ':service:mirrorcache:service'
+project(':service:mirrorcache:service').name = 'service-mirrorcache-service'
 
-//include ':service:wallpaper'
-//project(':service:wallpaper').name = 'service-wallpaper'
+include ':service:wallpaper'
+project(':service:wallpaper').name = 'service-wallpaper'
 
 //
 // TESTS

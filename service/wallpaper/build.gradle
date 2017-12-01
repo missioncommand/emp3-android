@@ -7,7 +7,8 @@ android {
 }
 
 dependencies {
-    compile project (":sdk:emp3-android-sdk-view")
-    compile project (":sdk:sdk-core:emp3-android-sdk-core-aar")
-    compile project (":mapengine:worldwind:mapengine-worldwind-aar")
+    implementation project (":emp3-android-sdk")
+    implementation project (":emp3-android-sdk-core-aar")
+    implementation project (":emp3-android-sdk-view")
+    implementation project (":mapengine-worldwind-aar")
 }
