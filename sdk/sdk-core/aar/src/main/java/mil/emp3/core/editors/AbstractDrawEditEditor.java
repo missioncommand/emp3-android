@@ -436,7 +436,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                         List<ControlPoint> oCPList = this.doAddControlPoint(oEvent.getCoordinate());
                         if ((oCPList != null) && (oCPList.size() > 0)) {
                             try {
-                                this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
+                                this.storageManager.apply(mapInstance, oFeature, oEvent.getUserContext());
                             } catch (EMP_Exception ex) {
                                 Log.e(TAG, "storageManger.apply failed.", ex);
                             }
@@ -536,7 +536,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                             // The Editor deleted CPs.
                             // TODO add update event generation.
                             try {
-                                this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
+                                storageManager.apply(mapInstance, oFeature, oEvent.getUserContext());
                             } catch (EMP_Exception ex) {
                                 Log.e(TAG, "storageManger.apply failed.", ex);
                             }
@@ -573,7 +573,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                         this.eEditorState = EditorStateEnum.DRAGGING_CP;
                         if (this.doControlPointMoved((ControlPoint) oEventedFeature, oEvent.getCoordinate())) {
                             try {
-                                this.storageManager.apply(this.oFeature, false, oEvent.getUserContext());
+                                storageManager.apply(mapInstance, oFeature, oEvent.getUserContext());
                             } catch (EMP_Exception ex) {
                                 Log.e(TAG, "storageManger.apply failed.", ex);
                             }
@@ -670,7 +670,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
                 } else {
                     this.restoreOnCancel();
                     try {
-                        this.storageManager.apply(this.oFeature, false, null);
+                        storageManager.apply(mapInstance, oFeature, null);
                     } catch (EMP_Exception ex) {
                         Log.e(TAG, "storageManger.apply failed.", ex);
                     }
@@ -679,7 +679,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
             } else {
                 this.restoreOnCancel();
                 try {
-                    this.storageManager.apply(this.oFeature, false, null);
+                    storageManager.apply(mapInstance, oFeature, null);
                 } catch (EMP_Exception ex) {
                     Log.e(TAG, "storageManger.apply failed.", ex);
                 }
@@ -782,7 +782,7 @@ public abstract class AbstractDrawEditEditor<T extends IFeature> extends Abstrac
         }
         // Now update the feature on the map.
         try {
-            this.storageManager.apply(this.oFeature, false, null);
+            storageManager.apply(mapInstance, oFeature, null);
         } catch (EMP_Exception ex) {
             Log.e(TAG, "storageManger.apply failed.", ex);
         }

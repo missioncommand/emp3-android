@@ -9,7 +9,9 @@ import android.util.Log;
 import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoMilSymbol;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
 import mil.emp3.api.MilStdSymbol;
@@ -72,7 +74,7 @@ public class AddMilStdSymbol extends AddEntityBase implements SymbolPropertiesDi
     public void onSymbolPropertiesSaveClick(SymbolPropertiesDialog dialog) {
 
         try {
-            IFeature newSymbol = initializeSinglePoint(map, dialog.getMilStdVersion(), dialog.getSymbolCode(), dialog.getFeatureName(), dialog.getCurrentUnitDef(), dialog.getPositionUtility());
+            IFeature newSymbol = initializeSinglePoint(map, dialog.getMilStdVersion(), dialog.getSymbolCode(), dialog.getFeatureName(), dialog.getCurrentUnitDef(), dialog.getPositionUtility(), dialog.getModifiers());
             applyStyle(newSymbol);
             addFeature2Map(map, dialog.getParentList(), dialog.isFeatureVisible(), newSymbol);
         } catch (Exception e) {
@@ -90,7 +92,7 @@ public class AddMilStdSymbol extends AddEntityBase implements SymbolPropertiesDi
     @Override
     public boolean onSaveClick(TacticalGraphicPropertiesDialog dialog) {
         try {
-            IFeature newSymbol = initializeTacticalGraphicsSymbol(map, dialog.getMilStdVersion(), dialog.getSymbolCode(), dialog.getFeatureName(), dialog.getCurrentDef(), dialog.getPositionUtility());
+            IFeature newSymbol = initializeTacticalGraphicsSymbol(map, dialog.getMilStdVersion(), dialog.getSymbolCode(), dialog.getFeatureName(), dialog.getCurrentDef(), dialog.getPositionUtility(), dialog.getModifiers());
             applyStyle(newSymbol);
             addFeature2Map(map, dialog.getParentList(), dialog.isFeatureVisible(), newSymbol);
             return true;
@@ -106,8 +108,9 @@ public class AddMilStdSymbol extends AddEntityBase implements SymbolPropertiesDi
     }
 
     public static MilStdSymbol initializeSinglePoint(IMap map, IGeoMilSymbol.SymbolStandard milStdVersion, String symbolCode, String featureName,
-                                                     armyc2.c2sd.renderer.utilities.UnitDef symbolDef, PositionUtility positionUtility) throws EMP_Exception{
+                                                     armyc2.c2sd.renderer.utilities.UnitDef symbolDef, PositionUtility positionUtility, HashMap<IGeoMilSymbol.Modifier, String> modifierMap) throws EMP_Exception{
         MilStdSymbol newSymbol = new MilStdSymbol(milStdVersion,symbolCode);
+        newSymbol.setModifiers(modifierMap);
         newSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, symbolDef.getDescription());
         newSymbol.getPositions().clear();
         newSymbol.getPositions().addAll(positionUtility.getPositionList());
@@ -117,9 +120,9 @@ public class AddMilStdSymbol extends AddEntityBase implements SymbolPropertiesDi
     }
 
     public static MilStdSymbol initializeTacticalGraphicsSymbol(IMap map, IGeoMilSymbol.SymbolStandard milStdVersion, String symbolCode, String featureName,
-                                                                armyc2.c2sd.renderer.utilities.SymbolDef symbolDef, PositionUtility positionUtility ) throws EMP_Exception, IllegalStateException {
+                                                                armyc2.c2sd.renderer.utilities.SymbolDef symbolDef, PositionUtility positionUtility, HashMap<IGeoMilSymbol.Modifier, String> modifierMap ) throws EMP_Exception, IllegalStateException {
         MilStdSymbol newSymbol = new MilStdSymbol(milStdVersion, symbolCode);
-
+        newSymbol.setModifiers(modifierMap);
         newSymbol.setSymbolCode(symbolCode);
         newSymbol.setName(featureName);
         newSymbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
@@ -189,4 +192,5 @@ public class AddMilStdSymbol extends AddEntityBase implements SymbolPropertiesDi
         }
         return newSymbol;
     }
+
 }
