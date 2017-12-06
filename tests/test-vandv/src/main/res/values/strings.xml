@@ -46,7 +46,7 @@
 
     <string name="FPD_affiliationLabel">Affiliation:</string>
 
-    <string name="FPD_echelonModifierLabel">Modifier:</string>
+    <string name="FPD_echelonModifierLabel">Echelon Modifier:</string>
     <string name="FPD_echelonLabel">Echelon:</string>
 
     <string name="FPD_symbolcodeLabel">Symbol:</string>

@@ -49,7 +49,7 @@ import mil.emp3.worldwind.utils.*;
 public class MapInstance extends CoreMapInstance {
     private static final String TAG = MapInstance.class.getSimpleName();
     private static final int BRIGHTNESS_BITMAP_WIDTH_HEIGHT = 4;
-    private static final int HATCH_SIZE = (new Double(0.178571 * Resources.getSystem().getDisplayMetrics().densityDpi)).intValue();
+    private static final int HATCH_SIZE = (Double.valueOf(0.178571 * Resources.getSystem().getDisplayMetrics().densityDpi)).intValue();
 
     private Context context;
     private gov.nasa.worldwind.WorldWindow ww;
@@ -474,8 +474,8 @@ public class MapInstance extends CoreMapInstance {
     }
 
     private void removeFeature(UUID uniqueId, Object userContext) {
-        if (this.featureHash.containsKey(uniqueId)) {
-            FeatureRenderableMapping oWrapper = this.featureHash.get(uniqueId);
+        FeatureRenderableMapping oWrapper = this.featureHash.get(uniqueId);
+        if (oWrapper != null) {
             dirtyOnMapMove.remove(uniqueId);
 
             if (oWrapper != null) {
@@ -955,7 +955,7 @@ public class MapInstance extends CoreMapInstance {
     @Override
     public void registerMilStdRenderer(IMilStdRenderer oRenderer) {
         super.registerMilStdRenderer(oRenderer);
-        MilStd2525LevelOfDetailSelector.initInstance(oRenderer, this);
+        MilStd2525LevelOfDetailSelector.initInstance(oRenderer);
     }
 
     /**
@@ -1171,8 +1171,8 @@ public class MapInstance extends CoreMapInstance {
 
     private void processSelection(List<IFeature> featureList, boolean selected) {
         for (IFeature feature: featureList) {
-            if (this.featureHash.containsKey(feature.getGeoId())) {
-                FeatureRenderableMapping oMapping = this.featureHash.get(feature.getGeoId());
+            FeatureRenderableMapping oMapping = this.featureHash.get(feature.getGeoId());
+            if (oMapping != null) {
                 oMapping.setSelected(selected);
                 oMapping.setDirty(true);
             }

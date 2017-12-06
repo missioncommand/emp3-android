@@ -612,7 +612,7 @@ public class BasicShapesEditorsTest extends NavItemBase {
 
             try {
                 MilStdSymbol newSymbol = AddMilStdSymbol.initializeSinglePoint(maps[ExecuteTest.getCurrentMap()], dialog.getMilStdVersion(),
-                        dialog.getSymbolCode(), dialog.getFeatureName(), dialog.getCurrentUnitDef(), dialog.getPositionUtility());
+                        dialog.getSymbolCode(), dialog.getFeatureName(), dialog.getCurrentUnitDef(), dialog.getPositionUtility(), dialog.getModifiers());
                 drawOrEdit(newSymbol);
             } catch (EMP_Exception e) {
                 Log.e(TAG, "onSymbolPropertiesSaveClick", e);
@@ -647,7 +647,7 @@ public class BasicShapesEditorsTest extends NavItemBase {
         public boolean onSaveClick(TacticalGraphicPropertiesDialog dialog) {
             try {
                 IFeature newSymbol = AddMilStdSymbol.initializeTacticalGraphicsSymbol(maps[ExecuteTest.getCurrentMap()], dialog.getMilStdVersion(),
-                            dialog.getSymbolCode(), dialog.getFeatureName(), dialog.getCurrentDef(), dialog.getPositionUtility());
+                            dialog.getSymbolCode(), dialog.getFeatureName(), dialog.getCurrentDef(), dialog.getPositionUtility(), dialog.getModifiers());
                 drawOrEdit(newSymbol);
                 return true;
             } catch (EMP_Exception | IllegalStateException e) {
