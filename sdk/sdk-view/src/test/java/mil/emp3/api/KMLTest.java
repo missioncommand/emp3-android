@@ -60,7 +60,7 @@ public class KMLTest extends TestBaseSingleMap {
         KML testKML = new KML(null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void urlDocumentBaseNullDocumentBaseConstructor() throws Exception {
         KML testKML = new KML(url, null);
     }

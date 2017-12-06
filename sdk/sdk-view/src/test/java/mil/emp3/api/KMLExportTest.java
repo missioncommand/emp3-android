@@ -1,31 +1,42 @@
 package mil.emp3.api;
 
+import android.util.SparseArray;
+
 import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoColor;
+import org.cmapi.primitives.IGeoFillStyle;
+import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoRenderable;
+import org.cmapi.primitives.IGeoStrokeStyle;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
+import armyc2.c2sd.renderer.utilities.MilStdAttributes;
+import armyc2.c2sd.renderer.utilities.ModifiersTG;
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.exceptions.EMP_Exception;
+import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
+import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.utils.ColorUtils;
 import mil.emp3.api.utils.ComparisonUtils;
+import mil.emp3.api.utils.MilStdUtilities;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
+import sec.web.render.SECWebRenderer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -282,8 +293,14 @@ public class KMLExportTest extends TestBaseSingleMap{
             overlay.addFeature(kmlFeature, true);
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //Circles do not exist in KML so they are represented by paths
-            final Polygon importedCircle = (Polygon) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareFeatureToPolygon(feature, importedCircle);
+            final Object obj = kmlOnMap.getFeatureList().get(0);
+            if (obj instanceof Path) {
+                ComparisonUtils.compareFeatureToPath(feature, (Path)obj);
+            } else if(obj instanceof Polygon) {
+                ComparisonUtils.compareFeatureToPolygon(feature, (Polygon)obj);
+            } else {
+                Assert.fail(obj + " was a circle but did not come back as a path or polygon");
+            }
         }
     }
 
@@ -333,8 +350,14 @@ public class KMLExportTest extends TestBaseSingleMap{
             overlay.addFeature(kmlFeature, true);
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //KML does not support Ellipses so they get represented by a polygon
-            final Path importedEllipse = (Path) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareFeatureToPath(feature, importedEllipse);
+            final Object obj = kmlOnMap.getFeatureList().get(0);
+            if (obj instanceof Path) {
+                ComparisonUtils.compareFeatureToPath(feature, (Path)obj);
+            } else if(obj instanceof Polygon) {
+                ComparisonUtils.compareFeatureToPolygon(feature, (Polygon)obj);
+            } else {
+                Assert.fail(obj + " was an ellipse but did not come back as a path or polygon");
+            }
         }
     }
 
@@ -384,9 +407,134 @@ public class KMLExportTest extends TestBaseSingleMap{
             overlay.addFeature(kmlFeature, true);
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //KML doesn't support squares so it gets represented by a polygon
-            final Polygon importedSquare = (Polygon) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareFeatureToPolygon(feature, importedSquare);
+            final Object obj = kmlOnMap.getFeatureList().get(0);
+            if (obj instanceof Path) {
+                ComparisonUtils.compareFeatureToPath(feature, (Path)obj);
+            } else if(obj instanceof Polygon) {
+                ComparisonUtils.compareFeatureToPolygon(feature, (Polygon)obj);
+            } else {
+                Assert.fail(obj + " was a square but did not come back as a path or polygon");
+            }
 
+        }
+    }
+    private String convertPositionsToString(final List<IGeoPosition> posList) {
+        String temp = "";
+
+        if (posList.isEmpty()) {
+            return temp;
+        }
+
+        for (final IGeoPosition pos : posList) {
+            if (!temp.isEmpty()) {
+                temp += " ";
+            }
+            temp += pos.getLongitude() + "," + pos.getLatitude() + "," + pos.getAltitude();
+        }
+
+        return temp;
+    }
+
+    public SparseArray<String> getAttributes(final IFeature feature, final boolean selected, final IGeoColor selectedStrokeColor, final IGeoColor selectedTextColor) {
+        IGeoColor strokeColor = null;
+        IGeoColor textColor = null;
+        final SparseArray<String> oArray = new SparseArray<>();
+        final IGeoFillStyle oFillStyle = feature.getFillStyle();
+        final IGeoStrokeStyle oStrokeStyle = feature.getStrokeStyle();
+        final IGeoLabelStyle labelStyle = feature.getLabelStyle();
+
+        oArray.put(MilStdAttributes.KeepUnitRatio, "true");
+        oArray.put(MilStdAttributes.UseDashArray, "false");
+
+        if (selected) {
+            strokeColor = selectedStrokeColor;
+            textColor = selectedTextColor;
+        } else {
+            if (oStrokeStyle != null) {
+                strokeColor = oStrokeStyle.getStrokeColor();
+            }
+            if (labelStyle != null) {
+                textColor = labelStyle.getColor();
+            }
+        }
+
+        if (oFillStyle != null) {
+            oArray.put(MilStdAttributes.FillColor, "#" + ColorUtils.colorToString(oFillStyle.getFillColor()));
+        }
+
+        if (oStrokeStyle != null) {
+            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(oStrokeStyle.getStrokeColor()));
+            oArray.put(MilStdAttributes.LineWidth, "" + (int) oStrokeStyle.getStrokeWidth());
+        }
+
+        if (strokeColor != null) {
+            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(strokeColor));
+        }
+
+        if (textColor != null) {
+            oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
+            // There is currently no way to change the font.
+        }
+
+        return oArray;
+    }
+
+    @Test
+    public void rendererSquareTest() throws Exception {
+        for(int i = 0; i < 100; i ++) {
+            final Square feature = new Square();
+            feature.setWidth(5.4);
+            addFeatureStyles(feature);
+            final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
+            final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
+            final String coordinateStr = convertPositionsToString(feature.getPositions());
+
+            final double scale = 636000.0;
+
+            final SparseArray<String> modifiers = new SparseArray<>();
+            final SparseArray<String> attributes = getAttributes(feature,
+                                                                 false, feature.getStrokeStyle().getStrokeColor(),
+                                                                 feature.getLabelStyle().getColor());
+            final String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+
+            modifiers.put(ModifiersTG.AM_DISTANCE, feature.getRadius() + "");
+            modifiers.put(ModifiersTG.AN_AZIMUTH, feature.getAzimuth() + "");
+
+            final String kml = SECWebRenderer.RenderSymbol(
+                    feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
+                    "PBS_SQUARE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
+                    modifiers, attributes, 0, 0);
+            final int result = kml.indexOf("Polygon");
+            System.out.println("RESULT: " + result);
+        }
+    }
+
+    @Test
+    public void rendererCircleTest() throws Exception{
+        for(int i = 0; i < 100; i++) {
+            final Circle feature = new Circle();
+            feature.setRadius(5.4);
+            addFeatureStyles(feature);
+            final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
+            final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
+            final String coordinateStr = convertPositionsToString(feature.getPositions());
+
+            final double scale = 636000.0;
+
+            final SparseArray<String> modifiers = new SparseArray<>();
+            final SparseArray<String> attributes = getAttributes(feature,
+                                                                 false, feature.getStrokeStyle().getStrokeColor(),
+                                                                 feature.getLabelStyle().getColor());
+            final String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
+
+            modifiers.put(ModifiersTG.AM_DISTANCE, feature.getRadius() + "");
+
+            final String kml = SECWebRenderer.RenderSymbol(
+                    feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
+                    "PBS_CIRCLE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
+                    modifiers, attributes, 0, 0);
+            int result = kml.indexOf("Path");
+            System.out.println("RESULT: " + kml);
         }
     }
 
@@ -436,8 +584,14 @@ public class KMLExportTest extends TestBaseSingleMap{
             overlay.addFeature(kmlFeature, true);
             final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
             //KML does not support rectangles so they get represented by a polygon
-            final Path importedRectangle = (Path) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareFeatureToPath(feature, importedRectangle);
+            final Object obj = kmlOnMap.getFeatureList().get(0);
+            if (obj instanceof Path) {
+                ComparisonUtils.compareFeatureToPath(feature, (Path)obj);
+            } else if(obj instanceof Polygon) {
+                ComparisonUtils.compareFeatureToPolygon(feature, (Polygon)obj);
+            } else {
+                Assert.fail(obj + " was a rectangle but did not come back as a path or polygon");
+            }
         }
     }
 
@@ -657,7 +811,7 @@ public class KMLExportTest extends TestBaseSingleMap{
 
     private static void addMPFeatureStyles(final Feature feature) throws Exception{
         feature.getPositions().clear();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             feature.getPositions().add(getRandomLocation());
         }
         feature.setName("Test Feature");
