@@ -2,8 +2,11 @@ package mil.emp3.api;
 
 import android.util.SparseArray;
 
+import org.cmapi.primitives.GeoColor;
+import org.cmapi.primitives.GeoFillStyle;
 import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.GeoStrokeStyle;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
@@ -30,6 +33,7 @@ import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.utils.ColorUtils;
 import mil.emp3.api.utils.EmpBoundingBox;
+import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.api.utils.FontUtilities;
 import mil.emp3.api.utils.GeographicLib;
 import mil.emp3.api.utils.ManagerFactory;
@@ -40,6 +44,10 @@ import mil.emp3.api.utils.ManagerFactory;
  */
 public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbol {
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
+    private final SparseArray<String> attributes = new SparseArray<>();
+
+    private static final int DEFAULT_SCALE = 1;
+    private static final int DEFAULT_PIXEL_SIZE = 150;
 
     /**
      * This enumeration class defines the MilStd unit affiliation values.
@@ -580,12 +588,12 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if (eStandard == null) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "Invalid symbol standard.");
         }
-
         this.setSymbolStandard(eStandard);
         this.setSymbolCode(sSymbolCode);
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
+        this.initializeDefaultAttributes();
     }
 
     /**
@@ -1232,7 +1240,6 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             java.util.Set<IGeoMilSymbol.Modifier> oModifierList = geoModifiers.keySet();
 
             for (IGeoMilSymbol.Modifier eModifier: oModifierList) {
-
                 switch (eModifier) {
                     case SYMBOL_ICON:
                         oArray.put(ModifiersTG.A_SYMBOL_ICON, geoModifiers.get(eModifier));
@@ -1636,5 +1643,59 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         }
 
         return bBox;
+    }
+
+    /**
+     * Sets Icon color of military symbol.
+     * @param color {@link IGeoColor} Color to render icon in.
+     */
+    public void setIconColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Sets the fill color of the symbol.
+     * @param color {@link IGeoColor} Color to fill icon with.
+     */
+    public void setFillColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.FillColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Sets the line stroke color of the icon.
+     * @param color {@link IGeoColor} Color to render stroke with.
+     */
+    public void setLineColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
+    }
+
+
+    /**
+     * Convenience method to color fill, line and icon in one call.
+     * @param fillColor - Color of the fill.
+     * @param lineColor - Color of the line.
+     * @param iconColor - Color of the icon.
+     */
+    public void styleSymbol(final IGeoColor fillColor, final IGeoColor lineColor, final IGeoColor iconColor) {
+        this.setFillColor(fillColor);
+        this.setLineColor(lineColor);
+        this.setIconColor(iconColor);
+    }
+
+    /**
+     * Returns the attributes spare array. Use {@link MilStdAttributes} enum as key values.
+     * @return {@link SparseArray} array of attributes.
+     */
+    public SparseArray<String> getAttributes() {
+        return this.attributes;
+    }
+
+    private void initializeDefaultAttributes() {
+        // TODO - The addition of attributes in the symbol causes an empty sparse array.
+        // TODO - Previously we had passed null as the attribute array which caused the renderer to use preset defaults
+        // TODO - when rendering. We can no longer do that as we need to use the array. Find these defaults and set them,
+        // TODO - The below are only guesses. I have had difficulty finding the actual defaults.
+        this.attributes.put(MilStdAttributes.Scale, Integer.toString(DEFAULT_SCALE));
+        this.attributes.put(MilStdAttributes.PixelSize, Integer.toString(DEFAULT_PIXEL_SIZE));
     }
 }

@@ -1,200 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content" android:layout_width="wrap_content">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-        <Button
-            android:id="@+id/update_me_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Update" />
-        <TextView
-            android:text="Name:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/me_name_label" />
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:text="Container Name"
-            android:ems="10"
-            android:id="@+id/me_name" />
-    </LinearLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-        <Button
-            android:id="@+id/update_me_visible"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Update" />
-        <CheckBox
-            android:text="visible"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/me_visible" />
-    </LinearLayout>
-
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_gravity="center" android:orientation="horizontal"  >
+        android:orientation="vertical" android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
+            android:orientation="horizontal" >
             <Button
-                android:id="@+id/remove_from_parent"
+                android:id="@+id/update_me_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remove From" />
-            <ListView
+                android:text="Update" />
+            <TextView
+                android:text="Name:"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:listSelector="@android:color/darker_gray"
-                android:id="@+id/my_parent_list"/>
+                android:id="@+id/me_name_label" />
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:text="Container Name"
+                android:ems="10"
+                android:id="@+id/me_name" />
         </LinearLayout>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
+            android:orientation="horizontal" >
             <Button
-                android:id="@+id/remove_children"
+                android:id="@+id/update_me_visible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remove Children" />
-            <ListView
+                android:text="Update" />
+            <CheckBox
+                android:text="visible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:listSelector="@android:color/darker_gray"
-                android:id="@+id/my_children_list"/>
+                android:id="@+id/me_visible" />
+        </LinearLayout>
+
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:orientation="horizontal"  >
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/remove_from_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Remove From" />
+                <ListView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:listSelector="@android:color/darker_gray"
+                    android:id="@+id/my_parent_list"/>
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/remove_children"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Remove Children" />
+                <ListView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:listSelector="@android:color/darker_gray"
+                    android:id="@+id/my_children_list"/>
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/add_parents"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add Parents" />
+                <ListView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:listSelector="@android:color/darker_gray"
+                    android:id="@+id/add_parents_list"/>
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1" >
+                <Button
+                    android:id="@+id/add_children"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add Children" />
+                <ListView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:listSelector="@android:color/darker_gray"
+                    android:id="@+id/add_children_list"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/update_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Update [Tap For Positions]" />
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:id="@+id/position_layout"
+            android:visibility="invisible"
+            android:orientation="horizontal"  >
+
+            <TextView
+                android:text="Lat:"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/latitude_label" />
+            <EditText
+                android:layout_width="100dip"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal|numberSigned"
+                android:imeOptions="actionDone"
+                android:id="@+id/latitude" />
+
+            <TextView
+                android:text="Lon:"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/longitude_label" />
+            <EditText
+                android:layout_width="100dip"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal|numberSigned"
+                android:imeOptions="actionDone"
+                android:id="@+id/longitude" />
+
+            <TextView
+                android:text="Alt:"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/altitude_label" />
+            <EditText
+                android:layout_width="100dip"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal|numberSigned"
+                android:imeOptions="actionDone"
+                android:id="@+id/altitude" />
         </LinearLayout>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
+            android:id="@+id/symbol_layout"
+            android:visibility="invisible"
+            android:orientation="horizontal"  >
             <Button
-                android:id="@+id/add_parents"
+                android:id="@+id/update_symbol"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Parents" />
-            <ListView
+                android:text="Update" />
+            <TextView
+                android:text="Symbol Code:"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:listSelector="@android:color/darker_gray"
-                android:id="@+id/add_parents_list"/>
+                android:id="@+id/symbol_code" />
+        </LinearLayout>
+
+        <include layout="@layout/feature_buffer" />
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:orientation="horizontal"
+            android:visibility="gone"
+            android:id="@+id/update_color_section">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change Symbol Color (hex)"/>
+
+            <EditText
+                android:id="@+id/update_color_code_input"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="#RRGGBB"/>
+
+            <Button
+                android:id="@+id/update_color_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Update Color"
+                />
         </LinearLayout>
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1" >
+            android:layout_gravity="center" android:orientation="horizontal"  >
             <Button
-                android:id="@+id/add_children"
+                android:id="@+id/remove_me"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Children" />
-            <ListView
+                android:text="Remove" />
+            <Button
+                android:id="@+id/update_other_properties"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:listSelector="@android:color/darker_gray"
-                android:id="@+id/add_children_list"/>
+                android:text="Update Other Properties" />
+            <Button
+                android:id="@+id/done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Done" />
         </LinearLayout>
     </LinearLayout>
-
-    <Button
-        android:id="@+id/update_position"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Update [Tap For Positions]" />
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:id="@+id/position_layout"
-        android:visibility="invisible"
-        android:orientation="horizontal"  >
-
-        <TextView
-            android:text="Lat:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/latitude_label" />
-        <EditText
-            android:layout_width="100dip"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal|numberSigned"
-            android:imeOptions="actionDone"
-            android:id="@+id/latitude" />
-
-        <TextView
-            android:text="Lon:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/longitude_label" />
-        <EditText
-            android:layout_width="100dip"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal|numberSigned"
-            android:imeOptions="actionDone"
-            android:id="@+id/longitude" />
-
-        <TextView
-            android:text="Alt:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/altitude_label" />
-        <EditText
-            android:layout_width="100dip"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal|numberSigned"
-            android:imeOptions="actionDone"
-            android:id="@+id/altitude" />
-    </LinearLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:id="@+id/symbol_layout"
-        android:visibility="invisible"
-        android:orientation="horizontal"  >
-        <Button
-            android:id="@+id/update_symbol"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Update" />
-        <TextView
-            android:text="Symbol Code:"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/symbol_code" />
-    </LinearLayout>
-
-    <include layout="@layout/feature_buffer" />
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_gravity="center" android:orientation="horizontal"  >
-        <Button
-            android:id="@+id/remove_me"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Remove" />
-        <Button
-            android:id="@+id/update_other_properties"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Update Other Properties" />
-        <Button
-            android:id="@+id/done"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Done" />
-    </LinearLayout>
-</LinearLayout>
+</ScrollView>
