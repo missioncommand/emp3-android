@@ -1,5 +1,7 @@
 package mil.emp3.api.utils;
 
+import android.util.Log;
+
 import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.IGeoColor;
 
@@ -50,18 +52,24 @@ public class ColorUtils {
      */
     public static IGeoColor stringToColor(final String hexColorValue) {
         final int radix = 16;
-        try {
-            int red = Integer.valueOf(hexColorValue.substring(1, 3), radix);
-            int green = Integer.valueOf(hexColorValue.substring(3, 5), radix);
-            int blue = Integer.valueOf(hexColorValue.substring(5, 7), radix);
-            final IGeoColor geoColor = new GeoColor();
-            geoColor.setRed(red);
-            geoColor.setGreen(green);
-            geoColor.setBlue(blue);
-            return geoColor;
+        if (hexColorValue.length() == 7) {
+            try {
+                int red = Integer.valueOf(hexColorValue.substring(1, 3), radix);
+                int green = Integer.valueOf(hexColorValue.substring(3, 5), radix);
+                int blue = Integer.valueOf(hexColorValue.substring(5, 7), radix);
+                final IGeoColor geoColor = new GeoColor();
+                geoColor.setRed(red);
+                geoColor.setGreen(green);
+                geoColor.setBlue(blue);
+                return geoColor;
+            } catch (NumberFormatException numberFormatException) {
+                Log.e("Error", "RGB value string did not map to a color. Returning black.");
+            }
         }
-        catch (Exception exception) {
-            throw new RuntimeException("Color string was not formatted properly. Proper format is #RRGGBB.");
+        else {
+            Log.e("Error", "RGB value string was not formatted correctly. Returning black.");
         }
+        // Default return black.
+        return new EmpGeoColor(0, 0 , 0);
     }
 }

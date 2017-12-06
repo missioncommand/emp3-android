@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoBounds;
-import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.ArrayList;
@@ -14,8 +13,8 @@ import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.render.Renderable;
 import mil.emp3.api.MilStdSymbol;
-import mil.emp3.worldwind.feature.FeatureRenderableMapping;
 import mil.emp3.worldwind.MapInstance;
+import mil.emp3.worldwind.feature.FeatureRenderableMapping;
 import mil.emp3.worldwind.feature.MilStd2525SinglePoint;
 import mil.emp3.worldwind.feature.MilStd2525TacticalGraphic;
 

@@ -211,14 +211,9 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
         // so ContainerDialog doesn't have to worry about implementation.
         view.findViewById(R.id.update_color_code).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                try {
-                    final IGeoColor newColor = ColorUtils.stringToColor(colorField.getText().toString());
-                    MilStdSymbol featureAsSymbol = (MilStdSymbol) feature;
-                    featureAsSymbol.setIconColor(newColor);
-                }
-                catch (Exception exception) {
-                    Toast.makeText(v.getContext(), "Invalid color code.", Toast.LENGTH_SHORT).show();
-                }
+                final IGeoColor newColor = ColorUtils.stringToColor(colorField.getText().toString());
+                MilStdSymbol featureAsSymbol = (MilStdSymbol) feature;
+                featureAsSymbol.setIconColor(newColor);
             }
         });
 
