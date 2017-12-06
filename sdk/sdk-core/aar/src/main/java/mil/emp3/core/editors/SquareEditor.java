@@ -182,8 +182,11 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
         Log.d(TAG, oCP.getCPType().toString() + currentLength + " " + currentBearing);
         recompute(this.oFeature.getPosition());
         this.oFeature.setWidth(currentLength);
-        this.oFeature.apply();
-
+        try {
+            storageManager.apply(mapInstance, oFeature, null);
+        } catch (EMP_Exception ex) {
+            Log.e(TAG, "Apply failed.", ex);
+        }
         addUpdateEventData(FeaturePropertyChangedEnum.WIDTH_PROPERTY_CHANGED);
         issueUpdateEvent();
 
@@ -216,7 +219,11 @@ public class SquareEditor extends AbstractBasicShapesDrawEditEditor<Square> {
                 currentBearing = (currentBearing + 360) % 360;
                 recompute(this.oFeature.getPosition());
                 this.oFeature.setAzimuth(currentBearing);
-                this.oFeature.apply();
+                try {
+                    storageManager.apply(mapInstance, oFeature, null);
+                } catch (EMP_Exception ex) {
+                    Log.e(TAG, "Apply failed.", ex);
+                }
                 addUpdateEventData(FeaturePropertyChangedEnum.AZIMUTH_PROPERTY_CHANGED);
                 issueUpdateEvent();
                 break;

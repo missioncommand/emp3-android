@@ -509,10 +509,9 @@ public class MilStdRenderer implements IMilStdRenderer {
         initCheck();
 
         List<IFeature> oList = new ArrayList<>();
-        String basicSC = SymbolUtilities.getBasicSymbolID(symbol.getSymbolCode());
-        
-        if (SymbolUtilities.isTacticalGraphic(basicSC)) {
-            this.renderTacticalGraphic(oList, mapInstance, symbol, selected);
+
+        if (symbol.isTacticalGraphic()) {
+            renderTacticalGraphic(oList, mapInstance, symbol, selected);
         }
         
         return oList;

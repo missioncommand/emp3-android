@@ -14,10 +14,14 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.cmapi.primitives.GeoMilSymbol;
+import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import armyc2.c2sd.renderer.utilities.SymbolDef;
@@ -35,6 +39,14 @@ import mil.emp3.test.emp3vv.utils.PositionUtility;
  */
 public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implements PositionUtility.IPositionChangedListener {
     private final static String TAG = TacticalGraphicPropertiesDialog.class.getSimpleName();
+
+    // Modifier components.
+    private Spinner modifierSpinner;
+    private EditText modifierValue;
+    private List<CharSequence> modifierList;
+    private ArrayAdapter<CharSequence> modifierTypeAdapter;
+    private HashMap<IGeoMilSymbol.Modifier, String> modifierMap = new HashMap<>();
+
 
     public static final String sDropDownFirstOption = " ";
     public static final String sDropDownBackOption = "back";
@@ -158,6 +170,10 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
         }
     }
 
+    public HashMap<IGeoMilSymbol.Modifier, String> getModifiers() {
+        return this.modifierMap;
+    }
+
     public String getFeatureName() {
         return this.sFeatureName;
     }
@@ -259,6 +275,24 @@ public class TacticalGraphicPropertiesDialog extends Emp3TesterDialogBase implem
     public void onViewCreated(View view, final Bundle savedInstanceState) {
 
         super.onViewCreated(view, savedInstanceState);
+
+        // Modifier stuff
+        modifierMap.clear();
+        modifierSpinner = (Spinner) view.findViewById(R.id.modifier_type);
+        modifierValue = (EditText) view.findViewById(R.id.modifier_value);
+
+        modifierList = new ArrayList<>();
+        for(IGeoMilSymbol.Modifier modifier : IGeoMilSymbol.Modifier.values()) {
+            modifierList.add(modifier.toString());
+        }
+        modifierTypeAdapter = new ArrayAdapter<CharSequence>(this.getContext(), android.R.layout.simple_spinner_item, modifierList);
+        modifierSpinner.setAdapter(modifierTypeAdapter);
+        // Modifier Button
+        Button addModifierButton = (Button) view.findViewById(R.id.add_modifier_button);
+        addModifierButton.setOnClickListener(v -> {
+            modifierMap.put(IGeoMilSymbol.Modifier.valueOf(((String)modifierSpinner.getSelectedItem())), modifierValue.getText().toString());
+            Toast.makeText(this.getContext(), "Added modifier", Toast.LENGTH_SHORT).show();
+        });
 
         final TextView oSymbolCode = (TextView) oDialogView.findViewById(R.id.symbolcodetextField);
         oSymbolCode.setText(this.sSymbolCode);

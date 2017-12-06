@@ -6,7 +6,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -117,9 +116,11 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
         for(FeatureTypeEnum typeEnum: FeatureTypeEnum.values()) {
             typeList.add(typeEnum.toString());
         }
+
         featureTypeAdapter = ArrayAdapter.createFromResource(this.getContext(), R.array.feature_types,
                 android.R.layout.simple_spinner_item);
         featureType.setAdapter(featureTypeAdapter);
+
 
         Button doneButton = (Button) view.findViewById(R.id.done);
         doneButton.setOnClickListener(v -> AddFeatureDialog.this.dismiss());
@@ -157,6 +158,7 @@ public class AddFeatureDialog extends Emp3TesterDialogBase {
                     parentList.add(featureName.getText().toString());
                     featureParentListAdapter.notifyDataSetChanged();
                 }
+
             }
         });
     }
