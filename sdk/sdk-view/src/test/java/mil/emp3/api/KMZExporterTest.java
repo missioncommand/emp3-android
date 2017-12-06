@@ -3,8 +3,6 @@ package mil.emp3.api;
 import android.os.Environment;
 import android.util.Xml;
 
-import com.google.common.io.Files;
-
 import org.cmapi.primitives.GeoPosition;
 import org.junit.After;
 import org.junit.Assert;
@@ -13,7 +11,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.robolectric.RobolectricTestRunner;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -31,7 +28,6 @@ import mil.emp3.api.utils.FileUtility;
 import mil.emp3.api.utils.kmz.EmpKMZExporter;
 
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
 /**

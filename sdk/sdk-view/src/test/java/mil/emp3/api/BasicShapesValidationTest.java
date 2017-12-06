@@ -48,7 +48,7 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
         circle.setRadius(.05);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void negativeCircleRadius() {
         Circle circle = new Circle(-10.0);
         Assert.assertEquals("Radius should be positive", 10.0, circle.getRadius(), .001);
