@@ -397,6 +397,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Rectangle feature     = addRectangle(overlay);
         final boolean[] resultFound = {false};
+        final boolean[] testPassed  = {true};
         final String[]  kmlReturn   = new String[1];
 
         EmpKMLExporter.exportToString(this.remoteMap,
@@ -409,6 +410,22 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             kmlReturn[0] = kmlString;
                                             resultFound[0] = true;
+
+
+                                            Assert.assertTrue(kmlReturn[0] != null);
+
+                                            try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
+                                            {
+                                                overlay.clearContainer();
+                                                final KML kmlFeature = new KML(stream);
+                                                overlay.addFeature(kmlFeature, true);
+                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
+                                                //KML does not support rectangles so they get represented by a polygon
+                                                final Polygon importedRectangle = (Polygon) kmlOnMap.getFeatureList().get(0);
+                                                ComparisonUtils.compareFeatureToPolygon(feature, importedRectangle);
+                                            } catch (Exception e) {
+                                                testPassed[0] = false;
+                                            }
                                         }
 
                                         @Override
@@ -426,18 +443,8 @@ public class KMLExportTest extends TestBaseSingleMap{
 
             }
         }
-
-        Assert.assertTrue(kmlReturn[0] != null);
-
-        try (final InputStream stream = new ByteArrayInputStream(kmlReturn[0].getBytes()))
-        {
-            overlay.clearContainer();
-            final KML kmlFeature = new KML(stream);
-            overlay.addFeature(kmlFeature, true);
-            final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-            //KML does not support rectangles so they get represented by a polygon
-            final Path importedRectangle = (Path) kmlOnMap.getFeatureList().get(0);
-            ComparisonUtils.compareFeatureToPath(feature, importedRectangle);
+        if (!testPassed[0]) {
+            throw new Exception ("Rectangle test failed");
         }
     }
 
