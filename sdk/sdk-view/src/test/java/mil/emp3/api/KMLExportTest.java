@@ -86,6 +86,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         assertTrue(testPassed[0]);
     }
 
@@ -124,6 +131,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 fail(Ex.getMessage());
                                             }
                                       });
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         assertTrue(testPassed[0]);
     }
 
@@ -163,6 +177,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         assertTrue(testPassed[0]);
     }
 
@@ -204,6 +225,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         assertTrue(testPassed[0]);
     }
 
@@ -214,9 +242,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                 Object obj = kmlFeature.getFeatureList().get(i);
                 if (obj instanceof Path) {
                     System.out.println(featureType + " is rendered as Path");
+                    System.out.println(feature.toString());
+                    System.out.println(obj.toString());
                     compareFeatureToPath(feature, (Path)obj);
                 } else if (obj instanceof Polygon) {
                     System.out.println(featureType + " is rendered as Polygon");
+                    System.out.println(feature.toString());
+                    System.out.println(obj.toString());
                     compareFeatureToPolygon(feature, (Polygon)obj);
                 } else {
                     System.out.println(featureType + " is rendered as " + obj.getClass().getSimpleName());
@@ -263,6 +295,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         Assert.assertTrue(testPassed[0]);
 
     }
@@ -302,6 +341,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         Assert.assertTrue(testPassed[0]);
     }
 
@@ -341,6 +387,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         Assert.assertTrue(testPassed[0]);
     }
 
@@ -380,6 +433,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
        assertTrue(testPassed[0]);
     }
 
@@ -422,6 +482,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         Assert.assertTrue(testPassed[0]);
     }
 
@@ -463,6 +530,13 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
+        while(!resultFound[0]) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+
+            }
+        }
         Assert.assertTrue(testPassed[0]);
     }
 
