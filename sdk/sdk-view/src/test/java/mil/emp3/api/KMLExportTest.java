@@ -64,11 +64,8 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-                                                final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
+                                                final Point importedPoint = (Point) kmlFeature.getFeatureList().get(0);
                                                 comparePoint(importedPoint, feature);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
@@ -114,11 +111,8 @@ public class KMLExportTest extends TestBaseSingleMap{
                                           {
                                               try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                               {
-                                                  overlay.clearContainer();
                                                   final KML kmlFeature = new KML(stream);
-                                                  overlay.addFeature(kmlFeature, true);
-                                                  final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-                                                  final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
+                                                  final Point importedPoint = (Point) kmlFeature.getFeatureList().get(0);
                                                   comparePoint(importedPoint, feature);
                                                   resultFound[0] = true;
                                               } catch (final Exception e){
@@ -162,11 +156,8 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-                                                final Point importedPoint = (Point) kmlOnMap.getFeatureList().get(0);
+                                                final Point importedPoint = (Point) kmlFeature.getFeatureList().get(0);
                                                 comparePoint(importedPoint, feature);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
@@ -212,11 +203,8 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
-                                                final Polygon importedPolygon = (Polygon) kmlOnMap.getFeatureList().get(0);
+                                                final Polygon importedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
                                                 comparePolygon(importedPolygon, feature);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
@@ -263,12 +251,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
                                                 //Circles do not exist in KML so they are represented by paths
-                                                final Path importedCircle = (Path) kmlOnMap.getFeatureList().get(0);
+                                                final Path importedCircle = (Path) kmlFeature.getFeatureList().get(0);
                                                 compareFeatureToPath(feature, importedCircle);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
@@ -317,12 +302,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
                                                 //Ellipse do not exist in KML so they are represented by paths
-                                                final Path importedEllipse = (Path) kmlOnMap.getFeatureList().get(0);
+                                                final Path importedEllipse = (Path) kmlFeature.getFeatureList().get(0);
                                                 compareFeatureToPath(feature, importedEllipse);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
@@ -368,13 +350,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
                                                 //Ellipse do not exist in KML so they are represented by paths
-                                                final Polygon importedEllipse = (Polygon) kmlOnMap.getFeatureList().get(0);
-                                                compareFeatureToPolygon(feature, importedEllipse);
+                                                final Polygon importedSquare = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareFeatureToPolygon(feature, importedSquare);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
                                                 testPassed[0] = false;
@@ -421,12 +400,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
                                                 //KML does not support rectangles so they get represented by a polygon
-                                                final Polygon importedRectangle = (Polygon) kmlOnMap.getFeatureList().get(0);
+                                                final Polygon importedRectangle = (Polygon) kmlFeature.getFeatureList().get(0);
                                                 ComparisonUtils.compareFeatureToPolygon(feature, importedRectangle);
                                                 resultFound[0] = true;
                                             } catch (Exception e) {
@@ -473,12 +449,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
                                                 //Ellipse do not exist in KML so they are represented by paths
-                                                final Point importedText = (Point) kmlOnMap.getFeatureList().get(0);
+                                                final Point importedText = (Point) kmlFeature.getFeatureList().get(0);
                                                 compareTextToPoint(feature, importedText);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
@@ -526,12 +499,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try (final InputStream stream = new ByteArrayInputStream(kmlString.getBytes()))
                                             {
-                                                overlay.clearContainer();
                                                 final KML kmlFeature = new KML(stream);
-                                                overlay.addFeature(kmlFeature, true);
-                                                final KML kmlOnMap = (KML) overlay.getFeatures().get(0);
                                                 //Ellipse do not exist in KML so they are represented by paths
-                                                final Path importedPath = (Path) kmlOnMap.getFeatureList().get(0);
+                                                final Path importedPath = (Path) kmlFeature.getFeatureList().get(0);
                                                 comparePath(feature, importedPath);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
