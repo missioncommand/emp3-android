@@ -122,8 +122,6 @@ public class KMLS extends MapService implements IKMLS {
         if(null == geoId) {
             throw new IllegalArgumentException("geoId must be non-null");
         }
-//        This call literally just throws an exception...
-//        setGeoId(geoId);
     }
 
     /**

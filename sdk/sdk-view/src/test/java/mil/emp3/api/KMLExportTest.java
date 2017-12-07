@@ -10,18 +10,15 @@ import org.cmapi.primitives.IGeoRenderable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.robolectric.util.Logger;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Random;
 
 import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
-import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
-import mil.emp3.api.utils.ComparisonUtils;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 
 import static mil.emp3.api.utils.ComparisonUtils.compareFeatureToPath;
@@ -79,10 +76,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
 
                                         @Override
-                                        public void exportFailed(Exception Ex)
+                                        public void exportFailed(Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
@@ -125,10 +122,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                           }
 
                                             @Override
-                                            public void exportFailed(Exception Ex)
+                                            public void exportFailed(Exception ex)
                                             {
                                                 resultFound[0] = true;
-                                                fail(Ex.getMessage());
+                                                fail(ex.getMessage());
                                             }
                                       });
         while(!resultFound[0]) {
@@ -170,10 +167,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
 
                                         @Override
-                                        public void exportFailed(Exception Ex)
+                                        public void exportFailed(Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
@@ -218,10 +215,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
 
                                         @Override
-                                        public void exportFailed(Exception Ex)
+                                        public void exportFailed(Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
@@ -241,17 +238,17 @@ public class KMLExportTest extends TestBaseSingleMap{
             for (int i = 0; i < kmlFeature.getFeatureList().size(); i++) {
                 Object obj = kmlFeature.getFeatureList().get(i);
                 if (obj instanceof Path) {
-                    System.out.println(featureType + " is rendered as Path");
-                    System.out.println(feature.toString());
-                    System.out.println(obj.toString());
+                    Logger.info(featureType + " is rendered as Path");
+                    Logger.info(feature.toString());
+                    Logger.info(obj.toString());
                     compareFeatureToPath(feature, (Path)obj);
                 } else if (obj instanceof Polygon) {
-                    System.out.println(featureType + " is rendered as Polygon");
-                    System.out.println(feature.toString());
-                    System.out.println(obj.toString());
+                    Logger.info(featureType + " is rendered as Polygon");
+                    Logger.info(feature.toString());
+                    Logger.info(obj.toString());
                     compareFeatureToPolygon(feature, (Polygon)obj);
                 } else {
-                    System.out.println(featureType + " is rendered as " + obj.getClass().getSimpleName());
+                   Logger.error(featureType + " is rendered as " + obj.getClass().getSimpleName());
                 }
             }
 
@@ -288,10 +285,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
 
                                         @Override
-                                        public void exportFailed(final Exception Ex)
+                                        public void exportFailed(final Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
@@ -334,10 +331,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                             }
                                         }
                                         @Override
-                                        public void exportFailed(Exception Ex)
+                                        public void exportFailed(Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
@@ -380,10 +377,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
 
                                         @Override
-                                        public void exportFailed(Exception Ex)
+                                        public void exportFailed(Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
@@ -426,10 +423,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
 
                                         @Override
-                                        public void exportFailed(Exception Ex)
+                                        public void exportFailed(Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
@@ -475,10 +472,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
 
                                         @Override
-                                        public void exportFailed(Exception Ex)
+                                        public void exportFailed(Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
@@ -523,10 +520,10 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
 
                                         @Override
-                                        public void exportFailed(Exception Ex)
+                                        public void exportFailed(Exception ex)
                                         {
                                             resultFound[0] = true;
-                                            fail(Ex.getMessage());
+                                            fail(ex.getMessage());
                                         }
                                       });
 
