@@ -215,7 +215,7 @@ public class Container implements IContainer{
 
     @Override
     public boolean containsProperty(String propertyName) {
-        return (this.getProperties().containsKey(propertyName.toUpperCase()));
+        return (this.getProperties().containsKey(propertyName));
     }
 
     @Override
@@ -224,18 +224,18 @@ public class Container implements IContainer{
             return null;
         }
 
-        return this.getProperties().get(propertyName.toUpperCase());
+        return this.getProperties().get(propertyName);
     }
 
     @Override
     public void setProperty(String propertyName, String propertyValue) {
-        this.getProperties().put(propertyName.toUpperCase(), propertyValue);
+        this.getProperties().put(propertyName, propertyValue);
     }
 
     @Override
     public void removeProperty(String propertyName) {
-        if (this.containsProperty(propertyName.toUpperCase())) {
-            this.getProperties().remove(propertyName.toUpperCase());
+        if (this.containsProperty(propertyName)) {
+            this.getProperties().remove(propertyName);
         }
     }
 

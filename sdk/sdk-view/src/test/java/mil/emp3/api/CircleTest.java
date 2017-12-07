@@ -13,7 +13,7 @@ import java.util.HashMap;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.utils.EmpBoundingBox;
 
-import static mil.emp3.api.utils.ComparisonUtils.Epsilon;
+import static mil.emp3.api.utils.ComparisonUtils.EPSILON8;
 import static mil.emp3.api.utils.ComparisonUtils.validateBoundingBox;
 import static mil.emp3.api.utils.ComparisonUtils.validateCircle;
 import static org.junit.Assert.assertEquals;
@@ -186,7 +186,7 @@ public class CircleTest extends TestBase {
     public void setRadius() {
         circ = new Circle();
         circ.setRadius(10.0);
-        assertEquals(circ.getRadius(), 10.0, Epsilon);
+        assertEquals(circ.getRadius(), 10.0, EPSILON8);
     }
 
     @Test

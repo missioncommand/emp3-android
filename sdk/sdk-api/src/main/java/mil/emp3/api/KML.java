@@ -59,7 +59,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
         } else {
             // Else it MUST have a URI.
             final String kmlURL =  this.geoDocument.getDocumentURI();
-            java.net.URL url = new java.net.URL(kmlURL);
+            final java.net.URL url = new java.net.URL(kmlURL);
 
             final InputStream inputStream = url.openStream();
             empKMLParser = new EmpKMLParser(inputStream);
@@ -251,7 +251,7 @@ public class KML extends Feature<IGeoRenderable> implements IKML {
 
     @Override
     public boolean containsProperty(final String propertyName) {
-        return (this.getProperties().containsKey(propertyName.toUpperCase()));
+        return (this.getProperties().containsKey(propertyName));
     }
 
     public IGeoDocument getGeoDocument() {

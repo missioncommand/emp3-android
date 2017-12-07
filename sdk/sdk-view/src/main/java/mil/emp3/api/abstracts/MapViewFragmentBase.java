@@ -343,8 +343,8 @@ public class MapViewFragmentBase extends /*Mirrored*/Map {
             About.getVersionInformation(this);
         } catch (NoSuchMethodException |
                 ClassNotFoundException |
-                java.lang.InstantiationException |
                 IllegalAccessException |
+                java.lang.InstantiationException |
                 InvocationTargetException e) {
             Log.e(TAG, "buildView failed: " + e.getMessage(), e);
         }

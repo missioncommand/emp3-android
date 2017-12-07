@@ -50,7 +50,7 @@ public class PointTest extends TestBase {
     @Test
     public void defaultConstructor() {
         p1 = new Point();
-        GeoPoint p2 = new GeoPoint();
+        final GeoPoint p2 = new GeoPoint();
         p2.setTimeStamp(p1.getTimeStamp());
         validatePoint(p1,
                       1.0,
