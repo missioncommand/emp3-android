@@ -86,13 +86,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
         assertTrue(testPassed[0]);
     }
 
@@ -131,13 +124,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 fail(Ex.getMessage());
                                             }
                                       });
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
         assertTrue(testPassed[0]);
     }
 
@@ -176,13 +162,7 @@ public class KMLExportTest extends TestBaseSingleMap{
                                             fail(Ex.getMessage());
                                         }
                                       });
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
 
-            }
-        }
         assertTrue(testPassed[0]);
     }
 
@@ -224,13 +204,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
         assertTrue(testPassed[0]);
     }
 
@@ -290,13 +263,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
         Assert.assertTrue(testPassed[0]);
 
     }
@@ -336,13 +302,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
         Assert.assertTrue(testPassed[0]);
     }
 
@@ -381,14 +340,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                             fail(Ex.getMessage());
                                         }
                                       });
-
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
 
         Assert.assertTrue(testPassed[0]);
     }
@@ -429,13 +380,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
        assertTrue(testPassed[0]);
     }
 
@@ -478,14 +422,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
-
         Assert.assertTrue(testPassed[0]);
     }
 
@@ -526,14 +462,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                             fail(Ex.getMessage());
                                         }
                                       });
-
-        while(!resultFound[0]) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ie) {
-
-            }
-        }
 
         Assert.assertTrue(testPassed[0]);
     }
