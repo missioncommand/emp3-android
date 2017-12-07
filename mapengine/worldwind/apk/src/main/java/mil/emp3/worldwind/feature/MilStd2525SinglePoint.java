@@ -42,7 +42,7 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.placemark = new EMPPlacemark(this, position);
         this.sSymbolCode = symbol.getSymbolCode();
         this.oRenderer = iconRenderer;
-        this.setSymbolAttributes();
+        this.oAttributes = symbol.getAttributes();
         this.setSymbolModifiers();
         placemark.setPickDelegate(symbol);
         switch (symbol.getAltitudeMode()) {
@@ -70,9 +70,6 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.oModifiers = this.oRenderer.getUnitModifiers(this.getMapInstance(), this.getFeature());
     }
 
-    private void setSymbolAttributes() {
-        this.oAttributes = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), this.isSelected());
-    }
 
     public SparseArray getSymbolModifiers() {
         return this.oModifiers;
@@ -156,7 +153,6 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
     @Override
     public void setSelected(boolean selected) {
         super.setSelected(selected);
-        setSymbolAttributes();
         setSymbolModifiers();
     }
 }

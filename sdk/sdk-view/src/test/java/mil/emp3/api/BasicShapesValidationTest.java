@@ -48,7 +48,7 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
         circle.setRadius(.05);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void negativeCircleRadius() {
         Circle circle = new Circle(-10.0);
         Assert.assertEquals("Radius should be positive", 10.0, circle.getRadius(), .001);
@@ -98,14 +98,17 @@ public class BasicShapesValidationTest extends TestBaseSingleMap {
         ellipse.setSemiMinor(.05);
     }
 
-    @Test
-    public void negativeMajorMinorRadius() {
-        Ellipse ellipse = new Ellipse(-100.0, -200.0);
-        Assert.assertEquals("Major Radius should be positive", 100.0, ellipse.getSemiMajor(), .001);
-        Assert.assertEquals("Minor Radius should be positive", 200.0, ellipse.getSemiMinor(), .001);
+    @Test(expected=IllegalArgumentException.class)
+    public void negativeMajorRadius() {
+        Ellipse ellipse = new Ellipse(100.0, 200.0);
 
         ellipse.setSemiMajor(-400.0);
         Assert.assertEquals("Major Radius should be positive", 400.0, ellipse.getSemiMajor(), .001);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void negativeMinorRadius() {
+        Ellipse ellipse = new Ellipse(100.0, 200.0);
 
         ellipse.setSemiMinor(-300.0);
         Assert.assertEquals("Minor Radius should be positive", 300.0, ellipse.getSemiMinor(), .001);

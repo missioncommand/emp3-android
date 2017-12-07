@@ -8,7 +8,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
@@ -24,6 +26,7 @@ import mil.emp3.api.enums.VisibilityStateEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IMap;
+import mil.emp3.api.utils.ColorUtils;
 import mil.emp3.api.utils.EmpGeoPosition;
 import mil.emp3.test.emp3vv.R;
 import mil.emp3.test.emp3vv.dialogs.utils.ErrorDialog;
@@ -36,6 +39,7 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
     private EditText latitude;
     private EditText longitude;
     private EditText altitude;
+    private EditText colorField;
 
     public UpdateFeatureDialog() {
         super();
@@ -104,12 +108,17 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
 
     @Override
     protected void setupOptional(View view) {
-
+        // Color field only needs to appear for MilStdSymbols.
+        if(this.me instanceof MilStdSymbol) {
+            view.findViewById(R.id.update_color_section).setVisibility(View.VISIBLE);
+        }
         view.findViewById(R.id.position_layout).setVisibility(View.VISIBLE);
         Button positionButton = (Button) view.findViewById(R.id.update_position);
+
         latitude = (EditText) view.findViewById(R.id.latitude);
         longitude = (EditText) view.findViewById(R.id.longitude);
         altitude = (EditText) view.findViewById(R.id.altitude);
+        colorField = (EditText) view.findViewById(R.id.update_color_code_input);
 
         // Shows only the first position, dialog launched here will show a list of all positions that can be updated
         final IFeature feature = (IFeature) me;
@@ -197,6 +206,18 @@ public class UpdateFeatureDialog extends UpdateContainerDialog implements Positi
         } else {
             view.findViewById(R.id.buffer_layout).setVisibility(View.GONE);
         }
+
+        // Setting on click listener here as opposed to using android:onClick
+        // so ContainerDialog doesn't have to worry about implementation.
+        view.findViewById(R.id.update_color_code).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                final IGeoColor newColor = ColorUtils.stringToColor(colorField.getText().toString());
+                MilStdSymbol featureAsSymbol = (MilStdSymbol) feature;
+                featureAsSymbol.setIconColor(newColor);
+            }
+        });
+
+
     }
 
     @Override

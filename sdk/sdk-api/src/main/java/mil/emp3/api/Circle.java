@@ -1,7 +1,5 @@
 package mil.emp3.api;
 
-import mil.emp3.api.abstracts.Feature;
-
 import org.cmapi.primitives.GeoCircle;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.IGeoCircle;
@@ -9,10 +7,12 @@ import org.cmapi.primitives.IGeoPosition;
 
 import java.util.List;
 
+import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.utils.EmpBoundingBox;
-import mil.emp3.api.utils.GeographicLib;
+
+import static mil.emp3.api.utils.GeographicLib.computePositionAt;
 
 /**
  * This class implements a Circle feature. It requires a radius and a single coordinate that indicates the
@@ -33,15 +33,10 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
      * This constructor creates a circle with the indicated radius.
      * @param radius The required radius in meters. If the radius is < 0 the absolute value is used. If the value is < 1.0, the default radius is used.
      */
-    public Circle(double radius) {
+    public Circle(final double radius) {
         super(new GeoCircle(), FeatureTypeEnum.GEO_CIRCLE);
-        radius = makePositive(radius, "Invalid radius. NaN");
 
-        if (radius >= MINIMUM_RADIUS) {
-            this.getRenderable().setRadius(radius);
-        } else {
-            throw new IllegalArgumentException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
-        }
+        this.setRadius(radius);
         this.setFillStyle(null);
     }
 
@@ -55,11 +50,8 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
         if(null == renderable) {
             throw new IllegalArgumentException("Encapsulated GeoCircle must be non-null");
         }
-        this.setRadius(makePositive(this.getRadius(), "Invalid radius. NaN"));
-
-        if (this.getRadius() < MINIMUM_RADIUS) {
-            throw new IllegalArgumentException("Invalid radius. " + this.getRadius() + " Minimum supported " + MINIMUM_RADIUS);
-        }
+        //setting renderable bypasses radius validation
+        this.setRadius(this.getRadius());
     }
 
     /**
@@ -68,11 +60,7 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
      */
     @Override
     public void setRadius(double radius) {
-        radius = makePositive(radius, "Invalid radius. NaN");
-
-        if (radius < MINIMUM_RADIUS) {
-            throw new IllegalArgumentException("Invalid radius. " + radius + " Minimum supported " + MINIMUM_RADIUS);
-        }
+        validateWithinRange(radius, MINIMUM_RADIUS, Double.POSITIVE_INFINITY);
         this.getRenderable().setRadius(radius);
     }
 
@@ -97,16 +85,16 @@ public class Circle extends Feature<IGeoCircle> implements IGeoCircle {
                 IGeoPosition pos = new GeoPosition();
 
                 // Compute north.
-                GeographicLib.computePositionAt(0.0, dist, posList.get(0), pos);
+                computePositionAt(0.0, dist, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                 // Compute east.
-                GeographicLib.computePositionAt(90.0, dist, posList.get(0), pos);
+                computePositionAt(90.0, dist, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                 // Compute south.
-                GeographicLib.computePositionAt(180.0, dist, posList.get(0), pos);
+                computePositionAt(180.0, dist, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
                 // Compute west.
-                GeographicLib.computePositionAt(270.0, dist, posList.get(0), pos);
+                computePositionAt(270.0, dist, posList.get(0), pos);
                 bBox.includePosition(pos.getLatitude(), pos.getLongitude());
 
                 // Now we need to extend the box by ~ 10%.
