@@ -12,7 +12,7 @@ import java.util.HashMap;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.utils.EmpBoundingBox;
 
-import static mil.emp3.api.utils.ComparisonUtils.Epsilon;
+import static mil.emp3.api.utils.ComparisonUtils.EPSILON8;
 import static mil.emp3.api.utils.ComparisonUtils.validateBoundingBox;
 import static mil.emp3.api.utils.ComparisonUtils.validateEllipse;
 import static org.junit.Assert.assertEquals;
@@ -379,7 +379,7 @@ public class EllipseTest extends TestBase {
     public void setSemiMajor() {
         el = new Ellipse();
         el.setSemiMajor(10.0);
-        assertEquals(el.getSemiMajor(), 10.0, Epsilon);
+        assertEquals(el.getSemiMajor(), 10.0, EPSILON8);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -410,7 +410,7 @@ public class EllipseTest extends TestBase {
     public void setSemiMinor() {
         el = new Ellipse();
         el.setSemiMinor(10.0);
-        assertEquals(el.getSemiMinor(), 10.0, Epsilon);
+        assertEquals(el.getSemiMinor(), 10.0, EPSILON8);
     }
 
     @Test

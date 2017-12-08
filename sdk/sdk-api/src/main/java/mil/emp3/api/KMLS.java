@@ -83,7 +83,7 @@ import mil.emp3.api.listeners.IKMLSEventListener;
  * </pre>
  */
 public class KMLS extends MapService implements IKMLS {
-    private Map<UUID, KMLSStatusEnum> KMLSStatusMap = new HashMap<>();
+    final private Map<UUID, KMLSStatusEnum> KMLSStatusMap = new HashMap<>();
     private final Context context;
     private final IKMLSEventListener listener;
     private IKML feature; // We need to store the feature in this class because MapEngine API needs it to inert in the Layer.
@@ -96,7 +96,7 @@ public class KMLS extends MapService implements IKMLS {
      * @throws MalformedURLException
      * @throws IllegalArgumentException
      */
-    public KMLS(Context context, String serviceURL, IKMLSEventListener listener) throws MalformedURLException {
+    public KMLS(final Context context, final String serviceURL, final IKMLSEventListener listener) throws MalformedURLException {
         super(serviceURL);
         if(null == context) {
             throw new IllegalArgumentException("context must be specified");
@@ -117,12 +117,11 @@ public class KMLS extends MapService implements IKMLS {
      * @throws MalformedURLException
      * @throws IllegalArgumentException
      */
-    public KMLS(Context context, String serviceURL, IKMLSEventListener listener, UUID geoId) throws MalformedURLException {
+    public KMLS(final Context context, final String serviceURL, final IKMLSEventListener listener, final UUID geoId) throws MalformedURLException {
         this(context, serviceURL, listener);
         if(null == geoId) {
             throw new IllegalArgumentException("geoId must be non-null");
         }
-        setGeoId(geoId);
     }
 
     /**
@@ -132,11 +131,11 @@ public class KMLS extends MapService implements IKMLS {
      * @throws EMP_Exception
      */
     @Override
-    public KMLSStatusEnum getStatus(IMap mapClient) throws EMP_Exception {
+    public KMLSStatusEnum getStatus(final IMap mapClient) throws EMP_Exception {
         if(null == mapClient) {
             throw new IllegalArgumentException("mapClient must be non-null");
         }
-        KMLSStatusEnum status = KMLSStatusMap.get(mapClient.getGeoId());
+        final KMLSStatusEnum status = KMLSStatusMap.get(mapClient.getGeoId());
         if(null == status) {
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_MAP, "Service wasn't added to the map");
         }
@@ -147,7 +146,7 @@ public class KMLS extends MapService implements IKMLS {
      * Used by EMP Core components to set the current status of the service for a specific mapClient. Client Applications
      * should not use this method.
      */
-    public void setStatus(IMap mapClient, KMLSStatusEnum status) {
+    public void setStatus(final IMap mapClient, final KMLSStatusEnum status) {
         KMLSStatusMap.put(mapClient.getGeoId(), status);
     }
 
@@ -177,12 +176,12 @@ public class KMLS extends MapService implements IKMLS {
         return str;
     }
 
-    public void setGeoId(java.util.UUID geoId){
+    public void setGeoId(final java.util.UUID geoId){
         throw new IllegalStateException("GeoId can't be changed after construction");
     }
 
     @Override
-    public void setFeature(IKML feature) {
+    public void setFeature(final IKML feature) {
         this.feature = feature;
     }
 

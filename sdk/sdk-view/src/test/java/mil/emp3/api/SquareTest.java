@@ -15,7 +15,7 @@ import java.util.HashMap;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.utils.EmpBoundingBox;
 
-import static mil.emp3.api.utils.ComparisonUtils.Epsilon;
+import static mil.emp3.api.utils.ComparisonUtils.EPSILON8;
 import static mil.emp3.api.utils.ComparisonUtils.validateBoundingBox;
 import static mil.emp3.api.utils.ComparisonUtils.validateSquare;
 import static org.junit.Assert.assertEquals;
@@ -229,7 +229,7 @@ public class SquareTest extends TestBase {
     public void widthTest() {
         square1 = new Square();
         square1.setWidth(10);
-        assertEquals(square1.getWidth(), 10, Epsilon);
+        assertEquals(square1.getWidth(), 10, EPSILON8);
     }
 
     @Test

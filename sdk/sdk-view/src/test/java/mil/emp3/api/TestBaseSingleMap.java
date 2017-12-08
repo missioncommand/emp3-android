@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import org.junit.Ignore;
-import org.mockito.Mock;
 
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -21,7 +20,7 @@ import mil.emp3.api.mock.MockMapInstance;
 public class TestBaseSingleMap extends TestBase {
     private static String TAG;
 
-    private Context context;
+    Context context;
     private Resources res;
 
     protected RemoteMap remoteMap;

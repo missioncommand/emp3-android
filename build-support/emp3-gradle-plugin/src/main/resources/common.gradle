@@ -19,7 +19,7 @@ ext {
     cmapi_group_name           = "common-map-api.cmapi"
     cmapi_jvm_artifact_name    = "cmapi-kotlin-jvm"
 
-    version_renderer           = "0.1.35"
+    version_renderer           = "0.1.36"
     version_mirrorcache        = "0.1.0"
 
     android_minSdkVersion     = 19

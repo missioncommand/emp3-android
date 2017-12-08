@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 import mil.emp3.api.enums.FeatureTypeEnum;
 
-import static mil.emp3.api.utils.ComparisonUtils.Epsilon;
+import static mil.emp3.api.utils.ComparisonUtils.EPSILON8;
 import static mil.emp3.api.utils.ComparisonUtils.validateText;
 import static org.junit.Assert.assertEquals;
 
@@ -145,7 +145,7 @@ public class TextTest extends TestBase{
         final double testAngle = 50.6;
         text1 = new Text();
         text1.setRotationAngle(testAngle);
-        assertEquals(text1.getRotationAngle(), testAngle, Epsilon);
+        assertEquals(text1.getRotationAngle(), testAngle, EPSILON8);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class TextTest extends TestBase{
         final double testAngle = -45.5;
         text1 = new Text();
         text1.setRotationAngle(testAngle);
-        assertEquals(text1.getRotationAngle(), testAngle, Epsilon);
+        assertEquals(text1.getRotationAngle(), testAngle, EPSILON8);
     }
 
     @Test

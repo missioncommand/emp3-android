@@ -23,6 +23,7 @@ dependencies {
     implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")
     implementation         ("mil.army.missioncommand:mirrorcache-api")
     compileOnly            (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'jar') { transitive = true }
+    compileOnly            (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', ext: 'aar') { transitive = true }
     compileOnly files      ("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
 }
 
