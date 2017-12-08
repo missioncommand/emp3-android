@@ -220,10 +220,6 @@ public class Container implements IContainer{
 
     @Override
     public String getProperty(String propertyName) {
-        if (!this.containsProperty(propertyName)) {
-            return null;
-        }
-
         return this.getProperties().get(propertyName);
     }
 
@@ -246,7 +242,7 @@ public class Container implements IContainer{
         String strValue = this.getProperty(propertyName);
 
         if ((null == strValue) || strValue.isEmpty() || !(strValue.equalsIgnoreCase("true") || strValue.equalsIgnoreCase("false"))) {
-            throw new IllegalArgumentException("Property value is not a boolean.");
+            throw new IllegalArgumentException("Property is not a boolean.");
         }
 
         return Boolean.parseBoolean(strValue);
@@ -254,8 +250,6 @@ public class Container implements IContainer{
 
     @Override
     public int getIntegerProperty(String propertyName) {
-        int retValue;
-
         if (!this.containsProperty(propertyName)) {
             throw new IllegalArgumentException("Property does not exist.");
         }
@@ -263,22 +257,14 @@ public class Container implements IContainer{
         String strValue = this.getProperty(propertyName);
 
         if ((null == strValue) || strValue.isEmpty()) {
-            throw new IllegalArgumentException("Property value is not an integer.");
+            throw new IllegalArgumentException("Property is null or empty.");
         }
-
-        try {
-            retValue = Integer.parseInt(strValue);
-        } catch (NumberFormatException Ex) {
-            throw new IllegalArgumentException("Property value is not an integer.");
-        }
-
-        return retValue;
+        // this will throw NumberFormatException if string is invalid
+        return Integer.parseInt(strValue);
     }
 
     @Override
     public float getFloatProperty(String propertyName) {
-        float retValue;
-
         if (!this.containsProperty(propertyName)) {
             throw new IllegalArgumentException("Property does not exist.");
         }
@@ -286,22 +272,14 @@ public class Container implements IContainer{
         String strValue = this.getProperty(propertyName);
 
         if ((null == strValue) || strValue.isEmpty()) {
-            throw new IllegalArgumentException("Property value is not a float.");
+            throw new IllegalArgumentException("Property is null or empty.");
         }
-
-        try {
-            retValue = Float.parseFloat(strValue);
-        } catch (NumberFormatException Ex) {
-            throw new IllegalArgumentException("Property value is not an float.");
-        }
-
-        return retValue;
+        // this will throw NumberFormatException if string is invalid
+        return Float.parseFloat(strValue);
     }
 
     @Override
     public double getDoubleProperty(String propertyName) {
-        double retValue;
-
         if (!this.containsProperty(propertyName)) {
             throw new IllegalArgumentException("Property does not exist.");
         }
@@ -309,15 +287,9 @@ public class Container implements IContainer{
         String strValue = this.getProperty(propertyName);
 
         if ((null == strValue) || strValue.isEmpty()) {
-            throw new IllegalArgumentException("Property value is not a double.");
+            throw new IllegalArgumentException("Property is null or empty.");
         }
-
-        try {
-            retValue = Double.parseDouble(strValue);
-        } catch (NumberFormatException Ex) {
-            throw new IllegalArgumentException("Property value is not an double.");
-        }
-
-        return retValue;
+        // this will throw NumberFormatException if string is invalid
+        return Double.parseDouble(strValue);
     }
 }
