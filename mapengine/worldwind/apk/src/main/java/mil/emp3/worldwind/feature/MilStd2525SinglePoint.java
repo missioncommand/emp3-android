@@ -3,6 +3,7 @@ package mil.emp3.worldwind.feature;
 import android.util.Log;
 import android.util.SparseArray;
 
+import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoPosition;
 
 import gov.nasa.worldwind.WorldWind;
@@ -154,5 +155,45 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
     public void setSelected(boolean selected) {
         super.setSelected(selected);
         setSymbolModifiers();
+    }
+
+    /**
+     * Sets icon color of underlying symbol and causes a re-render.
+     * @param iconColor {@link IGeoColor} color to render icon in.
+     */
+    public void setIconColor(final IGeoColor iconColor) {
+        this.oFeature.setIconColor(iconColor);
+        this.setDirty(true);
+    }
+
+    /**
+     * Sets fill color of the underlying symbol and causes a re-render.
+     * @param fillColor {@link IGeoColor} color to render fill in.
+     */
+    public void setFillColor(final IGeoColor fillColor) {
+        this.oFeature.setFillColor(fillColor);
+        this.setDirty(true);
+    }
+
+    /**
+     * Sets the line color of the underlying symbol and causes a re-render.
+     * @param lineColor {@link IGeoColor} color to render line in.
+     */
+    public void setLineColor(final IGeoColor lineColor) {
+        this.oFeature.setLineColor(lineColor);
+        this.setDirty(true);
+    }
+
+    /**
+     * Convenience method to color fill, line and icon in one call.
+     * @param fillColor - Color of the fill.
+     * @param lineColor - Color of the line.
+     * @param iconColor - Color of the icon.
+     */
+    public void styleSymbol(final IGeoColor fillColor, final IGeoColor lineColor, final IGeoColor iconColor) {
+        this.setFillColor(fillColor);
+        this.setLineColor(lineColor);
+        this.setIconColor(iconColor);
+        this.setDirty(true);
     }
 }
