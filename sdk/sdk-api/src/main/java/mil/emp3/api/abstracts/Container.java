@@ -234,15 +234,13 @@ public class Container implements IContainer{
 
     @Override
     public void removeProperty(String propertyName) {
-        if (this.containsProperty(propertyName)) {
-            this.getProperties().remove(propertyName);
-        }
+        this.getProperties().remove(propertyName);
     }
 
     @Override
     public boolean getBooleanProperty(String propertyName) {
         if (!this.containsProperty(propertyName)) {
-            throw new IllegalArgumentException("Property does not exists.");
+            throw new IllegalArgumentException("Property does not exist.");
         }
 
         String strValue = this.getProperty(propertyName);
@@ -259,7 +257,7 @@ public class Container implements IContainer{
         int retValue;
 
         if (!this.containsProperty(propertyName)) {
-            throw new IllegalArgumentException("Property does not exists.");
+            throw new IllegalArgumentException("Property does not exist.");
         }
 
         String strValue = this.getProperty(propertyName);
@@ -282,7 +280,7 @@ public class Container implements IContainer{
         float retValue;
 
         if (!this.containsProperty(propertyName)) {
-            throw new IllegalArgumentException("Property does not exists.");
+            throw new IllegalArgumentException("Property does not exist.");
         }
 
         String strValue = this.getProperty(propertyName);
@@ -305,7 +303,7 @@ public class Container implements IContainer{
         double retValue;
 
         if (!this.containsProperty(propertyName)) {
-            throw new IllegalArgumentException("Property does not exists.");
+            throw new IllegalArgumentException("Property does not exist.");
         }
 
         String strValue = this.getProperty(propertyName);
