@@ -4,6 +4,7 @@ import android.util.SparseArray;
 
 import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.GeoFillStyle;
+import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
@@ -1669,6 +1670,14 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
     }
 
+    public void setTextColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.TextColor, ColorUtils.colorToString(color));
+    }
+
+    public void setTextBackgroundColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToString(color));
+    }
+
 
     /**
      * Convenience method to color fill, line and icon in one call.
@@ -1691,11 +1700,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     }
 
     private void initializeDefaultAttributes() {
-        // TODO - The addition of attributes in the symbol causes an empty sparse array.
-        // TODO - Previously we had passed null as the attribute array which caused the renderer to use preset defaults
-        // TODO - when rendering. We can no longer do that as we need to use the array. Find these defaults and set them,
-        // TODO - The below are only guesses. I have had difficulty finding the actual defaults.
-        this.attributes.put(MilStdAttributes.Scale, Integer.toString(DEFAULT_SCALE));
-        this.attributes.put(MilStdAttributes.PixelSize, Integer.toString(DEFAULT_PIXEL_SIZE));
+        // Initializes default text color to black and white.
+        final IGeoColor black = new EmpGeoColor(0, 0, 0);
+        final IGeoColor white = new EmpGeoColor(255, 255, 255);
+        this.setTextBackgroundColor(white);
+        this.setTextColor(black);
     }
 }
