@@ -45,7 +45,7 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.oRenderer = iconRenderer;
         this.setSymbolAttributes();
         this.setSymbolModifiers();
-        this.initializeDefaultAttributes(symbol);
+        initializeDefaultAttributes(symbol);
         placemark.setPickDelegate(symbol);
         switch (symbol.getAltitudeMode()) {
             case RELATIVE_TO_GROUND:
@@ -77,7 +77,8 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.getSymbol().setSymbolAttributes(this.oAttributes);
     }
 
-    private void initializeDefaultAttributes(MilStdSymbol symbol) {
+    // Takes a symbol and initializes default color values for labels.
+    private static void initializeDefaultAttributes(MilStdSymbol symbol) {
         // Initializes default text color to black and white.
         final IGeoColor black = new EmpGeoColor(0, 0, 0);
         final IGeoColor white = new EmpGeoColor(255, 255, 255);
