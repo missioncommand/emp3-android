@@ -594,7 +594,6 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
-//        this.initializeDefaultAttributes();
     }
 
     /**
@@ -1695,12 +1694,4 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return this.attributes;
     }
 
-//    private void initializeDefaultAttributes() {
-//        // TODO - The addition of attributes in the symbol causes an empty sparse array.
-//        // TODO - Previously we had passed null as the attribute array which caused the renderer to use preset defaults
-//        // TODO - when rendering. We can no longer do that as we need to use the array. Find these defaults and set them,
-//        // TODO - The below are only guesses. I have had difficulty finding the actual defaults.
-//        this.attributes.put(MilStdAttributes.Scale, Integer.toString(DEFAULT_SCALE));
-//        this.attributes.put(MilStdAttributes.PixelSize, Integer.toString(DEFAULT_PIXEL_SIZE));
-//    }
 }
