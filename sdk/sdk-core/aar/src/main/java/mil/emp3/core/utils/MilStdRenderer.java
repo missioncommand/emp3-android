@@ -400,6 +400,10 @@ public class MilStdRenderer implements IMilStdRenderer {
         // All modifier text are the same color.
         armyc2.c2sd.renderer.utilities.Color renderTextColor = renderSymbol.getTextColor();
         IGeoColor textColor = new EmpGeoColor(renderTextColor.getAlpha(), renderTextColor.getRed(), renderTextColor.getGreen(), renderTextColor.getBlue());
+        armyc2.c2sd.renderer.utilities.Color renderTextBackgroundColor = renderSymbol.getTextBackgroundColor();
+        IGeoColor textBackgroundColor = new EmpGeoColor(renderTextBackgroundColor.getAlpha(),
+                renderTextBackgroundColor.getRed(), renderTextBackgroundColor.getGreen(),
+                renderTextBackgroundColor.getBlue());
 
         // Process the list of shapes.
         for(ShapeInfo shapeInfo: modifierShapeInfoList) {
@@ -425,9 +429,11 @@ public class MilStdRenderer implements IMilStdRenderer {
                     currentTextStyle = new GeoLabelStyle();
                     if ((null == symbolTextStyle) || (null == symbolTextStyle.getColor())) {
                         currentTextStyle.setColor(textColor);
+                        currentTextStyle.setOutlineColor(textBackgroundColor);
                         currentTextStyle.setSize(FontUtilities.DEFAULT_FONT_POINT_SIZE);
                     } else {
                         currentTextStyle.setColor(symbolTextStyle.getColor());
+                        currentTextStyle.setOutlineColor(symbolTextStyle.getOutlineColor());
                         currentTextStyle.setSize(symbolTextStyle.getSize());
                     }
                     if (selected) {

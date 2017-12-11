@@ -3,7 +3,9 @@ package mil.emp3.worldwind.feature;
 import android.util.Log;
 import android.util.SparseArray;
 
+import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.IGeoColor;
+import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 
 import gov.nasa.worldwind.WorldWind;
@@ -43,9 +45,9 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.placemark = new EMPPlacemark(this, position);
         this.sSymbolCode = symbol.getSymbolCode();
         this.oRenderer = iconRenderer;
+        initializeDefaultAttributes(symbol);
         this.setSymbolAttributes();
         this.setSymbolModifiers();
-        initializeDefaultAttributes(symbol);
         placemark.setPickDelegate(symbol);
         switch (symbol.getAltitudeMode()) {
             case RELATIVE_TO_GROUND:
@@ -82,8 +84,10 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         // Initializes default text color to black and white.
         final IGeoColor black = new EmpGeoColor(0, 0, 0);
         final IGeoColor white = new EmpGeoColor(255, 255, 255);
-        symbol.setTextColor(black);
-        symbol.setTextBackgroundColor(white);
+        final IGeoLabelStyle labelStyle = new GeoLabelStyle();
+        labelStyle.setColor(black);
+        labelStyle.setOutlineColor(white);
+        symbol.setLabelStyle(labelStyle);
     }
 
     public SparseArray getSymbolModifiers() {
@@ -168,6 +172,7 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
     @Override
     public void setSelected(boolean selected) {
         super.setSelected(selected);
+        setSymbolAttributes();
         setSymbolModifiers();
     }
 
