@@ -12,6 +12,7 @@ import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.render.Renderable;
 import gov.nasa.worldwind.shape.Placemark;
 import mil.emp3.api.MilStdSymbol;
+import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
@@ -39,12 +40,12 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
 
     public MilStd2525SinglePoint(MapInstance mapInstance, IMilStdRenderer iconRenderer, Position position, MilStdSymbol symbol) {
         super(symbol, mapInstance);
-
         this.placemark = new EMPPlacemark(this, position);
         this.sSymbolCode = symbol.getSymbolCode();
         this.oRenderer = iconRenderer;
-        this.oAttributes = symbol.getAttributes();
+        this.setSymbolAttributes();
         this.setSymbolModifiers();
+        this.initializeDefaultAttributes(symbol);
         placemark.setPickDelegate(symbol);
         switch (symbol.getAltitudeMode()) {
             case RELATIVE_TO_GROUND:
@@ -71,6 +72,18 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.oModifiers = this.oRenderer.getUnitModifiers(this.getMapInstance(), this.getFeature());
     }
 
+    private void setSymbolAttributes() {
+        this.oAttributes = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), this.isSelected());
+        this.getSymbol().setSymbolAttributes(this.oAttributes);
+    }
+
+    private void initializeDefaultAttributes(MilStdSymbol symbol) {
+        // Initializes default text color to black and white.
+        final IGeoColor black = new EmpGeoColor(0, 0, 0);
+        final IGeoColor white = new EmpGeoColor(255, 255, 255);
+        symbol.setTextColor(black);
+        symbol.setTextBackgroundColor(white);
+    }
 
     public SparseArray getSymbolModifiers() {
         return this.oModifiers;

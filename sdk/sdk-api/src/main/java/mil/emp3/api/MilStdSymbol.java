@@ -45,7 +45,7 @@ import mil.emp3.api.utils.ManagerFactory;
  */
 public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbol {
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
-    private final SparseArray<String> attributes = new SparseArray<>();
+    private SparseArray<String> attributes;
 
     private static final int DEFAULT_SCALE = 1;
     private static final int DEFAULT_PIXEL_SIZE = 150;
@@ -594,7 +594,6 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
-        this.initializeDefaultAttributes();
     }
 
     /**
@@ -1431,6 +1430,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return oArray;
     }
 
+    public void setSymbolAttributes(final SparseArray<String> attributes) {
+        this.attributes = attributes;
+    }
+
     /**
      * This method converts the features MilStd version to a value suitable for calling the MilStd renderer.
      * @return
@@ -1670,14 +1673,21 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
     }
 
+    /**
+     * Sets text color of label.
+     * @param color {@link IGeoColor} Color to render label text in.
+     */
     public void setTextColor(final IGeoColor color) {
         this.attributes.put(MilStdAttributes.TextColor, ColorUtils.colorToString(color));
     }
 
+    /**
+     * Sets text background color of label.
+     * @param color {@link IGeoColor} Color to render background text of label in.
+     */
     public void setTextBackgroundColor(final IGeoColor color) {
         this.attributes.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToString(color));
     }
-
 
     /**
      * Convenience method to color fill, line and icon in one call.
@@ -1697,13 +1707,5 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public SparseArray<String> getAttributes() {
         return this.attributes;
-    }
-
-    private void initializeDefaultAttributes() {
-        // Initializes default text color to black and white.
-        final IGeoColor black = new EmpGeoColor(0, 0, 0);
-        final IGeoColor white = new EmpGeoColor(255, 255, 255);
-        this.setTextBackgroundColor(white);
-        this.setTextColor(black);
     }
 }
