@@ -1382,6 +1382,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor, IGeoColor selectedTextColor) {
         IGeoColor strokeColor = null;
         IGeoColor textColor = null;
+        IGeoColor textBackgroundColor = null;
         SparseArray<String> oArray = new SparseArray<>();
         IGeoFillStyle oFillStyle = getFillStyle();
         IGeoStrokeStyle oStrokeStyle = getStrokeStyle();
@@ -1402,6 +1403,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             }
             if (labelStyle != null) {
                 textColor = labelStyle.getColor();
+                textBackgroundColor = labelStyle.getOutlineColor();
             }
         }
 
@@ -1423,6 +1425,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             // There is currently no way to change the font.
         }
 
+        if (textBackgroundColor != null) {
+            oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(textBackgroundColor));
+            // There is currently no way to change the font.
+        }
         if (isSinglePoint()) {
             oArray.put(MilStdAttributes.FontSize, "" + FontUtilities.getTextPixelSize(labelStyle, FontSizeModifierEnum.NORMAL));
         }

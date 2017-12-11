@@ -166,6 +166,7 @@ public class MilStdRenderer implements IMilStdRenderer {
         int iIconSize = storageManager.getIconPixelSize(mapInstance);
         IGeoColor strokeColor = null;
         IGeoColor textColor = null;
+        IGeoColor textBackgroundColor = null;
         SparseArray<String> oArray = new SparseArray<>();
         IGeoFillStyle oFillStyle = feature.getFillStyle();
         IGeoStrokeStyle oStrokeStyle = feature.getStrokeStyle();
@@ -188,6 +189,7 @@ public class MilStdRenderer implements IMilStdRenderer {
             }
             if (labelStyle != null) {
                 textColor = labelStyle.getColor();
+                textBackgroundColor = labelStyle.getOutlineColor();
             }
         }
 
@@ -209,6 +211,10 @@ public class MilStdRenderer implements IMilStdRenderer {
             // There is currently no way to change the font.
         }
 
+        if (textBackgroundColor != null) {
+            oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(textBackgroundColor));
+            // There is currently no way to change the font.
+        }
         if (isMilStd && !((MilStdSymbol) feature).isSinglePoint()) {
             oArray.put(MilStdAttributes.FontSize, "" + FontUtilities.getTextPixelSize(labelStyle, FontSizeModifierEnum.NORMAL));
         }
