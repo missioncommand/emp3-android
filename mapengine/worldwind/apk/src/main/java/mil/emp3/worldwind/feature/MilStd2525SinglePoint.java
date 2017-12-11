@@ -39,11 +39,10 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
 
     public MilStd2525SinglePoint(MapInstance mapInstance, IMilStdRenderer iconRenderer, Position position, MilStdSymbol symbol) {
         super(symbol, mapInstance);
-
         this.placemark = new EMPPlacemark(this, position);
         this.sSymbolCode = symbol.getSymbolCode();
         this.oRenderer = iconRenderer;
-        this.oAttributes = symbol.getAttributes();
+        this.setSymbolAttributes();
         this.setSymbolModifiers();
         placemark.setPickDelegate(symbol);
         switch (symbol.getAltitudeMode()) {
@@ -71,6 +70,10 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.oModifiers = this.oRenderer.getUnitModifiers(this.getMapInstance(), this.getFeature());
     }
 
+    private void setSymbolAttributes() {
+        this.oAttributes = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), this.isSelected());
+        this.getSymbol().setSymbolAttributes(this.oAttributes);
+    }
 
     public SparseArray getSymbolModifiers() {
         return this.oModifiers;

@@ -4,6 +4,7 @@ import android.util.SparseArray;
 
 import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.GeoFillStyle;
+import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
@@ -44,7 +45,7 @@ import mil.emp3.api.utils.ManagerFactory;
  */
 public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbol {
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
-    private final SparseArray<String> attributes = new SparseArray<>();
+    private SparseArray<String> attributes;
 
     private static final int DEFAULT_SCALE = 1;
     private static final int DEFAULT_PIXEL_SIZE = 150;
@@ -593,7 +594,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
-        this.initializeDefaultAttributes();
+//        this.initializeDefaultAttributes();
     }
 
     /**
@@ -1430,6 +1431,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return oArray;
     }
 
+    public void setSymbolAttributes(final SparseArray<String> attributes) {
+        this.attributes = attributes;
+    }
+
     /**
      * This method converts the features MilStd version to a value suitable for calling the MilStd renderer.
      * @return
@@ -1690,12 +1695,12 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return this.attributes;
     }
 
-    private void initializeDefaultAttributes() {
-        // TODO - The addition of attributes in the symbol causes an empty sparse array.
-        // TODO - Previously we had passed null as the attribute array which caused the renderer to use preset defaults
-        // TODO - when rendering. We can no longer do that as we need to use the array. Find these defaults and set them,
-        // TODO - The below are only guesses. I have had difficulty finding the actual defaults.
-        this.attributes.put(MilStdAttributes.Scale, Integer.toString(DEFAULT_SCALE));
-        this.attributes.put(MilStdAttributes.PixelSize, Integer.toString(DEFAULT_PIXEL_SIZE));
-    }
+//    private void initializeDefaultAttributes() {
+//        // TODO - The addition of attributes in the symbol causes an empty sparse array.
+//        // TODO - Previously we had passed null as the attribute array which caused the renderer to use preset defaults
+//        // TODO - when rendering. We can no longer do that as we need to use the array. Find these defaults and set them,
+//        // TODO - The below are only guesses. I have had difficulty finding the actual defaults.
+//        this.attributes.put(MilStdAttributes.Scale, Integer.toString(DEFAULT_SCALE));
+//        this.attributes.put(MilStdAttributes.PixelSize, Integer.toString(DEFAULT_PIXEL_SIZE));
+//    }
 }
