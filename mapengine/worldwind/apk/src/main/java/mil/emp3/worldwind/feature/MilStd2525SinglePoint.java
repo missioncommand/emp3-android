@@ -82,11 +82,9 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
     // Takes a symbol and initializes default color values for labels.
     private static void initializeDefaultAttributes(MilStdSymbol symbol) {
         // Initializes default text color to black and white.
-        final IGeoColor black = new EmpGeoColor(0, 0, 0);
-        final IGeoColor white = new EmpGeoColor(255, 255, 255);
         final IGeoLabelStyle labelStyle = new GeoLabelStyle();
-        labelStyle.setColor(black);
-        labelStyle.setOutlineColor(white);
+        labelStyle.setColor(EmpGeoColor.BLACK);
+        labelStyle.setOutlineColor(EmpGeoColor.WHITE);
         symbol.setLabelStyle(labelStyle);
     }
 

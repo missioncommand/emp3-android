@@ -73,19 +73,6 @@ public class MilStdRenderer implements IMilStdRenderer {
 
     private boolean initialized;
 
-    private static IGeoColor black = new GeoColor();
-    private static IGeoColor white = new GeoColor();
-    static {
-        black.setAlpha(1.0);
-        black.setBlue(0);
-        black.setGreen(0);
-        black.setRed(0);
-        white.setAlpha(1.0);
-        white.setBlue(255);
-        white.setGreen(255);
-        white.setRed(255);
-    }
-
     private void initCheck() {
         if (!initialized) {
             init();
