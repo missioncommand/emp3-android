@@ -1377,11 +1377,14 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @param selected               True if the feature is currenlt selected.
      * @param selectedStrokeColor    The stroke color for selected features.
      * @param selectedTextColor      The text color for selected features.
+     * @param selectedTextBackgroundColor      The text color for selected features.
      * @return SparseArray of attributes.
      */
-    public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor, IGeoColor selectedTextColor) {
+    public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor,
+                                             IGeoColor selectedTextColor, IGeoColor selectedTextBackgroundColor) {
         IGeoColor strokeColor = null;
         IGeoColor textColor = null;
+        IGeoColor textBackgroundColor = null;
         SparseArray<String> oArray = new SparseArray<>();
         IGeoFillStyle oFillStyle = getFillStyle();
         IGeoStrokeStyle oStrokeStyle = getStrokeStyle();
@@ -1396,12 +1399,18 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if (selected) {
             strokeColor = selectedStrokeColor;
             textColor = selectedTextColor;
+            textBackgroundColor = selectedTextBackgroundColor;
         } else {
             if (oStrokeStyle != null) {
                 strokeColor = oStrokeStyle.getStrokeColor();
             }
             if (labelStyle != null) {
                 textColor = labelStyle.getColor();
+                textBackgroundColor = labelStyle.getOutlineColor();
+            } else {
+                // set EMP default colors which are different from renderer default colors
+                textColor = EmpGeoColor.BLACK;
+                textBackgroundColor = EmpGeoColor.WHITE;
             }
         }
 
@@ -1420,7 +1429,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
         if (textColor != null) {
             oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
-            // There is currently no way to change the font.
+        }
+
+        if (textBackgroundColor != null) {
+            oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(textBackgroundColor));
         }
 
         if (isSinglePoint()) {
@@ -1673,6 +1685,21 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
     }
 
+    /**
+     * Sets text color of label.
+     * @param color {@link IGeoColor} Color to render label text in.
+     */
+    public void setTextColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.TextColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Sets text background color of label.
+     * @param color {@link IGeoColor} Color to render background text of label in.
+     */
+    public void setTextBackgroundColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToString(color));
+    }
 
     /**
      * Convenience method to color fill, line and icon in one call.
@@ -1693,5 +1720,4 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     public SparseArray<String> getAttributes() {
         return this.attributes;
     }
-
 }
