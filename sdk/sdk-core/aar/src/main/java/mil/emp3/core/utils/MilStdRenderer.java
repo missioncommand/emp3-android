@@ -390,9 +390,10 @@ public class MilStdRenderer implements IMilStdRenderer {
 
         // All modifier text are the same color.
         armyc2.c2sd.renderer.utilities.Color renderTextColor = renderSymbol.getTextColor();
-        IGeoColor textColor = new EmpGeoColor(renderTextColor.getAlpha(), renderTextColor.getRed(), renderTextColor.getGreen(), renderTextColor.getBlue());
+        IGeoColor textColor = new EmpGeoColor((double)renderTextColor.getAlpha()/255.0,
+                renderTextColor.getRed(), renderTextColor.getGreen(), renderTextColor.getBlue());
         armyc2.c2sd.renderer.utilities.Color renderTextBackgroundColor = renderSymbol.getTextBackgroundColor();
-        IGeoColor textBackgroundColor = new EmpGeoColor(renderTextBackgroundColor.getAlpha(),
+        IGeoColor textBackgroundColor = new EmpGeoColor((double)renderTextBackgroundColor.getAlpha()/255.0,
                 renderTextBackgroundColor.getRed(), renderTextBackgroundColor.getGreen(),
                 renderTextBackgroundColor.getBlue());
 
