@@ -2,6 +2,7 @@ package mil.emp3.api;
 
 import android.os.Looper;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
@@ -10,11 +11,13 @@ import org.mockito.junit.MockitoRule;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import armyc2.c2sd.renderer.utilities.UnitDefTable;
 import mil.emp3.api.enums.ContainerEventEnum;
 import mil.emp3.api.enums.FeatureEventEnum;
 import mil.emp3.api.enums.FeatureTypeEnum;
@@ -29,6 +32,8 @@ import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.interfaces.core.ICoreManager;
 import mil.emp3.api.interfaces.core.IEventManager;
 import mil.emp3.api.interfaces.core.IStorageManager;
+import mil.emp3.api.shadows.ShadowTestRunner;
+import mil.emp3.api.shadows.ShadowUnitDefTable;
 import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.core.CoreManager;
 import mil.emp3.core.EventManager;
@@ -40,9 +45,10 @@ import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(ShadowTestRunner.class)
 @PrepareForTest({ManagerFactory.class, Looper.class})
 @SuppressStaticInitializationFor("mil.emp3.api.utils.ManagerFactory")
+@Config(shadows = {ShadowUnitDefTable.class})
 abstract public class TestBase {
 
     @Rule
@@ -62,7 +68,9 @@ abstract public class TestBase {
         milStdRenderer.setStorageManager(storageManager);
     }
 
-    protected void init() throws Exception {
+    @Before
+    public void init() throws Exception {
+        UnitDefTable.getInstance().init();
         //
         // ManagerFactory
         //

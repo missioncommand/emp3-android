@@ -23,8 +23,7 @@ import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.shadows.ShadowTestRunner;
 import mil.emp3.api.shadows.ShadowUnitDefTable;
 import mil.emp3.api.utils.BasicUtilities;
-@RunWith(ShadowTestRunner.class)
-@Config (shadows = {ShadowUnitDefTable.class})
+@RunWith(RobolectricTestRunner.class)
 public class ApplyTest extends TestBaseMultiMap {
     private static String TAG = ApplyTest.class.getSimpleName();
     double latitude = 40.2171;
@@ -34,7 +33,6 @@ public class ApplyTest extends TestBaseMultiMap {
 
     @Before
     public void setUp() throws Exception {
-        UnitDefTable.getInstance().init();
         setupMultipleMaps(TAG, 2);
         int count = 0;
         p1 = BasicUtilities.generateMilStdSymbol("TRUCK" + count, new UUID(count, count), latitude + (count * .001), longitude + (count * .001));

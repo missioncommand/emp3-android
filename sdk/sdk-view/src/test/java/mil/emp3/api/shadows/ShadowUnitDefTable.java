@@ -37,6 +37,12 @@ import armyc2.c2sd.renderer.utilities.XMLUtil;
 @Implements(UnitDefTable.class)
 public class ShadowUnitDefTable
 {
+    // TODO - Due to reasons listed above these files have been included locally in our test resources.
+    // TODO - They will need to be kept up to date with the version of the renderer we're using.
+    // https://github.com/missioncommand/mil-sym-android/tree/master/renderer/src/main/res/raw
+    private static final String UNIT_CONSTANTS_B = "unitconstantsb.xml";
+    private static final String UNIT_CONSTANTS_C = "unitconstantsc.xml";
+
     private String TAG = "ShadowUnitDefTable";
     private static Boolean _initCalled = false;
     private static UnitDefTable _instance = null;
@@ -46,23 +52,13 @@ public class ShadowUnitDefTable
     private static Map<String, UnitDef> _UnitDefinitionsC = null;
     private static ArrayList<UnitDef> _UnitDefDupsC = null;
 
-
-    private static String propSymbolID = "SYMBOLID";
-    private static String propDrawCategory = "DRAWCATEGORY";
-    private static String propModifiers = "MODIFIERS";
-    private static String propDescription = "DESCRIPTION";
-    private static String propHierarchy = "HIERARCHY";
-    private static String propAlphaHierarchy = "ALPHAHIERARCHY";
-    private static String propPath = "PATH";
-
-
     @Implementation
     public final synchronized void init()
     {
         if (_initCalled == false) {
             String[] xml = new String[2];
-            xml[0] = getXML("unitconstantsb.xml");
-            xml[1] = getXML("unitconstantsc.xml");
+            xml[0] = getXML(UNIT_CONSTANTS_B);
+            xml[1] = getXML(UNIT_CONSTANTS_C);
 
             init(xml);
         }
@@ -76,16 +72,15 @@ public class ShadowUnitDefTable
     {
         if (_initCalled == false) {
 
-            _UnitDefinitionsB = new HashMap<String, UnitDef>();
-            _UnitDefDupsB = new ArrayList<UnitDef>();
+            _UnitDefinitionsB = new HashMap<>();
+            _UnitDefDupsB = new ArrayList<>();
 
-            _UnitDefinitionsC = new HashMap<String, UnitDef>();
-            _UnitDefDupsC = new ArrayList<UnitDef>();
+            _UnitDefinitionsC = new HashMap<>();
+            _UnitDefDupsC = new ArrayList<>();
 
             String lookupXmlB = unitConstantsXML[0];// FileHandler.InputStreamToString(xmlStreamB);
             String lookupXmlC = unitConstantsXML[1];
-            // FileHandler.InputStreamToString(xmlStreamC);
-            // String lookupXml = FileHandler.fileToString("C:\\UnitFontMappings.xml");
+
             populateLookup(lookupXmlB, RendererSettings.Symbology_2525B);
             populateLookup(lookupXmlC, RendererSettings.Symbology_2525C);
 
