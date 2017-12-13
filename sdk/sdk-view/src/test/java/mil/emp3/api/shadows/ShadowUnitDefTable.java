@@ -52,6 +52,11 @@ public class ShadowUnitDefTable
     private static Map<String, UnitDef> _UnitDefinitionsC = null;
     private static ArrayList<UnitDef> _UnitDefDupsC = null;
 
+    /**
+     * Shadows the init method of {@link UnitDefTable}
+     *
+     * Must be called first. This is the expected behavior of the {@link UnitDefTable}
+     */
     @Implementation
     public final synchronized void init()
     {
@@ -65,7 +70,9 @@ public class ShadowUnitDefTable
     }
 
     /**
-     * must be called first
+     * Shadows the init method of {@link UnitDefTable}
+     *
+     * @param unitConstantsXML - Array of xml files read in as strings.
      */
     @Implementation
     public synchronized void init(String[] unitConstantsXML)
@@ -89,6 +96,8 @@ public class ShadowUnitDefTable
     }
 
     /**
+     * Shadows getUnitDef of {@link UnitDefTable}
+     *
      * @name getSymbolDef
      *
      * @desc Returns a SymbolDef from the SymbolDefTable that matches the passed in Symbol Id
@@ -115,6 +124,7 @@ public class ShadowUnitDefTable
     }
 
     /**
+     *Shadows getAllUnitDefs of {@link UnitDefTable}
      *
      * @return
      */
@@ -127,6 +137,12 @@ public class ShadowUnitDefTable
             return _UnitDefinitionsC;
     }
 
+    /**
+     * Shadows getUnitDefDups of {@link UnitDefTable}
+     *
+     * @param symStd
+     * @return
+     */
     @Implementation
     public ArrayList<UnitDef> getUnitDefDups(int symStd)
     {
@@ -137,6 +153,7 @@ public class ShadowUnitDefTable
     }
 
     /**
+     * Shadows hasUnitDef {@link UnitDefTable}
      *
      * @param basicSymbolID
      * @return
@@ -156,13 +173,12 @@ public class ShadowUnitDefTable
     }
 
 
-
-
-        /*
-     * public String[] searchByHierarchy(String hierarchy) { for(UnitDef foo : _UnitDefinitions.values() ) {
-     * if(foo.getHierarchy().equalsIgnoreCase(hierarchy)) { return } } }
+    /**
+     * Reads in XML from the resource files.
+     *
+     * @param xmlName - File name is resources test folder.
+     * @return Xml as String
      */
-
     private String getXML(String xmlName)
     {
         String xml = null;
