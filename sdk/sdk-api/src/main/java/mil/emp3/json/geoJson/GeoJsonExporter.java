@@ -32,6 +32,7 @@ import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Point;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.Text;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
@@ -357,9 +358,8 @@ public class GeoJsonExporter extends Thread{
                 feature.setProperty(TEMP_DATAURL_STRING, encoded);
             }
 
-            buffer.append("\"url\": {");
+            buffer.append("\"url\": ");
             buffer.append(iconURL);
-            buffer.append("}"); // url
             buffer.append(",");
             tempIconStyle.setOffSetX(oImageInfo.getCenterPoint().x);
             tempIconStyle.setOffSetY(oImageInfo.getImageBounds().height() - oImageInfo.getCenterPoint().y);
@@ -378,7 +378,7 @@ public class GeoJsonExporter extends Thread{
         buffer.append("\"coordinates\":  ");
         IGeoPosition position = feature.getPositions().get(0);
         buffer.append("[");
-        buffer.append(position.getLatitude());
+        buffer.append(position.getLongitude());
         buffer.append(", ");
         buffer.append(position.getLatitude());
         buffer.append("]");
@@ -387,10 +387,12 @@ public class GeoJsonExporter extends Thread{
         buffer.append("\"style\": {");
         buffer.append("\"iconStyle\": {");
         if (feature.getFeatureType() == GEO_POINT) {
-            buffer.append("\"url\": {");
+            buffer.append("\"url\": ");
             buffer.append("\"" + ((Point) feature).getIconURI() + "\"");
-            buffer.append("}"); // url
-        } else {
+        } else if (feature.getFeatureType() == GEO_TEXT) {
+            buffer.append("\"url\": ");
+            buffer.append("\"" + ((Text) feature).getText() + "\"");
+        } else if (feature.getFeatureType() == GEO_MIL_SYMBOL){
             // must be single point milstd symbol
             appendDataURL((MilStdSymbol)feature, buffer);
         }
@@ -408,7 +410,7 @@ public class GeoJsonExporter extends Thread{
 
     public void appendFeature(IFeature feature, StringBuffer buffer) throws IOException {
 
-        buffer.append("{\"type\":  \"Feature\",\n");
+//        buffer.append("{\"type\":  \"Feature\",\n");
         switch (feature.getFeatureType()) {
             case GEO_RECTANGLE:
                 appendRectangle((Rectangle)feature, buffer);
@@ -423,12 +425,16 @@ public class GeoJsonExporter extends Thread{
                 appendEllipse((Ellipse)feature, buffer);
                 break;
             case GEO_POLYGON:
+                buffer.append("{\"type\":  \"Feature\",\n");
                 appendGeoJSONPolygon(feature, buffer);
                 break;
             case GEO_PATH:
+                buffer.append("{\"type\":  \"Feature\",\n");
                 appendGeoJSONPath(feature, buffer);
                 break;
             case GEO_POINT:
+            case GEO_TEXT:
+                buffer.append("{\"type\":  \"Feature\",\n");
                 appendGeoJSONPoint(feature, buffer);
                 break;
             case GEOJSON:
@@ -436,7 +442,6 @@ public class GeoJsonExporter extends Thread{
                 Log.i(TAG, "Child feature can't be GEOJSON type");
                 break;
             case GEO_ACM:
-            case GEO_TEXT:
             case GEO_MIL_SYMBOL:
                 if(((MilStdSymbol)feature).isSinglePoint()) {
                     appendGeoJSONPoint(feature, buffer);
@@ -466,9 +471,14 @@ public class GeoJsonExporter extends Thread{
     }
 
     private void getAllFeatures(IOverlay overlay, List<IFeature> featureList) {
-        for (IOverlay ovl : overlay.getOverlays()) {
-            getAllFeatures(ovl, featureList);  // recursive
-            featureList.addAll(ovl.getFeatures());
+         List<IOverlay> overlays = overlay.getOverlays();
+        if (overlays != null && !overlays.isEmpty()) {
+            for (IOverlay ovl : overlay.getOverlays()) {
+                getAllFeatures(ovl, featureList);  // recursive
+                featureList.addAll(ovl.getFeatures());
+            }
+        } else {
+            featureList.addAll(overlay.getFeatures());
         }
     }
 

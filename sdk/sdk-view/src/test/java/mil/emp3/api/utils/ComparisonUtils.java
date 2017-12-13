@@ -640,7 +640,7 @@ public class ComparisonUtils {
 //        assertEquals(point1.getIconScale(), point2.getIconScale(), EPSILON8);
         compareIconStyle(point1.getIconStyle(), point2.getIconStyle());
         assertEquals(point1.getResourceId(), point2.getResourceId());
-        compareFeature(point1, point2);
+        compareGeoPosition(point1.getPosition(), point2.getPosition());
     }
 
     public static void comparePolygon(final Polygon polygon1, final Polygon polygon2) {
@@ -682,7 +682,6 @@ public class ComparisonUtils {
         compareGeoPosition(path1.getPosition(), path2.getPosition());
         assertEquals(path1.getAzimuth(), path2.getAzimuth(), EPSILON8);
         assertEquals(path1.getDescription(), path2.getDescription());
-        compareFillStyle(path1.getFillStyle(), path2.getFillStyle());
         assertEquals(path1.getName(), path2.getName());
         compareStrokeStyle(path1.getStrokeStyle(), path2.getStrokeStyle());
         compareLabelStyle(path1.getLabelStyle(), path2.getLabelStyle());
