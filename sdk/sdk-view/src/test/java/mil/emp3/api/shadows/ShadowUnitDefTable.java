@@ -109,7 +109,7 @@ public class ShadowUnitDefTable
         } catch (Exception exc) {
             Log.e("UnitDefTable", exc.getMessage(), exc);
         } catch (Throwable thrown) {
-            Log.wtf("UnitDefTable", thrown.getMessage(), thrown);
+            Log.e("UnitDefTable", thrown.getMessage(), thrown);
         }
         return returnVal;
     }
