@@ -409,8 +409,6 @@ public class GeoJsonExporter extends Thread{
      */
 
     public void appendFeature(IFeature feature, StringBuffer buffer) throws IOException {
-
-//        buffer.append("{\"type\":  \"Feature\",\n");
         switch (feature.getFeatureType()) {
             case GEO_RECTANGLE:
                 appendRectangle((Rectangle)feature, buffer);
@@ -471,7 +469,7 @@ public class GeoJsonExporter extends Thread{
     }
 
     private void getAllFeatures(IOverlay overlay, List<IFeature> featureList) {
-         List<IOverlay> overlays = overlay.getOverlays();
+        List<IOverlay> overlays = overlay.getOverlays();
         if (overlays != null && !overlays.isEmpty()) {
             for (IOverlay ovl : overlay.getOverlays()) {
                 getAllFeatures(ovl, featureList);  // recursive
