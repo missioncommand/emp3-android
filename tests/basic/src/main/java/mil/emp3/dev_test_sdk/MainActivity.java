@@ -33,6 +33,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,7 +77,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 import armyc2.c2sd.renderer.utilities.SymbolDef;
 import armyc2.c2sd.renderer.utilities.SymbolDefTable;
 import armyc2.c2sd.renderer.utilities.SymbolUtilities;
@@ -92,7 +93,6 @@ import mil.emp3.api.KMLS;
 import mil.emp3.api.LineOfSight;
 import mil.emp3.api.LookAt;
 import mil.emp3.api.MilStdSymbol;
-//import mil.emp3.api.MirrorCache;
 import mil.emp3.api.Overlay;
 import mil.emp3.api.Path;
 import mil.emp3.api.Point;
@@ -150,6 +150,8 @@ import mil.emp3.dev_test_sdk.utils.KMLSServiceListener;
 import mil.emp3.json.geoJson.GeoJsonCaller;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
+//import mil.emp3.api.MirrorCache;
 
 
 public class MainActivity extends AppCompatActivity
@@ -211,7 +213,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private MainActivity.PlotModeEnum ePlotMode = MainActivity.PlotModeEnum.IDLE;
-
+    public void onRadioButtonClicked(View view) {
+        ((RadioGroup)view.getParent()).check(view.getId());
+        ((RadioGroup)view.getParent()).getCheckedRadioButtonId();
+    }
     public static MilStdSymbol generateMilStdSymbol(String description, UUID uuid, double latitude, double longitude) {
         java.util.List<IGeoPosition> oPositionList = new java.util.ArrayList<>();
         IGeoPosition oPosition = new GeoPosition();
@@ -2654,23 +2659,69 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
             case R.id.action_drawText: {
-                IGeoLabelStyle labelStyle = new GeoLabelStyle();
-                mil.emp3.api.Text textFeature = new mil.emp3.api.Text();
-
-                labelStyle.setColor(new EmpGeoColor(1.0, 0, 255, 255));
-                labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
-                textFeature.setLabelStyle(labelStyle);
-                textFeature.setName("Text");
-                textFeature.setDescription("Draw Text Feature.");
-                //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
-                Log.i(TAG, textFeature.toString());
                 try {
-                    this.map.drawFeature(textFeature, new FeatureDrawListener(textFeature));
-                } catch(EMP_Exception Ex) {
-                    Log.e(TAG, "Draw Text failed.");
-                    //oItem.setEnabled(true);
-                }
+                    this.map.getMapServices();
+                    final Dialog dialog = new Dialog(MainActivity.this);
+                    dialog.setContentView(R.layout.text_parameters_dialog);
+                    dialog.setTitle("Set Text Parameters");
+                    Button okButton = (Button) dialog.findViewById(R.id.OKButton);
 
+                    okButton.setOnClickListener(v1 -> {
+                        EditText inputtedText = (EditText) dialog.findViewById(R.id.inputtedTextValue);
+                        String text = inputtedText.getText().toString();
+                        dialog.dismiss();
+                        IGeoLabelStyle labelStyle = new GeoLabelStyle();
+                        mil.emp3.api.Text textFeature = new mil.emp3.api.Text();
+                        final RadioGroup fillColorRG = (RadioGroup) dialog.findViewById(R.id.textFillColorRG);
+                        final int selectedFillColor = fillColorRG.getCheckedRadioButtonId();
+                        final RadioButton fillColorButton = (RadioButton) dialog.findViewById(selectedFillColor);
+                        final String fillColorText = fillColorButton.getText().toString();
+                        EmpGeoColor fillColor;
+                        if(fillColorText.equals("Red")) {
+                            fillColor = new EmpGeoColor(1.0, 255, 0, 0);
+                        } else if(fillColorText.equals("Green")) {
+                            fillColor = new EmpGeoColor(1.0, 0, 255, 0);
+                        } else if(fillColorText.equals("Blue")) {
+                            fillColor = new EmpGeoColor(1.0, 0, 0, 255);
+                        } else {
+                            fillColor = new EmpGeoColor(1.0, 0, 0, 0);
+                        }
+                        final RadioGroup outlineColorRG = (RadioGroup) dialog.findViewById(R.id.textOutlineColorRG);
+                        final int selectedoutlineColor = outlineColorRG.getCheckedRadioButtonId();
+                        final RadioButton outlineColorButton = (RadioButton) dialog.findViewById(selectedoutlineColor);
+                        final String outlineColorText = outlineColorButton.getText().toString();
+                        EmpGeoColor outlineColor;
+                        if(outlineColorText.equals("Red")) {
+                            outlineColor = new EmpGeoColor(1.0, 255, 0, 0);
+                        } else if(outlineColorText.equals("Green")) {
+                            outlineColor = new EmpGeoColor(1.0, 0, 255, 0);
+                        } else if(outlineColorText.equals("Blue")) {
+                            outlineColor = new EmpGeoColor(1.0, 0, 0, 255);
+                        } else {
+                            outlineColor = new EmpGeoColor(1.0, 0, 0, 0);
+                        }
+
+                        labelStyle.setColor(fillColor);
+                        labelStyle.setOutlineColor(outlineColor);
+                        labelStyle.setJustification(IGeoLabelStyle.Justification.CENTER);
+                        textFeature.setLabelStyle(labelStyle);
+                        textFeature.setName(text);
+                        textFeature.setDescription("Draw Text Feature.");
+                        //textFeature.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.CLAMP_TO_GROUND);
+                        Log.i(TAG, textFeature.toString());
+                        try {
+                            this.map.drawFeature(textFeature, new FeatureDrawListener(textFeature));
+                        } catch (EMP_Exception Ex) {
+                            Log.e(TAG, "Draw Text failed.");
+                            //oItem.setEnabled(true);
+                        }
+                    });
+                    Button cancelButton = (Button) dialog.findViewById(R.id.CancelButton);
+                    cancelButton.setOnClickListener(v12 -> dialog.dismiss());
+                    dialog.show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
             case R.id.action_drawLine: {
