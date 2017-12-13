@@ -391,7 +391,8 @@ public class KMLExportThread extends java.lang.Thread {
             final SparseArray<String> saAttr = feature.getAttributes(iconSize,
                     this.map.isSelected(feature),
                     this.map.getSelectedStrokeStyle().getStrokeColor(),
-                    this.map.getSelectedLabelStyle().getColor());
+                    this.map.getSelectedLabelStyle().getColor(),
+                    this.map.getSelectedLabelStyle().getOutlineColor());
 
             saAttr.put(MilStdAttributes.UseDashArray, "false");
             saAttr.delete(MilStdAttributes.FontSize); //.put(MilStdAttributes.FontSize, "13"); // 10 pts * 1/72 inch / pts * 96 pixel / inch
@@ -1160,7 +1161,8 @@ public class KMLExportThread extends java.lang.Thread {
             final SparseArray<String> modifiers = feature.getTGModifiers(KMLExportThread.this.eLabelSetting);
             final SparseArray<String> attributes = feature.getAttributes(KMLExportThread.this.map.getIconPixelSize(),
                     KMLExportThread.this.map.isSelected(feature), KMLExportThread.this.map.getSelectedStrokeStyle().getStrokeColor(),
-                    KMLExportThread.this.map.getSelectedLabelStyle().getColor());
+                    KMLExportThread.this.map.getSelectedLabelStyle().getColor(),
+                    KMLExportThread.this.map.getSelectedLabelStyle().getOutlineColor());
             final String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
 
             attributes.put(MilStdAttributes.UseDashArray, "false");

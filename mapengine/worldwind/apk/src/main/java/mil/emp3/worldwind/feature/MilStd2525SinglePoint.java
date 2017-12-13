@@ -1,20 +1,14 @@
 package mil.emp3.worldwind.feature;
 
-import android.util.Log;
 import android.util.SparseArray;
 
-import org.cmapi.primitives.GeoLabelStyle;
-import org.cmapi.primitives.IGeoColor;
-import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.RenderContext;
-import gov.nasa.worldwind.render.Renderable;
 import gov.nasa.worldwind.shape.Placemark;
 import mil.emp3.api.MilStdSymbol;
-import mil.emp3.api.utils.EmpGeoColor;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
@@ -42,10 +36,10 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
 
     public MilStd2525SinglePoint(MapInstance mapInstance, IMilStdRenderer iconRenderer, Position position, MilStdSymbol symbol) {
         super(symbol, mapInstance);
+
         this.placemark = new EMPPlacemark(this, position);
         this.sSymbolCode = symbol.getSymbolCode();
         this.oRenderer = iconRenderer;
-        initializeDefaultAttributes(symbol);
         this.setSymbolAttributes();
         this.setSymbolModifiers();
         placemark.setPickDelegate(symbol);
@@ -77,15 +71,6 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
     private void setSymbolAttributes() {
         this.oAttributes = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), this.isSelected());
         this.getSymbol().setSymbolAttributes(this.oAttributes);
-    }
-
-    // Takes a symbol and initializes default color values for labels.
-    private static void initializeDefaultAttributes(MilStdSymbol symbol) {
-        // Initializes default text color to black and white.
-        final IGeoLabelStyle labelStyle = new GeoLabelStyle();
-        labelStyle.setColor(EmpGeoColor.BLACK);
-        labelStyle.setOutlineColor(EmpGeoColor.WHITE);
-        symbol.setLabelStyle(labelStyle);
     }
 
     public SparseArray getSymbolModifiers() {
@@ -172,45 +157,5 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         super.setSelected(selected);
         setSymbolAttributes();
         setSymbolModifiers();
-    }
-
-    /**
-     * Sets icon color of underlying symbol and causes a re-render.
-     * @param iconColor {@link IGeoColor} color to render icon in.
-     */
-    public void setIconColor(final IGeoColor iconColor) {
-        this.oFeature.setIconColor(iconColor);
-        this.setDirty(true);
-    }
-
-    /**
-     * Sets fill color of the underlying symbol and causes a re-render.
-     * @param fillColor {@link IGeoColor} color to render fill in.
-     */
-    public void setFillColor(final IGeoColor fillColor) {
-        this.oFeature.setFillColor(fillColor);
-        this.setDirty(true);
-    }
-
-    /**
-     * Sets the line color of the underlying symbol and causes a re-render.
-     * @param lineColor {@link IGeoColor} color to render line in.
-     */
-    public void setLineColor(final IGeoColor lineColor) {
-        this.oFeature.setLineColor(lineColor);
-        this.setDirty(true);
-    }
-
-    /**
-     * Convenience method to color fill, line and icon in one call.
-     * @param fillColor - Color of the fill.
-     * @param lineColor - Color of the line.
-     * @param iconColor - Color of the icon.
-     */
-    public void styleSymbol(final IGeoColor fillColor, final IGeoColor lineColor, final IGeoColor iconColor) {
-        this.setFillColor(fillColor);
-        this.setLineColor(lineColor);
-        this.setIconColor(iconColor);
-        this.setDirty(true);
     }
 }

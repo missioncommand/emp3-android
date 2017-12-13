@@ -1377,9 +1377,11 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @param selected               True if the feature is currenlt selected.
      * @param selectedStrokeColor    The stroke color for selected features.
      * @param selectedTextColor      The text color for selected features.
+     * @param selectedTextBackgroundColor      The text color for selected features.
      * @return SparseArray of attributes.
      */
-    public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor, IGeoColor selectedTextColor) {
+    public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor,
+                                             IGeoColor selectedTextColor, IGeoColor selectedTextBackgroundColor) {
         IGeoColor strokeColor = null;
         IGeoColor textColor = null;
         IGeoColor textBackgroundColor = null;
@@ -1397,6 +1399,7 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if (selected) {
             strokeColor = selectedStrokeColor;
             textColor = selectedTextColor;
+            textBackgroundColor = selectedTextBackgroundColor;
         } else {
             if (oStrokeStyle != null) {
                 strokeColor = oStrokeStyle.getStrokeColor();
@@ -1404,6 +1407,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
             if (labelStyle != null) {
                 textColor = labelStyle.getColor();
                 textBackgroundColor = labelStyle.getOutlineColor();
+            } else {
+                // set EMP default colors which are different from renderer default colors
+                textColor = EmpGeoColor.BLACK;
+                textBackgroundColor = EmpGeoColor.WHITE;
             }
         }
 
@@ -1422,13 +1429,12 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
         if (textColor != null) {
             oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
-            // There is currently no way to change the font.
         }
 
         if (textBackgroundColor != null) {
             oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(textBackgroundColor));
-            // There is currently no way to change the font.
         }
+
         if (isSinglePoint()) {
             oArray.put(MilStdAttributes.FontSize, "" + FontUtilities.getTextPixelSize(labelStyle, FontSizeModifierEnum.NORMAL));
         }

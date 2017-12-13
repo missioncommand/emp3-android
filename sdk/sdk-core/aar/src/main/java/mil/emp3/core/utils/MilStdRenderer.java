@@ -170,6 +170,7 @@ public class MilStdRenderer implements IMilStdRenderer {
         if (selected) {
             strokeColor = storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor();
             textColor = storageManager.getSelectedLabelStyle(mapInstance).getColor();
+            textBackgroundColor = storageManager.getSelectedLabelStyle(mapInstance).getOutlineColor();
         } else {
             if (oStrokeStyle != null) {
                 strokeColor = oStrokeStyle.getStrokeColor();
@@ -177,6 +178,10 @@ public class MilStdRenderer implements IMilStdRenderer {
             if (labelStyle != null) {
                 textColor = labelStyle.getColor();
                 textBackgroundColor = labelStyle.getOutlineColor();
+            } else {
+                // set EMP default colors which are different from renderer default colors
+                textColor = EmpGeoColor.BLACK;
+                textBackgroundColor = EmpGeoColor.WHITE;
             }
         }
 
@@ -195,13 +200,12 @@ public class MilStdRenderer implements IMilStdRenderer {
 
         if (textColor != null) {
             oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
-            // There is currently no way to change the font.
         }
 
         if (textBackgroundColor != null) {
             oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(textBackgroundColor));
-            // There is currently no way to change the font.
         }
+
         if (isMilStd && !((MilStdSymbol) feature).isSinglePoint()) {
             oArray.put(MilStdAttributes.FontSize, "" + FontUtilities.getTextPixelSize(labelStyle, FontSizeModifierEnum.NORMAL));
         }
@@ -386,9 +390,10 @@ public class MilStdRenderer implements IMilStdRenderer {
 
         // All modifier text are the same color.
         armyc2.c2sd.renderer.utilities.Color renderTextColor = renderSymbol.getTextColor();
-        IGeoColor textColor = new EmpGeoColor(renderTextColor.getAlpha(), renderTextColor.getRed(), renderTextColor.getGreen(), renderTextColor.getBlue());
+        IGeoColor textColor = new EmpGeoColor((double)renderTextColor.getAlpha()/255.0,
+                renderTextColor.getRed(), renderTextColor.getGreen(), renderTextColor.getBlue());
         armyc2.c2sd.renderer.utilities.Color renderTextBackgroundColor = renderSymbol.getTextBackgroundColor();
-        IGeoColor textBackgroundColor = new EmpGeoColor(renderTextBackgroundColor.getAlpha(),
+        IGeoColor textBackgroundColor = new EmpGeoColor((double)renderTextBackgroundColor.getAlpha()/255.0,
                 renderTextBackgroundColor.getRed(), renderTextBackgroundColor.getGreen(),
                 renderTextBackgroundColor.getBlue());
 
