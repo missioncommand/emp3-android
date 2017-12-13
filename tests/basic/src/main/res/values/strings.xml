@@ -137,6 +137,16 @@
     <string name="action_getMapState">Get Map State</string>
     <string name="action_swapMap">Swap Map</string>
 
+    <string name="textFillColorLabel">Fill Color</string>
+    <string name="textFillColorLabelRed">Red</string>
+    <string name="textFillColorLabelGreen">Green</string>
+    <string name="textFillColorLabelBlue">Blue</string>
+    <string name="textOutlineColorLabel">Outline Color</string>
+    <string name="textOutlineColorLabelRed">Red</string>
+    <string name="textOutlineColorLabelGreen">Green</string>
+    <string name="textOutlineColorLabelBlue">Blue</string>
+    <string name="inputtedTextHint">Your Text Here</string>
+
     <string name="ZoomOut">Zoom -</string>
     <string name="ZoomIn">Zoom +</string>
     <string name="PanLeft">Left</string>
