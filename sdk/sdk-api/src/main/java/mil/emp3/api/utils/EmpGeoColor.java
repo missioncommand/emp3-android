@@ -32,4 +32,8 @@ public class EmpGeoColor extends GeoColor {
         super.setGreen(green);
         super.setBlue(blue);
     }
+
+    final public static EmpGeoColor YELLOW = new EmpGeoColor(1.0, 255, 255, 0);
+    final public static EmpGeoColor BLACK = new EmpGeoColor(1, 0, 0, 0);
+    final public static EmpGeoColor WHITE = new EmpGeoColor(1, 255, 255, 255);
 }

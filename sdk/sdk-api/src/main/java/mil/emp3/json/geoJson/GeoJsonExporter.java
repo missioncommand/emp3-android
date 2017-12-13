@@ -336,7 +336,8 @@ public class GeoJsonExporter extends Thread{
         SparseArray<String> saAttr = feature.getAttributes(iconSize,
                 this.map.isSelected(feature),
                 this.map.getSelectedStrokeStyle().getStrokeColor(),
-                this.map.getSelectedLabelStyle().getColor());
+                this.map.getSelectedLabelStyle().getColor(),
+                this.map.getSelectedLabelStyle().getOutlineColor());
 
         saAttr.put(MilStdAttributes.UseDashArray, "false");
 
