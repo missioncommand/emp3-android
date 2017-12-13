@@ -537,7 +537,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         Assert.assertTrue(testPassed[0]);
     }
 
-    private static IOverlay addOverlayToMap(final IMap map) throws EMP_Exception
+    static IOverlay addOverlayToMap(final IMap map) throws EMP_Exception
     {
         final Overlay overlay = new Overlay();
         overlay.setName("Test Overlay " + count++);
@@ -545,7 +545,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return overlay;
     }
 
-    private static Point addPoint(final IOverlay overlay) throws Exception
+    static Point addPoint(final IOverlay overlay) throws Exception
     {
         final Point oPoint = new Point();
         oPoint.setIconScale(10);
@@ -556,7 +556,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oPoint;
     }
 
-    private static Text addText(final IOverlay overlay) throws Exception
+    static Text addText(final IOverlay overlay) throws Exception
     {
         final Text oText = new Text();
         oText.setRotationAngle(40);
@@ -566,7 +566,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oText;
     }
 
-    private static Circle addCircle(final IOverlay overlay) throws Exception
+    static Circle addCircle(final IOverlay overlay) throws Exception
     {
         final Circle oCircle = new Circle();
         oCircle.setName("Test Circle");
@@ -576,7 +576,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oCircle;
     }
 
-    private static Ellipse addEllipse(final IOverlay overlay) throws Exception
+    static Ellipse addEllipse(final IOverlay overlay) throws Exception
     {
         final Ellipse oEllipse = new Ellipse();
         oEllipse.setSemiMinor(15.5);
@@ -586,7 +586,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oEllipse;
     }
 
-    private static Square addSquare(final IOverlay overlay) throws Exception
+    static Square addSquare(final IOverlay overlay) throws Exception
     {
         final Square oSquare = new Square();
         oSquare.setWidth(15.5);
@@ -595,7 +595,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oSquare;
     }
 
-    private static Rectangle addRectangle(final IOverlay overlay) throws Exception
+    static Rectangle addRectangle(final IOverlay overlay) throws Exception
     {
         final Rectangle oRectangle = new Rectangle();
         oRectangle.setWidth(15.5);
@@ -605,7 +605,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oRectangle;
     }
 
-    private static Polygon addPolygon(final IOverlay overlay) throws Exception
+    static Polygon addPolygon(final IOverlay overlay) throws Exception
     {
         final Polygon oPolygon = new Polygon();
         addMPFeatureStyles(oPolygon);
@@ -613,7 +613,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oPolygon;
     }
 
-    private static Path addPath(final IOverlay overlay) throws Exception
+    static Path addPath(final IOverlay overlay) throws Exception
     {
         final Path oPath = new Path();
         addFeatureStyles(oPath);
@@ -621,19 +621,19 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oPath;
     }
 
-    private static GeoPosition getRandomLocation() throws EMP_Exception {
+    static GeoPosition getRandomLocation() throws EMP_Exception {
         final GeoPosition location = new GeoPosition();
         location.setLatitude(getRandomValueBetween(-90.0,90.0));
         location.setLongitude(getRandomValueBetween(-180.0, 180.0));
         return location;
     }
 
-    private static double getRandomValueBetween(final double low, final double high)
+    static double getRandomValueBetween(final double low, final double high)
     {
         return low + (high - low) * new Random().nextDouble();
     }
 
-    private static void addFeatureStyles(final Feature feature) throws Exception{
+    static void addFeatureStyles(final Feature feature) throws Exception{
         feature.setPosition(getRandomLocation());
         feature.setName("Test Feature");
         //feature.setAzimuth(50);
@@ -649,7 +649,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         feature.setReadOnly(false);
     }
 
-    private static void addMPFeatureStyles(final Feature feature) throws Exception{
+    static void addMPFeatureStyles(final Feature feature) throws Exception{
         feature.getPositions().clear();
         for (int i = 0; i < 4; i++) {
             feature.getPositions().add(getRandomLocation());
