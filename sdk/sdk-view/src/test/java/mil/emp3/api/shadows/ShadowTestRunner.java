@@ -5,6 +5,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.internal.bytecode.ShadowMap;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
+import armyc2.c2sd.renderer.utilities.UnitDefTable;
 
 /**
  * @author Matt Miller & Jenifer Cochran
@@ -30,6 +31,11 @@ public class ShadowTestRunner extends RobolectricTestRunner
                                             true,
                                             true,
                                             true)
+                            .addShadowClass(UnitDefTable.class,
+                                            ShadowUnitDefTable.class,
+                                            true,
+                                            true,
+                                             true)
                             .build();
     }
 }

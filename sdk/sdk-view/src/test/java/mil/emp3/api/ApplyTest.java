@@ -9,17 +9,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import armyc2.c2sd.renderer.utilities.UnitDefTable;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.shadows.ShadowTestRunner;
+import mil.emp3.api.shadows.ShadowUnitDefTable;
 import mil.emp3.api.utils.BasicUtilities;
-@RunWith(RobolectricTestRunner.class)
+@RunWith(ShadowTestRunner.class)
+@Config (shadows = {ShadowUnitDefTable.class})
 public class ApplyTest extends TestBaseMultiMap {
     private static String TAG = ApplyTest.class.getSimpleName();
     double latitude = 40.2171;
@@ -29,6 +34,7 @@ public class ApplyTest extends TestBaseMultiMap {
 
     @Before
     public void setUp() throws Exception {
+        UnitDefTable.getInstance().init();
         setupMultipleMaps(TAG, 2);
         int count = 0;
         p1 = BasicUtilities.generateMilStdSymbol("TRUCK" + count, new UUID(count, count), latitude + (count * .001), longitude + (count * .001));
