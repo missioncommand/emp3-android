@@ -118,10 +118,10 @@ public abstract class MapStatus implements IMapStatus {
     protected MapStatus() {
         this.mapServiceHash = new HashMap<>();
         this.setIconSize(IconSizeEnum.SMALL);
-        IGeoColor color = new EmpGeoColor(1.0, 255, 255, 0);
-        this.selectedStrokeStyle.setStrokeColor(color);
+        this.selectedStrokeStyle.setStrokeColor(EmpGeoColor.YELLOW);
         this.selectedStrokeStyle.setStrokeWidth(3.0);
-        this.selectedLabelStyle.setColor(color);
+        this.selectedLabelStyle.setColor(EmpGeoColor.YELLOW);
+        this.selectedLabelStyle.setOutlineColor(EmpGeoColor.BLACK);
 
         this.bufferFillStyle.setFillColor(new EmpGeoColor(0.5, 255, 255, 0));
     }

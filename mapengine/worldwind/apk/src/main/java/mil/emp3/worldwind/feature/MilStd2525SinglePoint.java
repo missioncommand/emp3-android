@@ -1,15 +1,12 @@
 package mil.emp3.worldwind.feature;
 
-import android.util.Log;
 import android.util.SparseArray;
 
-import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoPosition;
 
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.RenderContext;
-import gov.nasa.worldwind.render.Renderable;
 import gov.nasa.worldwind.shape.Placemark;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
@@ -43,7 +40,7 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.placemark = new EMPPlacemark(this, position);
         this.sSymbolCode = symbol.getSymbolCode();
         this.oRenderer = iconRenderer;
-        this.oAttributes = symbol.getAttributes();
+        this.setSymbolAttributes();
         this.setSymbolModifiers();
         placemark.setPickDelegate(symbol);
         switch (symbol.getAltitudeMode()) {
@@ -71,6 +68,10 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         this.oModifiers = this.oRenderer.getUnitModifiers(this.getMapInstance(), this.getFeature());
     }
 
+    private void setSymbolAttributes() {
+        this.oAttributes = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), this.isSelected());
+        this.getSymbol().setSymbolAttributes(this.oAttributes);
+    }
 
     public SparseArray getSymbolModifiers() {
         return this.oModifiers;
@@ -154,46 +155,7 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
     @Override
     public void setSelected(boolean selected) {
         super.setSelected(selected);
+        setSymbolAttributes();
         setSymbolModifiers();
-    }
-
-    /**
-     * Sets icon color of underlying symbol and causes a re-render.
-     * @param iconColor {@link IGeoColor} color to render icon in.
-     */
-    public void setIconColor(final IGeoColor iconColor) {
-        this.oFeature.setIconColor(iconColor);
-        this.setDirty(true);
-    }
-
-    /**
-     * Sets fill color of the underlying symbol and causes a re-render.
-     * @param fillColor {@link IGeoColor} color to render fill in.
-     */
-    public void setFillColor(final IGeoColor fillColor) {
-        this.oFeature.setFillColor(fillColor);
-        this.setDirty(true);
-    }
-
-    /**
-     * Sets the line color of the underlying symbol and causes a re-render.
-     * @param lineColor {@link IGeoColor} color to render line in.
-     */
-    public void setLineColor(final IGeoColor lineColor) {
-        this.oFeature.setLineColor(lineColor);
-        this.setDirty(true);
-    }
-
-    /**
-     * Convenience method to color fill, line and icon in one call.
-     * @param fillColor - Color of the fill.
-     * @param lineColor - Color of the line.
-     * @param iconColor - Color of the icon.
-     */
-    public void styleSymbol(final IGeoColor fillColor, final IGeoColor lineColor, final IGeoColor iconColor) {
-        this.setFillColor(fillColor);
-        this.setLineColor(lineColor);
-        this.setIconColor(iconColor);
-        this.setDirty(true);
     }
 }

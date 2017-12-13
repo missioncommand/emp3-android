@@ -4,6 +4,7 @@ import android.util.SparseArray;
 
 import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.GeoFillStyle;
+import org.cmapi.primitives.GeoLabelStyle;
 import org.cmapi.primitives.GeoMilSymbol;
 import org.cmapi.primitives.GeoPosition;
 import org.cmapi.primitives.GeoStrokeStyle;
@@ -44,7 +45,7 @@ import mil.emp3.api.utils.ManagerFactory;
  */
 public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbol {
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
-    private final SparseArray<String> attributes = new SparseArray<>();
+    private SparseArray<String> attributes;
 
     private static final int DEFAULT_SCALE = 1;
     private static final int DEFAULT_PIXEL_SIZE = 150;
@@ -593,7 +594,6 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         setStrokeStyle(null);
         setFillStyle(null);
         setLabelStyle(null);
-        this.initializeDefaultAttributes();
     }
 
     /**
@@ -1377,11 +1377,14 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      * @param selected               True if the feature is currenlt selected.
      * @param selectedStrokeColor    The stroke color for selected features.
      * @param selectedTextColor      The text color for selected features.
+     * @param selectedTextBackgroundColor      The text color for selected features.
      * @return SparseArray of attributes.
      */
-    public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor, IGeoColor selectedTextColor) {
+    public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor,
+                                             IGeoColor selectedTextColor, IGeoColor selectedTextBackgroundColor) {
         IGeoColor strokeColor = null;
         IGeoColor textColor = null;
+        IGeoColor textBackgroundColor = null;
         SparseArray<String> oArray = new SparseArray<>();
         IGeoFillStyle oFillStyle = getFillStyle();
         IGeoStrokeStyle oStrokeStyle = getStrokeStyle();
@@ -1396,12 +1399,18 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         if (selected) {
             strokeColor = selectedStrokeColor;
             textColor = selectedTextColor;
+            textBackgroundColor = selectedTextBackgroundColor;
         } else {
             if (oStrokeStyle != null) {
                 strokeColor = oStrokeStyle.getStrokeColor();
             }
             if (labelStyle != null) {
                 textColor = labelStyle.getColor();
+                textBackgroundColor = labelStyle.getOutlineColor();
+            } else {
+                // set EMP default colors which are different from renderer default colors
+                textColor = EmpGeoColor.BLACK;
+                textBackgroundColor = EmpGeoColor.WHITE;
             }
         }
 
@@ -1420,7 +1429,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
         if (textColor != null) {
             oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
-            // There is currently no way to change the font.
+        }
+
+        if (textBackgroundColor != null) {
+            oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(textBackgroundColor));
         }
 
         if (isSinglePoint()) {
@@ -1428,6 +1440,10 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         }
 
         return oArray;
+    }
+
+    public void setSymbolAttributes(final SparseArray<String> attributes) {
+        this.attributes = attributes;
     }
 
     /**
@@ -1669,6 +1685,21 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
     }
 
+    /**
+     * Sets text color of label.
+     * @param color {@link IGeoColor} Color to render label text in.
+     */
+    public void setTextColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.TextColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Sets text background color of label.
+     * @param color {@link IGeoColor} Color to render background text of label in.
+     */
+    public void setTextBackgroundColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToString(color));
+    }
 
     /**
      * Convenience method to color fill, line and icon in one call.
@@ -1688,14 +1719,5 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
      */
     public SparseArray<String> getAttributes() {
         return this.attributes;
-    }
-
-    private void initializeDefaultAttributes() {
-        // TODO - The addition of attributes in the symbol causes an empty sparse array.
-        // TODO - Previously we had passed null as the attribute array which caused the renderer to use preset defaults
-        // TODO - when rendering. We can no longer do that as we need to use the array. Find these defaults and set them,
-        // TODO - The below are only guesses. I have had difficulty finding the actual defaults.
-        this.attributes.put(MilStdAttributes.Scale, Integer.toString(DEFAULT_SCALE));
-        this.attributes.put(MilStdAttributes.PixelSize, Integer.toString(DEFAULT_PIXEL_SIZE));
     }
 }

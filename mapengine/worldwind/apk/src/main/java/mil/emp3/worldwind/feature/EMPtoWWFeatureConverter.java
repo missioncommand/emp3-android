@@ -229,6 +229,7 @@ public class EMPtoWWFeatureConverter {
             selectedLabelStyle = getMapInstance().getEmpResources().getSelectedLabelStyle(getMapInstance());
             if (null != selectedLabelStyle) {
                 textAttribute.setTextColor(Conversion.convertColor(selectedLabelStyle.getColor()));
+                textAttribute.setOutlineColor(Conversion.convertColor(selectedLabelStyle.getOutlineColor()));
             }
             textAttribute.setEnableOutline(true);
             textAttribute.setOutlineWidth(TEXT_OUTLINE_WIDTH);
@@ -237,6 +238,7 @@ public class EMPtoWWFeatureConverter {
         if (null != labelStyle) {
             if (!isSelected && (null != labelStyle.getColor())) {
                 textAttribute.setTextColor(Conversion.convertColor(labelStyle.getColor()));
+                textAttribute.setOutlineColor(Conversion.convertColor(labelStyle.getOutlineColor()));
             }
 
             switch (labelStyle.getJustification()) {
