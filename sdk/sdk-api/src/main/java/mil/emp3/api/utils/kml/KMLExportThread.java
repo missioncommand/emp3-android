@@ -549,9 +549,7 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_CIRCLE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
-        final int polygonIndex = kml.indexOf("<Placemark>");
-        final String kmlPolygon = kml.substring(0, kml.indexOf("<Placemark>",polygonIndex+1))+"</Folder>";
-
+        final String kmlPolygon = parsePolygonFromMultipleFeatureKML(kml);
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -588,9 +586,7 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_ELLIPSE----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
-        final int polygonIndex = kml.indexOf("<Placemark>");
-        final String kmlPolygon = kml.substring(0, kml.indexOf("<Placemark>",polygonIndex+1))+"</Folder>";
-
+        final String kmlPolygon = parsePolygonFromMultipleFeatureKML(kml);
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -645,6 +641,29 @@ public class KMLExportThread extends java.lang.Thread {
         }
     }
 
+    private String parsePolygonFromMultipleFeatureKML(final String kml) {
+        final String OPEN_TAG_PLACEMARK = "<Placemark>";
+        final String CLOSE_TAG_PLACEMARK = "</Placemark>";
+        final String OPEN_TAG_POLYGON = "<Polygon";
+        final int polygonIndex = kml.indexOf(OPEN_TAG_POLYGON);
+        if(polygonIndex == -1) {
+            Log.e(TAG,"Error no polygon in KML.  " + kml);
+            return "";
+        }
+        int placemarkIndex = kml.indexOf(OPEN_TAG_PLACEMARK);
+        int closePlacemarkIndex = kml.indexOf(CLOSE_TAG_PLACEMARK);
+        StringBuilder resultKml = new StringBuilder();
+        resultKml.append(kml.substring(0,placemarkIndex));
+        while(polygonIndex > closePlacemarkIndex) {
+            placemarkIndex = kml.indexOf(OPEN_TAG_PLACEMARK, closePlacemarkIndex);
+            closePlacemarkIndex = kml.indexOf(CLOSE_TAG_PLACEMARK, placemarkIndex);
+        }
+        resultKml.append(kml.substring(placemarkIndex, closePlacemarkIndex));
+        closePlacemarkIndex = kml.lastIndexOf(CLOSE_TAG_PLACEMARK);
+        resultKml.append(kml.substring(closePlacemarkIndex));
+        return resultKml.toString();
+    }
+
     private void exportEmpObjectToKML(final Rectangle feature, final XmlSerializer xmlSerializer) throws IOException {
         final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
         final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
@@ -665,8 +684,7 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_RECTANGLE--", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
-        final int polygonIndex = kml.indexOf("<Placemark>");
-        final String kmlPolygon = kml.substring(0, kml.indexOf("<Placemark>",polygonIndex+1))+"</Folder>";
+        final String kmlPolygon = parsePolygonFromMultipleFeatureKML(kml);
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -703,8 +721,7 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_SQUARE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
-        final int polygonIndex = kml.indexOf("<Placemark>");
-        final String kmlPolygon = kml.substring(0, kml.indexOf("<Placemark>",polygonIndex+1))+"</Folder>";
+        final String kmlPolygon = parsePolygonFromMultipleFeatureKML(kml);
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
