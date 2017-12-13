@@ -549,6 +549,9 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_CIRCLE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
+        final int polygonIndex = kml.indexOf("<Placemark>");
+        final String kmlPolygon = kml.substring(0, kml.indexOf("<Placemark>",polygonIndex+1))+"</Folder>";
+
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -558,7 +561,7 @@ public class KMLExportThread extends java.lang.Thread {
             Log.e(TAG, feature.getName() + " Renderer Error: " + kml);
         } else {
             try {
-                insertXMLString(feature, kml, xmlSerializer);
+                insertXMLString(feature, kmlPolygon, xmlSerializer);
             } catch (Exception e) {
                 throw new IOException("Failed to insert renderer KML output. " + kml, e);
             }
@@ -585,6 +588,9 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_ELLIPSE----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
+        final int polygonIndex = kml.indexOf("<Placemark>");
+        final String kmlPolygon = kml.substring(0, kml.indexOf("<Placemark>",polygonIndex+1))+"</Folder>";
+
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -594,7 +600,7 @@ public class KMLExportThread extends java.lang.Thread {
             Log.e(TAG, feature.getName() + " Renderer Error: " + kml);
         } else {
             try {
-                insertXMLString(feature, kml, xmlSerializer);
+                insertXMLString(feature, kmlPolygon, xmlSerializer);
             } catch (Exception e) {
                 throw new IOException("Failed to insert renderer KML output. " + kml, e);
             }
@@ -659,6 +665,8 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_RECTANGLE--", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
+        final int polygonIndex = kml.indexOf("<Placemark>");
+        final String kmlPolygon = kml.substring(0, kml.indexOf("<Placemark>",polygonIndex+1))+"</Folder>";
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -668,7 +676,7 @@ public class KMLExportThread extends java.lang.Thread {
             Log.e(TAG, feature.getName() + " Renderer Error: " + kml);
         } else {
             try {
-                insertXMLString(feature, kml, xmlSerializer);
+                insertXMLString(feature, kmlPolygon, xmlSerializer);
             } catch (Exception e) {
                 throw new IOException("Failed to insert renderer KML output. " + kml, e);
             }
@@ -695,6 +703,8 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_SQUARE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
+        final int polygonIndex = kml.indexOf("<Placemark>");
+        final String kmlPolygon = kml.substring(0, kml.indexOf("<Placemark>",polygonIndex+1))+"</Folder>";
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -704,7 +714,7 @@ public class KMLExportThread extends java.lang.Thread {
             Log.e(TAG, feature.getName() + " Renderer Error: " + kml);
         } else {
             try {
-                insertXMLString(feature, kml, xmlSerializer);
+                insertXMLString(feature, kmlPolygon, xmlSerializer);
             } catch (Exception e) {
                 throw new IOException("Failed to insert renderer KML output. " + kml, e);
             }

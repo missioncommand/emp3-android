@@ -10,7 +10,6 @@ import org.cmapi.primitives.IGeoRenderable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.robolectric.util.Logger;
 
 import java.util.Random;
 
@@ -21,11 +20,13 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 
-import static mil.emp3.api.utils.ComparisonUtils.compareFeatureToPath;
-import static mil.emp3.api.utils.ComparisonUtils.compareFeatureToPolygon;
+import static mil.emp3.api.utils.ComparisonUtils.compareCircleToPolygon;
+import static mil.emp3.api.utils.ComparisonUtils.compareEllipseToPolygon;
 import static mil.emp3.api.utils.ComparisonUtils.comparePath;
 import static mil.emp3.api.utils.ComparisonUtils.comparePoint;
 import static mil.emp3.api.utils.ComparisonUtils.comparePolygon;
+import static mil.emp3.api.utils.ComparisonUtils.compareRectangleToPolygon;
+import static mil.emp3.api.utils.ComparisonUtils.compareSquareToPolygon;
 import static mil.emp3.api.utils.ComparisonUtils.compareTextToPoint;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -232,29 +233,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         assertTrue(testPassed[0]);
     }
 
-    private void parseKml(String featureType, String kmlString, Feature feature) throws Exception {
-            final KML kmlFeature = new KML(kmlString);
-            //Circles do not exist in KML so they are represented by paths
-            for (int i = 0; i < kmlFeature.getFeatureList().size(); i++) {
-                Object obj = kmlFeature.getFeatureList().get(i);
-                if (obj instanceof Path) {
-                    Logger.info(featureType + " is rendered as Path");
-                    Logger.info(feature.toString());
-                    Logger.info(obj.toString());
-                    compareFeatureToPath(feature, (Path)obj);
-                } else if (obj instanceof Polygon) {
-                    Logger.info(featureType + " is rendered as Polygon");
-                    Logger.info(feature.toString());
-                    Logger.info(obj.toString());
-                    compareFeatureToPolygon(feature, (Polygon)obj);
-                } else {
-                   Logger.error(featureType + " is rendered as " + obj.getClass().getSimpleName());
-                }
-            }
-
-
-    }
-
     @Test
     public void exportCircle() throws Exception
     {
@@ -274,7 +252,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try 
                                             {
-                                                parseKml("Circle", kmlString, feature);
+                                                final KML kmlFeature = new KML(kmlString);
+                                                final Polygon parsedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareCircleToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
                                                 testPassed[0] = false;
@@ -322,7 +302,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try 
                                             {
-                                                parseKml("Ellipse", kmlString, feature);
+                                                final KML kmlFeature = new KML(kmlString);
+                                                final Polygon parsedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareEllipseToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
                                                 testPassed[0] = false;
@@ -367,7 +349,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try 
                                             {
-                                                parseKml("Square", kmlString, feature);
+                                                final KML kmlFeature = new KML(kmlString);
+                                                final Polygon parsedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareSquareToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
                                                 testPassed[0] = false;
@@ -413,7 +397,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try 
                                             {
-                                                parseKml("Rectangle", kmlString, feature);
+                                                final KML kmlFeature = new KML(kmlString);
+                                                final Polygon parsedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareRectangleToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (Exception e) {
                                                 testPassed[0] = false;
