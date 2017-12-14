@@ -766,6 +766,14 @@ public class ComparisonUtils {
         assertEquals(polygon.getReadOnly(), feature.getReadOnly());
     }
 
+    /* Separate method for GeoJson because SEC Renderer translates differently
+     */
+
+    public static void compareFeatureToGeoJsonPolygon(final Feature feature, final Polygon polygon) {
+        compareGeoPosition(polygon.getPosition(), feature.getPosition(), EPSILON2);
+        assertEquals(polygon.getAzimuth(), feature.getAzimuth(), EPSILON8);
+    }
+
     public static void compareFeatureToPath(final Feature feature, final Path path) {
         compareGeoPosition(path.getPosition(), feature.getPosition(), EPSILON2);
         assertEquals(path.getAzimuth(), feature.getAzimuth(), EPSILON8);
