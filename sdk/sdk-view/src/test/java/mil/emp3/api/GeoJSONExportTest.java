@@ -223,7 +223,6 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 fail(e.getMessage());
             }
         }
