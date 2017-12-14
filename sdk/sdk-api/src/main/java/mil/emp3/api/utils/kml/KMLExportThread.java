@@ -581,7 +581,7 @@ public class KMLExportThread extends java.lang.Thread {
             }
             return convertDocumentToString(doc);
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            Log.e(TAG, "Error in parsing polygon out of kml" + ex.getStackTrace());
+            Log.e(TAG, "Error in parsing polygon out of kml" + ex.getMessage());
         }
         return kml;
     }
