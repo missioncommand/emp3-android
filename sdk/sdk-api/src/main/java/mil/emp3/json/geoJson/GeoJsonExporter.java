@@ -145,6 +145,20 @@ public class GeoJsonExporter extends Thread{
         return temp;
     }
 
+    private void appendPolygon(final String geoJSON, StringBuffer buffer) throws IOException {
+        try {
+            final List<IFeature> features = GeoJsonParser.parse(geoJSON);
+            for (IFeature polygon : features) {
+                if (polygon instanceof Polygon) {
+                    appendGeoJSONPolygon(polygon, buffer);
+                }
+            }
+        } catch (EMP_Exception e) {
+            throw new IOException(e.getMessage());
+        }
+
+    }
+
     private void appendCircle(final Circle feature, StringBuffer buffer) throws IOException {
         IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
         String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
@@ -164,16 +178,7 @@ public class GeoJsonExporter extends Thread{
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_CIRCLE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, RENDER_JSON, 0);
-        try {
-            List<IFeature> features = GeoJsonParser.parse(geoJSON);
-            for (IFeature polygon : features) {
-                if (polygon instanceof Polygon) {
-                    appendGeoJSONPolygon(polygon, buffer);
-                }
-            }
-        } catch (EMP_Exception e) {
-            throw new IOException(e.getMessage());
-        }
+        appendPolygon(geoJSON, buffer);
      }
 
     private void appendEllipse(final Ellipse feature, StringBuffer buffer) throws IOException {
@@ -196,16 +201,7 @@ public class GeoJsonExporter extends Thread{
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_ELLIPSE----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, RENDER_JSON, 0);
-        try {
-            List<IFeature> features = GeoJsonParser.parse(geoJSON);
-            for (IFeature polygon : features) {
-                if (polygon instanceof Polygon) {
-                    appendGeoJSONPolygon(polygon, buffer);
-                }
-            }
-        } catch (EMP_Exception e) {
-            throw new IOException(e.getMessage());
-        }
+        appendPolygon(geoJSON, buffer);
     }
 
     private void appendRectangle(final Rectangle feature, StringBuffer buffer) throws IOException {
@@ -228,16 +224,7 @@ public class GeoJsonExporter extends Thread{
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_RECTANGLE--", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, RENDER_JSON, 0);
-        try {
-            List<IFeature> features = GeoJsonParser.parse(geoJSON);
-            for (IFeature polygon : features) {
-                if (polygon instanceof Polygon) {
-                    appendGeoJSONPolygon(polygon, buffer);
-                }
-            }
-        } catch (EMP_Exception e) {
-            throw new IOException(e.getMessage());
-        }
+        appendPolygon(geoJSON, buffer);
     }
 
     private void appendSquare(final Square feature, StringBuffer buffer) throws IOException {
@@ -260,16 +247,7 @@ public class GeoJsonExporter extends Thread{
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_SQUARE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, RENDER_JSON, 0);
-        try {
-            List<IFeature> features = GeoJsonParser.parse(geoJSON);
-            for (IFeature polygon : features) {
-                if (polygon instanceof Polygon) {
-                    appendGeoJSONPolygon(polygon, buffer);
-                }
-            }
-        } catch (EMP_Exception e) {
-            throw new IOException(e.getMessage());
-        }
+        appendPolygon(geoJSON, buffer);
     }
 
 
