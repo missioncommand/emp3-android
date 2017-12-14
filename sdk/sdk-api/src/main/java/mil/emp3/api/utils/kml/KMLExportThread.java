@@ -13,6 +13,12 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -22,9 +28,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import armyc2.c2sd.renderer.MilStdIconRenderer;
 import armyc2.c2sd.renderer.utilities.ImageInfo;
@@ -530,6 +547,45 @@ public class KMLExportThread extends java.lang.Thread {
         return oArray;
     }
 
+    private static String convertDocumentToString(final Document doc) {
+        final TransformerFactory tf = TransformerFactory.newInstance();
+        try (final StringWriter writer = new StringWriter()) {
+            final Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            return writer.getBuffer().toString();
+        } catch (final IOException | TransformerException ex) {
+            Log.e(TAG, ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Circles, ellipses, squares, and rectangles are represented by a path and a polygon
+     * in kml.  Therefore we parse out the path so that we only return the polygon part
+     * in the kml that emp exports.
+     */
+    private String parsePolygonFromMultipleFeatureKML(final String kml) {
+        try (final StringReader kmlReader = new StringReader(kml)){
+            final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            final Document doc = dBuilder.parse(new InputSource(kmlReader));
+            final Node folderNode = doc.getElementsByTagName("Folder").item(0);
+            final NodeList nList = doc.getElementsByTagName("Placemark");
+            Node placemarkElement;
+            for(int i = 0; i < nList.getLength(); i++) {
+                placemarkElement = nList.item(i);
+                if(((Element)placemarkElement).getElementsByTagName("Polygon").getLength() == 0) {
+                    folderNode.removeChild(placemarkElement);
+                }
+            }
+            return convertDocumentToString(doc);
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            Log.e(TAG, "Error in parsing polygon out of kml" + ex.getMessage());
+        }
+        return kml;
+    }
+
     private void exportEmpObjectToKML(final Circle feature, final XmlSerializer xmlSerializer) throws IOException {
         final IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
         final String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
@@ -549,6 +605,8 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_CIRCLE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
+        //KML treats circles as polygons
+        final String kmlPolygon = parsePolygonFromMultipleFeatureKML(kml);
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -558,7 +616,7 @@ public class KMLExportThread extends java.lang.Thread {
             Log.e(TAG, feature.getName() + " Renderer Error: " + kml);
         } else {
             try {
-                insertXMLString(feature, kml, xmlSerializer);
+                insertXMLString(feature, kmlPolygon, xmlSerializer);
             } catch (Exception e) {
                 throw new IOException("Failed to insert renderer KML output. " + kml, e);
             }
@@ -585,6 +643,8 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_ELLIPSE----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
+        //kml treats ellipses as polygons
+        final String kmlPolygon = parsePolygonFromMultipleFeatureKML(kml);
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -594,7 +654,7 @@ public class KMLExportThread extends java.lang.Thread {
             Log.e(TAG, feature.getName() + " Renderer Error: " + kml);
         } else {
             try {
-                insertXMLString(feature, kml, xmlSerializer);
+                insertXMLString(feature, kmlPolygon, xmlSerializer);
             } catch (Exception e) {
                 throw new IOException("Failed to insert renderer KML output. " + kml, e);
             }
@@ -659,6 +719,8 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_RECTANGLE--", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
+        //kml exports rectangles as polygons
+        final String kmlPolygon = parsePolygonFromMultipleFeatureKML(kml);
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -668,7 +730,7 @@ public class KMLExportThread extends java.lang.Thread {
             Log.e(TAG, feature.getName() + " Renderer Error: " + kml);
         } else {
             try {
-                insertXMLString(feature, kml, xmlSerializer);
+                insertXMLString(feature, kmlPolygon, xmlSerializer);
             } catch (Exception e) {
                 throw new IOException("Failed to insert renderer KML output. " + kml, e);
             }
@@ -695,6 +757,8 @@ public class KMLExportThread extends java.lang.Thread {
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_SQUARE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, 0, 0);
+        //kml exports squares as polygons
+        final String kmlPolygon = parsePolygonFromMultipleFeatureKML(kml);
 
         //Log.i(TAG, kmlTG);
         final int iIndex = kml.indexOf("<Folder");
@@ -704,7 +768,7 @@ public class KMLExportThread extends java.lang.Thread {
             Log.e(TAG, feature.getName() + " Renderer Error: " + kml);
         } else {
             try {
-                insertXMLString(feature, kml, xmlSerializer);
+                insertXMLString(feature, kmlPolygon, xmlSerializer);
             } catch (Exception e) {
                 throw new IOException("Failed to insert renderer KML output. " + kml, e);
             }
