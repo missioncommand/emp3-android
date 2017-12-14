@@ -547,28 +547,27 @@ public class KMLExportThread extends java.lang.Thread {
 
     private static String convertDocumentToString(final Document doc) {
         final TransformerFactory tf = TransformerFactory.newInstance();
-        try {
+        try (final StringWriter writer = new StringWriter()) {
             final Transformer transformer = tf.newTransformer();
-            // below code to remove XML declaration
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            final StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             return writer.getBuffer().toString();
-        } catch (final TransformerException ex) {
-            ex.printStackTrace();
+        } catch (final IOException | TransformerException ex) {
+            Log.e(TAG, ex.getMessage());
         }
         return null;
     }
+
     /**
      * Circles, ellipses, squares, and rectangles are represented by a path and a polygon
      * in kml.  Therefore we parse out the path so that we only return the polygon part
      * in the kml that emp exports.
      */
     private String parsePolygonFromMultipleFeatureKML(final String kml) {
-        try {
+        try (final StringReader kmlReader = new StringReader(kml)){
             final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            final Document doc = dBuilder.parse(new InputSource(new StringReader(kml)));
+            final Document doc = dBuilder.parse(new InputSource(kmlReader));
             final Node folderNode = doc.getElementsByTagName("Folder").item(0);
             final NodeList nList = doc.getElementsByTagName("Placemark");
             Node placemarkElement;
@@ -582,7 +581,7 @@ public class KMLExportThread extends java.lang.Thread {
         } catch (Exception ex) {
             Log.e(TAG, "Error in parsing polygon out of kml" + ex.getStackTrace());
         }
-        return "";
+        return kml;
     }
 
     private void exportEmpObjectToKML(final Circle feature, final XmlSerializer xmlSerializer) throws IOException {
