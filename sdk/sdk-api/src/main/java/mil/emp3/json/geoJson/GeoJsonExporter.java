@@ -30,9 +30,12 @@ import mil.emp3.api.Ellipse;
 import mil.emp3.api.GeoJSON;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Point;
+import mil.emp3.api.Polygon;
 import mil.emp3.api.Rectangle;
 import mil.emp3.api.Square;
+import mil.emp3.api.Text;
 import mil.emp3.api.enums.MilStdLabelSettingEnum;
+import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IEmpBoundingBox;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.api.interfaces.IFeature;
@@ -50,7 +53,7 @@ import static mil.emp3.api.enums.FeatureTypeEnum.*;
 public class GeoJsonExporter extends Thread{
 
     private static final String TAG = GeoJsonExporter.class.getSimpleName();
-    private static final int RENDER_JSON = 1;
+    private static final int RENDER_JSON = 2; //GEOJSON
     private static SimpleDateFormat zonedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
     static final private IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
     static final private ICoreManager coreManager = ManagerFactory.getInstance().getCoreManager();
@@ -142,6 +145,20 @@ public class GeoJsonExporter extends Thread{
         return temp;
     }
 
+    private void appendPolygon(final String geoJSON, StringBuffer buffer) throws IOException {
+        try {
+            final List<IFeature> features = GeoJsonParser.parse(geoJSON);
+            for (IFeature polygon : features) {
+                if (polygon instanceof Polygon) {
+                    appendGeoJSONPolygon(polygon, buffer);
+                }
+            }
+        } catch (EMP_Exception e) {
+            throw new IOException(e.getMessage());
+        }
+
+    }
+
     private void appendCircle(final Circle feature, StringBuffer buffer) throws IOException {
         IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
         String boundingBoxStr = bBox.getWest() + "," + bBox.getSouth() + "," + bBox.getEast() + "," + bBox.getNorth();
@@ -161,8 +178,8 @@ public class GeoJsonExporter extends Thread{
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_CIRCLE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, RENDER_JSON, 0);
-        buffer.append(geoJSON);
-    }
+        appendPolygon(geoJSON, buffer);
+     }
 
     private void appendEllipse(final Ellipse feature, StringBuffer buffer) throws IOException {
         IEmpBoundingBox bBox = feature.getFeatureBoundingBox();
@@ -184,7 +201,7 @@ public class GeoJsonExporter extends Thread{
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_ELLIPSE----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, RENDER_JSON, 0);
-        buffer.append(geoJSON);
+        appendPolygon(geoJSON, buffer);
     }
 
     private void appendRectangle(final Rectangle feature, StringBuffer buffer) throws IOException {
@@ -207,7 +224,7 @@ public class GeoJsonExporter extends Thread{
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_RECTANGLE--", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, RENDER_JSON, 0);
-        buffer.append(geoJSON);
+        appendPolygon(geoJSON, buffer);
     }
 
     private void appendSquare(final Square feature, StringBuffer buffer) throws IOException {
@@ -230,7 +247,7 @@ public class GeoJsonExporter extends Thread{
                 feature.getGeoId().toString(), feature.getName(), feature.getDescription(),
                 "PBS_SQUARE-----", coordinateStr, altitudeModeStr, scale, boundingBoxStr,
                 modifiers, attributes, RENDER_JSON, 0);
-        buffer.append(geoJSON);
+        appendPolygon(geoJSON, buffer);
     }
 
 
@@ -357,9 +374,8 @@ public class GeoJsonExporter extends Thread{
                 feature.setProperty(TEMP_DATAURL_STRING, encoded);
             }
 
-            buffer.append("\"url\": {");
+            buffer.append("\"url\": ");
             buffer.append(iconURL);
-            buffer.append("}"); // url
             buffer.append(",");
             tempIconStyle.setOffSetX(oImageInfo.getCenterPoint().x);
             tempIconStyle.setOffSetY(oImageInfo.getImageBounds().height() - oImageInfo.getCenterPoint().y);
@@ -378,25 +394,30 @@ public class GeoJsonExporter extends Thread{
         buffer.append("\"coordinates\":  ");
         IGeoPosition position = feature.getPositions().get(0);
         buffer.append("[");
-        buffer.append(position.getLatitude());
+        buffer.append(position.getLongitude());
         buffer.append(", ");
         buffer.append(position.getLatitude());
         buffer.append("]");
         buffer.append("}");// end of geometry
         buffer.append(",\n\"properties\": {");
         buffer.append("\"style\": {");
-        buffer.append("\"iconStyle\": {");
-        if (feature.getFeatureType() == GEO_POINT) {
-            buffer.append("\"url\": {");
-            buffer.append("\"" + ((Point) feature).getIconURI() + "\"");
-            buffer.append("}"); // url
+        if (feature.getFeatureType() == GEO_TEXT) {
+            buffer.append("\"text\": ");
+            buffer.append("\"" + ((Text) feature).getText() + "\"");
         } else {
-            // must be single point milstd symbol
-            appendDataURL((MilStdSymbol)feature, buffer);
+            buffer.append("\"iconStyle\": {");
+            if (feature.getFeatureType() == GEO_POINT) {
+                buffer.append("\"url\": ");
+                buffer.append("\"" + ((Point) feature).getIconURI() + "\"");
+            } else if (feature.getFeatureType() == GEO_MIL_SYMBOL) {
+                // must be single point milstd symbol
+                appendDataURL((MilStdSymbol) feature, buffer);
+            }
+            buffer.append("}"); // iconStyle
         }
-        buffer.append("}"); // iconStyle
         buffer.append("}"); // style
         appendGeoJSONOtherProperties(feature, buffer);
+
         buffer.append("}");
     }
 
@@ -407,7 +428,6 @@ public class GeoJsonExporter extends Thread{
      */
 
     public void appendFeature(IFeature feature, StringBuffer buffer) throws IOException {
-
         buffer.append("{\"type\":  \"Feature\",\n");
         switch (feature.getFeatureType()) {
             case GEO_RECTANGLE:
@@ -429,6 +449,7 @@ public class GeoJsonExporter extends Thread{
                 appendGeoJSONPath(feature, buffer);
                 break;
             case GEO_POINT:
+            case GEO_TEXT:
                 appendGeoJSONPoint(feature, buffer);
                 break;
             case GEOJSON:
@@ -436,7 +457,6 @@ public class GeoJsonExporter extends Thread{
                 Log.i(TAG, "Child feature can't be GEOJSON type");
                 break;
             case GEO_ACM:
-            case GEO_TEXT:
             case GEO_MIL_SYMBOL:
                 if(((MilStdSymbol)feature).isSinglePoint()) {
                     appendGeoJSONPoint(feature, buffer);
@@ -466,9 +486,14 @@ public class GeoJsonExporter extends Thread{
     }
 
     private void getAllFeatures(IOverlay overlay, List<IFeature> featureList) {
-        for (IOverlay ovl : overlay.getOverlays()) {
-            getAllFeatures(ovl, featureList);  // recursive
-            featureList.addAll(ovl.getFeatures());
+        List<IOverlay> overlays = overlay.getOverlays();
+        if (overlays != null && !overlays.isEmpty()) {
+            for (IOverlay ovl : overlay.getOverlays()) {
+                getAllFeatures(ovl, featureList);  // recursive
+                featureList.addAll(ovl.getFeatures());
+            }
+        } else {
+            featureList.addAll(overlay.getFeatures());
         }
     }
 
