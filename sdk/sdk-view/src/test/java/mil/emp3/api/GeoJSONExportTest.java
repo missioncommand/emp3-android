@@ -1,6 +1,5 @@
 package mil.emp3.api;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.robolectric.util.Logger;
@@ -9,12 +8,11 @@ import mil.emp3.api.abstracts.Feature;
 import mil.emp3.api.interfaces.IEmpExportToStringCallback;
 import mil.emp3.json.geoJson.GeoJsonCaller;
 
+import static mil.emp3.api.utils.ComparisonUtils.compareFeatureToGeoJsonPolygon;
 import static mil.emp3.api.utils.ComparisonUtils.compareFeatureToPath;
-import static mil.emp3.api.utils.ComparisonUtils.compareFeatureToPolygon;
 import static mil.emp3.api.utils.ComparisonUtils.comparePath;
 import static mil.emp3.api.utils.ComparisonUtils.comparePoint;
 import static mil.emp3.api.utils.ComparisonUtils.comparePolygon;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class GeoJSONExportTest extends TestBaseSingleMap{
@@ -43,7 +41,6 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
                             try
                             {
                                 final GeoJSON geoJSON = new GeoJSON(geoJSONStr);
@@ -51,6 +48,8 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                                 comparePoint(importedPoint, feature);
                             } catch (final Exception e){
                                 fail(e.getMessage());
+                            } finally {
+                                resultFound[0] = true;
                             }
                         }
 
@@ -85,7 +84,6 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                     {
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
                             try
                             {
                                 final GeoJSON geoJSON = new GeoJSON(geoJSONStr);
@@ -93,6 +91,8 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                                 comparePoint(importedPoint, feature);
                             } catch (final Exception e){
                                 fail(e.getMessage());
+                            } finally {
+                                resultFound[0] = true;
                             }
                         }
 
@@ -126,7 +126,6 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
                             try
                             {
                                 final GeoJSON geoJSON = new GeoJSON(geoJSONStr);
@@ -134,6 +133,8 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                                 comparePoint(importedPoint, feature);
                             } catch (final Exception e){
                                 fail(e.getMessage());
+                            } finally {
+                                resultFound[0] = true;
                             }
                         }
 
@@ -170,7 +171,6 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
                             try
                             {
                                 final GeoJSON geoJSON = new GeoJSON(geoJSONStr);
@@ -178,6 +178,8 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                                 comparePolygon(importedPolygon, feature);
                             } catch (final Exception e){
                                 fail(e.getMessage());
+                            } finally {
+                                resultFound[0] = true;
                             }
                         }
 
@@ -213,11 +215,9 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         Logger.info(featureType + " is rendered as Polygon");
                         Logger.info(feature.toString());
                         Logger.info(obj.toString());
-                        compareFeatureToPolygon(feature, (Polygon) obj);
+                        compareFeatureToGeoJsonPolygon(feature, (Polygon) obj);
                     } else if (obj instanceof Point && featureType.equals("Text")) {
-                        String str1 = ((Text) feature).getText();
-                        String str2 = ((Text) obj).getText();
-                        Assert.assertEquals(str1, str2);
+                        // GeoJSON has no place for text, so comparison is omitted
                     } else {
                         Logger.error(featureType + " is rendered as " + obj.getClass().getSimpleName());
                     }
@@ -243,8 +243,8 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
                             parseGeoJSON("Circle", geoJSONStr, feature);
+                            resultFound[0] = true;
                         }
 
                         @Override
@@ -280,8 +280,8 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
                             parseGeoJSON("Ellipse", geoJSONStr, feature);
+                            resultFound[0] = true;
                         }
                         @Override
                         public void exportFailed(Exception ex)
@@ -316,8 +316,8 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
                             parseGeoJSON("Square", geoJSONStr, feature);
+                            resultFound[0] = true;
                         }
 
                         @Override
@@ -353,8 +353,11 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
-                            parseGeoJSON("Rectangle", geoJSONStr, feature);
+                            try {
+                                parseGeoJSON("Rectangle", geoJSONStr, feature);
+                            } finally {
+                                resultFound[0] = true;
+                            }
                         }
 
                         @Override
@@ -390,9 +393,11 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
-                            System.out.println(geoJSONStr);
-                            parseGeoJSON("Text", geoJSONStr, feature);
+                            try {
+                                parseGeoJSON("Text", geoJSONStr, feature);
+                            } finally {
+                                resultFound[0] = true;
+                            }
                         }
 
                         @Override
@@ -428,7 +433,6 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                         @Override
                         public void exportSuccess(final String geoJSONStr)
                         {
-                            resultFound[0] = true;
                             try
                             {
                                 final GeoJSON geoJSON = new GeoJSON(geoJSONStr);
@@ -436,6 +440,8 @@ public class GeoJSONExportTest extends TestBaseSingleMap{
                                 comparePath(feature, importedPath);
                             } catch (final Exception e){
                                 fail(e.getMessage());
+                            } finally {
+                                resultFound[0] = true;
                             }
                         }
 

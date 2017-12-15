@@ -10,7 +10,6 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
@@ -35,10 +34,6 @@ import mil.emp3.api.interfaces.core.IStorageManager;
 import mil.emp3.api.shadows.ShadowTestRunner;
 import mil.emp3.api.shadows.ShadowUnitDefTable;
 import mil.emp3.api.utils.ManagerFactory;
-import mil.emp3.core.CoreManager;
-import mil.emp3.core.EventManager;
-import mil.emp3.core.storage.StorageManager;
-import mil.emp3.core.utils.MilStdRenderer;
 import mil.emp3.mapengine.interfaces.IMapInstance;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 
@@ -54,10 +49,10 @@ abstract public class TestBase {
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    static final protected IStorageManager storageManager = new StorageManager();
-    static final protected IEventManager eventManager     = new EventManager();
-    static final protected ICoreManager coreManager       = new CoreManager();
-    static final protected IMilStdRenderer milStdRenderer = new MilStdRenderer();
+    static final protected IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
+    static final protected IEventManager eventManager     = ManagerFactory.getInstance().getEventManager();
+    static final protected ICoreManager coreManager       = ManagerFactory.getInstance().getCoreManager();
+    static final protected IMilStdRenderer milStdRenderer = ManagerFactory.getInstance().getMilStdRenderer();
 
     static {
         storageManager.setEventManager(eventManager);

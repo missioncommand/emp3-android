@@ -50,7 +50,6 @@ public class GeoJsonParser {
             JsonValue value = Json.parse(reader);
             return parseJsonObject(value);
         } catch (Exception ioe) {
-            ioe.printStackTrace();
             throw new EMP_Exception(EMP_Exception.ErrorDetail.INVALID_PARAMETER, "GeoJSON input error");
         }
     }
