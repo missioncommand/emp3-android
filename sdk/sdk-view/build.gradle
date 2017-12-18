@@ -95,6 +95,7 @@ android {
     }
 }
 
+// Comment out this task and dependsOn statement to run offline build.
 task pullResources(type: Exec) {
     workingDir "$rootDir"
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
