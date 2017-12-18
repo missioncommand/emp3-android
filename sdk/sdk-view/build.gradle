@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 apply from: "$rootDir/build-support/emp3-gradle-plugin/src/main/resources/android-lib.gradle"
 
 apply plugin: 'nebula.maven-base-publish'
@@ -92,3 +94,17 @@ android {
         }
     }
 }
+
+task pullResources(type: Exec) {
+    workingDir "$rootDir"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        // Run ps1 script
+        commandLine "powershell $rootDir\\build-support\\scripts\\retrieve_test_resources.ps1", "$rootDir"
+    }
+    else {
+        // Run sh script
+        commandLine "$rootDir/build-support/scripts/retrieve_test_resources.sh", "$rootDir"
+    }
+}
+
+build.dependsOn pullResources

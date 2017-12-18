@@ -1,4 +1,5 @@
 # Execution: powershell -noexit -ExecutionPolicy ByPass -File .\retrieve_test_resources.ps1
+# args[0] = path of root emp dir
 $url_unitsb = "https://raw.githubusercontent.com/missioncommand/mil-sym-android/master/renderer/src/main/res/raw/unitconstantsb.xml"
 $output_unitsb = "$PSScriptRoot\unitconstantsb.xml"
 Invoke-WebRequest -Uri $url_unitsb -OutFile $output_unitsb
@@ -8,5 +9,6 @@ $output_unitsc = "$PSScriptRoot\unitconstantsc.xml"
 Invoke-WebRequest -Uri $url_unitsc -OutFile $output_unitsc
 
 # Move block
-mv .\unitconstantsb.xml ..\..\sdk\sdk-view\src\test\resources
-mv .\unitconstantsb.xml ..\..\sdk\sdk-view\src\test\resources
+mv .\unitconstantsb.xml args[0]\sdk\sdk-view\src\test\resources
+mv .\unitconstantsb.xml args[0]\sdk\sdk-view\src\test\resources
+echo "Pulling resources was successful."
