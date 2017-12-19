@@ -7,4 +7,4 @@ curl https://raw.githubusercontent.com/missioncommand/mil-sym-android/master/ren
 # Move block
 mv unitconstantsc.xml $1/sdk/sdk-view/src/test/resources
 mv unitconstantsb.xml $1/sdk/sdk-view/src/test/resources
-echo "Pulling resources was successful.""
+echo "Pulling resources was successful."
