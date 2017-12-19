@@ -864,7 +864,7 @@ public class MilStdRenderer implements IMilStdRenderer {
     }
 
     /**
-     * Gets renderer setting unknown graphic line color
+     * Gets renderer setting unknown graphic line color.
      * @return {@link IGeoColor} unknown graphic line color.
      */
     public static IGeoColor getUnknownGraphicLineColor() {
@@ -872,16 +872,16 @@ public class MilStdRenderer implements IMilStdRenderer {
     }
 
     /**
-     *Sets renderer setting neutral graphic line color
-     * @param neutralGraphicLineColor {@link IGeoColor} neutral graphic line color
+     *Sets renderer setting neutral graphic line color.
+     * @param neutralGraphicLineColor {@link IGeoColor} neutral graphic line color.
      */
     public static void setNeutralGraphicLineColor(IGeoColor neutralGraphicLineColor) {
         rendererSettings.setNeutralGraphicLineColor(ColorUtils.CmapiColorToRendererColor(neutralGraphicLineColor));
     }
 
     /**
-     * Gets renderer setting neutral graphic line color
-     * @return {@link} neutral graphic line color
+     * Gets renderer setting neutral graphic line color.
+     * @return {@link} neutral graphic line color.
      */
     public static IGeoColor getNeutralGraphicLineColor() {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getNeutralGraphicLineColor());
@@ -889,15 +889,15 @@ public class MilStdRenderer implements IMilStdRenderer {
 
     /**
      * Sets renderer setting hostile graphic line color.
-     * @param hostileGraphicLineColor {@link IGeoColor} hostile graphic line color
+     * @param hostileGraphicLineColor {@link IGeoColor} hostile graphic line color.
      */
     public static void setHostileGraphicLineColor(final IGeoColor hostileGraphicLineColor) {
         rendererSettings.setHostileGraphicLineColor(ColorUtils.CmapiColorToRendererColor(hostileGraphicLineColor));
     }
 
     /**
-     * Gets renderer setting hostile graphic line color
-     * @return {@link IGeoColor} hostile graphic line color
+     * Gets renderer setting hostile graphic line color.
+     * @return {@link IGeoColor} hostile graphic line color.
      */
     public static IGeoColor getHostileGraphicLineColor() {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getHostileGraphicLineColor());
@@ -960,8 +960,8 @@ public class MilStdRenderer implements IMilStdRenderer {
     }
 
     /**
-     * Gets renderer setting hostile unit line color
-     * @return {@link IGeoColor} hostile unit line color
+     * Gets renderer setting hostile unit line color.
+     * @return {@link IGeoColor} hostile unit line color.
      */
     public static IGeoColor getHostileUnitLineColor() {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getHostileUnitLineColor());
@@ -969,7 +969,7 @@ public class MilStdRenderer implements IMilStdRenderer {
 
     /**
      * Sets renderer setting friendly unit line color.
-     * @param friendlyUnitLineColor {@link IGeoColor} friendly unit line color
+     * @param friendlyUnitLineColor {@link IGeoColor} friendly unit line color.
      */
     public static void setFriendlyUnitLineColor(final IGeoColor friendlyUnitLineColor) {
         rendererSettings.setFriendlyUnitLineColor(ColorUtils.CmapiColorToRendererColor(friendlyUnitLineColor));
@@ -986,18 +986,18 @@ public class MilStdRenderer implements IMilStdRenderer {
     /**
      * Gets the preferred fill affiliation color for units.
      *
-     * @return {@link IGeoColor} friendly unit fill color
+     * @return {@link IGeoColor} friendly unit fill color.
      */
     public static IGeoColor getFriendlyUnitFillColor() {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getFriendlyUnitFillColor());
     }
     /**
-     * Sets the preferred fill affiliation color for units
+     * Sets the preferred fill affiliation color for units.
      *
      * @param friendlyUnitFillColor {@link IGeoColor} friendly unit fill color.
      *
      * */
-    public static void setFriendlyUnitFillColor(IGeoColor friendlyUnitFillColor) {
+    public static void setFriendlyUnitFillColor(final IGeoColor friendlyUnitFillColor) {
         rendererSettings.setFriendlyUnitFillColor(ColorUtils.CmapiColorToRendererColor(friendlyUnitFillColor));
     }
     /**
@@ -1015,7 +1015,7 @@ public class MilStdRenderer implements IMilStdRenderer {
      * @param hostileUnitFillColor {@link IGeoColor} hostile unit fill color.
      *
      * */
-    public static void setHostileUnitFillColor(IGeoColor hostileUnitFillColor) {
+    public static void setHostileUnitFillColor(final IGeoColor hostileUnitFillColor) {
         rendererSettings.setHostileUnitFillColor(ColorUtils.CmapiColorToRendererColor(hostileUnitFillColor));
     }
     /**
@@ -1033,7 +1033,7 @@ public class MilStdRenderer implements IMilStdRenderer {
      * @param neutralUnitFillColor {@link IGeoColor} neutral unit fill color.
      *
      * */
-    public static void setNeutralUnitFillColor(IGeoColor neutralUnitFillColor) {
+    public static void setNeutralUnitFillColor(final IGeoColor neutralUnitFillColor) {
         rendererSettings.setNeutralUnitFillColor(ColorUtils.CmapiColorToRendererColor(neutralUnitFillColor));
     }
     /**
@@ -1046,48 +1046,48 @@ public class MilStdRenderer implements IMilStdRenderer {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getUnknownUnitFillColor());
     }
     /**
-     * Sets the preferred fill affiliation color for units
+     * Sets the preferred fill affiliation color for units.
      *
      * @param unknownUnitFillColor {@link IGeoColor} unknown unit fill color.
      *
      * */
-    public static void setUnknownUnitFillColor(IGeoColor unknownUnitFillColor) {
+    public static void setUnknownUnitFillColor(final IGeoColor unknownUnitFillColor) {
         rendererSettings.setUnknownUnitFillColor(ColorUtils.CmapiColorToRendererColor(unknownUnitFillColor));
     }
     /**
      * Gets the preferred fill affiliation color for graphics.
      *
-     * @return {@link IGeoColor} hostile graphic fill color
+     * @return {@link IGeoColor} hostile graphic fill color.
      *
      * */
     public static IGeoColor getHostileGraphicFillColor() {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getHostileGraphicFillColor());
     }
     /**
-     * Sets the preferred fill affiliation color for graphics
+     * Sets the preferred fill affiliation color for graphics.
      *
      * @param hostileGraphicFillColor {@link IGeoColor} hostile graphic fill color.
      *
      */
-    public static void setHostileGraphicFillColor(IGeoColor hostileGraphicFillColor) {
+    public static void setHostileGraphicFillColor(final IGeoColor hostileGraphicFillColor) {
         rendererSettings.setHostileGraphicFillColor(ColorUtils.CmapiColorToRendererColor(hostileGraphicFillColor));
     }
     /**
      * Gets the preferred fill affiliation color for graphics.
      *
-     * @return {@link IGeoColor} friendly graphic fill color
+     * @return {@link IGeoColor} friendly graphic fill color.
      *
      */
     public static IGeoColor getFriendlyGraphicFillColor() {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getFriendlyGraphicFillColor());
     }
     /**
-     * Sets the preferred fill affiliation color for graphics
+     * Sets the preferred fill affiliation color for graphics.
      *
      * @param friendlyGraphicFillColor {@link IGeoColor} friendly graphic fill color.
      *
      * */
-    public static void setFriendlyGraphicFillColor(IGeoColor friendlyGraphicFillColor) {
+    public static void setFriendlyGraphicFillColor(final IGeoColor friendlyGraphicFillColor) {
         rendererSettings.setFriendlyGraphicFillColor(ColorUtils.CmapiColorToRendererColor(friendlyGraphicFillColor));
     }
     /**
@@ -1100,30 +1100,30 @@ public class MilStdRenderer implements IMilStdRenderer {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getNeutralGraphicFillColor());
     }
     /**
-     * Sets the preferred fill affiliation color for graphics
+     * Sets the preferred fill affiliation color for graphics.
      *
      * @param neutralGraphicFillColor {@link IGeoColor} neutral graphic fill color.
      *
      * */
-    public static void setNeutralGraphicFillColor(IGeoColor neutralGraphicFillColor) {
+    public static void setNeutralGraphicFillColor(final IGeoColor neutralGraphicFillColor) {
         rendererSettings.setNeutralGraphicFillColor(ColorUtils.CmapiColorToRendererColor(neutralGraphicFillColor));
     }
     /**
      * Gets the preferred fill affiliation color for graphics.
      *
-     * @return {@link IGeoColor} unknown graphic fill color
+     * @return {@link IGeoColor} unknown graphic fill color.
      *
      * */
     public static IGeoColor getUnknownGraphicFillColor() {
         return ColorUtils.RendererColorToCmapiColor(rendererSettings.getUnknownGraphicFillColor());
     }
     /**
-     * Sets the preferred fill affiliation color for graphics
+     * Sets the preferred fill affiliation color for graphics.
      *
      * @param unknownGraphicFillColor {@link IGeoColor} unknown graphic fill color.
      *
      * */
-    public static void setUnknownGraphicFillColor(IGeoColor unknownGraphicFillColor) {
+    public static void setUnknownGraphicFillColor(final IGeoColor unknownGraphicFillColor) {
         rendererSettings.setUnknownGraphicFillColor(ColorUtils.CmapiColorToRendererColor(unknownGraphicFillColor));
     }
 
