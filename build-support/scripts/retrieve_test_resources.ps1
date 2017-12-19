@@ -9,6 +9,7 @@ $output_unitsc = "$PSScriptRoot\unitconstantsc.xml"
 Invoke-WebRequest -Uri $url_unitsc -OutFile $output_unitsc
 
 # Move block
-mv .\unitconstantsb.xml args[0]\sdk\sdk-view\src\test\resources
-mv .\unitconstantsb.xml args[0]\sdk\sdk-view\src\test\resources
+$endPath = "$Args\sdk\sdk-view\src\test\resources"
+mv .\unitconstantsb.xml $endPath
+mv .\unitconstantsc.xml $endPath
 echo "Pulling resources was successful."
