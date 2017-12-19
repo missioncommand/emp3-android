@@ -2,6 +2,7 @@ package mil.emp3.api;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -667,6 +668,11 @@ public class RemoteMap implements IMap {
     }
 
     @Override
+    public IGeoPosition containerToGeo(PointF point) throws EMP_Exception {
+        return this.oClientMap.containerToGeo(point);
+    }
+
+    @Override
     public void selectFeature(IFeature feature) {
         this.oClientMap.selectFeature(feature);
     }
@@ -973,6 +979,12 @@ public class RemoteMap implements IMap {
 
         @Override
         public IGeoPosition containerToGeo(Point point) {
+            return null;
+        }
+
+        @Override
+        public IGeoPosition containerToGeo(final PointF point)
+        {
             return null;
         }
 

@@ -3,6 +3,7 @@ package mil.emp3.api;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -749,6 +750,11 @@ public class MapView extends FrameLayout implements IMap {
 
     @Override
     public IGeoPosition containerToGeo(Point point) throws EMP_Exception {
+        return this.oClientMap.containerToGeo(point);
+    }
+
+    @Override
+    public IGeoPosition containerToGeo(PointF point) throws EMP_Exception {
         return this.oClientMap.containerToGeo(point);
     }
 

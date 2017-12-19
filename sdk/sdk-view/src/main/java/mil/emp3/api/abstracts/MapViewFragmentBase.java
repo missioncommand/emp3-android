@@ -3,10 +3,13 @@ package mil.emp3.api.abstracts;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.graphics.PointF;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+
+import org.cmapi.primitives.IGeoPosition;
 
 import java.io.File;
 import java.io.IOException;

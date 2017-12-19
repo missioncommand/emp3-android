@@ -1,6 +1,7 @@
 package mil.emp3.mapengine.interfaces;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoPosition;
@@ -334,6 +335,14 @@ public interface IMapInstance {
      */
 
     IGeoPosition containerToGeo(Point point);
+
+    /**
+     * containerToGeo - converts from container coordinates to GeoPosition
+     * @param point
+     * @return a GeoPosition coordinate for the provided container X,Y coordinate.
+     */
+
+    IGeoPosition containerToGeo(PointF point);
 
     /**
      * Instructs the map instance to render the features in the list with the selected style

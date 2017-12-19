@@ -1,6 +1,7 @@
 package mil.emp3.core;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.Log;
 
 import org.cmapi.primitives.IGeoBounds;
@@ -402,6 +403,11 @@ public class CoreManager implements ICoreManager {
 
     @Override
     public IGeoPosition containerToGeo(IMap clientMap, Point point) throws EMP_Exception {
+        return this.containerToGeo(clientMap, new PointF(point.x, point.y));
+    }
+
+    @Override
+    public IGeoPosition containerToGeo(IMap clientMap, PointF point) throws EMP_Exception {
         IClientMapToMapInstance mapMapping = storageManager.getMapMapping(clientMap);
 
         // Make sure the map exists.

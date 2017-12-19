@@ -1,6 +1,7 @@
 package mil.emp3.api.interfaces.core;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 
 import org.cmapi.primitives.IGeoBounds;
 import org.cmapi.primitives.IGeoMilSymbol;
@@ -98,6 +99,16 @@ public interface ICoreManager {
      */
 
     IGeoPosition containerToGeo(IMap clientMap, Point point) throws EMP_Exception;
+
+    /**
+     * containerToGeo - converts from container coordinates to GeoPosition
+     * @param clientMap
+     * @param point
+     * @return a GeoPosition coordinate for the provided container X,Y coordinate.
+     */
+
+    IGeoPosition containerToGeo(IMap clientMap, PointF point) throws EMP_Exception;
+
 
     /**
      * This method set the specified map grid on the map specified.

@@ -1,6 +1,7 @@
 package mil.emp3.api.interfaces;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.view.View;
 
 import org.cmapi.primitives.IGeoBounds;
@@ -804,6 +805,14 @@ public interface IMap extends IContainer {
      */
 
     IGeoPosition containerToGeo(Point point) throws EMP_Exception;
+
+    /**
+     * containerToGeo - converts from container coordinates to GeoPosition
+     * @param point
+     * @return a GeoPosition coordinate for the provided container X,Y coordinate.
+     */
+
+    IGeoPosition containerToGeo(PointF point) throws EMP_Exception;
 
     /**
      * This method selects the feature on the map. If the feature is already selected, or not on the map no action is taken.

@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -1156,6 +1157,26 @@ public class MapInstance extends CoreMapInstance {
      */
     @Override
     public IGeoPosition containerToGeo(Point point) {
+        if(!SystemUtils.isCurrentThreadUIThread()) {
+            Log.w(TAG, "containerToGeo not on UI thread, result may not be correct");
+        }
+        IGeoPosition geoPosition = null;
+        Position pos = new Position();
+        if (mapController.screenPointToGroundPosition(point.x, point.y, pos)) {
+            geoPosition = new GeoPosition();
+            geoPosition.setLatitude(pos.latitude);
+            geoPosition.setLongitude(pos.longitude);
+        }
+        return geoPosition;
+    }
+
+    /**
+     * Caller must be on UI thread
+     * @param point
+     * @return
+     */
+    @Override
+    public IGeoPosition containerToGeo(PointF point) {
         if(!SystemUtils.isCurrentThreadUIThread()) {
             Log.w(TAG, "containerToGeo not on UI thread, result may not be correct");
         }

@@ -1,6 +1,7 @@
 package mil.emp3.core.events;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 
 import org.cmapi.primitives.IGeoPosition;
 
@@ -29,6 +30,25 @@ public class MapUserInteractionEvent extends mil.emp3.api.events.MapUserInteract
                                    UserInteractionMouseButtonEnum oButton,
                                    IMap oMap,
                                    Point oPoint,
+                                   IGeoPosition oPosition,
+                                   IGeoPosition oStartPosition) {
+        super(eEvent, oKeys, oButton, oMap, oPoint, oPosition, oStartPosition);
+    }
+
+    public MapUserInteractionEvent(UserInteractionEventEnum eEvent,
+                                   EnumSet<UserInteractionKeyEnum> oKeys,
+                                   UserInteractionMouseButtonEnum oButton,
+                                   IMap oMap,
+                                   PointF oPoint,
+                                   IGeoPosition oPosition) {
+        super(eEvent, oKeys, oButton, oMap, oPoint, oPosition);
+    }
+
+    public MapUserInteractionEvent(UserInteractionEventEnum eEvent,
+                                   EnumSet<UserInteractionKeyEnum> oKeys,
+                                   UserInteractionMouseButtonEnum oButton,
+                                   IMap oMap,
+                                   PointF oPoint,
                                    IGeoPosition oPosition,
                                    IGeoPosition oStartPosition) {
         super(eEvent, oKeys, oButton, oMap, oPoint, oPosition, oStartPosition);

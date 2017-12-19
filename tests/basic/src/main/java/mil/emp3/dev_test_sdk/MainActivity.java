@@ -264,11 +264,16 @@ public class MainActivity extends AppCompatActivity
                         event.getPoint().y + "  Lat: " + event.getCoordinate().getLatitude() + " Lon: " + event.getCoordinate().getLongitude());
             }
 
+
             switch (event.getEvent()) {
                 case CLICKED:
                     try {
                         IGeoPosition pos = MainActivity.this.map.containerToGeo(event.getPoint());
                         Log.d(TAG, "Map User container to geo: Lat/Lon: " + pos.getLatitude() + " / " +
+                                pos.getLongitude());
+
+                        IGeoPosition pos2 = MainActivity.this.map.containerToGeo(event.getPointF());
+                        Log.d(TAG, "Map User container to geo Float: Lat/Lon: " + pos.getLatitude() + " / " +
                                 pos.getLongitude());
                         android.graphics.Point point = MainActivity.this.map.geoToContainer(event.getCoordinate());
                         Log.d(TAG, "Map User geo to container: X/Y: " + point.x + " / " +
