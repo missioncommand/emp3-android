@@ -15,7 +15,9 @@ configurations {
 }
 dependencies {
     implementation         ("net.sf.geographiclib:GeographicLib-Java:1.49")
-    compileOnly files      ("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
+    Properties localProps = new Properties()
+    localProps.load(project.rootProject.file('local.properties').newDataInputStream())
+    compileOnly files("${localProps.getProperty('sdk.dir')}/platforms/android-${android_compileSdkVersion}/android.jar")
     testImplementation 'junit:junit:4.12'
 }
 
