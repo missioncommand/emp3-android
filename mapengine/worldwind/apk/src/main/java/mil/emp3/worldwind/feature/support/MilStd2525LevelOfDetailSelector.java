@@ -113,7 +113,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
 
         // Update position.
         IGeoPosition oPos = milStdPlacemark.getSymbol().getPosition();
-        placemark.setPosition(Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()));
+        placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         // Determine the normal attributes based on the distance from the camera to the placemark
         if (cameraDistance > FAR_THRESHOLD) {

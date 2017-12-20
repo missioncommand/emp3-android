@@ -167,15 +167,15 @@ public class MilStdRenderer implements IMilStdRenderer {
 
         if (selected) {
             strokeColor = storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor();
-            oArray.put(MilStdAttributes.TextColor, EmpGeoColor.STR_YELLOW);
-            oArray.put(MilStdAttributes.TextBackgroundColor, EmpGeoColor.STR_BLACK);
+            oArray.put(MilStdAttributes.TextColor, ColorUtils.colorToHashString(storageManager.getSelectedLabelStyle(mapInstance).getColor()));
+            oArray.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToHashString(storageManager.getSelectedLabelStyle(mapInstance).getOutlineColor()));
         } else {
             if (oStrokeStyle != null) {
                 strokeColor = oStrokeStyle.getStrokeColor();
             }
             if (labelStyle != null) {
-                oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(labelStyle.getOutlineColor()));
-                oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(labelStyle.getOutlineColor()));
+                oArray.put(MilStdAttributes.TextColor, ColorUtils.colorToHashString(labelStyle.getOutlineColor()));
+                oArray.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToHashString(labelStyle.getOutlineColor()));
             } else {
                 oArray.put(MilStdAttributes.TextColor, EmpGeoColor.STR_BLACK);
                 oArray.put(MilStdAttributes.TextBackgroundColor, EmpGeoColor.STR_WHITE);
@@ -183,16 +183,16 @@ public class MilStdRenderer implements IMilStdRenderer {
         }
 
         if (oFillStyle != null) {
-            oArray.put(MilStdAttributes.FillColor, "#" + ColorUtils.colorToString(oFillStyle.getFillColor()));
+            oArray.put(MilStdAttributes.FillColor, ColorUtils.colorToHashString(oFillStyle.getFillColor()));
         }
 
         if (oStrokeStyle != null) {
-            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(oStrokeStyle.getStrokeColor()));
+            oArray.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(oStrokeStyle.getStrokeColor()));
             oArray.put(MilStdAttributes.LineWidth, "" + (int) oStrokeStyle.getStrokeWidth());
         }
 
         if (strokeColor != null) {
-            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(strokeColor));
+            oArray.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(strokeColor));
         }
 
         if (isMilStd && !((MilStdSymbol) feature).isSinglePoint()) {

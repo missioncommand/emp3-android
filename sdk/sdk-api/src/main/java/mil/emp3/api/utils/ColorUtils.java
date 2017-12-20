@@ -10,40 +10,39 @@ import org.cmapi.primitives.IGeoColor;
  */
 public class ColorUtils {
     public static String colorToString(IGeoColor oColor) {
-        int iTemp;
-        String sTemp1;
-        String sStr = "";
-        
-        iTemp = (int) (oColor.getAlpha() * 255);
-        sTemp1 = Integer.toHexString(iTemp);
-        if (sTemp1.length() == 1) {
-            sTemp1 = "0" + sTemp1;
+        byte[] colorBytes = new byte[4];
+        StringBuffer sb = new StringBuffer();
+        colorBytes[0] = (byte) (oColor.getAlpha() * 255);
+        colorBytes[1] = (byte) oColor.getRed();
+        colorBytes[2] = (byte) oColor.getGreen();
+        colorBytes[3] = (byte) oColor.getBlue();
+        for (byte b : colorBytes) {
+            if (b == 0) {
+                sb.append("00");
+            } else {
+                sb.append(Integer.toHexString((int) (b & 0xff)));
+            }
         }
-        sStr += sTemp1;
-        
-        iTemp = (int) oColor.getRed();
-        sTemp1 = Integer.toHexString(iTemp);
-        if (sTemp1.length() == 1) {
-            sTemp1 = "0" + sTemp1;
-        }
-        sStr += sTemp1;
-        
-        iTemp = (int) oColor.getGreen();
-        sTemp1 = Integer.toHexString(iTemp);
-        if (sTemp1.length() == 1) {
-            sTemp1 = "0" + sTemp1;
-        }
-        sStr += sTemp1;
-        
-        iTemp = (int) oColor.getBlue();
-        sTemp1 = Integer.toHexString(iTemp);
-        if (sTemp1.length() == 1) {
-            sTemp1 = "0" + sTemp1;
-        }
-        sStr += sTemp1;
-        
-        return sStr;
+        return sb.toString();
     }
+
+    public static String colorToHashString(IGeoColor oColor) {
+        byte[] colorBytes = new byte[4];
+        StringBuffer sb = new StringBuffer("#");
+        colorBytes[0] = (byte) (oColor.getAlpha() * 255);
+        colorBytes[1] = (byte) oColor.getRed();
+        colorBytes[2] = (byte) oColor.getGreen();
+        colorBytes[3] = (byte) oColor.getBlue();
+        for (byte b : colorBytes) {
+            if (b == 0) {
+                sb.append("00");
+            } else {
+                sb.append(Integer.toHexString((int) (b & 0xff)));
+            }
+        }
+        return sb.toString();
+    }
+
 
     /**
      * Returns the IGeoColor of the given hex string
