@@ -23,34 +23,34 @@ public abstract class UserInteractionEvent<TargetType extends IContainer> extend
     private UserInteractionMouseButtonEnum oButton;
     private final EnumSet<UserInteractionKeyEnum> oKeys;
 
-    protected UserInteractionEvent(UserInteractionEventEnum eEvent,
-                                   EnumSet<UserInteractionKeyEnum> keys,
-                                   UserInteractionMouseButtonEnum button,
-                                   TargetType oContainer,
-                                   android.graphics.Point oPoint,
-                                   IGeoPosition oPosition) {
-        super(eEvent, oContainer);
-        this.oPoint =  new PointF(oPoint.x, oPoint.y);
-        this.oCoordinate = oPosition;
-        this.oStartCoordinate = null;
-        this.oButton = button;
-        this.oKeys = keys;
-    }
-
-    protected UserInteractionEvent(UserInteractionEventEnum eEvent,
-                                   EnumSet<UserInteractionKeyEnum> keys,
-                                   UserInteractionMouseButtonEnum button,
-                                   TargetType oContainer,
-                                   android.graphics.Point oPoint,
-                                   IGeoPosition oPosition,
-                                   IGeoPosition oStartPosition) {
-        super(eEvent, oContainer);
-        this.oPoint = new PointF(oPoint.x, oPoint.y);
-        this.oCoordinate = oPosition;
-        this.oStartCoordinate = oStartPosition;
-        this.oButton = button;
-        this.oKeys = keys;
-    }
+//    protected UserInteractionEvent(UserInteractionEventEnum eEvent,
+//                                   EnumSet<UserInteractionKeyEnum> keys,
+//                                   UserInteractionMouseButtonEnum button,
+//                                   TargetType oContainer,
+//                                   android.graphics.Point oPoint,
+//                                   IGeoPosition oPosition) {
+//        super(eEvent, oContainer);
+//        this.oPoint =  new PointF(oPoint.x, oPoint.y);
+//        this.oCoordinate = oPosition;
+//        this.oStartCoordinate = null;
+//        this.oButton = button;
+//        this.oKeys = keys;
+//    }
+//
+//    protected UserInteractionEvent(UserInteractionEventEnum eEvent,
+//                                   EnumSet<UserInteractionKeyEnum> keys,
+//                                   UserInteractionMouseButtonEnum button,
+//                                   TargetType oContainer,
+//                                   android.graphics.Point oPoint,
+//                                   IGeoPosition oPosition,
+//                                   IGeoPosition oStartPosition) {
+//        super(eEvent, oContainer);
+//        this.oPoint = new PointF(oPoint.x, oPoint.y);
+//        this.oCoordinate = oPosition;
+//        this.oStartCoordinate = oStartPosition;
+//        this.oButton = button;
+//        this.oKeys = keys;
+//    }
 
     protected UserInteractionEvent(UserInteractionEventEnum eEvent,
                                    EnumSet<UserInteractionKeyEnum> keys,
@@ -86,8 +86,12 @@ public abstract class UserInteractionEvent<TargetType extends IContainer> extend
      * is the origin of the map container.
      * The value of the object is only valid for the duration of the event callback. The event handler
      * <b>MUST NOT</b> keep a reference to the object.
+     *
+     * Deprecated: Use getPointF() for a more precise event location
+     *
      * @return {@android.graphics.Point}
      */
+    @Deprecated
     public android.graphics.Point getPoint() {  return new Point((int)this.oPoint.x, (int)this.oPoint.y);  }
 
 

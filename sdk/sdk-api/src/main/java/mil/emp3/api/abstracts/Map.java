@@ -666,6 +666,7 @@ public abstract class Map extends Container implements IMap {
         return coreManager.geoToContainer(this, pos);
     }
 
+    @Deprecated
     @Override
     public IGeoPosition containerToGeo(Point point) throws EMP_Exception {
         return coreManager.containerToGeo(this, point);

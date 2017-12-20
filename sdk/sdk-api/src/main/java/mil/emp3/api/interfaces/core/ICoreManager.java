@@ -93,11 +93,14 @@ public interface ICoreManager {
 
     /**
      * containerToGeo - converts from container coordinates to GeoPosition
+     *
+     * Deprecated: Use containerToGeo using a PointF instead for more precise
+     * calculations
      * @param clientMap
      * @param point
      * @return a GeoPosition coordinate for the provided container X,Y coordinate.
      */
-
+    @Deprecated
     IGeoPosition containerToGeo(IMap clientMap, Point point) throws EMP_Exception;
 
     /**
@@ -106,7 +109,6 @@ public interface ICoreManager {
      * @param point
      * @return a GeoPosition coordinate for the provided container X,Y coordinate.
      */
-
     IGeoPosition containerToGeo(IMap clientMap, PointF point) throws EMP_Exception;
 
 

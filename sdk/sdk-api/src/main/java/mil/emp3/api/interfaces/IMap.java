@@ -800,10 +800,13 @@ public interface IMap extends IContainer {
 
     /**
      * containerToGeo - converts from container coordinates to GeoPosition
+     *
+     * Deprecated: Use containerToGeo with PointF for more precise calculation
+     *
      * @param point
      * @return a GeoPosition coordinate for the provided container X,Y coordinate.
      */
-
+    @Deprecated
     IGeoPosition containerToGeo(Point point) throws EMP_Exception;
 
     /**

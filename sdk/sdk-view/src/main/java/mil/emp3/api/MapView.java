@@ -748,6 +748,7 @@ public class MapView extends FrameLayout implements IMap {
         return this.oClientMap.geoToContainer(pos);
     }
 
+    @Deprecated
     @Override
     public IGeoPosition containerToGeo(Point point) throws EMP_Exception {
         return this.oClientMap.containerToGeo(point);

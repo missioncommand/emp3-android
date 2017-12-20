@@ -401,6 +401,7 @@ public class CoreManager implements ICoreManager {
         return oMapInstance.geoToContainer(pos);
     }
 
+    @Deprecated
     @Override
     public IGeoPosition containerToGeo(IMap clientMap, Point point) throws EMP_Exception {
         return this.containerToGeo(clientMap, new PointF(point.x, point.y));

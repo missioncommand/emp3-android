@@ -330,10 +330,13 @@ public interface IMapInstance {
 
     /**
      * containerToGeo - converts from container coordinates to GeoPosition
+     *
+     * Deprecated: Use containerToGeo with PointF for more precise calculations
+     *
      * @param point
      * @return a GeoPosition coordinate for the provided container X,Y coordinate.
      */
-
+    @Deprecated
     IGeoPosition containerToGeo(Point point);
 
     /**
@@ -341,7 +344,6 @@ public interface IMapInstance {
      * @param point
      * @return a GeoPosition coordinate for the provided container X,Y coordinate.
      */
-
     IGeoPosition containerToGeo(PointF point);
 
     /**

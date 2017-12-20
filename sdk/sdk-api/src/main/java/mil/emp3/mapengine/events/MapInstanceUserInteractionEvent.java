@@ -1,6 +1,9 @@
 package mil.emp3.mapengine.events;
 
 
+import android.graphics.Point;
+import android.graphics.PointF;
+
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.EnumSet;
@@ -17,7 +20,7 @@ import mil.emp3.mapengine.interfaces.IMapInstance;
  * All events of this type are handled by the EMP core code.
  */
 public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventEnum, IMapInstance> {
-    private final android.graphics.Point oPoint;
+    private final android.graphics.PointF oPoint;
     private final IGeoPosition oCoordinate;
     private final IGeoPosition oStartCoordinate;
     private UserInteractionMouseButtonEnum oButton;
@@ -27,6 +30,56 @@ public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventE
     // for DRAG event only. Remember that DRAG and DRAG_COMPLETE events never propagate to applications. Applications should not
     // use this member.
     private boolean eventConsumed;
+
+    /**
+     * This constructor must be called by the map engines to create a MapInstanceUserInteractionEvent event
+     * @param oMapInstance The actual map instance. The this property of the object that implements the IMapInstance interface.
+     * @param eEvent The enumerated value of the event that occurred. See {@link UserInteractionEventEnum}.
+     * @param oPointCoordinate The geographic coordinate of the location the event occurred.
+     * @param oPosition The cartesian coordinate relative to the origin of the view container.
+     * @param button Mouse button, left, right or middle
+     * @param keys Keyboard keys, shift, ctrl and/or alt
+     */
+    @Deprecated
+    public MapInstanceUserInteractionEvent(IMapInstance oMapInstance,
+                                           UserInteractionEventEnum eEvent,
+                                           EnumSet<UserInteractionKeyEnum> keys,
+                                           UserInteractionMouseButtonEnum button,
+                                           android.graphics.Point oPointCoordinate,
+                                           IGeoPosition oPosition) {
+        super(eEvent, oMapInstance);
+        this.oPoint = new PointF(oPointCoordinate.x, oPointCoordinate.y);
+        this.oCoordinate = oPosition;
+        this.oStartCoordinate = null;
+        this.oButton = button;
+        this.oKeys = keys;
+    }
+
+    /**
+     * This constructor must be called by the map engines to create a MapInstanceUserInteractionEvent event
+     * @param oMapInstance The actual map instance. The this property of the object that implements the IMapInstance interface.
+     * @param eEvent The enumerated value of the event that occurred. See {@link UserInteractionEventEnum}.
+     * @param oPointCoordinate The geographic coordinate of the location the event occurred.
+     * @param oPosition The cartesian coordinate relative to the origin of the view container.
+     * @param button Mouse button, left, right or middle
+     * @param keys Keyboard keys, shift, ctrl and/or alt
+     */
+    @Deprecated
+    public MapInstanceUserInteractionEvent(IMapInstance oMapInstance,
+                                           UserInteractionEventEnum eEvent,
+                                           EnumSet<UserInteractionKeyEnum> keys,
+                                           UserInteractionMouseButtonEnum button,
+                                           android.graphics.Point oPointCoordinate,
+                                           IGeoPosition oPosition,
+                                           IGeoPosition oStartPosition) {
+        super(eEvent, oMapInstance);
+        this.oPoint = oPointCoordinate == null ? null : new PointF(oPointCoordinate.x, oPointCoordinate.y);
+        this.oCoordinate = oPosition;
+        this.oStartCoordinate = oStartPosition;
+        this.oButton = button;
+        this.oKeys = keys;
+    }
+
     /**
      * This constructor must be called by the map engines to create a MapInstanceUserInteractionEvent event
      * @param oMapInstance The actual map instance. The this property of the object that implements the IMapInstance interface.
@@ -40,7 +93,7 @@ public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventE
                                            UserInteractionEventEnum eEvent,
                                            EnumSet<UserInteractionKeyEnum> keys,
                                            UserInteractionMouseButtonEnum button,
-                                           android.graphics.Point oPointCoordinate,
+                                           android.graphics.PointF oPointCoordinate,
                                            IGeoPosition oPosition) {
         super(eEvent, oMapInstance);
         this.oPoint = oPointCoordinate;
@@ -63,7 +116,7 @@ public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventE
                                            UserInteractionEventEnum eEvent,
                                            EnumSet<UserInteractionKeyEnum> keys,
                                            UserInteractionMouseButtonEnum button,
-                                           android.graphics.Point oPointCoordinate,
+                                           android.graphics.PointF oPointCoordinate,
                                            IGeoPosition oPosition,
                                            IGeoPosition oStartPosition) {
         super(eEvent, oMapInstance);
@@ -74,12 +127,25 @@ public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventE
         this.oKeys = keys;
     }
 
+
+
+    /**
+     * The geographic coordinate of the location the event occurred.
+     *
+     * Deprecated: Use getLocationF which returns a PointF for more precise location
+     *
+     * @return location
+     */
+    @Deprecated
+    public android.graphics.Point getLocation() {  return new android.graphics.Point((int)this.oPoint.x,(int) this.oPoint.y);
+    }
+
     /**
      * The geographic coordinate of the location the event occurred.
      * @return location
      */
 
-    public android.graphics.Point getLocation() {
+    public android.graphics.PointF getLocationF() {
         return this.oPoint;
     }
 

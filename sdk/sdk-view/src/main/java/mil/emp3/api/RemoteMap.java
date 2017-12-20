@@ -663,6 +663,7 @@ public class RemoteMap implements IMap {
     }
 
     @Override
+    @Deprecated
     public IGeoPosition containerToGeo(Point point) throws EMP_Exception {
         return this.oClientMap.containerToGeo(point);
     }
