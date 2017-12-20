@@ -278,8 +278,8 @@ public class MainActivity extends AppCompatActivity
                                 pos.getLongitude());
 
                         IGeoPosition pos2 = MainActivity.this.map.containerToGeo(event.getPointF());
-                        Log.d(TAG, "Map User container to geo Float: Lat/Lon: " + pos.getLatitude() + " / " +
-                                pos.getLongitude());
+                        Log.d(TAG, "Map User container to geo Float: Lat/Lon: " + pos2.getLatitude() + " / " +
+                                pos2.getLongitude());
 
                         android.graphics.Point point = MainActivity.this.map.geoToContainer(event.getCoordinate());
                         Log.d(TAG, "Map User geo to container: X/Y: " + point.x + " / " +
