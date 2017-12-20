@@ -8,7 +8,9 @@ targetCompatibility = rootProject.targetCompatibility
 
 dependencies {
     implementation   ("${cmapi_group_name}:${cmapi_jvm_artifact_name}:${version_cmapi}")
-    compileOnly files("${System.getenv("ANDROID_HOME")}/platforms/android-${android_compileSdkVersion}/android.jar")
+    Properties localProps = new Properties()
+    localProps.load(project.rootProject.file('local.properties').newDataInputStream())
+    compileOnly files("${localProps.getProperty('sdk.dir')}/platforms/android-${android_compileSdkVersion}/android.jar")
 }
 
 publishing {
