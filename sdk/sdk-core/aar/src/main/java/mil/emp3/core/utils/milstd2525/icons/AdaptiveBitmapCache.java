@@ -184,7 +184,7 @@ public class AdaptiveBitmapCache extends CoreBitmapCache {
                     }  else {
                         // Since we may want to increase the MDT, recalculate the size of the oBitmapCache, eliminating any Weak References
                         // that have been garbage collected.
-                        Log.v(TAG, "sizeBitmapCache " + sizeBitmapCache);
+//                        Log.v(TAG, "sizeBitmapCache " + sizeBitmapCache);
                         if(sizeBitmapCache > (MaxBitmapCacheSize * distanceManager.memoryThreshold)) {
                             cleanBitmapCache();
                         }
@@ -287,7 +287,7 @@ public class AdaptiveBitmapCache extends CoreBitmapCache {
         if ((null != empImageInfo) && (null == empImageInfo.getImage())) {
             removeFromBitmapCache(sKey);
             empImageInfo = null;
-            Log.i(TAG, "WeakReference in oBitmapCache");
+//            Log.i(TAG, "WeakReference in oBitmapCache");
         }
 
         // Remember that Bitmap is a WeakReference in EmpImgaeInfo and could be null as was garbage collected
@@ -297,19 +297,19 @@ public class AdaptiveBitmapCache extends CoreBitmapCache {
             if ((null != empImageInfo) && (null == empImageInfo.getImage())) {
                 removeFromBitmapCacheFarImage(sKey);
                 empImageInfo = null;
-                Log.i(TAG, "WeakReference in oBitmapCacheFarImage");
+//                Log.i(TAG, "WeakReference in oBitmapCacheFarImage");
             }
         }
 
         if (empImageInfo == null) {
             empImageInfo = createImageInfo(sSymbolCode, oModifiers, oAttr);
             if (!empImageInfo.isFarImageIcon()) {
-                Log.d(TAG, "cache create getImageInfo oBitmapCache key/size " + sizeBitmapCache + " " + empImageInfo.getImageKey() + " " +
-                        empImageInfo.getImageSize());
+//                Log.d(TAG, "cache create getImageInfo oBitmapCache key/size " + sizeBitmapCache + " " + empImageInfo.getImageKey() + " " +
+//                        empImageInfo.getImageSize());
             }
             else {
-                Log.d(TAG, "cache create getImageInfo oBitmapCacheFarImage key/size " + sizeBitmapCacheFarImage + " " + empImageInfo.getImageKey() + " " +
-                        empImageInfo.getImageSize());
+//                Log.d(TAG, "cache create getImageInfo oBitmapCacheFarImage key/size " + sizeBitmapCacheFarImage + " " + empImageInfo.getImageKey() + " " +
+//                        empImageInfo.getImageSize());
             }
         }
 
@@ -365,8 +365,8 @@ public class AdaptiveBitmapCache extends CoreBitmapCache {
                 if(sizeBitmapCache < (MaxBitmapCacheSize * distanceManager.memoryThreshold)) {
                     actualMidDistanceThreshold.put(clientMap, midDistanceThreshold);
                 } else {
-                    Log.i(TAG, "Not using user specified Mid Threshold Distance " + midDistanceThreshold +
-                        " Actual " + actualMidDistanceThreshold.get(clientMap));
+//                    Log.i(TAG, "Not using user specified Mid Threshold Distance " + midDistanceThreshold +
+//                        " Actual " + actualMidDistanceThreshold.get(clientMap));
                     return false;
                 }
             } else {
@@ -448,7 +448,7 @@ public class AdaptiveBitmapCache extends CoreBitmapCache {
             while (iter.hasNext()) {
                 Map.Entry<String, IEmpImageInfo> entry = iter.next();
                 if (entry.getValue().getImage() == null) {
-                    Log.i(TAG, "Weak Reference " + entry.getKey() + " " + entry.getValue().getImageSize());
+//                    Log.i(TAG, "Weak Reference " + entry.getKey() + " " + entry.getValue().getImageSize());
                     iter.remove();
                 } else {
                     sizeBitmapCache += entry.getValue().getImageSize();
