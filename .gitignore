@@ -13,6 +13,8 @@ build/
 
 .nb-gradle/
 
+local.properties
+
 /.nb-gradle-properties
 
 # Keystore files
