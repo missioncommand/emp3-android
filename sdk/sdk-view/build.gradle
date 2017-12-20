@@ -26,7 +26,7 @@ dependencies {
     testImplementation "org.powermock:powermock-classloading-xstream:1.6.4"
     testImplementation 'org.robolectric:robolectric:3.5.1'
     testImplementation 'org.assertj:assertj-core:3.8.0'
-    testImplementation (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', version: '0.1.35', ext: 'aar') {
+    testImplementation (group: 'mil.army.missioncommand', name: 'mil-sym-android-renderer', version: "${version_renderer}", ext: 'aar') {
         transitive = true
     }
 

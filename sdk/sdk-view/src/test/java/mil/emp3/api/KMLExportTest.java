@@ -10,7 +10,6 @@ import org.cmapi.primitives.IGeoRenderable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.robolectric.util.Logger;
 
 import java.util.Random;
 
@@ -21,11 +20,13 @@ import mil.emp3.api.interfaces.IMap;
 import mil.emp3.api.interfaces.IOverlay;
 import mil.emp3.api.utils.kml.EmpKMLExporter;
 
-import static mil.emp3.api.utils.ComparisonUtils.compareFeatureToPath;
-import static mil.emp3.api.utils.ComparisonUtils.compareFeatureToPolygon;
+import static mil.emp3.api.utils.ComparisonUtils.compareCircleToPolygon;
+import static mil.emp3.api.utils.ComparisonUtils.compareEllipseToPolygon;
 import static mil.emp3.api.utils.ComparisonUtils.comparePath;
 import static mil.emp3.api.utils.ComparisonUtils.comparePoint;
 import static mil.emp3.api.utils.ComparisonUtils.comparePolygon;
+import static mil.emp3.api.utils.ComparisonUtils.compareRectangleToPolygon;
+import static mil.emp3.api.utils.ComparisonUtils.compareSquareToPolygon;
 import static mil.emp3.api.utils.ComparisonUtils.compareTextToPoint;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -232,29 +233,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         assertTrue(testPassed[0]);
     }
 
-    private void parseKml(String featureType, String kmlString, Feature feature) throws Exception {
-            final KML kmlFeature = new KML(kmlString);
-            //Circles do not exist in KML so they are represented by paths
-            for (int i = 0; i < kmlFeature.getFeatureList().size(); i++) {
-                Object obj = kmlFeature.getFeatureList().get(i);
-                if (obj instanceof Path) {
-                    Logger.info(featureType + " is rendered as Path");
-                    Logger.info(feature.toString());
-                    Logger.info(obj.toString());
-                    compareFeatureToPath(feature, (Path)obj);
-                } else if (obj instanceof Polygon) {
-                    Logger.info(featureType + " is rendered as Polygon");
-                    Logger.info(feature.toString());
-                    Logger.info(obj.toString());
-                    compareFeatureToPolygon(feature, (Polygon)obj);
-                } else {
-                   Logger.error(featureType + " is rendered as " + obj.getClass().getSimpleName());
-                }
-            }
-
-
-    }
-
     @Test
     public void exportCircle() throws Exception
     {
@@ -274,7 +252,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try 
                                             {
-                                                parseKml("Circle", kmlString, feature);
+                                                final KML kmlFeature = new KML(kmlString);
+                                                final Polygon parsedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareCircleToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
                                                 testPassed[0] = false;
@@ -322,7 +302,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try 
                                             {
-                                                parseKml("Ellipse", kmlString, feature);
+                                                final KML kmlFeature = new KML(kmlString);
+                                                final Polygon parsedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareEllipseToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
                                                 testPassed[0] = false;
@@ -367,7 +349,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try 
                                             {
-                                                parseKml("Square", kmlString, feature);
+                                                final KML kmlFeature = new KML(kmlString);
+                                                final Polygon parsedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareSquareToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
                                                 testPassed[0] = false;
@@ -413,7 +397,9 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         {
                                             try 
                                             {
-                                                parseKml("Rectangle", kmlString, feature);
+                                                final KML kmlFeature = new KML(kmlString);
+                                                final Polygon parsedPolygon = (Polygon) kmlFeature.getFeatureList().get(0);
+                                                compareRectangleToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (Exception e) {
                                                 testPassed[0] = false;
@@ -537,7 +523,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         Assert.assertTrue(testPassed[0]);
     }
 
-    private static IOverlay addOverlayToMap(final IMap map) throws EMP_Exception
+    static IOverlay addOverlayToMap(final IMap map) throws EMP_Exception
     {
         final Overlay overlay = new Overlay();
         overlay.setName("Test Overlay " + count++);
@@ -545,7 +531,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return overlay;
     }
 
-    private static Point addPoint(final IOverlay overlay) throws Exception
+    static Point addPoint(final IOverlay overlay) throws Exception
     {
         final Point oPoint = new Point();
         oPoint.setIconScale(10);
@@ -556,7 +542,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oPoint;
     }
 
-    private static Text addText(final IOverlay overlay) throws Exception
+    static Text addText(final IOverlay overlay) throws Exception
     {
         final Text oText = new Text();
         oText.setRotationAngle(40);
@@ -566,7 +552,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oText;
     }
 
-    private static Circle addCircle(final IOverlay overlay) throws Exception
+    static Circle addCircle(final IOverlay overlay) throws Exception
     {
         final Circle oCircle = new Circle();
         oCircle.setName("Test Circle");
@@ -576,7 +562,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oCircle;
     }
 
-    private static Ellipse addEllipse(final IOverlay overlay) throws Exception
+    static Ellipse addEllipse(final IOverlay overlay) throws Exception
     {
         final Ellipse oEllipse = new Ellipse();
         oEllipse.setSemiMinor(15.5);
@@ -586,7 +572,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oEllipse;
     }
 
-    private static Square addSquare(final IOverlay overlay) throws Exception
+    static Square addSquare(final IOverlay overlay) throws Exception
     {
         final Square oSquare = new Square();
         oSquare.setWidth(15.5);
@@ -595,7 +581,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oSquare;
     }
 
-    private static Rectangle addRectangle(final IOverlay overlay) throws Exception
+    static Rectangle addRectangle(final IOverlay overlay) throws Exception
     {
         final Rectangle oRectangle = new Rectangle();
         oRectangle.setWidth(15.5);
@@ -605,7 +591,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oRectangle;
     }
 
-    private static Polygon addPolygon(final IOverlay overlay) throws Exception
+    static Polygon addPolygon(final IOverlay overlay) throws Exception
     {
         final Polygon oPolygon = new Polygon();
         addMPFeatureStyles(oPolygon);
@@ -613,7 +599,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oPolygon;
     }
 
-    private static Path addPath(final IOverlay overlay) throws Exception
+    static Path addPath(final IOverlay overlay) throws Exception
     {
         final Path oPath = new Path();
         addFeatureStyles(oPath);
@@ -621,19 +607,19 @@ public class KMLExportTest extends TestBaseSingleMap{
         return oPath;
     }
 
-    private static GeoPosition getRandomLocation() throws EMP_Exception {
+    static GeoPosition getRandomLocation() throws EMP_Exception {
         final GeoPosition location = new GeoPosition();
         location.setLatitude(getRandomValueBetween(-90.0,90.0));
         location.setLongitude(getRandomValueBetween(-180.0, 180.0));
         return location;
     }
 
-    private static double getRandomValueBetween(final double low, final double high)
+    static double getRandomValueBetween(final double low, final double high)
     {
         return low + (high - low) * new Random().nextDouble();
     }
 
-    private static void addFeatureStyles(final Feature feature) throws Exception{
+    static void addFeatureStyles(final Feature feature) throws Exception{
         feature.setPosition(getRandomLocation());
         feature.setName("Test Feature");
         //feature.setAzimuth(50);
@@ -649,7 +635,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         feature.setReadOnly(false);
     }
 
-    private static void addMPFeatureStyles(final Feature feature) throws Exception{
+    static void addMPFeatureStyles(final Feature feature) throws Exception{
         feature.getPositions().clear();
         for (int i = 0; i < 4; i++) {
             feature.getPositions().add(getRandomLocation());

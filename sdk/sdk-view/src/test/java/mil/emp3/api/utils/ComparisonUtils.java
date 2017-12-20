@@ -640,7 +640,7 @@ public class ComparisonUtils {
 //        assertEquals(point1.getIconScale(), point2.getIconScale(), EPSILON8);
         compareIconStyle(point1.getIconStyle(), point2.getIconStyle());
         assertEquals(point1.getResourceId(), point2.getResourceId());
-        compareFeature(point1, point2);
+        compareGeoPosition(point1.getPosition(), point2.getPosition());
     }
 
     public static void comparePolygon(final Polygon polygon1, final Polygon polygon2) {
@@ -682,7 +682,6 @@ public class ComparisonUtils {
         compareGeoPosition(path1.getPosition(), path2.getPosition());
         assertEquals(path1.getAzimuth(), path2.getAzimuth(), EPSILON8);
         assertEquals(path1.getDescription(), path2.getDescription());
-        compareFillStyle(path1.getFillStyle(), path2.getFillStyle());
         assertEquals(path1.getName(), path2.getName());
         compareStrokeStyle(path1.getStrokeStyle(), path2.getStrokeStyle());
         compareLabelStyle(path1.getLabelStyle(), path2.getLabelStyle());
@@ -717,14 +716,14 @@ public class ComparisonUtils {
         assertEquals(text.getReadOnly(), point.getReadOnly());
     }
 
-    public static void compareCircleToPath(final Circle circle, final Path path) {
-        compareGeoPosition(path.getPosition(), circle.getPosition(), EPSILON3);
-        assertEquals(path.getAzimuth(), circle.getAzimuth(), EPSILON8);
-        assertEquals(path.getDescription(), "<b>" + circle.getName() + "</b><br/>\n" + circle.getDescription());
-        compareFillStyle(path.getFillStyle(), circle.getFillStyle());
-        compareStrokeStyle(path.getStrokeStyle(), circle.getStrokeStyle());
-        compareLabelStyle(path.getLabelStyle(), circle.getLabelStyle());
-        assertEquals(path.getReadOnly(), circle.getReadOnly());
+    public static void compareCircleToPolygon(final Circle circle, final Polygon polygon) {
+        compareGeoPosition(polygon.getPosition(), circle.getPosition(), EPSILON3);
+        assertEquals(polygon.getAzimuth(), circle.getAzimuth(), EPSILON8);
+        assertEquals(polygon.getDescription(), "<b>" + circle.getName() + "</b><br/>\n" + circle.getDescription());
+        compareFillStyle(polygon.getFillStyle(), circle.getFillStyle());
+        compareStrokeStyle(polygon.getStrokeStyle(), circle.getStrokeStyle());
+        compareLabelStyle(polygon.getLabelStyle(), circle.getLabelStyle());
+        assertEquals(polygon.getReadOnly(), circle.getReadOnly());
     }
 
     public static void compareSquareToPolygon(final Square square, final Polygon polygon) {
@@ -737,14 +736,14 @@ public class ComparisonUtils {
         assertEquals(polygon.getReadOnly(), square.getReadOnly());
     }
 
-    public static void compareEllipseToPath(final Ellipse ellipse, final Path path) {
-        compareGeoPosition(path.getPosition(), ellipse.getPosition(), EPSILON3);
-        assertEquals(path.getAzimuth(), ellipse.getAzimuth(), EPSILON8);
-        assertEquals(path.getDescription(), "<b>" + ellipse.getName() + "</b><br/>\n" + ellipse.getDescription());
-        compareFillStyle(path.getFillStyle(), ellipse.getFillStyle());
-        compareStrokeStyle(path.getStrokeStyle(), ellipse.getStrokeStyle());
-        compareLabelStyle(path.getLabelStyle(), ellipse.getLabelStyle());
-        assertEquals(path.getReadOnly(), ellipse.getReadOnly());
+    public static void compareEllipseToPolygon(final Ellipse ellipse, final Polygon polygon) {
+        compareGeoPosition(polygon.getPosition(), ellipse.getPosition(), EPSILON3);
+        assertEquals(polygon.getAzimuth(), ellipse.getAzimuth(), EPSILON8);
+        assertEquals(polygon.getDescription(), "<b>" + ellipse.getName() + "</b><br/>\n" + ellipse.getDescription());
+        compareFillStyle(polygon.getFillStyle(), ellipse.getFillStyle());
+        compareStrokeStyle(polygon.getStrokeStyle(), ellipse.getStrokeStyle());
+        compareLabelStyle(polygon.getLabelStyle(), ellipse.getLabelStyle());
+        assertEquals(polygon.getReadOnly(), ellipse.getReadOnly());
     }
 
     public static void compareRectangleToPolygon(final Rectangle rectangle, final Polygon polygon) {
@@ -765,6 +764,14 @@ public class ComparisonUtils {
         compareStrokeStyle(polygon.getStrokeStyle(), feature.getStrokeStyle());
         compareLabelStyle(polygon.getLabelStyle(), feature.getLabelStyle());
         assertEquals(polygon.getReadOnly(), feature.getReadOnly());
+    }
+
+    /* Separate method for GeoJson because SEC Renderer translates differently
+     */
+
+    public static void compareFeatureToGeoJsonPolygon(final Feature feature, final Polygon polygon) {
+        compareGeoPosition(polygon.getPosition(), feature.getPosition(), EPSILON2);
+        assertEquals(polygon.getAzimuth(), feature.getAzimuth(), EPSILON8);
     }
 
     public static void compareFeatureToPath(final Feature feature, final Path path) {

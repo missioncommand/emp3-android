@@ -9,15 +9,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import armyc2.c2sd.renderer.utilities.UnitDefTable;
 import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.interfaces.IFeature;
 import mil.emp3.api.interfaces.IOverlay;
+import mil.emp3.api.shadows.ShadowTestRunner;
+import mil.emp3.api.shadows.ShadowUnitDefTable;
 import mil.emp3.api.utils.BasicUtilities;
 @RunWith(RobolectricTestRunner.class)
 public class ApplyTest extends TestBaseMultiMap {

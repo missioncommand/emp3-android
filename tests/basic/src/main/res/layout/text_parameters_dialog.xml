@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/mainleftcolumn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <LinearLayout
+                android:id="@+id/inputtedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/inputtedTextLabel"
+                    android:text="@string/action_drawText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="7dp"
+                    />
+
+                <TextView
+                    android:id="@+id/inputtedTextField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="7dp"
+                    />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/inputtedTextValue"
+                android:inputType="textCapWords"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_below="@+id/inputtedText"
+                android:hint="@string/inputtedTextHint"
+                />
+
+            <LinearLayout
+                android:id="@+id/textFillColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_below="@+id/inputtedTextValue"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/textFillColorLabel"
+                    android:text="@string/textFillColorLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="7dp"
+                    />
+
+                <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/textFillColorRG"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:orientation="horizontal"
+                    android:checkedButton="@+id/textFillColorRed"
+                    >
+
+                    <RadioButton android:id="@+id/textFillColorRed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/textFillColorLabelRed"
+                        android:onClick="onRadioButtonClicked"
+                        />
+                    <RadioButton android:id="@+id/textFillColorGreen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/textFillColorLabelGreen"
+                        android:onClick="onRadioButtonClicked"
+                        />
+                    <RadioButton android:id="@+id/textFillColorBlue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/textFillColorLabelBlue"
+                        android:onClick="onRadioButtonClicked"
+                        />
+                </RadioGroup>
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/textOutlineColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_below="@+id/textFillColor"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/textOutlineColorLabel"
+                    android:text="@string/textOutlineColorLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="7dp"
+                    />
+
+                <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/textOutlineColorRG"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:orientation="horizontal"
+                    android:checkedButton="@+id/textOutlineColorLabelRed"
+                    >
+                    <RadioButton android:id="@+id/textOutlineColorLabelRed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/textOutlineColorLabelRed"
+                        android:onClick="onRadioButtonClicked"
+                        />
+                    <RadioButton android:id="@+id/textOutlineColorLabelGreen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/textOutlineColorLabelGreen"
+                        android:onClick="onRadioButtonClicked"
+                        />
+                    <RadioButton android:id="@+id/textOutlineColorLabelBlue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/textOutlineColorLabelBlue"
+                        android:onClick="onRadioButtonClicked"
+                        />
+                </RadioGroup>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_below="@+id/textOutlineColor"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/CancelButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/CancelButton" />
+
+                <Button
+                    android:id="@+id/OKButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/OKButton" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>
