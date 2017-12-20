@@ -1,6 +1,7 @@
 package mil.emp3.core;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.Log;
 
 import org.cmapi.primitives.IGeoBase;
@@ -335,6 +336,7 @@ public class EventManager implements IEventManager {
         this.processEvent(EventListenerTypeEnum.MAP_STATE_CHANGE_EVENT_LISTENER, oMap, oEvent);
     }
 
+    @Deprecated
     @Override
     public void generateMapInteractionEvent(UserInteractionEventEnum eEvent,
                                             EnumSet<UserInteractionKeyEnum> oKeys,
@@ -344,6 +346,19 @@ public class EventManager implements IEventManager {
                                             IGeoPosition oPosition,
                                             IGeoPosition oStartPosition,
                                             Object userContext) {
+        this.generateMapInteractionEvent(eEvent,oKeys, oButton, oMap, oPoint == null ? null : new PointF(oPoint.x, oPoint.y), oPosition, oStartPosition, userContext);
+    }
+
+    @Override
+    public void generateMapInteractionEvent(final UserInteractionEventEnum eEvent,
+                                            final EnumSet<UserInteractionKeyEnum> oKeys,
+                                            final UserInteractionMouseButtonEnum oButton,
+                                            final IMap oMap,
+                                            final PointF oPoint,
+                                            final IGeoPosition oPosition,
+                                            final IGeoPosition oStartPosition,
+                                            final Object userContext)
+    {
         MapUserInteractionEvent oEvent = new MapUserInteractionEvent(eEvent, oKeys, oButton, oMap, oPoint, oPosition, oStartPosition);
         oEvent.setUserObject(userContext);
         this.processEvent(EventListenerTypeEnum.MAP_INTERACTION_EVENT_LISTENER, oMap, oEvent);

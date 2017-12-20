@@ -147,6 +147,62 @@ public abstract class CoreMapInstance implements IMapInstance {
     }
 
     /**
+     * Builds a Feature User Interaction event and posts it to the listener.
+     * @param eEvent
+     * @param keys
+     * @param eButton
+     * @param oFeatureList
+     * @param oPointCoordinate
+     * @param oPosition
+     * @param oStartPosition
+     * @return
+     */
+    public boolean generateFeatureUserInteractionEvent(UserInteractionEventEnum eEvent,
+                                                       EnumSet<UserInteractionKeyEnum> keys,
+                                                       UserInteractionMouseButtonEnum eButton,
+                                                       java.util.List oFeatureList,
+                                                       android.graphics.PointF oPointCoordinate,
+                                                       IGeoPosition oPosition,
+                                                       IGeoPosition oStartPosition) {
+        if (null != this.featureUserInteractionEventListener) {
+            MapInstanceFeatureUserInteractionEvent oEvent = new MapInstanceFeatureUserInteractionEvent(this,
+                    eEvent, keys, eButton, oFeatureList, oPointCoordinate, oPosition, oStartPosition);
+            this.featureUserInteractionEventListener.onEvent(oEvent);
+            return oEvent.isEventConsumed();
+        }
+        return false;
+    }
+
+    /**
+     * Builds a Map User Interaction Event and posts it to the listener.
+     *
+     * Deprecated: Use constructor with PointF coordinate for more precise values
+     *
+     * @param eEvent
+     * @param keys
+     * @param eButton
+     * @param oPointCoordinate
+     * @param oPosition
+     * @param oStartPosition
+     * @return
+     */
+    @Deprecated
+    public boolean generateMapUserInteractionEvent(UserInteractionEventEnum eEvent,
+                                                EnumSet<UserInteractionKeyEnum> keys,
+                                                UserInteractionMouseButtonEnum eButton,
+                                                android.graphics.Point oPointCoordinate,
+                                                IGeoPosition oPosition,
+                                                IGeoPosition oStartPosition) {
+        if (null != this.userInteractionEventListener) {
+            MapInstanceUserInteractionEvent oEvent = new MapInstanceUserInteractionEvent(this,
+                    eEvent, keys, eButton, oPointCoordinate, oPosition, oStartPosition);
+            this.userInteractionEventListener.onEvent(oEvent);
+            return oEvent.isEventConsumed();
+        }
+        return false;
+    }
+
+    /**
      * Builds a Map User Interaction Event and posts it to the listener.
      * @param eEvent
      * @param keys
@@ -157,11 +213,11 @@ public abstract class CoreMapInstance implements IMapInstance {
      * @return
      */
     public boolean generateMapUserInteractionEvent(UserInteractionEventEnum eEvent,
-                                                EnumSet<UserInteractionKeyEnum> keys,
-                                                UserInteractionMouseButtonEnum eButton,
-                                                android.graphics.Point oPointCoordinate,
-                                                IGeoPosition oPosition,
-                                                IGeoPosition oStartPosition) {
+                                                   EnumSet<UserInteractionKeyEnum> keys,
+                                                   UserInteractionMouseButtonEnum eButton,
+                                                   android.graphics.PointF oPointCoordinate,
+                                                   IGeoPosition oPosition,
+                                                   IGeoPosition oStartPosition) {
         if (null != this.userInteractionEventListener) {
             MapInstanceUserInteractionEvent oEvent = new MapInstanceUserInteractionEvent(this,
                     eEvent, keys, eButton, oPointCoordinate, oPosition, oStartPosition);

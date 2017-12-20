@@ -1,5 +1,7 @@
 package mil.emp3.api.events;
 
+import android.graphics.PointF;
+
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.EnumSet;
@@ -15,6 +17,7 @@ import mil.emp3.api.enums.UserInteractionEventEnum;
  * interface and register for the event on an IMap.
  */
 public abstract class MapUserInteractionEvent extends UserInteractionEvent<IMap> {
+
     /**
      * This constructor is used by the core to generate map user interaction events other than drag.
      * @param eEvent The event being generated.
@@ -25,11 +28,11 @@ public abstract class MapUserInteractionEvent extends UserInteractionEvent<IMap>
      * @param oKeys Keyboard keys, shift, ctrl and/or alt
      */
     protected MapUserInteractionEvent(UserInteractionEventEnum eEvent,
-                                      EnumSet<UserInteractionKeyEnum> oKeys,
-                                      UserInteractionMouseButtonEnum oButton,
-                                      IMap oMap,
-                                      android.graphics.Point oPoint,
-                                      IGeoPosition oPosition) {
+                                   EnumSet<UserInteractionKeyEnum> oKeys,
+                                   UserInteractionMouseButtonEnum oButton,
+                                   IMap oMap,
+                                   PointF oPoint,
+                                   IGeoPosition oPosition) {
         super(eEvent, oKeys, oButton, oMap, oPoint, oPosition);
     }
 
@@ -47,7 +50,7 @@ public abstract class MapUserInteractionEvent extends UserInteractionEvent<IMap>
                                       EnumSet<UserInteractionKeyEnum> oKeys,
                                       UserInteractionMouseButtonEnum oButton,
                                       IMap oMap,
-                                      android.graphics.Point oPoint,
+                                      PointF oPoint,
                                       IGeoPosition oPosition,
                                       IGeoPosition oStartPosition) {
         super(eEvent, oKeys, oButton, oMap, oPoint, oPosition, oStartPosition);
