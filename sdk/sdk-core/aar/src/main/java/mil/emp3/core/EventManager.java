@@ -346,7 +346,7 @@ public class EventManager implements IEventManager {
                                             IGeoPosition oPosition,
                                             IGeoPosition oStartPosition,
                                             Object userContext) {
-        this.generateMapInteractionEvent(eEvent,oKeys, oButton, oMap, new PointF(oPoint.x, oPoint.y), oPosition, oStartPosition, userContext);
+        this.generateMapInteractionEvent(eEvent,oKeys, oButton, oMap, oPoint == null ? null : new PointF(oPoint.x, oPoint.y), oPosition, oStartPosition, userContext);
     }
 
     @Override

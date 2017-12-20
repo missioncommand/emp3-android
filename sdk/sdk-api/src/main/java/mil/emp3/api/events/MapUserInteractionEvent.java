@@ -18,53 +18,6 @@ import mil.emp3.api.enums.UserInteractionEventEnum;
  */
 public abstract class MapUserInteractionEvent extends UserInteractionEvent<IMap> {
 
-
-//    /**
-//     * This constructor is used by the core to generate map user interaction events other than drag.
-//     *
-//     * Deprecated: Use a constructor using PointF instead of Point for more precise points
-//     *
-//     * @param eEvent The event being generated.
-//     * @param oMap The map the event occurred on.
-//     * @param oPoint The x/y coordinate of the event.
-//     * @param oPosition The geographic coordinate of the event.
-//     * @param oButton Mouse button, left, right or middle
-//     * @param oKeys Keyboard keys, shift, ctrl and/or alt
-//     */
-//    @Deprecated
-//    protected MapUserInteractionEvent(UserInteractionEventEnum eEvent,
-//                                      EnumSet<UserInteractionKeyEnum> oKeys,
-//                                      UserInteractionMouseButtonEnum oButton,
-//                                      IMap oMap,
-//                                      android.graphics.Point oPoint,
-//                                      IGeoPosition oPosition) {
-//        super(eEvent, oKeys, oButton, oMap, oPoint, oPosition);
-//    }
-//
-//    /**
-//     * This constructor is used by the core to generate map user interaction drag events.
-//     *
-//     * Deprecated: Use a constructor using PointF instead of Point for more precise points
-//     *
-//     * @param eEvent The event being generated.
-//     * @param oMap The map the event occurred on.
-//     * @param oPoint The x/y coordinate of the event.
-//     * @param oPosition The geographic coordinate of the end of the current drag segment.
-//     * @param oStartPosition The geographic coordinate of the start of the drag segment.
-//     * @param oButton Mouse button, left, right or middle
-//     * @param oKeys Keyboard keys, shift, ctrl and/or alt
-//     */
-//    @Deprecated
-//    protected MapUserInteractionEvent(UserInteractionEventEnum eEvent,
-//                                      EnumSet<UserInteractionKeyEnum> oKeys,
-//                                      UserInteractionMouseButtonEnum oButton,
-//                                      IMap oMap,
-//                                      android.graphics.Point oPoint,
-//                                      IGeoPosition oPosition,
-//                                      IGeoPosition oStartPosition) {
-//        super(eEvent, oKeys, oButton, oMap, oPoint, oPosition, oStartPosition);
-//    }
-
     /**
      * This constructor is used by the core to generate map user interaction events other than drag.
      * @param eEvent The event being generated.

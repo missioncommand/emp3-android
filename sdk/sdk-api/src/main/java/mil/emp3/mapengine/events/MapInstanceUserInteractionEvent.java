@@ -1,7 +1,5 @@
 package mil.emp3.mapengine.events;
 
-
-import android.graphics.Point;
 import android.graphics.PointF;
 
 import org.cmapi.primitives.IGeoPosition;
@@ -137,14 +135,13 @@ public class MapInstanceUserInteractionEvent extends Event<UserInteractionEventE
      * @return location
      */
     @Deprecated
-    public android.graphics.Point getLocation() {  return new android.graphics.Point((int)this.oPoint.x,(int) this.oPoint.y);
+    public android.graphics.Point getLocation() {  return this.oPoint == null ? null : new android.graphics.Point((int)this.oPoint.x,(int) this.oPoint.y);
     }
 
     /**
      * The geographic coordinate of the location the event occurred.
      * @return location
      */
-
     public android.graphics.PointF getLocationF() {
         return this.oPoint;
     }

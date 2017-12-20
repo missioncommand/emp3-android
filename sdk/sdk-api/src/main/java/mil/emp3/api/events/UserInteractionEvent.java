@@ -23,35 +23,6 @@ public abstract class UserInteractionEvent<TargetType extends IContainer> extend
     private UserInteractionMouseButtonEnum oButton;
     private final EnumSet<UserInteractionKeyEnum> oKeys;
 
-//    protected UserInteractionEvent(UserInteractionEventEnum eEvent,
-//                                   EnumSet<UserInteractionKeyEnum> keys,
-//                                   UserInteractionMouseButtonEnum button,
-//                                   TargetType oContainer,
-//                                   android.graphics.Point oPoint,
-//                                   IGeoPosition oPosition) {
-//        super(eEvent, oContainer);
-//        this.oPoint =  new PointF(oPoint.x, oPoint.y);
-//        this.oCoordinate = oPosition;
-//        this.oStartCoordinate = null;
-//        this.oButton = button;
-//        this.oKeys = keys;
-//    }
-//
-//    protected UserInteractionEvent(UserInteractionEventEnum eEvent,
-//                                   EnumSet<UserInteractionKeyEnum> keys,
-//                                   UserInteractionMouseButtonEnum button,
-//                                   TargetType oContainer,
-//                                   android.graphics.Point oPoint,
-//                                   IGeoPosition oPosition,
-//                                   IGeoPosition oStartPosition) {
-//        super(eEvent, oContainer);
-//        this.oPoint = new PointF(oPoint.x, oPoint.y);
-//        this.oCoordinate = oPosition;
-//        this.oStartCoordinate = oStartPosition;
-//        this.oButton = button;
-//        this.oKeys = keys;
-//    }
-
     protected UserInteractionEvent(UserInteractionEventEnum eEvent,
                                    EnumSet<UserInteractionKeyEnum> keys,
                                    UserInteractionMouseButtonEnum button,
@@ -92,8 +63,7 @@ public abstract class UserInteractionEvent<TargetType extends IContainer> extend
      * @return {@android.graphics.Point}
      */
     @Deprecated
-    public android.graphics.Point getPoint() {  return new Point((int)this.oPoint.x, (int)this.oPoint.y);  }
-
+    public android.graphics.Point getPoint() {  return this.oPoint == null ? null : new Point((int)this.oPoint.x, (int)this.oPoint.y);  }
 
     /**
      * This method returns the x,y coordinate of the location the event occurred at. Where 0,0

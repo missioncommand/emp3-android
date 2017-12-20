@@ -111,7 +111,6 @@ public interface ICoreManager {
      */
     IGeoPosition containerToGeo(IMap clientMap, PointF point) throws EMP_Exception;
 
-
     /**
      * This method set the specified map grid on the map specified.
      * @param clientMap

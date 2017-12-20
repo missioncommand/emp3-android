@@ -404,7 +404,7 @@ public class CoreManager implements ICoreManager {
     @Deprecated
     @Override
     public IGeoPosition containerToGeo(IMap clientMap, Point point) throws EMP_Exception {
-        return this.containerToGeo(clientMap, new PointF(point.x, point.y));
+        return this.containerToGeo(clientMap, point == null ? null : new PointF(point.x, point.y));
     }
 
     @Override

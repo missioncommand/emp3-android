@@ -779,7 +779,6 @@ public interface IMap extends IContainer {
      * geoToScreen - convert from GeoPosition to screen coordinates
      * @param pos
      * @return a screen X,Y coordinate for the provided GeoPosition.*/
-
     android.graphics.Point geoToScreen(IGeoPosition pos) throws EMP_Exception;
 
     /**
@@ -787,7 +786,6 @@ public interface IMap extends IContainer {
      * @param point
      * @return a GeoPosition coordinate for the provided screen X,Y coordinate.
      */
-
     IGeoPosition screenToGeo(android.graphics.Point point) throws EMP_Exception;
 
     /**
@@ -795,7 +793,6 @@ public interface IMap extends IContainer {
      * @param pos
      * @return a container X,Y coordinate for the provided GeoPosition.
      */
-
     Point geoToContainer(IGeoPosition pos) throws EMP_Exception;
 
     /**
@@ -814,7 +811,6 @@ public interface IMap extends IContainer {
      * @param point
      * @return a GeoPosition coordinate for the provided container X,Y coordinate.
      */
-
     IGeoPosition containerToGeo(PointF point) throws EMP_Exception;
 
     /**

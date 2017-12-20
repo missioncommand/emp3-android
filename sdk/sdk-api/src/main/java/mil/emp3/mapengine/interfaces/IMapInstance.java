@@ -309,7 +309,6 @@ public interface IMapInstance {
      * geoToScreen - convert from GeoPosition to screen coordinates
      * @param pos
      * @return a screen X,Y coordinate for the provided GeoPosition.*/
-
     android.graphics.Point geoToScreen(IGeoPosition pos);
 
     /**
@@ -317,7 +316,6 @@ public interface IMapInstance {
      * @param point
      * @return a GeoPosition coordinate for the provided screen X,Y coordinate.
      */
-
     IGeoPosition screenToGeo(android.graphics.Point point);
 
     /**
@@ -325,7 +323,6 @@ public interface IMapInstance {
      * @param pos
      * @return a container X,Y coordinate for the provided GeoPosition.
      */
-
     Point geoToContainer(IGeoPosition pos);
 
     /**
