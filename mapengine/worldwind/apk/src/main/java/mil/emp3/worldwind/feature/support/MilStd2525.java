@@ -110,7 +110,7 @@ public class MilStd2525 {
      * feature is removed
      * @param geoId
      */
-    public static void removePlacemarkAttributes(String geoId) {
+    public static void removePlacemarkAttributes(final String geoId) {
         symbolCache.remove(geoId);
         symbolCache.remove(geoId + "ATTR");
     }
