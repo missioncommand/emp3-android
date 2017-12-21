@@ -16,6 +16,7 @@ import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.UUID;
 
 import armyc2.c2sd.renderer.utilities.ImageInfo;
 import gov.nasa.worldwind.WorldWind;
@@ -79,15 +80,11 @@ public class MilStd2525 {
      * @return Either a new or a cached PlacemarkAttributes bundle containing the specified symbol embedded in the
      * bundle's imageSource property.
      */
-    public static PlacemarkAttributes getPlacemarkAttributes(String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes) {
+    public static PlacemarkAttributes getPlacemarkAttributes(String geoId, String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes) {
 
-        // Generate a cache key for this symbol
-        String symbolKey = symbolCode
-            + (modifiers == null ? emptyArray.toString() : modifiers.toString())
-            + (attributes == null ? emptyArray.toString() : attributes.toString());
 
         // Look for an attribute bundle in our cache and determine if the cached reference is valid
-        WeakReference<PlacemarkAttributes> reference = symbolCache.get(symbolKey);
+        WeakReference<PlacemarkAttributes> reference = symbolCache.get(geoId);
         PlacemarkAttributes placemarkAttributes = (reference == null ? null : reference.get());
 
         // Create the attributes if they haven't been created yet or if they've been released
@@ -97,16 +94,25 @@ public class MilStd2525 {
             // The actual bitmap will be lazily (re)created using a factory.
             placemarkAttributes = MilStd2525.createPlacemarkAttributes(symbolCode, modifiers, attributes);
             if (placemarkAttributes == null) {
-                throw new IllegalArgumentException("Cannot generate a symbol for: " + symbolKey);
+                throw new IllegalArgumentException("Cannot generate a symbol for: " + geoId);
             }
             // Add a weak reference to the attribute bundle to our cache
-            symbolCache.put(symbolKey, new WeakReference<>(placemarkAttributes));
+            symbolCache.put(geoId, new WeakReference<>(placemarkAttributes));
 
             // Perform some initialization of the bundle conducive to eye distance scaling
             placemarkAttributes.setMinimumImageScale(MINIMUM_IMAGE_SCALE);
         }
 
         return placemarkAttributes;
+    }
+
+    /** Called from mapInstance to remove placemarks when the corresponding
+     * feature is removed
+     * @param geoId
+     */
+    public static void removePlacemarkAttributes(final String geoId) {
+        symbolCache.remove(geoId);
+        symbolCache.remove(geoId + "ATTR");
     }
 
     /**
@@ -172,8 +178,6 @@ public class MilStd2525 {
 
         private final PlacemarkAttributes placemarkAttributes;
 
-        private Offset placemarkOffset;
-
         /**
          * Constructs a SymbolBitmapFactory instance capable of creating a bitmap with the given code, modifiers and
          * attributes. The createBitmap() method will return a new instance of a bitmap and will also update the
@@ -187,8 +191,8 @@ public class MilStd2525 {
         public SymbolBitmapFactory(String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes, PlacemarkAttributes placemarkAttributes) {
             // Capture the values needed to (re)create the symbol bitmap
             this.symbolCode = symbolCode;
-            this.modifiers = modifiers != null ? modifiers.clone() : null;
-            this.attributes = attributes != null ? attributes.clone() : null;
+            this.modifiers = modifiers;
+            this.attributes = attributes;
             // The MilStd2525.symbolCache maintains a WeakReference to the placemark attributes. The finalizer is able to
             // resolve the circular dependency between the PlacemarkAttributes->ImageSource->Factory->PlacemarkAttributes
             // and garbage collect the attributes a Placemark releases its attribute bundle (e.g., when switching
@@ -216,7 +220,7 @@ public class MilStd2525 {
             // presence of text modifiers.
             Point centerPoint = imageInfo.getCenterPoint(); // The center of the core symbol
             Rect bounds = imageInfo.getImageBounds();       // The extents of the image, including text modifiers
-            this.placemarkOffset = new Offset(
+            final Offset placemarkOffset = new Offset(
                 WorldWind.OFFSET_PIXELS, centerPoint.x, // x offset
                 WorldWind.OFFSET_PIXELS, bounds.height() - centerPoint.y); // y offset converted to lower-left origin
 

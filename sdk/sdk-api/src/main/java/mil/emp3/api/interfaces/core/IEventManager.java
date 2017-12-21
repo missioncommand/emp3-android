@@ -1,6 +1,7 @@
 package mil.emp3.api.interfaces.core;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 
 import org.cmapi.primitives.IGeoBase;
 import org.cmapi.primitives.IGeoBounds;
@@ -77,6 +78,15 @@ public interface IEventManager {
                                      UserInteractionMouseButtonEnum button,
                                      IMap oMap,
                                      Point oPoint,
+                                     IGeoPosition oPosition,
+                                     IGeoPosition oStartPosition,
+                                     Object userContext);
+
+    void generateMapInteractionEvent(UserInteractionEventEnum eEvent,
+                                     EnumSet<UserInteractionKeyEnum> keys,
+                                     UserInteractionMouseButtonEnum button,
+                                     IMap oMap,
+                                     PointF oPoint,
                                      IGeoPosition oPosition,
                                      IGeoPosition oStartPosition,
                                      Object userContext);

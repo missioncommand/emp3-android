@@ -47,7 +47,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
     private IGeoPosition oGeoPosition = new GeoPosition(); // pre-allocated to avoid memory allocations.
     private IGeoPosition oGeoPosition2 = new GeoPosition(); // pre-allocated to avoid memory allocations.
     private Position oPos = new Position(); // pre-allocated to avoid memory allocations.
-    private android.graphics.Point oPointCoordinate = new android.graphics.Point(); // pre-allocated to avoid memory allocations.
+    private android.graphics.PointF oPointCoordinate = new android.graphics.PointF(); // pre-allocated to avoid memory allocations.
     private android.graphics.Point oPreviousDragPoint = new android.graphics.Point(); // pre-allocated to avoid memory allocations.
 
     private final java.util.List<mil.emp3.api.interfaces.IFeature> oFeaturePickList = new java.util.ArrayList<mil.emp3.api.interfaces.IFeature>();
@@ -85,7 +85,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
             //Log.d(TAG, "Action onDown " + MotionEvent.actionToString(event.getActionMasked()) + " PC " + event.getPointerCount());
 
             // Reset thee previous scroll event.
-            PickNavigateController.this.oPointCoordinate.set((int) event.getX(), (int) event.getY());
+            PickNavigateController.this.oPointCoordinate.set(event.getX(), event.getY());
             PickNavigateController.this.oPreviousScrollEventPosition = null;
 
             if(event.getPointerCount() == 1) {
@@ -427,7 +427,7 @@ public class PickNavigateController extends BasicWorldWindowController implement
     private void generateUserInteractionEvent(UserInteractionEventEnum eEvent, MotionEvent oEvent) {
         IGeoPosition oTempPosition = null;
 
-        oPointCoordinate.set((int) oEvent.getX(), (int) oEvent.getY());
+        oPointCoordinate.set(oEvent.getX(), oEvent.getY());
         if (this.screenPointToGroundPosition(oEvent.getX(), oEvent.getY(), oPos)) {
             oGeoPosition.setLatitude(oPos.latitude);
             oGeoPosition.setLongitude(oPos.longitude);
