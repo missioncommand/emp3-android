@@ -106,6 +106,15 @@ public class MilStd2525 {
         return placemarkAttributes;
     }
 
+    /** Called from mapInstance to remove placemarks when the corresponding
+     * feature is removed
+     * @param geoId
+     */
+    public static void removePlacemarkAttributes(String geoId) {
+        symbolCache.remove(geoId);
+        symbolCache.remove(geoId + "ATTR");
+    }
+
     /**
      * Creates a placemark attributes bundle containing a MIL-STD-2525 symbol using the specified modifiers and
      * attributes.  The ImageSource bitmap is lazily created via an ImageSource.Bitmap factory. The call to the
