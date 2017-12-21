@@ -77,8 +77,7 @@ public class MilStd2525TacticalGraphic extends FeatureRenderableMapping<MilStdSy
                 tempRenderable = this.createWWPath((Path) feature, false);
                 if (tempRenderable != null) {
                     tempRenderable.setPickDelegate(oSymbol);
-                    oSymbol.setPathType((feature).getPathType());
-//                    oSymbol.setPathType(EMPtoWWFeatureConverter.wwPathTypeToCmapiPathType((Path)feature).getPathType());
+                    oSymbol.setPathType(EMPtoWWFeatureConverter.wwPathTypeToEmpPathType(((gov.nasa.worldwind.shape.Path)tempRenderable).getPathType()));
                     this.renderablePathList.add(tempRenderable);
                 }
             } else if (feature instanceof Polygon) {

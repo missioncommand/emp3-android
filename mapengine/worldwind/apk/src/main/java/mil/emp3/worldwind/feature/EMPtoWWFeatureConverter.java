@@ -12,6 +12,7 @@ import org.cmapi.primitives.IGeoFillStyle;
 import org.cmapi.primitives.IGeoIconStyle;
 import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
+import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
 import java.util.ArrayList;
@@ -521,6 +522,26 @@ public class EMPtoWWFeatureConverter {
             case RHUMB_LINE:
                 wwPolygon.setPathType(WorldWind.RHUMB_LINE);
                 break;
+        }
+    }
+
+    /**
+     * Takes path type value of {@link gov.nasa.worldwind.shape.Path} and converts it
+     * into a {@link IGeoRenderable.PathType}.
+     * @param pathType Int value of {@link gov.nasa.worldwind.shape.Path}
+     * @return {@link IGeoRenderable.PathType} cmapi path type.
+     */
+    public static IGeoRenderable.PathType wwPathTypeToEmpPathType(final int pathType) {
+        switch (pathType) {
+            case 0:
+                return IGeoRenderable.PathType.GREAT_CIRCLE;
+            case 1:
+                return IGeoRenderable.PathType.LINEAR;
+            case 2:
+                return IGeoRenderable.PathType.RHUMB_LINE;
+            default:
+                Log.e("Error", "Usupported path type value. Returning a default.");
+                return IGeoRenderable.PathType.RHUMB_LINE;
         }
     }
 }
