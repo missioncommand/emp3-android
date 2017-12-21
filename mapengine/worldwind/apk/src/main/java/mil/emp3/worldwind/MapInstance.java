@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -1153,11 +1154,25 @@ public class MapInstance extends CoreMapInstance {
 
     /**
      * Caller must be on UI thread
+     *
+     * Deprecated: Use containerToGeo with PointF instead for
+     * more precise calculations
+     * @param point
+     * @return
+     */
+    @Deprecated
+    @Override
+    public IGeoPosition containerToGeo(Point point) {
+        return this.containerToGeo(new PointF(point.x, point.y));
+    }
+
+    /**
+     * Caller must be on UI thread
      * @param point
      * @return
      */
     @Override
-    public IGeoPosition containerToGeo(Point point) {
+    public IGeoPosition containerToGeo(PointF point) {
         if(!SystemUtils.isCurrentThreadUIThread()) {
             Log.w(TAG, "containerToGeo not on UI thread, result may not be correct");
         }
