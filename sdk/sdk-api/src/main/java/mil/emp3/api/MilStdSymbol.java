@@ -1383,8 +1383,6 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
     public SparseArray<String> getAttributes(int iIconSize, boolean selected, IGeoColor selectedStrokeColor,
                                              IGeoColor selectedTextColor, IGeoColor selectedTextBackgroundColor) {
         IGeoColor strokeColor = null;
-        IGeoColor textColor = null;
-        IGeoColor textBackgroundColor = null;
         SparseArray<String> oArray = new SparseArray<>();
         IGeoFillStyle oFillStyle = getFillStyle();
         IGeoStrokeStyle oStrokeStyle = getStrokeStyle();
@@ -1398,41 +1396,32 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
         if (selected) {
             strokeColor = selectedStrokeColor;
-            textColor = selectedTextColor;
-            textBackgroundColor = selectedTextBackgroundColor;
+            oArray.put(MilStdAttributes.TextColor, ColorUtils.colorToHashString(selectedTextColor));
+            oArray.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToHashString(selectedTextBackgroundColor));
         } else {
             if (oStrokeStyle != null) {
                 strokeColor = oStrokeStyle.getStrokeColor();
             }
             if (labelStyle != null) {
-                textColor = labelStyle.getColor();
-                textBackgroundColor = labelStyle.getOutlineColor();
+                oArray.put(MilStdAttributes.TextColor, ColorUtils.colorToHashString(labelStyle.getOutlineColor()));
+                oArray.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToHashString(labelStyle.getOutlineColor()));
             } else {
-                // set EMP default colors which are different from renderer default colors
-                textColor = EmpGeoColor.BLACK;
-                textBackgroundColor = EmpGeoColor.WHITE;
+                oArray.put(MilStdAttributes.TextColor, EmpGeoColor.STR_BLACK);
+                oArray.put(MilStdAttributes.TextBackgroundColor, EmpGeoColor.STR_WHITE);
             }
         }
 
         if (oFillStyle != null) {
-            oArray.put(MilStdAttributes.FillColor, "#" + ColorUtils.colorToString(oFillStyle.getFillColor()));
+            oArray.put(MilStdAttributes.FillColor, ColorUtils.colorToHashString(oFillStyle.getFillColor()));
         }
 
         if (oStrokeStyle != null) {
-            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(oStrokeStyle.getStrokeColor()));
+            oArray.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(oStrokeStyle.getStrokeColor()));
             oArray.put(MilStdAttributes.LineWidth, "" + (int) oStrokeStyle.getStrokeWidth());
         }
 
         if (strokeColor != null) {
-            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(strokeColor));
-        }
-
-        if (textColor != null) {
-            oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
-        }
-
-        if (textBackgroundColor != null) {
-            oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(textBackgroundColor));
+            oArray.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(strokeColor));
         }
 
         if (isSinglePoint()) {
@@ -1663,50 +1652,62 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
 
     /**
      * Sets Icon color of military symbol.
+     * This method is deprecated. Use attribute sparse array instead.
      * @param color {@link IGeoColor} Color to render icon in.
      */
+    @Deprecated
     public void setIconColor(final IGeoColor color) {
-        this.attributes.put(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
+        this.attributes.put(MilStdAttributes.IconColor, ColorUtils.colorToHashString(color));
     }
 
     /**
      * Sets the fill color of the symbol.
+     * This method is deprecated. Use attribute sparse array instead.
      * @param color {@link IGeoColor} Color to fill icon with.
      */
+    @Deprecated
     public void setFillColor(final IGeoColor color) {
-        this.attributes.put(MilStdAttributes.FillColor, ColorUtils.colorToString(color));
+        this.attributes.put(MilStdAttributes.FillColor, ColorUtils.colorToHashString(color));
     }
 
     /**
      * Sets the line stroke color of the icon.
+     * This method is deprecated. Use attribute sparse array instead.
      * @param color {@link IGeoColor} Color to render stroke with.
      */
+    @Deprecated
     public void setLineColor(final IGeoColor color) {
-        this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
+        this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(color));
     }
 
     /**
      * Sets text color of label.
+     * This method is deprecated. Use attribute sparse array instead.
      * @param color {@link IGeoColor} Color to render label text in.
      */
+    @Deprecated
     public void setTextColor(final IGeoColor color) {
-        this.attributes.put(MilStdAttributes.TextColor, ColorUtils.colorToString(color));
+        this.attributes.put(MilStdAttributes.TextColor, ColorUtils.colorToHashString(color));
     }
 
     /**
      * Sets text background color of label.
+     * This method is deprecated. Use attribute sparse array instead.
      * @param color {@link IGeoColor} Color to render background text of label in.
      */
+    @Deprecated
     public void setTextBackgroundColor(final IGeoColor color) {
-        this.attributes.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToString(color));
+        this.attributes.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToHashString(color));
     }
 
     /**
      * Convenience method to color fill, line and icon in one call.
+     * This method is deprecated. Use attribute sparse array instead.
      * @param fillColor - Color of the fill.
      * @param lineColor - Color of the line.
      * @param iconColor - Color of the icon.
      */
+    @Deprecated
     public void styleSymbol(final IGeoColor fillColor, final IGeoColor lineColor, final IGeoColor iconColor) {
         this.setFillColor(fillColor);
         this.setLineColor(lineColor);

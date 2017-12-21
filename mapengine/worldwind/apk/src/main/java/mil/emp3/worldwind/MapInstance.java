@@ -43,6 +43,7 @@ import mil.emp3.mapengine.api.*;
 import mil.emp3.mapengine.interfaces.*;
 import mil.emp3.worldwind.controller.PickNavigateController;
 import mil.emp3.worldwind.feature.FeatureRenderableMapping;
+import mil.emp3.worldwind.feature.support.MilStd2525;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
 import mil.emp3.worldwind.layer.*;
 import mil.emp3.worldwind.utils.*;
@@ -486,6 +487,7 @@ public class MapInstance extends CoreMapInstance {
                 this.featureHash.remove(uniqueId);
             }
         }
+        MilStd2525.removePlacemarkAttributes(uniqueId.toString());
     }
 
     /**

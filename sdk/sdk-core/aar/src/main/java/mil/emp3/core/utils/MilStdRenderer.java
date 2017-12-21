@@ -151,8 +151,6 @@ public class MilStdRenderer implements IMilStdRenderer {
 
         int iIconSize = storageManager.getIconPixelSize(mapInstance);
         IGeoColor strokeColor = null;
-        IGeoColor textColor = null;
-        IGeoColor textBackgroundColor = null;
         SparseArray<String> oArray = new SparseArray<>();
         IGeoFillStyle oFillStyle = feature.getFillStyle();
         IGeoStrokeStyle oStrokeStyle = feature.getStrokeStyle();
@@ -168,41 +166,32 @@ public class MilStdRenderer implements IMilStdRenderer {
 
         if (selected) {
             strokeColor = storageManager.getSelectedStrokeStyle(mapInstance).getStrokeColor();
-            textColor = storageManager.getSelectedLabelStyle(mapInstance).getColor();
-            textBackgroundColor = storageManager.getSelectedLabelStyle(mapInstance).getOutlineColor();
+            oArray.put(MilStdAttributes.TextColor, ColorUtils.colorToHashString(storageManager.getSelectedLabelStyle(mapInstance).getColor()));
+            oArray.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToHashString(storageManager.getSelectedLabelStyle(mapInstance).getOutlineColor()));
         } else {
             if (oStrokeStyle != null) {
                 strokeColor = oStrokeStyle.getStrokeColor();
             }
             if (labelStyle != null) {
-                textColor = labelStyle.getColor();
-                textBackgroundColor = labelStyle.getOutlineColor();
+                oArray.put(MilStdAttributes.TextColor, ColorUtils.colorToHashString(labelStyle.getOutlineColor()));
+                oArray.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToHashString(labelStyle.getOutlineColor()));
             } else {
-                // set EMP default colors which are different from renderer default colors
-                textColor = EmpGeoColor.BLACK;
-                textBackgroundColor = EmpGeoColor.WHITE;
+                oArray.put(MilStdAttributes.TextColor, EmpGeoColor.STR_BLACK);
+                oArray.put(MilStdAttributes.TextBackgroundColor, EmpGeoColor.STR_WHITE);
             }
         }
 
         if (oFillStyle != null) {
-            oArray.put(MilStdAttributes.FillColor, "#" + ColorUtils.colorToString(oFillStyle.getFillColor()));
+            oArray.put(MilStdAttributes.FillColor, ColorUtils.colorToHashString(oFillStyle.getFillColor()));
         }
 
         if (oStrokeStyle != null) {
-            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(oStrokeStyle.getStrokeColor()));
+            oArray.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(oStrokeStyle.getStrokeColor()));
             oArray.put(MilStdAttributes.LineWidth, "" + (int) oStrokeStyle.getStrokeWidth());
         }
 
         if (strokeColor != null) {
-            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(strokeColor));
-        }
-
-        if (textColor != null) {
-            oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
-        }
-
-        if (textBackgroundColor != null) {
-            oArray.put(MilStdAttributes.TextBackgroundColor, "#" + ColorUtils.colorToString(textBackgroundColor));
+            oArray.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(strokeColor));
         }
 
         if (isMilStd && !((MilStdSymbol) feature).isSinglePoint()) {
@@ -273,8 +262,6 @@ public class MilStdRenderer implements IMilStdRenderer {
             IFeature renderFeature,
             boolean selected) {
         IFeature feature;
-        IGeoColor newLineColor;
-        IGeoColor geoFillColor;
         armyc2.c2sd.renderer.utilities.Color fillColor;
         armyc2.c2sd.renderer.utilities.Color lineColor;
         IGeoStrokeStyle symbolStrokeStyle = renderFeature.getStrokeStyle();
@@ -395,6 +382,25 @@ public class MilStdRenderer implements IMilStdRenderer {
         IGeoColor textBackgroundColor = new EmpGeoColor((double)renderTextBackgroundColor.getAlpha()/255.0,
                 renderTextBackgroundColor.getRed(), renderTextBackgroundColor.getGreen(),
                 renderTextBackgroundColor.getBlue());
+        currentTextStyle = new GeoLabelStyle();
+        if ((null == symbolTextStyle) || (null == symbolTextStyle.getColor())) {
+            currentTextStyle.setColor(textColor);
+            currentTextStyle.setOutlineColor(textBackgroundColor);
+            currentTextStyle.setSize(FontUtilities.DEFAULT_FONT_POINT_SIZE);
+        } else {
+            currentTextStyle.setColor(symbolTextStyle.getColor());
+            currentTextStyle.setOutlineColor(symbolTextStyle.getOutlineColor());
+            currentTextStyle.setSize(symbolTextStyle.getSize());
+        }
+        if (selected) {
+            if (null == currentTextStyle) {
+                currentTextStyle = storageManager.getSelectedLabelStyle(mapInstance);
+            } else {
+                currentTextStyle.setColor(storageManager.getSelectedLabelStyle(mapInstance).getColor());
+            }
+        }
+        currentTextStyle.setFontFamily(RendererSettings.getInstance().getMPModifierFontName());
+
 
         // Process the list of shapes.
         for(ShapeInfo shapeInfo: modifierShapeInfoList) {
@@ -416,25 +422,6 @@ public class MilStdRenderer implements IMilStdRenderer {
 
                     textFeature.setPosition(textPosition);
                     textFeature.setAltitudeMode(altitudeMode);
-
-                    currentTextStyle = new GeoLabelStyle();
-                    if ((null == symbolTextStyle) || (null == symbolTextStyle.getColor())) {
-                        currentTextStyle.setColor(textColor);
-                        currentTextStyle.setOutlineColor(textBackgroundColor);
-                        currentTextStyle.setSize(FontUtilities.DEFAULT_FONT_POINT_SIZE);
-                    } else {
-                        currentTextStyle.setColor(symbolTextStyle.getColor());
-                        currentTextStyle.setOutlineColor(symbolTextStyle.getOutlineColor());
-                        currentTextStyle.setSize(symbolTextStyle.getSize());
-                    }
-                    if (selected) {
-                        if (null == currentTextStyle) {
-                            currentTextStyle = storageManager.getSelectedLabelStyle(mapInstance);
-                        } else {
-                            currentTextStyle.setColor(storageManager.getSelectedLabelStyle(mapInstance).getColor());
-                        }
-                    }
-                    currentTextStyle.setFontFamily(RendererSettings.getInstance().getMPModifierFontName());
 
                     switch (shapeInfo.getTextJustify()) {
                         case ShapeInfo.justify_left:

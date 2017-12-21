@@ -52,7 +52,8 @@ public class BufferGenerator {
             } else if(targetFeature instanceof Path) {
                 return generateBufferPolygon((Path) targetFeature, mapInstance, buffer);
             } else {
-                throw new IllegalArgumentException(targetFeature.getClass().getSimpleName() + " NOT supported");
+                Log.d(TAG,targetFeature.getClass().getSimpleName() + " NOT supported");
+                return null;
             }
         } catch(Exception e) {
             Log.e(TAG, "generateBuffer buffer " + buffer, e);
@@ -79,10 +80,11 @@ public class BufferGenerator {
             bufferRectangle.setAltitudeMode(targetFeature.getAltitudeMode());
             bufferRectangle.getPositions().addAll(targetFeature.getPositions());
             bufferRectangle.setFillStyle( mapInstance.getEmpResources().getBufferFillStyle(mapInstance));
-            java.util.List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferRectangle, false);
+            List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferRectangle, false);
 
             if((null == featureList) || (1 != featureList.size()) || (!(featureList.get(0) instanceof Polygon))) {
-                throw new IllegalStateException("SEC Renderer didn't return a Polygon");
+                Log.d(TAG, "SEC Renderer didn't return a Polygon");
+                return null;
             }
 
             return (Polygon) featureList.get(0);
@@ -111,10 +113,11 @@ public class BufferGenerator {
             bufferSquare.setAltitudeMode(targetFeature.getAltitudeMode());
             bufferSquare.getPositions().addAll(targetFeature.getPositions());
             bufferSquare.setFillStyle( mapInstance.getEmpResources().getBufferFillStyle(mapInstance));
-            java.util.List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferSquare, false);
+            List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferSquare, false);
 
             if((null == featureList) || (1 != featureList.size()) || (!(featureList.get(0) instanceof Polygon))) {
-                throw new IllegalStateException("SEC Renderer didn't return a Polygon");
+                Log.d(TAG, "SEC Renderer didn't return a Polygon");
+                return null;
             }
 
             return (Polygon) featureList.get(0);
@@ -142,10 +145,11 @@ public class BufferGenerator {
             bufferCircle.setAltitudeMode(targetFeature.getAltitudeMode());
             bufferCircle.getPositions().addAll(targetFeature.getPositions());
             bufferCircle.setFillStyle( mapInstance.getEmpResources().getBufferFillStyle(mapInstance));
-            java.util.List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferCircle, false);
+            List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferCircle, false);
 
             if((null == featureList) || (1 != featureList.size()) || (!(featureList.get(0) instanceof Polygon))) {
-                throw new IllegalStateException("SEC Renderer didn't return a Polygon");
+                Log.d(TAG, "SEC Renderer didn't return a Polygon");
+                return null;
             }
 
             return (Polygon) featureList.get(0);
@@ -175,10 +179,11 @@ public class BufferGenerator {
             bufferEllipse.setAltitudeMode(targetFeature.getAltitudeMode());
             bufferEllipse.getPositions().addAll(targetFeature.getPositions());
             bufferEllipse.setFillStyle( mapInstance.getEmpResources().getBufferFillStyle(mapInstance));
-            java.util.List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferEllipse, false);
+            List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferEllipse, false);
 
             if((null == featureList) || (1 != featureList.size()) || (!(featureList.get(0) instanceof Polygon))) {
-                throw new IllegalStateException("SEC Renderer didn't return a Polygon");
+                Log.d(TAG, "SEC Renderer didn't return a Polygon");
+                return null;
             }
 
             return (Polygon) featureList.get(0);
@@ -240,10 +245,11 @@ public class BufferGenerator {
             bufferCircle.setAltitudeMode(targetFeature.getAltitudeMode());
             bufferCircle.getPositions().addAll(targetFeature.getPositions());
             bufferCircle.setFillStyle( mapInstance.getEmpResources().getBufferFillStyle(mapInstance));
-            java.util.List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferCircle, false);
+            List<IFeature> featureList = mapInstance.getMilStdRenderer().getFeatureRenderableShapes(mapInstance, bufferCircle, false);
 
             if((null == featureList) || (1 != featureList.size()) || (!(featureList.get(0) instanceof Polygon))) {
-                throw new IllegalStateException("SEC Renderer didn't return a Polygon");
+                Log.d(TAG, "SEC Renderer didn't return a Polygon");
+                return null;
             }
 
             return (Polygon) featureList.get(0);

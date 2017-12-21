@@ -6,6 +6,8 @@ import android.util.SparseArray;
 
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.UUID;
+
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Offset;
 import gov.nasa.worldwind.geom.Position;
@@ -44,8 +46,9 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
 
     protected static double MID_THRESHOLD = 10000;
 
-    // Look in BitmapCacheFactory for explanation of this
-    private static boolean useWorldWindRenderCache = true;
+    private static int MANY_FEATURES = 2000;
+    private static int TOO_MANY_FEATURES = 4000;
+
     /**
      * This static method initializes the oInstance.
      * @param iconRenderer
@@ -57,12 +60,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
             MilStd2525LevelOfDetailSelector.oMilStdIconRenderer = iconRenderer;
         }
 
-        if(!iconRenderer.getBitmapCacheName().equals("NoBitmapCache")) {
-            useWorldWindRenderCache = false;
-        } else {
-            MilStd2525.setRenderer(iconRenderer);
-        }
-
+        MilStd2525.setRenderer(iconRenderer);
         return MilStd2525LevelOfDetailSelector.oInstance;
     }
 
@@ -110,29 +108,33 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         MilStd2525SinglePoint milStdPlacemark = ((MilStd2525SinglePoint.EMPPlacemark) placemark).featureMapper;
         PlacemarkAttributes placemarkAttributes = placemark.getAttributes();
         int lastLevelOfDetail = milStdPlacemark.getLastLevelOfDetail();
-
+        int featureCount = milStdPlacemark.getMapInstance().getFeatureHash().size();
+        String geoId = milStdPlacemark.getFeature().getGeoId().toString();
         // Update position.
         IGeoPosition oPos = milStdPlacemark.getSymbol().getPosition();
-        placemark.setPosition(Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()));
+        placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         // Determine the normal attributes based on the distance from the camera to the placemark
-        if (cameraDistance > FAR_THRESHOLD) {
+        if (cameraDistance > FAR_THRESHOLD || featureCount > TOO_MANY_FEATURES) {
             // Low-fidelity: use affiliation only
             if ((lastLevelOfDetail != LOW_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
-                placemarkAttributes = this.createPlacemarkAttributes(placemarkAttributes, simpleCode, null, null);
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(simpleCode, simpleCode, null, null);
+                placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
             }
-        } else if (cameraDistance > MID_THRESHOLD) {
+        } else if (cameraDistance > MID_THRESHOLD || featureCount > MANY_FEATURES) {
             // Medium-fidelity: use the regulation SIDC code with attributes but without modifiers
             if ((lastLevelOfDetail != MEDIUM_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
-                placemarkAttributes = this.createPlacemarkAttributes(placemarkAttributes, milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId + "ATTR", milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());
+                placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(MEDIUM_LEVEL_OF_DETAIL);
             }
         } else {
             // High-fidelity: use the regulation SIDC code the modifiers and attributes
             if ((lastLevelOfDetail != HIGHEST_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
-                placemarkAttributes = this.createPlacemarkAttributes(placemarkAttributes, milStdPlacemark.getSymbolCode(), milStdPlacemark.getSymbolModifiers(), milStdPlacemark.getSymbolAttributes());
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId, milStdPlacemark.getSymbolCode(), milStdPlacemark.getSymbolModifiers(), milStdPlacemark.getSymbolAttributes());
+                placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(HIGHEST_LEVEL_OF_DETAIL);
             }
         }
@@ -147,44 +149,6 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
             if (milStdPlacemark.isDirty()) {
                 milStdPlacemark.resetDirty();
             }
-        }
-    }
-
-    /**
-     * Processing depends on the type of cache we are using. We will keep this logic around until we make a final decision on this issue.
-     * @param oPlacemarkAttributes
-     * @param sSymbolCode
-     * @param oModifiers
-     * @param oAttr
-     * @return
-     */
-    private PlacemarkAttributes createPlacemarkAttributes(PlacemarkAttributes oPlacemarkAttributes, String sSymbolCode, SparseArray oModifiers,
-                                                          SparseArray oAttr) {
-        if(useWorldWindRenderCache) {
-            PlacemarkAttributes pma = MilStd2525.getPlacemarkAttributes(sSymbolCode, oModifiers, oAttr);
-            pma.setDrawLeader(true);
-            return pma;
-        } else {
-            IEmpImageInfo oImageInfo;
-
-            oImageInfo = oMilStdIconRenderer.getMilStdIcon(sSymbolCode, oModifiers, oAttr);
-
-            if (oImageInfo != null) {
-                Rect imageBounds = oImageInfo.getImageBounds();      // The bounds of the entire image, including text
-                Point centerPoint = oImageInfo.getCenterPoint();     // The center of the core symbol
-                // getCenterPoint reference is top-left, WW needs bottom-left.
-                Offset imageOffset = new Offset(WorldWind.OFFSET_FRACTION, ((double) centerPoint.x) / imageBounds.width(), // x offset
-                    WorldWind.OFFSET_FRACTION, 1.0 - (((double) centerPoint.y) / imageBounds.height())); // y offset
-
-                if (oPlacemarkAttributes == null) {
-                    oPlacemarkAttributes = PlacemarkAttributes.createWithImage(ImageSource.fromBitmap(oImageInfo.getImage())).setImageOffset(imageOffset);
-                } else {
-                    oPlacemarkAttributes.setImageSource(ImageSource.fromBitmap(oImageInfo.getImage()));
-                    oPlacemarkAttributes.setImageOffset(imageOffset);
-                }
-                oPlacemarkAttributes.setDrawLeader(true);
-            }
-            return oPlacemarkAttributes;
         }
     }
 }

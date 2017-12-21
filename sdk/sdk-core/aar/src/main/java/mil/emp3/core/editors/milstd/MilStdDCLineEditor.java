@@ -11,6 +11,7 @@ import java.util.List;
 
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.enums.FeatureEditUpdateTypeEnum;
+import mil.emp3.api.enums.FeaturePropertyChangedEnum;
 import mil.emp3.api.exceptions.EMP_Exception;
 import mil.emp3.api.listeners.IDrawEventListener;
 import mil.emp3.api.listeners.IEditEventListener;
@@ -636,6 +637,8 @@ public class MilStdDCLineEditor extends AbstractMilStdMultiPointEditor{
                 // Update the value
                 this.saveWidth(Math.floor(newHalfWidth * 2));
                 this.positionWidthControlPoint(oCP);
+
+                this.addUpdateEventData(FeaturePropertyChangedEnum.WIDTH_PROPERTY_CHANGED);
 
                 moved = true;
             }
