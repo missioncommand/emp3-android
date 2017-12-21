@@ -1,14 +1,18 @@
 package mil.emp3.api.utils;
 
 import android.util.Log;
-
 import org.cmapi.primitives.GeoColor;
 import org.cmapi.primitives.IGeoColor;
+
+import armyc2.c2sd.renderer.utilities.Color;
 
 /**
  *
  */
 public class ColorUtils {
+
+    private static int COLOR_CONVERTER_INT_TO_DOUBLE = 255;
+
     public static String colorToString(IGeoColor oColor) {
         byte[] colorBytes = new byte[4];
         StringBuffer sb = new StringBuffer();
@@ -70,5 +74,25 @@ public class ColorUtils {
         }
         // Default return black.
         return new EmpGeoColor(0, 0 , 0);
+    }
+
+    /**
+     * Returns an SEC renderer {@link Color} from a cmapi {@link IGeoColor}
+     * @param iGeoColor {@link IGeoColor} to convert
+     * @return {@link Color} converted cmapi color.
+     */
+    public static Color CmapiColorToRendererColor(final IGeoColor iGeoColor) {
+        final Double alphaChannel = iGeoColor.getAlpha() * 255.0;
+        return new Color(iGeoColor.getRed(), iGeoColor.getGreen(), iGeoColor.getBlue(), alphaChannel.intValue());
+    }
+
+    /**
+     * Returns a cmapi {@link IGeoColor} from the SEC renderer {@link Color}
+     * @param color {@link Color} to convert.
+     * @return {@link IGeoColor} converted SEC renderer color.
+     */
+    public static IGeoColor RendererColorToCmapiColor(final Color color) {
+        final double alphaChannel  = ((double)color.getAlpha() / COLOR_CONVERTER_INT_TO_DOUBLE);
+        return new EmpGeoColor(alphaChannel, color.getRed(), color.getGreen(), color.getBlue());
     }
 }

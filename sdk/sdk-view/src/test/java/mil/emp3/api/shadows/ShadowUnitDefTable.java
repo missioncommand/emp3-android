@@ -37,8 +37,6 @@ import armyc2.c2sd.renderer.utilities.XMLUtil;
 @Implements(UnitDefTable.class)
 public class ShadowUnitDefTable
 {
-    // TODO - Due to reasons listed above these files have been included locally in our test resources.
-    // TODO - They will need to be kept up to date with the version of the renderer we're using.
     // https://github.com/missioncommand/mil-sym-android/tree/master/renderer/src/main/res/raw
     private static final String UNIT_CONSTANTS_B = "unitconstantsb.xml";
     private static final String UNIT_CONSTANTS_C = "unitconstantsc.xml";
@@ -253,8 +251,4 @@ public class ShadowUnitDefTable
             }
         }
     }// end populateLookup
-
-
-
-
 }
