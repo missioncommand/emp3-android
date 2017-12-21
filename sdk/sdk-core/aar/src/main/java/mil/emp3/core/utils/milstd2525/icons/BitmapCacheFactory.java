@@ -36,8 +36,8 @@ public class BitmapCacheFactory {
     private static String TAG = BitmapCacheFactory.class.getSimpleName();
     private static BitmapCacheFactory factoryInstance;
 
-    private static boolean useAdaptiveBitMapCache = true;
-    private static boolean useNoBitmapCache = false;
+    private static boolean useAdaptiveBitMapCache = false;
+    private static boolean useNoBitmapCache = true;
     private IBitmapCache bitmapCache = null;
 
     public static BitmapCacheFactory instance() {

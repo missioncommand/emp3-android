@@ -44,6 +44,9 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
 
     protected static double MID_THRESHOLD = 10000;
 
+    private static int MANY_FEATURES = 2000;
+    private static int TOO_MANY_FEATURES = 4000;
+
     // Look in BitmapCacheFactory for explanation of this
     private static boolean useWorldWindRenderCache = true;
     /**
@@ -110,20 +113,20 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         MilStd2525SinglePoint milStdPlacemark = ((MilStd2525SinglePoint.EMPPlacemark) placemark).featureMapper;
         PlacemarkAttributes placemarkAttributes = placemark.getAttributes();
         int lastLevelOfDetail = milStdPlacemark.getLastLevelOfDetail();
-
+        int featureCount = milStdPlacemark.getMapInstance().getFeatureHash().size();
         // Update position.
         IGeoPosition oPos = milStdPlacemark.getSymbol().getPosition();
         placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         // Determine the normal attributes based on the distance from the camera to the placemark
-        if (cameraDistance > FAR_THRESHOLD) {
+        if (cameraDistance > FAR_THRESHOLD || featureCount > TOO_MANY_FEATURES) {
             // Low-fidelity: use affiliation only
             if ((lastLevelOfDetail != LOW_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
                 placemarkAttributes = this.createPlacemarkAttributes(placemarkAttributes, simpleCode, null, null);
                 milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
             }
-        } else if (cameraDistance > MID_THRESHOLD) {
+        } else if (cameraDistance > MID_THRESHOLD || featureCount > MANY_FEATURES) {
             // Medium-fidelity: use the regulation SIDC code with attributes but without modifiers
             if ((lastLevelOfDetail != MEDIUM_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 placemarkAttributes = this.createPlacemarkAttributes(placemarkAttributes, milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());

@@ -172,8 +172,6 @@ public class MilStd2525 {
 
         private final PlacemarkAttributes placemarkAttributes;
 
-        private Offset placemarkOffset;
-
         /**
          * Constructs a SymbolBitmapFactory instance capable of creating a bitmap with the given code, modifiers and
          * attributes. The createBitmap() method will return a new instance of a bitmap and will also update the
@@ -187,8 +185,8 @@ public class MilStd2525 {
         public SymbolBitmapFactory(String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes, PlacemarkAttributes placemarkAttributes) {
             // Capture the values needed to (re)create the symbol bitmap
             this.symbolCode = symbolCode;
-            this.modifiers = modifiers != null ? modifiers.clone() : null;
-            this.attributes = attributes != null ? attributes.clone() : null;
+            this.modifiers = modifiers;
+            this.attributes = attributes;
             // The MilStd2525.symbolCache maintains a WeakReference to the placemark attributes. The finalizer is able to
             // resolve the circular dependency between the PlacemarkAttributes->ImageSource->Factory->PlacemarkAttributes
             // and garbage collect the attributes a Placemark releases its attribute bundle (e.g., when switching
@@ -216,7 +214,7 @@ public class MilStd2525 {
             // presence of text modifiers.
             Point centerPoint = imageInfo.getCenterPoint(); // The center of the core symbol
             Rect bounds = imageInfo.getImageBounds();       // The extents of the image, including text modifiers
-            this.placemarkOffset = new Offset(
+            final Offset placemarkOffset = new Offset(
                 WorldWind.OFFSET_PIXELS, centerPoint.x, // x offset
                 WorldWind.OFFSET_PIXELS, bounds.height() - centerPoint.y); // y offset converted to lower-left origin
 
