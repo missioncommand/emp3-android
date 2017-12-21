@@ -98,7 +98,7 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         // Without the following position updates via a call to Feature.apply will not work.
         // Should we comparing old position vs new position?
         IGeoPosition oPos = this.getFeature().getPosition();
-        this.placemark.setPosition(Position.fromDegrees(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude()));
+        this.placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         if (this.sSymbolCode != symbol.getSymbolCode()) {
             // if the symbol code has changed it is dirty.

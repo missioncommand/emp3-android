@@ -108,20 +108,20 @@ public class GeoJsonExporter extends Thread{
         }
 
         if (oFillStyle != null) {
-            oArray.put(MilStdAttributes.FillColor, "#" + ColorUtils.colorToString(oFillStyle.getFillColor()));
+            oArray.put(MilStdAttributes.FillColor, ColorUtils.colorToHashString(oFillStyle.getFillColor()));
         }
 
         if (oStrokeStyle != null) {
-            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(oStrokeStyle.getStrokeColor()));
+            oArray.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(oStrokeStyle.getStrokeColor()));
             oArray.put(MilStdAttributes.LineWidth, "" + (int) oStrokeStyle.getStrokeWidth());
         }
 
         if (strokeColor != null) {
-            oArray.put(MilStdAttributes.LineColor, "#" + ColorUtils.colorToString(strokeColor));
+            oArray.put(MilStdAttributes.LineColor, ColorUtils.colorToHashString(strokeColor));
         }
 
         if (textColor != null) {
-            oArray.put(MilStdAttributes.TextColor, "#" + ColorUtils.colorToString(textColor));
+            oArray.put(MilStdAttributes.TextColor, ColorUtils.colorToHashString(textColor));
             // There is currently no way to change the font.
         }
 
