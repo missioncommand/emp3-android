@@ -6,6 +6,8 @@ import android.util.SparseArray;
 
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.UUID;
+
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Offset;
 import gov.nasa.worldwind.geom.Position;
@@ -107,6 +109,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         PlacemarkAttributes placemarkAttributes = placemark.getAttributes();
         int lastLevelOfDetail = milStdPlacemark.getLastLevelOfDetail();
         int featureCount = milStdPlacemark.getMapInstance().getFeatureHash().size();
+        String geoId = milStdPlacemark.getFeature().getGeoId().toString();
         // Update position.
         IGeoPosition oPos = milStdPlacemark.getSymbol().getPosition();
         placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
@@ -116,21 +119,21 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
             // Low-fidelity: use affiliation only
             if ((lastLevelOfDetail != LOW_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
-                placemarkAttributes = MilStd2525.getPlacemarkAttributes(simpleCode, null, null);
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(simpleCode, simpleCode, null, null);
                 placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
             }
         } else if (cameraDistance > MID_THRESHOLD || featureCount > MANY_FEATURES) {
             // Medium-fidelity: use the regulation SIDC code with attributes but without modifiers
             if ((lastLevelOfDetail != MEDIUM_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
-                placemarkAttributes = MilStd2525.getPlacemarkAttributes(milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId + "ATTR", milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());
                 placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(MEDIUM_LEVEL_OF_DETAIL);
             }
         } else {
             // High-fidelity: use the regulation SIDC code the modifiers and attributes
             if ((lastLevelOfDetail != HIGHEST_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
-                placemarkAttributes = MilStd2525.getPlacemarkAttributes(milStdPlacemark.getSymbolCode(), milStdPlacemark.getSymbolModifiers(), milStdPlacemark.getSymbolAttributes());
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId, milStdPlacemark.getSymbolCode(), milStdPlacemark.getSymbolModifiers(), milStdPlacemark.getSymbolAttributes());
                 placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(HIGHEST_LEVEL_OF_DETAIL);
             }

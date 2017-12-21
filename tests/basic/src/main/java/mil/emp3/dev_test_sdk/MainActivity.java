@@ -617,103 +617,113 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void plotManyMilStd(int iMaxCount) {
-        UnitDefTable oDefTable = UnitDefTable.getInstance();
-        org.cmapi.primitives.GeoMilSymbol.SymbolStandard eStandard =  org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525C;
-        int iMilStdVersion = (eStandard == org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525B) ? armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525Bch2_USAS_13_14 :
-                armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525C;
-        Map<String,UnitDef> oDefMap = oDefTable.getAllUnitDefs(iMilStdVersion);
-        Set<String> oSymbols = oDefMap.keySet();
-        UnitDef oSymDef;
-        int iCount = 0;
-        List<IFeature> oFeatureList = new ArrayList<>();
-        List<IGeoPosition> oPosList;
-        final List<MilStdSymbol.Affiliation> oAffiliationList = Arrays.asList(MilStdSymbol.Affiliation.FRIEND,
-                MilStdSymbol.Affiliation.HOSTILE,
-                MilStdSymbol.Affiliation.NEUTRAL);
-        //,MilStdSymbol.Affiliation.SUSPECT);
-        final List<MilStdSymbol.Echelon> oEchelonList = Arrays.asList(MilStdSymbol.Echelon.UNIT,
-                MilStdSymbol.Echelon.SQUAD,
-                MilStdSymbol.Echelon.PLATOON_DETACHMENT,
-                MilStdSymbol.Echelon.COMPANY_BATTERY_TROOP,
-                MilStdSymbol.Echelon.BATTALION_SQUADRON,
-                MilStdSymbol.Echelon.BRIGADE);
+        Thread addSymbolsBackground = new Thread("adding symbols") {
+            UnitDefTable oDefTable = UnitDefTable.getInstance();
+            org.cmapi.primitives.GeoMilSymbol.SymbolStandard eStandard = org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525C;
+            int iMilStdVersion = (eStandard == org.cmapi.primitives.GeoMilSymbol.SymbolStandard.MIL_STD_2525B) ? armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525Bch2_USAS_13_14 :
+                    armyc2.c2sd.renderer.utilities.MilStdSymbol.Symbology_2525C;
+            Map<String, UnitDef> oDefMap = oDefTable.getAllUnitDefs(iMilStdVersion);
+            Set<String> oSymbols = oDefMap.keySet();
+            UnitDef oSymDef;
+            int iCount = 0;
+            List<IFeature> oFeatureList = new ArrayList<>();
+            List<IGeoPosition> oPosList;
+            final List<MilStdSymbol.Affiliation> oAffiliationList = Arrays.asList(MilStdSymbol.Affiliation.FRIEND,
+                    MilStdSymbol.Affiliation.HOSTILE,
+                    MilStdSymbol.Affiliation.NEUTRAL);
+            //,MilStdSymbol.Affiliation.SUSPECT);
+            final List<MilStdSymbol.Echelon> oEchelonList = Arrays.asList(MilStdSymbol.Echelon.UNIT,
+                    MilStdSymbol.Echelon.SQUAD,
+                    MilStdSymbol.Echelon.PLATOON_DETACHMENT,
+                    MilStdSymbol.Echelon.COMPANY_BATTERY_TROOP,
+                    MilStdSymbol.Echelon.BATTALION_SQUADRON,
+                    MilStdSymbol.Echelon.BRIGADE);
 
-        top: {
-            for (String sBasicSymbolCode : oSymbols) {
-                for (MilStdSymbol.Echelon eEchelon : oEchelonList) {
-                    for (MilStdSymbol.Affiliation eAffiliation : oAffiliationList) {
-                        //Log.d(TAG, "Symbol " + sBasicSymbolCode);
-                        if (SymbolUtilities.isWarfighting(sBasicSymbolCode)) {
-                            oSymDef = oDefMap.get(sBasicSymbolCode);
 
-                            oPosList = new ArrayList<>();
-                            oPosList.add(this.getRandomCoordinate());
+            public void run() {
 
-                            try {
-                                // Allocate the new MilStd Symbol with a MilStd version and the symbol code.
-                                mil.emp3.api.MilStdSymbol oSPSymbol = new mil.emp3.api.MilStdSymbol(eStandard, sBasicSymbolCode);
+                top:
+                {
+                    for (String sBasicSymbolCode : oSymbols) {
+                        for (MilStdSymbol.Echelon eEchelon : oEchelonList) {
+                            for (MilStdSymbol.Affiliation eAffiliation : oAffiliationList) {
+                                //Log.d(TAG, "Symbol " + sBasicSymbolCode);
+                                if (SymbolUtilities.isWarfighting(sBasicSymbolCode)) {
+                                    oSymDef = oDefMap.get(sBasicSymbolCode);
 
-                                // Set the symbols affiliation.
-                                oSPSymbol.setAffiliation(eAffiliation);
-                                // Set the echelon.
-                                oSPSymbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.UNIT, eEchelon);
-                                // Set the symbols altitude mode.
-                                //oSPSymbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.RELATIVE_TO_GROUND);
-                                //oSPSymbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.HQ_BRIGADE);
+                                    oPosList = new ArrayList<>();
+                                    oPosList.add(MainActivity.this.getRandomCoordinate());
 
-                                // Set the position list with 1 position.
-                                oSPSymbol.getPositions().clear();
-                                oSPSymbol.getPositions().addAll(oPosList);
-
-                                //Set a single modifier.
-                                oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSymDef.getDescription());
-                                iCount++;
-
-                                // Give the feature a name.
-                                oSPSymbol.setName(String.format("Unit-%04d", iCount));
-
-                                if ((iCount % 2) == 0) {
-                                    oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSPSymbol.getName());
-                                }
-
-                                //Add it to the list we will be adding to the overlay.
-                                oFeatureList.add(oSPSymbol);
-
-                                // Keep a reference to the feature in a hash for later use.
-                                this.oFeatureHash.put(oSPSymbol.getGeoId(), oSPSymbol);
-                                if (oFeatureList.size() >= 200) {
                                     try {
-                                        // Add all the features to the overlay.
-                                        // It is more efficient to add them in bulk.
-                                        oRootOverlay.addFeatures(oFeatureList, true);
-                                        Log.d(TAG, "Added " + oFeatureList.size() + " features.");
-                                        oFeatureList.clear();
+                                        // Allocate the new MilStd Symbol with a MilStd version and the symbol code.
+                                        mil.emp3.api.MilStdSymbol oSPSymbol = new mil.emp3.api.MilStdSymbol(eStandard, sBasicSymbolCode);
+
+                                        // Set the symbols affiliation.
+                                        oSPSymbol.setAffiliation(eAffiliation);
+                                        // Set the echelon.
+                                        oSPSymbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.UNIT, eEchelon);
+                                        // Set the symbols altitude mode.
+                                        //oSPSymbol.setAltitudeMode(IGeoAltitudeMode.AltitudeMode.RELATIVE_TO_GROUND);
+                                        //oSPSymbol.setEchelonSymbolModifier(MilStdSymbol.EchelonSymbolModifier.HQ_BRIGADE);
+
+                                        // Set the position list with 1 position.
+                                        oSPSymbol.getPositions().clear();
+                                        oSPSymbol.getPositions().addAll(oPosList);
+
+                                        //Set a single modifier.
+                                        oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSymDef.getDescription());
+                                        iCount++;
+
+                                        // Give the feature a name.
+                                        oSPSymbol.setName(String.format("Unit-%04d", iCount));
+
+                                        if ((iCount % 2) == 0) {
+                                            oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, oSPSymbol.getName());
+                                        }
+
+                                        //Add it to the list we will be adding to the overlay.
+                                        oFeatureList.add(oSPSymbol);
+
+                                        // Keep a reference to the feature in a hash for later use.
+                                        MainActivity.this.oFeatureHash.put(oSPSymbol.getGeoId(), oSPSymbol);
+                                        if (oFeatureList.size() >= 200) {
+                                            try {
+                                                // Add all the features to the overlay.
+                                                // It is more efficient to add them in bulk.
+                                                oRootOverlay.addFeatures(oFeatureList, true);
+                                                Log.d(TAG, "Added " + oFeatureList.size() + " features.");
+                                                oFeatureList.clear();
+                                            } catch (EMP_Exception Ex) {
+
+                                            }
+                                        }
                                     } catch (EMP_Exception Ex) {
 
                                     }
                                 }
-                            } catch (EMP_Exception Ex) {
 
+                                if ((iMaxCount > 0) && (iCount >= iMaxCount)) {
+                                    break top;
+                                }
                             }
-                        }
-
-                        if ((iMaxCount > 0) && (iCount >= iMaxCount)) {
-                            break top;
                         }
                     }
                 }
-            }
-        }
-        if (!oFeatureList.isEmpty()) {
-            try {
-                // Add all the features to the overlay.
-                // It is more efficient to add them in bulk.
-                oRootOverlay.addFeatures(oFeatureList, true);
-                Log.d(TAG, "Added " + oFeatureList.size() + " features.");
-            } catch (EMP_Exception Ex) {
+                if (!oFeatureList.isEmpty())
 
+                {
+                    try {
+                        // Add all the features to the overlay.
+                        // It is more efficient to add them in bulk.
+                        oRootOverlay.addFeatures(oFeatureList, true);
+                        Log.d(TAG, "Added " + oFeatureList.size() + " features.");
+                    } catch (EMP_Exception Ex) {
+
+                    }
+                }
             }
-        }
+        };
+        addSymbolsBackground.start();
     }
 
     private void processSymbolTable(Map<java.lang.String,UnitDef> oDefMap,

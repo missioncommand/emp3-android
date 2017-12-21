@@ -16,6 +16,7 @@ import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
+import java.util.UUID;
 
 import armyc2.c2sd.renderer.utilities.ImageInfo;
 import gov.nasa.worldwind.WorldWind;
@@ -79,15 +80,11 @@ public class MilStd2525 {
      * @return Either a new or a cached PlacemarkAttributes bundle containing the specified symbol embedded in the
      * bundle's imageSource property.
      */
-    public static PlacemarkAttributes getPlacemarkAttributes(String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes) {
+    public static PlacemarkAttributes getPlacemarkAttributes(String geoId, String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes) {
 
-        // Generate a cache key for this symbol
-        String symbolKey = symbolCode
-            + (modifiers == null ? emptyArray.toString() : modifiers.toString())
-            + (attributes == null ? emptyArray.toString() : attributes.toString());
 
         // Look for an attribute bundle in our cache and determine if the cached reference is valid
-        WeakReference<PlacemarkAttributes> reference = symbolCache.get(symbolKey);
+        WeakReference<PlacemarkAttributes> reference = symbolCache.get(geoId);
         PlacemarkAttributes placemarkAttributes = (reference == null ? null : reference.get());
 
         // Create the attributes if they haven't been created yet or if they've been released
@@ -97,10 +94,10 @@ public class MilStd2525 {
             // The actual bitmap will be lazily (re)created using a factory.
             placemarkAttributes = MilStd2525.createPlacemarkAttributes(symbolCode, modifiers, attributes);
             if (placemarkAttributes == null) {
-                throw new IllegalArgumentException("Cannot generate a symbol for: " + symbolKey);
+                throw new IllegalArgumentException("Cannot generate a symbol for: " + geoId);
             }
             // Add a weak reference to the attribute bundle to our cache
-            symbolCache.put(symbolKey, new WeakReference<>(placemarkAttributes));
+            symbolCache.put(geoId, new WeakReference<>(placemarkAttributes));
 
             // Perform some initialization of the bundle conducive to eye distance scaling
             placemarkAttributes.setMinimumImageScale(MINIMUM_IMAGE_SCALE);
