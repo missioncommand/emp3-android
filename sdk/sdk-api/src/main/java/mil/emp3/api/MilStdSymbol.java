@@ -1650,57 +1650,69 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         return bBox;
     }
 
-//    /**
-//     * Sets Icon color of military symbol.
-//     * @param color {@link IGeoColor} Color to render icon in.
-//     */
-//    public void setIconColor(final IGeoColor color) {
-//        this.attributes.put(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
-//    }
-//
-//    /**
-//     * Sets the fill color of the symbol.
-//     * @param color {@link IGeoColor} Color to fill icon with.
-//     */
-//    public void setFillColor(final IGeoColor color) {
-//        this.attributes.put(MilStdAttributes.FillColor, ColorUtils.colorToString(color));
-//    }
-//
-//    /**
-//     * Sets the line stroke color of the icon.
-//     * @param color {@link IGeoColor} Color to render stroke with.
-//     */
-//    public void setLineColor(final IGeoColor color) {
-//        this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
-//    }
-//
-//    /**
-//     * Sets text color of label.
-//     * @param color {@link IGeoColor} Color to render label text in.
-//     */
-//    public void setTextColor(final IGeoColor color) {
-//        this.attributes.put(MilStdAttributes.TextColor, ColorUtils.colorToString(color));
-//    }
-//
-//    /**
-//     * Sets text background color of label.
-//     * @param color {@link IGeoColor} Color to render background text of label in.
-//     */
-//    public void setTextBackgroundColor(final IGeoColor color) {
-//        this.attributes.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToString(color));
-//    }
-//
-//    /**
-//     * Convenience method to color fill, line and icon in one call.
-//     * @param fillColor - Color of the fill.
-//     * @param lineColor - Color of the line.
-//     * @param iconColor - Color of the icon.
-//     */
-//    public void styleSymbol(final IGeoColor fillColor, final IGeoColor lineColor, final IGeoColor iconColor) {
-//        this.setFillColor(fillColor);
-//        this.setLineColor(lineColor);
-//        this.setIconColor(iconColor);
-//    }
+    /**
+     * Sets Icon color of military symbol.
+     * This method is deprecated and may be incorrect. Use attribute sparse array instead.
+     * @param color {@link IGeoColor} Color to render icon in.
+     */
+    @Deprecated
+    public void setIconColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.IconColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Sets the fill color of the symbol.
+     * This method is deprecated and may be incorrect. Use attribute sparse array instead.
+     * @param color {@link IGeoColor} Color to fill icon with.
+     */
+    @Deprecated
+    public void setFillColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.FillColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Sets the line stroke color of the icon.
+     * This method is deprecated and may be incorrect. Use attribute sparse array instead.
+     * @param color {@link IGeoColor} Color to render stroke with.
+     */
+    @Deprecated
+    public void setLineColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.LineColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Sets text color of label.
+     * This method is deprecated and may be incorrect. Use attribute sparse array instead.
+     * @param color {@link IGeoColor} Color to render label text in.
+     */
+    @Deprecated
+    public void setTextColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.TextColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Sets text background color of label.
+     * This method is deprecated and may be incorrect. Use attribute sparse array instead.
+     * @param color {@link IGeoColor} Color to render background text of label in.
+     */
+    @Deprecated
+    public void setTextBackgroundColor(final IGeoColor color) {
+        this.attributes.put(MilStdAttributes.TextBackgroundColor, ColorUtils.colorToString(color));
+    }
+
+    /**
+     * Convenience method to color fill, line and icon in one call.
+     * This method is deprecated and may be incorrect. Use attribute sparse array instead.
+     * @param fillColor - Color of the fill.
+     * @param lineColor - Color of the line.
+     * @param iconColor - Color of the icon.
+     */
+    @Deprecated
+    public void styleSymbol(final IGeoColor fillColor, final IGeoColor lineColor, final IGeoColor iconColor) {
+        this.setFillColor(fillColor);
+        this.setLineColor(lineColor);
+        this.setIconColor(iconColor);
+    }
 
     /**
      * Returns the attributes spare array. Use {@link MilStdAttributes} enum as key values.
