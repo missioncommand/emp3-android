@@ -65,7 +65,6 @@ public class MilStd2525TacticalGraphic extends FeatureRenderableMapping<MilStdSy
     private void renderMPTacticalGraphic(IGeoBounds bounds) {
         Renderable tempRenderable;
         MilStdSymbol oSymbol = this.getFeature();
-
         this.getRenderableList().clear();
         this.renderablePathList.clear();
         this.renderableLabelList.clear();
@@ -76,9 +75,10 @@ public class MilStd2525TacticalGraphic extends FeatureRenderableMapping<MilStdSy
             if (feature instanceof Path) {
                 // Create a WW path object.
                 tempRenderable = this.createWWPath((Path) feature, false);
-
                 if (tempRenderable != null) {
                     tempRenderable.setPickDelegate(oSymbol);
+                    oSymbol.setPathType((feature).getPathType());
+//                    oSymbol.setPathType(EMPtoWWFeatureConverter.wwPathTypeToCmapiPathType((Path)feature).getPathType());
                     this.renderablePathList.add(tempRenderable);
                 }
             } else if (feature instanceof Polygon) {
