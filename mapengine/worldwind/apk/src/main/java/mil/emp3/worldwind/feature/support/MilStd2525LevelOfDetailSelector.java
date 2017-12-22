@@ -2,6 +2,12 @@ package mil.emp3.worldwind.feature.support;
 
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.UUID;
+
+import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.geom.Offset;
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Placemark;
 import gov.nasa.worldwind.shape.PlacemarkAttributes;

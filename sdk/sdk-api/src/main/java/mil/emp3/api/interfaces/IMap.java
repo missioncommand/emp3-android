@@ -1,6 +1,7 @@
 package mil.emp3.api.interfaces;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.view.View;
 
 import org.cmapi.primitives.IGeoBounds;
@@ -778,7 +779,6 @@ public interface IMap extends IContainer {
      * geoToScreen - convert from GeoPosition to screen coordinates
      * @param pos
      * @return a screen X,Y coordinate for the provided GeoPosition.*/
-
     android.graphics.Point geoToScreen(IGeoPosition pos) throws EMP_Exception;
 
     /**
@@ -786,7 +786,6 @@ public interface IMap extends IContainer {
      * @param point
      * @return a GeoPosition coordinate for the provided screen X,Y coordinate.
      */
-
     IGeoPosition screenToGeo(android.graphics.Point point) throws EMP_Exception;
 
     /**
@@ -794,16 +793,25 @@ public interface IMap extends IContainer {
      * @param pos
      * @return a container X,Y coordinate for the provided GeoPosition.
      */
-
     Point geoToContainer(IGeoPosition pos) throws EMP_Exception;
+
+    /**
+     * containerToGeo - converts from container coordinates to GeoPosition
+     *
+     * Deprecated: Use containerToGeo with PointF for more precise calculation
+     *
+     * @param point
+     * @return a GeoPosition coordinate for the provided container X,Y coordinate.
+     */
+    @Deprecated
+    IGeoPosition containerToGeo(Point point) throws EMP_Exception;
 
     /**
      * containerToGeo - converts from container coordinates to GeoPosition
      * @param point
      * @return a GeoPosition coordinate for the provided container X,Y coordinate.
      */
-
-    IGeoPosition containerToGeo(Point point) throws EMP_Exception;
+    IGeoPosition containerToGeo(PointF point) throws EMP_Exception;
 
     /**
      * This method selects the feature on the map. If the feature is already selected, or not on the map no action is taken.

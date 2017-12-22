@@ -285,9 +285,9 @@ public class MockMapInstance extends MockMapInstance_ {
 
         if(null != pickList) {
             generateFeatureUserInteractionEvent(eventEnum, null, null,
-                    pickList, null, position, null);
+                    pickList, (android.graphics.Point)null, position, null);
         }
-        generateMapUserInteractionEvent(eventEnum, null, null, null, position, null);
+        generateMapUserInteractionEvent(eventEnum, null, null, (android.graphics.Point)null, position, null);
     }
 
     public void simulateUserInteractionEvent(UserInteractionEventEnum eventEnum, int X, int Y, double latitude, double longitude, double altitude) {
@@ -315,7 +315,7 @@ public class MockMapInstance extends MockMapInstance_ {
         List<IFeature> pickList = new ArrayList<>();
         pickList.add(feature);
 
-        generateFeatureUserInteractionEvent(event, null, null, pickList, null, newPosition, oldPosition);
+        generateFeatureUserInteractionEvent(event, null, null, pickList, (android.graphics.Point)null, newPosition, oldPosition);
     }
 
     public boolean validateSelectedFeatures(IFeature ... feature) throws InterruptedException {

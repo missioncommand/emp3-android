@@ -190,10 +190,9 @@ public abstract class MapInstanceEventHandler extends MapStatus implements IMapI
             // following reason. Remember that MapInstanceUserInteractionEvent is never sent to the application
             // MapUserInteractionEvent is recreated and sent to the user. So only core can invoke setEventConsumed/isEventConsumed
             // on MapInstanceUserInteractionEvent. THIS IS VERY IMPORTANT. Please see processing in world-wind/PickNavigateController
-
             if (!bEventConsumed) {
                 eventManager.generateMapInteractionEvent(event.getEvent(), event.getKeys(), event.getButton(),
-                        oClientMap, event.getLocation(), event.getCoordinate(), event.getStartCoordinate(), event.getUserContext());
+                        oClientMap, event.getLocationF(), event.getCoordinate(), event.getStartCoordinate(), event.getUserContext());
             }
 
             if ((event.getEvent() == UserInteractionEventEnum.DRAG) &&
