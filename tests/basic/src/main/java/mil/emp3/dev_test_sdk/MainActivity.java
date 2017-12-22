@@ -149,6 +149,7 @@ import mil.emp3.dev_test_sdk.utils.CameraUtility;
 import mil.emp3.dev_test_sdk.utils.KMLSServiceListener;
 import mil.emp3.json.geoJson.GeoJsonCaller;
 import mil.emp3.worldwind.feature.support.MilStd2525;
+import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -2231,7 +2232,7 @@ public class MainActivity extends AppCompatActivity
                             final String numUnits = text.getText().toString();
                             Log.d(TAG, "numUnits: " + numUnits);
 
-                            MilStd2525.setMidDetailThreshold(Integer.parseInt(numUnits));
+                            MilStd2525LevelOfDetailSelector.setMidDetailThreshold(Integer.parseInt(numUnits));
                         }).create().show();
                 return true;
             case R.id.action_setHighTreshold:
@@ -2247,7 +2248,7 @@ public class MainActivity extends AppCompatActivity
                             final String numUnits = text.getText().toString();
                             Log.d(TAG, "numUnits: " + numUnits);
 
-                            MilStd2525.setHighDetailThreshold(Integer.parseInt(numUnits));
+                            MilStd2525LevelOfDetailSelector.setHighDetailThreshold(Integer.parseInt(numUnits));
                         }).create().show();
                 return true;
             case R.id.action_plotunits2525B:

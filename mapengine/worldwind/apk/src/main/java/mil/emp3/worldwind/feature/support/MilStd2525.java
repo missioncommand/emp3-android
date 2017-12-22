@@ -60,10 +60,6 @@ public class MilStd2525 {
 
     private final static double MINIMUM_IMAGE_SCALE = 0.25;
 
-
-    private static int midDetailThreshold = 2000;
-    private static int highDetailThreshold = 4000;
-
     public static void setRenderer(IMilStdRenderer renderer) {
         MilStd2525.renderer = renderer;
     }
@@ -162,23 +158,6 @@ public class MilStd2525 {
         } else {
             return null;
         }
-    }
-
-
-    public static int getMidDetailThreshold() {
-        return midDetailThreshold;
-    }
-
-    public static void setMidDetailThreshold(int midDetailThreshold) {
-        MilStd2525.midDetailThreshold = midDetailThreshold;
-    }
-
-    public static int getHighDetailThreshold() {
-        return highDetailThreshold;
-    }
-
-    public static void setHighDetailThreshold(int highDetailThreshold) {
-        MilStd2525.highDetailThreshold = highDetailThreshold;
     }
 
 

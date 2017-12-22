@@ -34,8 +34,8 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
 
     protected static double MID_THRESHOLD = 10000;
 
-    private static int MANY_FEATURES = 2000;
-    private static int TOO_MANY_FEATURES = 4000;
+    private static int numFeaturesHighThreshold = 2000;
+    private static int numFeaturesMidThreshold = 4000;
 
     /**
      * This static method initializes the oInstance.
@@ -76,6 +76,22 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         MID_THRESHOLD = dValue;
     }
 
+    public static int getMidDetailThreshold() {
+        return numFeaturesHighThreshold;
+    }
+
+    public static void setMidDetailThreshold(int midDetailThreshold) {
+        numFeaturesHighThreshold = midDetailThreshold;
+    }
+
+    public static int getHighDetailThreshold() {
+        return numFeaturesMidThreshold;
+    }
+
+    public static void setHighDetailThreshold(int highDetailThreshold) {
+        numFeaturesMidThreshold = highDetailThreshold;
+    }
+
     private MilStd2525LevelOfDetailSelector() {
     }
 
@@ -103,7 +119,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         // Determine the normal attributes based on the distance from the camera to the placemark
-        if (cameraDistance > FAR_THRESHOLD || featureCount > MilStd2525.getHighDetailThreshold()) {
+        if (cameraDistance > FAR_THRESHOLD || featureCount > getHighDetailThreshold()) {
             // Low-fidelity: use affiliation only
             if ((lastLevelOfDetail != LOW_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
@@ -111,7 +127,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
                 placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
             }
-        } else if (cameraDistance > MID_THRESHOLD || featureCount > MilStd2525.getMidDetailThreshold()) {
+        } else if (cameraDistance > MID_THRESHOLD || featureCount > getMidDetailThreshold()) {
             // Medium-fidelity: use the regulation SIDC code with attributes but without modifiers
             if ((lastLevelOfDetail != MEDIUM_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId + "ATTR", milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());
