@@ -148,6 +148,7 @@ import mil.emp3.dev_test_sdk.dialogs.milstdunits.SymbolPropertiesDialog;
 import mil.emp3.dev_test_sdk.utils.CameraUtility;
 import mil.emp3.dev_test_sdk.utils.KMLSServiceListener;
 import mil.emp3.json.geoJson.GeoJsonCaller;
+import mil.emp3.worldwind.feature.support.MilStd2525;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -187,6 +188,8 @@ public class MainActivity extends AppCompatActivity
     private Handler handler;
     private MiniMapDialog miniMapDialog = null;
     private TextView brightnessCtrl = null;
+    private LayoutInflater inflater = null;
+    private View v = null;
 
     private boolean bCrossHairsOn = false;
 
@@ -2192,8 +2195,8 @@ public class MainActivity extends AppCompatActivity
                 }
                 return true;
             case R.id.action_plot2units2525B:
-                LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService (Context.LAYOUT_INFLATER_SERVICE);
-                View v = inflater.inflate(R.layout.plot_unit_dialog, null);
+                inflater = (LayoutInflater)getApplicationContext().getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                v = inflater.inflate(R.layout.plot_unit_dialog, null);
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage("Number of Units:")
                         .setView(v)
@@ -2213,6 +2216,38 @@ public class MainActivity extends AppCompatActivity
                             }
 
                             plotManyMilStd(Integer.parseInt(numUnits));
+                        }).create().show();
+                return true;
+            case R.id.action_setMidThreshold:
+                inflater = (LayoutInflater)getApplicationContext().getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                v = inflater.inflate(R.layout.plot_unit_dialog, null);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage("What should the mid threshold be?:")
+                        .setView(v)
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                            final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+
+                            final String numUnits = text.getText().toString();
+                            Log.d(TAG, "numUnits: " + numUnits);
+
+                            MilStd2525.setMidDetailThreshold(Integer.parseInt(numUnits));
+                        }).create().show();
+                return true;
+            case R.id.action_setHighTreshold:
+                inflater = (LayoutInflater)getApplicationContext().getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+                v = inflater.inflate(R.layout.plot_unit_dialog, null);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage("What should the high threshold be?:")
+                        .setView(v)
+                        .setNegativeButton(android.R.string.no, null)
+                        .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                            final EditText text = (EditText) (((Dialog) dialog).findViewById(R.id.input));
+
+                            final String numUnits = text.getText().toString();
+                            Log.d(TAG, "numUnits: " + numUnits);
+
+                            MilStd2525.setHighDetailThreshold(Integer.parseInt(numUnits));
                         }).create().show();
                 return true;
             case R.id.action_plotunits2525B:

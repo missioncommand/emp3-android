@@ -1,24 +1,12 @@
 package mil.emp3.worldwind.feature.support;
 
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.util.SparseArray;
-
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.UUID;
-
-import gov.nasa.worldwind.WorldWind;
-import gov.nasa.worldwind.geom.Offset;
-import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Placemark;
 import gov.nasa.worldwind.shape.PlacemarkAttributes;
 import gov.nasa.worldwind.util.Logger;
-import mil.emp3.mapengine.interfaces.IEmpImageInfo;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
-import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.feature.MilStd2525SinglePoint;
 
 /**
@@ -115,7 +103,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         // Determine the normal attributes based on the distance from the camera to the placemark
-        if (cameraDistance > FAR_THRESHOLD || featureCount > TOO_MANY_FEATURES) {
+        if (cameraDistance > FAR_THRESHOLD || featureCount > MilStd2525.getHighDetailThreshold()) {
             // Low-fidelity: use affiliation only
             if ((lastLevelOfDetail != LOW_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
@@ -123,7 +111,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
                 placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
             }
-        } else if (cameraDistance > MID_THRESHOLD || featureCount > MANY_FEATURES) {
+        } else if (cameraDistance > MID_THRESHOLD || featureCount > MilStd2525.getMidDetailThreshold()) {
             // Medium-fidelity: use the regulation SIDC code with attributes but without modifiers
             if ((lastLevelOfDetail != MEDIUM_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId + "ATTR", milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());

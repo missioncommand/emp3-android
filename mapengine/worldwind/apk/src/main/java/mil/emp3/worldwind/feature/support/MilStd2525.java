@@ -16,7 +16,6 @@ import android.util.SparseArray;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.UUID;
 
 import armyc2.c2sd.renderer.utilities.ImageInfo;
 import gov.nasa.worldwind.WorldWind;
@@ -60,6 +59,10 @@ public class MilStd2525 {
     private static SparseArray<String> emptyArray = new SparseArray<>();    // may be used in a cache key
 
     private final static double MINIMUM_IMAGE_SCALE = 0.25;
+
+
+    private static int midDetailThreshold = 2000;
+    private static int highDetailThreshold = 4000;
 
     public static void setRenderer(IMilStdRenderer renderer) {
         MilStd2525.renderer = renderer;
@@ -125,7 +128,7 @@ public class MilStd2525 {
      * @param modifiers  The ModifierUnit (unit) or ModifierTG (tactical graphic) modifiers collection. May be null.
      * @param attributes The MilStdAttributes attributes collection. May be null.
      *
-     * @return A new PlacemarkAttributes bundle representing the MIL-STD-2525 symbol.
+     * @return A new PlacemarkAttributes bundle representing the Mbtw IL-STD-2525 symbol.
      */
     public static PlacemarkAttributes createPlacemarkAttributes(String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes) {
         PlacemarkAttributes placemarkAttributes = new PlacemarkAttributes();
@@ -162,7 +165,21 @@ public class MilStd2525 {
     }
 
 
+    public static int getMidDetailThreshold() {
+        return midDetailThreshold;
+    }
 
+    public static void setMidDetailThreshold(int midDetailThreshold) {
+        MilStd2525.midDetailThreshold = midDetailThreshold;
+    }
+
+    public static int getHighDetailThreshold() {
+        return highDetailThreshold;
+    }
+
+    public static void setHighDetailThreshold(int highDetailThreshold) {
+        MilStd2525.highDetailThreshold = highDetailThreshold;
+    }
 
 
     /**
