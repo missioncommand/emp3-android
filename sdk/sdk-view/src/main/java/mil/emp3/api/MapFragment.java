@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.res.TypedArray;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -936,6 +937,11 @@ public class MapFragment extends Fragment implements IMap {
 
     @Override
     public IGeoPosition containerToGeo(Point point) throws EMP_Exception {
+        return this.oClientMap.containerToGeo(point);
+    }
+
+    @Override
+    public IGeoPosition containerToGeo(PointF point) throws EMP_Exception {
         return this.oClientMap.containerToGeo(point);
     }
 

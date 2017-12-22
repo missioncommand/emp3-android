@@ -1,6 +1,7 @@
 package mil.emp3.api.abstracts;
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.Log;
 import android.view.View;
 
@@ -665,8 +666,14 @@ public abstract class Map extends Container implements IMap {
         return coreManager.geoToContainer(this, pos);
     }
 
+    @Deprecated
     @Override
     public IGeoPosition containerToGeo(Point point) throws EMP_Exception {
+        return coreManager.containerToGeo(this, point);
+    }
+
+    @Override
+    public IGeoPosition containerToGeo(PointF point) throws EMP_Exception {
         return coreManager.containerToGeo(this, point);
     }
 

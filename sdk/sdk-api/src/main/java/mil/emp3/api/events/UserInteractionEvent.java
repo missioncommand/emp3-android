@@ -1,5 +1,8 @@
 package mil.emp3.api.events;
 
+import android.graphics.Point;
+import android.graphics.PointF;
+
 import org.cmapi.primitives.IGeoPosition;
 
 import java.util.EnumSet;
@@ -14,7 +17,7 @@ import mil.emp3.api.enums.UserInteractionEventEnum;
  * @param <TargetType> A java type derived from {@link IContainer}.
  */
 public abstract class UserInteractionEvent<TargetType extends IContainer> extends Event<UserInteractionEventEnum, TargetType>  {
-    private final android.graphics.Point oPoint;
+    private final android.graphics.PointF oPoint;
     private final IGeoPosition oCoordinate;
     private final IGeoPosition oStartCoordinate;
     private UserInteractionMouseButtonEnum oButton;
@@ -24,7 +27,7 @@ public abstract class UserInteractionEvent<TargetType extends IContainer> extend
                                    EnumSet<UserInteractionKeyEnum> keys,
                                    UserInteractionMouseButtonEnum button,
                                    TargetType oContainer,
-                                   android.graphics.Point oPoint,
+                                   android.graphics.PointF oPoint,
                                    IGeoPosition oPosition) {
         super(eEvent, oContainer);
         this.oPoint = oPoint;
@@ -38,7 +41,7 @@ public abstract class UserInteractionEvent<TargetType extends IContainer> extend
                                    EnumSet<UserInteractionKeyEnum> keys,
                                    UserInteractionMouseButtonEnum button,
                                    TargetType oContainer,
-                                   android.graphics.Point oPoint,
+                                   android.graphics.PointF oPoint,
                                    IGeoPosition oPosition,
                                    IGeoPosition oStartPosition) {
         super(eEvent, oContainer);
@@ -54,9 +57,22 @@ public abstract class UserInteractionEvent<TargetType extends IContainer> extend
      * is the origin of the map container.
      * The value of the object is only valid for the duration of the event callback. The event handler
      * <b>MUST NOT</b> keep a reference to the object.
+     *
+     * Deprecated: Use getPointF() for a more precise event location
+     *
      * @return {@android.graphics.Point}
      */
-    public android.graphics.Point getPoint() {
+    @Deprecated
+    public android.graphics.Point getPoint() {  return this.oPoint == null ? null : new Point((int)this.oPoint.x, (int)this.oPoint.y);  }
+
+    /**
+     * This method returns the x,y coordinate of the location the event occurred at. Where 0,0
+     * is the origin of the map container.
+     * The value of the object is only valid for the duration of the event callback. The event handler
+     * <b>MUST NOT</b> keep a reference to the object.
+     * @return {@android.graphics.Point}
+     */
+    public android.graphics.PointF getPointF() {
         return this.oPoint;
     }
 

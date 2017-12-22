@@ -2,6 +2,7 @@ package mil.emp3.api.mock;
 
 
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.Log;
 import android.view.View;
 
@@ -357,6 +358,12 @@ public class MockMapInstance_ extends CoreMapInstance {
 
     @Override
     public IGeoPosition containerToGeo(Point point) {
+        return null;
+    }
+
+    @Override
+    public IGeoPosition containerToGeo(PointF point)
+    {
         return null;
     }
 
