@@ -2,16 +2,11 @@ package mil.emp3.worldwind.feature.support;
 
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.UUID;
-
-import gov.nasa.worldwind.WorldWind;
-import gov.nasa.worldwind.geom.Offset;
-import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Placemark;
 import gov.nasa.worldwind.shape.PlacemarkAttributes;
 import gov.nasa.worldwind.util.Logger;
+import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.worldwind.feature.MilStd2525SinglePoint;
 
@@ -42,6 +37,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
 
     private static int numFeaturesHighThreshold = 2000;
     private static int numFeaturesMidThreshold = 4000;
+    private static double iconSize = IconSizeEnum.SMALL.getScaleFactor();
 
     /**
      * This static method initializes the oInstance.
@@ -104,6 +100,10 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         numFeaturesMidThreshold = highDetailThreshold;
     }
 
+    public static void setIconSize(IconSizeEnum size) {
+        iconSize = size.getScaleFactor();
+    }
+
     private MilStd2525LevelOfDetailSelector() {
     }
 
@@ -158,7 +158,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         // Update the placemark's attributes bundle
         if (placemarkAttributes != null) {
             // Apply the symbols and Icon size setting scales.
-            double dScale = milStdPlacemark.getMapInstance().getIconSizeSetting().getScaleFactor() * milStdPlacemark.getIconScale();
+            double dScale = iconSize * milStdPlacemark.getIconScale();
             placemarkAttributes.setImageScale(dScale);
             placemark.setAttributes(placemarkAttributes);
 

@@ -294,6 +294,9 @@ public class StorageManager implements IStorageManager {
 
         this.oClientMapToMapInstanceMapping.put(clientMap, oMapping);
         this.oMapInstanceToClientMapMapping.put(mapInstance, oMapping);
+        mapInstance.setIconSize(oMapping.getIconSize());
+        mapInstance.setFarDistanceThreshold(oMapping.getFarDistanceThreshold());
+        mapInstance.setMidDistanceThreshold(oMapping.getMidDistanceThreshold());
 
         // Check and restore data like childList if this is an activity restart and application has chosen this option
         // in Emp3DataManager.

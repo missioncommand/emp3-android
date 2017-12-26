@@ -9,6 +9,7 @@ import org.cmapi.primitives.IGeoPosition;
 import java.util.List;
 
 import mil.emp3.api.enums.FontSizeModifierEnum;
+import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
@@ -297,6 +298,8 @@ public interface IMapInstance {
     void setMidDetailThreshold(int threshold);
     int getHighDetailThreshold();
     int getMidDetailThreshold();
+
+    void setIconSize(IconSizeEnum size);
 
     /**
      * Returns version information for the map engine

@@ -17,6 +17,7 @@ import java.util.concurrent.BlockingQueue;
 import mil.emp3.api.KMLS;
 import mil.emp3.api.enums.FeatureTypeEnum;
 import mil.emp3.api.enums.FontSizeModifierEnum;
+import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapGridTypeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.WMSVersionEnum;
@@ -367,6 +368,10 @@ public class MockMapInstance_ extends CoreMapInstance {
     @Override
     public int getMidDetailThreshold() {
         return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public void setIconSize(IconSizeEnum size) {
     }
 
     @Override

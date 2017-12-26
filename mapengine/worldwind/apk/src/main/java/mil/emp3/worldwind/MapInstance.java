@@ -56,7 +56,7 @@ public class MapInstance extends CoreMapInstance {
     private Context context;
     private gov.nasa.worldwind.WorldWindow ww;
     private SurfaceHolder mySurfaceHolder;                 // This is required for WallPaper Service
-    private final IStorageManager storageManager = ManagerFactory.getInstance().getStorageManager();
+    private IconSizeEnum iconSize;
 
     private PickNavigateController mapController;
     private Emp3NavigationListener oMapViewController;
@@ -427,9 +427,16 @@ public class MapInstance extends CoreMapInstance {
         }
     }
 
-    public IconSizeEnum getIconSizeSetting() {
-        return storageManager.getIconSize(this);
+    @Override
+    public void setIconSize(IconSizeEnum size) {
+        iconSize = size;
+        MilStd2525LevelOfDetailSelector.setIconSize(size);
     }
+
+    public IconSizeEnum getIconSizeSetting() {
+        return iconSize;
+    }
+
 
     private void plotFeature(IFeature feature, boolean bVisible) {
         getRenderableLayer(feature).plot(feature, bVisible);

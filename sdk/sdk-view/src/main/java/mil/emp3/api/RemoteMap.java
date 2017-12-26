@@ -1002,6 +1002,10 @@ public class RemoteMap implements IMap {
         }
 
         @Override
+        public void setIconSize (IconSizeEnum size) {
+        }
+
+        @Override
         public void getVersionInformation(StringBuilder builder, List<String> buildConfigFields) {
 
         }
