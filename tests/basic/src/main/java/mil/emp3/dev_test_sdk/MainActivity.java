@@ -2238,7 +2238,7 @@ public class MainActivity extends AppCompatActivity
                             final String numUnits = text.getText().toString();
                             Log.d(TAG, "numUnits: " + numUnits);
 
-                            MilStd2525LevelOfDetailSelector.setMidDetailThreshold(Integer.parseInt(numUnits));
+                            this.map.setMidDetailThreshold(Integer.parseInt(numUnits));
                         }).create().show();
                 return true;
             case R.id.action_setHighTreshold:
@@ -2254,7 +2254,7 @@ public class MainActivity extends AppCompatActivity
                             final String numUnits = text.getText().toString();
                             Log.d(TAG, "numUnits: " + numUnits);
 
-                            MilStd2525LevelOfDetailSelector.setHighDetailThreshold(Integer.parseInt(numUnits));
+                            this.map.setHighDetailThreshold(Integer.parseInt(numUnits));
                         }).create().show();
                 return true;
             case R.id.action_plotunits2525B:

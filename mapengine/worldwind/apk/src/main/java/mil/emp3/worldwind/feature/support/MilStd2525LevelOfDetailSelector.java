@@ -68,8 +68,11 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
      *
      * @param dValue camera distance threshold in meters
      */
-    public static void setFarThreshold(double dValue) {
+    public static void setFarDistanceThreshold(double dValue) {
         FAR_THRESHOLD = dValue;
+    }
+    public static double getFarDistanceThreshold() {
+        return FAR_THRESHOLD;
     }
 
     /**
@@ -78,8 +81,11 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
      *
      * @param dValue camera distance threshold in meters
      */
-    public static void setMidThreshold(double dValue) {
+    public static void setMidDistanceThreshold(double dValue) {
         MID_THRESHOLD = dValue;
+    }
+    public static double getMidDistanceThreshold() {
+        return MID_THRESHOLD;
     }
 
     public static int getMidDetailThreshold() {
@@ -125,7 +131,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         // Determine the normal attributes based on the distance from the camera to the placemark
-        if (cameraDistance > FAR_THRESHOLD || featureCount > getHighDetailThreshold()) {
+        if (cameraDistance > FAR_THRESHOLD || featureCount > numFeaturesHighThreshold) {
             // Low-fidelity: use affiliation only
             if ((lastLevelOfDetail != LOW_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
@@ -133,7 +139,7 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
                 placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
             }
-        } else if (cameraDistance > MID_THRESHOLD || featureCount > getMidDetailThreshold()) {
+        } else if (cameraDistance > MID_THRESHOLD || featureCount > numFeaturesMidThreshold) {
             // Medium-fidelity: use the regulation SIDC code with attributes but without modifiers
             if ((lastLevelOfDetail != MEDIUM_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
                 placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId + "ATTR", milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());

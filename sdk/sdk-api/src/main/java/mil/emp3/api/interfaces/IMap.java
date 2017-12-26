@@ -775,6 +775,11 @@ public interface IMap extends IContainer {
      */
     double getMidDistanceThreshold();
 
+    void setHighDetailThreshold(int threshold);
+    void setMidDetailThreshold(int threshold);
+    int getHighDetailThreshold();
+    int getMidDetailThreshold();
+
     /**
      * geoToScreen - convert from GeoPosition to screen coordinates
      * @param pos

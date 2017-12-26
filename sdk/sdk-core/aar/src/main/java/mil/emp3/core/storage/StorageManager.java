@@ -2095,6 +2095,82 @@ public class StorageManager implements IStorageManager {
     }
 
     @Override
+    public void setHighDetailThreshold(IMap oMap, int threshold) {
+        try {
+            lock.lock();
+            StorageObjectWrapper oMapWrapper = this.oObjectHash.get(oMap.getGeoId());
+            IClientMapToMapInstance oMapping = this.getMapMapping((IMap) oMapWrapper.getObject());
+
+            if (oMapping == null) {
+                return;
+            }
+
+            oMapping.getMapInstance().setHighDetailThreshold(threshold);
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void setMidDetailThreshold(IMap oMap, int threshold) {
+        try {
+            lock.lock();
+            StorageObjectWrapper oMapWrapper = this.oObjectHash.get(oMap.getGeoId());
+            IClientMapToMapInstance oMapping = this.getMapMapping((IMap) oMapWrapper.getObject());
+
+            if (oMapping == null) {
+                return;
+            }
+
+            oMapping.getMapInstance().setMidDetailThreshold(threshold);
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int getHighDetailThreshold(IMap oMap) {
+        try {
+            lock.lock();
+            if(null != oMap) {
+                StorageObjectWrapper oMapWrapper = this.oObjectHash.get(oMap.getGeoId());
+                IClientMapToMapInstance oMapping = this.getMapMapping((IMap) oMapWrapper.getObject());
+
+                if (oMapping == null) {
+                    return Integer.MAX_VALUE;
+                }
+                return oMapping.getMapInstance().getHighDetailThreshold();
+            } else {
+                return Integer.MAX_VALUE;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int getMidDetailThreshold(IMap oMap) {
+        try {
+            lock.lock();
+            if(null != oMap) {
+                StorageObjectWrapper oMapWrapper = this.oObjectHash.get(oMap.getGeoId());
+                IClientMapToMapInstance oMapping = this.getMapMapping((IMap) oMapWrapper.getObject());
+
+                if (oMapping == null) {
+                    return Integer.MAX_VALUE;
+                }
+                return oMapping.getMapInstance().getMidDetailThreshold();
+            } else {
+                return Integer.MAX_VALUE;
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
     public void setBounds(IMap map, IGeoBounds bounds) {
         IClientMapToMapInstance oMapping = this.getMapMapping(map);
         oMapping.setBounds(bounds);

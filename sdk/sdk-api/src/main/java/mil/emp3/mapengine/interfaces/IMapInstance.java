@@ -291,6 +291,13 @@ public interface IMapInstance {
      */
     void setMidDistanceThreshold(double dValue);
 
+    double getFarDistanceThreshold();
+    double getMidDistanceThreshold();
+    void setHighDetailThreshold(int threshold);
+    void setMidDetailThreshold(int threshold);
+    int getHighDetailThreshold();
+    int getMidDetailThreshold();
+
     /**
      * Returns version information for the map engine
      * @Param builder

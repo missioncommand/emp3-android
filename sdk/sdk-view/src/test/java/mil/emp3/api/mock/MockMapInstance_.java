@@ -342,6 +342,34 @@ public class MockMapInstance_ extends CoreMapInstance {
     }
 
     @Override
+    public double getFarDistanceThreshold() {
+        return Double.POSITIVE_INFINITY;
+    }
+
+    @Override
+    public double getMidDistanceThreshold() {
+        return Double.POSITIVE_INFINITY;
+    }
+
+    @Override
+    public void setHighDetailThreshold(int threshold) {
+    }
+
+    @Override
+    public void setMidDetailThreshold(int threshold) {
+    }
+
+    @Override
+    public int getHighDetailThreshold() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public int getMidDetailThreshold() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
     public void getVersionInformation(StringBuilder builder, List<String> buildConfigFields) {
 
     }

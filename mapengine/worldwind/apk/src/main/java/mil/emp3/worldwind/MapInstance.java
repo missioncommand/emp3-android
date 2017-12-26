@@ -61,9 +61,6 @@ public class MapInstance extends CoreMapInstance {
     private PickNavigateController mapController;
     private Emp3NavigationListener oMapViewController;
 
-    private double FAR_THRESHOLD = 30000;
-    private double MID_THRESHOLD = 10000;
-
     private Map<UUID, mil.emp3.worldwind.feature.FeatureRenderableMapping> featureHash;
     private Set<UUID> dirtyOnMapMove;
     private RenderableLayer imageLayer;
@@ -995,8 +992,7 @@ public class MapInstance extends CoreMapInstance {
      */
     @Override
     public void setFarDistanceThreshold(double dValue) {
-        MilStd2525LevelOfDetailSelector.setFarThreshold(dValue);
-        this.FAR_THRESHOLD = dValue;
+        MilStd2525LevelOfDetailSelector.setFarDistanceThreshold(dValue);
         ww.requestRedraw();
     }
 
@@ -1008,17 +1004,38 @@ public class MapInstance extends CoreMapInstance {
      */
     @Override
     public void setMidDistanceThreshold(double dValue) {
-        MilStd2525LevelOfDetailSelector.setMidThreshold(dValue);
-        this.MID_THRESHOLD = dValue;
+        MilStd2525LevelOfDetailSelector.setMidDistanceThreshold(dValue);
         ww.requestRedraw();
     }
 
+    @Override
     public double getFarDistanceThreshold() {
-        return this.FAR_THRESHOLD;
+        return MilStd2525LevelOfDetailSelector.getFarDistanceThreshold();
     }
 
+    @Override
     public double getMidDistanceThreshold() {
-        return this.MID_THRESHOLD;
+        return MilStd2525LevelOfDetailSelector.getMidDistanceThreshold();
+    }
+
+    @Override
+    public void setHighDetailThreshold(int threshold) {
+        MilStd2525LevelOfDetailSelector.setHighDetailThreshold(threshold);
+    }
+
+    @Override
+    public void setMidDetailThreshold(int threshold) {
+        MilStd2525LevelOfDetailSelector.setMidDetailThreshold(threshold);
+    }
+
+    @Override
+    public int getHighDetailThreshold() {
+        return MilStd2525LevelOfDetailSelector.getHighDetailThreshold();
+    }
+
+    @Override
+    public int getMidDetailThreshold() {
+        return MilStd2525LevelOfDetailSelector.getMidDetailThreshold();
     }
 
     /**
