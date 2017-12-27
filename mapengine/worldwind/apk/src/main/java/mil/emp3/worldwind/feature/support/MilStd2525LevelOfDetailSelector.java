@@ -130,27 +130,27 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         // Determine the normal attributes based on the distance from the camera to the placemark
-        if (cameraDistance > FAR_THRESHOLD || featureCount > numFeaturesHighThreshold) {
+        if (cameraDistance > FAR_THRESHOLD || featureCount > numFeaturesMidThreshold) {
             // Low-fidelity: use affiliation only
             if ((lastLevelOfDetail != LOW_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
+                milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
                 String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
                 placemarkAttributes = MilStd2525.getPlacemarkAttributes(simpleCode);
                 placemarkAttributes.setDrawLeader(true);
-                milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
             }
-        } else if (cameraDistance > MID_THRESHOLD || featureCount > numFeaturesMidThreshold) {
+        } else if (cameraDistance > MID_THRESHOLD || featureCount > numFeaturesHighThreshold) {
             // Medium-fidelity: use the regulation SIDC code with attributes but without modifiers
             if ((lastLevelOfDetail != MEDIUM_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
+                milStdPlacemark.setLastLevelOfDetail(MEDIUM_LEVEL_OF_DETAIL);
                 placemarkAttributes = MilStd2525.getPlacemarkAttributes(milStdPlacemark);
                 placemarkAttributes.setDrawLeader(true);
-                milStdPlacemark.setLastLevelOfDetail(MEDIUM_LEVEL_OF_DETAIL);
             }
         } else {
             // High-fidelity: use the regulation SIDC code the modifiers and attributes
             if ((lastLevelOfDetail != HIGHEST_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
+                milStdPlacemark.setLastLevelOfDetail(HIGHEST_LEVEL_OF_DETAIL);
                 placemarkAttributes = MilStd2525.getPlacemarkAttributes(milStdPlacemark);
                 placemarkAttributes.setDrawLeader(true);
-                milStdPlacemark.setLastLevelOfDetail(HIGHEST_LEVEL_OF_DETAIL);
             }
         }
 

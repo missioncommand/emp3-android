@@ -79,7 +79,13 @@ public class MilStd2525 {
     public static PlacemarkAttributes getPlacemarkAttributes(MilStd2525SinglePoint milStdPlacemark) {
 
 
+        SparseArray<String> modifiers = null;
         String geoId = milStdPlacemark.getFeature().getGeoId().toString();
+        if (milStdPlacemark.getLastLevelOfDetail() == MilStd2525LevelOfDetailSelector.MEDIUM_LEVEL_OF_DETAIL) {
+            geoId += "ATTR";
+        } else {
+            modifiers = milStdPlacemark.getSymbolModifiers();
+        }
         // Look for an attribute bundle in our cache and determine if the cached reference is valid
         WeakReference<PlacemarkAttributes> reference = symbolCache.get(geoId);
         PlacemarkAttributes placemarkAttributes = (reference == null ? null : reference.get());
@@ -90,7 +96,7 @@ public class MilStd2525 {
             // Create the attributes bundle and add it to the cache.
             // The actual bitmap will be lazily (re)created using a factory.
             placemarkAttributes = MilStd2525.createPlacemarkAttributes(milStdPlacemark.getSymbolCode(),
-                    milStdPlacemark.getSymbolModifiers(),
+                    modifiers,
                     milStdPlacemark.getSymbolAttributes());
             if (placemarkAttributes == null) {
                 throw new IllegalArgumentException("Cannot generate a symbol for: " + geoId);
