@@ -8,6 +8,7 @@ import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Placemark;
+import gov.nasa.worldwind.shape.PlacemarkAttributes;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.worldwind.MapInstance;
@@ -33,6 +34,8 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
     private SparseArray oAttributes = null;
     private int iLastLevelOfDetail = -1;
     private final Placemark placemark;
+    private PlacemarkAttributes highPlacemarkAttributes = null;
+    private PlacemarkAttributes midPlacemarkAttributes = null;
 
     public MilStd2525SinglePoint(MapInstance mapInstance, IMilStdRenderer iconRenderer, Position position, MilStdSymbol symbol) {
         super(symbol, mapInstance);
@@ -83,6 +86,22 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
 
     public void resetDirty() {
         this.setDirty(false);
+    }
+
+    public void setHighPlacemarkAttributes(final PlacemarkAttributes pma) {
+        highPlacemarkAttributes = pma;
+    }
+
+    public void setMidPlacemarkAttributes(final PlacemarkAttributes pma) {
+        midPlacemarkAttributes = pma;
+    }
+
+    public PlacemarkAttributes getHighPlacemarkAttributes() {
+        return highPlacemarkAttributes;
+    }
+
+    public PlacemarkAttributes getMidPlacemarkAttributes() {
+        return midPlacemarkAttributes;
     }
 
     /**
