@@ -151,6 +151,16 @@
                         android:orderInCategory="100"
                         android:icon="@android:drawable/ic_dialog_dialer"
                         app:showAsAction="never" />
+                    <item android:id="@+id/action_setMidThreshold"
+                        android:title="@string/action_setMidThreshold"
+                        android:orderInCategory="100"
+                        android:icon="@android:drawable/ic_dialog_dialer"
+                        app:showAsAction="never" />
+                    <item android:id="@+id/action_setHighTreshold"
+                        android:title="@string/action_setHighThreshold"
+                        android:orderInCategory="100"
+                        android:icon="@android:drawable/ic_dialog_dialer"
+                        app:showAsAction="never" />
                     <item android:id="@+id/action_plotunits2525B"
                         android:title="@string/action_plotunits2525B"
                         android:orderInCategory="100"

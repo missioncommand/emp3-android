@@ -161,6 +161,11 @@ public interface IStorageManager {
      */
     Map<IMap, Double> getMidDistanceThreshold();
 
+    void setHighDetailThreshold(IMap oMap, int threshold);
+    void setMidDetailThreshold(IMap oMap, int threshold);
+    int getHighDetailThreshold(IMap oMap);
+    int getMidDetailThreshold(IMap oMap);
+
     void setBounds(IMap map, IGeoBounds bounds);
     IGeoBounds getBounds (IMap map);
 
