@@ -52,7 +52,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Point feature         = addPoint(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
@@ -69,7 +68,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 comparePoint(importedPoint, feature);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
                                             }
@@ -84,14 +82,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportPoint");
+        }
     }
 
     @Test
@@ -100,7 +101,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Point feature         = addPoint(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       overlay,
@@ -116,7 +116,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                   comparePoint(importedPoint, feature);
                                                   resultFound[0] = true;
                                               } catch (final Exception e){
-                                                  testPassed[0] = false;
                                                   resultFound[0] = true;
                                                   fail(e.getMessage());
                                               }
@@ -129,14 +128,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 fail(ex.getMessage());
                                             }
                                       });
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportOverlay");
+        }
     }
 
     @Test
@@ -145,7 +147,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay         = (Overlay) addOverlayToMap(this.remoteMap);
         final Point feature           = addPoint(overlay);
         final boolean[] resultFound   = {false};
-        final boolean[] testPassed   = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       true,
@@ -161,7 +162,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 comparePoint(importedPoint, feature);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
                                             }
@@ -175,14 +175,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportMap");
+        }
     }
 
     @Test
@@ -192,7 +195,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Polygon feature       = addPolygon(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
@@ -209,7 +211,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 comparePolygon(importedPolygon, feature);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
                                             }
@@ -223,14 +224,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportPolygon");
+        }
     }
 
     @Test
@@ -240,7 +244,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Circle feature        = addCircle(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
@@ -257,7 +260,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 compareCircleToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
 
@@ -272,15 +274,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        Assert.assertTrue(testPassed[0]);
-
+        if (i >= 10) {
+            fail("No result in half second for exportCircle");
+        }
     }
 
     @Test
@@ -290,7 +294,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Ellipse feature       = addEllipse(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
@@ -307,7 +310,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 compareEllipseToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
                                             }
@@ -320,14 +322,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        Assert.assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportEllipse");
+        }
     }
 
     @Test
@@ -337,7 +342,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Square feature        = addSquare(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
@@ -354,7 +358,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 compareSquareToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
                                             }
@@ -368,14 +371,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        Assert.assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportSquare");
+        }
     }
 
     @Test
@@ -385,7 +391,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Rectangle feature     = addRectangle(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed  = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
@@ -402,7 +407,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 compareRectangleToPolygon(feature, parsedPolygon);
                                                 resultFound[0] = true;
                                             } catch (Exception e) {
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
                                             }
@@ -416,14 +420,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-       assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportRectangle");
+        }
     }
 
     @Test
@@ -433,7 +440,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Text feature          = addText(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
@@ -451,7 +457,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 compareTextToPoint(feature, importedText);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
                                             }
@@ -465,14 +470,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        Assert.assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportText");
+        }
     }
 
     @Test
@@ -482,7 +490,6 @@ public class KMLExportTest extends TestBaseSingleMap{
         final Overlay overlay       = (Overlay) addOverlayToMap(this.remoteMap);
         final Path feature          = addPath(overlay);
         final boolean[] resultFound = {false};
-        final boolean[] testPassed = {true};
 
         EmpKMLExporter.exportToString(this.remoteMap,
                                       feature,
@@ -499,7 +506,6 @@ public class KMLExportTest extends TestBaseSingleMap{
                                                 comparePath(feature, importedPath);
                                                 resultFound[0] = true;
                                             } catch (final Exception e){
-                                                testPassed[0] = false;
                                                 resultFound[0] = true;
                                                 fail(e.getMessage());
                                             }
@@ -513,14 +519,17 @@ public class KMLExportTest extends TestBaseSingleMap{
                                         }
                                       });
 
-        while(!resultFound[0]) {
+        int i = 0;
+        while(!resultFound[0] && ++i <= 10) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
 
             }
         }
-        Assert.assertTrue(testPassed[0]);
+        if (i >= 10) {
+            fail("No result in half second for exportPath");
+        }
     }
 
     static IOverlay addOverlayToMap(final IMap map) throws EMP_Exception
