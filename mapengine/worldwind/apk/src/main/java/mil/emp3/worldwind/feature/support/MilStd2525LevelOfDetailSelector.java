@@ -84,22 +84,36 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
         return MID_THRESHOLD;
     }
 
+    /**
+     * Sets the mid number of MilStd symbols threshold;  Having more symbols than this value, but less
+     * than that of the high detail threshold, use the medium level of details, and having a total
+     * count less than this value use a high level of detail.
+     * @param midDetailThreshold number of MilStd symbols threshold
+     */
+    public static void setMidDetailThreshold(int midDetailThreshold) {
+        numFeaturesHighThreshold = midDetailThreshold;
+    }
     public static int getMidDetailThreshold() {
         return numFeaturesHighThreshold;
     }
 
-    public static void setMidDetailThreshold(int midDetailThreshold) {
-        numFeaturesHighThreshold = midDetailThreshold;
+    /**
+     * Sets the high number of MilStd symbols threshold;  Having more symbols than this value, results
+     * in the symbols being rendered with a low level of detail,, and having a total smaller than this
+     * value but more than the mid detail threshold, use a medium level of details.
+     * @param highDetailThreshold number of MilStd symbols threshold
+     */
+    public static void setHighDetailThreshold(int highDetailThreshold) {
+        numFeaturesMidThreshold = highDetailThreshold;
     }
-
     public static int getHighDetailThreshold() {
         return numFeaturesMidThreshold;
     }
 
-    public static void setHighDetailThreshold(int highDetailThreshold) {
-        numFeaturesMidThreshold = highDetailThreshold;
-    }
-
+    /**
+     * Set the size that MilStd symbols should be rendered at
+     * @param size the size that MilStd symbols should be rendered at
+     */
     public static void setIconSize(IconSizeEnum size) {
         iconSize = size.getScaleFactor();
     }
