@@ -794,6 +794,26 @@ public class MapFragment extends Fragment implements IMap {
         return this.oClientMap.getMidDistanceThreshold();
     }
 
+    @Override
+    public void setHighDetailThreshold(int threshold) {
+        this.oClientMap.setHighDetailThreshold(threshold);
+    }
+
+    @Override
+    public void setMidDetailThreshold(int threshold) {
+        this.oClientMap.setMidDetailThreshold(threshold);
+    }
+
+    @Override
+    public int getHighDetailThreshold() {
+        return this.oClientMap.getHighDetailThreshold();
+    }
+
+    @Override
+    public int getMidDetailThreshold() {
+        return this.oClientMap.getMidDetailThreshold();
+    }
+
     /**
      * This method marks the feature as selected on the map. If the feature is already mark selected
      * no action is taken.

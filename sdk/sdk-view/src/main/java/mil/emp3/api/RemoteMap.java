@@ -648,6 +648,26 @@ public class RemoteMap implements IMap {
     }
 
     @Override
+    public void setHighDetailThreshold(int threshold) {
+        this.oClientMap.setHighDetailThreshold(threshold);
+    }
+
+    @Override
+    public void setMidDetailThreshold(int threshold) {
+        this.oClientMap.setMidDetailThreshold(threshold);
+    }
+
+    @Override
+    public int getHighDetailThreshold() {
+        return this.oClientMap.getHighDetailThreshold();
+    }
+
+    @Override
+    public int getMidDetailThreshold() {
+        return this.oClientMap.getMidDetailThreshold();
+    }
+
+    @Override
     public Point geoToScreen(IGeoPosition pos) throws EMP_Exception {
         return this.oClientMap.geoToScreen(pos);
     }
@@ -951,6 +971,38 @@ public class RemoteMap implements IMap {
 
         @Override
         public void setMidDistanceThreshold(double dValue) {
+        }
+
+        @Override
+        public double getFarDistanceThreshold() {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        @Override
+        public double getMidDistanceThreshold() {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        @Override
+        public void setHighDetailThreshold(int threshold) {
+        }
+
+        @Override
+        public void setMidDetailThreshold(int threshold) {
+        }
+
+        @Override
+        public int getHighDetailThreshold() {
+            return Integer.MAX_VALUE;
+        }
+
+        @Override
+        public int getMidDetailThreshold() {
+            return Integer.MAX_VALUE;
+        }
+
+        @Override
+        public void setIconSize (IconSizeEnum size) {
         }
 
         @Override

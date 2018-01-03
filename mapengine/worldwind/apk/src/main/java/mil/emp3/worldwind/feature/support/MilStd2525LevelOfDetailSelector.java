@@ -1,24 +1,13 @@
 package mil.emp3.worldwind.feature.support;
 
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.util.SparseArray;
-
 import org.cmapi.primitives.IGeoPosition;
 
-import java.util.UUID;
-
-import gov.nasa.worldwind.WorldWind;
-import gov.nasa.worldwind.geom.Offset;
-import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Placemark;
 import gov.nasa.worldwind.shape.PlacemarkAttributes;
 import gov.nasa.worldwind.util.Logger;
-import mil.emp3.mapengine.interfaces.IEmpImageInfo;
+import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
-import mil.emp3.worldwind.MapInstance;
 import mil.emp3.worldwind.feature.MilStd2525SinglePoint;
 
 /**
@@ -46,8 +35,9 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
 
     protected static double MID_THRESHOLD = 10000;
 
-    private static int MANY_FEATURES = 2000;
-    private static int TOO_MANY_FEATURES = 4000;
+    private static int numFeaturesHighThreshold = 2000;
+    private static int numFeaturesMidThreshold = 4000;
+    private static double iconSize = IconSizeEnum.SMALL.getScaleFactor();
 
     /**
      * This static method initializes the oInstance.
@@ -74,8 +64,11 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
      *
      * @param dValue camera distance threshold in meters
      */
-    public static void setFarThreshold(double dValue) {
+    public static void setFarDistanceThreshold(double dValue) {
         FAR_THRESHOLD = dValue;
+    }
+    public static double getFarDistanceThreshold() {
+        return FAR_THRESHOLD;
     }
 
     /**
@@ -84,8 +77,45 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
      *
      * @param dValue camera distance threshold in meters
      */
-    public static void setMidThreshold(double dValue) {
+    public static void setMidDistanceThreshold(double dValue) {
         MID_THRESHOLD = dValue;
+    }
+    public static double getMidDistanceThreshold() {
+        return MID_THRESHOLD;
+    }
+
+    /**
+     * Sets the mid number of MilStd symbols threshold;  Having more symbols than this value, but less
+     * than that of the high detail threshold, use the medium level of details, and having a total
+     * count less than this value use a high level of detail.
+     * @param midDetailThreshold number of MilStd symbols threshold
+     */
+    public static void setMidDetailThreshold(int midDetailThreshold) {
+        numFeaturesHighThreshold = midDetailThreshold;
+    }
+    public static int getMidDetailThreshold() {
+        return numFeaturesHighThreshold;
+    }
+
+    /**
+     * Sets the high number of MilStd symbols threshold;  Having more symbols than this value, results
+     * in the symbols being rendered with a low level of detail,, and having a total smaller than this
+     * value but more than the mid detail threshold, use a medium level of details.
+     * @param highDetailThreshold number of MilStd symbols threshold
+     */
+    public static void setHighDetailThreshold(int highDetailThreshold) {
+        numFeaturesMidThreshold = highDetailThreshold;
+    }
+    public static int getHighDetailThreshold() {
+        return numFeaturesMidThreshold;
+    }
+
+    /**
+     * Set the size that MilStd symbols should be rendered at
+     * @param size the size that MilStd symbols should be rendered at
+     */
+    public static void setIconSize(IconSizeEnum size) {
+        iconSize = size.getScaleFactor();
     }
 
     private MilStd2525LevelOfDetailSelector() {
@@ -106,43 +136,42 @@ public class MilStd2525LevelOfDetailSelector implements Placemark.LevelOfDetailS
                             "The placemark is not a MilStd2525SinglePoint"));
         }
         MilStd2525SinglePoint milStdPlacemark = ((MilStd2525SinglePoint.EMPPlacemark) placemark).featureMapper;
-        PlacemarkAttributes placemarkAttributes = placemark.getAttributes();
+        PlacemarkAttributes placemarkAttributes = null;//placemark.getAttributes();
         int lastLevelOfDetail = milStdPlacemark.getLastLevelOfDetail();
         int featureCount = milStdPlacemark.getMapInstance().getFeatureHash().size();
-        String geoId = milStdPlacemark.getFeature().getGeoId().toString();
         // Update position.
         IGeoPosition oPos = milStdPlacemark.getSymbol().getPosition();
         placemark.getPosition().set(oPos.getLatitude(), oPos.getLongitude(), oPos.getAltitude());
 
         // Determine the normal attributes based on the distance from the camera to the placemark
-        if (cameraDistance > FAR_THRESHOLD || featureCount > TOO_MANY_FEATURES) {
+        if (cameraDistance > FAR_THRESHOLD || featureCount > numFeaturesMidThreshold) {
             // Low-fidelity: use affiliation only
             if ((lastLevelOfDetail != LOW_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
-                String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
-                placemarkAttributes = MilStd2525.getPlacemarkAttributes(simpleCode, simpleCode, null, null);
-                placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(LOW_LEVEL_OF_DETAIL);
+                String simpleCode = "S" + armyc2.c2sd.renderer.utilities.SymbolUtilities.getAffiliation(milStdPlacemark.getSymbolCode()) + "P*------*****"; // SIDC
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(simpleCode);
+                placemarkAttributes.setDrawLeader(true);
             }
-        } else if (cameraDistance > MID_THRESHOLD || featureCount > MANY_FEATURES) {
+        } else if (cameraDistance > MID_THRESHOLD || featureCount > numFeaturesHighThreshold) {
             // Medium-fidelity: use the regulation SIDC code with attributes but without modifiers
             if ((lastLevelOfDetail != MEDIUM_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
-                placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId + "ATTR", milStdPlacemark.getSymbolCode(), null, milStdPlacemark.getSymbolAttributes());
-                placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(MEDIUM_LEVEL_OF_DETAIL);
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(milStdPlacemark);
+                placemarkAttributes.setDrawLeader(true);
             }
         } else {
             // High-fidelity: use the regulation SIDC code the modifiers and attributes
             if ((lastLevelOfDetail != HIGHEST_LEVEL_OF_DETAIL) || milStdPlacemark.isDirty()) {
-                placemarkAttributes = MilStd2525.getPlacemarkAttributes(geoId, milStdPlacemark.getSymbolCode(), milStdPlacemark.getSymbolModifiers(), milStdPlacemark.getSymbolAttributes());
-                placemarkAttributes.setDrawLeader(true);
                 milStdPlacemark.setLastLevelOfDetail(HIGHEST_LEVEL_OF_DETAIL);
+                placemarkAttributes = MilStd2525.getPlacemarkAttributes(milStdPlacemark);
+                placemarkAttributes.setDrawLeader(true);
             }
         }
 
         // Update the placemark's attributes bundle
         if (placemarkAttributes != null) {
             // Apply the symbols and Icon size setting scales.
-            double dScale = milStdPlacemark.getMapInstance().getIconSizeSetting().getScaleFactor() * milStdPlacemark.getIconScale();
+            double dScale = iconSize * milStdPlacemark.getIconScale();
             placemarkAttributes.setImageScale(dScale);
             placemark.setAttributes(placemarkAttributes);
 
