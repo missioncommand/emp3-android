@@ -39,6 +39,8 @@
     <string name="action_plotPoint">Plot Default Point</string>
     <string name="action_plotUrlPoint">Plot URL Point</string>
     <string name="action_plot2units2525B">Many Units</string>
+    <string name="action_setMidThreshold">Set Mid Threshold</string>
+    <string name="action_setHighThreshold">Set High Threshold</string>
     <string name="action_plotunits2525B">2525B Units</string>
     <string name="action_plotunits2525C">2525C Units</string>
     <string name="action_plotTG2525C">2525C TG</string>

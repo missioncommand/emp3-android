@@ -652,6 +652,26 @@ public abstract class Map extends Container implements IMap {
 
 
     @Override
+    public void setHighDetailThreshold(int threshold) {
+        storageManager.setHighDetailThreshold(this, threshold);
+    }
+
+    @Override
+    public void setMidDetailThreshold(int threshold) {
+        storageManager.setMidDetailThreshold(this, threshold);
+    }
+
+    @Override
+    public int getHighDetailThreshold() {
+        return storageManager.getHighDetailThreshold(this);
+    }
+
+    @Override
+    public int getMidDetailThreshold() {
+        return storageManager.getMidDetailThreshold(this);
+    }
+
+    @Override
     public Point geoToScreen(IGeoPosition pos) throws EMP_Exception {
         return coreManager.geoToScreen(this, pos);
     }

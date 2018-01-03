@@ -26,6 +26,7 @@ import gov.nasa.worldwind.shape.PlacemarkAttributes;
 import gov.nasa.worldwind.util.Logger;
 import mil.emp3.mapengine.interfaces.IEmpImageInfo;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
+import mil.emp3.worldwind.feature.MilStd2525SinglePoint;
 
 /**
  * This utility class generates PlacemarkAttributes bundles with MIL-STD-2525 symbols. It was copied from worldwind-examples and modified as
@@ -70,29 +71,33 @@ public class MilStd2525 {
      * cache. If the symbol is not found in the cache, an attribute bundle is created and added to the cache before it
      * is returned.
      *
-     * @param symbolCode A 15-character alphanumeric identifier that provides the information necessary to display or
-     *                   transmit a tactical symbol between MIL-STD-2525 compliant systems.
-     * @param modifiers  A optional collection of unit or tactical graphic modifiers. See:
-     *                   https://github.com/missioncommand/mil-sym-android/blob/master/Renderer/src/main/java/armyc2/c2sd/renderer/utilities/ModifiersUnits.java
-     *                   and https://github.com/missioncommand/mil-sym-android/blob/master/Renderer/src/main/java/armyc2/c2sd/renderer/utilities/ModifiersTG.java
-     * @param attributes A optional collection of rendering attributes. See https://github.com/missioncommand/mil-sym-android/blob/master/Renderer/src/main/java/armyc2/c2sd/renderer/utilities/MilStdAttributes.java
+     * @param milStdPlacemark
      *
      * @return Either a new or a cached PlacemarkAttributes bundle containing the specified symbol embedded in the
      * bundle's imageSource property.
      */
-    public static PlacemarkAttributes getPlacemarkAttributes(String geoId, String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes) {
+    public static PlacemarkAttributes getPlacemarkAttributes(MilStd2525SinglePoint milStdPlacemark) {
 
 
+        SparseArray<String> modifiers = null;
+        String geoId = milStdPlacemark.getFeature().getGeoId().toString();
+        if (milStdPlacemark.getLastLevelOfDetail() == MilStd2525LevelOfDetailSelector.MEDIUM_LEVEL_OF_DETAIL) {
+            geoId += "ATTR";
+        } else {
+            modifiers = milStdPlacemark.getSymbolModifiers();
+        }
         // Look for an attribute bundle in our cache and determine if the cached reference is valid
         WeakReference<PlacemarkAttributes> reference = symbolCache.get(geoId);
         PlacemarkAttributes placemarkAttributes = (reference == null ? null : reference.get());
 
         // Create the attributes if they haven't been created yet or if they've been released
-        if (placemarkAttributes == null) {
+        if (placemarkAttributes == null || milStdPlacemark.isDirty()) {
 
             // Create the attributes bundle and add it to the cache.
             // The actual bitmap will be lazily (re)created using a factory.
-            placemarkAttributes = MilStd2525.createPlacemarkAttributes(symbolCode, modifiers, attributes);
+            placemarkAttributes = MilStd2525.createPlacemarkAttributes(milStdPlacemark.getSymbolCode(),
+                    modifiers,
+                    milStdPlacemark.getSymbolAttributes());
             if (placemarkAttributes == null) {
                 throw new IllegalArgumentException("Cannot generate a symbol for: " + geoId);
             }
@@ -106,10 +111,46 @@ public class MilStd2525 {
         return placemarkAttributes;
     }
 
+    /**
+     * Gets a PlacemarkAttributes bundle for the supplied symbol specification. The attribute bundle is retrieved from a
+     * cache. If the symbol is not found in the cache, an attribute bundle is created and added to the cache before it
+     * is returned.
+     *
+     * @param simpleCode
+     *
+     * @return Either a new or a cached PlacemarkAttributes bundle containing the specified symbol embedded in the
+     * bundle's imageSource property.
+     */
+    public static PlacemarkAttributes getPlacemarkAttributes(String simpleCode) {
+
+
+        // Look for an attribute bundle in our cache and determine if the cached reference is valid
+        WeakReference<PlacemarkAttributes> reference = symbolCache.get(simpleCode);
+        PlacemarkAttributes placemarkAttributes = (reference == null ? null : reference.get());
+
+        // Create the attributes if they haven't been created yet or if they've been released
+        if (placemarkAttributes == null) {
+
+            // Create the attributes bundle and add it to the cache.
+            // The actual bitmap will be lazily (re)created using a factory.
+            placemarkAttributes = MilStd2525.createPlacemarkAttributes(simpleCode,null, null);
+            if (placemarkAttributes == null) {
+                throw new IllegalArgumentException("Cannot generate a symbol for: " + simpleCode);
+            }
+            // Add a weak reference to the attribute bundle to our cache
+            symbolCache.put(simpleCode, new WeakReference<>(placemarkAttributes));
+
+            // Perform some initialization of the bundle conducive to eye distance scaling
+            placemarkAttributes.setMinimumImageScale(MINIMUM_IMAGE_SCALE);
+        }
+
+        return placemarkAttributes;
+    }
     /** Called from mapInstance to remove placemarks when the corresponding
      * feature is removed
      * @param geoId
      */
+
     public static void removePlacemarkAttributes(final String geoId) {
         symbolCache.remove(geoId);
         symbolCache.remove(geoId + "ATTR");
@@ -125,7 +166,7 @@ public class MilStd2525 {
      * @param modifiers  The ModifierUnit (unit) or ModifierTG (tactical graphic) modifiers collection. May be null.
      * @param attributes The MilStdAttributes attributes collection. May be null.
      *
-     * @return A new PlacemarkAttributes bundle representing the MIL-STD-2525 symbol.
+     * @return A new PlacemarkAttributes bundle representing the Mbtw IL-STD-2525 symbol.
      */
     public static PlacemarkAttributes createPlacemarkAttributes(String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes) {
         PlacemarkAttributes placemarkAttributes = new PlacemarkAttributes();
@@ -160,9 +201,6 @@ public class MilStd2525 {
             return null;
         }
     }
-
-
-
 
 
     /**
