@@ -657,10 +657,11 @@ public class MilStdSymbol extends Feature<IGeoMilSymbol> implements IGeoMilSymbo
         }
         basicSymbolCode = SymbolUtilities.getBasicSymbolID(symbolCode);
         isTacticalGraphic = SymbolUtilities.isTacticalGraphic(basicSymbolCode);
-        isSinglePoint = isSinglePoint();
         char affiliation = SymbolUtilities.getAffiliation(symbolCode);
-
         this.getRenderable().setSymbolCode(symbolCode);
+        //Must be called after setting symbol code otherwise can throw IllegalStateException
+        //because the symbol code is not set
+        isSinglePoint = isSinglePoint();
         if (null == MilStdSymbol.Affiliation.fromChar(affiliation)) {
             this.setAffiliation(Affiliation.FRIEND);
         }
