@@ -775,11 +775,6 @@ public interface IMap extends IContainer {
      */
     double getMidDistanceThreshold();
 
-    void setHighDetailThreshold(int threshold);
-    void setMidDetailThreshold(int threshold);
-    int getHighDetailThreshold();
-    int getMidDetailThreshold();
-
     /**
      * This method sets the threshold of the number of MilStd symbols beyond which the map displays
      * MilStd single point icons as dots.  Below this threshold they may be displayed with or without
