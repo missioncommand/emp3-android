@@ -1,17 +1,29 @@
 package mil.emp3.worldwind.feature;
 
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.SparseArray;
 
 import org.cmapi.primitives.IGeoPosition;
 
+import armyc2.c2sd.renderer.utilities.ImageInfo;
 import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.geom.Offset;
 import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.shape.Placemark;
 import gov.nasa.worldwind.shape.PlacemarkAttributes;
+import gov.nasa.worldwind.util.Logger;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.worldwind.MapInstance;
+import mil.emp3.worldwind.feature.support.MilStd2525;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
 
 /**
@@ -176,5 +188,90 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
         super.setSelected(selected);
         setSymbolAttributes();
         setSymbolModifiers();
+    }
+
+    /**
+     * This ImageSource.BitmapFactory implementation creates MIL-STD-2525 bitmaps for use with MilStd2525Placemark.
+     */
+    public static class SymbolBitmapFactory implements ImageSource.BitmapFactory {
+
+        private final String symbolCode;
+
+        private final SparseArray<String> modifiers;
+
+        private final SparseArray<String> attributes;
+
+        private final PlacemarkAttributes placemarkAttributes;
+
+        /**
+         * The image to use when the renderer cannot render an image.
+         */
+        private static Bitmap defaultImage = BitmapFactory.decodeResource(Resources.getSystem(), android.R.drawable.ic_dialog_alert); // Warning triangle
+
+        /**
+         * The handler used to schedule runnable to be executed on the main thread.
+         */
+        private static Handler mainLoopHandler = new Handler(Looper.getMainLooper());
+
+        /**
+         * Constructs a SymbolBitmapFactory instance capable of creating a bitmap with the given code, modifiers and
+         * attributes. The createBitmap() method will return a new instance of a bitmap and will also update the
+         * associated placemarkAttributes bundle's imageOffset property based on the size of the new bitmap.
+         *
+         * @param symbolCode          SIDC code
+         * @param modifiers           Unit modifiers to be copied; null is permitted
+         * @param attributes          Rendering attributes to be copied; null is permitted
+         * @param placemarkAttributes Placemark attribute bundle associated with this factory
+         */
+        public SymbolBitmapFactory(String symbolCode, SparseArray<String> modifiers, SparseArray<String> attributes, PlacemarkAttributes placemarkAttributes) {
+            // Capture the values needed to (re)create the symbol bitmap
+            this.symbolCode = symbolCode;
+            this.modifiers = modifiers;
+            this.attributes = attributes;
+            // The MilStd2525.symbolCache maintains a WeakReference to the placemark attributes. The finalizer is able to
+            // resolve the circular dependency between the PlacemarkAttributes->ImageSource->Factory->PlacemarkAttributes
+            // and garbage collect the attributes a Placemark releases its attribute bundle (e.g., when switching
+            // between levels-of-detail)
+            this.placemarkAttributes = placemarkAttributes;
+        }
+
+        /**
+         * Returns the MIL-STD-2525 bitmap and updates the PlacemarkAttributes associated with this factory instance.
+         *
+         * @return a new bitmap rendered from the parameters given in the constructor; may be null
+         */
+        @Override
+        public Bitmap createBitmap() {
+            // Create the symbol's bitmap
+            ImageInfo imageInfo = MilStd2525.renderImage(this.symbolCode, this.modifiers, this.attributes);
+            if (imageInfo == null) {
+                Logger.logMessage(Logger.ERROR, "MilStd2525", "createBitmap", "Failed to render image for " + this.symbolCode);
+                // TODO: File JIRA issue - must return a valid bitmap, else the ImageRetriever repeatedly attempts to create the bitmap.
+                return defaultImage;
+            }
+
+            // Apply the computed image offset after the renderer has created the image. This is essential for proper
+            // placement as the offset may change depending on the level of detail, for instance, the absence or
+            // presence of text modifiers.
+            Point centerPoint = imageInfo.getCenterPoint(); // The center of the core symbol
+            Rect bounds = imageInfo.getImageBounds();       // The extents of the image, including text modifiers
+            final Offset placemarkOffset = new Offset(
+                    WorldWind.OFFSET_PIXELS, centerPoint.x, // x offset
+                    WorldWind.OFFSET_PIXELS, bounds.height() - centerPoint.y); // y offset converted to lower-left origin
+
+            // Apply the placemark offset to the attributes on the main thread. This is necessary to synchronize write
+            // access to placemarkAttributes from the thread that invokes this BitmapFactory and read access from the
+            // main thread.
+            mainLoopHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    placemarkAttributes.setImageOffset(placemarkOffset);
+                }
+            });
+
+            // Return the bitmap
+            return imageInfo.getImage();
+        }
+
     }
 }
