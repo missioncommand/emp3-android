@@ -9,6 +9,7 @@ import org.cmapi.primitives.IGeoPosition;
 import java.util.List;
 
 import mil.emp3.api.enums.FontSizeModifierEnum;
+import mil.emp3.api.enums.IconSizeEnum;
 import mil.emp3.api.enums.MapMotionLockEnum;
 import mil.emp3.api.enums.MapStateEnum;
 import mil.emp3.api.enums.UserInteractionEventEnum;
@@ -290,6 +291,33 @@ public interface IMapInstance {
      * @param dValue Distance in meters.
      */
     void setMidDistanceThreshold(double dValue);
+
+    double getFarDistanceThreshold();
+    double getMidDistanceThreshold();
+
+    /**
+     * This method sets the threshold of the number of MilStd symbols beyond which the map displays
+     * MilStd single point icons as colored dots.  Having less icons than this will result in them
+     * either getting rendered with or without their modifiers based on the mid threshold
+     * @param threshold Number of MilStd symbols
+     */
+    void setHighDetailThreshold(int threshold);
+
+    /**
+     * This method sets the threshold of the number of MilStd symbols beyond which the map displays
+     * MilStd single point icons either as colored dots or without their modifiers based on the high
+     * detail threshold.  Below this number they get displayed as fully qualified icons.
+     * @param threshold Number of MilStd symbols
+     */
+    void setMidDetailThreshold(int threshold);
+    int getHighDetailThreshold();
+    int getMidDetailThreshold();
+
+    /**
+     * This method sets the size at which the MilStd symbols should be rendered
+     * @param size The size of that MilStd symbols should be rendered at
+     */
+    void setIconSize(IconSizeEnum size);
 
     /**
      * Returns version information for the map engine

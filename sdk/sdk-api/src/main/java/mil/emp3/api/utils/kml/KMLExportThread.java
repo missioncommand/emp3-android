@@ -1488,24 +1488,20 @@ public class KMLExportThread extends java.lang.Thread {
      */
     @Override
     public void run() {
+        String kmlString = "";
+
         try {
-            String kmlString = "";
-
             final XmlSerializer xmlSerializer = Xml.newSerializer();
-
-            try {
-                if (null != this.overlay) {
-                    kmlString = export(this.overlay, xmlSerializer);
-                } else if (null != this.feature) {
-                    kmlString = export(this.feature, xmlSerializer);
-                } else if (null != this.map) {
-                    kmlString = export(this.map, xmlSerializer);
-                }
-                this.callback.exportSuccess(kmlString);
-            } catch (final Exception Ex) {
-                Log.e(TAG, "Exception raised in export callback.", Ex);
+            if (null != this.overlay) {
+                kmlString = export(this.overlay, xmlSerializer);
+            } else if (null != this.feature) {
+                kmlString = export(this.feature, xmlSerializer);
+            } else if (null != this.map) {
+                kmlString = export(this.map, xmlSerializer);
             }
+            this.callback.exportSuccess(kmlString);
         } catch (final Exception Ex) {
+            Log.e(TAG, "Exception raised in export callback.", Ex);
             this.callback.exportFailed(Ex);
         }
 

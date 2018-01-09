@@ -7,6 +7,8 @@ import org.cmapi.primitives.IGeoAltitudeMode;
 import org.cmapi.primitives.IGeoMilSymbol;
 import org.cmapi.primitives.IGeoPosition;
 
+import java.util.UUID;
+
 import armyc2.c2sd.renderer.utilities.UnitDef;
 import armyc2.c2sd.renderer.utilities.UnitDefTable;
 import mil.emp3.api.MilStdSymbol;
@@ -189,6 +191,10 @@ class PerformanceTestThread extends Thread {
                             // Change the Affiliation.
                             int iAffIndex = (int) Math.floor(Math.random() * this.iAffCount) % this.iAffCount;
                             oSPSymbol.setAffiliation(this.aAffiliations[iAffIndex]);
+                        }
+                        if (dRandom >= 0.75) {
+                            // change a modifier
+                            oSPSymbol.setModifier(IGeoMilSymbol.Modifier.UNIQUE_DESIGNATOR_1, UUID.randomUUID().toString());
                         }
                     }
 
