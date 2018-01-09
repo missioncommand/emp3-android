@@ -24,6 +24,8 @@ import armyc2.c2sd.renderer.utilities.MilStdAttributes;
 import armyc2.c2sd.renderer.utilities.ModifiersTG;
 import armyc2.c2sd.renderer.utilities.RendererSettings;
 import armyc2.c2sd.renderer.utilities.ShapeInfo;
+import mil.emp3.api.Circle;
+import mil.emp3.api.Ellipse;
 import mil.emp3.api.MilStdSymbol;
 import mil.emp3.api.Path;
 import mil.emp3.api.Polygon;
@@ -779,10 +781,18 @@ public class MilStdRenderer implements IMilStdRenderer {
                     List<List<IGeoPosition>> listOfPosList = this.convertListOfPointListsToListOfPositionLists(shapeInfo.getPolylines());
 
                     for (List<IGeoPosition> posList : listOfPosList) {
-                        IFeature feature = new Path(posList);
-                        feature.setStrokeStyle(currentStrokeStyle);
-                        feature.setAltitudeMode(renderFeature.getAltitudeMode());
-                        featureList.add(feature);
+                        if(renderFeature instanceof Circle) {
+                            featureList.add(renderFeature);
+                        }
+                        else if (renderFeature instanceof Ellipse) {
+                            featureList.add(renderFeature);
+                        }
+                        else {
+                            IFeature feature = new Path(posList);
+                            feature.setStrokeStyle(currentStrokeStyle);
+                            feature.setAltitudeMode(renderFeature.getAltitudeMode());
+                            featureList.add(feature);
+                        }
                     }
                     break;
                 }

@@ -27,6 +27,8 @@ import gov.nasa.worldwind.render.Renderable;
 import gov.nasa.worldwind.shape.Placemark;
 import gov.nasa.worldwind.shape.PlacemarkAttributes;
 import gov.nasa.worldwind.shape.SurfaceImage;
+import mil.emp3.api.Circle;
+import mil.emp3.api.Ellipse;
 import mil.emp3.api.Path;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Text;
@@ -304,6 +306,50 @@ public class EMPtoWWFeatureConverter {
         return wwLabel;
     }
 
+
+    public gov.nasa.worldwind.shape.Ellipse createWWCircle(final Circle circle, final boolean isSelected) {
+        IGeoStrokeStyle selectedStrokeStyle = null;
+        gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
+        if(isSelected) {
+            selectedStrokeStyle = getMapInstance().getEmpResources().getSelectedStrokeStyle(getMapInstance());
+        }
+        // TODO - Code Review: Are we supporting altitude, please advise.
+        final Position center = new Position(circle.getFeatureBoundingBox().centerLatitude(),
+                circle.getFeatureBoundingBox().centerLongitude(),
+                0.0);
+
+        final gov.nasa.worldwind.shape.Ellipse wwEllipse = new gov.nasa.worldwind.shape.Ellipse(center,
+                circle.getRadius(),
+                circle.getRadius(),
+                shapeAttribute);
+        setWWCircleAttributes(circle, wwEllipse, selectedStrokeStyle);
+
+        wwEllipse.setPickDelegate(circle);
+        wwEllipse.setPathType(WorldWind.RHUMB_LINE);
+        return wwEllipse;
+    }
+
+    public gov.nasa.worldwind.shape.Ellipse createWWEllipse(final Ellipse ellipse, final boolean isSelected) {
+        IGeoStrokeStyle selectedStrokeStyle = null;
+        gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
+        if(isSelected) {
+            selectedStrokeStyle = getMapInstance().getEmpResources().getSelectedStrokeStyle(getMapInstance());
+        }
+        // TODO - Code Review: Are we supporting altitude, please advise.
+        final Position center = new Position(ellipse.getFeatureBoundingBox().centerLatitude(),
+                                               ellipse.getFeatureBoundingBox().centerLongitude(),
+                                               0.0);
+        final gov.nasa.worldwind.shape.Ellipse wwEllipse = new gov.nasa.worldwind.shape.Ellipse(center,
+                                                                                                ellipse.getSemiMajor(),
+                                                                                                ellipse.getSemiMinor(),
+                                                                                                shapeAttribute);
+        setWWEllipseAttributes(ellipse, wwEllipse, selectedStrokeStyle);
+
+        wwEllipse.setPickDelegate(ellipse);
+        wwEllipse.setPathType(WorldWind.RHUMB_LINE);
+        return wwEllipse;
+    }
+
     /**
      * This method must be override by the subclass to create a buffer renderable for the feature.
      * @param buffer The buffer distance in meters.
@@ -521,6 +567,164 @@ public class EMPtoWWFeatureConverter {
                 break;
             case RHUMB_LINE:
                 wwPolygon.setPathType(WorldWind.RHUMB_LINE);
+                break;
+        }
+    }
+    // TODO - These set attributes methods are too similar. Collapse and condense into helper methods.
+    private void setWWEllipseAttributes(mil.emp3.api.Ellipse feature, gov.nasa.worldwind.shape.Ellipse wwEllipse, IGeoStrokeStyle strokeStyle) {
+        gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = wwEllipse.getAttributes();
+
+        if (shapeAttribute == null) {
+            shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
+        }
+
+        if (feature.getExtrude()) {
+            shapeAttribute.setDrawVerticals(true);
+        } else {
+            shapeAttribute.setDrawVerticals(false);
+        }
+
+        if ((strokeStyle == null) && (feature.getStrokeStyle() != null)) {
+            strokeStyle = feature.getStrokeStyle();
+        }
+
+        if (strokeStyle != null) {
+            shapeAttribute.setDrawOutline(true);
+            shapeAttribute.setOutlineColor(Conversion.convertColor(strokeStyle.getStrokeColor()));
+            shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
+
+            if (strokeStyle.getStipplingPattern() != 0) {
+                ImageSource imageSource = ImageSource.fromLineStipple((int) ((double) strokeStyle.getStipplingFactor() * STIPPLE_FACTOR_DISPLAY_DENSITY_MODIFIER),
+                        strokeStyle.getStipplingPattern());
+                shapeAttribute.setOutlineImageSource(imageSource);
+            }
+        } else {
+            shapeAttribute.setDrawOutline(false);
+        }
+
+
+        if (feature.getFillStyle() != null) {
+            IGeoFillStyle fillStyle = feature.getFillStyle();
+
+            shapeAttribute.setDrawInterior(true);
+
+            switch (fillStyle.getFillPattern()) {
+                case crossHatched:
+                    shapeAttribute.setInteriorImageSource(mapInstance.getCrossHatchImage());
+                    break;
+                case hatched:
+                    shapeAttribute.setInteriorImageSource(mapInstance.getHatchImage());
+                    break;
+                case solid:
+                    // nothing additional to fill
+                    break;
+                default:
+            }
+            shapeAttribute.setInteriorColor(Conversion.convertColor(fillStyle.getFillColor()));
+        } else {
+            shapeAttribute.setDrawInterior(false);
+        }
+
+        Conversion.convertAndSetIGeoAltitudeMode(wwEllipse, feature.getAltitudeMode());
+
+        if (feature.getAltitudeMode() == IGeoAltitudeMode.AltitudeMode.ABSOLUTE){
+            wwEllipse.setFollowTerrain(false);
+        } else {
+            wwEllipse.setFollowTerrain(true);
+        }
+        wwEllipse.setPickDelegate(feature);
+        wwEllipse.setAttributes(shapeAttribute);
+        wwEllipse.setHighlighted(false);
+
+
+        switch (feature.getPathType()) {
+            case GREAT_CIRCLE:
+                wwEllipse.setPathType(WorldWind.GREAT_CIRCLE);
+                break;
+            case LINEAR:
+                wwEllipse.setPathType(WorldWind.LINEAR);
+                break;
+            case RHUMB_LINE:
+                wwEllipse.setPathType(WorldWind.RHUMB_LINE);
+                break;
+        }
+    }
+
+    private void setWWCircleAttributes(mil.emp3.api.Circle feature, gov.nasa.worldwind.shape.Ellipse wwEllipse, IGeoStrokeStyle strokeStyle) {
+        gov.nasa.worldwind.shape.ShapeAttributes shapeAttribute = wwEllipse.getAttributes();
+
+        if (shapeAttribute == null) {
+            shapeAttribute = new gov.nasa.worldwind.shape.ShapeAttributes();
+        }
+
+        if (feature.getExtrude()) {
+            shapeAttribute.setDrawVerticals(true);
+        } else {
+            shapeAttribute.setDrawVerticals(false);
+        }
+
+        if ((strokeStyle == null) && (feature.getStrokeStyle() != null)) {
+            strokeStyle = feature.getStrokeStyle();
+        }
+
+        if (strokeStyle != null) {
+            shapeAttribute.setDrawOutline(true);
+            shapeAttribute.setOutlineColor(Conversion.convertColor(strokeStyle.getStrokeColor()));
+            shapeAttribute.setOutlineWidth((float) strokeStyle.getStrokeWidth());
+
+            if (strokeStyle.getStipplingPattern() != 0) {
+                ImageSource imageSource = ImageSource.fromLineStipple((int) ((double) strokeStyle.getStipplingFactor() * STIPPLE_FACTOR_DISPLAY_DENSITY_MODIFIER),
+                        strokeStyle.getStipplingPattern());
+                shapeAttribute.setOutlineImageSource(imageSource);
+            }
+        } else {
+            shapeAttribute.setDrawOutline(false);
+        }
+
+
+        if (feature.getFillStyle() != null) {
+            IGeoFillStyle fillStyle = feature.getFillStyle();
+
+            shapeAttribute.setDrawInterior(true);
+
+            switch (fillStyle.getFillPattern()) {
+                case crossHatched:
+                    shapeAttribute.setInteriorImageSource(mapInstance.getCrossHatchImage());
+                    break;
+                case hatched:
+                    shapeAttribute.setInteriorImageSource(mapInstance.getHatchImage());
+                    break;
+                case solid:
+                    // nothing additional to fill
+                    break;
+                default:
+            }
+            shapeAttribute.setInteriorColor(Conversion.convertColor(fillStyle.getFillColor()));
+        } else {
+            shapeAttribute.setDrawInterior(false);
+        }
+
+        Conversion.convertAndSetIGeoAltitudeMode(wwEllipse, feature.getAltitudeMode());
+
+        if (feature.getAltitudeMode() == IGeoAltitudeMode.AltitudeMode.ABSOLUTE){
+            wwEllipse.setFollowTerrain(false);
+        } else {
+            wwEllipse.setFollowTerrain(true);
+        }
+        wwEllipse.setPickDelegate(feature);
+        wwEllipse.setAttributes(shapeAttribute);
+        wwEllipse.setHighlighted(false);
+
+
+        switch (feature.getPathType()) {
+            case GREAT_CIRCLE:
+                wwEllipse.setPathType(WorldWind.GREAT_CIRCLE);
+                break;
+            case LINEAR:
+                wwEllipse.setPathType(WorldWind.LINEAR);
+                break;
+            case RHUMB_LINE:
+                wwEllipse.setPathType(WorldWind.RHUMB_LINE);
                 break;
         }
     }

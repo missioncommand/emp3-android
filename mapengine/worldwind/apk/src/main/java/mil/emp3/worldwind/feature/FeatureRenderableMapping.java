@@ -5,6 +5,8 @@ import java.util.List;
 
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.render.Renderable;
+import mil.emp3.api.Circle;
+import mil.emp3.api.Ellipse;
 import mil.emp3.api.Path;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Text;
@@ -172,7 +174,14 @@ public abstract class FeatureRenderableMapping<T extends IFeature> extends EMPto
         if (this.getFeature() instanceof mil.emp3.api.Point) {
             // Create a WW placemark.
             tempRenderable = this.createPlacemark((mil.emp3.api.Point) this.getFeature(), isSelected());
-        } else if (this.getFeature() instanceof Path) {
+        }
+        else if (this.getFeature() instanceof Circle) {
+            tempRenderable = this.createWWCircle((Circle) this.getFeature(), isSelected());
+        }
+        else if (this.getFeature() instanceof Ellipse) {
+            tempRenderable = this.createWWEllipse((Ellipse) this.getFeature(), isSelected());
+        }
+        else if (this.getFeature() instanceof Path) {
             // Create a WW path object.
             tempRenderable = this.createWWPath((Path) this.getFeature(), isSelected());
         } else if (this.getFeature() instanceof Polygon) {

@@ -9,6 +9,8 @@ import java.util.List;
 
 import gov.nasa.worldwind.render.RenderContext;
 import gov.nasa.worldwind.render.Renderable;
+import mil.emp3.api.Circle;
+import mil.emp3.api.Ellipse;
 import mil.emp3.api.Path;
 import mil.emp3.api.Polygon;
 import mil.emp3.api.Text;
@@ -121,7 +123,23 @@ public class RenderedFeature extends FeatureRenderableMapping<IFeature> {
                     tempRenderable.setPickDelegate(this.getFeature());
                     this.pathRenderableList.add(tempRenderable);
                 }
-            } else if (feature instanceof Polygon) {
+            }
+            else if (feature instanceof Circle) {
+                tempRenderable = this.createWWCircle((Circle) feature, false);
+                if (tempRenderable != null) {
+
+                    tempRenderable.setPickDelegate(this.getFeature());
+                    this.addRenderable(tempRenderable);
+                }
+            }
+            else if (feature instanceof Ellipse) {
+                tempRenderable = this.createWWEllipse((Ellipse) feature, false);
+                if (tempRenderable != null) {
+                    tempRenderable.setPickDelegate(this.getFeature());
+                    this.addRenderable(tempRenderable);
+                }
+            }
+            else if (feature instanceof Polygon) {
                 // Create a WW polygon object.
                 tempRenderable = this.createWWPolygon((Polygon) feature, false);
 
