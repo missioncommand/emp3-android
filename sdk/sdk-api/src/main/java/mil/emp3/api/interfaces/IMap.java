@@ -781,6 +781,35 @@ public interface IMap extends IContainer {
     int getMidDetailThreshold();
 
     /**
+     * This method sets the threshold of the number of MilStd symbols beyond which the map displays
+     * MilStd single point icons as dots.  Below this threshold they may be displayed with or without
+     * modifiers based on the number of symbols and the mid detail threshold.
+     * @param threshold The number of MilStd symbols.
+     */
+    void setHighDetailThreshold(int threshold);
+
+    /**
+     * This method sets the threshold of the number of MilStd symbold below which the map displays
+     * MilStd single point icons with their modifiers.  Above this threshold they may be displayed
+     * as colored dots or without their modifiers based on the total number of symbols and the high
+     * threshold.
+     * @param threshold The number of MilStd symbols
+     */
+    void setMidDetailThreshold(int threshold);
+
+    /**
+     * This method retrieves the high detail threshold set by setHighDetailThreshold.
+     * @return the number of MilStd symbols
+     */
+    int getHighDetailThreshold();
+
+    /**
+     * This method retrieves the mid detail theshold set by setMidDetailThreshold.
+     * @return the number of MilStd symbols
+     */
+    int getMidDetailThreshold();
+
+    /**
      * geoToScreen - convert from GeoPosition to screen coordinates
      * @param pos
      * @return a screen X,Y coordinate for the provided GeoPosition.*/

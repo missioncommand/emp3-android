@@ -16,16 +16,30 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 
-import org.cmapi.primitives.*;
+import org.cmapi.primitives.GeoPosition;
+import org.cmapi.primitives.IGeoBounds;
+import org.cmapi.primitives.IGeoPosition;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import gov.nasa.worldwind.*;
-import gov.nasa.worldwind.geom.*;
-import gov.nasa.worldwind.layer.*;
-
-import gov.nasa.worldwind.ogc.*;
+import gov.nasa.worldwind.FrameMetrics;
+import gov.nasa.worldwind.Navigator;
+import gov.nasa.worldwind.WorldWind;
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Sector;
+import gov.nasa.worldwind.layer.BackgroundLayer;
+import gov.nasa.worldwind.layer.Layer;
+import gov.nasa.worldwind.layer.LayerFactory;
+import gov.nasa.worldwind.layer.LayerList;
+import gov.nasa.worldwind.layer.RenderableLayer;
+import gov.nasa.worldwind.ogc.Wcs201ElevationCoverage;
 import gov.nasa.worldwind.ogc.gpkg.GeoPackage;
 import gov.nasa.worldwind.render.ImageSource;
 import gov.nasa.worldwind.render.RenderResourceCache;
@@ -33,20 +47,59 @@ import gov.nasa.worldwind.shape.OmnidirectionalSightline;
 import gov.nasa.worldwind.shape.ShapeAttributes;
 import gov.nasa.worldwind.shape.SurfaceImage;
 import gov.nasa.worldwind.util.Logger;
-import mil.emp3.api.enums.*;
-import mil.emp3.api.interfaces.*;
-import mil.emp3.api.interfaces.core.IStorageManager;
+import mil.emp3.api.enums.FeatureTypeEnum;
+import mil.emp3.api.enums.FontSizeModifierEnum;
+import mil.emp3.api.enums.IconSizeEnum;
+import mil.emp3.api.enums.MapMotionLockEnum;
+import mil.emp3.api.enums.MapStateEnum;
+import mil.emp3.api.enums.WMSVersionEnum;
+import mil.emp3.api.enums.WMTSVersionEnum;
+import mil.emp3.api.interfaces.ICamera;
+import mil.emp3.api.interfaces.IEmpBoundingArea;
+import mil.emp3.api.interfaces.IFeature;
+import mil.emp3.api.interfaces.IGeoPackage;
+import mil.emp3.api.interfaces.IImageLayer;
+import mil.emp3.api.interfaces.IKMLS;
+import mil.emp3.api.interfaces.ILineOfSight;
+import mil.emp3.api.interfaces.ILookAt;
+import mil.emp3.api.interfaces.IMapService;
+import mil.emp3.api.interfaces.IMapServiceResult;
+import mil.emp3.api.interfaces.IScreenCaptureCallback;
+import mil.emp3.api.interfaces.IUUIDSet;
+import mil.emp3.api.interfaces.IWCS;
+import mil.emp3.api.interfaces.IWMS;
+import mil.emp3.api.interfaces.IWMTS;
 import mil.emp3.api.utils.FontUtilities;
-import mil.emp3.api.utils.ManagerFactory;
 import mil.emp3.mapengine.abstracts.CoreMapInstance;
-import mil.emp3.mapengine.api.*;
-import mil.emp3.mapengine.interfaces.*;
+import mil.emp3.mapengine.api.Capabilities;
+import mil.emp3.mapengine.api.FeatureVisibility;
+import mil.emp3.mapengine.api.FeatureVisibilityList;
+import mil.emp3.mapengine.interfaces.IEmpResources;
+import mil.emp3.mapengine.interfaces.IMapEngineProperties;
+import mil.emp3.mapengine.interfaces.IMapEngineRequirements;
+import mil.emp3.mapengine.interfaces.IMapGridLines;
+import mil.emp3.mapengine.interfaces.IMilStdRenderer;
 import mil.emp3.worldwind.controller.PickNavigateController;
 import mil.emp3.worldwind.feature.FeatureRenderableMapping;
 import mil.emp3.worldwind.feature.support.MilStd2525;
 import mil.emp3.worldwind.feature.support.MilStd2525LevelOfDetailSelector;
-import mil.emp3.worldwind.layer.*;
-import mil.emp3.worldwind.utils.*;
+import mil.emp3.worldwind.layer.EmpLayer;
+import mil.emp3.worldwind.layer.GeoJSONLayer;
+import mil.emp3.worldwind.layer.IconLayer;
+import mil.emp3.worldwind.layer.KMLLayer;
+import mil.emp3.worldwind.layer.KMLServiceLayer;
+import mil.emp3.worldwind.layer.MapGridLayer;
+import mil.emp3.worldwind.layer.MilStdSymbolLayer;
+import mil.emp3.worldwind.layer.PathLayer;
+import mil.emp3.worldwind.layer.PolygonLayer;
+import mil.emp3.worldwind.layer.RenderedFeatureLayer;
+import mil.emp3.worldwind.layer.TextLayer;
+import mil.emp3.worldwind.utils.BoundsGeneration;
+import mil.emp3.worldwind.utils.ConfigChooser;
+import mil.emp3.worldwind.utils.EmpSurfaceImage;
+import mil.emp3.worldwind.utils.MapEngineProperties;
+import mil.emp3.worldwind.utils.ScreenCapture;
+import mil.emp3.worldwind.utils.SystemUtils;
 
 public class MapInstance extends CoreMapInstance {
     private static final String TAG = MapInstance.class.getSimpleName();
@@ -427,6 +480,10 @@ public class MapInstance extends CoreMapInstance {
         }
     }
 
+    /**
+     * Set the icon size at which the renderer should render MilStd symbols.
+     * @param size the size at which MilStd symbols should be rendered
+     */
     @Override
     public void setIconSize(IconSizeEnum size) {
         iconSize = size;
@@ -1005,8 +1062,8 @@ public class MapInstance extends CoreMapInstance {
 
     /**
      * This method sets the threshold of the distances beyond which the map displays MilStd single point
-     * icons with no modifiers. Icons at distances less than this threshold get displayed as fully qualified icons
-     * as per the label setting.
+     * icons with no modifiers. Icons at distances less than this threshold get displayed as fully
+     * qualified icons as per the label setting.
      * @param dValue Distance in meters.
      */
     @Override
@@ -1015,31 +1072,74 @@ public class MapInstance extends CoreMapInstance {
         ww.requestRedraw();
     }
 
+    /**
+     * This method gets the threshold of the distances beyond which the map displays colored dots
+     * instead of MilStd symbols.  Icons below this distance may be rendered fully or without modifiers
+     * depending on their distances
+     * @return far distance threshold
+     */
     @Override
     public double getFarDistanceThreshold() {
         return MilStd2525LevelOfDetailSelector.getFarDistanceThreshold();
     }
 
+    /**
+     * This method gets the threshold of the distances beyond which the map displays MilStd single point
+     * icons with no modifiers.  Icons at a distance less than this threshold get displayed as fully
+     * qualified icons as per the label setting.  There is a threshold above this, at which point they
+     * get rendered as colored dots instead of MilStd symbols.
+     * @return mid distance threshold
+     */
     @Override
     public double getMidDistanceThreshold() {
         return MilStd2525LevelOfDetailSelector.getMidDistanceThreshold();
     }
 
+    /**
+     * This method sets the threshold of the number of MilStd symbols beyond which the map displays
+     * colored dots instead of MilStd symbols.  Icons below this distance may be rendered fully or
+     * without modifiers depending on the total number and a second threshold.
+     * @param threshold new value the high threshold should take on
+     */
     @Override
     public void setHighDetailThreshold(int threshold) {
         MilStd2525LevelOfDetailSelector.setHighDetailThreshold(threshold);
     }
 
+    /**
+     * This method sets the threshold of the number of MilStd symbols beyond which the map displays
+     * MilStd single point icons with no modifiers.  Having less icons than this threshold means they
+     * will get displayed as fully qualified icons as per the label setting.  There is a threshold
+     * above this, at which point they get rendered as colored dots instead of MilStd symbols.
+     * @param threshold new value the mid threshold should take on
+     */
     @Override
     public void setMidDetailThreshold(int threshold) {
         MilStd2525LevelOfDetailSelector.setMidDetailThreshold(threshold);
     }
 
+
+    /**
+     * This method sets the threshold of the number of MilStd symbols that can exist on the map before
+     * the rendering  changes from MilStd symbols with no modifiers to colored dots.  If there are
+     * fewer MilStd symbols than this number than they either will be rendered in full (with their
+     * modifiers) or in part (without their modifiers) based on a lower threshold.
+     * @return the threshold beyond which MilStd icons are displayed as colored dots
+     */
     @Override
     public int getHighDetailThreshold() {
         return MilStd2525LevelOfDetailSelector.getHighDetailThreshold();
     }
 
+
+    /**
+     * This method sets the threshold of the number of MilStd symbols that can exist on the map before
+     * the rendering changes from MilStd symbols with their modifiers to MilStd symbols without their
+     * modifiers.  If there are fewer symbols than this number they will be rendered with their modifiers,
+     * if not they will be rendered either without their modifiers or by colored dots depending if the
+     * total number passes an upper threshold.
+     * @return the thereshold beyond which MilStd icons are displayed without their modifiers.
+     */
     @Override
     public int getMidDetailThreshold() {
         return MilStd2525LevelOfDetailSelector.getMidDetailThreshold();
