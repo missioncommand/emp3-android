@@ -627,7 +627,6 @@ public class MilStdRenderer implements IMilStdRenderer {
         String altitudeModeStr = MilStdUtilities.geoAltitudeModeToString(feature.getAltitudeMode());
         SparseArray<String> modifiers = new SparseArray<>();
         SparseArray<String> attributes;
-
         if (feature instanceof mil.emp3.api.Circle) {
             mil.emp3.api.Circle circleFeature = (mil.emp3.api.Circle) feature;
             symbolCode = "PBS_CIRCLE-----";

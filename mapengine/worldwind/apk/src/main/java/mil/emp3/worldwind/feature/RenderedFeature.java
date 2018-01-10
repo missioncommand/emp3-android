@@ -127,7 +127,6 @@ public class RenderedFeature extends FeatureRenderableMapping<IFeature> {
             else if (feature instanceof Circle) {
                 tempRenderable = this.createWWCircle((Circle) feature, false);
                 if (tempRenderable != null) {
-
                     tempRenderable.setPickDelegate(this.getFeature());
                     this.addRenderable(tempRenderable);
                 }

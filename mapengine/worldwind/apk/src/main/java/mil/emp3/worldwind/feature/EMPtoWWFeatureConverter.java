@@ -325,7 +325,9 @@ public class EMPtoWWFeatureConverter {
         setWWCircleAttributes(circle, wwEllipse, selectedStrokeStyle);
 
         wwEllipse.setPickDelegate(circle);
-        wwEllipse.setPathType(WorldWind.RHUMB_LINE);
+        wwEllipse.setPathType(WorldWind.LINEAR);
+        wwEllipse.setFollowTerrain(false);
+        wwEllipse.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         return wwEllipse;
     }
 
@@ -346,7 +348,9 @@ public class EMPtoWWFeatureConverter {
         setWWEllipseAttributes(ellipse, wwEllipse, selectedStrokeStyle);
 
         wwEllipse.setPickDelegate(ellipse);
-        wwEllipse.setPathType(WorldWind.RHUMB_LINE);
+        wwEllipse.setPathType(WorldWind.LINEAR);
+        wwEllipse.setFollowTerrain(false);
+        wwEllipse.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
         return wwEllipse;
     }
 
