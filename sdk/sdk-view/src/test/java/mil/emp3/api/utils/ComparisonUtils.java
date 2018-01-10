@@ -1,6 +1,7 @@
 package mil.emp3.api.utils;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import org.cmapi.primitives.GeoCircle;
 import org.cmapi.primitives.GeoEllipse;
@@ -58,7 +59,7 @@ public class ComparisonUtils {
         if (Math.abs(value1 - value2) < marginOfError) {
             return;
         } else {
-            System.out.println(tag+": "+value1 + " is too different in value from " + value2 + " when comparing to an accuracy of " + marginOfError);
+            Log.e(tag, value1 + " is too different in value from " + value2 + " when comparing to an accuracy of " + marginOfError);
         }
     }
 
