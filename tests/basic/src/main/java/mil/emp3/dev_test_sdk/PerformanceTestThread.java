@@ -218,12 +218,15 @@ class PerformanceTestThread extends Thread {
 
                 if (this.bBatchUpdate) {
                     try {
-                        for (IFeature oSymbol: oBatchList) {
-                            oSymbol.apply();
+//                        for (IFeature oSymbol: oBatchList) {
+//                            oSymbol.apply();
+//                        }
+//                        if (oBatchList.size() > 0) {
+//                            this.oMainActivity.oRootOverlay.addFeatures(oBatchList, true);
+//                        }
+                        if (oBatchList.size() > 0) {
+                            this.oMainActivity.oRootOverlay.apply();
                         }
-                        //if (oBatchList.size() > 0) {
-                        //    this.oMainActivity.oRootOverlay.addFeatures(oBatchList, true);
-                        //}
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
