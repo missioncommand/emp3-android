@@ -14,6 +14,7 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPosition;
 import org.cmapi.primitives.IGeoStrokeStyle;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -870,6 +871,11 @@ public class StorageManager implements IStorageManager {
             postMapList = childWrapper.getMapList();
 
             this.processRequest(transactionList, preMapList, postMapList, parentWrapper, childWrapper);
+        } else {
+            postMapList = childWrapper.getMapList();
+            for (UUID uuId: postMapList) {
+                transactionList.addContainerToMap(uuId, childWrapper);
+            }
         }
     }
 
@@ -992,6 +998,43 @@ public class StorageManager implements IStorageManager {
             lock.unlock();
         }
     }
+
+    @Override
+    public void apply(IOverlay overlay, Object userContext) throws EMP_Exception {
+        // Ensure the feature has an altitude mode.
+        try {
+            lock.lock();
+            StorageObjectWrapper sow = this.oObjectHash.get(overlay.getGeoId());
+            IUUIDSet oMapList = null;
+
+            if (null != sow) {
+                oMapList = sow.getMapList(); // This is the list of IMap on which the feature was added
+                if (null != oMapList) {
+                    for (UUID mapId : oMapList) {
+                        StorageObjectWrapper sowMap = this.oObjectHash.get(mapId);
+                        IMap clientMap = (IMap) sowMap.getObject();
+                        IClientMapToMapInstance mapMapping = this.getMapMapping(clientMap);
+                        FeatureVisibilityList fvList = new FeatureVisibilityList();
+                        for (IFeature feature : overlay.getFeatures()) {
+                            sow = this.oObjectHash.get(feature.getGeoId());
+                            VisibilityStateEnum visibility = sow.getVisibilityOnMap(mapId);
+                            this.setDefaultAltitudeMode(feature);
+                            if ((null != mapMapping) && mapMapping.canPlot(feature)) {
+                                FeatureVisibility fv = new FeatureVisibility(feature, (VisibilityStateEnum.VISIBLE == visibility));
+                                fvList.add(fv);
+                            }
+                        }
+                        if (!fvList.isEmpty()) {
+                            mapMapping.getMapInstance().addFeatures(fvList, userContext);
+                        }
+                    }
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
 
     private void startFeatureApplyThread(final Object userContext) {
         if (null == this.bulkFeatureApplyThread) {

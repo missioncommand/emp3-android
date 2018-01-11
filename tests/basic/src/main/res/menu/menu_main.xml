@@ -211,8 +211,16 @@
                         app:showAsAction="never" />
                 </menu>
             </item>
-            <item android:id="@+id/action_performanceTest"
-                android:title="@string/action_performanceTest"
+            <item android:id="@+id/action_performanceFeatureApply"
+                android:title="@string/action_performanceFeatureApply"
+                android:orderInCategory="100"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_performanceOverlayAdd"
+                android:title="@string/action_performanceOverlayAdd"
+                android:orderInCategory="100"
+                app:showAsAction="never" />
+            <item android:id="@+id/action_performanceOverlayApply"
+                android:title="@string/action_performanceOverlayApply"
                 android:orderInCategory="100"
                 app:showAsAction="never" />
             <!-- item android:id="@+id/action_plotsymbol"
