@@ -101,11 +101,11 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
     }
 
     public void setHighPlacemarkAttributes(final PlacemarkAttributes pma) {
-        highPlacemarkAttributes = pma;
+        this.highPlacemarkAttributes = pma;
     }
 
     public void setMidPlacemarkAttributes(final PlacemarkAttributes pma) {
-        midPlacemarkAttributes = pma;
+        this.midPlacemarkAttributes = pma;
     }
 
     public PlacemarkAttributes getHighPlacemarkAttributes() {
