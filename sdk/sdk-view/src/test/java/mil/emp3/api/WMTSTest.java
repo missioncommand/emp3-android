@@ -1,6 +1,5 @@
 package mil.emp3.api;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,12 +24,6 @@ public class WMTSTest extends TestBase
     public void setUp() throws Exception
     {
         super.init();
-    }
-
-    @After
-    public void cleanUp() throws Exception
-    {
-
     }
 
     @Test(expected = MalformedURLException.class)
@@ -65,7 +58,7 @@ public class WMTSTest extends TestBase
 
         //check to see if there are any missing layers
         final ArrayList<String> missingLayers = new ArrayList<>();
-        for (String expectedLayer : expectedLayers)
+        for (final String expectedLayer : expectedLayers)
         {
             if(!wmts.getLayers().contains(expectedLayer))
             {
@@ -74,7 +67,7 @@ public class WMTSTest extends TestBase
         }
         //create the error message
         final StringBuilder missingLayerMessage = new StringBuilder();
-        for(String missingLayer : missingLayers)
+        for(final String missingLayer : missingLayers)
         {
             missingLayerMessage.append(String.format("\texpected Layer: %s\n", missingLayer));
         }
