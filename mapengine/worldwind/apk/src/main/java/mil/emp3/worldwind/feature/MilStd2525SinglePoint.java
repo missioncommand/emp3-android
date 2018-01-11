@@ -137,20 +137,20 @@ public class MilStd2525SinglePoint extends FeatureRenderableMapping<MilStdSymbol
             this.sSymbolCode = symbol.getSymbolCode();
         }
 
-//        SparseArray oMod = this.oRenderer.getUnitModifiers(this.getMapInstance(), this.getFeature());
-//        SparseArray oAttr = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), isSelected());
-//
-//        if (!this.oModifiers.toString().equals(oMod.toString())) {
-//            // The modifiers have changed so we mark it dirty.
-//            this.setDirty(true);
-//            this.oModifiers = oMod;
-//        }
-//
-//        if (!this.oAttributes.toString().equals(oAttr.toString())) {
-//            // The attributes has changed, mark dirty.
-//            this.setDirty(true);
-//            this.oAttributes = oAttr;
-//        }
+        SparseArray oMod = this.oRenderer.getUnitModifiers(this.getMapInstance(), this.getFeature());
+        SparseArray oAttr = this.oRenderer.getAttributes(this.getMapInstance(), this.getFeature(), isSelected());
+
+        if (!this.oModifiers.toString().equals(oMod.toString())) {
+            // The modifiers have changed so we mark it dirty.
+            this.setDirty(true);
+            this.oModifiers = oMod;
+        }
+
+        if (!this.oAttributes.toString().equals(oAttr.toString())) {
+            // The attributes has changed, mark dirty.
+            this.setDirty(true);
+            this.oAttributes = oAttr;
+        }
     }
 
     public String getSymbolCode() {
