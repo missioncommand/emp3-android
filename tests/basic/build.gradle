@@ -7,6 +7,14 @@ android {
     defaultConfig {
         applicationId "mil.emp3.dev_test_sdk"
     }
+    buildTypes {
+        release {
+            minifyEnabled false
+    }
+        debug {
+            minifyEnabled false
+        }
+    }
 }
 
 dependencies {
