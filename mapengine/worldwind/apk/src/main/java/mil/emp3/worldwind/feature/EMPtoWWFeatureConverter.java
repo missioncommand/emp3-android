@@ -57,6 +57,8 @@ public class EMPtoWWFeatureConverter {
     // to apply an additional factor to account for the display density.
     private static final double STIPPLE_FACTOR_DISPLAY_DENSITY_MODIFIER = DISPLAY_PIXEL_DENSITY / 96.0;
 
+    private static final int ELLIPSE_MAXIMUM_INTERVAL = 256;
+
     private final MapInstance mapInstance;
 
     public EMPtoWWFeatureConverter(MapInstance instance) {
@@ -325,9 +327,9 @@ public class EMPtoWWFeatureConverter {
         setWWCircleAttributes(circle, wwEllipse, selectedStrokeStyle);
 
         wwEllipse.setPickDelegate(circle);
-        wwEllipse.setPathType(WorldWind.LINEAR);
-        wwEllipse.setFollowTerrain(false);
+        wwEllipse.setFollowTerrain(true);
         wwEllipse.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+        wwEllipse.setMaximumIntervals(ELLIPSE_MAXIMUM_INTERVAL);
         return wwEllipse;
     }
 
@@ -348,9 +350,10 @@ public class EMPtoWWFeatureConverter {
         setWWEllipseAttributes(ellipse, wwEllipse, selectedStrokeStyle);
 
         wwEllipse.setPickDelegate(ellipse);
-        wwEllipse.setPathType(WorldWind.LINEAR);
-        wwEllipse.setFollowTerrain(false);
+        wwEllipse.setFollowTerrain(true);
         wwEllipse.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);
+        wwEllipse.setMaximumIntervals(ELLIPSE_MAXIMUM_INTERVAL);
+
         return wwEllipse;
     }
 
@@ -639,6 +642,7 @@ public class EMPtoWWFeatureConverter {
         wwEllipse.setPickDelegate(feature);
         wwEllipse.setAttributes(shapeAttribute);
         wwEllipse.setHighlighted(false);
+        wwEllipse.setMaximumIntervals(256);
 
 
         switch (feature.getPathType()) {
@@ -718,6 +722,7 @@ public class EMPtoWWFeatureConverter {
         wwEllipse.setPickDelegate(feature);
         wwEllipse.setAttributes(shapeAttribute);
         wwEllipse.setHighlighted(false);
+        wwEllipse.setMaximumIntervals(256);
 
 
         switch (feature.getPathType()) {
