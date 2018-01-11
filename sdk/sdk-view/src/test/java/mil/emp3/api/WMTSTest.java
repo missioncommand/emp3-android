@@ -1,7 +1,5 @@
 package mil.emp3.api;
 
-import android.util.Log;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by jenifer.cochran@rgi-corp.local on 1/11/18.
+ * @author Jenifer Cochran
  */
 @RunWith(RobolectricTestRunner.class)
 public class WMTSTest extends TestBase
@@ -22,13 +20,16 @@ public class WMTSTest extends TestBase
     public static final String TAG = WMTSTest.class.getSimpleName();
     public static final String validUrl = "http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts";
     public static final String layerNameForValidUrl = "matrikkel_bakgrunn";
+
     @Before
-    public void setUp() throws Exception{
+    public void setUp() throws Exception
+    {
         super.init();
     }
 
     @After
-    public void cleanUp() throws Exception{
+    public void cleanUp() throws Exception
+    {
 
     }
 
@@ -49,7 +50,6 @@ public class WMTSTest extends TestBase
         final WMTS wmts = new WMTS(validUrl, null, null, null);
         Assert.assertTrue(wmts.getLayers() != null);
     }
-
 
     @Test
     public void layersListMatch() throws MalformedURLException
@@ -81,7 +81,5 @@ public class WMTSTest extends TestBase
 
         Assert.assertTrue(String.format("The following layers were missing from the layers list: %s", missingLayerMessage.toString()),missingLayers.isEmpty());
     }
-
-
 
 }
