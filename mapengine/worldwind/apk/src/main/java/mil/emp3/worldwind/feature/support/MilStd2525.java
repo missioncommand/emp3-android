@@ -14,9 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.SparseArray;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.UUID;
 
 import armyc2.c2sd.renderer.utilities.ImageInfo;
 import gov.nasa.worldwind.WorldWind;
@@ -56,9 +54,7 @@ public class MilStd2525 {
      * the attribute bundles so that the garbage collector can reclaim the memory when a Placemark releases an attribute
      * bundle, for instance when it changes its level-of-detail.
      */
-    private static HashMap<String, WeakReference<PlacemarkAttributes>> symbolCache = new HashMap<>();
-
-    private static SparseArray<String> emptyArray = new SparseArray<>();    // may be used in a cache key
+    private static HashMap<String, PlacemarkAttributes> simpleDotPlacemarks = new HashMap<>();
 
     private final static double MINIMUM_IMAGE_SCALE = 0.25;
 
@@ -81,14 +77,13 @@ public class MilStd2525 {
 
         SparseArray<String> modifiers = null;
         String geoId = milStdPlacemark.getFeature().getGeoId().toString();
+        PlacemarkAttributes placemarkAttributes = null;
         if (milStdPlacemark.getLastLevelOfDetail() == MilStd2525LevelOfDetailSelector.MEDIUM_LEVEL_OF_DETAIL) {
-            geoId += "ATTR";
+            placemarkAttributes = milStdPlacemark.getMidPlacemarkAttributes();
         } else {
             modifiers = milStdPlacemark.getSymbolModifiers();
+            placemarkAttributes = milStdPlacemark.getHighPlacemarkAttributes();
         }
-        // Look for an attribute bundle in our cache and determine if the cached reference is valid
-        WeakReference<PlacemarkAttributes> reference = symbolCache.get(geoId);
-        PlacemarkAttributes placemarkAttributes = (reference == null ? null : reference.get());
 
         // Create the attributes if they haven't been created yet or if they've been released
         if (placemarkAttributes == null || milStdPlacemark.isDirty()) {
@@ -101,8 +96,12 @@ public class MilStd2525 {
             if (placemarkAttributes == null) {
                 throw new IllegalArgumentException("Cannot generate a symbol for: " + geoId);
             }
-            // Add a weak reference to the attribute bundle to our cache
-            symbolCache.put(geoId, new WeakReference<>(placemarkAttributes));
+
+            if (modifiers == null) {
+                milStdPlacemark.setMidPlacemarkAttributes(placemarkAttributes);
+            } else {
+                milStdPlacemark.setHighPlacemarkAttributes(placemarkAttributes);
+            }
 
             // Perform some initialization of the bundle conducive to eye distance scaling
             placemarkAttributes.setMinimumImageScale(MINIMUM_IMAGE_SCALE);
@@ -124,9 +123,7 @@ public class MilStd2525 {
     public static PlacemarkAttributes getPlacemarkAttributes(String simpleCode) {
 
 
-        // Look for an attribute bundle in our cache and determine if the cached reference is valid
-        WeakReference<PlacemarkAttributes> reference = symbolCache.get(simpleCode);
-        PlacemarkAttributes placemarkAttributes = (reference == null ? null : reference.get());
+        PlacemarkAttributes placemarkAttributes = simpleDotPlacemarks.get(simpleCode);
 
         // Create the attributes if they haven't been created yet or if they've been released
         if (placemarkAttributes == null) {
@@ -138,7 +135,7 @@ public class MilStd2525 {
                 throw new IllegalArgumentException("Cannot generate a symbol for: " + simpleCode);
             }
             // Add a weak reference to the attribute bundle to our cache
-            symbolCache.put(simpleCode, new WeakReference<>(placemarkAttributes));
+            simpleDotPlacemarks.put(simpleCode, placemarkAttributes);
 
             // Perform some initialization of the bundle conducive to eye distance scaling
             placemarkAttributes.setMinimumImageScale(MINIMUM_IMAGE_SCALE);
@@ -152,8 +149,6 @@ public class MilStd2525 {
      */
 
     public static void removePlacemarkAttributes(final String geoId) {
-        symbolCache.remove(geoId);
-        symbolCache.remove(geoId + "ATTR");
     }
 
     /**

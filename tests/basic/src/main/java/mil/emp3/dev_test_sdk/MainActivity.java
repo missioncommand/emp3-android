@@ -177,9 +177,9 @@ public class MainActivity extends AppCompatActivity
     private RelativeLayout oPerformanceDlg;
     private EditText oCountTb;
     private CheckBox oAffiliationCkb;
-    private CheckBox oBatchUpdateCkb;
     protected TextView oResults;
     private PerformanceTestThread oPerformanceTestThread;
+    private int updateMethod = 0;
     protected TextView oResultTextView;
     private EventListenerHandle stateHandler = null;
     private EventListenerHandle userInteraction = null;
@@ -1121,7 +1121,6 @@ public class MainActivity extends AppCompatActivity
         this.oPerformanceDlg = mainBinding.performanceDialog;
         this.oCountTb = mainBinding.prfCount;
         this.oAffiliationCkb = mainBinding.prfChangeaffiliation;
-        this.oBatchUpdateCkb = mainBinding.prfBatch;
         this.oResults = mainBinding.prfResults;
         this.oResultTextView = mainBinding.resultText;
         this.oResultTextView.setMovementMethod(new ScrollingMovementMethod());
@@ -1179,10 +1178,9 @@ public class MainActivity extends AppCompatActivity
         } catch (NumberFormatException ex) {
             iCount = 5000;
         }
-        boolean bBatch = MainActivity.this.oBatchUpdateCkb.isChecked();
         boolean bAff = MainActivity.this.oAffiliationCkb.isChecked();
 
-        MainActivity.this.oPerformanceTestThread = new PerformanceTestThread(MainActivity.this, iCount, bAff, bBatch);
+        MainActivity.this.oPerformanceTestThread = new PerformanceTestThread(MainActivity.this, iCount, bAff, updateMethod);
         MainActivity.this.oPerformanceTestThread.start();
     }
 
@@ -2578,9 +2576,42 @@ public class MainActivity extends AppCompatActivity
                 } catch (EMP_Exception ex) {
                 }
                 return true;
-            case R.id.action_performanceTest: {
+            case R.id.action_performanceFeatureApply: {
                 MenuItem oItem = this.oMenu.findItem(R.id.action_tests);
                 oItem.setEnabled(false);
+                updateMethod = R.id.action_performanceFeatureApply;
+
+                if (this.oPerformanceDlg != null) {
+                    this.oPerformanceDlg.setVisibility(View.VISIBLE);
+                    this.oPerformanceDlg.setEnabled(true);
+
+                    mainBinding.startBtn.setEnabled(true);
+                    mainBinding.stopBtn.setEnabled(false);
+                    mainBinding.closeBtn.setEnabled(true);
+                }
+
+                return true;
+            }
+            case R.id.action_performanceOverlayAdd: {
+                MenuItem oItem = this.oMenu.findItem(R.id.action_tests);
+                oItem.setEnabled(false);
+                updateMethod = R.id.action_performanceOverlayAdd;
+
+                if (this.oPerformanceDlg != null) {
+                    this.oPerformanceDlg.setVisibility(View.VISIBLE);
+                    this.oPerformanceDlg.setEnabled(true);
+
+                    mainBinding.startBtn.setEnabled(true);
+                    mainBinding.stopBtn.setEnabled(false);
+                    mainBinding.closeBtn.setEnabled(true);
+                }
+
+                return true;
+            }
+            case R.id.action_performanceOverlayApply: {
+                MenuItem oItem = this.oMenu.findItem(R.id.action_tests);
+                oItem.setEnabled(false);
+                updateMethod = R.id.action_performanceOverlayApply;
 
                 if (this.oPerformanceDlg != null) {
                     this.oPerformanceDlg.setVisibility(View.VISIBLE);

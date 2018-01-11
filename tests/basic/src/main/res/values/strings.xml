@@ -55,7 +55,9 @@
     <string name="action_addLoS">Add LoS</string>
     <string name="action_removeLoS">Remove LoS</string>
     <string name="action_plotsymbol">Plot Symbol</string>
-    <string name="action_performanceTest">Performance Test</string>
+    <string name="action_performanceFeatureApply">Performance (Feature Apply)</string>
+    <string name="action_performanceOverlayAdd">Performance (Overlay Add)</string>
+    <string name="action_performanceOverlayApply">Performance (Overlay Apply)</string>
     <string name="action_stopTest">Stop Test</string>
 
     <string name="action_iconsize">Icon Size</string>

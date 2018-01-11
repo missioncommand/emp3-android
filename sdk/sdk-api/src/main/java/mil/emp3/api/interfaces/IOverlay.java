@@ -183,5 +183,13 @@ public interface IOverlay extends IContainer, IGeoContainer {
      * This method triggers an update of the overlay. After changing any properties, this
      * method MUST be called to force an update.
      */
-    void apply();
+    void apply() throws EMP_Exception;
+
+    /**
+     * This method triggers an update of the overlay. After changing any properties, this
+     * method MUST be called to force an update.
+     * @param userContext user defined object
+     */
+    void apply(Object userContext) throws EMP_Exception;
+
 }
