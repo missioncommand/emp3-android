@@ -74,6 +74,8 @@ public interface IStorageManager {
 
     void apply(IFeature feature, boolean batch, Object userContext) throws EMP_Exception;
 
+    void apply(IOverlay overlay, Object userContext) throws EMP_Exception;
+
     List<IFeature> getChildFeatures(IContainer parent);
 
     List<IOverlay> getChildOverlays(IContainer parent);

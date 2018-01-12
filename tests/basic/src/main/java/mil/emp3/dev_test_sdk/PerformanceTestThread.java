@@ -40,15 +40,15 @@ class PerformanceTestThread extends Thread {
     private int iTimeSamples = 0;
     private final MainActivity oMainActivity;
     private String sMessage;
-    private boolean bBatchUpdate = false;
     private boolean trackingMode = false;
+    private int updateMethod = 0;
     private EventListenerHandle hTrackingMode = null;
 
-    public PerformanceTestThread(MainActivity oMain, int count, boolean bAffChg, boolean bBatch) {
+    public PerformanceTestThread(MainActivity oMain, int count, boolean bAffChg, int updateMethod) {
         this.iCount = count;
         this.bAiffChange = bAffChg;
         this.oMainActivity = oMain;
-        this.bBatchUpdate = bBatch;
+        this.updateMethod = updateMethod;
     }
 
     private void createTracks() {
@@ -198,11 +198,7 @@ class PerformanceTestThread extends Thread {
                         }
                     }
 
-                    if (this.bBatchUpdate) {
-                        oBatchList.add(oSPSymbol);
-                    } else {
-                        oSPSymbol.apply();
-                    }
+                    oBatchList.add(oSPSymbol);
 
                     if (trackingMode && (iNextFeature == 0)) {
                         updateCamera = true;
@@ -216,17 +212,26 @@ class PerformanceTestThread extends Thread {
                     }
                 }
 
-                if (this.bBatchUpdate) {
-                    try {
-                        for (IFeature oSymbol: oBatchList) {
-                            oSymbol.apply();
-                        }
-                        //if (oBatchList.size() > 0) {
-                        //    this.oMainActivity.oRootOverlay.addFeatures(oBatchList, true);
-                        //}
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                try {
+                    switch (updateMethod) {
+                        case R.id.action_performanceFeatureApply:
+                            for (IFeature oSymbol : oBatchList) {
+                                oSymbol.apply();
+                            }
+                            break;
+                        case R.id.action_performanceOverlayAdd:
+                            if (oBatchList.size() > 0) {
+                                this.oMainActivity.oRootOverlay.addFeatures(oBatchList, true);
+                            }
+                            break;
+                        case R.id.action_performanceOverlayApply:
+                            if (oBatchList.size() > 0) {
+                                this.oMainActivity.oRootOverlay.apply();
+                            }
+                            break;
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
                 if (updateCamera) {
