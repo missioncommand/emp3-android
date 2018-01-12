@@ -283,15 +283,6 @@
                         android:drawablePadding="8dp"
                         android:text="Change Affiliation" />
 
-                    <CheckBox
-                        android:id="@+id/prf_batch"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="4dp"
-                        android:drawableLeft="@android:color/transparent"
-                        android:drawablePadding="8dp"
-                        android:text="Batch Updates" />
-
                     <Button
                         android:id="@+id/startBtn"
                         android:layout_width="wrap_content"

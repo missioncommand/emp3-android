@@ -175,7 +175,12 @@ public class Overlay extends Container implements IOverlay {
     }
 
     @Override
-    public void apply() {
+    public void apply() throws EMP_Exception {
+        apply(null);
+    }
 
+    @Override
+    public void apply(Object userContext) throws EMP_Exception {
+        storageManager.apply(this, userContext);
     }
 }
