@@ -1,18 +1,19 @@
 package mil.emp3.api.utils;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
-import org.cmapi.primitives.GeoEllipse;
 import org.cmapi.primitives.GeoCircle;
+import org.cmapi.primitives.GeoEllipse;
 import org.cmapi.primitives.GeoIconStyle;
 import org.cmapi.primitives.GeoPoint;
 import org.cmapi.primitives.GeoPolygon;
 import org.cmapi.primitives.GeoPosition;
-import org.cmapi.primitives.IGeoAltitudeMode;
-import org.cmapi.primitives.IGeoCircle;
 import org.cmapi.primitives.GeoRectangle;
 import org.cmapi.primitives.GeoSquare;
 import org.cmapi.primitives.GeoText;
+import org.cmapi.primitives.IGeoAltitudeMode;
+import org.cmapi.primitives.IGeoCircle;
 import org.cmapi.primitives.IGeoColor;
 import org.cmapi.primitives.IGeoEllipse;
 import org.cmapi.primitives.IGeoFillStyle;
@@ -21,10 +22,10 @@ import org.cmapi.primitives.IGeoLabelStyle;
 import org.cmapi.primitives.IGeoPoint;
 import org.cmapi.primitives.IGeoPolygon;
 import org.cmapi.primitives.IGeoPosition;
-import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoRectangle;
 import org.cmapi.primitives.IGeoRenderable;
 import org.cmapi.primitives.IGeoSquare;
+import org.cmapi.primitives.IGeoStrokeStyle;
 import org.cmapi.primitives.IGeoText;
 
 import java.util.Date;
@@ -54,13 +55,21 @@ public class ComparisonUtils {
     public static final double EPSILON3 = 1e-3;
     public static final double EPSILON2 = 1e-2;
 
+    private static void compareDoublesWithLog(final double value1, final double value2, final double marginOfError, final String tag) {
+        if (Math.abs(value1 - value2) < marginOfError) {
+            return;
+        } else {
+            Log.e(tag, value1 + " is too different in value from " + value2 + " when comparing to an accuracy of " + marginOfError);
+        }
+    }
+
     private static void compareGeoPosition(final IGeoPosition p1, final IGeoPosition p2, final double epsilon) {
         if (p1 == null && p2 == null) {
             return;
         }
-        assertEquals(p1.getLatitude(), p2.getLatitude(), epsilon);
-        assertEquals(p1.getLongitude(), p2.getLongitude(), epsilon);
-        assertEquals(p1.getAltitude(), p2.getAltitude(), epsilon);
+        compareDoublesWithLog(p1.getLatitude(), p2.getLatitude(), epsilon, "Latitude");
+        compareDoublesWithLog(p1.getLongitude(), p2.getLongitude(), epsilon, "Longitude");
+        compareDoublesWithLog(p1.getAltitude(), p2.getAltitude(), epsilon, "Altitude");
     }
 
     private static void compareGeoPosition(final IGeoPosition p1, final IGeoPosition p2) {
@@ -78,7 +87,7 @@ public class ComparisonUtils {
     }
 
     private static void compareGeoColor(final IGeoColor c1, final IGeoColor c2) {
-        assertEquals(c1.getAlpha(), c2.getAlpha(), EPSILON8);
+        compareDoublesWithLog(c1.getAlpha(), c2.getAlpha(), EPSILON8, "Color Alpha");
         assertEquals(c1.getRed(), c2.getRed());
         assertEquals(c1.getBlue(), c2.getBlue());
         assertEquals(c1.getGreen(), c2.getGreen());
@@ -101,9 +110,9 @@ public class ComparisonUtils {
     }
 
     private static void compareIconStyle(final IGeoIconStyle i1, final IGeoIconStyle i2) {
-        assertEquals(i1.getOffSetX(), i2.getOffSetX(), EPSILON8);
-        assertEquals(i1.getOffSetY(), i2.getOffSetY(), EPSILON8);
-        assertEquals(i1.getSize(), i2.getSize(), EPSILON8);
+        compareDoublesWithLog(i1.getOffSetX(), i2.getOffSetX(), EPSILON8, "Icon OffsetX Value");
+        compareDoublesWithLog(i1.getOffSetY(), i2.getOffSetY(), EPSILON8, "Icon Offset Y Value");
+        compareDoublesWithLog(i1.getSize(), i2.getSize(), EPSILON8, "Icon Size");
     }
 
     private static void compareLabelStyle(final IGeoLabelStyle l1, final IGeoLabelStyle l2) {
@@ -111,7 +120,7 @@ public class ComparisonUtils {
         assertEquals(l1.getFontFamily(), l2.getFontFamily());
         assertEquals(l1.getJustification(), l2.getJustification());
         compareGeoColor(l1.getOutlineColor(), l2.getOutlineColor());
-        assertEquals(l1.getSize(), l2.getSize(), EPSILON8);
+        compareDoublesWithLog(l1.getSize(), l2.getSize(), EPSILON8, "Label Size");
         assertEquals(l1.getTypeface(), l2.getTypeface());
     }
 
@@ -125,13 +134,13 @@ public class ComparisonUtils {
     }
 
     private static void compareGeoRectangle(final IGeoRectangle rectangle1, final IGeoRectangle rectangle2) {
-        assertEquals(rectangle1.getHeight(), rectangle2.getHeight(), EPSILON8);
-        assertEquals(rectangle1.getWidth(), rectangle2.getWidth(), EPSILON8);
+        compareDoublesWithLog(rectangle1.getHeight(), rectangle2.getHeight(), EPSILON8, "GeoRectangle Height");
+        compareDoublesWithLog(rectangle1.getWidth(), rectangle2.getWidth(), EPSILON8, "GeoRectangle Width");
         compareGeoRenderable(rectangle1, rectangle2);
     }
 
     private static void compareGeoSquare(final IGeoSquare square1, final IGeoSquare square2) {
-        assertEquals(square1.getWidth(), square2.getWidth(), EPSILON8);
+        compareDoublesWithLog(square1.getWidth(), square2.getWidth(), EPSILON8, "GeoSquare Width");
         compareGeoRenderable(square1, square2);
     }
 
@@ -140,8 +149,8 @@ public class ComparisonUtils {
     }
 
     private static void compareGeoEllipse(final IGeoEllipse ellipse1, final IGeoEllipse ellipse2) {
-        assertEquals(ellipse1.getSemiMajor(), ellipse2.getSemiMajor(), EPSILON8);
-        assertEquals(ellipse1.getSemiMinor(), ellipse2.getSemiMinor(), EPSILON8);
+        compareDoublesWithLog(ellipse1.getSemiMajor(), ellipse2.getSemiMajor(), EPSILON8, "GeoEllipse SemiMajor");
+        compareDoublesWithLog(ellipse1.getSemiMinor(), ellipse2.getSemiMinor(), EPSILON8, "GeoEllipse SemiMinor");
         compareGeoRenderable(ellipse1, ellipse2);
     }
 
@@ -162,12 +171,12 @@ public class ComparisonUtils {
         assertEquals(geoRenderable1.getDataProviderId(), geoRenderable2.getDataProviderId());
         assertEquals(geoRenderable1.getChildren(), geoRenderable2.getChildren());
         assertEquals(geoRenderable1.getBuffer(), geoRenderable2.getBuffer(), EPSILON8);
-        assertEquals(geoRenderable1.getAzimuth(), geoRenderable2.getAzimuth(), EPSILON8);
+        compareDoublesWithLog(geoRenderable1.getAzimuth(), geoRenderable2.getAzimuth(), EPSILON8, "GeoRenderable Azimuth");
         assertEquals(geoRenderable1.getAltitudeMode(), geoRenderable2.getAltitudeMode());
     }
 
     private static void compareGeoCircle(final IGeoCircle circle1, final IGeoCircle circle2) {
-        assertEquals(circle1.getRadius(), circle2.getRadius(), EPSILON8);
+        compareDoublesWithLog(circle1.getRadius(), circle2.getRadius(), EPSILON8, "GeoCircle Radius");
         compareGeoRenderable(circle1, circle2);
     }
 
@@ -201,8 +210,8 @@ public class ComparisonUtils {
                                      final String dataProvider,
                                      final String description,
                                      final HashMap properties) {
-        assertEquals(point.getIconScale(), iconScale, EPSILON8);
-        assertEquals(point.getResourceId(), resourceId, EPSILON8);
+        compareDoublesWithLog(point.getIconScale(), iconScale, EPSILON8, "Point Icon Scale");
+        compareDoublesWithLog(point.getResourceId(), resourceId, EPSILON8, "Point Resource ID");
         compareIconStyle(point.getIconStyle(), iconStyle);
         assertEquals(point.getIconURI(), iconURI);
         compareGeoPoint(point.getRenderable(), geoPoint);
@@ -317,8 +326,8 @@ public class ComparisonUtils {
                                        final String description,
                                        final HashMap properties) {
         compareGeoEllipse(ell.getRenderable(), geoEllipse);
-        assertEquals(ell.getSemiMajor(), majorRadius, EPSILON8);
-        assertEquals(ell.getSemiMinor(), minorRadius, EPSILON8);
+        compareDoublesWithLog(ell.getSemiMajor(), majorRadius, EPSILON8, "Ellipse SemiMajor");
+        compareDoublesWithLog(ell.getSemiMinor(), minorRadius, EPSILON8, "Ellipse SemiMinor");
         assertEquals(ell.getFeatureType(), fte);
         assertEquals(ell.getChildFeatures(), childFeatures);
         assertEquals(ell.getParentOverlays(), parentOverlays);
@@ -332,8 +341,8 @@ public class ComparisonUtils {
         compareLabelStyle(ell.getLabelStyle(), labelStyle);
         assertEquals(ell.getExtrude(), extrude);
         assertEquals(ell.getTessellate(), tessellate);
-        assertEquals(ell.getBuffer(), buffer, EPSILON8);
-        assertEquals(ell.getAzimuth(), azimuth, EPSILON8);
+        compareDoublesWithLog(ell.getBuffer(), buffer, EPSILON8, "Ellipse Buffer");
+        compareDoublesWithLog(ell.getAzimuth(), azimuth, EPSILON8, "Ellipse Azimuth");
         compareGeoPosition(ell.getPosition(), geoPosition);
         assertEquals(ell.getReadOnly(), readOnly);
         assertEquals(ell.getParents(), parents);
@@ -373,7 +382,7 @@ public class ComparisonUtils {
                                       final String description,
                                       final HashMap properties) {
         compareGeoCircle(circ.getRenderable(), geoCircle);
-        assertEquals(circ.getRadius(), radius, EPSILON8);
+        compareDoublesWithLog(circ.getRadius(), radius, EPSILON8, "Circle Radius");
         assertEquals(circ.getFeatureType(), fte);
         assertEquals(circ.getChildFeatures(), childFeatures);
         assertEquals(circ.getParentOverlays(), parentOverlays);
@@ -387,8 +396,8 @@ public class ComparisonUtils {
         compareLabelStyle(circ.getLabelStyle(), labelStyle);
         assertEquals(circ.getExtrude(), extrude);
         assertEquals(circ.getTessellate(), tessellate);
-        assertEquals(circ.getBuffer(), buffer, EPSILON8);
-        assertEquals(circ.getAzimuth(), azimuth, EPSILON8);
+        compareDoublesWithLog(circ.getBuffer(), buffer, EPSILON8, "Circle Buffer");
+        compareDoublesWithLog(circ.getAzimuth(), azimuth, EPSILON8, "Circle Azimuth");
         compareGeoPosition(circ.getPosition(), geoPosition);
         assertEquals(circ.getReadOnly(), readOnly);
         assertEquals(circ.getParents(), parents);
@@ -429,8 +438,8 @@ public class ComparisonUtils {
                                          final String description,
                                          final HashMap properties) {
         compareGeoRectangle(rect.getRenderable(), geoRectangle);
-        assertEquals(rect.getWidth(), width, EPSILON8);
-        assertEquals(rect.getHeight(), height, EPSILON8);
+        compareDoublesWithLog(rect.getWidth(), width, EPSILON8, "Rectangle Width");
+        compareDoublesWithLog(rect.getHeight(), height, EPSILON8, "Rectangle Height");
         validateFeature(rect,
                         fte,
                         childFeatures,
@@ -486,7 +495,7 @@ public class ComparisonUtils {
                                       final String description,
                                       final HashMap properties) {
         compareGeoSquare(square.getRenderable(), geoSquare);
-        assertEquals(square.getWidth(), width, EPSILON8);
+        compareDoublesWithLog(square.getWidth(), width, EPSILON8, "Square Width");
         validateFeature(square,
                         fte,
                         childFeatures,
@@ -544,7 +553,7 @@ public class ComparisonUtils {
                                     final HashMap properties) {
         compareGeoText(text.getRenderable(), geoText);
         assertEquals(text.getText(), textString);
-        assertEquals(text.getRotationAngle(), rotationAngle, EPSILON8);
+        compareDoublesWithLog(text.getRotationAngle(), rotationAngle, EPSILON8, "Text Rotation Angle");
         validateFeature(text,
                         fte,
                         childFeatures,
@@ -610,8 +619,8 @@ public class ComparisonUtils {
         compareLabelStyle(feature.getLabelStyle(), labelStyle);
         assertEquals(feature.getExtrude(), extrude);
         assertEquals(feature.getTessellate(), tessellate);
-        assertEquals(feature.getBuffer(), buffer, EPSILON8);
-        assertEquals(feature.getAzimuth(), azimuth, EPSILON8);
+        compareDoublesWithLog(feature.getBuffer(), buffer, EPSILON8, "Feature Buffer");
+        compareDoublesWithLog(feature.getAzimuth(), azimuth, EPSILON8, "Feature Azimuth");
         compareGeoPosition(feature.getPosition(), geoPosition);
         assertEquals(feature.getReadOnly(), readOnly);
         assertEquals(feature.getParents(), parents);
@@ -629,10 +638,10 @@ public class ComparisonUtils {
                                            final double east,
                                            final double south,
                                            final double west) {
-        assertEquals(ebb.north(), north, EPSILON8);
-        assertEquals(ebb.east(), east, EPSILON8);
-        assertEquals(ebb.south(), south, EPSILON8);
-        assertEquals(ebb.west(), west, EPSILON8);
+        compareDoublesWithLog(ebb.north(), north, EPSILON8, "Bounding Box North");
+        compareDoublesWithLog(ebb.east(), east, EPSILON8, "Bounding Box East");
+        compareDoublesWithLog(ebb.south(), south, EPSILON8, "Bounding Box South");
+        compareDoublesWithLog(ebb.west(), west, EPSILON8, "Bounding Box West");
     }
 
     public static void comparePoint(final Point point1, final Point point2) {
@@ -650,29 +659,29 @@ public class ComparisonUtils {
     }
 
     public static void compareCircle(final Circle circle1, final Circle circle2) {
-        assertEquals(circle1.getRadius(), circle2.getRadius(), EPSILON8);
+        compareDoublesWithLog(circle1.getRadius(), circle2.getRadius(), EPSILON8, "Circle Radius");
         compareFeature(circle1, circle2);
     }
 
     public static void compareEllipse(final Ellipse ellipse1, final Ellipse ellipse2) {
-        assertEquals(ellipse1.getSemiMinor(), ellipse2.getSemiMinor(), EPSILON8);
-        assertEquals(ellipse1.getSemiMajor(), ellipse2.getSemiMajor(), EPSILON8);
+        compareDoublesWithLog(ellipse1.getSemiMinor(), ellipse2.getSemiMinor(), EPSILON8, "Ellipse SemiMinor");
+        compareDoublesWithLog(ellipse1.getSemiMajor(), ellipse2.getSemiMajor(), EPSILON8, "Ellipse SemiMajor");
         compareFeature(ellipse1, ellipse2);
     }
 
     public static void compareRectangle(final Rectangle rectangle1, final Rectangle rectangle2) {
-        assertEquals(rectangle1.getWidth(), rectangle2.getWidth(), EPSILON8);
-        assertEquals(rectangle1.getHeight(), rectangle2.getHeight(), EPSILON8);
+        compareDoublesWithLog(rectangle1.getWidth(), rectangle2.getWidth(), EPSILON8, "Rectangle Width");
+        compareDoublesWithLog(rectangle1.getHeight(), rectangle2.getHeight(), EPSILON8, "Rectangle Height");
         compareFeature(rectangle1, rectangle2);
     }
 
     public static void compareSquare(final Square square1, final Square square2) {
-        assertEquals(square1.getWidth(), square2.getWidth(), EPSILON8);
+        compareDoublesWithLog(square1.getWidth(), square2.getWidth(), EPSILON8, "Square Width");
         compareFeature(square1, square2);
     }
 
     public static void compareText(final Text text1, final Text text2) {
-        assertEquals(text1.getRotationAngle(), text2.getRotationAngle(), EPSILON8);
+        compareDoublesWithLog(text1.getRotationAngle(), text2.getRotationAngle(), EPSILON8, "Text Rotation Angle");
         assertEquals(text1.getText(), text2.getText());
         compareFeature(text1, text2);
     }
@@ -718,7 +727,7 @@ public class ComparisonUtils {
 
     public static void compareCircleToPolygon(final Circle circle, final Polygon polygon) {
         compareGeoPosition(polygon.getPosition(), circle.getPosition(), EPSILON3);
-        assertEquals(polygon.getAzimuth(), circle.getAzimuth(), EPSILON8);
+        compareDoublesWithLog(polygon.getAzimuth(), circle.getAzimuth(), EPSILON8, "Polygon vs. Circle Azimuth");
         assertEquals(polygon.getDescription(), "<b>" + circle.getName() + "</b><br/>\n" + circle.getDescription());
         compareFillStyle(polygon.getFillStyle(), circle.getFillStyle());
         compareStrokeStyle(polygon.getStrokeStyle(), circle.getStrokeStyle());
@@ -728,7 +737,7 @@ public class ComparisonUtils {
 
     public static void compareSquareToPolygon(final Square square, final Polygon polygon) {
         compareGeoPosition(polygon.getPosition(), square.getPosition(), EPSILON3);
-        assertEquals(polygon.getAzimuth(), square.getAzimuth(), EPSILON8);
+        compareDoublesWithLog(polygon.getAzimuth(), square.getAzimuth(), EPSILON8, "Polygon vs. Square Azimuth");
         assertEquals(polygon.getDescription(), "<b>" + square.getName() + "</b><br/>\n" + square.getDescription());
         compareFillStyle(polygon.getFillStyle(), square.getFillStyle());
         compareStrokeStyle(polygon.getStrokeStyle(), square.getStrokeStyle());
@@ -738,7 +747,7 @@ public class ComparisonUtils {
 
     public static void compareEllipseToPolygon(final Ellipse ellipse, final Polygon polygon) {
         compareGeoPosition(polygon.getPosition(), ellipse.getPosition(), EPSILON3);
-        assertEquals(polygon.getAzimuth(), ellipse.getAzimuth(), EPSILON8);
+        compareDoublesWithLog(polygon.getAzimuth(), ellipse.getAzimuth(), EPSILON8, "Polygon vs. Ellipse Azimuth");
         assertEquals(polygon.getDescription(), "<b>" + ellipse.getName() + "</b><br/>\n" + ellipse.getDescription());
         compareFillStyle(polygon.getFillStyle(), ellipse.getFillStyle());
         compareStrokeStyle(polygon.getStrokeStyle(), ellipse.getStrokeStyle());
@@ -748,7 +757,7 @@ public class ComparisonUtils {
 
     public static void compareRectangleToPolygon(final Rectangle rectangle, final Polygon polygon) {
         compareGeoPosition(polygon.getPosition(), rectangle.getPosition(), EPSILON2);
-        assertEquals(polygon.getAzimuth(), rectangle.getAzimuth(), EPSILON8);
+        compareDoublesWithLog(polygon.getAzimuth(), rectangle.getAzimuth(), EPSILON8, "Polygon vs. Rectangle Azimuth");
         assertEquals(polygon.getDescription(), "<b>" + rectangle.getName() + "</b><br/>\n" + rectangle.getDescription());
         compareFillStyle(polygon.getFillStyle(), rectangle.getFillStyle());
         compareStrokeStyle(polygon.getStrokeStyle(), rectangle.getStrokeStyle());
@@ -758,7 +767,7 @@ public class ComparisonUtils {
 
     public static void compareFeatureToPolygon(final Feature feature, final Polygon polygon) {
         compareGeoPosition(polygon.getPosition(), feature.getPosition(), EPSILON2);
-        assertEquals(polygon.getAzimuth(), feature.getAzimuth(), EPSILON8);
+        compareDoublesWithLog(polygon.getAzimuth(), feature.getAzimuth(), EPSILON8, "Polygon vs. Feature Azimuth");
         assertEquals(polygon.getDescription(), "<b>" + feature.getName() + "</b><br/>\n" + feature.getDescription());
         compareFillStyle(polygon.getFillStyle(), feature.getFillStyle());
         compareStrokeStyle(polygon.getStrokeStyle(), feature.getStrokeStyle());
@@ -771,12 +780,12 @@ public class ComparisonUtils {
 
     public static void compareFeatureToGeoJsonPolygon(final Feature feature, final Polygon polygon) {
         compareGeoPosition(polygon.getPosition(), feature.getPosition(), EPSILON2);
-        assertEquals(polygon.getAzimuth(), feature.getAzimuth(), EPSILON8);
+        compareDoublesWithLog(polygon.getAzimuth(), feature.getAzimuth(), EPSILON8, "Polygon vs. Feature JSON Azimuth");
     }
 
     public static void compareFeatureToPath(final Feature feature, final Path path) {
         compareGeoPosition(path.getPosition(), feature.getPosition(), EPSILON2);
-        assertEquals(path.getAzimuth(), feature.getAzimuth(), EPSILON8);
+        compareDoublesWithLog(path.getAzimuth(), feature.getAzimuth(), EPSILON8, "Path vs. Feature Azimuth");
         assertEquals(path.getDescription(), "<b>" + feature.getName() + "</b><br/>\n" + feature.getDescription());
         compareFillStyle(path.getFillStyle(), feature.getFillStyle());
         compareStrokeStyle(path.getStrokeStyle(), feature.getStrokeStyle());
