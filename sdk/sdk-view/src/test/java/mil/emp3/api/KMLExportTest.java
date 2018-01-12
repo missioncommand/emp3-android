@@ -288,6 +288,7 @@ public class KMLExportTest extends TestBaseSingleMap{
         }
     }
 
+    @Test
     public void exportEllipse() throws Exception
     {
         this.remoteMap.clearContainer();
